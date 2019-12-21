@@ -1,4 +1,10 @@
-from pd import *
+
+import sys
+import time
+
+# local modules
+#from pd import *
+from pd import pd
 
 def main(args):
     directory = args[0]
@@ -7,16 +13,15 @@ def main(args):
     if len(args) > 1:
         exclusion_list_name = args[1]
 
-
     # this is the actual list of tokens that gets processed 
     # including meta data contained outwith the ult file
-    token_list = get_token_list_from_dir(directory, exclusion_list_name)
+    token_list = pd.get_token_list_from_dir(directory, exclusion_list_name)
 
     # run PD on each token
-    data = [pd(token) for token in token_list]
+    data = [pd.pd(token) for token in token_list]
 
     # do something sensible with the data
-    draw_spaghetti(token_list, data)
+    pd.draw_spaghetti(token_list, data)
     
 
 if (len(sys.argv) > 2):

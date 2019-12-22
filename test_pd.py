@@ -4,7 +4,7 @@ import time
 
 # local modules
 #from pd import *
-from pd import pd
+import pd.pd as pd
 
 def main(args):
     directory = args[0]
@@ -24,10 +24,10 @@ def main(args):
     pd.draw_spaghetti(token_list, data)
     
 
-if (len(sys.argv) > 2):
+if (len(sys.argv) > 2 or len(sys.argv) < 1):
     print("\npd.py")
     print("\tusage: python pd.py uti_directory [exclusion_list]")
-    print("\n\tReads .ult-files and generates pd plots based of the raw ultrasound data contained in them.")
+    print("\n\tReads .ult-files and generates pd plots based on the raw ultrasound data contained in them.")
     print("\n\tUnfinished!")
     sys.exit(0)
 

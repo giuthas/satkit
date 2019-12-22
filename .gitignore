@@ -13,3 +13,6 @@
 ####
 # Result of test run
 spaghetti_plot.pdf
+
+# Ignore the test directory until I've got publishable data in it.
+test/

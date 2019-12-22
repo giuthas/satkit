@@ -27,8 +27,7 @@ def main(args):
 if (len(sys.argv) > 2 or len(sys.argv) < 1):
     print("\npd.py")
     print("\tusage: python pd.py uti_directory [exclusion_list]")
-    print("\n\tReads .ult-files and generates pd plots based on the raw ultrasound data contained in them.")
-    print("\n\tUnfinished!")
+    print("\n\tGenerates a pd spaghetti plot based on .ult files and meta data.")
     sys.exit(0)
 
 

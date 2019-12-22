@@ -1,0 +1,15 @@
+####
+# Groups of files 
+####
+# Emacs autosaves
+*~
+
+# Python bytecode
+*.pyc
+
+
+####
+# Specific files 
+####
+# Result of test run
+spaghetti_plot.pdf

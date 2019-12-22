@@ -224,26 +224,6 @@ def beep_detect(frames, fs, b, a, name):
         # if the signal is very very short, there is no speech
         has_speech = False
 
-    # Test section
-    #plot_signals(beep, bp_beep[0], int_time, int_signal, hp_signal, bp_signal, bp_int_signal)
-
-
-    # An even fancier version could let the user point to the beep etc.
-    # But not necessarily a good idea as it's more likely that the threshold 
-    # values just need adjusting in general than for one token.
-
-#
-# Commented out cause not needed for the Ultrafest 2017 data.
-#
-    #if not has_speech:
-    #    print "Token ", name, " did not seem to have any speech in it."
-    #    plot_signals_trace(beep, bp_beep[0], int_time, int_signal, hp_signal, bp_signal, bp_int_signal)
-    #    answer = raw_input("Exclude the token (y/n):")
-    #    if answer == "n":
-    #        print "Warning: Including the token, but there will probably" 
-    #        print "be problems in later processing stages."
-    #        has_speech = True
-
     return (beep, has_speech)
 
 
@@ -348,6 +328,7 @@ def pd(token):
         
     data = {}
     data['pd'] = ultra_d
+    data['sbpd'] = slw_pd
     data['ultra_time'] = ultra_time
     data['beep_uti'] = beep_uti
 

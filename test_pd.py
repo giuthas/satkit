@@ -34,4 +34,5 @@ if (len(sys.argv) > 2 or len(sys.argv) < 1):
 if (__name__ == '__main__'):
     t = time.time()
     main(sys.argv[1:])
-    print 'Elapsed time', (time.time() - t)
+    elapsed_time = time.time() - t
+    print('Elapsed time' + str(elapsed_time))

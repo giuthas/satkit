@@ -1,22 +1,28 @@
 from contextlib import closing
 from datetime import datetime
 
+# Built in packages
 import csv
 import glob
 import os
 import pprint
 import re
-import wave
 import struct
 import sys
 import time
+import wave
+
+# Numpy and scipy
 import numpy as np
-import matplotlib.pyplot as plt
 import scipy.io as sio
 from scipy.signal import butter, filtfilt, kaiser, sosfilt
-from scikits.audiolab import Sndfile, Format
 
+# Scientific plotting
+import matplotlib.pyplot as plt
 from matplotlib.backends.backend_pdf import PdfPages
+
+# Sound file handling
+from scikits.audiolab import Sndfile, Format
 
 
 def plot_signals_trace(beep, beep2, int_time, int_signal, hp_signal, bp_signal, int_signal2):
@@ -259,9 +265,15 @@ def read_uti_meta(filename):
 
 
 def get_token_list_from_dir(directory, exclusion_list_name):
+
+    # directory handling:
+    # add a config file for listing the directories and subdirectories where things are
+    # default into everything being in the given dir if no config is present
     file_exclusion_list = read_file_exclusion_list(exclusion_list_name)
 
+    # this is equivalent with following sorted(glob.glob(directory + '/.' +  '/*US.txt'))
     uti_meta_files = sorted(glob.glob(directory + '/*US.txt'))
+
     uti_prompt_files = [prompt_file 
                         for prompt_file in glob.glob(directory + '/*.txt') 
                         if not prompt_file in uti_meta_files

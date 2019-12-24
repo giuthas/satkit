@@ -5,7 +5,6 @@ from datetime import datetime
 import csv
 import glob
 import os
-import pprint
 import re
 import struct
 import sys
@@ -302,9 +301,9 @@ def get_token_list_from_dir(directory, exclusion_list_name):
 
     data = [{} for token in meta]
     for i in xrange(0,len(meta)):
-        print i, meta[i]
         if meta[i]['filename'] in file_exclusion_list:
-            print meta[i]['filename'], "/", uti_files[i], "is in the exclusion list."
+            notice = meta[i]['filename'] + "/" + uti_files[i] + " is in the exclusion list."
+            print(notice)
             meta[i]['exclusion'] = True
         else:
             meta[i]['exclusion'] = False
@@ -330,7 +329,7 @@ def pd(token):
         slw_pd = np.sum(ultra_diff, axis=2)
         ultra_d = np.sqrt(np.sum(slw_pd, axis=1))
             
-    print "UTI:", token['filename'], token['prompt']
+    print("UTI: " + token['filename'] + " " + token['prompt'])
 
     ultra_time = np.linspace(0, len(ultra_d), len(ultra_d), endpoint=False)/uti_fps
     ultra_time = ultra_time + t_first_frame + .5/uti_fps

@@ -5,6 +5,7 @@ from datetime import datetime
 import csv
 import glob
 import os
+import pickle
 import re
 import struct
 import sys
@@ -99,6 +100,18 @@ def draw_spaghetti(meta, data):
         pdf.savefig()  # saves the current figure into a pdf page
         plt.close()
     
+
+def save_data(data, filename):
+    with closing(open(filename, 'w')) as outfile:
+        pickle.dump(data, outfile)
+
+
+def load_data(filename):
+    data = None
+    with closing(open(filename, 'r')) as infile:
+        data = pickle.load(infile)
+
+    return data
 
 
 def write_csv(meta, filename):

@@ -10,19 +10,16 @@ import re
 import struct
 import sys
 import time
-import wave
 
 # Numpy and scipy
 import numpy as np
 import scipy.io as sio
+import scipy.io.wavfile as sio_wavfile
 from scipy.signal import butter, filtfilt, kaiser, sosfilt
 
 # Scientific plotting
 import matplotlib.pyplot as plt
 from matplotlib.backends.backend_pdf import PdfPages
-
-# Sound file handling
-from scikits.audiolab import Sndfile, Format
 
 
 def plot_signals_trace(beep, beep2, int_time, int_signal, hp_signal, bp_signal, int_signal2):
@@ -87,7 +84,7 @@ def draw_spaghetti(meta, data):
         ax = plt.axes()
         xlim = (-.2, 1)
 
-        for i in xrange(len(data)):
+        for i in range(len(data)):
             ultra_time = data[i]['ultra_time'] - data[i]['beep_uti']
 
             ax.plot(ultra_time, data[i]['pd'], color="b", lw=1, alpha=.2)
@@ -177,13 +174,14 @@ def beep_detect(frames, fs, b, a, name):
 
     # 1 ms window
     window_length = int(0.001*fs)
+    half_window_length = int(window_length/2)
 
     # pad with zeros at both ends
     padded_signal = np.zeros(n + window_length)
-    padded_signal[window_length/2 : window_length/2+n] = \
+    padded_signal[half_window_length : half_window_length+n] = \
         np.square(hp_signal) # squared already for rms, r&m later
     padded_signal2 = np.zeros(n + window_length)
-    padded_signal2[window_length/2 : window_length/2+n] = \
+    padded_signal2[half_window_length : half_window_length+n] = \
         np.square(bp_signal) # squared already for rms, r&m later
     
     # square windowed samples
@@ -246,20 +244,13 @@ def beep_detect(frames, fs, b, a, name):
 
 
 def read_wav(filename):
-    with closing(Sndfile(filename, 'r')) as w:
-        uti_wav_fs = w.samplerate
-        b_uti, a_uti = high_pass(uti_wav_fs)
+    samplerate, frames = sio_wavfile.read(filename)
+    #duration = frames.shape[0] / samplerate
+    b, a = high_pass(samplerate)
         
-        channels = w.channels
-        format = w.format
-        
-        n_frames = w.nframes
-        duration = n_frames / float(uti_wav_fs)
-        uti_wav_frames = w.read_frames(n_frames)
-        
-        beep_uti, has_speech = beep_detect(uti_wav_frames, uti_wav_fs, b_uti, a_uti, filename)
+    beep_time, has_speech = beep_detect(frames, samplerate, b, a, filename)
 
-        return(uti_wav_frames, beep_uti, has_speech, uti_wav_fs)
+    return(frames, beep_time, has_speech, samplerate)
 
 
 def read_uti_meta(filename):
@@ -299,7 +290,7 @@ def get_token_list_from_dir(directory, exclusion_list_name):
                  for filename in uti_prompt_files]    
 
     meta = [{'filename': filename} for filename in filenames] 
-    for i in xrange(0, len(filenames)):
+    for i in range(0, len(filenames)):
         meta[i]['uti_meta_file'] = uti_meta_files[i]
         meta[i]['uti_prompt_file'] = uti_prompt_files[i]
         meta[i]['uti_wav_file'] = wav_files[i]
@@ -313,7 +304,7 @@ def get_token_list_from_dir(directory, exclusion_list_name):
             ]
 
     data = [{} for token in meta]
-    for i in xrange(0,len(meta)):
+    for i in range(0,len(meta)):
         if meta[i]['filename'] in file_exclusion_list:
             notice = meta[i]['filename'] + "/" + uti_files[i] + " is in the exclusion list."
             print(notice)
@@ -333,7 +324,7 @@ def pd(token):
         ultra = np.fromstring(uti_data, dtype=np.uint8)
         ultra = ultra.astype("float32")
         
-        uti_no_frames = len(ultra)/(uti_NumVectors*uti_PixPerVector)
+        uti_no_frames = int(len(ultra)/(uti_NumVectors*uti_PixPerVector))
         # reshape into vectors containing a frame each
         ultra = ultra.reshape((uti_no_frames, uti_NumVectors, uti_PixPerVector))
             

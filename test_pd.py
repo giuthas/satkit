@@ -3,7 +3,6 @@ import sys
 import time
 
 # local modules
-#from pd import *
 import pd.pd as pd
 
 def main(args):

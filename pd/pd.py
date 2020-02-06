@@ -274,9 +274,10 @@ def get_token_list_from_dir(directory, exclusion_list_name):
     # default into everything being in the given dir if no config is present
     file_exclusion_list = read_file_exclusion_list(exclusion_list_name)
 
-    # this is equivalent with following sorted(glob.glob(directory + '/.' +  '/*US.txt'))
+    # this is equivalent with the following: sorted(glob.glob(directory + '/.' +  '/*US.txt'))
     uti_meta_files = sorted(glob.glob(directory + '/*US.txt'))
 
+    # this takes care of *.txt and *US.txt overlapping.
     uti_prompt_files = [prompt_file 
                         for prompt_file in glob.glob(directory + '/*.txt') 
                         if not prompt_file in uti_meta_files

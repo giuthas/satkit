@@ -1,0 +1,17 @@
+
+Following is a short explanation of what is what in the package.
+
+manifest.txt is this file.
+
+test_pd.py This is the test script.
+
+test1_1 This is the simple test directory.
+test1_2 This is the test directory with missing files.
+test2 This is the test directory with subdirectories.
+
+exclusion_list.csv
+
+citations.bib
+
+pd/ This is the pd (pixel difference) module. Refer to the documentation (not yet written) for a description of contents.
+

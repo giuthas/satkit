@@ -19,6 +19,8 @@ def main(args):
     # run PD on each token
     data = [pd.pd(token) for token in token_list]
 
+    data = [datum for datum in data if not datum is None]
+
     # do something sensible with the data
     pd.draw_spaghetti(token_list, data)
     

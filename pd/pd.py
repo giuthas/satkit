@@ -5,6 +5,7 @@ from datetime import datetime
 import csv
 import glob
 import os
+import os.path
 import pickle
 import re
 import struct
@@ -141,7 +142,7 @@ def read_prompt(filename):
 
 def read_file_exclusion_list(filename):
     if filename is not None:
-        with closing(open(filename, 'rb')) as csvfile:
+        with closing(open(filename, 'r')) as csvfile:
             reader = csv.reader(csvfile, delimiter='\t')
             # Throw away the second field - it is a comment for human readers.
             exclusion_list = [row[0] for row in reader]
@@ -264,7 +265,10 @@ def read_uti_meta(filename):
                 value = float(value_str)
             meta[key] = value
 
-        return(meta["FramesPerSec"], meta["NumVectors"], meta["PixPerVector"], meta["TimeInSecsOfFirstFrame"])
+        return(meta["FramesPerSec"], 
+               meta["NumVectors"], 
+               meta["PixPerVector"], 
+               meta["TimeInSecsOfFirstFrame"])
 
 
 def get_token_list_from_dir(directory, exclusion_list_name):
@@ -272,6 +276,11 @@ def get_token_list_from_dir(directory, exclusion_list_name):
     # directory handling:
     # add a config file for listing the directories and subdirectories where things are
     # default into everything being in the given dir if no config is present
+    #
+    # like so:
+    # uti_directory = os.path.join(directory, uti_subdirectory)
+
+    # File exclusion list is provided by the user.
     file_exclusion_list = read_file_exclusion_list(exclusion_list_name)
 
     # this is equivalent with the following: sorted(glob.glob(directory + '/.' +  '/*US.txt'))
@@ -283,40 +292,87 @@ def get_token_list_from_dir(directory, exclusion_list_name):
                         if not prompt_file in uti_meta_files
                         ]
     uti_prompt_files = sorted(uti_prompt_files)
-    wav_files = sorted(glob.glob(directory + '/*.wav')) 
-    uti_files = sorted(glob.glob(directory + '/*.ult'))
-
-
     filenames = [filename.split('.')[-2].split('/').pop() 
                  for filename in uti_prompt_files]    
 
+#    wav_files = sorted(glob.glob(directory + '/*.wav')) 
+#    uti_files = sorted(glob.glob(directory + '/*.ult'))
+
     meta = [{'filename': filename} for filename in filenames] 
     for i in range(0, len(filenames)):
-        meta[i]['uti_meta_file'] = uti_meta_files[i]
+        # Prompt file should always exist and correspond to the filename because 
+        # the filename list is generated from the directory listing of prompt files.
         meta[i]['uti_prompt_file'] = uti_prompt_files[i]
-        meta[i]['uti_wav_file'] = wav_files[i]
-        meta[i]['uti_file'] = uti_files[i]
-        (meta[i]['prompt'], meta[i]['date'], meta[i]['participant']) = read_prompt(uti_prompt_files[i])
+        (prompt, date, participant) = read_prompt(uti_prompt_files[i])
+        meta[i]['prompt'] = prompt
+        meta[i]['date'] = date
+        meta[i]['participant'] = participant
+
+        if meta[i]['filename'] in file_exclusion_list:
+            notice = meta[i]['filename'] + " is in the exclusion list."
+            print(notice)
+            meta[i]['excluded'] = True
+        else:
+            meta[i]['excluded'] = False
+
+        # Candidates for filenames. Existence tested below.
+        uti_meta_file = os.path.join(directory, filenames[i] + "US.txt")
+        uti_wav_file = os.path.join(directory, filenames[i] + ".wav")
+        uti_file = os.path.join(directory, filenames[i] + ".ult")
+
+        if os.path.isfile(uti_meta_file):
+            meta[i]['uti_meta_file'] = uti_meta_file
+            meta[i]['uti_meta_exists'] = True
+        else: 
+            notice = 'Note: ' + uti_meta_file + " does not exist."
+            print(notice)
+            meta[i]['uti_meta_exists'] = False
+            meta[i]['excluded'] = True
+            
+        if os.path.isfile(uti_wav_file):
+            meta[i]['uti_wav_file'] = uti_wav_file
+            meta[i]['uti_wav_exists'] = True
+        else:
+            notice = 'Note: ' + uti_wav_file + " does not exist."
+            print(notice)
+            meta[i]['uti_wav_exists'] = False
+            meta[i]['excluded'] = True
+            
+        if os.path.isfile(uti_file):
+            meta[i]['uti_file'] = uti_file
+            meta[i]['uti_exists'] = True
+        else:
+            notice = 'Note: ' + uti_file + " does not exist."
+            print(notice)
+            meta[i]['uti_exists'] = False
+            meta[i]['excluded'] = True        
+
+        if 'water swallow' in prompt:
+            notice = 'Note: ' + filenames[i] + ' is a water swallow.'
+            print(notice)
+            meta[i]['type'] = 'water swallow'
+            meta[i]['excluded'] = True        
+        elif 'bite plate' in prompt:
+            notice = 'Note: ' + filenames[i] + ' prompt is a bite plate.'
+            print(notice)
+            meta[i]['type'] = 'bite plate'
+            meta[i]['excluded'] = True        
+        else:
+            meta[i]['type'] = 'regular trial'
+
 
     meta = sorted(meta, key=lambda token: token['date'])
-    meta = [token 
-            for token in meta 
-            if not ('water swallow' in token['prompt'] or 'bite plate' in token['prompt'])
-            ]
-
-    data = [{} for token in meta]
-    for i in range(0,len(meta)):
-        if meta[i]['filename'] in file_exclusion_list:
-            notice = meta[i]['filename'] + "/" + uti_files[i] + " is in the exclusion list."
-            print(notice)
-            meta[i]['exclusion'] = True
-        else:
-            meta[i]['exclusion'] = False
 
     return meta
 
 
 def pd(token):
+    if token['excluded']:
+        print("PD: " + token['filename'] + " " + token['prompt'] + '. Token excluded.')
+        return None
+    else:
+        print("PD: " + token['filename'] + " " + token['prompt'] + '. Token processed.')
+
     (uti_wav_frames, beep_uti, has_speech, uti_wav_fs) = read_wav(token['uti_wav_file'])
     (uti_fps, uti_NumVectors, uti_PixPerVector, t_first_frame) = read_uti_meta(token['uti_meta_file'])
 
@@ -334,8 +390,6 @@ def pd(token):
         slw_pd = np.sum(ultra_diff, axis=2)
         ultra_d = np.sqrt(np.sum(slw_pd, axis=1))
             
-    print("UTI: " + token['filename'] + " " + token['prompt'])
-
     ultra_time = np.linspace(0, len(ultra_d), len(ultra_d), endpoint=False)/uti_fps
     ultra_time = ultra_time + t_first_frame + .5/uti_fps
 

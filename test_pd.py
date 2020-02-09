@@ -23,7 +23,7 @@ def main(args):
     pd.draw_spaghetti(token_list, data)
     
 
-if (len(sys.argv) > 2 or len(sys.argv) < 1):
+if (len(sys.argv) > 3 or len(sys.argv) < 1):
     print("\npd.py")
     print("\tusage: python pd.py uti_directory [exclusion_list]")
     print("\n\tGenerates a pd spaghetti plot based on .ult files and meta data.")
@@ -34,4 +34,4 @@ if (__name__ == '__main__'):
     t = time.time()
     main(sys.argv[1:])
     elapsed_time = time.time() - t
-    print('Elapsed time' + str(elapsed_time))
+    print('Elapsed time ' + str(elapsed_time))

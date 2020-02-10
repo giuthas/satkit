@@ -1,13 +1,20 @@
 
+import logging
 import sys
 import time
+import datetime 
 
 # local modules
-import pd.pd as pd
+import pd as pd
 
 def main(args):
     directory = args[0]
     
+    logging.basicConfig(filename = (directory + '.log'), 
+                        filemode = 'w', 
+                        level = logging.INFO)
+    logging.info('Run started at ' + str(datetime.datetime.now()))
+
     exclusion_list_name = None
     if len(args) > 1:
         exclusion_list_name = args[1]
@@ -23,6 +30,7 @@ def main(args):
 
     # do something sensible with the data
     pd.draw_spaghetti(token_list, data)
+    logging.info('Run ended at ' + str(datetime.datetime.now()) + '\n')
     
 
 if (len(sys.argv) > 3 or len(sys.argv) < 1):
@@ -36,4 +44,4 @@ if (__name__ == '__main__'):
     t = time.time()
     main(sys.argv[1:])
     elapsed_time = time.time() - t
-    print('Elapsed time ' + str(elapsed_time))
+    logging.info('Elapsed time ' + str(elapsed_time))

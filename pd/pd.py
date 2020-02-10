@@ -4,6 +4,7 @@ from datetime import datetime
 # Built in packages
 import csv
 import glob
+import logging
 import os
 import os.path
 import pickle
@@ -21,6 +22,10 @@ from scipy.signal import butter, filtfilt, kaiser, sosfilt
 # Scientific plotting
 import matplotlib.pyplot as plt
 from matplotlib.backends.backend_pdf import PdfPages
+
+
+# create module logger
+pd_logger = logging.getLogger('pd.pd')
 
 
 def plot_signals_trace(beep, beep2, int_time, int_signal, hp_signal, bp_signal, int_signal2):
@@ -295,9 +300,6 @@ def get_token_list_from_dir(directory, exclusion_list_name):
     filenames = [filename.split('.')[-2].split('/').pop() 
                  for filename in uti_prompt_files]    
 
-#    wav_files = sorted(glob.glob(directory + '/*.wav')) 
-#    uti_files = sorted(glob.glob(directory + '/*.ult'))
-
     meta = [{'filename': filename} for filename in filenames] 
     for i in range(0, len(filenames)):
         # Prompt file should always exist and correspond to the filename because 
@@ -310,7 +312,7 @@ def get_token_list_from_dir(directory, exclusion_list_name):
 
         if meta[i]['filename'] in file_exclusion_list:
             notice = meta[i]['filename'] + " is in the exclusion list."
-            print(notice)
+            pd_logger.info(notice)
             meta[i]['excluded'] = True
         else:
             meta[i]['excluded'] = False
@@ -325,7 +327,7 @@ def get_token_list_from_dir(directory, exclusion_list_name):
             meta[i]['uti_meta_exists'] = True
         else: 
             notice = 'Note: ' + uti_meta_file + " does not exist."
-            print(notice)
+            pd_logger.warning(notice)
             meta[i]['uti_meta_exists'] = False
             meta[i]['excluded'] = True
             
@@ -334,7 +336,7 @@ def get_token_list_from_dir(directory, exclusion_list_name):
             meta[i]['uti_wav_exists'] = True
         else:
             notice = 'Note: ' + uti_wav_file + " does not exist."
-            print(notice)
+            pd_logger.warning(notice)
             meta[i]['uti_wav_exists'] = False
             meta[i]['excluded'] = True
             
@@ -343,18 +345,18 @@ def get_token_list_from_dir(directory, exclusion_list_name):
             meta[i]['uti_exists'] = True
         else:
             notice = 'Note: ' + uti_file + " does not exist."
-            print(notice)
+            pd_logger.warning(notice)
             meta[i]['uti_exists'] = False
             meta[i]['excluded'] = True        
 
         if 'water swallow' in prompt:
             notice = 'Note: ' + filenames[i] + ' is a water swallow.'
-            print(notice)
+            pd_logger.info(notice)
             meta[i]['type'] = 'water swallow'
             meta[i]['excluded'] = True        
         elif 'bite plate' in prompt:
             notice = 'Note: ' + filenames[i] + ' prompt is a bite plate.'
-            print(notice)
+            pd_logger.info(notice)
             meta[i]['type'] = 'bite plate'
             meta[i]['excluded'] = True        
         else:
@@ -368,10 +370,10 @@ def get_token_list_from_dir(directory, exclusion_list_name):
 
 def pd(token):
     if token['excluded']:
-        print("PD: " + token['filename'] + " " + token['prompt'] + '. Token excluded.')
+        pd_logger.info("PD: " + token['filename'] + " " + token['prompt'] + '. Token excluded.')
         return None
     else:
-        print("PD: " + token['filename'] + " " + token['prompt'] + '. Token processed.')
+        pd_logger.info("PD: " + token['filename'] + " " + token['prompt'] + '. Token processed.')
 
     (uti_wav_frames, beep_uti, has_speech, uti_wav_fs) = read_wav(token['uti_wav_file'])
     (uti_fps, uti_NumVectors, uti_PixPerVector, t_first_frame) = read_uti_meta(token['uti_meta_file'])

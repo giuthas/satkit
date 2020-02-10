@@ -7,6 +7,8 @@
 # Python bytecode
 *.pyc
 
+# Log files 
+*.log
 
 ####
 # Specific files 

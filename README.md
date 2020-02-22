@@ -136,6 +136,6 @@ for details.
   thesis](https://eresearch.qmu.ac.uk/handle/20.500.12289/10163) 
 
 * The project uses a nifty python tool called
-  [https://github.com/johann-petrak/licenseheaders](licenseheaders) by
+  [licenseheaders](https://github.com/johann-petrak/licenseheaders) by
   Johann Petrak and contributors to add and update license headers for
   python files.

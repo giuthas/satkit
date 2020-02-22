@@ -23,12 +23,11 @@ PD is written in Python3 and developed with version 3.7.4.
 
 In addition to use the tools you will need the following packages (or
 newer versions of them):
+* MatPlotLib 3.1.1
+* NumPy 1.17.2
+* SciPy 1.3.1
 
-MatPlotLib 3.1.1
-NumPy 1.17.2
-SciPy 1.3.1
-
-Handy way of getting MatPlotLib, NumPy, and SciPy is to get them as
+A handy way of getting MatPlotLib, NumPy, and SciPy is to get them as
 part of the [Anaconda
 distribution](https://www.anaconda.com/distribution/#download-section).
 
@@ -99,8 +98,9 @@ will be updated once  there are more people working on this project.
 The Pixel Difference tools (PD for short) and examples is a tool box
 for analysing articulatory data.  
 
-Program and data Copyright (C) 2019-2020 Pertti Palo
+Pixel Difference tools Copyright (C) 2019-2020 Pertti Palo
 
+Example data Copyright (C) 2013-2020 Pertti Palo
 
 ### Program license
 

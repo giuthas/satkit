@@ -2,7 +2,7 @@
 # Copyright (c) 2019-2020 Pertti Palo.
 #
 # This file is part of Pixel Difference toolkit 
-# (see https://github.com/giuthas/pd).
+# (see https://github.com/giuthas/pd/).
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by

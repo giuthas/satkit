@@ -36,7 +36,7 @@ distribution](https://www.anaconda.com/distribution/#download-section).
 
 See
 [manifest.txt](https://github.com/giuthas/pd/blob/master/manifest.txt)
-for a discription of the contents.
+For a discription of the contents.
 
 
 ### Running the examples
@@ -104,6 +104,8 @@ Example data Copyright (C) 2013-2020 Pertti Palo
 
 ### Program license
 
+[Program License](https://github.com/giuthas/pd/blob/master/license.md)
+
 This program (see below for data) is free software: you can
 redistribute it and/or modify it under the terms of the GNU General
 Public License as published by the Free Software Foundation, either
@@ -120,6 +122,8 @@ along with this program.  If not, see
 
 
 ### Data license
+
+[Data License](https://github.com/giuthas/pd/blob/master/data_license_by-nc-sa.markdown)
 
 The data in directories `test1_1`, `test1_2`, and `test2` are licensed
 under the Creative Commons Attribution-NonCommercial-ShareAlike 4.0

@@ -3,8 +3,8 @@
 These tools are meant for processing Ultrasound Tongue Imaging (UTI)
 data. The first to be implemented -- Pixel Difference and Scanline
 Based Pixel Difference -- work on raw, uniterpolated data and produce
-measures of change over the course of a recording. For a reference on
-how they work see Chapter 3 in Pertti Palo's [PhD
+measures of change over the course of a recording. How they work is
+explained in Chapter 3 of Pertti Palo's [PhD
 thesis](https://eresearch.qmu.ac.uk/handle/20.500.12289/10163). The
 next stage is a automated reaction time measure, followed possibly by
 spline distance measures and optic flow.

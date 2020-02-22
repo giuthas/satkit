@@ -16,3 +16,7 @@
 # Result of test run
 spaghetti_plot.pdf
 
+# Template for licenseheaders.py to include gpl in headers of python files.
+gpl-v3.tmpl
+# Command for running licenseheaders.py
+licenseheaders_command

@@ -133,5 +133,9 @@ for details.
 * Inspiration for PD was drawn from previous projects using Euclidean
   distance to measure change in articulatory speech data. For
   references, see Pertti Palo's [PhD
-  thesis](https://eresearch.qmu.ac.uk/handle/20.500.12289/10163)
+  thesis](https://eresearch.qmu.ac.uk/handle/20.500.12289/10163) 
 
+* The project uses a nifty python tool called
+  [https://github.com/johann-petrak/licenseheaders](licenseheaders) by
+  Johann Petrak and contributors to add and update license headers for
+  python files.

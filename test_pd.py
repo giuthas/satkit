@@ -25,6 +25,7 @@
 # see <https://creativecommons.org/licenses/by-nc-sa/4.0/> for details.
 #
 
+import argparse
 import logging
 import sys
 import time
@@ -33,14 +34,27 @@ import datetime
 # local modules
 import pd as pd
 
-def main(args):
-    directory = args[0]
-    
+def main():
+    parser = argparse.ArgumentParser(description="PD toolkit test script")
+    parser.add_argument("directory", help="directory containing the data")
+    parser.add_argument("-l", "--log_file", dest="log_filename",
+                        help="write log to FILE", metavar="FILE")
+    parser.add_argument("-f", "--file", dest="filename",
+                        help="write report to FILE", metavar="FILE")
+    parser.add_argument("-q", "--quiet",
+                        action="store_false", dest="verbose",
+                        default=True,
+                        help="don't print status messages to stdout")
+
+    args = parser.parse_args()
+
     logging.basicConfig(filename = (directory + '.log'), 
                         filemode = 'w', 
                         level = logging.INFO)
     logging.info('Run started at ' + str(datetime.datetime.now()))
 
+    directory = args[0]
+        
     exclusion_list_name = None
     if len(args) > 1:
         exclusion_list_name = args[1]
@@ -59,15 +73,15 @@ def main(args):
     logging.info('Run ended at ' + str(datetime.datetime.now()) + '\n')
     
 
-if (len(sys.argv) > 3 or len(sys.argv) < 1):
-    print("\npd.py")
-    print("\tusage: python pd.py uti_directory [exclusion_list]")
-    print("\n\tGenerates a pd spaghetti plot based on .ult files and meta data.")
-    sys.exit(0)
+# if (len(sys.argv) > 3 or len(sys.argv) < 1):
+#     print("\npd.py")
+#     print("\tusage: python pd.py uti_directory [exclusion_list]")
+#     print("\n\tGenerates a pd spaghetti plot based on .ult files and meta data.")
+#     sys.exit(0)
 
 
 if (__name__ == '__main__'):
     t = time.time()
-    main(sys.argv[1:])
+    main()
     elapsed_time = time.time() - t
     logging.info('Elapsed time ' + str(elapsed_time))

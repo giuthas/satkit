@@ -34,17 +34,42 @@ import datetime
 # local modules
 import pd as pd
 
+
+def widen_help_formatter(formatter, total_width=140, syntax_width=35):
+    """Return a wider HelpFormatter, if possible."""
+    try:
+        # https://stackoverflow.com/a/5464440
+        # beware: "Only the name of this class is considered a public API."
+        kwargs = {'width': total_width, 'max_help_position': syntax_width}
+        formatter(None, **kwargs)
+        return lambda prog: formatter(prog, **kwargs)
+    except TypeError:
+        warnings.warn("argparse help formatter failed. Falling back.")
+        return formatter
+
+
 def main():
-    parser = argparse.ArgumentParser(description="PD toolkit test script")
-    parser.add_argument("directory", help="directory containing the data")
+    parser = argparse.ArgumentParser(description="PD toolkit test script",
+        formatter_class=widen_help_formatter(argparse.HelpFormatter, total_width=100, syntax_width=35))
+
+    # mutually exclusive with reading previous results from a file
+    parser.add_argument("directory", help="Directory containing the data to be read.")
+    
+    parser.add_argument("-e", "--exclusion_list", dest="exclusion_filename",
+                        help="NOT IMPLEMENTED. Exclusion list of data files that should be ignored.",
+                        metavar="file")
+    
     parser.add_argument("-l", "--log_file", dest="log_filename",
-                        help="write log to FILE", metavar="FILE")
-    parser.add_argument("-f", "--file", dest="filename",
-                        help="write report to FILE", metavar="FILE")
-    parser.add_argument("-q", "--quiet",
-                        action="store_false", dest="verbose",
+                        help="NOT IMPLEMENTED. Write log to file.", metavar="file")
+    
+    helptext="NOT IMPLEMENTED. Save results to file. Supported types are .pickle, .json and .csv."
+    parser.add_argument("-o", "--output", dest="filename",
+                        help=helptext, metavar="file")
+
+    parser.add_argument("-v", "--verbose",
+                        action="store_true", dest="verbose",
                         default=True,
-                        help="don't print status messages to stdout")
+                        help="NOT IMPLEMENTED. Print status messages to stdout.")
 
     args = parser.parse_args()
 

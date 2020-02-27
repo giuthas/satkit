@@ -56,11 +56,11 @@ def main():
     parser.add_argument("directory", help="Directory containing the data to be read.")
     
     parser.add_argument("-e", "--exclusion_list", dest="exclusion_filename",
-                        help="NOT IMPLEMENTED. Exclusion list of data files that should be ignored.",
+                        help="Exclusion list of data files that should be ignored.",
                         metavar="file")
     
     parser.add_argument("-l", "--log_file", dest="log_filename",
-                        help="NOT IMPLEMENTED. Write log to file.", metavar="file")
+                        help="Write log to file.", metavar="file")
     
     helptext="NOT IMPLEMENTED. Save results to file. Supported types are .pickle, .json and .csv."
     parser.add_argument("-o", "--output", dest="filename",
@@ -73,16 +73,21 @@ def main():
 
     args = parser.parse_args()
 
-    logging.basicConfig(filename = (directory + '.log'), 
+    directory = args.directory
+        
+    exclusion_list_name = None
+    if args.exclusion_filename:
+        exclusion_list_name = args.exclusion_filename
+
+    if args.log_filename:
+        log_filename = args.log_filename
+    else:
+        log_filename = directory.strip("/") + '.log'
+        
+    logging.basicConfig(filename = log_filename, 
                         filemode = 'w', 
                         level = logging.INFO)
     logging.info('Run started at ' + str(datetime.datetime.now()))
-
-    directory = args[0]
-        
-    exclusion_list_name = None
-    if len(args) > 1:
-        exclusion_list_name = args[1]
 
     # this is the actual list of tokens that gets processed 
     # including meta data contained outwith the ult file

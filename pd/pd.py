@@ -177,6 +177,7 @@ def read_file_exclusion_list(filename):
             reader = csv.reader(csvfile, delimiter='\t')
             # Throw away the second field - it is a comment for human readers.
             exclusion_list = [row[0] for row in reader]
+            logging.info('Read exclusion list with ' + str(len(exclusion_list)) + ' names.')
     else:
         exclusion_list = []
 
@@ -376,7 +377,7 @@ def get_token_list_from_dir(directory, exclusion_list_name):
             meta[i]['excluded'] = True        
 
         if 'water swallow' in prompt:
-            notice = 'Note: ' + filenames[i] + ' is a water swallow.'
+            notice = 'Note: ' + filenames[i] + ' prompt is a water swallow.'
             pd_logger.info(notice)
             meta[i]['type'] = 'water swallow'
             meta[i]['excluded'] = True        

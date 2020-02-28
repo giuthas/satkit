@@ -24,4 +24,4 @@
 # see <https://creativecommons.org/licenses/by-nc-sa/4.0/> for details.
 #
 
-from .pd import *
+from .ofreg import *

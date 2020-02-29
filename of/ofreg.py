@@ -39,13 +39,13 @@ import re
 import struct
 import sys
 import time
+import warnings
+
+from multiprocessing import Process, Manager
 
 #Diffeomorphic demons algorithm implemented in python in the DIPY package
-from dipy.data import get_fnames
 from dipy.align.imwarp import SymmetricDiffeomorphicRegistration
 from dipy.align.metrics import SSDMetric, CCMetric, EMMetric
-import dipy.align.imwarp as imwarp
-from dipy.viz import regtools
 
 
 # Numpy and scipy
@@ -58,6 +58,7 @@ from scipy import interpolate
 
 # Scientific plotting
 import matplotlib.pyplot as plt
+from matplotlib import animation
 from matplotlib.backends.backend_pdf import PdfPages
 
 # create module logger
@@ -163,6 +164,21 @@ def get_data_from_dir(directory):
     return meta
 
 
+def parallel_register(ns, index, num_frames, storage):
+    sys.stdout.write("Working on frame pair %d of %d\n" % (index, num_frames - 1))
+    current_im = ns.ultra_interp[index]
+    next_im = ns.ultra_interp[index + 1]
+
+    # suppress warnings (from dipy package encouraging us to install "Fury")
+    warnings.filterwarnings("ignore")
+
+    # execute the optimization
+    storage[index] = {'of': ns.sdr.optimize(next_im, current_im), 'current frame': index, 'next frame': index + 1}
+
+    # revert back to always displaying warnings
+    warnings.filterwarnings("always")
+
+
 def compute(item):
     ofreg_logger.info("PD: " + item['filename'] + " " + item['prompt'] + '. item processed.')
     
@@ -179,30 +195,23 @@ def compute(item):
         # reshape into vectors containing a frame each
         ultra = ultra.reshape((ult_no_frames, ult_NumVectors, ult_PixPerVector))
 
-        # Interpolate the data to form isometric pixels
-        #lengthDepthRatio = D(fIdx).probeArrayDepthMm / D(fIdx).probeArrayLengthMm;
-        #sz = size(D(fIdx).rawData);
-        #xTargetSize = ceil(sz(2) * lengthDepthRatio) * 2;
-        #yTargetSize = sz(2) * 2;
-        #[X, Y] = meshgrid(1:sz(2), 1: sz(1));
-        #[Xq, Yq] = meshgrid(linspace(1, sz(2), yTargetSize), linspace(1, sz(1), xTargetSize));
-
-        #interpolate the data to correct the axis scaling for purposes of image registration
-        probe_array_length_mm = 40  #TODO 40 mm long probe assumed!!!
+        # interpolate the data to correct the axis scaling for purposes of image registration
+        probe_array_length_mm = 40  #TODO 40 mm long linear probe assumed!!!
         probe_array_depth_mm = ult_PixPerVector/ult_PixelsPerMm
         length_depth_ratio = probe_array_depth_mm/probe_array_length_mm
 
         x = np.linspace(1, ult_NumVectors, ult_NumVectors)
         y = np.linspace(1, ult_PixPerVector, ult_PixPerVector)
 
-        xnew = np.linspace(1, ult_NumVectors, ult_NumVectors * 2)
-        ynew = np.linspace(1, ult_PixPerVector, math.ceil(ult_NumVectors * length_depth_ratio) * 2)
+        xnew = np.linspace(1, ult_NumVectors, ult_NumVectors)
+        ynew = np.linspace(1, ult_PixPerVector, math.ceil(ult_NumVectors * length_depth_ratio))
         f = interpolate.interp2d(x, y, np.transpose(ultra[1, :, :]), kind='linear')
 
         ultra_interp = []
 
         # debug plotting
-        if False:
+        debug_plot_interpolation = False
+        if debug_plot_interpolation:
             fig, ax = plt.subplots(1, 1)
             im = ax.imshow(f(xnew, ynew))
 
@@ -211,17 +220,17 @@ def compute(item):
             ultra_interp.append(f(xnew, ynew))
 
             # debug plotting
-            if False:
+            if debug_plot_interpolation:
                 im.set_data(ultra_interp[fIdx])
                 ax.set_title(str(fIdx))
                 fig.canvas.draw_idle()
                 plt.pause(0.01)
 
-        #perform registration using diffeomorphic demons algorithm (from DIPY package)
-        #https: // dipy.org / documentation / 1.1.1. / examples_built / syn_registration_2d /  # example-syn-registration-2d
+        # perform registration using diffeomorphic demons algorithm (from DIPY package)
+        # https://dipy.org/documentation/1.1.1./examples_built/syn_registration_2d/#example-syn-registration-2d
 
-        # specify the number of levels in the multiresolution pyramid
-        level_iters = [200, 100, 50, 25]
+        # specify the number of iterations in each of the levels in the multiresolution pyramid
+        level_iters = [100, 50, 25]
 
         # create a registration metric
         sigma_diff = 3.0
@@ -231,35 +240,86 @@ def compute(item):
         # create the registration object
         sdr = SymmetricDiffeomorphicRegistration(metric, level_iters, inv_iter=100)
 
-        # create the storage for the optical flow
-        ofdisp = []
-
         # iterate through the frame pairs and perform the registration each
-        ult_no_frames = 3
+        ult_no_frames = 5 # just for debugging purposes
         debug_plot_ofreg = False
 
-        for fIdx in range(ult_no_frames - 1):
-            sys.stdout.write("Working on frame pair %d of %d\n" % (fIdx, ult_no_frames - 1))
-            current_im = ultra_interp[fIdx]
-            next_im = ultra_interp[fIdx + 1]
+        # DO REGISTRATION (CHECK FOR PARALLELISM)
+        ofoutput = []
+        useParallelFlag = True
+        if useParallelFlag:
+            # setup parallelism for running the registration
+            mgr = Manager()
+            storage = mgr.dict()  # create the storage for the optical flow
+            ns = mgr.Namespace()
+            ns.ultra_interp = ultra_interp
+            ns.sdr = sdr
 
-            # execute the optimization
-            mapping = sdr.optimize(next_im, current_im)
-            ofdisp.append(mapping)
+            procs = []
 
-            # debug plotting
-            if debug_plot_ofreg:
-                fig, ax = plt.subplots(1, 2)
-                ax[0].imshow(current_im)
-                ax[1].imshow(next_im)
-                plt.show()
-                plt.pause(0.05)
+            # run the parallel processes
+            for fIdx in range(0, ult_no_frames-1):
+                proc = Process(target=parallel_register, args = (ns, fIdx, ult_no_frames, storage))
+                procs.append(proc)
+                proc.start()
+
+            # finalize the parallel processes
+            for proc in procs:
+                proc.join()
+
+            # retrieve the output
+            ofdisp = storage.values()
+        else:
+            # do registration without parallel computation support
+            for fIdx in range(ult_no_frames - 1):
+                sys.stdout.write("Working on frame pair %d of %d\n" % (fIdx, ult_no_frames - 1))
+                current_im = ultra_interp[fIdx]
+                next_im = ultra_interp[fIdx + 1]
+
+                # execute the optimization
+                ofdisp.append({'of': sdr.optimize(next_im, current_im), 'current frame': fIdx, 'next frame': fIdx + 1})
+
+                # debug plotting
+                if debug_plot_ofreg:
+                    fig, ax = plt.subplots(1, 2)
+                    ax[0].imshow(current_im)
+                    ax[1].imshow(next_im)
+                    plt.show()
+                    plt.pause(0.05)
 
         print("Finished computing optical flow")
 
-        #Visualize registration as quiver plot
-        xx, yy = np.meshgrid(xnew, ynew)
-        plt.quiver(xx, yy, ofdisp[1].forward[:, :, 0], ofdisp[1].forward[:, :, 1])
+        # debug plotting
+        debug_plot_quiver = True
+        if debug_plot_quiver:
+            # visualize registration as quiver plot
+            xx, yy = np.meshgrid(range(1, ultra_interp[0].shape[0]), range(1, ultra_interp[0].shape[1]))
+
+            fig, ax = plt.subplots(1, 1)
+            im = ax.imshow(ultra_interp[0])
+            quiver = plt.quiver(yy, xx, ofdisp[1]['of'].forward[:, :, 0], ofdisp[1]['of'].forward[:, :, 1], color = 'r')
+            debug_frame = 1
+
+            # create mousewheel callback function for updating the plot to a new frame
+            def update_plot(event):
+                nonlocal debug_frame
+                # detect the mouse wheel action
+                if event.button == 'up':
+                    debug_frame = min(debug_frame + 1, ult_no_frames - 2)
+                elif event.button == 'down':
+                    debug_frame = max(debug_frame - 1, 1)
+                else:
+                    print("oops")
+
+                # update the plot
+                im.set_data(ultra_interp[debug_frame])
+                quiver.set_UVC(ofdisp[debug_frame]['of'].forward[:, :, 0], ofdisp[debug_frame]['of'].forward[:, :, 1])
+                ax.set_title(str(debug_frame))
+                fig.canvas.draw_idle()
+
+            # register the callback function with the figure
+            cid = fig.canvas.mpl_connect('scroll_event', update_plot)
+
         plt.show()
 
         # compute the ultrasound time vector
@@ -275,4 +335,3 @@ def compute(item):
         data['wav_time'] = ult_wav_time
 
     print("toast")
-

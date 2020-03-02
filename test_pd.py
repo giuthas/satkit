@@ -66,10 +66,12 @@ def main():
     parser.add_argument("-o", "--output", dest="filename",
                         help=helptext, metavar="file")
 
+    helptext="NOT IMPLEMENTED IN PD. Set verbosity of console output. Range is [0, 3], default is 0, larger values mean greater verbosity."
     parser.add_argument("-v", "--verbose",
-                        action="store_true", dest="verbose",
-                        default=True,
-                        help="NOT IMPLEMENTED. Print status messages to stdout.")
+                        type=int, dest="verbose",
+                        default=0,
+                        help=helptext,
+                        metavar = "verbosity")
 
     args = parser.parse_args()
 
@@ -83,10 +85,33 @@ def main():
         log_filename = args.log_filename
     else:
         log_filename = directory.strip("/") + '.log'
-        
-    logging.basicConfig(filename = log_filename, 
-                        filemode = 'w', 
-                        level = logging.INFO)
+
+    logger = logging.getLogger('test.pd')
+    logger.setLevel(logging.INFO)
+
+    # setup the log file 
+    log_file_handler = logging.handlers.FileHandler(log_filename, mode='w')
+    log_file_handler.setLevel(logging.DEBUG)
+    logger.addHandler(log_file_handler)
+
+    # also log to the console at a level determined by the --verbose flag
+    console_handler = logging.StreamHandler() # sys.stderr
+    # set level of logging messages that will be printed to console/stderr.
+    if not args.verbose:
+        console_handler.setLevel('ERROR')
+    elif args.verbose < 1:
+        console_handler.setLevel('ERROR')
+    elif args.verbose == 1:
+        console_handler.setLevel('WARNING')
+    elif args.verbose == 2:
+        console_handler.setLevel('INFO')
+    elif args.verbose >= 3:
+        console_handler.setLevel('DEBUG')
+    else:
+        logging.critical("Unexplained negative count of args.verbose!")
+
+    logger.addHandler(console_handler)
+
     logging.info('Run started at ' + str(datetime.datetime.now()))
 
     # this is the actual list of tokens that gets processed 

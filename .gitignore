@@ -1,3 +1,5 @@
 venv/
 .idea/
+*.log
+.DS_Store
 of/__pycache__

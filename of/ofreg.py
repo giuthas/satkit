@@ -1,5 +1,10 @@
 # Copyright (c) 2020 Scott Moisik and Pertti Palo.
 #
+# When making use of this code, please cite (TODO There might be a more appropriate place for these. Placed here temporarily):
+#   [1] Esling, J. H., & Moisik, S. R. (2012). Laryngeal aperture in relation to larynx height change: An analysis using simultaneous laryngoscopy and laryngeal ultrasound. In D. Gibbon, D. Hirst, & N. Campbell (Eds.), Rhythm, melody and harmony in speech: Studies in honour of Wiktor Jassem: Vol. 14/15 (pp. 117–127). Polskie Towarzystwo Fonetyczne.
+#   [2] Moisik, S. R., Lin, H., & Esling, J. H. (2014). A study of laryngeal gestures in Mandarin citation tones using simultaneous laryngoscopy and laryngeal ultrasound (SLLUS). Journal of the International Phonetic Association, 44(01), 21–58. https://doi.org/10.1017/S0025100313000327
+#   [3] Poh, D. P. Z., & Moisik, S. R. (2019). An acoustic and articulatory investigation of citation tones in Singaporean Mandarin using laryngeal ultrasound. In S. Calhoun, P. Escudero, M. Tabain, & P. Warren (Eds.), Proceedings of the 19th International Congress of the Phonetic Sciences.
+#
 # This file is part of Pixel Difference toolkit
 # (see https://github.com/giuthas/pd/).
 #
@@ -27,7 +32,7 @@
 from contextlib import closing
 from datetime import datetime
 
-#Built in packages
+# built in packages
 import csv
 import math
 import glob
@@ -43,11 +48,11 @@ import warnings
 
 from multiprocessing import Process, Manager
 
-#Diffeomorphic demons algorithm implemented in python in the DIPY package
+# diffeomorphic demons algorithm implemented in python in the DIPY package
 from dipy.align.imwarp import SymmetricDiffeomorphicRegistration
 from dipy.align.metrics import SSDMetric, CCMetric, EMMetric
 
-# Numpy and scipy
+# numpy and scipy
 import numpy as np
 import scipy.io as sio
 import scipy.io.wavfile as sio_wavfile
@@ -55,7 +60,7 @@ from scipy.signal import butter, filtfilt, kaiser, sosfilt
 
 from scipy import interpolate
 
-# Scientific plotting
+# scientific plotting
 import matplotlib.pyplot as plt
 from matplotlib import animation
 from matplotlib.backends.backend_pdf import PdfPages
@@ -82,7 +87,7 @@ def read_wav(filebase):
 
 
 def _parse_ult_meta(filebase):
-    '''Return all metadata from AAA txt as dictionary.'''
+    """Return all metadata from AAA txt as dictionary."""
     with closing(open(filebase, 'r')) as metafile:
         meta = {}
         for line in metafile:
@@ -97,7 +102,7 @@ def _parse_ult_meta(filebase):
 
 
 def read_ult_meta(filebase):
-    '''Convenience fcn for output of targeted metadata.'''
+    """Convenience fcn for output of targeted metadata."""
     meta = _parse_ult_meta(filebase)
 
     return (meta["NumVectors"],
@@ -204,9 +209,9 @@ def compute(item):
         ultra = ultra.reshape((ult_no_frames, ult_NumVectors, ult_PixPerVector))
 
         # interpolate the data to correct the axis scaling for purposes of image registration
-        probe_array_length_mm = 40  #TODO 40 mm long linear probe assumed!!!
-        probe_array_depth_mm = ult_PixPerVector/ult_PixelsPerMm
-        length_depth_ratio = probe_array_depth_mm/probe_array_length_mm
+        probe_array_length_mm = 40.0  #TODO 40 mm long linear probe assumed!!!
+        probe_depth_mm = ult_PixPerVector/ult_PixelsPerMm
+        length_depth_ratio = probe_depth_mm/probe_array_length_mm
 
         x = np.linspace(1, ult_NumVectors, ult_NumVectors)
         y = np.linspace(1, ult_PixPerVector, ult_PixPerVector)
@@ -246,10 +251,11 @@ def compute(item):
         metric = CCMetric(2, sigma_diff, radius)
 
         # create the registration object
-        sdr = SymmetricDiffeomorphicRegistration(metric, level_iters, inv_iter=100)
+        # TODO it may not be necessary to get the inverse displacement field... setting inv_iter to 0 in an attempt to speed up computation
+        sdr = SymmetricDiffeomorphicRegistration(metric, level_iters, inv_iter=0)
 
         # iterate through the frame pairs and perform the registration each
-        ult_no_frames = 5 # just for debugging purposes
+        #ult_no_frames = 25 # just for debugging purposes
         debug_plot_ofreg = False
 
         # DO REGISTRATION (CHECK FOR PARALLELISM)
@@ -267,7 +273,7 @@ def compute(item):
 
             # run the parallel processes
             for fIdx in range(0, ult_no_frames-1):
-                proc = Process(target=parallel_register, args = (ns, fIdx, ult_no_frames, storage))
+                proc = Process(target=parallel_register, args=(ns, fIdx, ult_no_frames, storage))
                 procs.append(proc)
                 proc.start()
 
@@ -295,7 +301,8 @@ def compute(item):
                     plt.show()
                     plt.pause(0.05)
 
-        print("Finished computing optical flow")
+        print("Finished computing optical flow for %s" % (item['filebase']))
+
 
         # debug plotting
         debug_plot_quiver = True
@@ -328,7 +335,7 @@ def compute(item):
             # register the callback function with the figure
             cid = fig.canvas.mpl_connect('scroll_event', update_plot)
 
-        plt.show()
+        #plt.show()
 
         # compute the ultrasound time vector
         ultra_time = np.linspace(0, ult_no_frames, ult_no_frames, endpoint=False) / ult_fps
@@ -337,9 +344,16 @@ def compute(item):
         ult_wav_time = np.linspace(0, len(ult_wav_frames), len(ult_wav_frames), endpoint=False) / ult_wav_fs
 
         data = {}
-        data['of'] = ofdisp
-        data['frames'] = ultra
+        data['ofdisp'] = ofdisp
+        data['ultra_interp'] = ultra_interp
         data['ult_time'] = ultra_time
         data['wav_time'] = ult_wav_time
+        data['ult_no_frames'] = ult_no_frames
+        data['probe_array_length_mm'] = probe_array_length_mm
+        data['probe_depth_mm'] = probe_depth_mm
 
-    print("toast")
+        # TODO the registration takes a long time to compute and each should be saved but this is probably not the best way; also, assumes 'results' folder exists
+        save_file = item['filebase'].replace('data', 'results') + "_OF.pickle"
+        pickle.dump(data, open(save_file, "wb"))
+        print("Saving results to %s" % save_file)
+

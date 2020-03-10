@@ -90,7 +90,7 @@ def main():
     logger.setLevel(logging.INFO)
 
     # setup the log file 
-    log_file_handler = logging.handlers.FileHandler(log_filename, mode='w')
+    log_file_handler = logging.FileHandler(log_filename, mode='w')
     log_file_handler.setLevel(logging.DEBUG)
     logger.addHandler(log_file_handler)
 

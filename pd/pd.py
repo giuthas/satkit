@@ -50,10 +50,6 @@ import matplotlib.pyplot as plt
 from matplotlib.backends.backend_pdf import PdfPages
 
 
-# create module logger
-pd_logger = logging.getLogger('pd.pd')
-
-
 def plot_signals_trace(beep, beep2, int_time, int_signal, hp_signal, bp_signal, int_signal2):
     fig = plt.figure()
     ax0 = fig.add_subplot(211)

@@ -25,4 +25,10 @@
 # see <https://creativecommons.org/licenses/by-nc-sa/4.0/> for details.
 #
 
+import logging
+
 from .pd import *
+
+# create module logger
+pd_logger = logging.getLogger('pd.pd')
+

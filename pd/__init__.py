@@ -26,9 +26,20 @@
 #
 
 import logging
+import logging.config
+import json
 
 from .pd import *
 
-# create module logger
-pd_logger = logging.getLogger('pd.pd')
+# Load config from json file.
+with open("pd_logging_configuration.json", 'r') as logging_configuration_file:
+    config_dict = json.load(logging_configuration_file)
+    logging.config.dictConfig(config_dict)
+ 
+# Create the module logger.
+logger = logging.getLogger(__name__)
 
+# Log that the logger was configured.
+logger.info('Completed configuring logger()!')
+
+logger = logging.getLogger(__name__)

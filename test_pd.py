@@ -44,7 +44,7 @@ def widen_help_formatter(formatter, total_width=140, syntax_width=35):
         formatter(None, **kwargs)
         return lambda prog: formatter(prog, **kwargs)
     except TypeError:
-        warnings.warn("argparse help formatter failed. Falling back.")
+        warnings.warn("Widening argparse help formatter failed. Falling back.")
         return formatter
 
 

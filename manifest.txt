@@ -9,7 +9,11 @@ test1_1 This is the simple test directory.
 test1_2 This is the test directory with missing files.
 test2   This is the test directory with subdirectories.
 
-pd_logging_configuration.json Contains configuration of the runtime logging - filenames and so on.
+pd_logging_configuration.json
+	Contains configuration of the runtime logging - filenames and so on.
+	If you need to disable or modify parts of the logging behaviour when
+	   using the toolkit as a library in another program this is the place to do so.
+	For runtime modifications use commandline arguments or options of the GUI.
 
 exclusion_list.csv
 

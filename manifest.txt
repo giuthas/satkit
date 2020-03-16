@@ -7,7 +7,9 @@ test_pd.py This is the test script.
 
 test1_1 This is the simple test directory.
 test1_2 This is the test directory with missing files.
-test2 This is the test directory with subdirectories.
+test2   This is the test directory with subdirectories.
+
+pd_logging_configuration.json Contains configuration of the runtime logging - filenames and so on.
 
 exclusion_list.csv
 

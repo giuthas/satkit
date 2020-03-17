@@ -81,18 +81,18 @@ def main():
     if args.exclusion_filename:
         exclusion_list_name = args.exclusion_filename
 
-    if args.log_filename:
-        log_filename = args.log_filename
-    else:
-        log_filename = directory.strip("/") + '.log'
+    # if args.log_filename:
+    #     log_filename = args.log_filename
+    # else:
+    #     log_filename = directory.strip("/") + '.log'
 
-    logger = logging.getLogger('test.pd')
-    logger.setLevel(logging.INFO)
+    # logger = logging.getLogger('test.pd')
+    # logger.setLevel(logging.INFO)
 
-    # setup the log file 
-    log_file_handler = logging.FileHandler(log_filename, mode='w')
-    log_file_handler.setLevel(logging.DEBUG)
-    logger.addHandler(log_file_handler)
+    # # setup the log file 
+    # log_file_handler = logging.FileHandler(log_filename, mode='w')
+    # log_file_handler.setLevel(logging.DEBUG)
+    # logger.addHandler(log_file_handler)
 
     # also log to the console at a level determined by the --verbose flag
     console_handler = logging.StreamHandler() # sys.stderr
@@ -110,7 +110,7 @@ def main():
     else:
         logging.critical("Unexplained negative count of args.verbose!")
 
-    logger.addHandler(console_handler)
+#    logger.addHandler(console_handler)
 
     logging.info('Run started at ' + str(datetime.datetime.now()))
 
@@ -125,7 +125,7 @@ def main():
 
     # do something sensible with the data
     pd.draw_spaghetti(token_list, data)
-    logging.info('Run ended at ' + str(datetime.datetime.now()) + '\n')
+    logging.info('Run ended at ' + str(datetime.datetime.now()))
     
 
 # if (len(sys.argv) > 3 or len(sys.argv) < 1):

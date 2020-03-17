@@ -37,9 +37,7 @@ with open("pd_logging_configuration.json", 'r') as logging_configuration_file:
     logging.config.dictConfig(config_dict)
  
 # Create the module logger.
-logger = logging.getLogger(__name__)
+pd_logger = logging.getLogger(__name__)
 
 # Log that the logger was configured.
-logger.info('Completed configuring logger()!')
-
-logger = logging.getLogger(__name__)
+pd_logger.info('Completed configuring logger.')

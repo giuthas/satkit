@@ -85,15 +85,6 @@ def main():
     logger = logging.getLogger('pd')
     logger.setLevel(logging.INFO)
 
-    # if args.log_filename:
-    #     log_filename = args.log_filename
-    # else:
-    #     log_filename = directory.strip("/") + '.log'
-    # # setup the log file 
-    # log_file_handler = logging.FileHandler(log_filename, mode='w')
-    # log_file_handler.setLevel(logging.DEBUG)
-    # logger.addHandler(log_file_handler)
-
     # also log to the console at a level determined by the --verbose flag
     console_handler = logging.StreamHandler() # sys.stderr
 
@@ -118,13 +109,6 @@ def main():
 
     logger.addHandler(console_handler)
 
-    logger.debug('debug test')
-    logger.info('info test')
-    logger.warning('warning test')
-    logger.error('error test')
-    logger.critical('critical test')
-
-    
     logger.info('Run started at ' + str(datetime.datetime.now()))
 
     # this is the actual list of tokens that gets processed 

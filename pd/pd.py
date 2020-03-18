@@ -49,7 +49,7 @@ from scipy.signal import butter, filtfilt, kaiser, sosfilt
 import matplotlib.pyplot as plt
 from matplotlib.backends.backend_pdf import PdfPages
 
-pd_logger = logging.getLogger(__name__)
+pd_logger = logging.getLogger('pd')
 
 def plot_signals_trace(beep, beep2, int_time, int_signal, hp_signal, bp_signal, int_signal2):
     fig = plt.figure()

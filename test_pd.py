@@ -50,7 +50,9 @@ def widen_help_formatter(formatter, total_width=140, syntax_width=35):
 
 def main():
     parser = argparse.ArgumentParser(description="PD toolkit test script",
-        formatter_class=widen_help_formatter(argparse.HelpFormatter, total_width=100, syntax_width=35))
+        formatter_class = widen_help_formatter(argparse.HelpFormatter,
+                                               total_width=100,
+                                               syntax_width=35))
 
     # mutually exclusive with reading previous results from a file
     parser.add_argument("directory", help="Directory containing the data to be read.")
@@ -59,14 +61,13 @@ def main():
                         help="Exclusion list of data files that should be ignored.",
                         metavar="file")
     
-    parser.add_argument("-l", "--log_file", dest="log_filename",
-                        help="Write log to file.", metavar="file")
-    
-    helptext="NOT IMPLEMENTED. Save results to file. Supported types are .pickle, .json and .csv."
+    helptext="NOT IMPLEMENTED. Save results to file. Default type is pickle."
+    helptext = helptext + " Supported types are .pickle, .json and .csv."
     parser.add_argument("-o", "--output", dest="filename",
                         help=helptext, metavar="file")
 
-    helptext="NOT IMPLEMENTED IN PD. Set verbosity of console output. Range is [0, 3], default is 0, larger values mean greater verbosity."
+    helptext = "Set verbosity of console output. Range is [0, 3], default is 1,"
+    helptext = helptext + " larger values mean greater verbosity."
     parser.add_argument("-v", "--verbose",
                         type=int, dest="verbose",
                         default=0,
@@ -81,14 +82,13 @@ def main():
     if args.exclusion_filename:
         exclusion_list_name = args.exclusion_filename
 
+    logger = logging.getLogger('pd')
+    logger.setLevel(logging.INFO)
+
     # if args.log_filename:
     #     log_filename = args.log_filename
     # else:
     #     log_filename = directory.strip("/") + '.log'
-
-    # logger = logging.getLogger('test.pd')
-    # logger.setLevel(logging.INFO)
-
     # # setup the log file 
     # log_file_handler = logging.FileHandler(log_filename, mode='w')
     # log_file_handler.setLevel(logging.DEBUG)
@@ -96,9 +96,15 @@ def main():
 
     # also log to the console at a level determined by the --verbose flag
     console_handler = logging.StreamHandler() # sys.stderr
-    # set level of logging messages that will be printed to console/stderr.
+
+    # Set the level of logging messages that will be printed to
+    # console/stderr.
+    #
+    # When pd is no longer just pd but pd and other tools, revisit the
+    # way this is handled. Possibly implement a central control (in a
+    # static object?) for setting the verbosity of different loggers?
     if not args.verbose:
-        console_handler.setLevel('ERROR')
+        console_handler.setLevel('WARNING')
     elif args.verbose < 1:
         console_handler.setLevel('ERROR')
     elif args.verbose == 1:
@@ -110,9 +116,16 @@ def main():
     else:
         logging.critical("Unexplained negative count of args.verbose!")
 
-#    logger.addHandler(console_handler)
+    logger.addHandler(console_handler)
 
-    logging.info('Run started at ' + str(datetime.datetime.now()))
+    logger.debug('debug test')
+    logger.info('info test')
+    logger.warning('warning test')
+    logger.error('error test')
+    logger.critical('critical test')
+
+    
+    logger.info('Run started at ' + str(datetime.datetime.now()))
 
     # this is the actual list of tokens that gets processed 
     # including meta data contained outwith the ult file
@@ -125,7 +138,7 @@ def main():
 
     # do something sensible with the data
     pd.draw_spaghetti(token_list, data)
-    logging.info('Run ended at ' + str(datetime.datetime.now()))
+    logger.info('Run ended at ' + str(datetime.datetime.now()))
     
 
 # if (len(sys.argv) > 3 or len(sys.argv) < 1):

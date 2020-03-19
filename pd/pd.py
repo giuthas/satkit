@@ -30,6 +30,7 @@ from datetime import datetime
 # Built in packages
 import csv
 import glob
+import json
 import logging
 import os
 import os.path
@@ -107,7 +108,8 @@ def plot_signals(beep, ultra_d, ultra_time, uti_wav, uti_wav_time, beep_uti, cen
 # Used for verifying test runs at the moment. Wrap later into it's own thing.
 #
 def draw_spaghetti(meta, data):
-    with PdfPages('spaghetti_plot.pdf') as pdf:
+    filename = 'spaghetti_plot.pdf'
+    with PdfPages(filename) as pdf:
         plt.figure(figsize=(7, 7))
         #ax = plt.subplot2grid((2,1),(1,0))
         ax = plt.axes()
@@ -125,17 +127,60 @@ def draw_spaghetti(meta, data):
         plt.tight_layout()
         pdf.savefig()  # saves the current figure into a pdf page
         plt.close()
+        pd_logger.info("Drew spaghetti plot in " + filename + ".")
+    
     
 
-def save_data(data, filename):
-    with closing(open(filename, 'w')) as outfile:
+def save2pickle(data, filename):
+    with closing(open(filename, 'bw')) as outfile:
         pickle.dump(data, outfile)
 
 
-def load_data(filename):
+def load_pickled_data(filename):
+    """
+    Loads a (token_metadata_list, data) tuple from a .pickle file and
+    returns the tuple.
+
+    """
+    data = None
+    with closing(open(filename, 'br')) as infile:
+        data = pickle.load(infile)
+
+    return data
+
+
+def save2json(data, filename):
+    """
+    THIS FUNCTION HAS NOT BEEN IMPLEMENTED YET.
+    """
+    # Can possibly be implemented with something like the example below
+    # (see also
+    # https://stackoverflow.com/questions/26646362/numpy-array-is-not-json-serializable)
+    # but to be used as a save-load pair, this will also need Decoder to interpret
+    # json to numpy.
+    #
+    # class NumpyEncoder(json.JSONEncoder):
+    #     def default(self, obj):
+    #         if isinstance(obj, np.ndarray):
+    #             return obj.tolist()
+    #         return json.JSONEncoder.default(self, obj)
+        
+    # a = np.array([[1, 2, 3], [4, 5, 6]])
+    # print(a.shape)
+    # json_dump = json.dumps({'a': a, 'aa': [2, (2, 3, 4), a], 'bb': [2]}, cls=NumpyEncoder)
+    # print(json_dump)
+
+    with closing(open(filename, 'w')) as outfile:
+        json.dump(data, outfile)
+
+
+def load_json_data(filename):
+    """
+    THIS FUNCTION HAS NOT BEEN IMPLEMENTED YET.
+    """
     data = None
     with closing(open(filename, 'r')) as infile:
-        data = pickle.load(infile)
+        data = json.load(infile)
 
     return data
 
@@ -162,7 +207,9 @@ def read_prompt(filename):
     with closing(open(filename, 'r')) as promptfile:
         lines = promptfile.read().splitlines()
         prompt = lines[0]
-        date = datetime.strptime(lines[1], '%d/%m/%Y %H:%M:%S')
+        date = lines[1]
+        # could also do datetime as below, but there doesn't seem to be any reason to so.
+        #date = datetime.strptime(lines[1], '%d/%m/%Y %H:%M:%S')
         participant = lines[2].split(',')[0]
 
         return(prompt, date, participant)
@@ -174,7 +221,8 @@ def read_file_exclusion_list(filename):
             reader = csv.reader(csvfile, delimiter='\t')
             # Throw away the second field - it is a comment for human readers.
             exclusion_list = [row[0] for row in reader]
-            logging.info('Read exclusion list with ' + str(len(exclusion_list)) + ' names.')
+            pd_logger.info('Read exclusion list ' + filename + ' with ' +
+                           str(len(exclusion_list)) + ' names.')
     else:
         exclusion_list = []
 
@@ -321,6 +369,8 @@ def get_token_list_from_dir(directory, exclusion_list_name):
                         if not prompt_file in uti_meta_files
                         ]
     uti_prompt_files = sorted(uti_prompt_files)
+
+    # TODO: there is a more elegant way of doing this with os.path functions 
     filenames = [filename.split('.')[-2].split('/').pop() 
                  for filename in uti_prompt_files]    
 

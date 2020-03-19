@@ -27,6 +27,8 @@
 
 import argparse
 import logging
+import os
+import os.path
 import sys
 import time
 import datetime 
@@ -55,19 +57,29 @@ def main():
                                                syntax_width=35))
 
     # mutually exclusive with reading previous results from a file
-    parser.add_argument("directory", help="Directory containing the data to be read.")
+    helptext = (
+        'Loadpath containing the data to be read.'
+        'Supported types are .pickle, .json and .csv. '
+        'Loading from .m is in the works.'
+    )
+    parser.add_argument("load_path", help=helptext)
     
     parser.add_argument("-e", "--exclusion_list", dest="exclusion_filename",
                         help="Exclusion list of data files that should be ignored.",
                         metavar="file")
     
-    helptext="NOT IMPLEMENTED. Save results to file. Default type is pickle."
-    helptext = helptext + " Supported types are .pickle, .json and .csv."
-    parser.add_argument("-o", "--output", dest="filename",
+    helptext = (
+        'Save metrics to file. '
+        'Supported type is .pickle. '
+        'Saving to .json, .csv., and .m may be possible in the future.'
+    )
+    parser.add_argument("-o", "--output", dest="output_filename",
                         help=helptext, metavar="file")
 
-    helptext = "Set verbosity of console output. Range is [0, 3], default is 1,"
-    helptext = helptext + " larger values mean greater verbosity."
+    helptext = (
+        'Set verbosity of console output. Range is [0, 3], default is 1, '
+        'larger values mean greater verbosity.'
+    )
     parser.add_argument("-v", "--verbose",
                         type=int, dest="verbose",
                         default=0,
@@ -75,12 +87,6 @@ def main():
                         metavar = "verbosity")
 
     args = parser.parse_args()
-
-    directory = args.directory
-        
-    exclusion_list_name = None
-    if args.exclusion_filename:
-        exclusion_list_name = args.exclusion_filename
 
     logger = logging.getLogger('pd')
     logger.setLevel(logging.INFO)
@@ -106,22 +112,44 @@ def main():
         console_handler.setLevel('DEBUG')
     else:
         logging.critical("Unexplained negative count of args.verbose!")
-
     logger.addHandler(console_handler)
 
     logger.info('Run started at ' + str(datetime.datetime.now()))
 
-    # this is the actual list of tokens that gets processed 
-    # including meta data contained outwith the ult file
-    token_list = pd.get_token_list_from_dir(directory, exclusion_list_name)
 
-    # run PD on each token
-    data = [pd.pd(token) for token in token_list]
+    if os.path.isdir(args.load_path): 
+        exclusion_list_name = None
+        if args.exclusion_filename:
+            exclusion_list_name = args.exclusion_filename
 
-    data = [datum for datum in data if not datum is None]
+        # this is the actual list of tokens that gets processed 
+        # token_list includes meta data contained outwith the ult file
+        token_list = pd.get_token_list_from_dir(args.load_path, args.exclusion_filename)
 
+        # run PD on each token
+        data = [pd.pd(token) for token in token_list]
+
+        data = [datum for datum in data if not datum is None]
+    elif os.path.splitext(args.load_path)[1] == '.pickle':
+        token_list, data = pd.load_pickled_data(args.load_path)
+    elif os.path.splitext(args.load_path)[1] == '.json':
+        token_list, data = pd.load_json_data(args.load_path)
+    else:
+        logger.error('Unsupported filetype: ' + args.load_path + '.')
+        
     # do something sensible with the data
+    logger.info("Drawing spaghetti plot.")
     pd.draw_spaghetti(token_list, data)
+
+    if args.output_filename:
+        if os.path.splitext(args.output_filename)[1] == '.pickle':
+            pd.save2pickle((token_list, data), args.output_filename)
+            logger.info("Wrote data to file " + args.output_filename + ".")
+        elif os.path.splitext(args.output_filename)[1] == '.json':
+            logger.error('Unsupported filetype: ' + args.output_filename + '.')
+        else:
+            logger.error('Unsupported filetype: ' + args.output_filename + '.')
+            
     logger.info('Run ended at ' + str(datetime.datetime.now()))
     
 

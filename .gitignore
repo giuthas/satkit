@@ -10,6 +10,9 @@
 # Log files 
 *.log
 
+# Pickled output files 
+*.pickle
+
 ####
 # Specific files 
 ####

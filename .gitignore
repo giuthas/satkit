@@ -13,6 +13,9 @@
 # Pickled output files 
 *.pickle
 
+# Apple Desktop Services Store file
+.DS_store
+
 ####
 # Specific files 
 ####
@@ -23,3 +26,10 @@ spaghetti_plot.pdf
 gpl-v3.tmpl
 # Command for running licenseheaders.py
 licenseheaders_command
+
+####
+# Directories
+####
+
+# Results of an optic flow run.
+results/

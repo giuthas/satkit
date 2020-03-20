@@ -1,0 +1,28 @@
+{
+    "version": 1,
+    "disable_existing_loggers": false,
+    "formatters": {
+        "simple": {
+            "format": "%(name)s - %(levelname)s - %(message)s"
+        },
+	"detailed": {
+	    "format":"%(asctime)-16s %(name)-8s %(filename)-12s %(lineno)-6s %(funcName)-30s %(levelname)-8s %(message)s"
+	}
+    },
+ 
+    "handlers": {
+        "file": {
+            "filename": "pd.log",
+	    "mode": "w",
+            "class": "logging.FileHandler",
+            "level": "INFO",
+            "formatter": "detailed",
+            "encoding": "utf8"
+        }
+    },
+    
+    "root": {
+        "level": "DEBUG",
+        "handlers": ["file"]
+    }
+}

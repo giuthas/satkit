@@ -21,8 +21,8 @@ $PYTHONPATH.
 
 PD is written in Python3 and developed with version 3.7.4.
 
-In addition to use the tools you will need the following packages (or
-newer versions of them):
+In addition to builtin Python modules, to use the tools you will need
+the following packages (or newer versions of them):
 * MatPlotLib 3.1.1
 * NumPy 1.17.2
 * SciPy 1.3.1

@@ -58,9 +58,9 @@ def main():
 
     # mutually exclusive with reading previous results from a file
     helptext = (
-        'Loadpath containing the data to be read.'
-        'Supported types are .pickle, .json and .csv. '
-        'Loading from .m is in the works.'
+        'Path containing the data to be read.'
+        'Supported types are .pickle files, and directories containing files exported from AAA. '
+        'Loading from .m, .json, and .csv are in the works.'
     )
     parser.add_argument("load_path", help=helptext)
     

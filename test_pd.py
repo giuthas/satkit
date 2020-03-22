@@ -35,7 +35,7 @@ import datetime
 
 # local modules
 import pd as pd
-
+from pd import pdplot as pdplot
 
 def widen_help_formatter(formatter, total_width=140, syntax_width=35):
     """Return a wider HelpFormatter, if possible."""
@@ -139,7 +139,7 @@ def main():
         
     # do something sensible with the data
     logger.info("Drawing spaghetti plot.")
-    pd.draw_spaghetti(token_list, data)
+    pdplot.draw_spaghetti(token_list, data)
 
     if args.output_filename:
         if os.path.splitext(args.output_filename)[1] == '.pickle':

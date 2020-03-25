@@ -300,31 +300,29 @@ def get_token_list_from_dir(directory, exclusion_list_name):
                         ]
     ult_prompt_files = sorted(ult_prompt_files)
 
-    # TODO: there is a more elegant way of doing this with os.path functions 
-    filenames = [filename.split('.')[-2].split('/').pop() 
-                 for filename in ult_prompt_files]    
+    base_names = [os.path.splitext(prompt_file)[0] for prompt_file in ult_prompt_files]    
+    meta = [{'base_name': base_name} for base_name in base_names] 
 
-    meta = [{'filename': filename} for filename in filenames] 
-    for i in range(0, len(filenames)):
-        # Prompt file should always exist and correspond to the filename because 
-        # the filename list is generated from the directory listing of prompt files.
+    for i in range(0, len(base_names)):
+        # Prompt file should always exist and correspond to the base_name because 
+        # the base_name list is generated from the directory listing of prompt files.
         meta[i]['ult_prompt_file'] = ult_prompt_files[i]
         (prompt, date, participant) = read_prompt(ult_prompt_files[i])
         meta[i]['prompt'] = prompt
         meta[i]['date'] = date
         meta[i]['participant'] = participant
 
-        if meta[i]['filename'] in file_exclusion_list:
-            notice = meta[i]['filename'] + " is in the exclusion list."
+        if meta[i]['base_name'] in file_exclusion_list:
+            notice = meta[i]['base_name'] + " is in the exclusion list."
             pd_logger.info(notice)
             meta[i]['excluded'] = True
         else:
             meta[i]['excluded'] = False
 
         # Candidates for filenames. Existence tested below.
-        ult_meta_file = os.path.join(directory, filenames[i] + "US.txt")
-        ult_wav_file = os.path.join(directory, filenames[i] + ".wav")
-        ult_file = os.path.join(directory, filenames[i] + ".ult")
+        ult_meta_file = os.path.join(directory, base_names[i] + "US.txt")
+        ult_wav_file = os.path.join(directory, base_names[i] + ".wav")
+        ult_file = os.path.join(directory, base_names[i] + ".ult")
 
         if os.path.isfile(ult_meta_file):
             meta[i]['ult_meta_file'] = ult_meta_file
@@ -354,12 +352,12 @@ def get_token_list_from_dir(directory, exclusion_list_name):
             meta[i]['excluded'] = True        
 
         if 'water swallow' in prompt:
-            notice = 'Note: ' + filenames[i] + ' prompt is a water swallow.'
+            notice = 'Note: ' + base_names[i] + ' prompt is a water swallow.'
             pd_logger.info(notice)
             meta[i]['type'] = 'water swallow'
             meta[i]['excluded'] = True        
         elif 'bite plate' in prompt:
-            notice = 'Note: ' + filenames[i] + ' prompt is a bite plate.'
+            notice = 'Note: ' + base_names[i] + ' prompt is a bite plate.'
             pd_logger.info(notice)
             meta[i]['type'] = 'bite plate'
             meta[i]['excluded'] = True        
@@ -374,10 +372,10 @@ def get_token_list_from_dir(directory, exclusion_list_name):
 
 def pd(token):
     if token['excluded']:
-        pd_logger.info("PD: " + token['filename'] + " " + token['prompt'] + '. Token excluded.')
+        pd_logger.info("PD: " + token['base_name'] + " " + token['prompt'] + '. Token excluded.')
         return None
     else:
-        pd_logger.info("PD: " + token['filename'] + " " + token['prompt'] + '. Token processed.')
+        pd_logger.info("PD: " + token['base_name'] + " " + token['prompt'] + '. Token processed.')
 
     (ult_wav_frames, beep_uti, has_speech, ult_wav_fs) = read_wav(token['ult_wav_file'])
 

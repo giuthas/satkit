@@ -25,9 +25,8 @@
 # see <https://creativecommons.org/licenses/by-nc-sa/4.0/> for details.
 #
 
-from contextlib import closing
-
 # Built in packages
+from contextlib import closing
 import csv
 import glob
 import json
@@ -42,15 +41,17 @@ import time
 
 # Numpy and scipy
 import numpy as np
-import scipy.io as sio
 import scipy.io.wavfile as sio_wavfile
-from scipy.signal import butter, filtfilt, kaiser, sosfilt
 
 # Scientific plotting
 import matplotlib.pyplot as plt
 from matplotlib.backends.backend_pdf import PdfPages
 
-pd_logger = logging.getLogger('pd')    
+# local modules
+import pd.audio as pd_audio
+
+
+pd_logger = logging.getLogger('pd.pd')    
 
 def save2pickle(data, filename):
     with closing(open(filename, 'bw')) as outfile:
@@ -150,108 +151,6 @@ def read_file_exclusion_list(filename):
     return exclusion_list
 
 
-def high_pass(fs):
-    stop = (50/(fs/2)) # 50 Hz stop band    
-    b, a = butter(10, stop, 'highpass')
-    return(b, a)
-
-
-def band_pass(fs):
-    nyq = 0.5 * fs
-    low = 950.0 / nyq
-    high = 1050.0 / nyq
-    sos = butter(1, [low, high], btype='band', output='sos')
-    return(sos)
-
-
-def beep_detect(frames, fs, b, a, name):
-    hp_signal = filtfilt(b, a, frames)
-    sos = band_pass(fs)
-    bp_signal = sosfilt(sos, frames)
-    bp_signal = sosfilt(sos, bp_signal[::-1])[::-1]
-    n = len(hp_signal)
-
-    # 1 ms window
-    window_length = int(0.001*fs)
-    half_window_length = int(window_length/2)
-
-    # pad with zeros at both ends
-    padded_signal = np.zeros(n + window_length)
-    padded_signal[half_window_length : half_window_length+n] = \
-        np.square(hp_signal) # squared already for rms, r&m later
-    padded_signal2 = np.zeros(n + window_length)
-    padded_signal2[half_window_length : half_window_length+n] = \
-        np.square(bp_signal) # squared already for rms, r&m later
-    
-    # square windowed samples
-    wind_signal = np.zeros((n, window_length)) 
-    bp_wind_signal = np.zeros((n, window_length)) 
-    for i in range(window_length):
-        wind_signal[:,i] = padded_signal[i:i+n]
-        bp_wind_signal[:,i] = padded_signal2[i:i+n]
-
-    # kaiser windowed samples
-    intensity_window = kaiser(window_length, 20) # copied from praat
-    # multiply each window slice with the window 
-    wind_signal = np.dot(wind_signal,np.diag(intensity_window)) 
-    bp_wind_signal = np.dot(bp_wind_signal,np.diag(intensity_window)) 
-
-    # The signal is already squared, need to only take mean and root.
-    int_signal = 10*np.log(np.sqrt(np.mean(wind_signal, 1)))
-    bp_int_signal = 10*np.log(np.sqrt(np.mean(bp_wind_signal, 1)))
-    
-    # Old int_time was used to almost correct the shift caused by windowing. 
-    #int_time = np.linspace(0, float(len(hp_signal) + 
-    # (window_length%2 - 1)/2.0)/fs, len(int_signal))
-    int_time = np.linspace(0, float(len(hp_signal))/fs, len(hp_signal))
-    int_signal[int_time < 1] = -80
-
-    # First form a rough estimate of where the beep is by detecting the first 
-    # big rise in the band passed signal.
-    threshold_bp = .9*max(bp_int_signal) + .1*min(bp_int_signal)
-    bp_spike_indeces = np.where(bp_int_signal > threshold_bp)
-    bp_beep = int_time[bp_spike_indeces[0]]
-
-    # Search for the actual beep in the area from beginning of the recording to 
-    # 25 ms before and after where band passing thinks the beep begins.
-    roi_beg = bp_spike_indeces[0][0] - int(0.025*fs)
-    roi_end = bp_spike_indeces[0][0] + int(0.025*fs)
-
-    # Find the first properly rising edge in the 50 ms window.
-    threshold = .1*min(frames[0:roi_end])
-    candidates = np.where(frames[roi_beg:roi_end] < threshold)[0]
-    beep_approx_index = roi_beg + candidates[0]
-    beep_approx = int_time[beep_approx_index]
-
-    zero_crossings = np.where(np.diff(np.signbit(frames[beep_approx_index:roi_end])))[0]
-    beep_index = beep_approx_index + zero_crossings[0] + 1 - int(.001*fs)
-    beep = int_time[beep_index]
-
-    # check if the energy before the beep begins is less 
-    # than the energy after the beep.
-    split_point = beep_index + int(.075*fs)
-    if len(hp_signal) > split_point:
-        ave_energy_pre_beep = np.sum(int_signal[:beep_index])/beep_index
-        ave_speech_energy = np.sum(int_signal[split_point:])/(len(int_signal)-split_point)
-        has_speech = ave_energy_pre_beep < ave_speech_energy
-
-    else:
-        # if the signal is very very short, there is no speech
-        has_speech = False
-
-    return (beep, has_speech)
-
-
-def read_wav(filename):
-    samplerate, frames = sio_wavfile.read(filename)
-    #duration = frames.shape[0] / samplerate
-    b, a = high_pass(samplerate)
-        
-    beep_time, has_speech = beep_detect(frames, samplerate, b, a, filename)
-
-    return(frames, beep_time, has_speech, samplerate)
-
-
 def parse_ult_meta(filename):
     """Return all metadata from AAA txt as dictionary."""
     with closing(open(filename, 'r')) as metafile:
@@ -279,7 +178,8 @@ def get_token_list_from_dir(directory, exclusion_list_name):
     # File exclusion list is provided by the user.
     file_exclusion_list = read_file_exclusion_list(exclusion_list_name)
 
-    # this is equivalent with the following: sorted(glob.glob(directory + '/.' +  '/*US.txt'))
+    # this is equivalent with the following:
+    # sorted(glob.glob(directory + '/.' +  '/*US.txt'))
     ult_meta_files = sorted(glob.glob(directory + '/*US.txt'))
 
     # this takes care of *.txt and *US.txt overlapping.
@@ -289,7 +189,7 @@ def get_token_list_from_dir(directory, exclusion_list_name):
                         ]
     ult_prompt_files = sorted(ult_prompt_files)
 
-    base_names = [os.path.splitext(prompt_file)[0] for prompt_file in ult_prompt_files]    
+    base_names = [os.path.splitext(prompt_file)[0] for prompt_file in ult_prompt_files]
     meta = [{'base_name': base_name} for base_name in base_names] 
 
     for i in range(0, len(base_names)):
@@ -309,9 +209,9 @@ def get_token_list_from_dir(directory, exclusion_list_name):
             meta[i]['excluded'] = False
 
         # Candidates for filenames. Existence tested below.
-        ult_meta_file = os.path.join(directory, base_names[i] + "US.txt")
-        ult_wav_file = os.path.join(directory, base_names[i] + ".wav")
-        ult_file = os.path.join(directory, base_names[i] + ".ult")
+        ult_meta_file = os.path.join(base_names[i] + "US.txt")
+        ult_wav_file = os.path.join(base_names[i] + ".wav")
+        ult_file = os.path.join(base_names[i] + ".ult")
 
         if os.path.isfile(ult_meta_file):
             meta[i]['ult_meta_file'] = ult_meta_file
@@ -366,15 +266,19 @@ def pd(token):
     else:
         pd_logger.info("PD: " + token['base_name'] + " " + token['prompt'] + '. Token processed.')
 
-    (ult_wav_frames, beep_uti, has_speech, ult_wav_fs) = read_wav(token['ult_wav_file'])
-
-    # Yes, uses a function that is supposed to be hidden. Planning on
-    # making this function the actual interface.
+    (ult_wav_fs, ult_wav_frames) = sio_wavfile.read(token['ult_wav_file'])
+    # setup the high-pass filter for removing the mains frequency from the recorded sound.
+    b, a = pd_audio.high_pass_50(ult_wav_fs)
+    beep_uti, has_speech = pd_audio.detect_beep_and_speech(ult_wav_frames,
+                                                           ult_wav_fs,
+                                                           b, a,
+                                                           token['ult_wav_file'])
+    
     meta = parse_ult_meta(token['ult_meta_file'])
     ult_fps = meta['FramesPerSec']
     ult_NumVectors = meta['NumVectors']
     ult_PixPerVector = meta['PixPerVector']
-    t_first_frame = meta['TimeInSecsOfFirstFrame']
+    ult_TimeInSecsOfFirstFrame = meta['TimeInSecsOfFirstFrame']
 
     with closing(open(token['ult_file'], 'rb')) as ult_file:
         ult_data = ult_file.read()
@@ -391,7 +295,7 @@ def pd(token):
         ultra_d = np.sqrt(np.sum(slw_pd, axis=1))
             
     ultra_time = np.linspace(0, len(ultra_d), len(ultra_d), endpoint=False)/ult_fps
-    ultra_time = ultra_time + t_first_frame + .5/ult_fps
+    ultra_time = ultra_time + ult_TimeInSecsOfFirstFrame + .5/ult_fps
 
     ult_wav_time = np.linspace(0, len(ult_wav_frames), 
                                len(ult_wav_frames), endpoint=False)/ult_wav_fs

@@ -86,9 +86,9 @@ def read_wav(filebase):
     return frames, samplerate
 
 
-def _parse_ult_meta(filebase):
+def parse_ult_meta(filename):
     """Return all metadata from AAA txt as dictionary."""
-    with closing(open(filebase, 'r')) as metafile:
+    with closing(open(filename, 'r')) as metafile:
         meta = {}
         for line in metafile:
             (key, value_str) = line.split("=")
@@ -99,17 +99,6 @@ def _parse_ult_meta(filebase):
             meta[key] = value
 
         return meta
-
-
-def read_ult_meta(filebase):
-    """Convenience fcn for output of targeted metadata."""
-    meta = _parse_ult_meta(filebase)
-
-    return (meta["NumVectors"],
-            meta["PixPerVector"],
-            meta["PixelsPerMm"],
-            meta["FramesPerSec"],
-            meta["TimeInSecsOfFirstFrame"])
 
 
 def get_data_from_dir(directory):
@@ -197,7 +186,7 @@ def compute(item):
     
     (ult_wav_frames, ult_wav_fs) = read_wav(item['ult_wav_file'])
 
-    meta = _parse_ult_meta(token['ult_meta_file'])
+    meta = parse_ult_meta(token['ult_meta_file'])
     ult_fps = meta['FramesPerSec']
     ult_NumVectors = meta['NumVectors']
     ult_PixPerVector = meta['PixPerVector']

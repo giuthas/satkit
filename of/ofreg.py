@@ -29,21 +29,15 @@
 # see <https://creativecommons.org/licenses/by-nc-sa/4.0/> for details.
 #
 
-from contextlib import closing
-from datetime import datetime
 
 # built in packages
-import csv
+from contextlib import closing
 import math
 import glob
 import logging
 import os
 import os.path
 import pickle
-import re
-import struct
-import sys
-import time
 import warnings
 
 from multiprocessing import Process, Manager
@@ -73,7 +67,9 @@ def read_prompt(filebase):
     with closing(open(filebase, 'r')) as promptfile:
         lines = promptfile.read().splitlines()
         prompt = lines[0]
-        date = datetime.strptime(lines[1], '%d/%m/%Y %I:%M:%S %p')
+        date = lines[1]
+        # could also do datetime as below, but there doesn't seem to be any reason to so.
+        # date = datetime.strptime(lines[1], '%d/%m/%Y %H:%M:%S')
         participant = lines[2].split(',')[0]
 
         return prompt, date, participant
@@ -164,7 +160,7 @@ def get_data_from_dir(directory):
 
 
 def parallel_register(ns, index, num_frames, storage):
-    sys.stdout.write("Working on frame pair %d of %d\n" % (index, num_frames - 1))
+    ofreg_logger.info("Working on frame pair %d of %d\n" % (index, num_frames - 1))
     current_im = ns.ultra_interp[index]
     next_im = ns.ultra_interp[index + 1]
 
@@ -184,7 +180,7 @@ def compute(item):
     # TODO don't arrange this externally to these scripts; i.e. transfer the loop in driver.py into here
     ofreg_logger.info("PD: " + item['filebase'] + " " + item['prompt'] + '. item processed.')
     
-    (ult_wav_frames, ult_wav_fs) = read_wav(item['ult_wav_file'])
+    (ult_wav_fs, ult_wav_frames) = sio_wavfile.read(item['ult_wav_file'])
 
     meta = parse_ult_meta(token['ult_meta_file'])
     ult_fps = meta['FramesPerSec']
@@ -281,7 +277,7 @@ def compute(item):
         else:
             # do registration without parallel computation support
             for fIdx in range(ult_no_frames - 1):
-                sys.stdout.write("Working on frame pair %d of %d\n" % (fIdx, ult_no_frames - 1))
+                ofreg_logger.info("Working on frame pair %d of %d\n" % (fIdx, ult_no_frames - 1))
                 current_im = ultra_interp[fIdx]
                 next_im = ultra_interp[fIdx + 1]
 

@@ -123,7 +123,7 @@ def read_prompt(filename):
         prompt = lines[0]
         date = lines[1]
         # could also do datetime as below, but there doesn't seem to be any reason to so.
-        #date = datetime.strptime(lines[1], '%d/%m/%Y %H:%M:%S')
+        # date = datetime.strptime(lines[1], '%d/%m/%Y %H:%M:%S')
         participant = lines[2].split(',')[0]
 
         return(prompt, date, participant)

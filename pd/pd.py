@@ -34,18 +34,10 @@ import logging
 import os
 import os.path
 import pickle
-import re
-import struct
-import sys
-import time
 
 # Numpy and scipy
 import numpy as np
 import scipy.io.wavfile as sio_wavfile
-
-# Scientific plotting
-import matplotlib.pyplot as plt
-from matplotlib.backends.backend_pdf import PdfPages
 
 # local modules
 import pd.audio as pd_audio

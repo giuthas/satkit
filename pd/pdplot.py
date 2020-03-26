@@ -25,32 +25,15 @@
 # see <https://creativecommons.org/licenses/by-nc-sa/4.0/> for details.
 #
 
-from contextlib import closing
-
 # Built in packages
-import csv
-import glob
-import json
+from contextlib import closing
 import logging
-import os
-import os.path
-import pickle
-import re
-import struct
-import sys
-import time
-
-# Numpy and scipy
-import numpy as np
-import scipy.io as sio
-import scipy.io.wavfile as sio_wavfile
-from scipy.signal import butter, filtfilt, kaiser, sosfilt
 
 # Scientific plotting
 import matplotlib.pyplot as plt
 from matplotlib.backends.backend_pdf import PdfPages
 
-pd_logger = logging.getLogger('pd')
+pd_logger = logging.getLogger('pd.plot')
 
 def plot_signals_trace(beep, beep2, int_time, int_signal, hp_signal, bp_signal, int_signal2):
     fig = plt.figure()

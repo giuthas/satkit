@@ -196,7 +196,13 @@ def compute(item):
     ofreg_logger.info("PD: " + item['filebase'] + " " + item['prompt'] + '. item processed.')
     
     (ult_wav_frames, ult_wav_fs) = read_wav(item['ult_wav_file'])
-    (ult_NumVectors, ult_PixPerVector, ult_PixelsPerMm, ult_fps, ult_TimeInSecOfFirstFrame) = read_ult_meta(item['ult_meta_file'])
+
+    meta = _parse_ult_meta(token['ult_meta_file'])
+    ult_fps = meta['FramesPerSec']
+    ult_NumVectors = meta['NumVectors']
+    ult_PixPerVector = meta['PixPerVector']
+    ult_TimeInSecOfFirstFrame = meta['TimeInSecsOfFirstFrame']
+    ult_PixelsPerMm = meta['PixelsPerMm']
 
     with closing(open(item['ult_file'], 'rb')) as ult_file:
         ult_data = ult_file.read()

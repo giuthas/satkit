@@ -35,8 +35,10 @@ import datetime
 
 # local modules
 import pd as pd
-from pd import pdplot as pdplot
-from pd import import_from_AAA as pdAAA
+import pd.pdplot as pdplot
+import pd.import_from_AAA as pdAAA
+import pd.io as pd_io
+
 
 def widen_help_formatter(formatter, total_width=140, syntax_width=35):
     """Return a wider HelpFormatter, if possible."""
@@ -132,9 +134,9 @@ def main():
 
         data = [datum for datum in data if not datum is None]
     elif os.path.splitext(args.load_path)[1] == '.pickle':
-        token_list, data = pd.load_pickled_data(args.load_path)
+        token_list, data = pd_io.load_pickled_data(args.load_path)
     elif os.path.splitext(args.load_path)[1] == '.json':
-        token_list, data = pd.load_json_data(args.load_path)
+        token_list, data = pd_io.load_json_data(args.load_path)
     else:
         logger.error('Unsupported filetype: ' + args.load_path + '.')
         

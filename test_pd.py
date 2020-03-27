@@ -36,6 +36,7 @@ import datetime
 # local modules
 import pd as pd
 from pd import pdplot as pdplot
+from pd import import_from_AAA as pdAAA
 
 def widen_help_formatter(formatter, total_width=140, syntax_width=35):
     """Return a wider HelpFormatter, if possible."""
@@ -124,7 +125,7 @@ def main():
 
         # this is the actual list of tokens that gets processed 
         # token_list includes meta data contained outwith the ult file
-        token_list = pd.get_token_list_from_dir(args.load_path, args.exclusion_filename)
+        token_list = pdAAA.get_token_list_from_dir(args.load_path, args.exclusion_filename)
 
         # run PD on each token
         data = [pd.pd(token) for token in token_list]

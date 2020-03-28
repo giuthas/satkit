@@ -33,20 +33,20 @@ import numpy as np
 from scipy.signal import butter, filtfilt, kaiser, sosfilt
 
 
-audio_logger = logging.getLogger('pd.audio')    
+_audio_logger = logging.getLogger('pd.audio')    
 
 
 def high_pass_50(fs):
     """Returns a high-pass filter with a 50Hz stop band. Used for
     filtering the mains frequency away from recorded sound.""" 
-    audio_logger.debug("Generating high-pass filter.")
+    _audio_logger.debug("Generating high-pass filter.")
     stop = (50/(fs/2)) # 50 Hz stop band    
     b, a = butter(10, stop, 'highpass')
     return(b, a)
 
 
 def band_pass(fs):
-    audio_logger.debug("Generating band-pass filter.")
+    _audio_logger.debug("Generating band-pass filter.")
     nyq = 0.5 * fs
     low = 950.0 / nyq
     high = 1050.0 / nyq
@@ -56,7 +56,7 @@ def band_pass(fs):
 
 def detect_beep_and_speech(frames, fs, b, a, name):
 
-    audio_logger.info("Detecting beep onset and presence of speech in " + name + ".")
+    _audio_logger.debug("Detecting beep onset and presence of speech in " + name + ".")
     hp_signal = filtfilt(b, a, frames)
     sos = band_pass(fs)
     bp_signal = sosfilt(sos, frames)

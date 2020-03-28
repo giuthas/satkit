@@ -33,7 +33,7 @@ import logging
 import pickle
 
 
-io_logger = logging.getLogger('pd.io')    
+_io_logger = logging.getLogger('pd.io')    
 
 def save2pickle(data, filename):
     """
@@ -42,7 +42,7 @@ def save2pickle(data, filename):
     """
     with closing(open(filename, 'bw')) as outfile:
         pickle.dump(data, outfile)
-        io_logger.debug('Wrote data to pickle file ' + filename + '.')
+        _io_logger.debug('Wrote data to pickle file ' + filename + '.')
         
 
 def load_pickled_data(filename):
@@ -54,7 +54,7 @@ def load_pickled_data(filename):
     data = None
     with closing(open(filename, 'br')) as infile:
         data = pickle.load(infile)
-        io_logger.debug('Read data from pickle file ' + filename + '.')
+        _io_logger.debug('Read data from pickle file ' + filename + '.')
 
     return data
 
@@ -80,7 +80,7 @@ def save_data_2json(data, filename):
     # json_dump = json.dumps({'a': a, 'aa': [2, (2, 3, 4), a], 'bb': [2]}, cls=NumpyEncoder)
     # print(json_dump)
 
-    io_logger.critical('The function save_data_2json has not yet been implemented.')
+    _io_logger.critical('The function save_data_2json has not yet been implemented.')
     with closing(open(filename, 'w')) as outfile:
         json.dump(data, outfile)
 
@@ -90,7 +90,7 @@ def load_json_data(filename):
     THIS FUNCTION HAS NOT BEEN IMPLEMENTED YET.
     """
 
-    io_logger.critical('The function load_json_data has not yet been implemented.')
+    _io_logger.critical('The function load_json_data has not yet been implemented.')
     data = None
     with closing(open(filename, 'r')) as infile:
         data = json.load(infile)
@@ -109,7 +109,7 @@ def write_metadata_to_csv(meta, filename):
 
         writer.writeheader()
         map(writer.writerow, meta)
-        io_logger.debug('Wrote metadata to file ' + filename + '.')
+        _io_logger.debug('Wrote metadata to file ' + filename + '.')
 
 
 def save_prompt_freq(prompt_freqs):
@@ -122,5 +122,5 @@ def save_prompt_freq(prompt_freqs):
         writer.writerow(['prompt', 'frequency'])
         for prompt in sorted(prompt_freqs.keys()):
             writer.writerow([prompt, prompt_freqs[prompt]])
-        io_logger.debug('Wrote prompt frequency counts to file ' + filename + '.')
+        _io_logger.debug('Wrote prompt frequency counts to file ' + filename + '.')
 

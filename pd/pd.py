@@ -38,7 +38,7 @@ import pd.audio as pd_audio
 import pd.io.AAA as pd_AAA
 
 
-pd_logger = logging.getLogger('pd.pd')    
+_pd_logger = logging.getLogger('pd.pd')    
 
 
 def pd(token):
@@ -49,11 +49,15 @@ def pd(token):
     beep time and a time vector spanning the ultrasound recording.
 
     """
+
+    notice = token['base_name'] + " " + token['prompt']
     if token['excluded']:
-        pd_logger.info("PD: " + token['base_name'] + " " + token['prompt'] + '. Token excluded.')
+        notice += ': Token excluded.'
+        _pd_logger.info(notice)
         return None
     else:
-        pd_logger.info("PD: " + token['base_name'] + " " + token['prompt'] + '. Token processed.')
+        notice += ': Token being processed.'
+        _pd_logger.info(notice)
 
     (ult_wav_fs, ult_wav_frames) = sio_wavfile.read(token['ult_wav_file'])
     # setup the high-pass filter for removing the mains frequency from the recorded sound.
@@ -82,13 +86,22 @@ def pd(token):
         ultra_diff = np.square(ultra_diff)
         slw_pd = np.sum(ultra_diff, axis=2)
         ultra_d = np.sqrt(np.sum(slw_pd, axis=1))
-            
+
+        notice = token['base_name'] + " " + token['prompt']
+        notice += ': PD calculated.'
+        _pd_logger.debug(notice)
+
+        
     ultra_time = np.linspace(0, len(ultra_d), len(ultra_d), endpoint=False)/ult_fps
     ultra_time = ultra_time + ult_TimeInSecsOfFirstFrame + .5/ult_fps
 
     ult_wav_time = np.linspace(0, len(ult_wav_frames), 
                                len(ult_wav_frames), endpoint=False)/ult_wav_fs
         
+    notice = token['base_name'] + " " + token['prompt']
+    notice += ': Token processed.'
+    _pd_logger.info(notice)
+
     data = {}
     data['pd'] = ultra_d
     data['sbpd'] = slw_pd

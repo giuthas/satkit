@@ -34,7 +34,7 @@ import os
 import os.path
 
 
-AAA_logger = logging.getLogger('pd.AAA')
+_AAA_logger = logging.getLogger('pd.AAA')
 
 def read_prompt(filename):
     """
@@ -49,7 +49,7 @@ def read_prompt(filename):
         # date = datetime.strptime(lines[1], '%d/%m/%Y %H:%M:%S')
         participant = lines[2].split(',')[0]
 
-        AAA_logger.debug("Read prompt file " + filename + ".")
+        _AAA_logger.debug("Read prompt file " + filename + ".")
         return(prompt, date, participant)
 
 
@@ -62,7 +62,7 @@ def read_file_exclusion_list(filename):
             reader = csv.reader(csvfile, delimiter='\t')
             # Throw away the second field - it is a comment for human readers.
             exclusion_list = [row[0] for row in reader]
-            AAA_logger.info('Read exclusion list ' + filename + ' with ' +
+            _AAA_logger.info('Read exclusion list ' + filename + ' with ' +
                            str(len(exclusion_list)) + ' names.')
     else:
         exclusion_list = []
@@ -84,7 +84,7 @@ def parse_ult_meta(filename):
                 value = float(value_str)
             meta[key] = value
 
-        AAA_logger.debug("Read and parsed ultrasound metafile " + filename + ".")
+        _AAA_logger.debug("Read and parsed ultrasound metafile " + filename + ".")
         return meta
 
 
@@ -134,7 +134,7 @@ def get_token_list_from_dir(directory, exclusion_list_name):
 
         if meta[i]['base_name'] in file_exclusion_list:
             notice = meta[i]['base_name'] + " is in the exclusion list."
-            AAA_logger.info(notice)
+            _AAA_logger.info(notice)
             meta[i]['excluded'] = True
         else:
             meta[i]['excluded'] = False
@@ -149,7 +149,7 @@ def get_token_list_from_dir(directory, exclusion_list_name):
             meta[i]['ult_meta_exists'] = True
         else: 
             notice = 'Note: ' + ult_meta_file + " does not exist."
-            AAA_logger.warning(notice)
+            _AAA_logger.warning(notice)
             meta[i]['ult_meta_exists'] = False
             meta[i]['excluded'] = True
             
@@ -158,7 +158,7 @@ def get_token_list_from_dir(directory, exclusion_list_name):
             meta[i]['ult_wav_exists'] = True
         else:
             notice = 'Note: ' + ult_wav_file + " does not exist."
-            AAA_logger.warning(notice)
+            _AAA_logger.warning(notice)
             meta[i]['ult_wav_exists'] = False
             meta[i]['excluded'] = True
             
@@ -167,18 +167,18 @@ def get_token_list_from_dir(directory, exclusion_list_name):
             meta[i]['ult_exists'] = True
         else:
             notice = 'Note: ' + ult_file + " does not exist."
-            AAA_logger.warning(notice)
+            _AAA_logger.warning(notice)
             meta[i]['ult_exists'] = False
             meta[i]['excluded'] = True        
 
         if 'water swallow' in prompt:
             notice = 'Note: ' + base_names[i] + ' prompt is a water swallow.'
-            AAA_logger.info(notice)
+            _AAA_logger.info(notice)
             meta[i]['type'] = 'water swallow'
             meta[i]['excluded'] = True        
         elif 'bite plate' in prompt:
             notice = 'Note: ' + base_names[i] + ' prompt is a bite plate.'
-            AAA_logger.info(notice)
+            _AAA_logger.info(notice)
             meta[i]['type'] = 'bite plate'
             meta[i]['excluded'] = True        
         else:

@@ -35,7 +35,7 @@ import scipy.io.wavfile as sio_wavfile
 
 # local modules
 import pd.audio as pd_audio
-import pd.import_from_AAA as pdAAA
+import pd.io.AAA as pd_AAA
 
 
 pd_logger = logging.getLogger('pd.pd')    
@@ -63,7 +63,7 @@ def pd(token):
                                                            b, a,
                                                            token['ult_wav_file'])
     
-    meta = pdAAA.parse_ult_meta(token['ult_meta_file'])
+    meta = pd_AAA.parse_ult_meta(token['ult_meta_file'])
     ult_fps = meta['FramesPerSec']
     ult_NumVectors = meta['NumVectors']
     ult_PixPerVector = meta['PixPerVector']

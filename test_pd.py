@@ -36,7 +36,7 @@ import datetime
 # local modules
 import pd as pd
 import pd.pdplot as pdplot
-import pd.import_from_AAA as pdAAA
+import pd.io.AAA as pd_AAA
 import pd.io as pd_io
 
 
@@ -127,7 +127,7 @@ def main():
 
         # this is the actual list of tokens that gets processed 
         # token_list includes meta data contained outwith the ult file
-        token_list = pdAAA.get_token_list_from_dir(args.load_path, args.exclusion_filename)
+        token_list = pd_AAA.get_token_list_from_dir(args.load_path, args.exclusion_filename)
 
         # run PD on each token
         data = [pd.pd(token) for token in token_list]

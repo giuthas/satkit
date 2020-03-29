@@ -53,7 +53,7 @@ def widen_help_formatter(formatter, total_width=140, syntax_width=35):
         return formatter
 
 
-def main():
+def cli():
     parser = argparse.ArgumentParser(description="PD toolkit test script",
         formatter_class = widen_help_formatter(argparse.HelpFormatter,
                                                total_width=100,
@@ -165,6 +165,6 @@ def main():
 
 if (__name__ == '__main__'):
     t = time.time()
-    main()
+    cli()
     elapsed_time = time.time() - t
     logging.info('Elapsed time ' + str(elapsed_time))

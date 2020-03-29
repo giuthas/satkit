@@ -33,6 +33,7 @@ from pd.commandLineInterface import cli
 
 
 def main():
+    # Run the command line interface.
     cli()
     
 

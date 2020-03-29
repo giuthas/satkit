@@ -36,7 +36,7 @@ distribution](https://www.anaconda.com/distribution/#download-section).
 
 See
 [manifest.txt](https://github.com/giuthas/pd/blob/master/manifest.txt)
-For a discription of the contents.
+for a description of the contents.
 
 
 ### Running the examples

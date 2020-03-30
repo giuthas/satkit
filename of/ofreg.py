@@ -182,7 +182,7 @@ def compute(item):
     
     (ult_wav_fs, ult_wav_frames) = sio_wavfile.read(item['ult_wav_file'])
 
-    meta = parse_ult_meta(token['ult_meta_file'])
+    meta = parse_ult_meta(item['ult_meta_file'])
     ult_fps = meta['FramesPerSec']
     ult_NumVectors = meta['NumVectors']
     ult_PixPerVector = meta['PixPerVector']
@@ -282,7 +282,9 @@ def compute(item):
                 next_im = ultra_interp[fIdx + 1]
 
                 # execute the optimization
-                ofdisp.append({'of': sdr.optimize(next_im, current_im), 'current frame': fIdx, 'next frame': fIdx + 1})
+                ofdisp.append({'of': sdr.optimize(next_im, current_im),
+                               'current frame': fIdx,
+                               'next frame': fIdx + 1})
 
                 # debug plotting
                 if debug_plot_ofreg:

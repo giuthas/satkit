@@ -40,7 +40,7 @@ import os.path
 import pickle
 import warnings
 
-from multiprocessing import Process, Manager
+import multiprocessing as mp
 
 # diffeomorphic demons algorithm implemented in python in the DIPY package
 from dipy.align.imwarp import SymmetricDiffeomorphicRegistration
@@ -160,7 +160,7 @@ def get_data_from_dir(directory):
 
 
 def parallel_register(ns, index, num_frames, storage):
-    ofreg_logger.info("Working on frame pair %d of %d\n" % (index, num_frames - 1))
+    ofreg_logger.info("Working on frame pair %d of %d." % (index, num_frames - 1))
     current_im = ns.ultra_interp[index]
     next_im = ns.ultra_interp[index + 1]
 
@@ -251,10 +251,10 @@ def compute(item):
 
         # DO REGISTRATION (CHECK FOR PARALLELISM)
         ofoutput = []
-        useParallelFlag = True
+        useParallelFlag = False
         if useParallelFlag:
             # setup parallelism for running the registration
-            mgr = Manager()
+            mgr = mp.Manager()
             storage = mgr.dict()  # create the storage for the optical flow
             ns = mgr.Namespace()
             ns.ultra_interp = ultra_interp
@@ -264,7 +264,8 @@ def compute(item):
 
             # run the parallel processes
             for fIdx in range(0, ult_no_frames-1):
-                proc = Process(target=parallel_register, args=(ns, fIdx, ult_no_frames, storage))
+                proc = mp.Process(target=parallel_register,
+                                  args=(ns, fIdx, ult_no_frames, storage))
                 procs.append(proc)
                 proc.start()
 
@@ -276,8 +277,10 @@ def compute(item):
             ofdisp = storage.values()
         else:
             # do registration without parallel computation support
+            ofdisp = []
+            
             for fIdx in range(ult_no_frames - 1):
-                ofreg_logger.info("Working on frame pair %d of %d\n" % (fIdx, ult_no_frames - 1))
+                ofreg_logger.info("Working on frame pair %d of %d." % (fIdx, ult_no_frames - 1))
                 current_im = ultra_interp[fIdx]
                 next_im = ultra_interp[fIdx + 1]
 
@@ -294,7 +297,7 @@ def compute(item):
                     plt.show()
                     plt.pause(0.05)
 
-        print("Finished computing optical flow for %s" % (item['filebase']))
+        print("Finished computing optical flow for %s." % (item['filebase']))
 
 
         # debug plotting
@@ -328,7 +331,7 @@ def compute(item):
             # register the callback function with the figure
             cid = fig.canvas.mpl_connect('scroll_event', update_plot)
 
-        #plt.show()
+        plt.show()
 
         # compute the ultrasound time vector
         ultra_time = np.linspace(0, ult_no_frames, ult_no_frames, endpoint=False) / ult_fps

@@ -101,7 +101,7 @@ def main():
 if __name__ == '__main__':
     # The old default start method in multiprocessing on MacOS
     # (i.e. darwin) leads to crashes. Fixing it apparently leads to
-    # different kinds of crashes.
+    # different kinds of crashes. Better solution on the todo list.
     if sys.version_info < (3, 8) and sys.platform == "darwin":
         print("Changing to spawn.")
         mp.set_start_method('spawn')

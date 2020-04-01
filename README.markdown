@@ -28,10 +28,8 @@ $PYTHONPATH.
 
 ### Prerequisites
 
-PD is written in Python3 and developed with version 3.7.4.
-
-In addition to built in Python modules, to use the tools you will need
-the following packages (or newer versions of them):
+For all of the tools you will need the following or more recent:
+* Python 3.7.4
 * MatPlotLib 3.1.1
 * NumPy 1.17.2
 * SciPy 1.3.1
@@ -40,6 +38,11 @@ A handy way of getting MatPlotLib, NumPy, and SciPy is to get them as
 part of the [Anaconda
 distribution](https://www.anaconda.com/distribution/#download-section).
 
+For OF you will need in addition:
+* DIPY 1.1.0
+
+Which, if you installed anaconda, you can get with `conda install -c
+conda-forge dipy`.
 
 ### What's included
 

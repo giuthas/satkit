@@ -1,8 +1,8 @@
 =======
-# Speech Image ToolKIT - SITKIT
+# Speech Articulation Python toolkit - SpeechArtPy
 
 Currently these tools are meant for processing ultrasound speech data
-from both the tongue and the larynx. In the future the toolkit will
+from both the tongue and the larynx. In future, the toolkit will
 include facilities for processing other kinds of articulatory
 data. The first two to be implemented are Optical Flow and Pixel
 Difference.
@@ -54,15 +54,15 @@ for a description of the contents.
 ### Running the examples
 
 There are three small datasets included in the distribution. You can
-run tests on them with the test script `test_pd.py`. Currently the
+run tests on them with the test script `pd_test.py`. Currently the
 following work and produce a new spaghetti_plot.pdf and a transcript
 in `[directory_name].log`.
 
 ```
-python test_pd.py test1_1
-python test_pd.py test1_1 exclusion_list.csv
-python test_pd.py test1_2
-python test_pd.py test1_2 exclusion_list.csv
+python pd_test.py test1_1
+python pd_test.py test1_1 exclusion_list.csv
+python pd_test_.py test1_2
+python pd_test.py test1_2 exclusion_list.csv
 ```
 
 The first example directory contains recordings with all files present
@@ -135,7 +135,7 @@ General Public License for more details.
 
 You should have received a copy of the GNU General Public License
 along with this program.  If not, see
-[https://www.gnu.org/licenses/gpl-3.0.en.html](https://www.gnu.org/licenses/gpl-3.0.en.html).
+<https://www.gnu.org/licenses/gpl-3.0.en.html>
 
 
 ### Data license
@@ -146,7 +146,7 @@ The data in directories `of_data`, `test1_1`, `test1_2`, and `test2`
 are licensed under the Creative Commons
 Attribution-NonCommercial-ShareAlike 4.0 International (CC BY-NC-SA
 4.0) License. See
-[https://creativecommons.org/licenses/by-nc-sa/4.0/](https://creativecommons.org/licenses/by-nc-sa/4.0/)
+<https://creativecommons.org/licenses/by-nc-sa/4.0/>
 for details.
 
 ### Citing the code
@@ -162,7 +162,7 @@ Fonetyczne.
 laryngeal gestures in Mandarin citation tones using simultaneous
 laryngoscopy and laryngeal ultrasound (SLLUS). Journal of the
 International Phonetic Association, 44(01),
-21–58. https://doi.org/10.1017/S0025100313000327
+21–58. <https://doi.org/10.1017/S0025100313000327>
 3. Poh, D. P. Z., & Moisik, S. R. (2019). An acoustic and
 articulatory investigation of citation tones in Singaporean Mandarin
 using laryngeal ultrasound. In S. Calhoun, P. Escudero, M. Tabain, &

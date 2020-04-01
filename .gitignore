@@ -1,7 +1,38 @@
 venv/
 .idea/
-*.log
+
+####
+# Groups of files 
+####
+# Emacs autosaves
+*~
+
+# Python bytecode
 *.pyc
-.DS_Store
-of/__pycache__
+
+# Log files 
+*.log
+
+# Pickled output files 
+*.pickle
+
+# Apple Desktop Services Store file
+.DS_store
+
+####
+# Specific files 
+####
+# Result of test run
+spaghetti_plot.pdf
+
+# Template for licenseheaders.py to include gpl in headers of python files.
+gpl-v3.tmpl
+# Command for running licenseheaders.py
+licenseheaders_command
+
+####
+# Directories
+####
+
+# Results of an optic flow run.
 of_results/

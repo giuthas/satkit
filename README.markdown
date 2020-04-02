@@ -1,5 +1,5 @@
 =======
-# Speech Articulation Python toolkit - SpeechArtPy
+# Speech Articulation Python toolkit - SpeechArticulationPy
 
 Currently these tools are meant for processing ultrasound speech data
 from both the tongue and the larynx. In future, the toolkit will
@@ -43,6 +43,7 @@ For OF you will need in addition:
 
 Which, if you installed anaconda, you can get with `conda install -c
 conda-forge dipy`.
+
 
 ### What's included
 

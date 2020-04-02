@@ -44,6 +44,8 @@ Following is a short explanation of what is what in the package.
   are comments for humans.
 * **gpl-v3_and_CC-BY-NC-SA.tmpl** Template for adding license headers to
   code files.
+* **licenseheaders_command** Command for running licenseheaders.py to
+  get the headers in place for the code files.
 
 
 ## Automatically generated files not part of the distribution

@@ -1,0 +1,1 @@
+python -m licenseheaders -t gpl-v3_and_CC-BY-NC-SA.tmpl -y 2019-2020 -o "Pertti Palo" -n "Pixel Difference toolkit" -u https://github.com/giuthas/pd/

@@ -48,7 +48,7 @@ conda-forge dipy`.
 ### What's included
 
 See
-[manifest.txt](https://github.com/giuthas/pd/blob/master/manifest.txt)
+[MANIFEST.markdown](https://github.com/giuthas/pd/blob/master/MANIFEST.markdown)
 for a description of the contents.
 
 

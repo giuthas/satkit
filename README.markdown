@@ -57,13 +57,14 @@ for a description of the contents.
 There are three small datasets included in the distribution. You can
 run tests on them with the test script `pd_test.py`. Currently the
 following work and produce a new spaghetti_plot.pdf and a transcript
-in `[directory_name].log`.
+in `[method_name].log`.
 
 ```
-python pd_test.py test1_1
-python pd_test.py test1_1 exclusion_list.csv
-python pd_test_.py test1_2
-python pd_test.py test1_2 exclusion_list.csv
+python of_cli.py larynx_data
+python pd_cli.py tongue_data_1_1
+python pd_cli.py tongue_data_1_1 exclusion_list.csv
+python pd_cli_.py tongue_data_1_2
+python pd_cli.py tongue_data_1_2 exclusion_list.csv
 ```
 
 The first example directory contains recordings with all files present

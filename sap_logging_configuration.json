@@ -12,7 +12,7 @@
  
     "handlers": {
         "file": {
-            "filename": "pd.log",
+            "filename": "sap.log",
 	    "mode": "w",
             "class": "logging.FileHandler",
             "level": "INFO",

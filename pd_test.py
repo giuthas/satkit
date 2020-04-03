@@ -29,7 +29,7 @@ import time
 import logging
 
 # local modules
-from pd.commandLineInterface import cli 
+from sap.commandLineInterface import cli 
 
 
 def main():

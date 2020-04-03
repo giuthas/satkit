@@ -29,15 +29,13 @@ import logging
 import logging.config
 import json
 
-from .pd import *
-
 # Load config from json file.
-with open("pd_logging_configuration.json", 'r') as logging_configuration_file:
+with open("sap_logging_configuration.json", 'r') as logging_configuration_file:
     config_dict = json.load(logging_configuration_file)
     logging.config.dictConfig(config_dict)
  
 # Create the module logger.
-_pd_logger = logging.getLogger('pd')
+_sap_logger = logging.getLogger('sap')
 
 # Log that the logger was configured.
-_pd_logger.info('Completed configuring logger.')
+_sap_logger.info('Completed configuring logger.')

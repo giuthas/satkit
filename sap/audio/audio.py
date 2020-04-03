@@ -33,7 +33,7 @@ import numpy as np
 from scipy.signal import butter, filtfilt, kaiser, sosfilt
 
 
-_audio_logger = logging.getLogger('pd.audio')    
+_audio_logger = logging.getLogger('sap.audio')    
 
 
 def high_pass_50(fs):

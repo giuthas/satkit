@@ -33,7 +33,7 @@ import logging
 import pickle
 
 
-_io_logger = logging.getLogger('pd.io')    
+_io_logger = logging.getLogger('sap.io')    
 
 def save2pickle(data, filename):
     """

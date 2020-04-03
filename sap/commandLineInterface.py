@@ -34,10 +34,10 @@ import time
 import datetime 
 
 # local modules
-import pd as pd
-import pd.pdplot as pdplot
-import pd.io.AAA as pd_AAA
-import pd.io as pd_io
+import sap.pd as pd
+import sap.pdplot as pdplot
+import sap.io.AAA as sap_AAA
+import sap.io as sap_io
 
 
 def widen_help_formatter(formatter, total_width=140, syntax_width=35):
@@ -91,7 +91,7 @@ def cli():
 
     args = parser.parse_args()
 
-    logger = logging.getLogger('pd')
+    logger = logging.getLogger('sap')
     logger.setLevel(logging.INFO)
 
     # also log to the console at a level determined by the --verbose flag
@@ -120,23 +120,27 @@ def cli():
     logger.info('Run started at ' + str(datetime.datetime.now()))
 
 
-    if os.path.isdir(args.load_path): 
+    if not os.path.exists(args.load_path):
+        logger.critical('File or directory doesn not exist: ' + args.load_path)
+        logger.critical('Exiting.')
+        sys.exit()
+    elif os.path.isdir(args.load_path): 
         exclusion_list_name = None
         if args.exclusion_filename:
             exclusion_list_name = args.exclusion_filename
 
         # this is the actual list of tokens that gets processed 
         # token_list includes meta data contained outwith the ult file
-        token_list = pd_AAA.get_token_list_from_dir(args.load_path, args.exclusion_filename)
+        token_list = sap_AAA.get_token_list_from_dir(args.load_path, args.exclusion_filename)
 
         # run PD on each token
         data = [pd.pd(token) for token in token_list]
 
         data = [datum for datum in data if not datum is None]
     elif os.path.splitext(args.load_path)[1] == '.pickle':
-        token_list, data = pd_io.load_pickled_data(args.load_path)
+        token_list, data = sap_io.load_pickled_data(args.load_path)
     elif os.path.splitext(args.load_path)[1] == '.json':
-        token_list, data = pd_io.load_json_data(args.load_path)
+        token_list, data = sap_io.load_json_data(args.load_path)
     else:
         logger.error('Unsupported filetype: ' + args.load_path + '.')
         

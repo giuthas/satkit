@@ -34,7 +34,7 @@ import os
 import os.path
 
 
-_AAA_logger = logging.getLogger('pd.AAA')
+_AAA_logger = logging.getLogger('sap.AAA')
 
 def read_prompt(filename):
     """

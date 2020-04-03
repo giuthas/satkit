@@ -122,7 +122,7 @@ PD Example data Copyright (C) 2013-2020 Pertti Palo
 
 ### Program license
 
-[Program License](https://github.com/giuthas/pd/blob/master/license.md)
+[Program License](https://github.com/giuthas/pd/blob/master/LICENSE.markdown)
 
 This program (see below for data) is free software: you can
 redistribute it and/or modify it under the terms of the GNU General
@@ -141,7 +141,7 @@ along with this program.  If not, see
 
 ### Data license
 
-[Data License](https://github.com/giuthas/pd/blob/master/data_license_by-nc-sa.markdown)
+[Data License](https://github.com/giuthas/pd/blob/master/DATA_LICENSE_by-nc-sa.markdown)
 
 The data in directories `of_data`, `test1_1`, `test1_2`, and `test2`
 are licensed under the Creative Commons

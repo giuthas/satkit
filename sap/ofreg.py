@@ -59,42 +59,11 @@ import matplotlib.pyplot as plt
 from matplotlib import animation
 from matplotlib.backends.backend_pdf import PdfPages
 
+# local modules
+import sap.io.AAA as sap_AAA
+
 # create module logger
 ofreg_logger = logging.getLogger('of.ofreg')
-
-
-def read_prompt(filebase):
-    with closing(open(filebase, 'r')) as promptfile:
-        lines = promptfile.read().splitlines()
-        prompt = lines[0]
-        date = lines[1]
-        # could also do datetime as below, but there doesn't seem to be any reason to so.
-        # date = datetime.strptime(lines[1], '%d/%m/%Y %H:%M:%S')
-        participant = lines[2].split(',')[0]
-
-        return prompt, date, participant
-
-
-def read_wav(filebase):
-    samplerate, frames = sio_wavfile.read(filebase)
-    # duration = frames.shape[0] / samplerate
-
-    return frames, samplerate
-
-
-def parse_ult_meta(filename):
-    """Return all metadata from AAA txt as dictionary."""
-    with closing(open(filename, 'r')) as metafile:
-        meta = {}
-        for line in metafile:
-            (key, value_str) = line.split("=")
-            try:
-                value = int(value_str)
-            except ValueError:
-                value = float(value_str)
-            meta[key] = value
-
-        return meta
 
 
 def get_data_from_dir(directory):
@@ -116,7 +85,7 @@ def get_data_from_dir(directory):
         # Prompt file should always exist and correspond to the filebase because
         # the filebase list is generated from the directory listing of prompt files.
         meta[i]['ult_prompt_file'] = ult_prompt_files[i]
-        (prompt, date, participant) = read_prompt(ult_prompt_files[i])
+        (prompt, date, participant) = sap_AAA.read_prompt(ult_prompt_files[i])
         meta[i]['prompt'] = prompt
         meta[i]['date'] = date
         meta[i]['participant'] = participant
@@ -187,7 +156,7 @@ def compute(item):
     
     (ult_wav_fs, ult_wav_frames) = sio_wavfile.read(item['ult_wav_file'])
 
-    meta = parse_ult_meta(item['ult_meta_file'])
+    meta = sap_AAA.parse_ult_meta(item['ult_meta_file'])
     ult_fps = meta['FramesPerSec']
     ult_NumVectors = meta['NumVectors']
     ult_PixPerVector = meta['PixPerVector']

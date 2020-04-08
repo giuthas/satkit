@@ -88,10 +88,10 @@ def parse_ult_meta(filename):
         return meta
 
 
-def get_token_list_from_dir(directory, exclusion_list_name):
+def get_recording_list(directory, exclusion_list_name = None):
     """
     Prepare a list of files to be processed based on directory
-    contents and possible exclusion list. File existence is tested for
+    contents and possible exclusion list. File existence is tested for,
     and if crucial files are missing from a given recording it will be
     excluded.
     
@@ -120,10 +120,12 @@ def get_token_list_from_dir(directory, exclusion_list_name):
                         ]
     ult_prompt_files = sorted(ult_prompt_files)
 
+    # strip file extensions off of filenames to get the base names
     base_names = [os.path.splitext(prompt_file)[0] for prompt_file in ult_prompt_files]
     meta = [{'base_name': base_name} for base_name in base_names] 
 
-    for i in range(0, len(base_names)):
+    # iterate over file base names and check for required files
+    for i, base_name in enumerate(base_names):
         # Prompt file should always exist and correspond to the base_name because 
         # the base_name list is generated from the directory listing of prompt files.
         meta[i]['ult_prompt_file'] = ult_prompt_files[i]
@@ -132,18 +134,19 @@ def get_token_list_from_dir(directory, exclusion_list_name):
         meta[i]['date'] = date
         meta[i]['participant'] = participant
 
-        if meta[i]['base_name'] in file_exclusion_list:
-            notice = meta[i]['base_name'] + " is in the exclusion list."
+        if base_name in file_exclusion_list:
+            notice = base_name + " is in the exclusion list."
             _AAA_logger.info(notice)
             meta[i]['excluded'] = True
         else:
             meta[i]['excluded'] = False
 
         # Candidates for filenames. Existence tested below.
-        ult_meta_file = os.path.join(base_names[i] + "US.txt")
-        ult_wav_file = os.path.join(base_names[i] + ".wav")
-        ult_file = os.path.join(base_names[i] + ".ult")
+        ult_meta_file = os.path.join(base_name + "US.txt")
+        ult_wav_file = os.path.join(base_name + ".wav")
+        ult_file = os.path.join(base_name + ".ult")
 
+        # check if assumed files exist, and arrange to skip them if any do not
         if os.path.isfile(ult_meta_file):
             meta[i]['ult_meta_file'] = ult_meta_file
             meta[i]['ult_meta_exists'] = True
@@ -171,18 +174,19 @@ def get_token_list_from_dir(directory, exclusion_list_name):
             meta[i]['ult_exists'] = False
             meta[i]['excluded'] = True        
 
-        if 'water swallow' in prompt:
-            notice = 'Note: ' + base_names[i] + ' prompt is a water swallow.'
-            _AAA_logger.info(notice)
-            meta[i]['type'] = 'water swallow'
-            meta[i]['excluded'] = True        
-        elif 'bite plate' in prompt:
-            notice = 'Note: ' + base_names[i] + ' prompt is a bite plate.'
-            _AAA_logger.info(notice)
-            meta[i]['type'] = 'bite plate'
-            meta[i]['excluded'] = True        
-        else:
-            meta[i]['type'] = 'regular trial'
+        # TODO this needs to be moved to a decorator function
+        # if 'water swallow' in prompt:
+        #     notice = 'Note: ' + base_names[i] + ' prompt is a water swallow.'
+        #     _AAA_logger.info(notice)
+        #     meta[i]['type'] = 'water swallow'
+        #     meta[i]['excluded'] = True        
+        # elif 'bite plate' in prompt:
+        #     notice = 'Note: ' + base_names[i] + ' prompt is a bite plate.'
+        #     _AAA_logger.info(notice)
+        #     meta[i]['type'] = 'bite plate'
+        #     meta[i]['excluded'] = True        
+        # else:
+        #     meta[i]['type'] = 'regular trial'
 
 
     meta = sorted(meta, key=lambda token: token['date'])

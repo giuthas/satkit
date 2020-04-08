@@ -131,7 +131,7 @@ def cli():
 
         # this is the actual list of tokens that gets processed 
         # token_list includes meta data contained outwith the ult file
-        token_list = sap_AAA.get_token_list_from_dir(args.load_path, args.exclusion_filename)
+        token_list = sap_AAA.get_recording_list(args.load_path, args.exclusion_filename)
 
         # run PD on each token
         data = [pd.pd(token) for token in token_list]

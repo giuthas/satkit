@@ -33,7 +33,8 @@ import time
 import multiprocessing as mp
 
 # local modules
-from of import ofreg as of
+import sap.ofreg as of
+import sap.io.AAA as sap_AAA
 
 
 def widen_help_formatter(formatter, total_width=140, syntax_width=35):
@@ -91,8 +92,9 @@ def main():
                         level=logging.INFO)
     logging.info('Run started at ' + str(datetime.datetime.now()))
 
-    # this is the actual list of items that gets processed including meta data contained outwith the ult file
-    data_list = of.get_data_from_dir(directory)
+    # this is the actual list of items that gets processed including
+    # meta data contained outwith the ult file
+    data_list = sap_AAA.get_recording_list(directory)
 
     # run OF on each item
     data = [of.compute(item) for item in data_list]

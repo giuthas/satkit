@@ -97,7 +97,7 @@ def main():
     data_list = sap_AAA.get_recording_list(directory)
 
     # run OF on each item
-    data = [of.compute(item) for item in data_list]
+    data = [of.of(item) for item in data_list]
 
 
 if __name__ == '__main__':

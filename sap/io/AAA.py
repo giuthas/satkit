@@ -120,7 +120,7 @@ def get_recording_list(directory, exclusion_list_name = None):
                         ]
     ult_prompt_files = sorted(ult_prompt_files)
 
-    # strip file extensions off of filenames to get the base names
+    # strip file extensions off of filepaths to get the base names
     base_names = [os.path.splitext(prompt_file)[0] for prompt_file in ult_prompt_files]
     meta = [{'base_name': base_name} for base_name in base_names] 
 

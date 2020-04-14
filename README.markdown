@@ -1,5 +1,5 @@
 =======
-# Speech Articulation Python toolkit - SpeechArticulationPy
+# Speech Articulation ToolKIT - SATKIT
 
 Currently these tools are meant for processing ultrasound speech data
 from both the tongue and the larynx. In future, the toolkit will

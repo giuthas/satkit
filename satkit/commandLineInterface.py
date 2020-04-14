@@ -34,10 +34,10 @@ import time
 import datetime 
 
 # local modules
-import sap.pd as pd
-import sap.pdplot as pdplot
-import sap.io.AAA as sap_AAA
-import sap.io as sap_io
+import satkit.pd as pd
+import satkit.pdplot as pdplot
+import satkit.io.AAA as satkit_AAA
+import satkit.io as satkit_io
 
 
 def widen_help_formatter(formatter, total_width=140, syntax_width=35):
@@ -91,7 +91,7 @@ def cli():
 
     args = parser.parse_args()
 
-    logger = logging.getLogger('sap')
+    logger = logging.getLogger('satkit')
     logger.setLevel(logging.INFO)
 
     # also log to the console at a level determined by the --verbose flag
@@ -131,16 +131,16 @@ def cli():
 
         # this is the actual list of tokens that gets processed 
         # token_list includes meta data contained outwith the ult file
-        token_list = sap_AAA.get_recording_list(args.load_path, args.exclusion_filename)
+        token_list = satkit_AAA.get_recording_list(args.load_path, args.exclusion_filename)
 
         # run PD on each token
         data = [pd.pd(token) for token in token_list]
 
         data = [datum for datum in data if not datum is None]
     elif os.path.splitext(args.load_path)[1] == '.pickle':
-        token_list, data = sap_io.load_pickled_data(args.load_path)
+        token_list, data = satkit_io.load_pickled_data(args.load_path)
     elif os.path.splitext(args.load_path)[1] == '.json':
-        token_list, data = sap_io.load_json_data(args.load_path)
+        token_list, data = satkit_io.load_json_data(args.load_path)
     else:
         logger.error('Unsupported filetype: ' + args.load_path + '.')
         

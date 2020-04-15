@@ -1,12 +1,8 @@
-# Copyright (c) 2020 Scott Moisik and Pertti Palo.
 #
-# When making use of this code, please cite (TODO There might be a more appropriate place for these. Placed here temporarily):
-#   [1] Esling, J. H., & Moisik, S. R. (2012). Laryngeal aperture in relation to larynx height change: An analysis using simultaneous laryngoscopy and laryngeal ultrasound. In D. Gibbon, D. Hirst, & N. Campbell (Eds.), Rhythm, melody and harmony in speech: Studies in honour of Wiktor Jassem: Vol. 14/15 (pp. 117–127). Polskie Towarzystwo Fonetyczne.
-#   [2] Moisik, S. R., Lin, H., & Esling, J. H. (2014). A study of laryngeal gestures in Mandarin citation tones using simultaneous laryngoscopy and laryngeal ultrasound (SLLUS). Journal of the International Phonetic Association, 44(01), 21–58. https://doi.org/10.1017/S0025100313000327
-#   [3] Poh, D. P. Z., & Moisik, S. R. (2019). An acoustic and articulatory investigation of citation tones in Singaporean Mandarin using laryngeal ultrasound. In S. Calhoun, P. Escudero, M. Tabain, & P. Warren (Eds.), Proceedings of the 19th International Congress of the Phonetic Sciences.
+# Copyright (c) 2019-2020 Pertti Palo, Scott Moisik, and Matthew Faytak.
 #
-# This file is part of Pixel Difference toolkit
-# (see https://github.com/giuthas/pd/).
+# This file is part of Speech Articulation ToolKIT 
+# (see https://github.com/giuthas/satkit/).
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -22,11 +18,15 @@
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
 # The example data packaged with this program is licensed under the
-# Creative Commons Attribulton-NonCommercial-ShareAlike 4.0
+# Creative Commons Attribution-NonCommercial-ShareAlike 4.0
 # International (CC BY-NC-SA 4.0) License. You should have received a
 # copy of the Creative Commons Attribution-NonCommercial-ShareAlike 4.0
 # International (CC BY-NC-SA 4.0) License along with the data. If not,
 # see <https://creativecommons.org/licenses/by-nc-sa/4.0/> for details.
+#
+# When using the toolkit for scientific publications, please cite the
+# articles listed in README.markdown. They can also be found in
+# citations.bib in BibTeX format.
 #
 
 

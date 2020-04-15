@@ -1,8 +1,8 @@
 #
-# Copyright (c) 2019-2020 Pertti Palo.
+# Copyright (c) 2019-2020 Pertti Palo, Scott Moisik, and Matthew Faytak.
 #
-# This file is part of Pixel Difference toolkit 
-# (see https://github.com/giuthas/pd/).
+# This file is part of Speech Articulation ToolKIT 
+# (see https://github.com/giuthas/satkit/).
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -24,12 +24,16 @@
 # International (CC BY-NC-SA 4.0) License along with the data. If not,
 # see <https://creativecommons.org/licenses/by-nc-sa/4.0/> for details.
 #
+# When using the toolkit for scientific publications, please cite the
+# articles listed in README.markdown. They can also be found in
+# citations.bib in BibTeX format.
+#
 
 import time
 import logging
 
 # local modules
-from sap.commandLineInterface import cli 
+from satkit.commandLineInterface import cli 
 
 
 def main():

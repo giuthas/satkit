@@ -144,12 +144,12 @@ along with this program.  If not, see
 
 [Data License](https://github.com/giuthas/pd/blob/master/DATA_LICENSE_by-nc-sa.markdown)
 
-The data in directories `of_data`, `test1_1`, `test1_2`, and `test2`
-are licensed under the Creative Commons
-Attribution-NonCommercial-ShareAlike 4.0 International (CC BY-NC-SA
-4.0) License. See
-<https://creativecommons.org/licenses/by-nc-sa/4.0/>
-for details.
+The data in directories `larynx_data`, `tongue_data_1`,
+`tongue_data_1_2`, and `tongue_data_2` are licensed under the Creative
+Commons Attribution-NonCommercial-ShareAlike 4.0 International (CC
+BY-NC-SA 4.0) License. See link above or 
+<https://creativecommons.org/licenses/by-nc-sa/4.0/> for details.
+
 
 ### Citing the code
 
@@ -171,7 +171,7 @@ using laryngeal ultrasound. In S. Calhoun, P. Escudero, M. Tabain, &
 P. Warren (Eds.), Proceedings of the 19th International Congress of
 the Phonetic Sciences.
 
-When using the Pixel Difference code, please cite:
+When using the Pixel Difference (PD) code, please cite:
 1. Pertti Palo (2019). Measuring Pre-Speech Articulation. PhD
 thesis. Queen Margaret University, Scotland, UK. Available here [PhD
 thesis](https://eresearch.qmu.ac.uk/handle/20.500.12289/10163).

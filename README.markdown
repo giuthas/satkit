@@ -106,20 +106,22 @@ repository](https://github.com/giuthas/pd/tags).
 * **Scott Moisik** - *Initial work on OF* - [ScottMoisik](https://github.com/ScottMoisik)
 * **Matthew Faytak** - [mfaytak](https://github.com/mfaytak)
 
-List of [contributors](https://github.com/your/project/contributors)
+List of [contributors](https://github.com/your/project/CONTRIBUTORS.markdown)
 will be updated once there are more people working on this project.
 
 
 ## Copyright and License
 
-The Pixel Difference tools (PD for short) and examples is a tool box
-for analysing articulatory data.
+The Speech Articulation ToolKIT (SATKIT for short) and examples is a
+tool box for analysing articulatory data.
 
 Optical Flow tools Copyright (C) 2020 Scott Moisik
+
 Pixel Difference tools Copyright (C) 2019-2020 Pertti Palo
 
-OF Example data Copyright (C) 2020 Scott Moisik
-PD Example data Copyright (C) 2013-2020 Pertti Palo
+Laryngeal example data Copyright (C) 2020 Scott Moisik
+
+Tongue Example data Copyright (C) 2013-2020 Pertti Palo
 
 ### Program license
 

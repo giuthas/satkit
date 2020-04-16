@@ -37,7 +37,7 @@ import logging
 import matplotlib.pyplot as plt
 from matplotlib.backends.backend_pdf import PdfPages
 
-_plot_logger = logging.getLogger('sap.pd.plot')
+_plot_logger = logging.getLogger('satkit.pd.plot')
 
 def plot_signals_trace(beep, beep2, int_time, int_signal, hp_signal, bp_signal, int_signal2):
     fig = plt.figure()

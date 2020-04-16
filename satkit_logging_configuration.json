@@ -12,7 +12,7 @@
  
     "handlers": {
         "file": {
-            "filename": "sap.log",
+            "filename": "satkit.log",
 	    "mode": "w",
             "class": "logging.FileHandler",
             "level": "INFO",

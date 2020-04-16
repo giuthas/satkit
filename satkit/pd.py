@@ -38,11 +38,11 @@ import numpy as np
 import scipy.io.wavfile as sio_wavfile
 
 # local modules
-import sap.audio as sap_audio
-import sap.io.AAA as sap_AAA
+import satkit.audio as satkit_audio
+import satkit.io.AAA as satkit_AAA
 
 
-_pd_logger = logging.getLogger('sap.pd')    
+_pd_logger = logging.getLogger('satkit.pd')    
 
 
 def pd(token):
@@ -65,13 +65,13 @@ def pd(token):
 
     (ult_wav_fs, ult_wav_frames) = sio_wavfile.read(token['ult_wav_file'])
     # setup the high-pass filter for removing the mains frequency from the recorded sound.
-    b, a = sap_audio.high_pass_50(ult_wav_fs)
-    beep_uti, has_speech = sap_audio.detect_beep_and_speech(ult_wav_frames,
+    b, a = satkit_audio.high_pass_50(ult_wav_fs)
+    beep_uti, has_speech = satkit_audio.detect_beep_and_speech(ult_wav_frames,
                                                            ult_wav_fs,
                                                            b, a,
                                                            token['ult_wav_file'])
     
-    meta = sap_AAA.parse_ult_meta(token['ult_meta_file'])
+    meta = satkit_AAA.parse_ult_meta(token['ult_meta_file'])
     ult_fps = meta['FramesPerSec']
     ult_NumVectors = meta['NumVectors']
     ult_PixPerVector = meta['PixPerVector']

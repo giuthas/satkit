@@ -38,7 +38,7 @@ import os
 import os.path
 
 
-_AAA_logger = logging.getLogger('sap.AAA')
+_AAA_logger = logging.getLogger('satkit.AAA')
 
 def read_prompt(filename):
     """

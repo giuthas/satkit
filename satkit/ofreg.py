@@ -58,11 +58,11 @@ from matplotlib import animation
 from matplotlib.backends.backend_pdf import PdfPages
 
 # local modules
-import sap.io.AAA as sap_AAA
+import satkit.io.AAA as satkit_AAA
 
 
 # create module logger
-ofreg_logger = logging.getLogger('of.ofreg')
+ofreg_logger = logging.getLogger('satkit.ofreg')
 
 
 def parallel_register(ns, index, num_frames, storage):
@@ -93,7 +93,7 @@ def of(item):
     
     (ult_wav_fs, ult_wav_frames) = sio_wavfile.read(item['ult_wav_file'])
 
-    meta = sap_AAA.parse_ult_meta(item['ult_meta_file'])
+    meta = satkit_AAA.parse_ult_meta(item['ult_meta_file'])
     ult_fps = meta['FramesPerSec']
     ult_NumVectors = meta['NumVectors']
     ult_PixPerVector = meta['PixPerVector']

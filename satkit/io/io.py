@@ -37,7 +37,7 @@ import logging
 import pickle
 
 
-_io_logger = logging.getLogger('sap.io')    
+_io_logger = logging.getLogger('satkit.io')    
 
 def save2pickle(data, filename):
     """

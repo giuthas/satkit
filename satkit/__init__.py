@@ -34,12 +34,12 @@ import logging.config
 import json
 
 # Load config from json file.
-with open("sap_logging_configuration.json", 'r') as logging_configuration_file:
+with open("satkit_logging_configuration.json", 'r') as logging_configuration_file:
     config_dict = json.load(logging_configuration_file)
     logging.config.dictConfig(config_dict)
  
 # Create the module logger.
-_sap_logger = logging.getLogger('sap')
+_satkit_logger = logging.getLogger('satkit')
 
 # Log that the logger was configured.
-_sap_logger.info('Completed configuring logger.')
+_satkit_logger.info('Completed configuring logger.')

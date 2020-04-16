@@ -268,14 +268,23 @@ def of(item):
         data['probe_array_length_mm'] = probe_array_length_mm
         data['probe_depth_mm'] = probe_depth_mm
 
+        # Figure out where to save the results.
+        data_dir, filename = os.path.split(item['base_name'])
+        if 'data' in data_dir:
+            save_dir = data_dir.replace('data', 'results')
+        else:
+            # TODO make sure that the ofbrowse/display code also knows
+            # what the directory is called.
+            save_dir = data_dir + '_results'
+            
+        # Create the results directory if it does not exist.
+        if not os.path.isdir(save_dir):
+            ofreg_logger.info("Creating directory " + save_dir + ".")
+            os.mkdir(save_dir)
+            
         # TODO the registration takes a long time to compute and each
-        # should be saved but this is probably not the best way; also,
-        # assumes 'results' folder exists
-        if os.path.isdir(ult_wav_file):
-            meta[i]['ult_wav_file'] = ult_wav_file
-            meta[i]['ult_wav_exists'] = True
-
-        save_file = item['base_name'].replace('data', 'results') + "_OF.pickle"
+        # should be saved, but this is not the best way.
+        save_file = os.path.join(save_dir, filename) + "_OF.pickle"
         pickle.dump(data, open(save_file, "wb"))
         ofreg_logger.info("Saving results to %s" % save_file)
 

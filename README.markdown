@@ -115,6 +115,9 @@ will be updated once there are more people working on this project.
 The Speech Articulation ToolKIT (SATKIT for short) and examples is a
 tool box for analysing articulatory data.
 
+SATKIT Copyright (C) 2019-2020 Pertti Palo, Scott Moisik, and Matthew
+Faytak.
+
 Optical Flow tools Copyright (C) 2020 Scott Moisik
 
 Pixel Difference tools Copyright (C) 2019-2020 Pertti Palo

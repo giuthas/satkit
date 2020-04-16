@@ -103,8 +103,8 @@ repository](https://github.com/giuthas/pd/tags).
 
 * **Pertti Palo** - *Initial work on PD and the Python framework used
   by the combined toolkit* - [giuthas](https://github.com/giuthas)
-* **Scott Moisik** - *Initial work on OF* - [giuthas](https://github.com/giuthas)
-* **Matthew Faytak** - ** - [giuthas](https://github.com/giuthas)
+* **Scott Moisik** - *Initial work on OF* - [ScottMoisik](https://github.com/ScottMoisik)
+* **Matthew Faytak** - [mfaytak](https://github.com/mfaytak)
 
 List of [contributors](https://github.com/your/project/contributors)
 will be updated once there are more people working on this project.

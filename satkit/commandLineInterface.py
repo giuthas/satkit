@@ -58,7 +58,7 @@ def widen_help_formatter(formatter, total_width=140, syntax_width=35):
 
 
 def cli():
-    parser = argparse.ArgumentParser(description="PD toolkit test script",
+    parser = argparse.ArgumentParser(description="PD processing script",
         formatter_class = widen_help_formatter(argparse.HelpFormatter,
                                                total_width=100,
                                                syntax_width=35))

@@ -34,11 +34,11 @@ import logging
 
 # local modules
 from satkit.commandLineInterface import cli 
-
+from satkit import pd
 
 def main():
     # Run the command line interface.
-    cli()
+    cli("PD processing script", pd.pd)
     
 
 if (__name__ == '__main__'):

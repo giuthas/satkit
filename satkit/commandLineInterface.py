@@ -57,8 +57,8 @@ def widen_help_formatter(formatter, total_width=140, syntax_width=35):
         return formatter
 
 
-def cli():
-    parser = argparse.ArgumentParser(description="PD processing script",
+def parse_args(description):
+    parser = argparse.ArgumentParser(description=description,
         formatter_class = widen_help_formatter(argparse.HelpFormatter,
                                                total_width=100,
                                                syntax_width=35))
@@ -89,12 +89,15 @@ def cli():
     )
     parser.add_argument("-v", "--verbose",
                         type=int, dest="verbose",
-                        default=0,
+                        default=1,
                         help=helptext,
                         metavar = "verbosity")
 
     args = parser.parse_args()
+    return args
 
+
+def set_up_logging(args):
     logger = logging.getLogger('satkit')
     logger.setLevel(logging.INFO)
 
@@ -103,10 +106,6 @@ def cli():
 
     # Set the level of logging messages that will be printed to
     # console/stderr.
-    #
-    # When pd is no longer just pd but pd and other tools, revisit the
-    # way this is handled. Possibly implement a central control (in a
-    # static object?) for setting the verbosity of different loggers?
     if not args.verbose:
         console_handler.setLevel('WARNING')
     elif args.verbose < 1:
@@ -118,10 +117,17 @@ def cli():
     elif args.verbose >= 3:
         console_handler.setLevel('DEBUG')
     else:
-        logging.critical("Unexplained negative count of args.verbose!")
+        logging.critical("Unexplained negative argument " +
+                         str(args.verbose) + " to verbose!")
     logger.addHandler(console_handler)
 
     logger.info('Run started at ' + str(datetime.datetime.now()))
+
+    
+def cli(description, processing_function):
+    args = parse_args(description)
+    
+    set_up_logging(args)
 
 
     if not os.path.exists(args.load_path):
@@ -135,7 +141,8 @@ def cli():
 
         # this is the actual list of tokens that gets processed 
         # token_list includes meta data contained outwith the ult file
-        token_list = satkit_AAA.get_recording_list(args.load_path, args.exclusion_filename)
+        token_list = satkit_AAA.get_recording_list(args.load_path,
+                                                   args.exclusion_filename)
 
         # run PD on each token
         data = [pd.pd(token) for token in token_list]

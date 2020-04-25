@@ -29,8 +29,6 @@
 # citations.bib in BibTeX format.
 #
 
-import argparse
-import datetime
 import logging
 import sys
 import time
@@ -38,71 +36,13 @@ import time
 import multiprocessing as mp
 
 # local modules
+from satkit.commandLineInterface import cli 
 import satkit.ofreg as of
-import satkit.io.AAA as satkit_AAA
-
-
-def widen_help_formatter(formatter, total_width=140, syntax_width=35):
-    """Return a wider HelpFormatter, if possible."""
-    try:
-        # https://stackoverflow.com/a/5464440
-        # beware: "Only the name of this class is considered a public API."
-        kwargs = {'width': total_width, 'max_help_position': syntax_width}
-        formatter(None, **kwargs)
-        return lambda prog: formatter(prog, **kwargs)
-    except TypeError:
-        warnings.warn("argparse help formatter failed. Falling back.")
-        return formatter
 
 
 def main():
-    parser = argparse.ArgumentParser(description="OF test script",
-                                     formatter_class=widen_help_formatter(argparse.HelpFormatter, total_width=100, syntax_width=35))
-
-    # mutually exclusive with reading previous results from a file
-    parser.add_argument("directory",
-                        help="Directory containing the data to be read.")
-
-    parser.add_argument("-e", "--exclusion_list", dest="exclusion_filename",
-                        help="Exclusion list of data files that should be ignored.",
-                        metavar="file")
-
-    parser.add_argument("-l", "--log_file", dest="log_filename",
-                        help="Write log to file.", metavar="file")
-
-    helptext = "NOT IMPLEMENTED. Save results to file. Supported types are .pickle, .json and .csv."
-    parser.add_argument("-o", "--output", dest="filename",
-                        help=helptext, metavar="file")
-
-    parser.add_argument("-v", "--verbose",
-                        action="store_true", dest="verbose",
-                        default=True,
-                        help="NOT IMPLEMENTED. Print status messages to stdout.")
-
-    args = parser.parse_args()
-
-    directory = args.directory
-
-    exclusion_list_name = None
-    if args.exclusion_filename:
-        exclusion_list_name = args.exclusion_filename
-
-    if args.log_filename:
-        log_filename = args.log_filename
-    else:
-        log_filename = directory.strip("/") + '.log'
-
-    logging.basicConfig(filename=log_filename,
-                        filemode='w',
-                        level=logging.INFO)
-    logging.info('Run started at ' + str(datetime.datetime.now()))
-
-    # this is the actual list of items that gets processed including
-    # meta data contained outwith the ult file
-    data_list = satkit_AAA.get_recording_list(directory)
-
-    # run OF on each item
-    data = [of.of(item) for item in data_list]
+    # Run the command line interface.
+    cli("OF processing script", of.of)
 
 
 if __name__ == '__main__':
@@ -110,7 +50,7 @@ if __name__ == '__main__':
     # (i.e. darwin) leads to crashes. Fixing it apparently leads to
     # different kinds of crashes. Better solution on the todo list.
     if sys.version_info < (3, 8) and sys.platform == "darwin":
-        print("Changing to spawn.")
+        logging.warning("Changing multiprocessing to use spawn.")
         mp.set_start_method('spawn')
 
     t = time.time()

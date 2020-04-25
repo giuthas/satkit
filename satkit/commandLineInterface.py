@@ -45,7 +45,7 @@ import satkit.io as satkit_io
 
 
 def widen_help_formatter(formatter, total_width=140, syntax_width=35):
-    """Return a wider HelpFormatter, if possible."""
+    """Return a wider HelpFormatter for argparse, if possible."""
     try:
         # https://stackoverflow.com/a/5464440
         # beware: "Only the name of this class is considered a public API."
@@ -58,6 +58,11 @@ def widen_help_formatter(formatter, total_width=140, syntax_width=35):
 
 
 def parse_args(description):
+    """
+    Create a parser for commandline arguments with argparse and return
+    the parsed arguments.
+
+    """
     parser = argparse.ArgumentParser(description=description,
         formatter_class = widen_help_formatter(argparse.HelpFormatter,
                                                total_width=100,
@@ -98,6 +103,11 @@ def parse_args(description):
 
 
 def set_up_logging(args):
+    """
+    Set up logging with the loggin module. Main thing to do is set the
+    level of printed output based on the verbosity argument.
+
+    """
     logger = logging.getLogger('satkit')
     logger.setLevel(logging.INFO)
 
@@ -123,12 +133,19 @@ def set_up_logging(args):
 
     logger.info('Run started at ' + str(datetime.datetime.now()))
 
+    return logger
+
     
 def cli(description, processing_function):
+    """
+    Run the commandline interface.
+    Description is what this version will be called if called with -h or --help.
+    processing_function is the callable that will be run on each token.
+    """
+    
     args = parse_args(description)
     
-    set_up_logging(args)
-
+    logger = set_up_logging(args)
 
     if not os.path.exists(args.load_path):
         logger.critical('File or directory doesn not exist: ' + args.load_path)
@@ -144,8 +161,8 @@ def cli(description, processing_function):
         token_list = satkit_AAA.get_recording_list(args.load_path,
                                                    args.exclusion_filename)
 
-        # run PD on each token
-        data = [pd.pd(token) for token in token_list]
+        # process the tokens
+        data = [processing_function(token) for token in token_list]
 
         data = [datum for datum in data if not datum is None]
     elif os.path.splitext(args.load_path)[1] == '.pickle':
@@ -170,16 +187,3 @@ def cli(description, processing_function):
             
     logger.info('Run ended at ' + str(datetime.datetime.now()))
     
-
-# if (len(sys.argv) > 3 or len(sys.argv) < 1):
-#     print("\npd.py")
-#     print("\tusage: python pd.py uti_directory [exclusion_list]")
-#     print("\n\tGenerates a pd spaghetti plot based on .ult files and meta data.")
-#     sys.exit(0)
-
-
-if (__name__ == '__main__'):
-    t = time.time()
-    cli()
-    elapsed_time = time.time() - t
-    logging.info('Elapsed time ' + str(elapsed_time))

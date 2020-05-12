@@ -140,7 +140,7 @@ def cli(description, processing_function):
     """
     Run the commandline interface.
     Description is what this version will be called if called with -h or --help.
-    processing_function is the callable that will be run on each token.
+    processing_function is the callable that will be run on each recording.
     """
     
     args = parse_args(description)
@@ -156,29 +156,29 @@ def cli(description, processing_function):
         if args.exclusion_filename:
             exclusion_list_name = args.exclusion_filename
 
-        # this is the actual list of tokens that gets processed 
-        # token_list includes meta data contained outwith the ult file
-        token_list = satkit_AAA.get_recording_list(args.load_path,
+        # this is the actual list of recordings that gets processed 
+        # recording_list includes meta data contained outwith the ult file
+        recording_list = satkit_AAA.get_recording_list(args.load_path,
                                                    args.exclusion_filename)
 
-        # process the tokens
-        data = [processing_function(token) for token in token_list]
+        # process the recordings
+        data = [processing_function(recording) for recording in recording_list]
 
         data = [datum for datum in data if not datum is None]
     elif os.path.splitext(args.load_path)[1] == '.pickle':
-        token_list, data = satkit_io.load_pickled_data(args.load_path)
+        recording_list, data = satkit_io.load_pickled_data(args.load_path)
     elif os.path.splitext(args.load_path)[1] == '.json':
-        token_list, data = satkit_io.load_json_data(args.load_path)
+        recording_list, data = satkit_io.load_json_data(args.load_path)
     else:
         logger.error('Unsupported filetype: ' + args.load_path + '.')
         
     # do something sensible with the data
     logger.info("Drawing spaghetti plot.")
-    pdplot.draw_spaghetti(token_list, data)
+    pdplot.draw_spaghetti(recording_list, data)
 
     if args.output_filename:
         if os.path.splitext(args.output_filename)[1] == '.pickle':
-            pd.save2pickle((token_list, data), args.output_filename)
+            pd.save2pickle((recording_list, data), args.output_filename)
             logger.info("Wrote data to file " + args.output_filename + ".")
         elif os.path.splitext(args.output_filename)[1] == '.json':
             logger.error('Unsupported filetype: ' + args.output_filename + '.')

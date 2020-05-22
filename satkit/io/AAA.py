@@ -37,25 +37,64 @@ import logging
 import os
 import os.path
 
+# Local packages
+from recordingTypes import *
 
 _AAA_logger = logging.getLogger('satkit.AAA')
 
-def read_prompt(filename):
+
+class AAA_Ultrasound_Recording(Ultrasound_Recording):
     """
-    Read an AAA .txt (not US.txt) file and return the 
-    prompt, recording date and participant name.
+    Ultrasound recording exported from AAA.
+    """
+    
+    def __init__(self, filename = None):
+        super.__init__()
+        if filename != None:
+            ########### store also the different variations of the
+            ########### file name, checking for existence
+            self.parse_AAA_promptfile(filename)
+        
+
+    def parse_AAA_promptfile(self, filename):
+    """
+    Read an AAA .txt (not US.txt) file and save prompt, recording date and time,  
+    and participant name into the meta dictionary.
     """
     with closing(open(filename, 'r')) as promptfile:
         lines = promptfile.read().splitlines()
-        prompt = lines[0]
-        date = lines[1]
+        self.meta['prompt'] = lines[0]
+        self.meta['date'] = lines[1]
         # could also do datetime as below, but there doesn't seem to be any reason to so.
         # date = datetime.strptime(lines[1], '%d/%m/%Y %H:%M:%S')
-        participant = lines[2].split(',')[0]
+        self.meta['participant'] = lines[2].split(',')[0]
 
         _AAA_logger.debug("Read prompt file " + filename + ".")
-        return(prompt, date, participant)
+        
 
+    def parse_AAA_meta(self, filename):
+    """
+    Parse metadata from an AAA 'US.txt' file into the meta dictionary.
+    """
+    with closing(open(filename, 'r')) as metafile:
+        for line in metafile:
+            (key, value_str) = line.split("=")
+            try:
+                value = int(value_str)
+            except ValueError:
+                value = float(value_str)
+            self.meta[key] = value
+
+        _AAA_logger.debug("Read and parsed ultrasound metafile " + filename + ".")
+
+
+    def get_time_vector(self):
+        # generate one
+
+
+    def get_ultrasound_data(self):
+        # load from file, return
+        
 
 def read_file_exclusion_list(filename):
     """
@@ -72,24 +111,6 @@ def read_file_exclusion_list(filename):
         exclusion_list = []
 
     return exclusion_list
-
-
-def parse_ult_meta(filename):
-    """
-    Return all metadata from an AAA US.txt file as dictionary.
-    """
-    with closing(open(filename, 'r')) as metafile:
-        meta = {}
-        for line in metafile:
-            (key, value_str) = line.split("=")
-            try:
-                value = int(value_str)
-            except ValueError:
-                value = float(value_str)
-            meta[key] = value
-
-        _AAA_logger.debug("Read and parsed ultrasound metafile " + filename + ".")
-        return meta
 
 
 def get_recording_list(directory, exclusion_list_name = None):

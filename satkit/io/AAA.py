@@ -48,9 +48,77 @@ class AAA_Ultrasound_Recording(Ultrasound_Recording):
     Ultrasound recording exported from AAA.
     """
     
-    def __init__(self, filename = None):
+    def __init__(self, basename):
         super.__init__()
-        if filename != None:
+        if basename == None:
+            _AAA_logger.critical("Critical error: Basename is None.")
+        elif basename == "":
+            _AAA_logger.critical("Critical error: Basename is empty.")
+        else:
+            _AAA_logger.debug("Initialising a new recording with filename " + filename + ".")
+            self.meta['base_name'] = basename
+
+            # Prompt file should always exist and correspond to the base_name because 
+            # the base_name list is generated from the directory listing of prompt files.
+            meta[i]['ult_prompt_file'] = ult_prompt_files[i]
+            (prompt, date, participant) = read_prompt(ult_prompt_files[i])
+            meta[i]['prompt'] = prompt
+            meta[i]['date'] = date
+            meta[i]['participant'] = participant
+
+            if base_name in file_exclusion_list:
+                notice = base_name + " is in the exclusion list."
+                _AAA_logger.info(notice)
+                meta[i]['excluded'] = True
+            else:
+                meta[i]['excluded'] = False
+
+            # Candidates for filenames. Existence tested below.
+            ult_meta_file = os.path.join(base_name + "US.txt")
+            ult_wav_file = os.path.join(base_name + ".wav")
+            ult_file = os.path.join(base_name + ".ult")
+
+            # check if assumed files exist, and arrange to skip them if any do not
+            if os.path.isfile(ult_meta_file):
+                meta[i]['ult_meta_file'] = ult_meta_file
+                meta[i]['ult_meta_exists'] = True
+            else: 
+                notice = 'Note: ' + ult_meta_file + " does not exist."
+                _AAA_logger.warning(notice)
+                meta[i]['ult_meta_exists'] = False
+                meta[i]['excluded'] = True
+            
+            if os.path.isfile(ult_wav_file):
+                meta[i]['ult_wav_file'] = ult_wav_file
+                meta[i]['ult_wav_exists'] = True
+            else:
+                notice = 'Note: ' + ult_wav_file + " does not exist."
+                _AAA_logger.warning(notice)
+                meta[i]['ult_wav_exists'] = False
+                meta[i]['excluded'] = True
+            
+            if os.path.isfile(ult_file):
+                meta[i]['ult_file'] = ult_file
+                meta[i]['ult_exists'] = True
+            else:
+                notice = 'Note: ' + ult_file + " does not exist."
+                _AAA_logger.warning(notice)
+                meta[i]['ult_exists'] = False
+                meta[i]['excluded'] = True        
+
+            # TODO this needs to be moved to a decorator function
+            # if 'water swallow' in prompt:
+            #     notice = 'Note: ' + base_names[i] + ' prompt is a water swallow.'
+            #     _AAA_logger.info(notice)
+            #     meta[i]['type'] = 'water swallow'
+            #     meta[i]['excluded'] = True        
+            # elif 'bite plate' in prompt:
+            #     notice = 'Note: ' + base_names[i] + ' prompt is a bite plate.'
+            #     _AAA_logger.info(notice)
+            #     meta[i]['type'] = 'bite plate'
+            #     meta[i]['excluded'] = True        
+            # else:
+            #     meta[i]['type'] = 'regular trial'
             ########### store also the different variations of the
             ########### file name, checking for existence
             self.parse_AAA_promptfile(filename)
@@ -147,7 +215,7 @@ def get_recording_list(directory, exclusion_list_name = None):
 
     # strip file extensions off of filepaths to get the base names
     base_names = [os.path.splitext(prompt_file)[0] for prompt_file in ult_prompt_files]
-    meta = [{'base_name': base_name} for base_name in base_names] 
+    recordings = [AAA_Ultrasound_recording(base_name) for base_name in base_names] 
 
     # iterate over file base names and check for required files
     for i, base_name in enumerate(base_names):

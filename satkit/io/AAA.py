@@ -60,18 +60,18 @@ class AAA_Ultrasound_Recording(Ultrasound_Recording):
 
             # Prompt file should always exist and correspond to the base_name because 
             # the base_name list is generated from the directory listing of prompt files.
-            meta[i]['ult_prompt_file'] = ult_prompt_files[i]
-            (prompt, date, participant) = read_prompt(ult_prompt_files[i])
-            meta[i]['prompt'] = prompt
-            meta[i]['date'] = date
-            meta[i]['participant'] = participant
+            self.meta['ult_prompt_file'] = basename + '.txt'
+            (prompt, date, participant) = read_prompt(self.meta['ult_prompt_file'])
+            self.meta['prompt'] = prompt
+            self.meta['date'] = date
+            self.meta['participant'] = participant
 
             if base_name in file_exclusion_list:
                 notice = base_name + " is in the exclusion list."
                 _AAA_logger.info(notice)
-                meta[i]['excluded'] = True
+                self.meta['excluded'] = True
             else:
-                meta[i]['excluded'] = False
+                self.meta['excluded'] = False
 
             # Candidates for filenames. Existence tested below.
             ult_meta_file = os.path.join(base_name + "US.txt")
@@ -80,45 +80,45 @@ class AAA_Ultrasound_Recording(Ultrasound_Recording):
 
             # check if assumed files exist, and arrange to skip them if any do not
             if os.path.isfile(ult_meta_file):
-                meta[i]['ult_meta_file'] = ult_meta_file
-                meta[i]['ult_meta_exists'] = True
+                self.meta['ult_meta_file'] = ult_meta_file
+                self.meta['ult_meta_exists'] = True
             else: 
                 notice = 'Note: ' + ult_meta_file + " does not exist."
                 _AAA_logger.warning(notice)
-                meta[i]['ult_meta_exists'] = False
-                meta[i]['excluded'] = True
+                self.meta['ult_meta_exists'] = False
+                self.meta['excluded'] = True
             
             if os.path.isfile(ult_wav_file):
-                meta[i]['ult_wav_file'] = ult_wav_file
-                meta[i]['ult_wav_exists'] = True
+                self.meta['ult_wav_file'] = ult_wav_file
+                self.meta['ult_wav_exists'] = True
             else:
                 notice = 'Note: ' + ult_wav_file + " does not exist."
                 _AAA_logger.warning(notice)
-                meta[i]['ult_wav_exists'] = False
-                meta[i]['excluded'] = True
+                self.meta['ult_wav_exists'] = False
+                self.meta['excluded'] = True
             
             if os.path.isfile(ult_file):
-                meta[i]['ult_file'] = ult_file
-                meta[i]['ult_exists'] = True
+                self.meta['ult_file'] = ult_file
+                self.meta['ult_exists'] = True
             else:
                 notice = 'Note: ' + ult_file + " does not exist."
                 _AAA_logger.warning(notice)
-                meta[i]['ult_exists'] = False
-                meta[i]['excluded'] = True        
+                self.meta['ult_exists'] = False
+                self.meta['excluded'] = True        
 
             # TODO this needs to be moved to a decorator function
             # if 'water swallow' in prompt:
             #     notice = 'Note: ' + base_names[i] + ' prompt is a water swallow.'
             #     _AAA_logger.info(notice)
-            #     meta[i]['type'] = 'water swallow'
-            #     meta[i]['excluded'] = True        
+            #     self.meta['type'] = 'water swallow'
+            #     self.meta['excluded'] = True        
             # elif 'bite plate' in prompt:
             #     notice = 'Note: ' + base_names[i] + ' prompt is a bite plate.'
             #     _AAA_logger.info(notice)
-            #     meta[i]['type'] = 'bite plate'
-            #     meta[i]['excluded'] = True        
+            #     self.meta['type'] = 'bite plate'
+            #     self.meta['excluded'] = True        
             # else:
-            #     meta[i]['type'] = 'regular trial'
+            #     self.meta['type'] = 'regular trial'
             ########### store also the different variations of the
             ########### file name, checking for existence
             self.parse_AAA_promptfile(filename)

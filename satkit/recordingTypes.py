@@ -18,12 +18,6 @@ class Recording(metaclass=abc.ABCMeta):
         on the fly or preload or pregenerate it.
         """
 
-
-    def get_recording_type(self):
-        """
-        Return a string describing the recording type.
-        """
-
         
     
 class Ultrasound_Recording(Recording):
@@ -43,6 +37,3 @@ class Ultrasound_Recording(Recording):
         file when this method is called because keeping too much data in 
         memory leads to a crash due to memory running out.
         """
-
-    def get_recording_type(self):
-        return self._recording_type

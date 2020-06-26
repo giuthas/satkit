@@ -164,6 +164,26 @@ class AAA_Ultrasound_Recording(Ultrasound_Recording):
         # load from file, return
         
 
+def set_file_exclusions_from_list(filename, recordings):
+    """
+    Read list of files (that is, recordings) to be excluded from processing
+    and mark them as excluded in the array of recording objects.
+    """
+    if filename is not None:
+        with closing(open(filename, 'r')) as csvfile:
+            reader = csv.reader(csvfile, delimiter='\t')
+            # Throw away the second field - it is a comment for human readers.
+            exclusion_list = [row[0] for row in reader]
+            _AAA_logger.info('Read exclusion list ' + filename + ' with ' +
+                           str(len(exclusion_list)) + ' names.')
+    else:
+        exclusion_list = []
+
+    for recording in exclusion_list:
+        # mark as excluded
+        # also make sure an array is actually the sensible way of doing this
+
+
 def read_file_exclusion_list(filename):
     """
     Read list of files (that is, recordings) to be excluded from processing.

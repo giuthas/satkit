@@ -1,6 +1,20 @@
 import abc
 
-class Recording(metaclass=abc.ABCMeta):
+class Recording():
+    """
+    A recording contains 1-n Modalities and the non-modality 
+    specific metadata (participant, speech content, etc).
+    """
+
+    def __init__(self):
+        self.excluded = False
+        self.meta = {}
+        self.modalities = []
+        self.timeOffSets = [] # Synchronisation time offsets
+                              # corresponding to each modality.
+
+        
+class Modality(metaclass=abc.ABCMeta):
     """
     Abstract superclass for all recording classes.
     """
@@ -8,6 +22,7 @@ class Recording(metaclass=abc.ABCMeta):
     def __init__(self):
         self.data = {} # To be used for only relatively small data vectors/matrices.
         self.meta = {}
+        self.excluded = False
         
 
     @abc.abstractmethod
@@ -19,8 +34,7 @@ class Recording(metaclass=abc.ABCMeta):
         """
 
         
-    
-class Ultrasound_Recording(Recording):
+class Ultrasound(Modality):
     """
     Abstract superclass for ultrasound recording classes.
     """

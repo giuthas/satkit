@@ -87,10 +87,15 @@ def pd(token):
         ultra = ultra.reshape((ult_no_frames, ult_NumVectors, ult_PixPerVector))
             
         ultra_diff = np.diff(ultra, axis=0)
+        abs_diff = np.abs(ultra_diff)
         ultra_diff = np.square(ultra_diff)
-        slw_pd = np.sum(ultra_diff, axis=2)
+        slw_pd = np.sum(ultra_diff, axis=2) # this should be square rooted at some point
         ultra_d = np.sqrt(np.sum(slw_pd, axis=1))
 
+        ultra_l1 = np.sum(abs_diff, axis=(1,2))
+        ultra_l3 = np.power(np.sum(np.power(abs_diff, 3), axis=(1,2)), 1.0/3.0)
+        ultra_l10 = np.power(np.sum(np.power(abs_diff, 10), axis=(1,2)), .1)
+        
         notice = token['base_name'] + " " + token['prompt']
         notice += ': PD calculated.'
         _pd_logger.debug(notice)
@@ -108,9 +113,15 @@ def pd(token):
 
     data = {}
     data['pd'] = ultra_d
+    data['l1'] = ultra_l1 
+    data['l3'] = ultra_l3 
+    data['l10'] = ultra_l10 
+    data['l_inf'] = np.max(abs_diff, axis=(1,2))
     data['sbpd'] = slw_pd
     data['ultra_time'] = ultra_time
     data['beep_uti'] = beep_uti
+    data['ultra_wav_time'] = ult_wav_time
+    data['ultra_wav_frames'] = ult_wav_frames
 
     return data
         

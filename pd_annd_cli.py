@@ -34,12 +34,13 @@ import logging
 
 # local modules
 from satkit.commandLineInterface import cli 
+from satkit import annd
 from satkit import pd
 
 def main():
     # Run the command line interface.
-    function_dict = {'pd':pd.pd}
-    cli("PD processing script", function_dict)
+    function_dict = {'pd':pd.pd, 'annd':annd.annd}
+    cli("PD and ANND processing script", function_dict)
     
 
 if (__name__ == '__main__'):

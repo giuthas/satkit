@@ -34,3 +34,10 @@ gpl-v3.tmpl
 
 # Results of an optic flow run.
 of_results/
+
+# Publication and conference datasets and their figure files.
+figures/
+spline_d/
+ultrafest_annd_sample/
+ISSP2020/
+ISSP2020_figures/

@@ -39,7 +39,7 @@ import datetime
 
 # local modules
 import satkit.pd as pd
-import satkit.pdplot as pdplot
+import satkit.pd_annd_plot as pd_annd_plot
 import satkit.io.AAA as satkit_AAA
 import satkit.io as satkit_io
 
@@ -89,6 +89,13 @@ def parse_args(description):
                         help=helptext, metavar="file")
 
     helptext = (
+        'Destination directory for generated figures.'
+    )
+    parser.add_argument("-f", "--figures", dest="figure_dir",
+                        default="figures",
+                        help=helptext, metavar="dir")
+
+    helptext = (
         'Set verbosity of console output. Range is [0, 3], default is 1, '
         'larger values mean greater verbosity.'
     )
@@ -136,7 +143,7 @@ def set_up_logging(args):
     return logger
 
     
-def cli(description, processing_function):
+def cli(description, processing_functions):
     """
     Run the commandline interface.
     Description is what this version will be called if called with -h or --help.
@@ -162,9 +169,17 @@ def cli(description, processing_function):
                                                    args.exclusion_filename)
 
         # process the tokens
-        data = [processing_function(token) for token in token_list]
-
-        data = [datum for datum in data if not datum is None]
+        data = []
+        for token in token_list:
+            datum = {}
+            for key in processing_functions.keys():
+                datum[key] = processing_functions[key](token)
+            data.append(datum)
+        # the metric functions should maybe be wrapped as objects so
+        # that we can access names on other things via names and
+        # what not instead of wrapping them in a dict
+        
+        #data = [datum for datum in data if not datum is None]
     elif os.path.splitext(args.load_path)[1] == '.pickle':
         token_list, data = satkit_io.load_pickled_data(args.load_path)
     elif os.path.splitext(args.load_path)[1] == '.json':
@@ -173,8 +188,9 @@ def cli(description, processing_function):
         logger.error('Unsupported filetype: ' + args.load_path + '.')
         
     # do something sensible with the data
-    logger.info("Drawing spaghetti plot.")
-    pdplot.draw_spaghetti(token_list, data)
+    logger.info("Drawing ISSP 2020 plot.")
+    pd_annd_plot.ISSP2020_plots(token_list, data, args.figure_dir)
+    #pd_annd_plot.ultrafest2020_plots(token_list, data, args.figure_dir)
 
     if args.output_filename:
         if os.path.splitext(args.output_filename)[1] == '.pickle':

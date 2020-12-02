@@ -51,8 +51,12 @@ def read_prompt(filename):
         date = lines[1]
         # could also do datetime as below, but there doesn't seem to be any reason to so.
         # date = datetime.strptime(lines[1], '%d/%m/%Y %H:%M:%S')
-        participant = lines[2].split(',')[0]
-
+        if len(lines) > 2 and lines[2].strip():
+            participant = lines[2].split(',')[0]
+        else:
+            _AAA_logger.info("Participant does not have an id in file " + filename + ".")
+            participant = ""
+            
         _AAA_logger.debug("Read prompt file " + filename + ".")
         return(prompt, date, participant)
 
@@ -133,9 +137,9 @@ def get_recording_list(directory, exclusion_list_name = None):
         # Prompt file should always exist and correspond to the base_name because 
         # the base_name list is generated from the directory listing of prompt files.
         meta[i]['ult_prompt_file'] = ult_prompt_files[i]
-        (prompt, date, participant) = read_prompt(ult_prompt_files[i])
+        (prompt, date_and_time, participant) = read_prompt(ult_prompt_files[i])
         meta[i]['prompt'] = prompt
-        meta[i]['date'] = date
+        meta[i]['date_and_time'] = date_and_time
         meta[i]['participant'] = participant
 
         if base_name in file_exclusion_list:
@@ -149,6 +153,7 @@ def get_recording_list(directory, exclusion_list_name = None):
         ult_meta_file = os.path.join(base_name + "US.txt")
         ult_wav_file = os.path.join(base_name + ".wav")
         ult_file = os.path.join(base_name + ".ult")
+        spline_file = os.path.join(base_name + "_splines.csv")
 
         # check if assumed files exist, and arrange to skip them if any do not
         if os.path.isfile(ult_meta_file):
@@ -178,6 +183,15 @@ def get_recording_list(directory, exclusion_list_name = None):
             meta[i]['ult_exists'] = False
             meta[i]['excluded'] = True        
 
+        # if os.path.isfile(spline_file):
+        #     meta[i]['spline_file'] = spline_file
+        #     meta[i]['splines_exist'] = True
+        # else:
+        #     notice = 'Note: ' + spline_file + " does not exist."
+        #     _AAA_logger.warning(notice)
+        #     meta[i]['splines_exist'] = False
+        #     meta[i]['excluded'] = True        
+
         # TODO this needs to be moved to a decorator function
         # if 'water swallow' in prompt:
         #     notice = 'Note: ' + base_names[i] + ' prompt is a water swallow.'
@@ -193,7 +207,7 @@ def get_recording_list(directory, exclusion_list_name = None):
         #     meta[i]['type'] = 'regular trial'
 
 
-    meta = sorted(meta, key=lambda token: token['date'])
+    meta = sorted(meta, key=lambda token: token['date_and_time'])
 
     return meta
 

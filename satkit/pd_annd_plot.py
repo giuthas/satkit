@@ -140,8 +140,8 @@ def ISSP2020_plots(metalist, datalist, figure_dir):
         data = datalist[i]
         basename = os.path.basename(meta['ult_prompt_file'])
         basename = os.path.splitext(basename)[0]
-        #draw_annd_pd(meta, data, basename, figure_dir)
-        #draw_annd(meta, data, basename, figure_dir)
+        draw_annd_pd(meta, data, basename, figure_dir)
+        draw_annd(meta, data, basename, figure_dir)
         draw_pd(meta, data, basename, figure_dir)
 
 
@@ -182,9 +182,11 @@ def plot_annd(ax, annd, annd_time, xlim):
     ax.plot(annd_time[3:-4], moving_average(annd['annd'][:-1], n=7), color="b", lw=1)
     ax.plot(annd_time[:-1], annd['mnnd'][:-1], color="g", lw=1, alpha=.5)
     ax.plot(annd_time[3:-4], moving_average(annd['mnnd'][:-1], n=7), color="g", lw=1)
+    ax.plot(annd_time[:-1], annd['spline_md'][:-1], color="r", lw=1, alpha=.5)
+    ax.plot(annd_time[3:-4], moving_average(annd['spline_md'][:-1], n=7), color="r", lw=1)
     ax.axvline(x=0, color="k", lw=1)
     ax.set_xlim(xlim)
-    ax.set_ylim((0,4.05))
+    ax.set_ylim((0,2.05))
     ax.set_ylabel("ANND")
 
     
@@ -200,7 +202,7 @@ def plot_wav(ax, pd, wav_time, xlim):
 # Ultrafest 2020 poster plotting 
 #
 def draw_annd_pd(meta, data, basename, figure_dir):
-    filename = os.path.join(figures_dir, (basename + '_annd_pd.pdf'))
+    filename = os.path.join(figure_dir, (basename + '_annd_pd.pdf'))
 
     with PdfPages(filename) as pdf:
         fig = plt.figure(figsize=(9, 6))
@@ -229,7 +231,7 @@ def draw_annd_pd(meta, data, basename, figure_dir):
         fig.align_ylabels()        
         pdf.savefig()  # saves the current figure into a pdf page
         plt.close()
-        _plot_logger.info("Drew spaghetti plot in " + filename + ".")
+        _plot_logger.info("Drew PD and ANND plot in " + filename + ".")
 
         
 def draw_annd(meta, data, basename, figure_dir):
@@ -241,7 +243,7 @@ def draw_annd(meta, data, basename, figure_dir):
         ax2 = plt.subplot2grid((4,1),(0,0), rowspan=3)
         plt.title(meta['prompt'])
         plt.grid(True, 'major', 'x')
-        ax1.axes.xaxis.set_ticklabels([])
+        ax2.axes.xaxis.set_ticklabels([])
         ax3 = plt.subplot2grid((4,1),(3,0))
         plt.grid(True, 'major', 'x')
         xlim = (-.05, 1)
@@ -258,7 +260,7 @@ def draw_annd(meta, data, basename, figure_dir):
         fig.align_ylabels()        
         pdf.savefig()  # saves the current figure into a pdf page
         plt.close()
-        _plot_logger.info("Drew spaghetti plot in " + filename + ".")
+        _plot_logger.info("Drew ANND plot in " + filename + ".")
 
 
 def draw_pd(meta, data, basename, figure_dir):
@@ -285,7 +287,7 @@ def draw_pd(meta, data, basename, figure_dir):
         fig.align_ylabels()        
         pdf.savefig()  # saves the current figure into a pdf page
         plt.close()
-        _plot_logger.info("Drew spaghetti plot in " + filename + ".")
+        _plot_logger.info("Drew PD plot in " + filename + ".")
 
 
 

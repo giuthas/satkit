@@ -67,6 +67,8 @@ def parse_line(line):
     token['r'] = np.fromiter(cells[5:5+token['nro_spline_points']], dtype='float')
     token['phi'] = np.fromiter(cells[5+token['nro_spline_points']:5+2*token['nro_spline_points']], dtype='float')
     token['conf'] = np.fromiter(cells[5+2*token['nro_spline_points']:5+3*token['nro_spline_points']], dtype='float')    
+    token['x'] = np.multiply(token['r'],np.sin(token['phi']))
+    token['y'] = np.multiply(token['r'],np.cos(token['phi']))
 
     return token
 
@@ -122,32 +124,31 @@ def annd(token):
     _annd_logger.debug(token['prompt'] + ' has ' + str(len(splines)) + 'splines.')
     
     for spline in splines:
-        x = np.multiply(spline['r'],np.sin(spline['phi']))
-        y = np.multiply(spline['r'],np.cos(spline['phi']))
         #####
-        # disregard samples 1-12 from the front and 1-4 from back, they have 
-        # bad conf values
+        # disregard samples from front and from back
         #
         # this should be user adjustable after examining the splines
         #####
-        spline['x'] = x[15:-6]
-        spline['y'] = y[15:-6]
+        spline['x'] = spline['x'][10:-4]
+        spline['y'] = spline['y'][10:-4]
 
-    timestep = 5
-    # loop to calculate annd
+    # loop to calculate annd, mnnd, spline_d and spline_md
+    timestep = 1
     num_points = len(splines[1]['x'])
     annd = np.zeros(len(splines)-timestep)
     mnnd = np.zeros(len(splines)-timestep)
     spline_d = np.zeros(len(splines)-timestep)
+    spline_md = np.zeros(len(splines)-timestep)
     for i in range(len(splines)-timestep):
         current_points = np.stack((splines[i]['x'], splines[i]['y']))
         next_points = np.stack((splines[i+timestep]['x'], splines[i+timestep]['y']))
 
-        diff = np.subtract(current_points, next_points) 
+        diff = np.subtract(current_points, next_points)
         diff = np.square(diff)
         diff = np.sum(diff, axis=0)
         diff = np.sqrt(diff)
         spline_d[i] = np.average(diff)
+        spline_md[i] = np.median(diff)
         
         nnd = np.zeros(num_points)
         for j in range(num_points):
@@ -160,12 +161,6 @@ def annd(token):
 
         annd[i] = np.average(nnd)
         mnnd[i] = np.median(nnd)
-
-        # diff = np.subtract(current_points, next_points)
-        # diff = np.square(diff)
-        # diff = np.sum(diff, axis=0)
-        # diff = np.cbrt(np.sqrt(diff))
-        # annd[i] = np.average(diff)
         
     notice = token['base_name'] + " " + token['prompt']
     notice += ': ANND calculated.'
@@ -183,6 +178,7 @@ def annd(token):
     data['annd'] = annd
     data['mnnd'] = mnnd
     data['spline_d'] = spline_d
+    data['spline_md'] = spline_md
     data['annd_time'] = annd_time
     
     return data

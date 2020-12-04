@@ -133,6 +133,16 @@ def moving_average(a, n=3) :
     # then expand output as follows
     # needs to do pd + wav, annd + wav, pd+annd+wav in separate files for each token
 
+def norm_comparison_plots(metalist, datalist, figure_dir):
+    for i in range(len(metalist)):
+        meta = metalist[i]
+        data = datalist[i]
+        basename = os.path.basename(meta['ult_prompt_file'])
+        basename = os.path.splitext(basename)[0]
+        draw_annd_pd(meta, data, basename, figure_dir)
+        draw_annd(meta, data, basename, figure_dir)
+        draw_pd_norms(meta, data, basename, figure_dir)
+        
 
 def ISSP2020_plots(metalist, datalist, figure_dir):
     for i in range(len(metalist)):
@@ -157,17 +167,7 @@ def ultrafest2020_plots(metalist, datalist, figure_dir):
 
         
 def plot_pd(ax, pd, ultra_time, xlim):
-    # ax.plot(ultra_time, pd['pd'], color="b", lw=1)
-    # ax.plot(ultra_time, pd['l1']/100, color="r", lw=1)
-    # ax.plot(ultra_time, pd['l3']*5, color="g", lw=1)
-    # ax.plot(ultra_time, pd['l10']*20, color="k", lw=1)
-    # ax.plot(ultra_time, pd['l_inf']*20, color="k", lw=1, linestyle='--')
-
-    ax.plot(ultra_time, pd['pd']/np.max(pd['pd'][1:]), color="b", lw=1)
-    ax.plot(ultra_time, pd['l1']/np.max(pd['l1'][1:]), color="r", lw=1)
-    ax.plot(ultra_time, pd['l3']/np.max(pd['l3'][1:]), color="g", lw=1)
-    ax.plot(ultra_time, pd['l10']/np.max(pd['l10'][1:]), color="k", lw=1)
-    ax.plot(ultra_time, pd['l_inf']/np.max(pd['l_inf'][1:]), color="k", lw=1, linestyle='--')
+    ax.plot(ultra_time, pd['pd']/np.max(pd['pd'][1:]), color="k", lw=1)
 
     ax.axvline(x=0, color="k", lw=1)
     ax.set_xlim(xlim)
@@ -176,14 +176,58 @@ def plot_pd(ax, pd, ultra_time, xlim):
     ax.set_ylabel("PD")
 
 
+def plot_pd_norms(ax, pd, ultra_time, xlim):
+    ax.plot(ultra_time, pd['l1']/np.max(pd['l1'][1:]), color="black", lw=1)
+    ax.plot(ultra_time, pd['pd']/np.max(pd['pd'][1:]), color="dimgrey", lw=1)
+    ax.plot(ultra_time, pd['l3']/np.max(pd['l3'][1:]), color="grey", lw=1)
+    ax.plot(ultra_time, pd['l4']/np.max(pd['l4'][1:]), color="darkgrey", lw=1)
+    ax.plot(ultra_time, pd['l5']/np.max(pd['l5'][1:]), color="silver", lw=1)
+    ax.plot(ultra_time, pd['l10']/np.max(pd['l10'][1:]), color="lightgrey", lw=1)
+    ax.plot(ultra_time, pd['l_inf']/np.max(pd['l_inf'][1:]), color="k", lw=1, linestyle='--')
+
+    ax.axvline(x=0, color="k", lw=1)
+    ax.set_xlim(xlim)
+    ax.set_ylim((0,1.1))
+    ax.set_ylabel("PD")
+
+
 def plot_annd(ax, annd, annd_time, xlim):
+    # last annd seems to be shit so leave it out
+    half_window = 2
+    smooth_length = 2*half_window+1
+    
+    # ax.plot(annd_time[:-1], annd['annd'][:-1], color="b", lw=1, alpha=.5)
+    ave_annd = moving_average(annd['annd'][:-1], n=smooth_length)
+    ax.plot(annd_time[half_window:-(half_window+1)], ave_annd/np.max(ave_annd), color="black", lw=1)
+
+    # ax.plot(annd_time[:-1], annd['mnnd'][:-1], color="g", lw=1, alpha=.5)
+    ave_mnnd = moving_average(annd['mnnd'][:-1], n=smooth_length)
+    ax.plot(annd_time[half_window:-(half_window+1)], ave_mnnd/np.max(ave_mnnd), color="dimgrey", lw=1, linestyle=':')
+
+    ave_mpbpd = moving_average(annd['mpbpd'][:-1], n=smooth_length)
+    ax.plot(annd_time[:-1], annd['mpbpd'][:-1]/np.max(ave_mpbpd), color="g", lw=1, alpha=.5)
+    ax.plot(annd_time[half_window:-(half_window+1)], ave_mpbpd/np.max(ave_mpbpd), color="grey", lw=1, linestyle='--')
+
+    # ax.plot(annd_time[:-1], annd['spline_d'][:-1], color="k", lw=1, alpha=.5)
+    ave_spline_d = moving_average(annd['spline_d'][:-1], n=smooth_length)
+    ax.plot(annd_time[half_window:-(half_window+1)], ave_spline_d/np.max(ave_spline_d), color="darkgrey", lw=1, linestyle='-.')
+
+    ax.axvline(x=0, color="k", lw=1)
+    ax.set_xlim(xlim)
+    ax.set_ylim((0,1.05))
+    ax.set_ylabel("ANND")
+
+    
+def plot_annd_options(ax, annd, annd_time, xlim):
     # last annd seems to be shit so leave it out
     ax.plot(annd_time[:-1], annd['annd'][:-1], color="b", lw=1, alpha=.5)
     ax.plot(annd_time[3:-4], moving_average(annd['annd'][:-1], n=7), color="b", lw=1)
     ax.plot(annd_time[:-1], annd['mnnd'][:-1], color="g", lw=1, alpha=.5)
     ax.plot(annd_time[3:-4], moving_average(annd['mnnd'][:-1], n=7), color="g", lw=1)
-    ax.plot(annd_time[:-1], annd['spline_md'][:-1], color="r", lw=1, alpha=.5)
-    ax.plot(annd_time[3:-4], moving_average(annd['spline_md'][:-1], n=7), color="r", lw=1)
+    ax.plot(annd_time[:-1], annd['mpbpd'][:-1], color="r", lw=1, alpha=.5)
+    ax.plot(annd_time[3:-4], moving_average(annd['mpbpd'][:-1], n=7), color="r", lw=1)
+    ax.plot(annd_time[:-1], annd['spline_d'][:-1], color="k", lw=1, alpha=.5)
+    ax.plot(annd_time[3:-4], moving_average(annd['spline_d'][:-1], n=7), color="k", lw=1)
     ax.axvline(x=0, color="k", lw=1)
     ax.set_xlim(xlim)
     ax.set_ylim((0,2.05))
@@ -191,7 +235,7 @@ def plot_annd(ax, annd, annd_time, xlim):
 
     
 def plot_wav(ax, pd, wav_time, xlim):
-        ax.plot(wav_time, pd['ultra_wav_frames']/np.amax(np.abs(pd['ultra_wav_frames'])), color="b", lw=1)
+        ax.plot(wav_time, pd['ultra_wav_frames']/np.amax(np.abs(pd['ultra_wav_frames'])), color="k", lw=1)
         #ax.axvline(x=0, color="k", lw=1)
         ax.set_xlim(xlim)
         ax.set_ylabel("Waveform")

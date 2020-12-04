@@ -94,6 +94,8 @@ def pd(token):
 
         ultra_l1 = np.sum(abs_diff, axis=(1,2))
         ultra_l3 = np.power(np.sum(np.power(abs_diff, 3), axis=(1,2)), 1.0/3.0)
+        ultra_l4 = np.power(np.sum(np.power(abs_diff, 4), axis=(1,2)), 1.0/4.0)
+        ultra_l5 = np.power(np.sum(np.power(abs_diff, 5), axis=(1,2)), 1.0/5.0)
         ultra_l10 = np.power(np.sum(np.power(abs_diff, 10), axis=(1,2)), .1)
         
         notice = token['base_name'] + " " + token['prompt']
@@ -115,6 +117,8 @@ def pd(token):
     data['pd'] = ultra_d
     data['l1'] = ultra_l1 
     data['l3'] = ultra_l3 
+    data['l4'] = ultra_l4 
+    data['l5'] = ultra_l5 
     data['l10'] = ultra_l10 
     data['l_inf'] = np.max(abs_diff, axis=(1,2))
     data['sbpd'] = slw_pd

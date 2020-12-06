@@ -173,8 +173,11 @@ def cli(description, processing_function):
         logger.error('Unsupported filetype: ' + args.load_path + '.')
         
     # do something sensible with the data
-    logger.info("Drawing spaghetti plot.")
-    pdplot.draw_spaghetti(token_list, data)
+    logger.info("Drawing PD example plot.")
+    pdplot.draw_PD_example(token_list, data)
+
+    # logger.info("Drawing spaghetti plot.")
+    # pdplot.draw_spaghetti(token_list, data)
 
     if args.output_filename:
         if os.path.splitext(args.output_filename)[1] == '.pickle':

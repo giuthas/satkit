@@ -32,93 +32,26 @@
 # Built in packages
 from contextlib import closing
 import logging
-import os.path
+from pathlib import Path
+
+# Efficient array operations
+import numpy as np
 
 # Scientific plotting
-import numpy as np
+import matplotlib.lines as mlines
 import matplotlib.pyplot as plt
 from matplotlib.backends.backend_pdf import PdfPages
 
+# Praat textgrids
+import textgrids
+
+
 _plot_logger = logging.getLogger('satkit.pd.plot')
 
-def plot_signals_trace(beep, beep2, int_time, int_signal, hp_signal, bp_signal, int_signal2):
-    fig = plt.figure()
-    ax0 = fig.add_subplot(211)
-    ax1 = fig.add_subplot(212)
-    ax0.plot(int_time, int_signal)
-    ax0.plot(int_time, int_signal2)
-    y = [20, -200]
-    ax0.plot([beep, beep], y, color="g")
-    ax0.plot([beep2, beep2], y, color="r")
-    ax1.plot(int_time, hp_signal)
-    ax1.plot(int_time, bp_signal)
-    ax1.plot([beep, beep], [-1, 1], color="g")
-    ax1.plot([beep2, beep2], [-1, 1], color="r")
-    plt.show()
 
-
-# Wrapper for plotting, which also cals plt.show().
-def plot_and_show(beep, ultra_d, ultra_time, uti_wav, uti_wav_time, beep_uti, center, name):
-    plot_signals(beep, ultra_d, ultra_time, uti_wav, uti_wav_time, beep_uti, center, name)
-    plt.show()
-
-
-# To be used in silent plotting or called for plotting when calling plt.show() separately.
-def plot_signals(beep, ultra_d, ultra_time, uti_wav, uti_wav_time, beep_uti, center, name):
-    fig = plt.figure(figsize=(12, 10))
-    
-    ax1 = plt.subplot2grid((6,1),(2,0), rowspan=2)
-    ax2 = plt.subplot2grid((6,1),(4,0))
-
-    ultra_time = ultra_time - beep_uti
-    uti_wav_time = uti_wav_time - beep_uti
-
-    xlim = (-.2, 1)
-#    xlim = (-4, 6)
-
-    ax1.plot(ultra_time, ultra_d)
-    ax1.axvline(x=0, color="r")
-    if center:
-        ax1.set_xlim(xlim)
-    ax1.set_ylabel("Pixel Difference")
-
-    ax2.plot(uti_wav_time, uti_wav)
-    ax2.axvline(x=0, color="r")
-    if center:
-        ax2.set_xlim(xlim)
-    ax3.set_ylabel("Waveform")
-    ax3.set_xlabel("Time (s)")
-
-    plt.suptitle(name, fontsize=24)
-    #plt.tight_layout()
-
-
-#
-# Used for verifying test runs at the moment. Wrap later into it's own thing.
-#
-def draw_spaghetti(meta, data):
-    filename = 'spaghetti_plot.pdf'
-    with PdfPages(filename) as pdf:
-        plt.figure(figsize=(7, 7))
-        #ax = plt.subplot2grid((2,1),(1,0))
-        ax = plt.axes()
-        xlim = (-.2, 1)
-
-        for i in range(len(data)):
-            ultra_time = data[i]['ultra_time'] - data[i]['beep_uti']
-
-            ax.plot(ultra_time, data[i]['pd'], color="b", lw=1, alpha=.2)
-            ax.axvline(x=0, color="r", lw=1)
-            ax.set_xlim(xlim)
-            ax.set_ylabel("Pixel Difference")
-            ax.set_xlabel("Time (s), go-signal at 0 s.")
-
-        plt.tight_layout()
-        pdf.savefig()  # saves the current figure into a pdf page
-        plt.close()
-        _plot_logger.info("Drew spaghetti plot in " + filename + ".")
-    
-
+#####
+# Helper functions
+#####
 
 def moving_average(a, n=3) :
     ret = np.cumsum(a, dtype=float)
@@ -126,12 +59,323 @@ def moving_average(a, n=3) :
     return ret[n - 1:] / n
 
 
+#####
+# Subplot functions
+#####
 
-    # change this into a internal function inside one that loops over tokens in meta and data
-    # also create a figures or output directory to put the pics in
-    # fetch the right tokens in and run once to see files are produced right
-    # then expand output as follows
-    # needs to do pd + wav, annd + wav, pd+annd+wav in separate files for each token
+def plot_pd(ax, pd, ultra_time, xlim, textgrid = None, time_offset = 0):
+    text_settings = {'horizontalalignment': 'center',
+                     'verticalalignment': 'center'}
+
+    # The PD curve and the official fix for it not showing up on the legend.
+    ax.plot(ultra_time, pd['pd'], color="b", lw=1)
+    pd_curve = mlines.Line2D([], [], color='b', lw=1)
+
+    go_line = ax.axvline(x=0, color="g", lw=1)
+
+    if textgrid:
+        for segment in textgrid['segment']:
+            if segment.text == "":
+                continue
+            elif segment.text == "beep":
+                continue
+            else:
+                segment_line = ax.axvline(x = segment.xmin+time_offset, color="k", lw=1)
+                ax.axvline(x = segment.xmax+time_offset, color="k", lw=1)
+                ax.text(segment.mid+time_offset, 500, segment.text, text_settings)
+            
+    ax.set_xlim(xlim)
+    ax.set_ylim((0,3000))
+    ax.legend((pd_curve, go_line, segment_line),
+           ('Pixel difference', 'Go-signal onset', 'Acoustic segments'))
+    ax.set_ylabel("PD")
+
+    
+def plot_pd_peak_normalised(ax, pd, ultra_time, xlim, textgrid = None, time_offset = 0):
+    text_settings = {'horizontalalignment': 'center',
+                     'verticalalignment': 'center'}
+    
+    ax.plot(ultra_time, pd['pd'], color="b", lw=1, label='Pixel difference')
+
+    ax.axvline(x=0, color="g", lw=1)
+
+    if textgrid:
+        for segment in textgrid['segment']:
+            if segment.text == "":
+                continue
+            elif segment.text == "beep":
+                continue
+            else:
+                ax.axvline(x = segment.xmin+time_offset, color="k", lw=1)
+                ax.axvline(x = segment.xmax+time_offset, color="k", lw=1)
+                ax.text(segment.mid+time_offset, 500, segment.text, text_settings)
+            
+    ax.set_xlim(xlim)
+    ax.set_ylim((0,1.1))
+    ax.legend() 
+    ax.set_ylabel("Peak normalised PD")
+
+    
+def plot_pd_norms(ax, pd, ultra_time, xlim, textgrid = None, time_offset = 0):
+    ax.plot(ultra_time, pd['l1']/np.max(pd['l1'][1:]), color="black", lw=1)
+    ax.plot(ultra_time, pd['pd']/np.max(pd['pd'][1:]), color="dimgrey", lw=1)
+    ax.plot(ultra_time, pd['l3']/np.max(pd['l3'][1:]), color="grey", lw=1)
+    ax.plot(ultra_time, pd['l4']/np.max(pd['l4'][1:]), color="darkgrey", lw=1)
+    ax.plot(ultra_time, pd['l5']/np.max(pd['l5'][1:]), color="silver", lw=1)
+    ax.plot(ultra_time, pd['l10']/np.max(pd['l10'][1:]), color="lightgrey", lw=1)
+    ax.plot(ultra_time, pd['l_inf']/np.max(pd['l_inf'][1:]), color="k", lw=1, linestyle='--')
+
+    ax.axvline(x=0, color="g", lw=1)
+    ax.set_xlim(xlim)
+    ax.set_ylim((0,1.1))
+    ax.set_ylabel("PD")
+
+
+def plot_annd(ax, annd, annd_time, xlim, textgrid = None, time_offset = 0):
+    # last annd seems to be shit so leave it out
+    half_window = 2
+    smooth_length = 2*half_window+1
+    
+    # ax.plot(annd_time[:-1], annd['annd'][:-1], color="b", lw=1, alpha=.5)
+    ave_annd = moving_average(annd['annd'][:-1], n=smooth_length)
+    ax.plot(annd_time[half_window:-(half_window+1)], ave_annd/np.max(ave_annd),
+            color="black", lw=1, label='Average Nearest Neighbour Distance')
+
+    ave_mpbpd = moving_average(annd['mpbpd'][:-1], n=smooth_length)
+    ax.plot(annd_time[:-1], annd['mpbpd'][:-1]/np.max(ave_mpbpd), color="g", lw=1, alpha=.5)
+    ax.plot(annd_time[half_window:-(half_window+1)], ave_mpbpd/np.max(ave_mpbpd),
+            color="g", lw=1, linestyle='--', label='Median Point-by-point Distance')
+
+    ax.axvline(x=0, color="g", lw=1)
+
+    if textgrid:
+        for segment in textgrid['segment']:
+            if segment.text == "":
+                continue
+            elif segment.text == "beep":
+                continue
+            else:
+                ax.axvline(x = segment.xmin+time_offset, color="k", lw=1)
+                ax.axvline(x = segment.xmax+time_offset, color="k", lw=1)
+
+    ax.set_xlim(xlim)
+    ax.set_ylim((0,1.05))
+    ax.legend()
+    ax.set_ylabel("Peak normalised\nspline metrices")
+
+    
+def plot_spline_metrics(ax, annd, annd_time, xlim, textgrid = None, time_offset = 0):
+    # last annd seems to be shit so leave it out
+    half_window = 2
+    smooth_length = 2*half_window+1
+    
+    # ax.plot(annd_time[:-1], annd['annd'][:-1], color="b", lw=1, alpha=.5)
+    ave_annd = moving_average(annd['annd'][:-1], n=smooth_length)
+    ax.plot(annd_time[half_window:-(half_window+1)], ave_annd/np.max(ave_annd),
+            color="black", lw=1)
+
+    # ax.plot(annd_time[:-1], annd['mnnd'][:-1], color="g", lw=1, alpha=.5)
+    ave_mnnd = moving_average(annd['mnnd'][:-1], n=smooth_length)
+    ax.plot(annd_time[half_window:-(half_window+1)], ave_mnnd/np.max(ave_mnnd),
+            color="dimgrey", lw=1, linestyle=':')
+
+    ave_mpbpd = moving_average(annd['mpbpd'][:-1], n=smooth_length)
+    ax.plot(annd_time[:-1], annd['mpbpd'][:-1]/np.max(ave_mpbpd), color="g", lw=1, alpha=.5)
+    ax.plot(annd_time[half_window:-(half_window+1)], ave_mpbpd/np.max(ave_mpbpd),
+            color="grey", lw=1, linestyle='--')
+
+    # ax.plot(annd_time[:-1], annd['spline_d'][:-1], color="k", lw=1, alpha=.5)
+    ave_spline_d = moving_average(annd['spline_d'][:-1], n=smooth_length)
+    ax.plot(annd_time[half_window:-(half_window+1)], ave_spline_d/np.max(ave_spline_d),
+            color="darkgrey", lw=1, linestyle='-.')
+
+    ave_spline_l1 = moving_average(annd['spline_l1'][:-1], n=smooth_length)
+    #ax.plot(annd_time[:-1], annd['spline_l1'][:-1]/np.max(ave_spline_l1),
+    #        color="seagreen", lw=1, alpha=.5)
+    ax.plot(annd_time[half_window:-(half_window+1)], ave_spline_l1/np.max(ave_spline_l1),
+            color="seagreen", lw=1, linestyle='-.')
+
+    if textgrid:
+        for segment in textgrid['segment']:
+            if segment.text == "":
+                continue
+            elif segment.text == "beep":
+                continue
+            else:
+                ax.axvline(x = segment.xmin+time_offset, color="k", lw=1)
+                ax.axvline(x = segment.xmax+time_offset, color="k", lw=1)
+
+    ax.axvline(x=0, color="g", lw=1)
+    ax.set_xlim(xlim)
+    ax.set_ylim((0,1.05))
+    ax.set_ylabel("Peak normalised spline metrics")
+
+    
+def plot_annd_options(ax, annd, annd_time, xlim, textgrid = None, time_offset = 0):
+    # last annd seems to be shit so leave it out
+    ax.plot(annd_time[:-1], annd['annd'][:-1], color="b", lw=1, alpha=.5)
+    ax.plot(annd_time[3:-4], moving_average(annd['annd'][:-1], n=7), color="b", lw=1)
+    ax.plot(annd_time[:-1], annd['mnnd'][:-1], color="g", lw=1, alpha=.5)
+    ax.plot(annd_time[3:-4], moving_average(annd['mnnd'][:-1], n=7), color="g", lw=1)
+    ax.plot(annd_time[:-1], annd['mpbpd'][:-1], color="r", lw=1, alpha=.5)
+    ax.plot(annd_time[3:-4], moving_average(annd['mpbpd'][:-1], n=7), color="r", lw=1)
+    ax.plot(annd_time[:-1], annd['spline_d'][:-1], color="k", lw=1, alpha=.5)
+    ax.plot(annd_time[3:-4], moving_average(annd['spline_d'][:-1], n=7), color="k", lw=1)
+
+    if textgrid:
+        for segment in textgrid['segment']:
+            if segment.text == "":
+                continue
+            elif segment.text == "beep":
+                continue
+            else:
+                ax.axvline(x = segment.xmin+time_offset, color="k", lw=1)
+                ax.axvline(x = segment.xmax+time_offset, color="k", lw=1)
+
+    ax.axvline(x=0, color="k", lw=1)
+    ax.set_xlim(xlim)
+    ax.set_ylim((0,2.05))
+    ax.set_ylabel("ANND")
+
+    
+def plot_wav(ax, pd, wav_time, xlim, textgrid = None, time_offset = 0):
+    normalised_wav = pd['ultra_wav_frames']/np.amax(np.abs(pd['ultra_wav_frames']))
+    ax.plot(wav_time, normalised_wav, color="k", lw=1)
+
+    ax.axvline(x=0, color="g", lw=1)
+
+    if textgrid:
+        for segment in textgrid['segment']:
+            if segment.text == "":
+                continue
+            elif segment.text == "beep":
+                continue
+            else:
+                ax.axvline(x = segment.xmin+time_offset, color="k", lw=1)
+                ax.axvline(x = segment.xmax+time_offset, color="k", lw=1)
+
+    ax.set_xlim(xlim)
+    ax.set_ylim((-1.05,1.05))
+    ax.set_ylabel("Waveform")
+    ax.set_xlabel("Time (s), go-signal at 0 s.")
+                
+            
+#####
+# Combined plots
+#####
+
+def draw_pd(meta, datum, figure_dir):
+    base_name = Path(meta['base_name'])      
+    filename = base_name.with_suffix('.pd.pdf').name
+    filename = figure_dir.joinpath(filename)
+    
+    with PdfPages(str(filename)) as pdf:
+        fig = plt.figure(figsize=(9, 4))
+
+        ax1 = plt.subplot2grid((4,1),(0,0), rowspan=3)
+        plt.title(meta['prompt'].split()[1])
+        plt.grid(True, 'major', 'x')
+        ax1.axes.xaxis.set_ticklabels([])
+        ax3 = plt.subplot2grid((4,1),(3,0))
+        plt.grid(True, 'major', 'x')
+        xlim = (-.05, 1.25)
+
+        pd = datum['pd']
+        ultra_time = pd['ultra_time'] - pd['beep_uti']
+        wav_time = pd['ultra_wav_time'] - pd['beep_uti']
+        
+        plot_pd(ax1, pd, ultra_time, xlim, meta['textgrid'], -pd['beep_uti'])
+        plot_wav(ax3, pd, wav_time, xlim, meta['textgrid'], -pd['beep_uti'])
+
+        fig.align_ylabels()        
+        pdf.savefig()  # saves the current figure into a pdf page
+        plt.close()
+        _plot_logger.info("Drew PD plot in " + str(filename) + ".")
+
+        
+def draw_annd(meta, datum, figure_dir):
+    base_name = Path(meta['base_name'])      
+    filename = base_name.with_suffix('.annd.pdf').name
+    filename = figure_dir.joinpath(filename)
+    
+    with PdfPages(str(filename)) as pdf:
+        fig = plt.figure(figsize=(9, 4))
+
+        ax2 = plt.subplot2grid((4,1),(0,0), rowspan=3)
+        plt.title(meta['prompt'])
+        plt.grid(True, 'major', 'x')
+        ax2.axes.xaxis.set_ticklabels([])
+        ax3 = plt.subplot2grid((4,1),(3,0))
+        plt.grid(True, 'major', 'x')
+        xlim = (-.05, 1.25)
+
+        pd = datum['pd']
+        annd = datum['annd']
+        annd_time = annd['annd_time'] - pd['beep_uti']
+        wav_time = pd['ultra_wav_time'] - pd['beep_uti']
+        
+        plot_annd(ax2, annd, annd_time, xlim, meta['textgrid'], -pd['beep_uti'])
+        plot_wav(ax3, pd, wav_time, xlim, meta['textgrid'], -pd['beep_uti'])
+
+        fig.align_ylabels()        
+        pdf.savefig()  # saves the current figure into a pdf page
+        plt.close()
+        _plot_logger.info("Drew ANND plot in " + str(filename) + ".")
+
+
+def draw_annd_pd(meta, datum, figure_dir):
+    base_name = Path(meta['base_name'])      
+    filename = base_name.with_suffix('.annd_pd.pdf').name
+    filename = figure_dir.joinpath(filename)
+    
+    with PdfPages(str(filename)) as pdf:
+        fig = plt.figure(figsize=(9, 6))
+
+        ax1 = plt.subplot2grid((7,1),(0,0), rowspan=3)
+        plt.title(meta['prompt'])
+        #plt.grid(True, 'major', 'x')
+        ax1.axes.xaxis.set_ticklabels([])
+        ax2 = plt.subplot2grid((7,1),(3,0), rowspan=3)
+        #plt.grid(True, 'major', 'x')
+        ax2.axes.xaxis.set_ticklabels([])
+        ax3 = plt.subplot2grid((7,1),(6,0))
+        #plt.grid(True, 'major', 'x')
+        xlim = (-.05, 1.25)
+
+        pd = datum['pd']
+        annd = datum['annd']
+        ultra_time = pd['ultra_time'] - pd['beep_uti']
+        annd_time = annd['annd_time'] - pd['beep_uti']
+        wav_time = pd['ultra_wav_time'] - pd['beep_uti']
+        
+        plot_pd(ax1, pd, ultra_time, xlim, meta['textgrid'], -pd['beep_uti'])
+        plot_annd(ax2, annd, annd_time, xlim, meta['textgrid'], -pd['beep_uti'])
+        plot_wav(ax3, pd, wav_time, xlim, meta['textgrid'], -pd['beep_uti'])
+
+        fig.align_ylabels()        
+        pdf.savefig()  # saves the current figure into a pdf page
+        plt.close()
+        _plot_logger.info("Drew PD and ANND plot in " + str(filename) + ".")
+
+        
+#####
+# Iteration over tokens
+#####
+
+def ISSP2020_plots(meta_list, data, figure_dir):
+    figure_dir = Path(figure_dir)
+    if not figure_dir.is_dir():
+        if figure_dir.exists():
+            _plot_logger.critical('Name conflict: ' + figure_dir +
+                                  ' exists and is not a directory.')
+        else:
+            figure_dir.mkdir()
+    
+    for (meta, datum) in zip(meta_list, data):
+        draw_annd_pd(meta, datum, figure_dir)
+        draw_annd(meta, datum, figure_dir)
+        draw_pd(meta, datum, figure_dir)
+
 
 def norm_comparison_plots(metalist, datalist, figure_dir):
     for i in range(len(metalist)):
@@ -144,16 +388,6 @@ def norm_comparison_plots(metalist, datalist, figure_dir):
         draw_pd_norms(meta, data, basename, figure_dir)
         
 
-def ISSP2020_plots(metalist, datalist, figure_dir):
-    for i in range(len(metalist)):
-        meta = metalist[i]
-        data = datalist[i]
-        basename = os.path.basename(meta['ult_prompt_file'])
-        basename = os.path.splitext(basename)[0]
-        draw_annd_pd(meta, data, basename, figure_dir)
-        draw_annd(meta, data, basename, figure_dir)
-        draw_pd(meta, data, basename, figure_dir)
-
 
 def ultrafest2020_plots(metalist, datalist, figure_dir):
     for i in range(len(metalist)):
@@ -164,175 +398,6 @@ def ultrafest2020_plots(metalist, datalist, figure_dir):
         draw_annd_pd(meta, data, basename, figure_dir)
         draw_annd(meta, data, basename, figure_dir)
         draw_pd(meta, data, basename, figure_dir)
-
-        
-def plot_pd(ax, pd, ultra_time, xlim):
-    ax.plot(ultra_time, pd['pd']/np.max(pd['pd'][1:]), color="k", lw=1)
-
-    ax.axvline(x=0, color="k", lw=1)
-    ax.set_xlim(xlim)
-    ax.set_ylim((0,1.1))
-#    ax.set_ylim((0,4520))
-    ax.set_ylabel("PD")
-
-
-def plot_pd_norms(ax, pd, ultra_time, xlim):
-    ax.plot(ultra_time, pd['l1']/np.max(pd['l1'][1:]), color="black", lw=1)
-    ax.plot(ultra_time, pd['pd']/np.max(pd['pd'][1:]), color="dimgrey", lw=1)
-    ax.plot(ultra_time, pd['l3']/np.max(pd['l3'][1:]), color="grey", lw=1)
-    ax.plot(ultra_time, pd['l4']/np.max(pd['l4'][1:]), color="darkgrey", lw=1)
-    ax.plot(ultra_time, pd['l5']/np.max(pd['l5'][1:]), color="silver", lw=1)
-    ax.plot(ultra_time, pd['l10']/np.max(pd['l10'][1:]), color="lightgrey", lw=1)
-    ax.plot(ultra_time, pd['l_inf']/np.max(pd['l_inf'][1:]), color="k", lw=1, linestyle='--')
-
-    ax.axvline(x=0, color="k", lw=1)
-    ax.set_xlim(xlim)
-    ax.set_ylim((0,1.1))
-    ax.set_ylabel("PD")
-
-
-def plot_annd(ax, annd, annd_time, xlim):
-    # last annd seems to be shit so leave it out
-    half_window = 2
-    smooth_length = 2*half_window+1
-    
-    # ax.plot(annd_time[:-1], annd['annd'][:-1], color="b", lw=1, alpha=.5)
-    ave_annd = moving_average(annd['annd'][:-1], n=smooth_length)
-    ax.plot(annd_time[half_window:-(half_window+1)], ave_annd/np.max(ave_annd), color="black", lw=1)
-
-    # ax.plot(annd_time[:-1], annd['mnnd'][:-1], color="g", lw=1, alpha=.5)
-    ave_mnnd = moving_average(annd['mnnd'][:-1], n=smooth_length)
-    ax.plot(annd_time[half_window:-(half_window+1)], ave_mnnd/np.max(ave_mnnd), color="dimgrey", lw=1, linestyle=':')
-
-    ave_mpbpd = moving_average(annd['mpbpd'][:-1], n=smooth_length)
-    ax.plot(annd_time[:-1], annd['mpbpd'][:-1]/np.max(ave_mpbpd), color="g", lw=1, alpha=.5)
-    ax.plot(annd_time[half_window:-(half_window+1)], ave_mpbpd/np.max(ave_mpbpd), color="grey", lw=1, linestyle='--')
-
-    # ax.plot(annd_time[:-1], annd['spline_d'][:-1], color="k", lw=1, alpha=.5)
-    ave_spline_d = moving_average(annd['spline_d'][:-1], n=smooth_length)
-    ax.plot(annd_time[half_window:-(half_window+1)], ave_spline_d/np.max(ave_spline_d), color="darkgrey", lw=1, linestyle='-.')
-
-    ax.axvline(x=0, color="k", lw=1)
-    ax.set_xlim(xlim)
-    ax.set_ylim((0,1.05))
-    ax.set_ylabel("ANND")
-
-    
-def plot_annd_options(ax, annd, annd_time, xlim):
-    # last annd seems to be shit so leave it out
-    ax.plot(annd_time[:-1], annd['annd'][:-1], color="b", lw=1, alpha=.5)
-    ax.plot(annd_time[3:-4], moving_average(annd['annd'][:-1], n=7), color="b", lw=1)
-    ax.plot(annd_time[:-1], annd['mnnd'][:-1], color="g", lw=1, alpha=.5)
-    ax.plot(annd_time[3:-4], moving_average(annd['mnnd'][:-1], n=7), color="g", lw=1)
-    ax.plot(annd_time[:-1], annd['mpbpd'][:-1], color="r", lw=1, alpha=.5)
-    ax.plot(annd_time[3:-4], moving_average(annd['mpbpd'][:-1], n=7), color="r", lw=1)
-    ax.plot(annd_time[:-1], annd['spline_d'][:-1], color="k", lw=1, alpha=.5)
-    ax.plot(annd_time[3:-4], moving_average(annd['spline_d'][:-1], n=7), color="k", lw=1)
-    ax.axvline(x=0, color="k", lw=1)
-    ax.set_xlim(xlim)
-    ax.set_ylim((0,2.05))
-    ax.set_ylabel("ANND")
-
-    
-def plot_wav(ax, pd, wav_time, xlim):
-        ax.plot(wav_time, pd['ultra_wav_frames']/np.amax(np.abs(pd['ultra_wav_frames'])), color="k", lw=1)
-        #ax.axvline(x=0, color="k", lw=1)
-        ax.set_xlim(xlim)
-        ax.set_ylabel("Waveform")
-        ax.set_xlabel("Time (s), go-signal at 0 s.")
-
-        
-#
-# Ultrafest 2020 poster plotting 
-#
-def draw_annd_pd(meta, data, basename, figure_dir):
-    filename = os.path.join(figure_dir, (basename + '_annd_pd.pdf'))
-
-    with PdfPages(filename) as pdf:
-        fig = plt.figure(figsize=(9, 6))
-
-        ax1 = plt.subplot2grid((7,1),(0,0), rowspan=3)
-        plt.title(meta['prompt'])
-        plt.grid(True, 'major', 'x')
-        ax1.axes.xaxis.set_ticklabels([])
-        ax2 = plt.subplot2grid((7,1),(3,0), rowspan=3)
-        plt.grid(True, 'major', 'x')
-        ax2.axes.xaxis.set_ticklabels([])
-        ax3 = plt.subplot2grid((7,1),(6,0))
-        plt.grid(True, 'major', 'x')
-        xlim = (-.05, 1.9)
-
-        pd = data['pd']
-        annd = data['annd']
-        ultra_time = pd['ultra_time'] - pd['beep_uti']
-        annd_time = annd['annd_time'] - pd['beep_uti']
-        wav_time = pd['ultra_wav_time'] - pd['beep_uti']
-        
-        plot_pd(ax1, pd, ultra_time, xlim)
-        plot_annd(ax2, annd, annd_time, xlim)
-        plot_wav(ax3, pd, wav_time, xlim)
-
-        fig.align_ylabels()        
-        pdf.savefig()  # saves the current figure into a pdf page
-        plt.close()
-        _plot_logger.info("Drew PD and ANND plot in " + filename + ".")
-
-        
-def draw_annd(meta, data, basename, figure_dir):
-    filename = os.path.join(figure_dir, (basename + '_annd.pdf'))
-
-    with PdfPages(filename) as pdf:
-        fig = plt.figure(figsize=(9, 4))
-
-        ax2 = plt.subplot2grid((4,1),(0,0), rowspan=3)
-        plt.title(meta['prompt'])
-        plt.grid(True, 'major', 'x')
-        ax2.axes.xaxis.set_ticklabels([])
-        ax3 = plt.subplot2grid((4,1),(3,0))
-        plt.grid(True, 'major', 'x')
-        xlim = (-.05, 1)
-
-        pd = data['pd']
-        annd = data['annd']
-        ultra_time = pd['ultra_time'] - pd['beep_uti']
-        annd_time = annd['annd_time'] - pd['beep_uti']
-        wav_time = pd['ultra_wav_time'] - pd['beep_uti']
-        
-        plot_annd(ax2, annd, annd_time, xlim)
-        plot_wav(ax3, pd, wav_time, xlim)
-
-        fig.align_ylabels()        
-        pdf.savefig()  # saves the current figure into a pdf page
-        plt.close()
-        _plot_logger.info("Drew ANND plot in " + filename + ".")
-
-
-def draw_pd(meta, data, basename, figure_dir):
-    filename = os.path.join(figure_dir, (basename + 'pd.pdf'))
-
-    with PdfPages(filename) as pdf:
-        fig = plt.figure(figsize=(9, 4))
-
-        ax1 = plt.subplot2grid((4,1),(0,0), rowspan=3)
-        plt.title(meta['prompt'])
-        plt.grid(True, 'major', 'x')
-        ax1.axes.xaxis.set_ticklabels([])
-        ax3 = plt.subplot2grid((4,1),(3,0))
-        plt.grid(True, 'major', 'x')
-        xlim = (-1.5, 1.5)
-
-        pd = data['pd']
-        ultra_time = pd['ultra_time'] - pd['beep_uti']
-        wav_time = pd['ultra_wav_time'] - pd['beep_uti']
-        
-        plot_pd(ax1, pd, ultra_time, xlim)
-        plot_wav(ax3, pd, wav_time, xlim)
-
-        fig.align_ylabels()        
-        pdf.savefig()  # saves the current figure into a pdf page
-        plt.close()
-        _plot_logger.info("Drew PD plot in " + filename + ".")
-
 
 
 #
@@ -382,4 +447,31 @@ def draw_ISSP_2020(meta, data):
         pdf.savefig()  # saves the current figure into a pdf page
         plt.close()
         _plot_logger.info("Drew spaghetti plot in " + filename + ".")
+
+
+#
+# Used for verifying test runs at the moment. Wrap later into it's own thing.
+#
+def draw_spaghetti(meta, data):
+    filename = 'spaghetti_plot.pdf'
+    with PdfPages(filename) as pdf:
+        plt.figure(figsize=(7, 7))
+        #ax = plt.subplot2grid((2,1),(1,0))
+        ax = plt.axes()
+        xlim = (-.2, 1)
+
+        for i in range(len(data)):
+            ultra_time = data[i]['ultra_time'] - data[i]['beep_uti']
+
+            ax.plot(ultra_time, data[i]['pd'], color="b", lw=1, alpha=.2)
+            ax.axvline(x=0, color="r", lw=1)
+            ax.set_xlim(xlim)
+            ax.set_ylabel("Pixel Difference")
+            ax.set_xlabel("Time (s), go-signal at 0 s.")
+
+        plt.tight_layout()
+        pdf.savefig()  # saves the current figure into a pdf page
+        plt.close()
+        _plot_logger.info("Drew spaghetti plot in " + filename + ".")
+    
 

@@ -37,6 +37,9 @@ import logging
 import os
 import os.path
 
+# Praat textgrids
+import textgrids
+
 
 _AAA_logger = logging.getLogger('satkit.AAA')
 
@@ -96,6 +99,17 @@ def parse_ult_meta(filename):
         return meta
 
 
+def read_textgrid(filename):
+    # Try to open the file as textgrid
+    try:
+        grid = textgrids.TextGrid(filename)
+    except:
+        _AAA_logger.critical("Could not read textgrid in " + filename + ".")
+        grid = None
+
+    return grid
+
+
 def get_recording_list(directory, exclusion_list_name = None):
     """
     Prepare a list of files to be processed based on directory
@@ -141,7 +155,7 @@ def get_recording_list(directory, exclusion_list_name = None):
         meta[i]['prompt'] = prompt
         meta[i]['date_and_time'] = date_and_time
         meta[i]['participant'] = participant
-
+        
         if base_name in file_exclusion_list:
             notice = base_name + " is in the exclusion list."
             _AAA_logger.info(notice)
@@ -153,7 +167,8 @@ def get_recording_list(directory, exclusion_list_name = None):
         ult_meta_file = os.path.join(base_name + "US.txt")
         ult_wav_file = os.path.join(base_name + ".wav")
         ult_file = os.path.join(base_name + ".ult")
-        spline_file = os.path.join(base_name + "_splines.csv")
+        textgrid = os.path.join(base_name + ".TextGrid")
+        #spline_file = os.path.join(base_name + "_splines.csv")
 
         # check if assumed files exist, and arrange to skip them if any do not
         if os.path.isfile(ult_meta_file):
@@ -181,6 +196,15 @@ def get_recording_list(directory, exclusion_list_name = None):
             notice = 'Note: ' + ult_file + " does not exist."
             _AAA_logger.warning(notice)
             meta[i]['ult_exists'] = False
+            meta[i]['excluded'] = True        
+
+        if os.path.isfile(textgrid):
+            meta[i]['textgrid'] = read_textgrid(textgrid) 
+            meta[i]['textgrid_exists'] = True
+        else:
+            notice = 'Note: ' + textgrid + " does not exist."
+            _AAA_logger.warning(notice)
+            meta[i]['textgrid_exists'] = False
             meta[i]['excluded'] = True        
 
         # if os.path.isfile(spline_file):

@@ -133,10 +133,11 @@ def annd(token):
         spline['y'] = spline['y'][10:-4]
 
     # loop to calculate annd, mnnd, apbpd and mpbpd
-    timestep = 1
+    timestep = 3
     num_points = len(splines[1]['x'])
     annd = np.zeros(len(splines)-timestep)
     spline_d = np.zeros(len(splines)-timestep)
+    spline_l1 = np.zeros(len(splines)-timestep)
     mnnd = np.zeros(len(splines)-timestep)
     apbpd = np.zeros(len(splines)-timestep)
     mpbpd = np.zeros(len(splines)-timestep)
@@ -145,9 +146,10 @@ def annd(token):
         next_points = np.stack((splines[i+timestep]['x'], splines[i+timestep]['y']))
 
         diff = np.subtract(current_points, next_points)
+        spline_l1[i] = np.sum(np.abs(diff))
         diff = np.square(diff)
         spline_d[i] = np.sqrt(np.sum(diff))
-        diff = np.sum(diff, axis=0)
+        diff = np.sum(diff, axis=0) # sums over (x,y) for individual points
         diff = np.sqrt(diff)
         apbpd[i] = np.average(diff)
         mpbpd[i] = np.median(diff)
@@ -179,6 +181,7 @@ def annd(token):
     data = {}
     data['annd'] = annd
     data['mnnd'] = mnnd
+    data['spline_l1'] = spline_l1
     data['spline_d'] = spline_d/num_points # this one is no good, but should be documented as such before removing the code
     data['apbpd'] = apbpd
     data['mpbpd'] = mpbpd # median point-by-point Euclidean distance

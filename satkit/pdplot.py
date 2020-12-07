@@ -31,8 +31,8 @@
 
 # Built in packages
 from contextlib import closing
-from pathlib import Path
 import logging
+from pathlib import Path
 
 # Efficient vector operations
 import numpy as np
@@ -122,7 +122,7 @@ def draw_pd(meta, pd, figure_dir):
         ax1.axes.xaxis.set_ticklabels([])
         ax3 = plt.subplot2grid((4,1),(3,0))
         plt.grid(True, 'major', 'x')
-        xlim = (-1., 1.)
+        xlim = (-.1, .7)
 
         ultra_time = pd['ultra_time'] - pd['beep_uti']
         wav_time = pd['ultra_wav_time'] - pd['beep_uti']

@@ -60,15 +60,16 @@ def plot_pd(ax, pd, ultra_time, xlim, textgrid = None, time_offset = 0):
 
     ax.axvline(x=0, color="g", lw=1)
 
-    for segment in textgrid['segment']:
-        if segment.text == "":
-            continue
-        elif segment.text == "beep":
-            continue
-        else:
-            ax.axvline(x = segment.xmin+time_offset, color="k", lw=1)
-            ax.axvline(x = segment.xmax+time_offset, color="k", lw=1)
-            ax.text(segment.mid+time_offset, 250, segment.text, text_settings)
+    if textgrid:
+        for segment in textgrid['segment']:
+            if segment.text == "":
+                continue
+            elif segment.text == "beep":
+                continue
+            else:
+                ax.axvline(x = segment.xmin+time_offset, color="k", lw=1)
+                ax.axvline(x = segment.xmax+time_offset, color="k", lw=1)
+                ax.text(segment.mid+time_offset, 250, segment.text, text_settings)
             
     ax.set_xlim(xlim)
     ax.set_ylim((0,2000))
@@ -92,14 +93,15 @@ def plot_wav(ax, pd, wav_time, xlim, textgrid = None, time_offset = 0):
     ax.set_ylabel("Waveform")
     ax.set_xlabel("Time (s), go-signal at 0 s.")
 
-    for segment in textgrid['segment']:
-        if segment.text == "":
-            continue
-        elif segment.text == "beep":
-            continue
-        else:
-            ax.axvline(x = segment.xmin+time_offset, color="k", lw=1)
-            ax.axvline(x = segment.xmax+time_offset, color="k", lw=1)
+    if textgrid:
+        for segment in textgrid['segment']:
+            if segment.text == "":
+                continue
+            elif segment.text == "beep":
+                continue
+            else:
+                ax.axvline(x = segment.xmin+time_offset, color="k", lw=1)
+                ax.axvline(x = segment.xmax+time_offset, color="k", lw=1)
 
             
 #####

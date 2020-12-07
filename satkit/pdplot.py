@@ -41,6 +41,10 @@ import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib.backends.backend_pdf import PdfPages
 
+# Praat textgrids
+import textgrids
+
+
 _plot_logger = logging.getLogger('satkit.pd.plot')
 
 
@@ -48,16 +52,30 @@ _plot_logger = logging.getLogger('satkit.pd.plot')
 # Subplot functions
 #####
 
-def plot_pd(ax, pd, ultra_time, xlim):
+def plot_pd(ax, pd, ultra_time, xlim, textgrid = None, time_offset = 0):
+    text_settings = {'horizontalalignment': 'center',
+                     'verticalalignment': 'center'}
+    
     ax.plot(ultra_time, pd['pd'], color="b", lw=1)
 
-    ax.axvline(x=0, color="k", lw=1)
+    ax.axvline(x=0, color="g", lw=1)
+
+    for segment in textgrid['segment']:
+        if segment.text == "":
+            continue
+        elif segment.text == "beep":
+            continue
+        else:
+            ax.axvline(x = segment.xmin+time_offset, color="k", lw=1)
+            ax.axvline(x = segment.xmax+time_offset, color="k", lw=1)
+            ax.text(segment.mid+time_offset, 250, segment.text, text_settings)
+            
     ax.set_xlim(xlim)
     ax.set_ylim((0,2000))
     ax.set_ylabel("PD")
 
     
-def plot_pd_peak_normalised(ax, pd, ultra_time, xlim):
+def plot_pd_peak_normalised(ax, pd, ultra_time, xlim, textgrid = None, time_offset = 0):
     ax.plot(ultra_time, pd['pd']/np.max(pd['pd'][1:]), color="k", lw=1)
 
     ax.axvline(x=0, color="k", lw=1)
@@ -66,7 +84,7 @@ def plot_pd_peak_normalised(ax, pd, ultra_time, xlim):
     ax.set_ylabel("PD")
 
     
-def plot_wav(ax, pd, wav_time, xlim):
+def plot_wav(ax, pd, wav_time, xlim, textgrid = None, time_offset = 0):
     normalised_wav = pd['ultra_wav_frames']/np.amax(np.abs(pd['ultra_wav_frames']))
     ax.plot(wav_time, normalised_wav, color="b", lw=1)
     ax.set_xlim(xlim)
@@ -74,7 +92,16 @@ def plot_wav(ax, pd, wav_time, xlim):
     ax.set_ylabel("Waveform")
     ax.set_xlabel("Time (s), go-signal at 0 s.")
 
-    
+    for segment in textgrid['segment']:
+        if segment.text == "":
+            continue
+        elif segment.text == "beep":
+            continue
+        else:
+            ax.axvline(x = segment.xmin+time_offset, color="k", lw=1)
+            ax.axvline(x = segment.xmax+time_offset, color="k", lw=1)
+
+            
 #####
 # Combined plots
 #####
@@ -98,8 +125,8 @@ def draw_pd(meta, pd, figure_dir):
         ultra_time = pd['ultra_time'] - pd['beep_uti']
         wav_time = pd['ultra_wav_time'] - pd['beep_uti']
         
-        plot_pd(ax1, pd, ultra_time, xlim)
-        plot_wav(ax3, pd, wav_time, xlim)
+        plot_pd(ax1, pd, ultra_time, xlim, meta['textgrid'], -pd['beep_uti'])
+        plot_wav(ax3, pd, wav_time, xlim, meta['textgrid'], -pd['beep_uti'])
 
         fig.align_ylabels()        
         pdf.savefig()  # saves the current figure into a pdf page

@@ -99,7 +99,7 @@ def pd(token):
     ultra_time = np.linspace(0, len(ultra_d), len(ultra_d), endpoint=False)/ult_fps
     ultra_time = ultra_time + ult_TimeInSecsOfFirstFrame + .5/ult_fps
 
-    ult_wav_time = np.linspace(0, len(ult_wav_frames), 
+    ultra_wav_time = np.linspace(0, len(ult_wav_frames), 
                                len(ult_wav_frames), endpoint=False)/ult_wav_fs
         
     notice = token['base_name'] + " " + token['prompt']
@@ -110,6 +110,11 @@ def pd(token):
     data['pd'] = ultra_d
     data['sbpd'] = slw_pd
     data['ultra_time'] = ultra_time
+
+    # Keeping the wav in memory might not be the best idea in the future,
+    # if the wavs are very long.
+    data['ultra_wav_frames'] = ult_wav_frames 
+    data['ultra_wav_time'] = ultra_wav_time
     data['beep_uti'] = beep_uti
 
     return data

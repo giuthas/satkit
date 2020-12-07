@@ -89,6 +89,13 @@ def parse_args(description):
                         help=helptext, metavar="file")
 
     helptext = (
+        'Destination directory for generated figures.'
+    )
+    parser.add_argument("-f", "--figures", dest="figure_dir",
+                        default="figures",
+                        help=helptext, metavar="dir")
+
+    helptext = (
         'Set verbosity of console output. Range is [0, 3], default is 1, '
         'larger values mean greater verbosity.'
     )
@@ -173,8 +180,8 @@ def cli(description, processing_function):
         logger.error('Unsupported filetype: ' + args.load_path + '.')
         
     # do something sensible with the data
-    logger.info("Drawing PD example plot.")
-    pdplot.draw_PD_example(token_list, data)
+    logger.info("Drawing ISSP 2020 plot.")
+    pdplot.ISSP2020_plots(token_list, data, args.figure_dir)
 
     # logger.info("Drawing spaghetti plot.")
     # pdplot.draw_spaghetti(token_list, data)

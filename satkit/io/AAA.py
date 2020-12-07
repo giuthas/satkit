@@ -51,7 +51,11 @@ def read_prompt(filename):
         date = lines[1]
         # could also do datetime as below, but there doesn't seem to be any reason to so.
         # date = datetime.strptime(lines[1], '%d/%m/%Y %H:%M:%S')
-        participant = lines[2].split(',')[0]
+        if len(lines) > 2 and lines[2].strip():
+            participant = lines[2].split(',')[0]
+        else:
+            _AAA_logger.info("Participant does not have an id in file " + filename + ".")
+            participant = ""
 
         _AAA_logger.debug("Read prompt file " + filename + ".")
         return(prompt, date, participant)

@@ -31,7 +31,11 @@
 
 # Built in packages
 from contextlib import closing
+from pathlib import Path
 import logging
+
+# Efficient vector operations
+import numpy as np
 
 # Scientific plotting
 import matplotlib.pyplot as plt
@@ -39,58 +43,89 @@ from matplotlib.backends.backend_pdf import PdfPages
 
 _plot_logger = logging.getLogger('satkit.pd.plot')
 
-def plot_signals_trace(beep, beep2, int_time, int_signal, hp_signal, bp_signal, int_signal2):
-    fig = plt.figure()
-    ax0 = fig.add_subplot(211)
-    ax1 = fig.add_subplot(212)
-    ax0.plot(int_time, int_signal)
-    ax0.plot(int_time, int_signal2)
-    y = [20, -200]
-    ax0.plot([beep, beep], y, color="g")
-    ax0.plot([beep2, beep2], y, color="r")
-    ax1.plot(int_time, hp_signal)
-    ax1.plot(int_time, bp_signal)
-    ax1.plot([beep, beep], [-1, 1], color="g")
-    ax1.plot([beep2, beep2], [-1, 1], color="r")
-    plt.show()
 
+#####
+# Subplot functions
+#####
 
-# Wrapper for plotting, which also cals plt.show().
-def plot_and_show(beep, ultra_d, ultra_time, uti_wav, uti_wav_time, beep_uti, center, name):
-    plot_signals(beep, ultra_d, ultra_time, uti_wav, uti_wav_time, beep_uti, center, name)
-    plt.show()
+def plot_pd(ax, pd, ultra_time, xlim):
+    ax.plot(ultra_time, pd['pd'], color="b", lw=1)
 
+    ax.axvline(x=0, color="k", lw=1)
+    ax.set_xlim(xlim)
+    ax.set_ylim((0,2000))
+    ax.set_ylabel("PD")
 
-# To be used in silent plotting or called for plotting when calling plt.show() separately.
-def plot_signals(beep, ultra_d, ultra_time, uti_wav, uti_wav_time, beep_uti, center, name):
-    fig = plt.figure(figsize=(12, 10))
     
-    ax1 = plt.subplot2grid((6,1),(2,0), rowspan=2)
-    ax2 = plt.subplot2grid((6,1),(4,0))
+def plot_pd_peak_normalised(ax, pd, ultra_time, xlim):
+    ax.plot(ultra_time, pd['pd']/np.max(pd['pd'][1:]), color="k", lw=1)
 
-    ultra_time = ultra_time - beep_uti
-    uti_wav_time = uti_wav_time - beep_uti
+    ax.axvline(x=0, color="k", lw=1)
+    ax.set_xlim(xlim)
+    ax.set_ylim((0,1.1))
+    ax.set_ylabel("PD")
 
-    xlim = (-.2, 1)
-#    xlim = (-4, 6)
+    
+def plot_wav(ax, pd, wav_time, xlim):
+    normalised_wav = pd['ultra_wav_frames']/np.amax(np.abs(pd['ultra_wav_frames']))
+    ax.plot(wav_time, normalised_wav, color="b", lw=1)
+    ax.set_xlim(xlim)
+    ax.set_ylabel("Waveform")
+    ax.set_xlabel("Time (s), go-signal at 0 s.")
 
-    ax1.plot(ultra_time, ultra_d)
-    ax1.axvline(x=0, color="r")
-    if center:
-        ax1.set_xlim(xlim)
-    ax1.set_ylabel("Pixel Difference")
+    
+#####
+# Combined plots
+#####
 
-    ax2.plot(uti_wav_time, uti_wav)
-    ax2.axvline(x=0, color="r")
-    if center:
-        ax2.set_xlim(xlim)
-    ax3.set_ylabel("Waveform")
-    ax3.set_xlabel("Time (s)")
+def draw_pd(meta, pd, figure_dir):
+    base_name = Path(meta['base_name'])      
+    filename = base_name.with_suffix('.pdf').name
+    filename = figure_dir.joinpath(filename)
+    print(filename)
+    
+    with PdfPages(str(filename)) as pdf:
+        fig = plt.figure(figsize=(9, 4))
 
-    plt.suptitle(name, fontsize=24)
-    #plt.tight_layout()
+        ax1 = plt.subplot2grid((4,1),(0,0), rowspan=3)
+        plt.title(meta['prompt'].split()[1])
+        plt.grid(True, 'major', 'x')
+        ax1.axes.xaxis.set_ticklabels([])
+        ax3 = plt.subplot2grid((4,1),(3,0))
+        plt.grid(True, 'major', 'x')
+        xlim = (-1.5, 1.5)
+
+        ultra_time = pd['ultra_time'] - pd['beep_uti']
+        wav_time = pd['ultra_wav_time'] - pd['beep_uti']
+        
+        plot_pd(ax1, pd, ultra_time, xlim)
+        plot_wav(ax3, pd, wav_time, xlim)
+
+        fig.align_ylabels()        
+        pdf.savefig()  # saves the current figure into a pdf page
+        plt.close()
+        _plot_logger.info("Drew PD plot in " + str(filename) + ".")
 
 
+
+#####
+# Iteration over tokens
+#####
+
+def ISSP2020_plots(meta_list, data, figure_dir):
+    figure_dir = Path(figure_dir)
+    if not figure_dir.is_dir():
+        if figure_dir.exists():
+            _plot_logger.critical('Name conflict: ' + figure_dir +
+                                  ' exists and is not a directory.')
+        else:
+            figure_dir.mkdir()
+    
+    for (meta, datum) in zip(meta_list, data):
+        draw_pd(meta, datum, figure_dir)
+
+    
+    
 #
 # Used for verifying test runs at the moment. Wrap later into it's own thing.
 #
@@ -115,5 +150,3 @@ def draw_spaghetti(meta, data):
         pdf.savefig()  # saves the current figure into a pdf page
         plt.close()
         _plot_logger.info("Drew spaghetti plot in " + filename + ".")
-    
-    

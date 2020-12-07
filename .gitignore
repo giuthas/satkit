@@ -32,5 +32,8 @@ gpl-v3.tmpl
 # Directories
 ####
 
+# Default figures directory
+figures/
+
 # Results of an optic flow run.
 of_results/

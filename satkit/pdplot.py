@@ -70,6 +70,7 @@ def plot_wav(ax, pd, wav_time, xlim):
     normalised_wav = pd['ultra_wav_frames']/np.amax(np.abs(pd['ultra_wav_frames']))
     ax.plot(wav_time, normalised_wav, color="b", lw=1)
     ax.set_xlim(xlim)
+    ax.set_ylim((-1.05,1.05))
     ax.set_ylabel("Waveform")
     ax.set_xlabel("Time (s), go-signal at 0 s.")
 
@@ -82,7 +83,6 @@ def draw_pd(meta, pd, figure_dir):
     base_name = Path(meta['base_name'])      
     filename = base_name.with_suffix('.pdf').name
     filename = figure_dir.joinpath(filename)
-    print(filename)
     
     with PdfPages(str(filename)) as pdf:
         fig = plt.figure(figsize=(9, 4))
@@ -93,7 +93,7 @@ def draw_pd(meta, pd, figure_dir):
         ax1.axes.xaxis.set_ticklabels([])
         ax3 = plt.subplot2grid((4,1),(3,0))
         plt.grid(True, 'major', 'x')
-        xlim = (-1.5, 1.5)
+        xlim = (-1., 1.)
 
         ultra_time = pd['ultra_time'] - pd['beep_uti']
         wav_time = pd['ultra_wav_time'] - pd['beep_uti']

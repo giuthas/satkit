@@ -76,6 +76,14 @@ def parse_args(description):
     )
     parser.add_argument("load_path", help=helptext)
     
+    helptext = (
+        'Name of the spline file.'
+        'Should be a .csv (you may need to change the file ending) file exported from AAA.'
+    )
+    parser.add_argument("-s", "--splinefile", dest="spline_file",
+                        default=None,
+                        help=helptext, metavar="file")
+    
     parser.add_argument("-e", "--exclusion_list", dest="exclusion_filename",
                         help="Exclusion list of data files that should be ignored.",
                         metavar="file")
@@ -166,9 +174,10 @@ def cli(description, processing_functions):
         # this is the actual list of tokens that gets processed 
         # token_list includes meta data contained outwith the ult file
         token_list = satkit_AAA.get_recording_list(args.load_path,
-                                                   args.exclusion_filename)
+                                                   args.exclusion_filename,
+                                                   args.spline_file)
 
-        # process the tokens
+        # calculate the metrics
         data = []
         for token in token_list:
             datum = {}

@@ -142,7 +142,7 @@ def plot_annd(ax, annd, annd_time, xlim, textgrid = None, time_offset = 0):
             color="black", lw=1, label='Average Nearest Neighbour Distance')
 
     ave_mpbpd = moving_average(annd['mpbpd'][:-1], n=smooth_length)
-    ax.plot(annd_time[:-1], annd['mpbpd'][:-1]/np.max(ave_mpbpd), color="g", lw=1, alpha=.5)
+    ax.plot(annd_time[:-1], annd['mpbpd'][:-1]/np.max(ave_mpbpd), color="g", lw=1, alpha=.4)
     ax.plot(annd_time[half_window:-(half_window+1)], ave_mpbpd/np.max(ave_mpbpd),
             color="g", lw=1, linestyle='--', label='Median Point-by-point Distance')
 

@@ -32,10 +32,14 @@
 # Built in packages
 from contextlib import closing
 import csv
+from datetime import datetime
 import glob
 import logging
 import os
 import os.path
+
+# Numpy 
+import numpy as np
 
 # Praat textgrids
 import textgrids
@@ -51,9 +55,12 @@ def read_prompt(filename):
     with closing(open(filename, 'r')) as promptfile:
         lines = promptfile.read().splitlines()
         prompt = lines[0]
-        date = lines[1]
-        # could also do datetime as below, but there doesn't seem to be any reason to so.
-        # date = datetime.strptime(lines[1], '%d/%m/%Y %H:%M:%S')
+
+        # The date used to be just a string, but needs to be more sturctured since
+        # the spline export files have a different date format.
+        # date = lines[1]
+        date = datetime.strptime(lines[1], '%d/%m/%Y %H:%M:%S')
+
         if len(lines) > 2 and lines[2].strip():
             participant = lines[2].split(',')[0]
         else:
@@ -99,6 +106,47 @@ def parse_ult_meta(filename):
         return meta
 
 
+def parse_spline_line(line):
+    # This relies on none of the fields being empty and is necessary to be 
+    # able to process AAA's output which sometimes has extra tabs.
+    cells = line.split('\t')
+    token = {'id': cells[0],
+             'date_and_time': datetime.strptime(cells[1], '%m/%d/%Y %I:%M:%S %p'),
+             'sample_time': float(cells[2]),
+             'prompt': cells[3],
+             'nro_spline_points': int(cells[4]),
+             'beg': 0,
+             'end': 42}
+             
+    # token['x'] = np.fromiter(cells[8:8+token['nro_spline_points']:2], dtype='float')
+    # token['y'] = np.fromiter(cells[9:9+token['nro_spline_points']:2], dtype='float')
+    
+    #    temp = [token['x'], token['y']]
+    #    nans = np.sum(np.isnan(temp), axis=0)
+    #    print(token['prompt'])
+    #    print('first ' + str(nans[::-1].cumsum(0).argmax(0)))
+    #    print('last ' + str(nans.cumsum(0).argmax(0)))
+        
+    token['r'] = np.fromiter(cells[5:5+token['nro_spline_points']], dtype='float')
+    token['phi'] = np.fromiter(cells[5+token['nro_spline_points']:5+2*token['nro_spline_points']], dtype='float')
+    token['conf'] = np.fromiter(cells[5+2*token['nro_spline_points']:5+3*token['nro_spline_points']], dtype='float')    
+    token['x'] = np.multiply(token['r'],np.sin(token['phi']))
+    token['y'] = np.multiply(token['r'],np.cos(token['phi']))
+
+    return token
+
+
+def retrieve_splines(filename):
+    """
+    """
+    with closing(open(filename, 'r')) as splinefile:
+        splinefile.readline() # Toss the headers.
+        table = [parse_spline_line(line) for line in splinefile.readlines()]
+
+    _AAA_logger.info("Read file " + filename + ".")
+    return table
+
+
 def read_textgrid(filename):
     # Try to open the file as textgrid
     try:
@@ -110,7 +158,7 @@ def read_textgrid(filename):
     return grid
 
 
-def get_recording_list(directory, exclusion_list_name = None):
+def get_recording_list(directory, exclusion_list_name = None, spline_file = None):
     """
     Prepare a list of files to be processed based on directory
     contents and possible exclusion list. File existence is tested for,
@@ -231,6 +279,17 @@ def get_recording_list(directory, exclusion_list_name = None):
         #     meta[i]['type'] = 'regular trial'
 
 
+    # select the right recording here - we are accessing a database.
+    # splines = retrieve_splines(token['spline_file'], token['prompt'])
+    # splines = retrieve_splines('annd_sample/File003_splines.csv',
+    #                            token['prompt'])
+    splines = retrieve_splines(spline_file)
+    for token in meta:
+        table = [row for row in splines if row['date_and_time'] == token['date_and_time']]
+        token['splines'] = table
+        _AAA_logger.debug(token['prompt'] + ' has ' + str(len(table)) + 'splines.')
+    
+        
     meta = sorted(meta, key=lambda token: token['date_and_time'])
 
     return meta

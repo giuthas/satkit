@@ -30,7 +30,6 @@
 #
 
 # Built in packages
-from contextlib import closing
 import logging
 
 # Numpy and scipy
@@ -42,53 +41,6 @@ import satkit.io.AAA as satkit_AAA
 
 
 _annd_logger = logging.getLogger('satkit.annd')    
-
-def parse_line(line):
-    # This relies on none of the fields being empty and is necessary to be 
-    # able to process AAA's output which sometimes has extra tabs.
-    cells = line.split('\t')
-    token = {'id': cells[0],
-             'date_and_time': cells[1],
-             'sample_time': float(cells[2]),
-             'prompt': cells[3],
-             'nro_spline_points': int(cells[4]),
-             'beg': 0,
-             'end': 42}
-             
-    # token['x'] = np.fromiter(cells[8:8+token['nro_spline_points']:2], dtype='float')
-    # token['y'] = np.fromiter(cells[9:9+token['nro_spline_points']:2], dtype='float')
-    
-    #    temp = [token['x'], token['y']]
-    #    nans = np.sum(np.isnan(temp), axis=0)
-    #    print(token['prompt'])
-    #    print('first ' + str(nans[::-1].cumsum(0).argmax(0)))
-    #    print('last ' + str(nans.cumsum(0).argmax(0)))
-        
-    token['r'] = np.fromiter(cells[5:5+token['nro_spline_points']], dtype='float')
-    token['phi'] = np.fromiter(cells[5+token['nro_spline_points']:5+2*token['nro_spline_points']], dtype='float')
-    token['conf'] = np.fromiter(cells[5+2*token['nro_spline_points']:5+3*token['nro_spline_points']], dtype='float')    
-    token['x'] = np.multiply(token['r'],np.sin(token['phi']))
-    token['y'] = np.multiply(token['r'],np.cos(token['phi']))
-
-    return token
-
-
-def retrieve_splines(filename, prompt):
-    """
-    This version relies on recognising the recording based on a unique prompt. 
-    Should really use a combination of id, prompt, filename, recording time.
-    Problem is that AAA uses 24 hour clock in prompt files and 12 hour clock in
-    exported data files. So SATKIT needs to learn to deal with that.
-    The correct field would be called date_and_time.
-    """
-    with closing(open(filename, 'r')) as splinefile:
-        splinefile.readline() # Toss the headers.
-        table = [parse_line(line) for line in splinefile.readlines()]
-
-    table = [row for row in table if row['prompt'] == prompt]
-    _annd_logger.info("Read file " + filename + ".")
-    return table
-
 
 
 def annd(token):
@@ -109,20 +61,10 @@ def annd(token):
         notice += ': Token being processed.'
         _annd_logger.info(notice)
     
-    meta = satkit_AAA.parse_ult_meta(token['ult_meta_file'])
-    ult_fps = meta['FramesPerSec']
-    ult_NumVectors = meta['NumVectors']
-    ult_PixPerVector = meta['PixPerVector']
-    ult_TimeInSecsOfFirstFrame = meta['TimeInSecsOfFirstFrame']
+    # Taking a copy so that we don't mess things if other metrices are run
+    # on the same splines.
+    splines = token['splines']    
 
-    # select the right recording here - we are accessing a database.
-    # splines = retrieve_splines(token['spline_file'], token['prompt'])
-    # splines = retrieve_splines('annd_sample/File003_splines.csv',
-    #                            token['prompt'])
-    splines = retrieve_splines('ultrafest_annd_sample/ex4_set2_splines_ultrafest.csv',
-                               token['prompt'])
-    _annd_logger.debug(token['prompt'] + ' has ' + str(len(splines)) + 'splines.')
-    
     for spline in splines:
         #####
         # disregard samples from front and from back
@@ -182,7 +124,10 @@ def annd(token):
     data['annd'] = annd
     data['mnnd'] = mnnd
     data['spline_l1'] = spline_l1
-    data['spline_d'] = spline_d/num_points # this one is no good, but should be documented as such before removing the code
+
+    # this one is no good, but should be documented as such before removing the code
+    data['spline_d'] = spline_d/num_points
+    
     data['apbpd'] = apbpd
     data['mpbpd'] = mpbpd # median point-by-point Euclidean distance
     data['annd_time'] = annd_time

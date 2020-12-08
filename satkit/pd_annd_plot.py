@@ -85,7 +85,7 @@ def plot_pd(ax, pd, ultra_time, xlim, textgrid = None, time_offset = 0):
                 ax.text(segment.mid+time_offset, 500, segment.text, text_settings)
             
     ax.set_xlim(xlim)
-    ax.set_ylim((0,3000))
+    ax.set_ylim((-50,3050))
     ax.legend((pd_curve, go_line, segment_line),
            ('Pixel difference', 'Go-signal onset', 'Acoustic segments'))
     ax.set_ylabel("PD")
@@ -159,7 +159,7 @@ def plot_annd(ax, annd, annd_time, xlim, textgrid = None, time_offset = 0):
                 ax.axvline(x = segment.xmax+time_offset, color="k", lw=1)
 
     ax.set_xlim(xlim)
-    ax.set_ylim((0,1.05))
+    ax.set_ylim((-0.05,1.05))
     ax.legend()
     ax.set_ylabel("Peak normalised\nspline metrices")
 
@@ -340,7 +340,7 @@ def draw_annd_pd(meta, datum, figure_dir):
         ax2.axes.xaxis.set_ticklabels([])
         ax3 = plt.subplot2grid((7,1),(6,0))
         #plt.grid(True, 'major', 'x')
-        xlim = (-.05, 1.25)
+        xlim = (-2.05, 2.25)
 
         pd = datum['pd']
         annd = datum['annd']

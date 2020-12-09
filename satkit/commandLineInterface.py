@@ -146,18 +146,18 @@ def set_up_logging(args):
                          str(args.verbose) + " to verbose!")
     logger.addHandler(console_handler)
 
-    logger.info('Run started at ' + str(datetime.datetime.now()))
+    logger.info('Data run started at ' + str(datetime.datetime.now()))
 
     return logger
 
     
-def cli(description, processing_functions):
+def cli(description, processing_functions, plot=True):
     """
     Run the commandline interface.
     Description is what this version will be called if called with -h or --help.
-    processing_function is the callable that will be run on each token.
+    processing_functions is a dict of the callables that will be run on each token.
     """
-    
+
     args = parse_args(description)
     
     logger = set_up_logging(args)
@@ -195,11 +195,12 @@ def cli(description, processing_functions):
         token_list, data = satkit_io.load_json_data(args.load_path)
     else:
         logger.error('Unsupported filetype: ' + args.load_path + '.')
-        
-    # do something sensible with the data
-    logger.info("Drawing ISSP 2020 plot.")
-    pd_annd_plot.ISSP2020_plots(token_list, data, args.figure_dir)
-    #pd_annd_plot.ultrafest2020_plots(token_list, data, args.figure_dir)
+
+    # Plot the data if asked to.
+    if plot:
+        logger.info("Drawing ISSP 2020 plot.")
+        pd_annd_plot.ISSP2020_plots(token_list, data, args.figure_dir)
+        #pd_annd_plot.ultrafest2020_plots(token_list, data, args.figure_dir)
 
     if args.output_filename:
         if os.path.splitext(args.output_filename)[1] == '.pickle':
@@ -210,5 +211,5 @@ def cli(description, processing_functions):
         else:
             logger.error('Unsupported filetype: ' + args.output_filename + '.')
             
-    logger.info('Run ended at ' + str(datetime.datetime.now()))
-    
+    logger.info('Data run ended at ' + str(datetime.datetime.now()))
+    return (token_list, data, args)

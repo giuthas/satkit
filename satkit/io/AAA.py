@@ -283,11 +283,12 @@ def get_recording_list(directory, exclusion_list_name = None, spline_file = None
     # splines = retrieve_splines(token['spline_file'], token['prompt'])
     # splines = retrieve_splines('annd_sample/File003_splines.csv',
     #                            token['prompt'])
-    splines = retrieve_splines(spline_file)
-    for token in meta:
-        table = [row for row in splines if row['date_and_time'] == token['date_and_time']]
-        token['splines'] = table
-        _AAA_logger.debug(token['prompt'] + ' has ' + str(len(table)) + 'splines.')
+    if spline_file:
+        splines = retrieve_splines(spline_file)
+        for token in meta:
+            table = [row for row in splines if row['date_and_time'] == token['date_and_time']]
+            token['splines'] = table
+            _AAA_logger.debug(token['prompt'] + ' has ' + str(len(table)) + 'splines.')
     
         
     meta = sorted(meta, key=lambda token: token['date_and_time'])

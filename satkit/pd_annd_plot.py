@@ -63,13 +63,13 @@ def moving_average(a, n=3) :
 # Subplot functions
 #####
 
-def plot_pd(ax, pd, ultra_time, xlim, textgrid = None, time_offset = 0):
+def plot_pd(ax, pd, ultra_time, xlim, textgrid = None, time_offset = 0, picker=None):
     text_settings = {'horizontalalignment': 'center',
                      'verticalalignment': 'center'}
 
     # The PD curve and the official fix for it not showing up on the legend.
     ax.plot(ultra_time, pd['pd'], color="b", lw=1)
-    pd_curve = mlines.Line2D([], [], color='b', lw=1)
+    pd_curve = mlines.Line2D([], [], color='b', lw=1, picker=picker)
 
     go_line = ax.axvline(x=0, color="g", lw=1)
 

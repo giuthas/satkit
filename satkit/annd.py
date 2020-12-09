@@ -61,9 +61,15 @@ def annd(token):
         notice += ': Token being processed.'
         _annd_logger.info(notice)
     
-    # Taking a copy so that we don't mess things if other metrices are run
-    # on the same splines.
-    splines = token['splines']    
+    if 'splines' in token:
+        # Taking a copy so that we don't mess things if other metrices are run
+        # on the same splines.
+        splines = token['splines']
+    else:
+        notice = 'No splines found for ' + token['base_name'] + " " 
+        notice += token['prompt'] + '.'
+        _annd_logger.critical(notice)
+        return
 
     for spline in splines:
         #####

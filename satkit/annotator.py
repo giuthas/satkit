@@ -1,4 +1,37 @@
+#
+# Copyright (c) 2019-2020 Pertti Palo, Scott Moisik, and Matthew Faytak.
+#
+# This file is part of Speech Articulation ToolKIT 
+# (see https://github.com/giuthas/satkit/).
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program. If not, see <http://www.gnu.org/licenses/>.
+#
+# The example data packaged with this program is licensed under the
+# Creative Commons Attribution-NonCommercial-ShareAlike 4.0
+# International (CC BY-NC-SA 4.0) License. You should have received a
+# copy of the Creative Commons Attribution-NonCommercial-ShareAlike 4.0
+# International (CC BY-NC-SA 4.0) License along with the data. If not,
+# see <https://creativecommons.org/licenses/by-nc-sa/4.0/> for details.
+#
+# When using the toolkit for scientific publications, please cite the
+# articles listed in README.markdown. They can also be found in
+# citations.bib in BibTeX format.
+#
 
+# Built in packages
+from contextlib import closing
+import csv
 import logging
 from pathlib import Path
 import time
@@ -19,7 +52,6 @@ from satkit.pd_annd_plot import plot_annd, plot_pd, plot_wav
 
 # todo
 # save selections and such in data
-# get actual data plotted
 # add buttons and such for
 # - moving to the next one
 # - excluding from consideration
@@ -66,12 +98,14 @@ class Annotator():
         #        
         self.ax4 = plt.subplot2grid((7,7),(0,6), rowspan=2)
         self.ax4.axes.set_axis_off()
-        self.pdCategoryRB = RadioButtons(self.ax4, self.categories)
+        self.pdCategoryRB = RadioButtons(self.ax4, self.categories,
+                                         active=self.data[self.index]['pdCategory'])
         self.pdCategoryRB.on_clicked(self.pdCatCB)
         
         self.ax5 = plt.subplot2grid((7,7),(3,6), rowspan=2)
         self.ax5.axes.set_axis_off()
-        self.splineCategoryRB = RadioButtons(self.ax5, self.categories)
+        self.splineCategoryRB = RadioButtons(self.ax5, self.categories,
+                                             active=self.data[self.index]['splineCategory'])
         self.splineCategoryRB.on_clicked(self.splineCatCB)
 
         self.axnext = plt.axes([0.85, 0.225, 0.1, 0.055])
@@ -125,9 +159,15 @@ class Annotator():
                              linestyle=':', color="g", lw=1)
 
 
+    def updateButtons(self):
+        self.pdCategoryRB.set_active(self.data[self.index]['pdCategory'])
+        self.splineCategoryRB.set_active(self.data[self.index]['splineCategory'])
+
+        
     def update(self):
         self.ax1.cla()
         self.ax2.cla()
+        self.ax3.cla()
 
         self.draw_plots()
         self.fig.canvas.draw()
@@ -144,21 +184,31 @@ class Annotator():
         if self.index < self.max_index-1:
             self.index += 1
             self.update()
+            self.updateButtons()
 
-
+            
     def prev(self, event):
         if self.index > 0:
             self.index -= 1
             self.update()
+            self.updateButtons()
 
 
     def save(self, event):
-        pdOnsets = [token['pdOnset'] for token in self.data]
-        pdCategories = [token['pdCategory'] for token in self.data]
-        print('Saving is not yet implemented.')
-        print('pdOnsets: ' + str(pdOnsets))
-        print('pdCategories: ' + str(pdCategories))
+        filename = 'local_data/onsets.csv'
+        fieldnames = ['pdCategory', 'splineCategory', 'pdOnset', 'splineOnset']
+        csv.register_dialect('tabseparated', delimiter='\t', quoting=csv.QUOTE_NONE)
 
+        with closing(open(filename, 'w')) as csvfile:
+            writer = csv.DictWriter(csvfile, fieldnames, extrasaction='ignore',
+                                    dialect='tabseparated')
+
+            writer.writeheader()
+            for token in self.data:
+                writer.writerow(token)
+            #_io_logger.debug('Wrote metadata to file ' + filename + '.')
+        
+        
     def pdCatCB(self, event):
         self.data[self.index]['pdCategory'] = self.categories.index(event)
         

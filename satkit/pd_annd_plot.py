@@ -68,8 +68,8 @@ def plot_pd(ax, pd, ultra_time, xlim, textgrid = None, time_offset = 0, picker=N
                      'verticalalignment': 'center'}
 
     # The PD curve and the official fix for it not showing up on the legend.
-    ax.plot(ultra_time, pd['pd'], color="b", lw=1)
-    pd_curve = mlines.Line2D([], [], color='b', lw=1, picker=picker)
+    ax.plot(ultra_time, pd['pd'], color="b", lw=1, picker=picker)
+    pd_curve = mlines.Line2D([], [], color='b', lw=1)
 
     go_line = ax.axvline(x=0, color="g", lw=1)
 
@@ -131,7 +131,7 @@ def plot_pd_norms(ax, pd, ultra_time, xlim, textgrid = None, time_offset = 0):
     ax.set_ylabel("PD")
 
 
-def plot_annd(ax, annd, annd_time, xlim, textgrid = None, time_offset = 0):
+def plot_annd(ax, annd, annd_time, xlim, textgrid = None, time_offset = 0, picker=None):
     # last annd seems to be shit so leave it out
     half_window = 2
     smooth_length = 2*half_window+1
@@ -143,8 +143,14 @@ def plot_annd(ax, annd, annd_time, xlim, textgrid = None, time_offset = 0):
 
     ave_mpbpd = moving_average(annd['mpbpd'][:-1], n=smooth_length)
     ax.plot(annd_time[:-1], annd['mpbpd'][:-1]/np.max(ave_mpbpd), color="g", lw=1, alpha=.4)
-    ax.plot(annd_time[half_window:-(half_window+1)], ave_mpbpd/np.max(ave_mpbpd),
-            color="g", lw=1, linestyle='--', label='Median Point-by-point Distance')
+
+    if picker:
+        ax.plot(annd_time[half_window:-(half_window+1)], ave_mpbpd/np.max(ave_mpbpd),
+                color="g", lw=1, linestyle='--', label='Median Point-by-point Distance',
+                picker=picker)
+    else:
+        ax.plot(annd_time[half_window:-(half_window+1)], ave_mpbpd/np.max(ave_mpbpd),
+                color="g", lw=1, linestyle='--', label='Median Point-by-point Distance')
 
     ax.axvline(x=0, color="g", lw=1)
 
@@ -238,11 +244,14 @@ def plot_annd_options(ax, annd, annd_time, xlim, textgrid = None, time_offset = 
     ax.set_ylabel("ANND")
 
     
-def plot_wav(ax, pd, wav_time, xlim, textgrid = None, time_offset = 0):
+def plot_wav(ax, pd, wav_time, xlim, textgrid = None, time_offset = 0, picker=None):
     normalised_wav = pd['ultra_wav_frames']/np.amax(np.abs(pd['ultra_wav_frames']))
     ax.plot(wav_time, normalised_wav, color="k", lw=1)
 
-    ax.axvline(x=0, color="g", lw=1)
+    if picker:
+        ax.axvline(x=0, color="g", lw=1, picker=picker)
+    else:
+        ax.axvline(x=0, color="g", lw=1)
 
     if textgrid:
         for segment in textgrid['segment']:

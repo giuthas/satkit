@@ -18,6 +18,7 @@ from satkit.pd_annd_plot import plot_annd, plot_pd, plot_wav
 
 
 # todo
+# save selections and such in data
 # get actual data plotted
 # add buttons and such for
 # - moving to the next one
@@ -28,57 +29,49 @@ from satkit.pd_annd_plot import plot_annd, plot_pd, plot_wav
 # even later on: add annotation tiers, possibility of editing them and hook them to the textgrids 
 class Annotator():
 
-    def __init__(self):#, meta, data, args):
+    def __init__(self, meta, data, args, xlim = (-0.1, 1.0),
+                 categories = ['Stable', 'Hesitation', 'Chaos', 'No data']):
         self.index = 0
-        self.max_index = 2#len(meta)
+        self.max_index = len(meta)
 
-        #
-        # the selections and categories need to be initialised as arrays
-        # and/or stored directly in meta/data 
-        #
-        self.selection1 = -1
-        self.selection2 = -1
+        self.meta = meta
+        self.data = data
+        self.commanlineargs = args
 
-        self.pdCatogory = 0
-        self.splineCatogory = 0
+        self.xlim = xlim
+        self.categories = categories
+        
+        for token in self.data:
+            token['pdCategory'] = -1
+            token['splineCategory'] = -1
+            token['pdOnset'] = -1.0
+            token['splineOnset'] = -1.0
 
-        self.fig = plt.figure(figsize=(12, 6))
+        self.fig = plt.figure(figsize=(15, 8))
 
         #
         # Graphs to be annotated and the waveform for reference.
         #
         self.ax1 = plt.subplot2grid((7,7),(0,0), rowspan=3, colspan=6)
-        self.ax1.set_title('SATKIT Annotator')
-        self.ax1.axes.xaxis.set_ticklabels([])
-
         self.ax2 = plt.subplot2grid((7,7),(3,0), rowspan=3, colspan=6)
-        self.ax2.axes.xaxis.set_ticklabels([])
-
         self.ax3 = plt.subplot2grid((7,7),(6,0), colspan=6)
 
-        self.data = rand(10)
-        self.data2 = rand(17)
-        self.range1 = np.linspace(0.0,1.0,10)
-        self.range2 = np.linspace(0.0,1.0,17)
+        self.draw_plots()
 
-        self.ax1.plot(self.range1, self.data, '-', picker=self.line_picker)
-        self.ax2.plot(self.range2, self.data2, '-', color='g', picker=self.line_picker)
-
+        self.fig.align_ylabels()        
         self.fig.canvas.mpl_connect('pick_event', self.onpick)
-
-
+        
         #
         # Buttons and such.
         #        
-        categories = ['Stable', 'Hesitation', 'Chaos', 'No data']
         self.ax4 = plt.subplot2grid((7,7),(0,6), rowspan=2)
         self.ax4.axes.set_axis_off()
-        self.pdCategoryRB = RadioButtons(self.ax4, categories)
+        self.pdCategoryRB = RadioButtons(self.ax4, self.categories)
         self.pdCategoryRB.on_clicked(self.pdCatCB)
         
         self.ax5 = plt.subplot2grid((7,7),(3,6), rowspan=2)
         self.ax5.axes.set_axis_off()
-        self.splineCategoryRB = RadioButtons(self.ax5, categories)
+        self.splineCategoryRB = RadioButtons(self.ax5, self.categories)
         self.splineCategoryRB.on_clicked(self.splineCatCB)
 
         self.axnext = plt.axes([0.85, 0.225, 0.1, 0.055])
@@ -94,12 +87,61 @@ class Annotator():
         self.bsave.on_clicked(self.save)
         # this could also go into a pyqt5 window in its own file,
         # but for now saving to a prenamed file is enough
-
+        
         plt.show()
 
         
+    def draw_plots(self):
+        self.ax1.set_title(self._get_title())
+        self.ax1.axes.xaxis.set_ticklabels([])
+        self.ax2.axes.xaxis.set_ticklabels([])
+
+        pd = self.data[self.index]['pd']
+        annd = self.data[self.index]['annd']
+        ultra_time = pd['ultra_time'] - pd['beep_uti']
+        annd_time = annd['annd_time'] - pd['beep_uti']
+        wav_time = pd['ultra_wav_time'] - pd['beep_uti']
+        textgrid = self.meta[self.index]['textgrid']
+        
+        plot_pd(self.ax1, pd, ultra_time, self.xlim, textgrid, -pd['beep_uti'],
+                picker=self.line_picker)
+        plot_annd(self.ax2, annd, annd_time, self.xlim, textgrid, -pd['beep_uti'],
+                  picker=self.line_picker)
+        plot_wav(self.ax3, pd, wav_time, self.xlim, textgrid, -pd['beep_uti'])
+
+        if self.data[self.index]['pdOnset'] > -1:
+            self.ax1.axvline(x = self.data[self.index]['pdOnset'],
+                             linestyle='--', color="b", lw=1)
+            self.ax2.axvline(x = self.data[self.index]['pdOnset'],
+                             linestyle='--', color="b", lw=1)
+            self.ax3.axvline(x = self.data[self.index]['pdOnset'],
+                             linestyle='--', color="b", lw=1)
+        if self.data[self.index]['splineOnset'] > -1:
+            self.ax1.axvline(x = self.data[self.index]['splineOnset'],
+                             linestyle=':', color="g", lw=1)
+            self.ax2.axvline(x = self.data[self.index]['splineOnset'],
+                             linestyle=':', color="g", lw=1)
+            self.ax3.axvline(x = self.data[self.index]['splineOnset'],
+                             linestyle=':', color="g", lw=1)
+
+
+    def update(self):
+        self.ax1.cla()
+        self.ax2.cla()
+
+        self.draw_plots()
+        self.fig.canvas.draw()
+
+    
+    def _get_title(self):
+        text = 'SATKIT Annotator'
+        text += ', prompt: ' + self.meta[self.index]['prompt']
+        text += ', token: ' + str(self.index+1) + '/' + str(self.max_index)
+        return text
+
+        
     def next(self, event):
-        if self.index < self.max_index:
+        if self.index < self.max_index-1:
             self.index += 1
             self.update()
 
@@ -111,15 +153,18 @@ class Annotator():
 
 
     def save(self, event):
+        pdOnsets = [token['pdOnset'] for token in self.data]
+        pdCategories = [token['pdCategory'] for token in self.data]
         print('Saving is not yet implemented.')
+        print('pdOnsets: ' + str(pdOnsets))
+        print('pdCategories: ' + str(pdCategories))
 
-
-    def splineCatCB(self, event):
-        print(event)
-
-        
     def pdCatCB(self, event):
-        print(event)
+        self.data[self.index]['pdCategory'] = self.categories.index(event)
+        
+        
+    def splineCatCB(self, event):
+        self.data[self.index]['splineCategory'] = self.categories.index(event)
 
         
     # picking with a custom hit test function
@@ -166,28 +211,13 @@ class Annotator():
                 break
 
         if subplot == 1:
-            self.selection1 = event.pickx
+            self.data[self.index]['pdOnset'] = event.pickx
         else:
-            self.selection2 = event.pickx
+            self.data[self.index]['splineOnset'] = event.pickx
 
         self.update()
 
             
-    def update(self):
-        self.ax1.cla()
-        self.ax2.cla()
-        self.ax1.plot(self.range1, self.data, '-', picker=self.line_picker)
-        self.ax2.plot(self.range2, self.data2, '-', color='g', picker=self.line_picker)
-
-        self.ax1.axvline(x = self.selection1, linestyle='--', color="b", lw=1)
-        self.ax1.axvline(x = self.selection2, linestyle=':', color="g", lw=1)
-        self.ax2.axvline(x = self.selection1, linestyle='--', color="b", lw=1)
-        self.ax2.axvline(x = self.selection2, linestyle=':', color="g", lw=1)
-
-        self.fig.canvas.draw()
-
-
-    
 if (__name__ == '__main__'):
     # t = time.time()
 

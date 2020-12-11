@@ -49,16 +49,15 @@ from satkit import annd
 from satkit import pd
 from satkit.pd_annd_plot import plot_annd, plot_pd, plot_wav
 
+_annotator_logger = logging.getLogger('satkit.annotator')    
 
 # todo
-# save selections and such in data
-# add buttons and such for
-# - moving to the next one
-# - excluding from consideration
-# - categorising PD and MPBPD separately into ok, hesitation, chaos
+# - write a version in PyQt to get nicer widgets.
 # - toggle for displaying acoustic boundaries
 # - toggles or similar for displaying different data modalities
-# even later on: add annotation tiers, possibility of editing them and hook them to the textgrids 
+# even later on:
+# add annotation tiers,
+# possibility of editing them and hook them to the textgrids 
 class Annotator():
 
     def __init__(self, meta, data, args, xlim = (-0.1, 1.0),
@@ -195,6 +194,7 @@ class Annotator():
 
 
     def save(self, event):
+        # eventually get this from commandline/caller/dialog window
         filename = 'local_data/onsets.csv'
         fieldnames = ['pdCategory', 'splineCategory', 'pdOnset', 'splineOnset']
         csv.register_dialect('tabseparated', delimiter='\t', quoting=csv.QUOTE_NONE)
@@ -206,7 +206,8 @@ class Annotator():
             writer.writeheader()
             for token in self.data:
                 writer.writerow(token)
-            #_io_logger.debug('Wrote metadata to file ' + filename + '.')
+            print('Wrote onset data in file ' + filename + '.')
+            _annotator_logger.debug('Wrote onset data in file ' + filename + '.')
         
         
     def pdCatCB(self, event):
@@ -268,16 +269,3 @@ class Annotator():
         self.update()
 
             
-if (__name__ == '__main__'):
-    # t = time.time()
-
-    # # Run the command line interface.
-    # function_dict = {'pd':pd.pd, 'annd':annd.annd}
-    # (meta, data, args) = cli("SATKIT GUI", function_dict, plot=False)
-
-    # elapsed_time = time.time() - t
-    # logging.info('Elapsed time ' + str(elapsed_time))
-
-    # Get the GUI running.
-    da = Annotator()#meta, data, args)
-

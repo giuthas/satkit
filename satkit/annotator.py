@@ -59,6 +59,14 @@ _annotator_logger = logging.getLogger('satkit.annotator')
 # add annotation tiers,
 # possibility of editing them and hook them to the textgrids 
 class Annotator():
+        """ 
+        Annotator is a GUI class for annotating speech data.
+
+        Currently it works with PD and ANND/MPBPD curves and allows 
+        selection of single points (labelled as [metric]Onset in the saved file)
+        -- one per curve. The GUI also displays the waveform, and if TextGrids
+        are provided, the acoustic segment boundaries.
+        """                
 
     def __init__(self, meta, data, args, xlim = (-0.1, 1.0),
                  categories = ['Stable', 'Hesitation', 'Chaos', 'No data']):
@@ -68,7 +76,6 @@ class Annotator():
         Also sets up internal state and adds keys [pdCategory, splineCategory, 
         pdOnset, splineOnset] to the data argument. For the categories -1 is used
         to mark 'not set', and for the onsets -1.0.
-
         """                
         self.index = 0
         self.max_index = len(meta)

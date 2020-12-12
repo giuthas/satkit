@@ -62,6 +62,14 @@ class Annotator():
 
     def __init__(self, meta, data, args, xlim = (-0.1, 1.0),
                  categories = ['Stable', 'Hesitation', 'Chaos', 'No data']):
+        """ 
+        Constructor for the Annotator GUI. 
+
+        Also sets up internal state and adds keys [pdCategory, splineCategory, 
+        pdOnset, splineOnset] to the data argument. For the categories -1 is used
+        to mark 'not set', and for the onsets -1.0.
+
+        """                
         self.index = 0
         self.max_index = len(meta)
 
@@ -118,13 +126,14 @@ class Annotator():
         self.axsave = plt.axes([0.85, 0.05, 0.1, 0.055])
         self.bsave = Button(self.axsave, 'Save')
         self.bsave.on_clicked(self.save)
-        # this could also go into a pyqt5 window in its own file,
-        # but for now saving to a prenamed file is enough
         
         plt.show()
 
         
     def draw_plots(self):
+        """ 
+        Updates title and graphs. Called by self.update().
+        """                
         self.ax1.set_title(self._get_title())
         self.ax1.axes.xaxis.set_ticklabels([])
         self.ax2.axes.xaxis.set_ticklabels([])
@@ -159,11 +168,17 @@ class Annotator():
 
 
     def updateButtons(self):
+        """ 
+        Updates the RadioButtons.
+        """        
         self.pdCategoryRB.set_active(self.data[self.index]['pdCategory'])
         self.splineCategoryRB.set_active(self.data[self.index]['splineCategory'])
 
         
     def update(self):
+        """ 
+        Updates the graphs but not the buttons.
+        """
         self.ax1.cla()
         self.ax2.cla()
         self.ax3.cla()
@@ -173,6 +188,9 @@ class Annotator():
 
     
     def _get_title(self):
+        """ 
+        Private helper function for generating the title.
+        """
         text = 'SATKIT Annotator'
         text += ', prompt: ' + self.meta[self.index]['prompt']
         text += ', token: ' + str(self.index+1) + '/' + str(self.max_index)
@@ -180,6 +198,10 @@ class Annotator():
 
         
     def next(self, event):
+        """ 
+        Callback funtion for the Next button.
+        Increases cursor index, updates the view.
+        """
         if self.index < self.max_index-1:
             self.index += 1
             self.update()
@@ -187,6 +209,10 @@ class Annotator():
 
             
     def prev(self, event):
+        """ 
+        Callback funtion for the Previous button.
+        Decreases cursor index, updates the view.
+        """
         if self.index > 0:
             self.index -= 1
             self.update()
@@ -194,6 +220,11 @@ class Annotator():
 
 
     def save(self, event):
+        """ 
+        Callback funtion for the Save button.
+        Currently overwrites what ever is at 
+        local_data/onsets.csv
+        """
         # eventually get this from commandline/caller/dialog window
         filename = 'local_data/onsets.csv'
         fieldnames = ['pdCategory', 'splineCategory', 'pdOnset', 'splineOnset']
@@ -211,10 +242,18 @@ class Annotator():
         
         
     def pdCatCB(self, event):
+        """ 
+        Callback funtion for the RadioButton for catogorising 
+        the PD curve.
+        """
         self.data[self.index]['pdCategory'] = self.categories.index(event)
         
         
     def splineCatCB(self, event):
+        """ 
+        Callback funtion for the RadioButton for catogorising 
+        the curve of the spline metric.
+        """
         self.data[self.index]['splineCategory'] = self.categories.index(event)
 
         
@@ -229,9 +268,10 @@ class Annotator():
     # properties you want added to the PickEvent attributes
     def line_picker(self, line, mouseevent):
         """
-        find the nearest point in the x-direction from the mouseclick in
-        data coords and attach some extra attributes, pickx and picky
-        which are the data points that were picked
+        Find the nearest point in the x (time) direction from the mouseclick in
+        data coordinates. Return index of selected point, x and y coordinates of 
+        the data at that point, and inaxes to enable originating subplot to be 
+        identified.
         """
         if mouseevent.xdata is None:
             return False, dict()
@@ -246,14 +286,16 @@ class Annotator():
             props = dict(ind=ind,
                          pickx=pickx,
                          picky=picky,
-                         inaxes=mouseevent.inaxes,
-                         foobar="foobar")
+                         inaxes=mouseevent.inaxes)
             return True, props
         else:
             return False, dict()
 
 
     def onpick(self, event):
+        """
+        Callback for handling time selection on events.
+        """
         subplot = 0
         for i, ax in enumerate([self.ax1, self.ax2]):
             # For infomation, print which axes the click was in

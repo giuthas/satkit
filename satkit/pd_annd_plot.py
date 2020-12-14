@@ -68,10 +68,10 @@ def plot_pd(ax, pd, ultra_time, xlim, textgrid = None, time_offset = 0, picker=N
                      'verticalalignment': 'center'}
 
     # The PD curve and the official fix for it not showing up on the legend.
-    ax.plot(ultra_time, pd['pd'], color="b", lw=1, picker=picker)
-    pd_curve = mlines.Line2D([], [], color='b', lw=1)
+    ax.plot(ultra_time, pd['pd'], color="deepskyblue", lw=1, picker=picker)
+    pd_curve = mlines.Line2D([], [], color="deepskyblue", lw=1)
 
-    go_line = ax.axvline(x=0, color="g", lw=1)
+    go_line = ax.axvline(x=0, color="dimgrey", lw=1, linestyle=(0, (5, 10)))
 
     if textgrid:
         for segment in textgrid['segment']:
@@ -80,14 +80,18 @@ def plot_pd(ax, pd, ultra_time, xlim, textgrid = None, time_offset = 0, picker=N
             elif segment.text == "beep":
                 continue
             else:
-                segment_line = ax.axvline(x = segment.xmin+time_offset, color="k", lw=1)
-                ax.axvline(x = segment.xmax+time_offset, color="k", lw=1)
-                ax.text(segment.mid+time_offset, 500, segment.text, text_settings)
+                segment_line = ax.axvline(x = segment.xmin+time_offset,
+                                          color="dimgrey", lw=1, linestyle='--')
+                ax.axvline(x = segment.xmax+time_offset,
+                           color="dimgrey", lw=1, linestyle='--')
+                ax.text(segment.mid+time_offset, 500, segment.text, text_settings,
+                        color="dimgrey")
             
     ax.set_xlim(xlim)
     ax.set_ylim((-50,3050))
     ax.legend((pd_curve, go_line, segment_line),
-           ('Pixel difference', 'Go-signal onset', 'Acoustic segments'))
+              ('Pixel difference', 'Go-signal onset', 'Acoustic segments'),
+              loc='upper right')
     ax.set_ylabel("PD")
 
     
@@ -95,9 +99,10 @@ def plot_pd_peak_normalised(ax, pd, ultra_time, xlim, textgrid = None, time_offs
     text_settings = {'horizontalalignment': 'center',
                      'verticalalignment': 'center'}
     
-    ax.plot(ultra_time, pd['pd'], color="b", lw=1, label='Pixel difference')
+    ax.plot(ultra_time, pd['pd'], color="deepskyblue", lw=1, label='Pixel difference')
 
-    ax.axvline(x=0, color="g", lw=1)
+    go_line = ax.axvline(x=0, color="dimgrey", lw=1, linestyle=(0, (5, 10)))
+#    ax.axvline(x=0, color="g", lw=1)
 
     if textgrid:
         for segment in textgrid['segment']:
@@ -106,13 +111,16 @@ def plot_pd_peak_normalised(ax, pd, ultra_time, xlim, textgrid = None, time_offs
             elif segment.text == "beep":
                 continue
             else:
-                ax.axvline(x = segment.xmin+time_offset, color="k", lw=1)
-                ax.axvline(x = segment.xmax+time_offset, color="k", lw=1)
-                ax.text(segment.mid+time_offset, 500, segment.text, text_settings)
+                ax.axvline(x = segment.xmin+time_offset, color="dimgrey", lw=1,
+                           linestyle='--')
+                ax.axvline(x = segment.xmax+time_offset, color="dimgrey", lw=1,
+                           linestyle='--')
+                ax.text(segment.mid+time_offset, 500, segment.text, text_settings,
+                        color="dimgrey")
             
     ax.set_xlim(xlim)
     ax.set_ylim((0,1.1))
-    ax.legend() 
+    ax.legend(loc='upper right') 
     ax.set_ylabel("Peak normalised PD")
 
     
@@ -125,34 +133,39 @@ def plot_pd_norms(ax, pd, ultra_time, xlim, textgrid = None, time_offset = 0):
     ax.plot(ultra_time, pd['l10']/np.max(pd['l10'][1:]), color="lightgrey", lw=1)
     ax.plot(ultra_time, pd['l_inf']/np.max(pd['l_inf'][1:]), color="k", lw=1, linestyle='--')
 
-    ax.axvline(x=0, color="g", lw=1)
+    go_line = ax.axvline(x=0, color="dimgrey", lw=1, linestyle=(0, (5, 10)))
+
     ax.set_xlim(xlim)
     ax.set_ylim((0,1.1))
     ax.set_ylabel("PD")
 
 
-def plot_annd(ax, annd, annd_time, xlim, textgrid = None, time_offset = 0, picker=None):
-    # last annd seems to be shit so leave it out
+def plot_annd_mpbpd(ax, annd, annd_time, xlim, textgrid = None, time_offset = 0, picker=None,
+              plot_raw=True):
     half_window = 2
     smooth_length = 2*half_window+1
-    
-    # ax.plot(annd_time[:-1], annd['annd'][:-1], color="b", lw=1, alpha=.5)
+
+    # last annd seems to be broken so leave it out    
+    # ax.plot(annd_time[:-1], annd['annd'][:-1], color="deepskyblue", lw=1, alpha=.5)
     ave_annd = moving_average(annd['annd'][:-1], n=smooth_length)
     ax.plot(annd_time[half_window:-(half_window+1)], ave_annd/np.max(ave_annd),
-            color="black", lw=1, label='Average Nearest Neighbour Distance')
+            color="orange", lw=1, label='Average Nearest Neighbour Distance')
 
     ave_mpbpd = moving_average(annd['mpbpd'][:-1], n=smooth_length)
-    ax.plot(annd_time[:-1], annd['mpbpd'][:-1]/np.max(ave_mpbpd), color="g", lw=1, alpha=.4)
+
+    if plot_raw:
+        ax.plot(annd_time[:-1], annd['mpbpd'][:-1]/np.max(ave_mpbpd),
+                color="seagreen", lw=1, alpha=.4)
 
     if picker:
         ax.plot(annd_time[half_window:-(half_window+1)], ave_mpbpd/np.max(ave_mpbpd),
-                color="g", lw=1, linestyle='--', label='Median Point-by-point Distance',
+                color="seagreen", lw=1, label='Median Point-by-point Distance',
                 picker=picker)
     else:
         ax.plot(annd_time[half_window:-(half_window+1)], ave_mpbpd/np.max(ave_mpbpd),
-                color="g", lw=1, linestyle='--', label='Median Point-by-point Distance')
+                color="seagreen", lw=1, label='Median Point-by-point Distance')
 
-    ax.axvline(x=0, color="g", lw=1)
+    go_line = ax.axvline(x=0, color="dimgrey", lw=1, linestyle=(0, (5, 10)))
 
     if textgrid:
         for segment in textgrid['segment']:
@@ -161,13 +174,82 @@ def plot_annd(ax, annd, annd_time, xlim, textgrid = None, time_offset = 0, picke
             elif segment.text == "beep":
                 continue
             else:
-                ax.axvline(x = segment.xmin+time_offset, color="k", lw=1)
-                ax.axvline(x = segment.xmax+time_offset, color="k", lw=1)
+                ax.axvline(x = segment.xmin+time_offset, color="dimgrey", lw=1, linestyle='--')
+                ax.axvline(x = segment.xmax+time_offset, color="dimgrey", lw=1, linestyle='--')
 
     ax.set_xlim(xlim)
     ax.set_ylim((-0.05,1.05))
-    ax.legend()
-    ax.set_ylabel("Peak normalised\nspline metrices")
+    ax.legend(loc='upper right')
+    ax.set_ylabel("Peak normalised\nspline metrics")
+
+    
+def plot_annd(ax, annd, annd_time, xlim, textgrid = None, time_offset = 0, picker=None,
+              plot_raw=True):
+    half_window = 2
+    smooth_length = 2*half_window+1
+
+    # last annd seems to be broken so leave it out    
+    ave_annd = moving_average(annd['annd'][:-1], n=smooth_length)
+
+    if plot_raw:
+        ax.plot(annd_time[:-1], annd['annd'][:-1]/np.max(ave_annd),
+                color="orange", lw=1, alpha=.5)
+
+    ax.plot(annd_time[half_window:-(half_window+1)], ave_annd/np.max(ave_annd),
+            color="orange", lw=1, label='Average Nearest Neighbour Distance')
+
+    go_line = ax.axvline(x=0, color="dimgrey", lw=1, linestyle=(0, (5, 10)))
+
+    if textgrid:
+        for segment in textgrid['segment']:
+            if segment.text == "":
+                continue
+            elif segment.text == "beep":
+                continue
+            else:
+                ax.axvline(x = segment.xmin+time_offset, color="dimgrey", lw=1, linestyle='--')
+                ax.axvline(x = segment.xmax+time_offset, color="dimgrey", lw=1, linestyle='--')
+
+    ax.set_xlim(xlim)
+    ax.set_ylim((-0.05,1.05))
+    ax.legend(loc='upper right')
+    ax.set_ylabel("Peak normalised ANND")
+
+    
+def plot_mpbpd(ax, annd, annd_time, xlim, textgrid = None, time_offset = 0, picker=None,
+               plot_raw=True):
+    half_window = 2
+    smooth_length = 2*half_window+1
+
+    ave_mpbpd = moving_average(annd['mpbpd'][:-1], n=smooth_length)
+    if plot_raw:
+        ax.plot(annd_time[:-1], annd['mpbpd'][:-1]/np.max(ave_mpbpd),
+                color="seagreen", lw=1, alpha=.4)
+
+    if picker:
+        ax.plot(annd_time[half_window:-(half_window+1)], ave_mpbpd/np.max(ave_mpbpd),
+                color="seagreen", lw=1, label='Median Point-by-point Distance',
+                picker=picker)
+    else:
+        ax.plot(annd_time[half_window:-(half_window+1)], ave_mpbpd/np.max(ave_mpbpd),
+                color="seagreen", lw=1, label='Median Point-by-point Distance')
+
+    go_line = ax.axvline(x=0, color="dimgrey", lw=1, linestyle=(0, (5, 10)))
+
+    if textgrid:
+        for segment in textgrid['segment']:
+            if segment.text == "":
+                continue
+            elif segment.text == "beep":
+                continue
+            else:
+                ax.axvline(x = segment.xmin+time_offset, color="dimgrey", lw=1, linestyle='--')
+                ax.axvline(x = segment.xmax+time_offset, color="dimgrey", lw=1, linestyle='--')
+
+    ax.set_xlim(xlim)
+    ax.set_ylim((-0.05,1.05))
+    ax.legend(loc='upper right')
+    ax.set_ylabel("Peak normalised MPBPD")
 
     
 def plot_spline_metrics(ax, annd, annd_time, xlim, textgrid = None, time_offset = 0):
@@ -175,7 +257,7 @@ def plot_spline_metrics(ax, annd, annd_time, xlim, textgrid = None, time_offset 
     half_window = 2
     smooth_length = 2*half_window+1
     
-    # ax.plot(annd_time[:-1], annd['annd'][:-1], color="b", lw=1, alpha=.5)
+    # ax.plot(annd_time[:-1], annd['annd'][:-1], color="deepskyblue", lw=1, alpha=.5)
     ave_annd = moving_average(annd['annd'][:-1], n=smooth_length)
     ax.plot(annd_time[half_window:-(half_window+1)], ave_annd/np.max(ave_annd),
             color="black", lw=1)
@@ -208,10 +290,10 @@ def plot_spline_metrics(ax, annd, annd_time, xlim, textgrid = None, time_offset 
             elif segment.text == "beep":
                 continue
             else:
-                ax.axvline(x = segment.xmin+time_offset, color="k", lw=1)
-                ax.axvline(x = segment.xmax+time_offset, color="k", lw=1)
+                ax.axvline(x = segment.xmin+time_offset, color="dimgrey", lw=1, linestyle='--')
+                ax.axvline(x = segment.xmax+time_offset, color="dimgrey", lw=1, linestyle='--')
 
-    ax.axvline(x=0, color="g", lw=1)
+    go_line = ax.axvline(x=0, color="dimgrey", lw=1, linestyle=(0, (5, 10)))
     ax.set_xlim(xlim)
     ax.set_ylim((0,1.05))
     ax.set_ylabel("Peak normalised spline metrics")
@@ -219,8 +301,8 @@ def plot_spline_metrics(ax, annd, annd_time, xlim, textgrid = None, time_offset 
     
 def plot_annd_options(ax, annd, annd_time, xlim, textgrid = None, time_offset = 0):
     # last annd seems to be shit so leave it out
-    ax.plot(annd_time[:-1], annd['annd'][:-1], color="b", lw=1, alpha=.5)
-    ax.plot(annd_time[3:-4], moving_average(annd['annd'][:-1], n=7), color="b", lw=1)
+    ax.plot(annd_time[:-1], annd['annd'][:-1], color="deepskyblue", lw=1, alpha=.5)
+    ax.plot(annd_time[3:-4], moving_average(annd['annd'][:-1], n=7), color="deepskyblue", lw=1)
     ax.plot(annd_time[:-1], annd['mnnd'][:-1], color="g", lw=1, alpha=.5)
     ax.plot(annd_time[3:-4], moving_average(annd['mnnd'][:-1], n=7), color="g", lw=1)
     ax.plot(annd_time[:-1], annd['mpbpd'][:-1], color="r", lw=1, alpha=.5)
@@ -235,9 +317,10 @@ def plot_annd_options(ax, annd, annd_time, xlim, textgrid = None, time_offset = 
             elif segment.text == "beep":
                 continue
             else:
-                ax.axvline(x = segment.xmin+time_offset, color="k", lw=1)
-                ax.axvline(x = segment.xmax+time_offset, color="k", lw=1)
+                ax.axvline(x = segment.xmin+time_offset, color="dimgrey", lw=1, linestyle='--')
+                ax.axvline(x = segment.xmax+time_offset, color="dimgrey", lw=1, linestyle='--')
 
+    go_line = ax.axvline(x=0, color="dimgrey", lw=1, linestyle=(0, (5, 10)))
     ax.axvline(x=0, color="k", lw=1)
     ax.set_xlim(xlim)
     ax.set_ylim((0,2.05))
@@ -246,12 +329,12 @@ def plot_annd_options(ax, annd, annd_time, xlim, textgrid = None, time_offset = 
     
 def plot_wav(ax, pd, wav_time, xlim, textgrid = None, time_offset = 0, picker=None):
     normalised_wav = pd['ultra_wav_frames']/np.amax(np.abs(pd['ultra_wav_frames']))
-    ax.plot(wav_time, normalised_wav, color="k", lw=1)
-
     if picker:
-        ax.axvline(x=0, color="g", lw=1, picker=picker)
+        ax.plot(wav_time, normalised_wav, color="k", lw=1, picker=picker)
     else:
-        ax.axvline(x=0, color="g", lw=1)
+        ax.plot(wav_time, normalised_wav, color="k", lw=1)
+
+    go_line = ax.axvline(x=0, color="dimgrey", lw=1, linestyle=(0, (5, 10)))
 
     if textgrid:
         for segment in textgrid['segment']:
@@ -260,8 +343,8 @@ def plot_wav(ax, pd, wav_time, xlim, textgrid = None, time_offset = 0, picker=No
             elif segment.text == "beep":
                 continue
             else:
-                ax.axvline(x = segment.xmin+time_offset, color="k", lw=1)
-                ax.axvline(x = segment.xmax+time_offset, color="k", lw=1)
+                ax.axvline(x = segment.xmin+time_offset, color="dimgrey", lw=1, linestyle='--')
+                ax.axvline(x = segment.xmax+time_offset, color="dimgrey", lw=1, linestyle='--')
 
     ax.set_xlim(xlim)
     ax.set_ylim((-1.05,1.05))
@@ -273,21 +356,20 @@ def plot_wav(ax, pd, wav_time, xlim, textgrid = None, time_offset = 0, picker=No
 # Combined plots
 #####
 
-def draw_pd(meta, datum, figure_dir):
+def draw_pd(meta, datum, figure_dir, xlim=(-.05, 1.25)):
     base_name = Path(meta['base_name'])      
-    filename = base_name.with_suffix('.pd.pdf').name
+    filename = base_name.name + '_pd.pdf'
     filename = figure_dir.joinpath(filename)
     
     with PdfPages(str(filename)) as pdf:
         fig = plt.figure(figsize=(9, 4))
 
         ax1 = plt.subplot2grid((4,1),(0,0), rowspan=3)
-        plt.title(meta['prompt'].split()[1])
-        plt.grid(True, 'major', 'x')
+        plt.title(meta['prompt'].split()[0])
+        #plt.grid(True, 'major', 'x')
         ax1.axes.xaxis.set_ticklabels([])
         ax3 = plt.subplot2grid((4,1),(3,0))
-        plt.grid(True, 'major', 'x')
-        xlim = (-.05, 1.25)
+        #plt.grid(True, 'major', 'x')
 
         pd = datum['pd']
         ultra_time = pd['ultra_time'] - pd['beep_uti']
@@ -302,21 +384,20 @@ def draw_pd(meta, datum, figure_dir):
         _plot_logger.info("Drew PD plot in " + str(filename) + ".")
 
         
-def draw_annd(meta, datum, figure_dir):
+def draw_annd(meta, datum, figure_dir, xlim=(-.05, 1.25)):
     base_name = Path(meta['base_name'])      
-    filename = base_name.with_suffix('.annd.pdf').name
+    filename = base_name.name + '_annd.pdf'
     filename = figure_dir.joinpath(filename)
     
     with PdfPages(str(filename)) as pdf:
         fig = plt.figure(figsize=(9, 4))
 
         ax2 = plt.subplot2grid((4,1),(0,0), rowspan=3)
-        plt.title(meta['prompt'])
-        plt.grid(True, 'major', 'x')
+        plt.title(meta['prompt'].split()[0])
+        #plt.grid(True, 'major', 'x')
         ax2.axes.xaxis.set_ticklabels([])
         ax3 = plt.subplot2grid((4,1),(3,0))
-        plt.grid(True, 'major', 'x')
-        xlim = (-.05, 1.25)
+        #plt.grid(True, 'major', 'x')
 
         pd = datum['pd']
         annd = datum['annd']
@@ -332,16 +413,16 @@ def draw_annd(meta, datum, figure_dir):
         _plot_logger.info("Drew ANND plot in " + str(filename) + ".")
 
 
-def draw_annd_pd(meta, datum, figure_dir):
+def draw_annd_pd(meta, datum, figure_dir, xlim=(-.05, 1.25)):
     base_name = Path(meta['base_name'])      
-    filename = base_name.with_suffix('.annd_pd.pdf').name
+    filename = base_name.name + '_annd_pd.pdf'
     filename = figure_dir.joinpath(filename)
     
     with PdfPages(str(filename)) as pdf:
         fig = plt.figure(figsize=(9, 6))
 
         ax1 = plt.subplot2grid((7,1),(0,0), rowspan=3)
-        plt.title(meta['prompt'])
+        plt.title(meta['prompt'].split()[0])
         #plt.grid(True, 'major', 'x')
         ax1.axes.xaxis.set_ticklabels([])
         ax2 = plt.subplot2grid((7,1),(3,0), rowspan=3)
@@ -349,7 +430,6 @@ def draw_annd_pd(meta, datum, figure_dir):
         ax2.axes.xaxis.set_ticklabels([])
         ax3 = plt.subplot2grid((7,1),(6,0))
         #plt.grid(True, 'major', 'x')
-        xlim = (-2.05, 2.25)
 
         pd = datum['pd']
         annd = datum['annd']
@@ -367,6 +447,75 @@ def draw_annd_pd(meta, datum, figure_dir):
         _plot_logger.info("Drew PD and ANND plot in " + str(filename) + ".")
 
         
+def draw_mpbpd_pd(meta, datum, figure_dir, xlim=(-.05, 1.25)):
+    base_name = Path(meta['base_name'])      
+    filename = base_name.name + '_mpbpd_pd.pdf'
+    filename = figure_dir.joinpath(filename)
+    
+    with PdfPages(str(filename)) as pdf:
+        fig = plt.figure(figsize=(9, 6))
+
+        ax1 = plt.subplot2grid((7,1),(0,0), rowspan=3)
+        plt.title(meta['prompt'].split()[0])
+        #plt.grid(True, 'major', 'x')
+        ax1.axes.xaxis.set_ticklabels([])
+        ax2 = plt.subplot2grid((7,1),(3,0), rowspan=3)
+        #plt.grid(True, 'major', 'x')
+        ax2.axes.xaxis.set_ticklabels([])
+        ax3 = plt.subplot2grid((7,1),(6,0))
+        #plt.grid(True, 'major', 'x')
+
+        pd = datum['pd']
+        annd = datum['annd']
+        ultra_time = pd['ultra_time'] - pd['beep_uti']
+        annd_time = annd['annd_time'] - pd['beep_uti']
+        wav_time = pd['ultra_wav_time'] - pd['beep_uti']
+        
+        plot_pd(ax1, pd, ultra_time, xlim, meta['textgrid'], -pd['beep_uti'])
+        plot_mpbpd(ax2, annd, annd_time, xlim, meta['textgrid'], -pd['beep_uti'])
+        plot_wav(ax3, pd, wav_time, xlim, meta['textgrid'], -pd['beep_uti'])
+
+        fig.align_ylabels()        
+        pdf.savefig()  # saves the current figure into a pdf page
+        plt.close()
+        _plot_logger.info("Drew PD and SPBPD plot in " + str(filename) + ".")
+
+        
+def draw_annd_mpbpd_pd(meta, datum, figure_dir, xlim=(-.05, 1.25)):
+    base_name = Path(meta['base_name'])      
+    filename = base_name.name + '_annd_mpbpd_pd.pdf'
+    filename = figure_dir.joinpath(filename)
+    
+    with PdfPages(str(filename)) as pdf:
+        fig = plt.figure(figsize=(9, 6))
+
+        ax1 = plt.subplot2grid((7,1),(0,0), rowspan=3)
+        plt.title(meta['prompt'].split()[0])
+        #plt.grid(True, 'major', 'x')
+        ax1.axes.xaxis.set_ticklabels([])
+        ax2 = plt.subplot2grid((7,1),(3,0), rowspan=3)
+        #plt.grid(True, 'major', 'x')
+        ax2.axes.xaxis.set_ticklabels([])
+        ax3 = plt.subplot2grid((7,1),(6,0))
+        #plt.grid(True, 'major', 'x')
+
+        pd = datum['pd']
+        annd = datum['annd']
+        ultra_time = pd['ultra_time'] - pd['beep_uti']
+        annd_time = annd['annd_time'] - pd['beep_uti']
+        wav_time = pd['ultra_wav_time'] - pd['beep_uti']
+        
+        plot_pd(ax1, pd, ultra_time, xlim, meta['textgrid'], -pd['beep_uti'])
+        plot_annd_mpbpd(ax2, annd, annd_time, xlim, meta['textgrid'], -pd['beep_uti'],
+                        plot_raw=False)
+        plot_wav(ax3, pd, wav_time, xlim, meta['textgrid'], -pd['beep_uti'])
+
+        fig.align_ylabels()        
+        pdf.savefig()  # saves the current figure into a pdf page
+        plt.close()
+        _plot_logger.info("Drew MPBPD and ANND plot in " + str(filename) + ".")
+
+        
 #####
 # Iteration over tokens
 #####
@@ -381,9 +530,11 @@ def ISSP2020_plots(meta_list, data, figure_dir):
             figure_dir.mkdir()
     
     for (meta, datum) in zip(meta_list, data):
-        draw_annd_pd(meta, datum, figure_dir)
-        draw_annd(meta, datum, figure_dir)
-        draw_pd(meta, datum, figure_dir)
+        draw_mpbpd_pd(meta, datum, figure_dir, xlim=(-.05, 1.5))
+        draw_annd_mpbpd_pd(meta, datum, figure_dir, xlim=(-.05, 1.5))
+        draw_annd_pd(meta, datum, figure_dir, xlim=(-.05, 1.5))
+        draw_annd(meta, datum, figure_dir, xlim=(-.05, 1.5))
+        draw_pd(meta, datum, figure_dir, xlim=(-.05, 1.5))
 
 
 def norm_comparison_plots(metalist, datalist, figure_dir):
@@ -432,21 +583,21 @@ def draw_ISSP_2020(meta, data):
         annd_time = annd['annd_time'] - pd['beep_uti']
         wav_time = pd['ultra_wav_time'] - pd['beep_uti']
         
-        ax1.plot(ultra_time, pd['pd'], color="b", lw=1)
+        ax1.plot(ultra_time, pd['pd'], color="deepskyblue", lw=1)
         ax1.axvline(x=0, color="k", lw=1)
         ax1.set_xlim(xlim)
         ax1.set_ylim((0,3000))
         ax1.set_ylabel("PD")
 
         # last annd seems to be shit so leave it out
-        ax2.plot(annd_time[:-1], annd['annd'][:-1], color="b", lw=1, alpha=.15)
-        ax2.plot(annd_time[3:-4], moving_average(annd['annd'][:-1], n=7), color="b", lw=1)
+        ax2.plot(annd_time[:-1], annd['annd'][:-1], color="deepskyblue", lw=1, alpha=.15)
+        ax2.plot(annd_time[3:-4], moving_average(annd['annd'][:-1], n=7), color="deepskyblue", lw=1)
         ax2.axvline(x=0, color="k", lw=1)
         ax2.set_xlim(xlim)
         ax2.set_ylim((0,1.45))
         ax2.set_ylabel("ANND")
 
-        ax3.plot(wav_time, pd['ultra_wav_frames']/np.amax(np.abs(pd['ultra_wav_frames'])), color="b", lw=1)
+        ax3.plot(wav_time, pd['ultra_wav_frames']/np.amax(np.abs(pd['ultra_wav_frames'])), color="deepskyblue", lw=1)
         #ax3.axvline(x=0, color="k", lw=1)
         ax3.set_xlim(xlim)
         ax3.set_ylabel("Waveform")

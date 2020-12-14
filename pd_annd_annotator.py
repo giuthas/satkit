@@ -36,7 +36,7 @@ import logging
 from satkit.commandLineInterface import cli 
 from satkit import annd
 from satkit import pd
-from satkit.annotator import Annotator
+from satkit.annotator import PD_MPBPD_Annotator
 
 def main():
     t = time.time()
@@ -49,7 +49,7 @@ def main():
     logging.info('Elapsed time ' + str(elapsed_time))
 
     # Get the GUI running.
-    da = Annotator(meta, data, args)
+    ca = PD_MPBPD_Annotator(meta, data, args)
 
 if (__name__ == '__main__'):
     main()

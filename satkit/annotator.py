@@ -36,6 +36,8 @@ import logging
 from pathlib import Path
 import time
 
+from abc import ABC, abstractmethod
+
 import matplotlib.pyplot as plt
 from matplotlib.text import Text
 from matplotlib.widgets import Button, RadioButtons, TextBox 
@@ -47,36 +49,17 @@ from numpy.random import rand
 from satkit.commandLineInterface import cli 
 from satkit import annd
 from satkit import pd
-from satkit.pd_annd_plot import plot_annd, plot_pd, plot_wav
+from satkit.pd_annd_plot import plot_mpbpd, plot_pd, plot_wav
 
-_annotator_logger = logging.getLogger('satkit.annotator')    
+_annotator_logger = logging.getLogger('satkit.curveannotator')    
 
-# todo
-# - write a version in PyQt to get nicer widgets.
-# - toggle for displaying acoustic boundaries
-# - toggles or similar for displaying different data modalities
-# even later on:
-# add annotation tiers,
-# possibility of editing them and hook them to the textgrids 
-class Annotator():
-        """ 
-        Annotator is a GUI class for annotating speech data.
 
-        Currently it works with PD and ANND/MPBPD curves and allows 
-        selection of single points (labelled as [metric]Onset in the saved file)
-        -- one per curve. The GUI also displays the waveform, and if TextGrids
-        are provided, the acoustic segment boundaries.
-        """                
-
-    def __init__(self, meta, data, args, xlim = (-0.1, 1.0),
-                 categories = ['Stable', 'Hesitation', 'Chaos', 'No data']):
-        """ 
-        Constructor for the Annotator GUI. 
-
-        Also sets up internal state and adds keys [pdCategory, splineCategory, 
-        pdOnset, splineOnset] to the data argument. For the categories -1 is used
-        to mark 'not set', and for the onsets -1.0.
-        """                
+class CurveAnnotator(ABC):
+    """ 
+    Annotator is an abstract base class for GUIs for annotating speech data.
+    """
+    
+    def __init__(self, meta, data, args, xlim = (-0.1, 1.0), figsize=(15, 8)):
         self.index = 0
         self.max_index = len(meta)
 
@@ -84,7 +67,136 @@ class Annotator():
         self.data = data
         self.commanlineargs = args
 
+        self.fig = plt.figure(figsize=figsize)
+
         self.xlim = xlim
+
+
+    @abstractmethod
+    def draw_plots(self):
+        pass
+
+
+    @abstractmethod
+    def updateUI(self):
+        """ 
+        Updates parts of the UI outwith the graphs.
+        """
+        pass
+
+        
+    @abstractmethod
+    def clear_axis(self):
+        pass
+
+            
+    def update(self):
+        """ 
+        Updates the graphs but not the buttons.
+        """
+        self.clear_axis()
+        self.draw_plots()
+        self.fig.canvas.draw()
+
+    
+    def _get_title(self):
+        """ 
+        Private helper function for generating the title.
+        """
+        text = 'SATKIT Annotator'
+        text += ', prompt: ' + self.meta[self.index]['prompt']
+        text += ', token: ' + str(self.index+1) + '/' + str(self.max_index)
+        return text
+
+        
+    def next(self, event):
+        """ 
+        Callback funtion for the Next button.
+        Increases cursor index, updates the view.
+        """
+        if self.index < self.max_index-1:
+            self.index += 1
+            self.update()
+            self.updateUI()
+
+            
+    def prev(self, event):
+        """ 
+        Callback funtion for the Previous button.
+        Decreases cursor index, updates the view.
+        """
+        if self.index > 0:
+            self.index -= 1
+            self.update()
+            self.updateUI()
+
+
+    @abstractmethod
+    def save(self, event):
+            pass
+
+
+    # picking with a custom hit test function
+    # you can define custom pickers by setting picker to a callable
+    # function.  The function has the signature
+    #
+    #  hit, props = func(artist, mouseevent)
+    #
+    # to determine the hit test.  if the mouse event is over the artist,
+    # return hit=True and props is a dictionary of
+    # properties you want added to the PickEvent attributes
+    def line_picker(self, line, mouseevent):
+        """
+        Find the nearest point in the x (time) direction from the mouseclick in
+        data coordinates. Return index of selected point, x and y coordinates of 
+        the data at that point, and inaxes to enable originating subplot to be 
+        identified.
+        """
+        if mouseevent.xdata is None:
+            return False, dict()
+        xdata = line.get_xdata()
+        ydata = line.get_ydata()
+        d = np.abs(xdata - mouseevent.xdata)
+
+        ind = np.argmin(d)
+        if 1:
+            pickx = np.take(xdata, ind)
+            picky = np.take(ydata, ind)
+            props = dict(ind=ind,
+                         pickx=pickx,
+                         picky=picky,
+                         inaxes=mouseevent.inaxes)
+            return True, props
+        else:
+            return False, dict()
+
+
+    @abstractmethod
+    def onpick(self, event):
+        pass    
+    
+
+class PD_MPBPD_Annotator(CurveAnnotator):
+    """ 
+    PD_MPBPD_Annotator is a GUI class for annotating PD and MPBPD curves.
+
+    The annotator works with PD and MPBPD curves and allows 
+    selection of single points (labelled as [metric]Onset in the saved file)
+    -- one per curve. The GUI also displays the waveform, and if TextGrids
+    are provided, the acoustic segment boundaries.
+    """                
+
+    def __init__(self, meta, data, args, xlim = (-0.1, 1.0), figsize=(15, 8),
+                 categories = ['Stable', 'Hesitation', 'Chaos', 'No data', 'Not set']):
+        """ 
+        Constructor for the Annotator GUI. 
+
+        Also sets up internal state and adds keys [pdCategory, splineCategory, 
+        pdOnset, splineOnset] to the data argument. For the categories -1 is used
+        to mark 'not set', and for the onsets -1.0.
+        """                
+        super().__init__(meta, data, args, xlim)
+
         self.categories = categories
         
         for token in self.data:
@@ -92,8 +204,6 @@ class Annotator():
             token['splineCategory'] = -1
             token['pdOnset'] = -1.0
             token['splineOnset'] = -1.0
-
-        self.fig = plt.figure(figsize=(15, 8))
 
         #
         # Graphs to be annotated and the waveform for reference.
@@ -154,76 +264,38 @@ class Annotator():
         
         plot_pd(self.ax1, pd, ultra_time, self.xlim, textgrid, -pd['beep_uti'],
                 picker=self.line_picker)
-        plot_annd(self.ax2, annd, annd_time, self.xlim, textgrid, -pd['beep_uti'],
-                  picker=self.line_picker)
+        plot_mpbpd(self.ax2, annd, annd_time, self.xlim, textgrid, -pd['beep_uti'],
+                        picker=self.line_picker, plot_raw=True)
         plot_wav(self.ax3, pd, wav_time, self.xlim, textgrid, -pd['beep_uti'])
 
         if self.data[self.index]['pdOnset'] > -1:
             self.ax1.axvline(x = self.data[self.index]['pdOnset'],
-                             linestyle='--', color="b", lw=1)
+                             linestyle=':', color="deepskyblue", lw=1)
             self.ax2.axvline(x = self.data[self.index]['pdOnset'],
-                             linestyle='--', color="b", lw=1)
+                             linestyle=':', color="deepskyblue", lw=1)
             self.ax3.axvline(x = self.data[self.index]['pdOnset'],
-                             linestyle='--', color="b", lw=1)
+                             linestyle=':', color="deepskyblue", lw=1)
         if self.data[self.index]['splineOnset'] > -1:
             self.ax1.axvline(x = self.data[self.index]['splineOnset'],
-                             linestyle=':', color="g", lw=1)
+                             linestyle='-.', color="seagreen", lw=1)
             self.ax2.axvline(x = self.data[self.index]['splineOnset'],
-                             linestyle=':', color="g", lw=1)
+                             linestyle='-.', color="seagreen", lw=1)
             self.ax3.axvline(x = self.data[self.index]['splineOnset'],
-                             linestyle=':', color="g", lw=1)
+                             linestyle='-.', color="seagreen", lw=1)
 
 
-    def updateButtons(self):
-        """ 
-        Updates the RadioButtons.
-        """        
-        self.pdCategoryRB.set_active(self.data[self.index]['pdCategory'])
-        self.splineCategoryRB.set_active(self.data[self.index]['splineCategory'])
-
-        
-    def update(self):
-        """ 
-        Updates the graphs but not the buttons.
-        """
+    def clear_axis(self):
         self.ax1.cla()
         self.ax2.cla()
         self.ax3.cla()
-
-        self.draw_plots()
-        self.fig.canvas.draw()
-
-    
-    def _get_title(self):
-        """ 
-        Private helper function for generating the title.
-        """
-        text = 'SATKIT Annotator'
-        text += ', prompt: ' + self.meta[self.index]['prompt']
-        text += ', token: ' + str(self.index+1) + '/' + str(self.max_index)
-        return text
-
         
-    def next(self, event):
-        """ 
-        Callback funtion for the Next button.
-        Increases cursor index, updates the view.
-        """
-        if self.index < self.max_index-1:
-            self.index += 1
-            self.update()
-            self.updateButtons()
 
-            
-    def prev(self, event):
+    def updateUI(self):
         """ 
-        Callback funtion for the Previous button.
-        Decreases cursor index, updates the view.
-        """
-        if self.index > 0:
-            self.index -= 1
-            self.update()
-            self.updateButtons()
+        Updates parts of the UI outwith the graphs.
+        """        
+        self.pdCategoryRB.set_active(self.data[self.index]['pdCategory'])
+        self.splineCategoryRB.set_active(self.data[self.index]['splineCategory'])
 
 
     def save(self, event):
@@ -233,7 +305,7 @@ class Annotator():
         local_data/onsets.csv
         """
         # eventually get this from commandline/caller/dialog window
-        filename = 'local_data/onsets.csv'
+        filename = 'local_data/PD_MPBPD_onsets.csv'
         fieldnames = ['pdCategory', 'splineCategory', 'pdOnset', 'splineOnset']
         csv.register_dialect('tabseparated', delimiter='\t', quoting=csv.QUOTE_NONE)
 
@@ -264,41 +336,6 @@ class Annotator():
         self.data[self.index]['splineCategory'] = self.categories.index(event)
 
         
-    # picking with a custom hit test function
-    # you can define custom pickers by setting picker to a callable
-    # function.  The function has the signature
-    #
-    #  hit, props = func(artist, mouseevent)
-    #
-    # to determine the hit test.  if the mouse event is over the artist,
-    # return hit=True and props is a dictionary of
-    # properties you want added to the PickEvent attributes
-    def line_picker(self, line, mouseevent):
-        """
-        Find the nearest point in the x (time) direction from the mouseclick in
-        data coordinates. Return index of selected point, x and y coordinates of 
-        the data at that point, and inaxes to enable originating subplot to be 
-        identified.
-        """
-        if mouseevent.xdata is None:
-            return False, dict()
-        xdata = line.get_xdata()
-        ydata = line.get_ydata()
-        d = np.abs(xdata - mouseevent.xdata)
-
-        ind = np.argmin(d)
-        if 1:
-            pickx = np.take(xdata, ind)
-            picky = np.take(ydata, ind)
-            props = dict(ind=ind,
-                         pickx=pickx,
-                         picky=picky,
-                         inaxes=mouseevent.inaxes)
-            return True, props
-        else:
-            return False, dict()
-
-
     def onpick(self, event):
         """
         Callback for handling time selection on events.

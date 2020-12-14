@@ -136,16 +136,13 @@ class CurveAnnotator(ABC):
             pass
 
 
-    # picking with a custom hit test function
-    # you can define custom pickers by setting picker to a callable
-    # function.  The function has the signature
-    #
-    #  hit, props = func(artist, mouseevent)
-    #
-    # to determine the hit test.  if the mouse event is over the artist,
-    # return hit=True and props is a dictionary of
-    # properties you want added to the PickEvent attributes
-    def line_picker(self, line, mouseevent):
+    @abstractmethod
+    def onpick(self, event):
+        pass    
+
+
+    @staticmethod
+    def line_xdirection_picker(line, mouseevent):
         """
         Find the nearest point in the x (time) direction from the mouseclick in
         data coordinates. Return index of selected point, x and y coordinates of 
@@ -169,13 +166,160 @@ class CurveAnnotator(ABC):
             return True, props
         else:
             return False, dict()
-
-
-    @abstractmethod
-    def onpick(self, event):
-        pass    
     
 
+class PD_Annotator(CurveAnnotator):
+    """ 
+    PD_Annotator is a GUI class for annotating PD curves.
+
+    The annotator works with PD curves and allows 
+    selection of a single points (labelled as pdOnset in the saved file).
+    The GUI also displays the waveform, and if TextGrids
+    are provided, the acoustic segment boundaries.
+    """                
+
+    def __init__(self, meta, data, args, xlim = (-0.1, 1.0), figsize=(12, 8),
+                 categories = ['Stable', 'Hesitation', 'Chaos', 'No data', 'Not set']):
+        """ 
+        Constructor for the PD_Annotator GUI. 
+
+        Also sets up internal state and adds keys [pdCategory, splineCategory, 
+        pdOnset, splineOnset] to the data argument. For the categories -1 is used
+        to mark 'not set', and for the onsets -1.0.
+        """                
+        super().__init__(meta, data, args, xlim, figsize)
+
+        self.categories = categories
+        
+        for token in self.data:
+            token['pdCategory'] = -1
+            token['splineCategory'] = -1
+            token['pdOnset'] = -1.0
+            token['splineOnset'] = -1.0
+
+
+        #
+        # Subplot grid shape
+        #
+        sbuplot_grid = (4,7)
+            
+        #
+        # Graphs to be annotated and the waveform for reference.
+        #
+        self.ax1 = plt.subplot2grid(sbuplot_grid,(0,0), rowspan=3, colspan=6)
+        self.ax3 = plt.subplot2grid(sbuplot_grid,(3,0), colspan=6)
+
+        self.draw_plots()
+
+        self.fig.align_ylabels()        
+        self.fig.canvas.mpl_connect('pick_event', self.onpick)
+        
+        #
+        # Buttons and such.
+        #        
+        self.ax4 = plt.subplot2grid(sbuplot_grid,(0,6), rowspan=2)
+        self.ax4.axes.set_axis_off()
+        self.pdCategoryRB = RadioButtons(self.ax4, self.categories,
+                                         active=self.data[self.index]['pdCategory'])
+        self.pdCategoryRB.on_clicked(self.pdCatCB)
+        
+        self.axnext = plt.axes([0.85, 0.225, 0.1, 0.055])
+        self.bnext = Button(self.axnext, 'Next')
+        self.bnext.on_clicked(self.next)
+
+        self.axprev = plt.axes([0.85, 0.15, 0.1, 0.055])
+        self.bprev = Button(self.axprev, 'Previous')
+        self.bprev.on_clicked(self.prev)
+
+        self.axsave = plt.axes([0.85, 0.05, 0.1, 0.055])
+        self.bsave = Button(self.axsave, 'Save')
+        self.bsave.on_clicked(self.save)
+        
+        plt.show()
+
+        
+    def draw_plots(self):
+        """ 
+        Updates title and graphs. Called by self.update().
+        """                
+        self.ax1.set_title(self._get_title())
+        self.ax1.axes.xaxis.set_ticklabels([])
+
+        pd = self.data[self.index]['pd']
+        ultra_time = pd['ultra_time'] - pd['beep_uti']
+        wav_time = pd['ultra_wav_time'] - pd['beep_uti']
+        textgrid = self.meta[self.index]['textgrid']
+        
+        plot_pd(self.ax1, pd, ultra_time, self.xlim, textgrid, -pd['beep_uti'],
+                picker=CurveAnnotator.line_xdirection_picker)
+        plot_wav(self.ax3, pd, wav_time, self.xlim, textgrid, -pd['beep_uti'])
+
+        if self.data[self.index]['pdOnset'] > -1:
+            self.ax1.axvline(x = self.data[self.index]['pdOnset'],
+                             linestyle=':', color="deepskyblue", lw=1)
+            self.ax3.axvline(x = self.data[self.index]['pdOnset'],
+                             linestyle=':', color="deepskyblue", lw=1)
+
+
+    def clear_axis(self):
+        self.ax1.cla()
+        self.ax3.cla()
+        
+
+    def updateUI(self):
+        """ 
+        Updates parts of the UI outwith the graphs.
+        """        
+        self.pdCategoryRB.set_active(self.data[self.index]['pdCategory'])
+
+
+    def save(self, event):
+        """ 
+        Callback funtion for the Save button.
+        Currently overwrites what ever is at 
+        local_data/onsets.csv
+        """
+        # eventually get this from commandline/caller/dialog window
+        filename = 'local_data/PD_MPBPD_onsets.csv'
+        fieldnames = ['pdCategory', 'pdOnset']
+        csv.register_dialect('tabseparated', delimiter='\t', quoting=csv.QUOTE_NONE)
+
+        with closing(open(filename, 'w')) as csvfile:
+            writer = csv.DictWriter(csvfile, fieldnames, extrasaction='ignore',
+                                    dialect='tabseparated')
+
+            writer.writeheader()
+            for token in self.data:
+                writer.writerow(token)
+            print('Wrote onset data in file ' + filename + '.')
+            _annotator_logger.debug('Wrote onset data in file ' + filename + '.')
+        
+        
+    def pdCatCB(self, event):
+        """ 
+        Callback funtion for the RadioButton for catogorising 
+        the PD curve.
+        """
+        self.data[self.index]['pdCategory'] = self.categories.index(event)
+        
+        
+    def onpick(self, event):
+        """
+        Callback for handling time selection on events.
+        """
+        subplot = 0
+        for i, ax in enumerate([self.ax1]):
+            # For infomation, print which axes the click was in
+            if ax == event.inaxes:
+                subplot = i+1
+                break
+
+        if subplot == 1:
+            self.data[self.index]['pdOnset'] = event.pickx
+
+        self.update()
+
+            
 class PD_MPBPD_Annotator(CurveAnnotator):
     """ 
     PD_MPBPD_Annotator is a GUI class for annotating PD and MPBPD curves.
@@ -189,13 +333,13 @@ class PD_MPBPD_Annotator(CurveAnnotator):
     def __init__(self, meta, data, args, xlim = (-0.1, 1.0), figsize=(15, 8),
                  categories = ['Stable', 'Hesitation', 'Chaos', 'No data', 'Not set']):
         """ 
-        Constructor for the Annotator GUI. 
+        Constructor for the PD_MPBPD_Annotator GUI. 
 
         Also sets up internal state and adds keys [pdCategory, splineCategory, 
         pdOnset, splineOnset] to the data argument. For the categories -1 is used
         to mark 'not set', and for the onsets -1.0.
         """                
-        super().__init__(meta, data, args, xlim)
+        super().__init__(meta, data, args, xlim, figsize)
 
         self.categories = categories
         
@@ -206,11 +350,16 @@ class PD_MPBPD_Annotator(CurveAnnotator):
             token['splineOnset'] = -1.0
 
         #
+        # Subplot grid shape
+        #
+        sbuplot_grid = (7,7)
+            
+        #
         # Graphs to be annotated and the waveform for reference.
         #
-        self.ax1 = plt.subplot2grid((7,7),(0,0), rowspan=3, colspan=6)
-        self.ax2 = plt.subplot2grid((7,7),(3,0), rowspan=3, colspan=6)
-        self.ax3 = plt.subplot2grid((7,7),(6,0), colspan=6)
+        self.ax1 = plt.subplot2grid(sbuplot_grid,(0,0), rowspan=3, colspan=6)
+        self.ax2 = plt.subplot2grid(sbuplot_grid,(3,0), rowspan=3, colspan=6)
+        self.ax3 = plt.subplot2grid(sbuplot_grid,(6,0), colspan=6)
 
         self.draw_plots()
 
@@ -220,13 +369,13 @@ class PD_MPBPD_Annotator(CurveAnnotator):
         #
         # Buttons and such.
         #        
-        self.ax4 = plt.subplot2grid((7,7),(0,6), rowspan=2)
+        self.ax4 = plt.subplot2grid(sbuplot_grid,(0,6), rowspan=2)
         self.ax4.axes.set_axis_off()
         self.pdCategoryRB = RadioButtons(self.ax4, self.categories,
                                          active=self.data[self.index]['pdCategory'])
         self.pdCategoryRB.on_clicked(self.pdCatCB)
         
-        self.ax5 = plt.subplot2grid((7,7),(3,6), rowspan=2)
+        self.ax5 = plt.subplot2grid(sbuplot_grid,(3,6), rowspan=2)
         self.ax5.axes.set_axis_off()
         self.splineCategoryRB = RadioButtons(self.ax5, self.categories,
                                              active=self.data[self.index]['splineCategory'])
@@ -263,9 +412,9 @@ class PD_MPBPD_Annotator(CurveAnnotator):
         textgrid = self.meta[self.index]['textgrid']
         
         plot_pd(self.ax1, pd, ultra_time, self.xlim, textgrid, -pd['beep_uti'],
-                picker=self.line_picker)
+                picker=CurveAnnotator.line_xdirection_picker)
         plot_mpbpd(self.ax2, annd, annd_time, self.xlim, textgrid, -pd['beep_uti'],
-                        picker=self.line_picker, plot_raw=True)
+                   picker=CurveAnnotator.line_xdirection_picker, plot_raw=True)
         plot_wav(self.ax3, pd, wav_time, self.xlim, textgrid, -pd['beep_uti'])
 
         if self.data[self.index]['pdOnset'] > -1:

@@ -68,6 +68,7 @@ class CurveAnnotator(ABC):
         self.commanlineargs = args
 
         self.fig = plt.figure(figsize=figsize)
+        self.keypress_id = self.fig.canvas.mpl_connect('key_press_event', self.on_key)
 
         self.xlim = xlim
 
@@ -111,7 +112,7 @@ class CurveAnnotator(ABC):
         
     def next(self, event):
         """ 
-        Callback funtion for the Next button.
+        Callback function for the Next button.
         Increases cursor index, updates the view.
         """
         if self.index < self.max_index-1:
@@ -122,7 +123,7 @@ class CurveAnnotator(ABC):
             
     def prev(self, event):
         """ 
-        Callback funtion for the Previous button.
+        Callback function for the Previous button.
         Decreases cursor index, updates the view.
         """
         if self.index > 0:
@@ -133,9 +134,25 @@ class CurveAnnotator(ABC):
 
     @abstractmethod
     def save(self, event):
-            pass
+        pass
 
 
+    def on_key(self, event):
+        """ 
+        Callback function for keypresses.
+        
+        Right and left arrows move to the next and previous token. 
+        Pressing 's' saves the annotations in a csv-file.
+        Pressing 'q' seems to be captured by matplotlib and interpeted as quit.
+        """
+        if event.key == "right":
+            self.next(event)
+        elif event.key == "left":
+            self.prev(event)
+        elif event.key == "s":
+            self.save(event)
+            
+            
     @abstractmethod
     def onpick(self, event):
         pass    
@@ -178,7 +195,7 @@ class PD_Annotator(CurveAnnotator):
     are provided, the acoustic segment boundaries.
     """                
 
-    def __init__(self, meta, data, args, xlim = (-0.1, 1.0), figsize=(15, 5),
+    def __init__(self, meta, data, args, xlim = (-0.1, 1.0), figsize=(15, 6),
                  categories = ['Stable', 'Hesitation', 'Chaos', 'No data', 'Not set']):
         """ 
         Constructor for the PD_Annotator GUI. 

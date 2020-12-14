@@ -178,7 +178,7 @@ class PD_Annotator(CurveAnnotator):
     are provided, the acoustic segment boundaries.
     """                
 
-    def __init__(self, meta, data, args, xlim = (-0.1, 1.0), figsize=(12, 8),
+    def __init__(self, meta, data, args, xlim = (-0.1, 1.0), figsize=(15, 5),
                  categories = ['Stable', 'Hesitation', 'Chaos', 'No data', 'Not set']):
         """ 
         Constructor for the PD_Annotator GUI. 

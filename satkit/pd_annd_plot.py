@@ -95,14 +95,48 @@ def plot_pd(ax, pd, ultra_time, xlim, textgrid = None, time_offset = 0, picker=N
     ax.set_ylabel("PD")
 
     
+def plot_l1(ax, pd, ultra_time, xlim, textgrid = None, time_offset = 0, picker=None):
+    text_settings = {'horizontalalignment': 'center',
+                     'verticalalignment': 'center'}
+
+    # The PD curve and the official fix for it not showing up on the legend.
+    ax.plot(ultra_time, pd['l1']/np.max(pd['l1'][1:]), color="deepskyblue", lw=1, picker=picker)
+    ax.plot(ultra_time, pd['pd']/np.max(pd['pd'][1:]), color="g", lw=1)
+    pd_curve = mlines.Line2D([], [], color="deepskyblue", lw=1)
+
+    go_line = ax.axvline(x=0, color="dimgrey", lw=1, linestyle=(0, (5, 10)))
+
+    if textgrid:
+        for segment in textgrid['segment']:
+            if segment.text == "":
+                continue
+            elif segment.text == "beep":
+                continue
+            else:
+                segment_line = ax.axvline(x = segment.xmin+time_offset,
+                                          color="dimgrey", lw=1, linestyle='--')
+                ax.axvline(x = segment.xmax+time_offset,
+                           color="dimgrey", lw=1, linestyle='--')
+                ax.text(segment.mid+time_offset, 500, segment.text, text_settings,
+                        color="dimgrey")
+            
+    ax.set_xlim(xlim)
+    # ax.set_ylim((-50,3050))
+    ax.legend((pd_curve, go_line, segment_line),
+              ('Pixel difference: l1 norm', 'Go-signal onset', 'Acoustic segments'),
+              loc='upper right')
+    ax.set_ylabel("PD")
+
+    
 def plot_pd_peak_normalised(ax, pd, ultra_time, xlim, textgrid = None, time_offset = 0):
     text_settings = {'horizontalalignment': 'center',
                      'verticalalignment': 'center'}
     
-    ax.plot(ultra_time, pd['pd'], color="deepskyblue", lw=1, label='Pixel difference')
+    ax.plot(ultra_time, pd['pd']/np.max(pd['pd'][1:]),
+            color="deepskyblue", lw=1, label='Pixel difference')
 
     go_line = ax.axvline(x=0, color="dimgrey", lw=1, linestyle=(0, (5, 10)))
-#    ax.axvline(x=0, color="g", lw=1)
+    # ax.axvline(x=0, color="g", lw=1)
 
     if textgrid:
         for segment in textgrid['segment']:

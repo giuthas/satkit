@@ -49,7 +49,7 @@ from numpy.random import rand
 from satkit.commandLineInterface import cli 
 from satkit import annd
 from satkit import pd
-from satkit.pd_annd_plot import plot_mpbpd, plot_pd, plot_wav
+from satkit.pd_annd_plot import plot_mpbpd, plot_pd, plot_l1, plot_wav
 
 _annotator_logger = logging.getLogger('satkit.curveannotator')    
 
@@ -515,6 +515,190 @@ class PD_MPBPD_Annotator(CurveAnnotator):
 
         if subplot == 1:
             self.data[self.index]['pdOnset'] = event.pickx
+        else:
+            self.data[self.index]['splineOnset'] = event.pickx
+
+        self.update()
+
+            
+class l1_MPBPD_Annotator(CurveAnnotator):
+    """ 
+    l1_MPBPD_Annotator is a GUI class for annotating l1 PD and MPBPD curves.
+
+    The annotator works with PD and MPBPD curves and allows 
+    selection of single points (labelled as [metric]Onset in the saved file)
+    -- one per curve. The GUI also displays the waveform, and if TextGrids
+    are provided, the acoustic segment boundaries.
+    """                
+
+    def __init__(self, meta, data, args, xlim = (-0.1, 1.0), figsize=(15, 8),
+                 categories = ['Stable', 'Hesitation', 'Chaos', 'No data', 'Not set']):
+        """ 
+        Constructor for the PD_MPBPD_Annotator GUI. 
+
+        Also sets up internal state and adds keys [l1Category, splineCategory, 
+        l1Onset, splineOnset] to the data argument. For the categories -1 is used
+        to mark 'not set', and for the onsets -1.0.
+        """                
+        super().__init__(meta, data, args, xlim, figsize)
+
+        self.categories = categories
+        
+        for token in self.data:
+            token['l1Category'] = -1
+            token['splineCategory'] = -1
+            token['l1Onset'] = -1.0
+            token['splineOnset'] = -1.0
+
+        #
+        # Subplot grid shape
+        #
+        sbuplot_grid = (7,7)
+            
+        #
+        # Graphs to be annotated and the waveform for reference.
+        #
+        self.ax1 = plt.subplot2grid(sbuplot_grid,(0,0), rowspan=3, colspan=6)
+        self.ax2 = plt.subplot2grid(sbuplot_grid,(3,0), rowspan=3, colspan=6)
+        self.ax3 = plt.subplot2grid(sbuplot_grid,(6,0), colspan=6)
+
+        self.draw_plots()
+
+        self.fig.align_ylabels()        
+        self.fig.canvas.mpl_connect('pick_event', self.onpick)
+        
+        #
+        # Buttons and such.
+        #        
+        self.ax4 = plt.subplot2grid(sbuplot_grid,(0,6), rowspan=2)
+        self.ax4.axes.set_axis_off()
+        self.pdCategoryRB = RadioButtons(self.ax4, self.categories,
+                                         active=self.data[self.index]['l1Category'])
+        self.pdCategoryRB.on_clicked(self.pdCatCB)
+        
+        self.ax5 = plt.subplot2grid(sbuplot_grid,(3,6), rowspan=2)
+        self.ax5.axes.set_axis_off()
+        self.splineCategoryRB = RadioButtons(self.ax5, self.categories,
+                                             active=self.data[self.index]['splineCategory'])
+        self.splineCategoryRB.on_clicked(self.splineCatCB)
+
+        self.axnext = plt.axes([0.85, 0.225, 0.1, 0.055])
+        self.bnext = Button(self.axnext, 'Next')
+        self.bnext.on_clicked(self.next)
+
+        self.axprev = plt.axes([0.85, 0.15, 0.1, 0.055])
+        self.bprev = Button(self.axprev, 'Previous')
+        self.bprev.on_clicked(self.prev)
+
+        self.axsave = plt.axes([0.85, 0.05, 0.1, 0.055])
+        self.bsave = Button(self.axsave, 'Save')
+        self.bsave.on_clicked(self.save)
+        
+        plt.show()
+
+        
+    def draw_plots(self):
+        """ 
+        Updates title and graphs. Called by self.update().
+        """                
+        self.ax1.set_title(self._get_title())
+        self.ax1.axes.xaxis.set_ticklabels([])
+        self.ax2.axes.xaxis.set_ticklabels([])
+
+        pd = self.data[self.index]['pd']
+        annd = self.data[self.index]['annd']
+        ultra_time = pd['ultra_time'] - pd['beep_uti']
+        annd_time = annd['annd_time'] - pd['beep_uti']
+        wav_time = pd['ultra_wav_time'] - pd['beep_uti']
+        textgrid = self.meta[self.index]['textgrid']
+        
+        plot_l1(self.ax1, pd, ultra_time, self.xlim, textgrid, -pd['beep_uti'],
+                picker=CurveAnnotator.line_xdirection_picker)
+        plot_mpbpd(self.ax2, annd, annd_time, self.xlim, textgrid, -pd['beep_uti'],
+                   picker=CurveAnnotator.line_xdirection_picker, plot_raw=True)
+        plot_wav(self.ax3, pd, wav_time, self.xlim, textgrid, -pd['beep_uti'])
+
+        if self.data[self.index]['l1Onset'] > -1:
+            self.ax1.axvline(x = self.data[self.index]['l1Onset'],
+                             linestyle=':', color="deepskyblue", lw=1)
+            self.ax2.axvline(x = self.data[self.index]['l1Onset'],
+                             linestyle=':', color="deepskyblue", lw=1)
+            self.ax3.axvline(x = self.data[self.index]['l1Onset'],
+                             linestyle=':', color="deepskyblue", lw=1)
+        if self.data[self.index]['splineOnset'] > -1:
+            self.ax1.axvline(x = self.data[self.index]['splineOnset'],
+                             linestyle='-.', color="seagreen", lw=1)
+            self.ax2.axvline(x = self.data[self.index]['splineOnset'],
+                             linestyle='-.', color="seagreen", lw=1)
+            self.ax3.axvline(x = self.data[self.index]['splineOnset'],
+                             linestyle='-.', color="seagreen", lw=1)
+
+
+    def clear_axis(self):
+        self.ax1.cla()
+        self.ax2.cla()
+        self.ax3.cla()
+        
+
+    def updateUI(self):
+        """ 
+        Updates parts of the UI outwith the graphs.
+        """        
+        self.pdCategoryRB.set_active(self.data[self.index]['l1Category'])
+        self.splineCategoryRB.set_active(self.data[self.index]['splineCategory'])
+
+
+    def save(self, event):
+        """ 
+        Callback funtion for the Save button.
+        Currently overwrites what ever is at 
+        local_data/onsets.csv
+        """
+        # eventually get this from commandline/caller/dialog window
+        filename = 'local_data/l1_MPBPD_onsets.csv'
+        fieldnames = ['l1Category', 'splineCategory', 'l1Onset', 'splineOnset']
+        csv.register_dialect('tabseparated', delimiter='\t', quoting=csv.QUOTE_NONE)
+
+        with closing(open(filename, 'w')) as csvfile:
+            writer = csv.DictWriter(csvfile, fieldnames, extrasaction='ignore',
+                                    dialect='tabseparated')
+
+            writer.writeheader()
+            for token in self.data:
+                writer.writerow(token)
+            print('Wrote onset data in file ' + filename + '.')
+            _annotator_logger.debug('Wrote onset data in file ' + filename + '.')
+        
+        
+    def pdCatCB(self, event):
+        """ 
+        Callback funtion for the RadioButton for catogorising 
+        the PD curve.
+        """
+        self.data[self.index]['l1Category'] = self.categories.index(event)
+        
+        
+    def splineCatCB(self, event):
+        """ 
+        Callback funtion for the RadioButton for catogorising 
+        the curve of the spline metric.
+        """
+        self.data[self.index]['splineCategory'] = self.categories.index(event)
+
+        
+    def onpick(self, event):
+        """
+        Callback for handling time selection on events.
+        """
+        subplot = 0
+        for i, ax in enumerate([self.ax1, self.ax2]):
+            # For infomation, print which axes the click was in
+            if ax == event.inaxes:
+                subplot = i+1
+                break
+
+        if subplot == 1:
+            self.data[self.index]['l1Onset'] = event.pickx
         else:
             self.data[self.index]['splineOnset'] = event.pickx
 

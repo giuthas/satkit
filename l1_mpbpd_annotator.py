@@ -33,7 +33,7 @@ import time
 import logging
 
 # local modules
-from satkit.commandLineInterface import cli 
+from satkit.commandLineInterface import RawAndSplineCLI 
 from satkit import annd
 from satkit import pd
 from satkit.annotator import l1_MPBPD_Annotator
@@ -43,13 +43,13 @@ def main():
 
     # Run the command line interface.
     function_dict = {'pd':pd.pd, 'annd':annd.annd}
-    (meta, data, args) = cli("l1 and MPBPD annotator", function_dict, plot=False)
+    cli = RawAndSplineCLI("l1 and MPBPD annotator", function_dict, plot=False)
     
     elapsed_time = time.time() - t
     logging.info('Elapsed time ' + str(elapsed_time))
 
     # Get the GUI running.
-    ca = l1_MPBPD_Annotator(meta, data, args)
+    ca = l1_MPBPD_Annotator(cli.meta, cli.data, cli.args)
 
 if (__name__ == '__main__'):
     main()

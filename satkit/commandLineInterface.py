@@ -53,163 +53,270 @@ def widen_help_formatter(formatter, total_width=140, syntax_width=35):
         formatter(None, **kwargs)
         return lambda prog: formatter(prog, **kwargs)
     except TypeError:
-        warnings.warn("Widening argparse help formatter failed. Falling back.")
-        return formatter
+        warnings.warn("Widening argparse help formatter failed. Falling back on default settings.")
+    return formatter
 
 
-def parse_args(description):
+class BaseCLI():
     """
-    Create a parser for commandline arguments with argparse and return
-    the parsed arguments.
-
-    """
-    parser = argparse.ArgumentParser(description=description,
-        formatter_class = widen_help_formatter(argparse.HelpFormatter,
-                                               total_width=100,
-                                               syntax_width=35))
-
-    # mutually exclusive with reading previous results from a file
-    helptext = (
-        'Path containing the data to be read.'
-        'Supported types are .pickle files, and directories containing files exported from AAA. '
-        'Loading from .m, .json, and .csv are in the works.'
-    )
-    parser.add_argument("load_path", help=helptext)
-    
-    helptext = (
-        'Name of the spline file.'
-        'Should be a .csv (you may need to change the file ending) file exported from AAA.'
-    )
-    parser.add_argument("-s", "--splinefile", dest="spline_file",
-                        default=None,
-                        help=helptext, metavar="file")
-    
-    parser.add_argument("-e", "--exclusion_list", dest="exclusion_filename",
-                        help="Exclusion list of data files that should be ignored.",
-                        metavar="file")
-    
-    helptext = (
-        'Save metrics to file. '
-        'Supported type is .pickle. '
-        'Saving to .json, .csv., and .m may be possible in the future.'
-    )
-    parser.add_argument("-o", "--output", dest="output_filename",
-                        help=helptext, metavar="file")
-
-    helptext = (
-        'Destination directory for generated figures.'
-    )
-    parser.add_argument("-f", "--figures", dest="figure_dir",
-                        default="figures",
-                        help=helptext, metavar="dir")
-
-    helptext = (
-        'Set verbosity of console output. Range is [0, 3], default is 1, '
-        'larger values mean greater verbosity.'
-    )
-    parser.add_argument("-v", "--verbose",
-                        type=int, dest="verbose",
-                        default=1,
-                        help=helptext,
-                        metavar = "verbosity")
-
-    args = parser.parse_args()
-    return args
-
-
-def set_up_logging(args):
-    """
-    Set up logging with the loggin module. Main thing to do is set the
-    level of printed output based on the verbosity argument.
-
-    """
-    logger = logging.getLogger('satkit')
-    logger.setLevel(logging.INFO)
-
-    # also log to the console at a level determined by the --verbose flag
-    console_handler = logging.StreamHandler() # sys.stderr
-
-    # Set the level of logging messages that will be printed to
-    # console/stderr.
-    if not args.verbose:
-        console_handler.setLevel('WARNING')
-    elif args.verbose < 1:
-        console_handler.setLevel('ERROR')
-    elif args.verbose == 1:
-        console_handler.setLevel('WARNING')
-    elif args.verbose == 2:
-        console_handler.setLevel('INFO')
-    elif args.verbose >= 3:
-        console_handler.setLevel('DEBUG')
-    else:
-        logging.critical("Unexplained negative argument " +
-                         str(args.verbose) + " to verbose!")
-    logger.addHandler(console_handler)
-
-    logger.info('Data run started at ' + str(datetime.datetime.now()))
-
-    return logger
-
-    
-def cli(description, processing_functions, plot=True):
-    """
-    Run the commandline interface.
-    Description is what this version will be called if called with -h or --help.
-    processing_functions is a dict of the callables that will be run on each token.
+    This class is the root class for SATKIT commandline interfaces. 
+    It is not fully functional by itself: It does not read files nor run any processing on files. 
     """
 
-    args = parse_args(description)
-    
-    logger = set_up_logging(args)
-
-    if not os.path.exists(args.load_path):
-        logger.critical('File or directory doesn not exist: ' + args.load_path)
-        logger.critical('Exiting.')
-        sys.exit()
-    elif os.path.isdir(args.load_path): 
-        exclusion_list_name = None
-        if args.exclusion_filename:
-            exclusion_list_name = args.exclusion_filename
-
-        # this is the actual list of tokens that gets processed 
-        # token_list includes meta data contained outwith the ult file
-        token_list = satkit_AAA.get_recording_list(args.load_path,
-                                                   args.exclusion_filename,
-                                                   args.spline_file)
-
-        # calculate the metrics
-        data = []
-        for token in token_list:
-            datum = {}
-            for key in processing_functions.keys():
-                datum[key] = processing_functions[key](token)
-            data.append(datum)
-        # the metric functions should maybe be wrapped as objects so
-        # that we can access names on other things via names and
-        # what not instead of wrapping them in a dict
+    def __init__(self, description):
+        self.description = description
         
-        #data = [datum for datum in data if not datum is None]
-    elif os.path.splitext(args.load_path)[1] == '.pickle':
-        token_list, data = satkit_io.load_pickled_data(args.load_path)
-    elif os.path.splitext(args.load_path)[1] == '.json':
-        token_list, data = satkit_io.load_json_data(args.load_path)
-    else:
-        logger.error('Unsupported filetype: ' + args.load_path + '.')
+        self.parse_args()
 
-    # Plot the data if asked to.
-    if plot:
-        logger.info("Drawing ISSP 2020 plot.")
-        pd_annd_plot.ISSP2020_plots(token_list, data, args.figure_dir)
-        #pd_annd_plot.ultrafest2020_plots(token_list, data, args.figure_dir)
+        self.set_up_logging()
 
-    if args.output_filename:
-        if os.path.splitext(args.output_filename)[1] == '.pickle':
-            pd.save2pickle((token_list, data), args.output_filename)
-            logger.info("Wrote data to file " + args.output_filename + ".")
-        elif os.path.splitext(args.output_filename)[1] == '.json':
-            logger.error('Unsupported filetype: ' + args.output_filename + '.')
-        else:
-            logger.error('Unsupported filetype: ' + args.output_filename + '.')
             
-    logger.info('Data run ended at ' + str(datetime.datetime.now()))
-    return (token_list, data, args)
+    ##
+    ## Setting up and running the argument parser.
+    ##
+        
+    def _init_parser(self):
+        self.parser = argparse.ArgumentParser(description=self.description,
+            formatter_class = widen_help_formatter(argparse.HelpFormatter,
+                                                   total_width=100,
+                                                   syntax_width=35))
+
+        # mutually exclusive with reading previous results from a file
+        helptext = (
+            'Path containing the data to be read.'
+            'Supported types are .pickle files, and directories containing files exported from AAA. '
+            'Loading from .m, .json, and .csv are in the works.'
+        )
+        self.parser.add_argument("load_path", help=helptext)
+
+
+    def _add_optional_arguments(self):
+        helptext = (
+            'Set verbosity of console output. Range is [0, 3], default is 1, '
+            'larger values mean greater verbosity.'
+        )
+        self.parser.add_argument("-v", "--verbose",
+                                 type=int, dest="verbose",
+                                 default=1,
+                                 help=helptext,
+                                 metavar = "verbosity")
+    
+
+    def parse_args(self):
+        """
+        Create a parser for commandline arguments with argparse and 
+        parse the arguments.
+
+        """
+        self._init_parser()
+        self._add_optional_arguments()
+
+        self.args = self.parser.parse_args()
+
+
+    ##
+    ## Setting up logging.
+    ##  
+    def set_up_logging(self):
+        """
+        Set up logging with the loggin module. Main thing to do is set the
+        level of printed output based on the verbosity argument.
+
+        """
+        self.logger = logging.getLogger('satkit')
+        self.logger.setLevel(logging.INFO)
+
+        # also log to the console at a level determined by the --verbose flag
+        console_handler = logging.StreamHandler() # sys.stderr
+
+        # Set the level of logging messages that will be printed to
+        # console/stderr.
+        if not self.args.verbose:
+            console_handler.setLevel('WARNING')
+        elif self.args.verbose < 1:
+            console_handler.setLevel('ERROR')
+        elif self.args.verbose == 1:
+            console_handler.setLevel('WARNING')
+        elif self.args.verbose == 2:
+            console_handler.setLevel('INFO')
+        elif self.args.verbose >= 3:
+            console_handler.setLevel('DEBUG')
+        else:
+            logging.critical("Unexplained negative argument " +
+                             str(self.args.verbose) + " to verbose!")
+        self.logger.addHandler(console_handler)
+
+        self.logger.info('Data run started at ' + str(datetime.datetime.now()))
+
+
+class RawCLI(BaseCLI):
+    """
+    Commandline interface for runnig metrics on raw ultrasound data.
+    """
+
+    def __init__(self, description, processing_functions, plot=True):
+        """
+        Setup and run the commandline interface.
+        Description is what this version will be called if called with -h or --help.
+        processing_functions is a dict of the callables that will be run on each token.
+        """
+        super().__init__(description)
+        
+        if not os.path.exists(self.args.load_path):
+            self.logger.critical('File or directory doesn not exist: ' + self.args.load_path)
+            self.logger.critical('Exiting.')
+            sys.exit()
+        elif os.path.isdir(self.args.load_path): 
+            exclusion_list_name = None
+            if self.args.exclusion_filename:
+                exclusion_list_name = self.args.exclusion_filename
+
+            # this is the actual list of tokens that gets processed 
+            # token_list includes meta data contained outwith the ult file
+            token_list = satkit_AAA.get_recording_list(self.args.load_path,
+                                                       self.args.exclusion_filename)
+
+            # calculate the metrics
+            data = []
+            for token in token_list:
+                datum = {}
+                for key in processing_functions.keys():
+                    datum[key] = processing_functions[key](token)
+                data.append(datum)
+            # the metric functions should maybe be wrapped as objects so
+            # that we can access names on other things via names and
+            # what not instead of wrapping them in a dict
+
+            #data = [datum for datum in data if not datum is None]
+        elif os.path.splitext(self.args.load_path)[1] == '.pickle':
+            token_list, data = satkit_io.load_pickled_data(self.args.load_path)
+        elif os.path.splitext(self.args.load_path)[1] == '.json':
+            token_list, data = satkit_io.load_json_data(self.args.load_path)
+        else:
+            self.logger.error('Unsupported filetype: ' + self.args.load_path + '.')
+
+        # Plot the data if asked to.
+        if plot:
+            self.logger.info("Drawing ISSP 2020 plot.")
+            pd_annd_plot.ISSP2020_plots(token_list, data, self.args.figure_dir)
+            #pd_annd_plot.ultrafest2020_plots(token_list, data, self.args.figure_dir)
+
+        if self.args.output_filename:
+            if os.path.splitext(self.args.output_filename)[1] == '.pickle':
+                pd.save2pickle((token_list, data), self.args.output_filename)
+                self.logger.info("Wrote data to file " + self.args.output_filename + ".")
+            elif os.path.splitext(self.args.output_filename)[1] == '.json':
+                self.logger.error('Unsupported filetype: ' + self.args.output_filename + '.')
+            else:
+                self.logger.error('Unsupported filetype: ' + self.args.output_filename + '.')
+
+        self.logger.info('Data run ended at ' + str(datetime.datetime.now()))
+
+        self.meta = token_list
+        self.data = data
+
+        
+    def _add_optional_arguments(self):
+        self.parser.add_argument("-e", "--exclusion_list", dest="exclusion_filename",
+                                 help="Exclusion list of data files that should be ignored.",
+                                 metavar="file")
+
+        helptext = (
+            'Save metrics to file. '
+            'Supported type is .pickle. '
+            'Saving to .json, .csv., and .m may be possible in the future.'
+        )
+        self.parser.add_argument("-o", "--output", dest="output_filename",
+                                 help=helptext, metavar="file")
+
+        helptext = (
+            'Destination directory for generated figures.'
+        )
+        self.parser.add_argument("-f", "--figures", dest="figure_dir",
+                                 default="figures",
+                                 help=helptext, metavar="dir")
+
+        # Adds the verbosity argument.
+        super()._add_optional_arguments()
+
+
+        
+class RawAndSplineCLI(RawCLI):
+
+    def __init__(self):
+        super().__init__(description, processing_functions, plot=True)
+        self.parse_args()
+
+        if not os.path.exists(self.args.load_path):
+            self.logger.critical('File or directory doesn not exist: ' + self.args.load_path)
+            self.logger.critical('Exiting.')
+            sys.exit()
+        elif os.path.isdir(self.args.load_path): 
+            exclusion_list_name = None
+            if self.args.exclusion_filename:
+                exclusion_list_name = self.args.exclusion_filename
+
+            # this is the actual list of tokens that gets processed 
+            # token_list includes meta data contained outwith the ult file
+            token_list = satkit_AAA.get_recording_list(self.args.load_path,
+                                                       self.args.exclusion_filename,
+                                                       self.args.spline_file)
+
+            # calculate the metrics
+            data = []
+            for token in token_list:
+                datum = {}
+                for key in processing_functions.keys():
+                    datum[key] = processing_functions[key](token)
+                data.append(datum)
+            # the metric functions should maybe be wrapped as objects so
+            # that we can access names on other things via names and
+            # what not instead of wrapping them in a dict
+
+            #data = [datum for datum in data if not datum is None]
+        elif os.path.splitext(self.args.load_path)[1] == '.pickle':
+            token_list, data = satkit_io.load_pickled_data(self.args.load_path)
+        elif os.path.splitext(self.args.load_path)[1] == '.json':
+            token_list, data = satkit_io.load_json_data(self.args.load_path)
+        else:
+            self.logger.error('Unsupported filetype: ' + self.args.load_path + '.')
+
+        # Plot the data if asked to.
+        if plot:
+            self.logger.info("Drawing ISSP 2020 plot.")
+            pd_annd_plot.ISSP2020_plots(token_list, data, self.args.figure_dir)
+            #pd_annd_plot.ultrafest2020_plots(token_list, data, self.args.figure_dir)
+
+        if self.args.output_filename:
+            if os.path.splitext(self.args.output_filename)[1] == '.pickle':
+                pd.save2pickle((token_list, data), self.args.output_filename)
+                self.logger.info("Wrote data to file " + self.args.output_filename + ".")
+            elif os.path.splitext(self.args.output_filename)[1] == '.json':
+                self.logger.error('Unsupported filetype: ' + self.args.output_filename + '.')
+            else:
+                self.logger.error('Unsupported filetype: ' + self.args.output_filename + '.')
+
+        self.logger.info('Data run ended at ' + str(datetime.datetime.now()))
+
+        self.token_list = token_list
+        self.data = data
+
+        
+    def parse_args(self):
+        """
+        Create a parser for commandline arguments with argparse and 
+        parse the arguments.
+
+        """
+        super()._init_parser()
+
+        helptext = (
+            'Name of the spline file.'
+            'Should be a .csv (you may need to change the file ending) file exported from AAA.'
+        )
+        self.parser.add_argument("spline_file",
+                            help=helptext, metavar="file")
+
+        super()._add_optional_arguments()
+        
+        self.args = self.parser.parse_args()

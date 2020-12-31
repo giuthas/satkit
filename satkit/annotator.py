@@ -46,7 +46,6 @@ import numpy as np
 from numpy.random import rand
 
 # local modules
-from satkit.commandLineInterface import cli 
 from satkit import annd
 from satkit import pd
 from satkit.pd_annd_plot import plot_mpbpd, plot_pd, plot_l1, plot_wav

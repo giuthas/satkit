@@ -33,13 +33,13 @@ import time
 import logging
 
 # local modules
-from satkit.commandLineInterface import cli 
+from satkit.commandLineInterface import RawCLI
 from satkit import pd
 
 def main():
     # Run the command line interface.
     function_dict = {'pd':pd.pd}
-    cli("PD processing script", function_dict)
+    RawCLI("PD processing script", function_dict)
     
 
 if (__name__ == '__main__'):

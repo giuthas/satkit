@@ -36,13 +36,13 @@ import time
 import multiprocessing as mp
 
 # local modules
-from satkit.commandLineInterface import cli 
+from satkit.commandLineInterface import RawCLI
 import satkit.ofreg as of
 
 
 def main():
     # Run the command line interface.
-    cli("OF processing script", of.of)
+    RawCLI("OF processing script", of.of)
 
 
 if __name__ == '__main__':

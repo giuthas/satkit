@@ -58,12 +58,11 @@ class CurveAnnotator(ABC):
     Annotator is an abstract base class for GUIs for annotating speech data.
     """
     
-    def __init__(self, meta, data, args, xlim = (-0.1, 1.0), figsize=(15, 8)):
+    def __init__(self, recordings, args, xlim = (-0.1, 1.0), figsize=(15, 8)):
         self.index = 0
         self.max_index = len(meta)
 
-        self.meta = meta
-        self.data = data
+        self.recordings = recordings
         self.commanlineargs = args
 
         self.fig = plt.figure(figsize=figsize)
@@ -104,7 +103,7 @@ class CurveAnnotator(ABC):
         Private helper function for generating the title.
         """
         text = 'SATKIT Annotator'
-        text += ', prompt: ' + self.meta[self.index]['prompt']
+        text += ', prompt: ' + self.recordings[self.index]['prompt']
         text += ', token: ' + str(self.index+1) + '/' + str(self.max_index)
         return text
 
@@ -194,7 +193,7 @@ class PD_Annotator(CurveAnnotator):
     are provided, the acoustic segment boundaries.
     """                
 
-    def __init__(self, meta, data, args, xlim = (-0.1, 1.0), figsize=(15, 6),
+    def __init__(self, recordings, args, xlim = (-0.1, 1.0), figsize=(15, 6),
                  categories = ['Stable', 'Hesitation', 'Chaos', 'No data', 'Not set']):
         """ 
         Constructor for the PD_Annotator GUI. 
@@ -203,11 +202,11 @@ class PD_Annotator(CurveAnnotator):
         pdOnset, splineOnset] to the data argument. For the categories -1 is used
         to mark 'not set', and for the onsets -1.0.
         """                
-        super().__init__(meta, data, args, xlim, figsize)
+        super().__init__(recordings, args, xlim, figsize)
 
         self.categories = categories
         
-        for token in self.data:
+        for token in self.recordings:
             token['pdCategory'] = -1
             token['splineCategory'] = -1
             token['pdOnset'] = -1.0
@@ -236,7 +235,7 @@ class PD_Annotator(CurveAnnotator):
         self.ax4 = plt.subplot2grid(sbuplot_grid,(0,6), rowspan=2)
         self.ax4.axes.set_axis_off()
         self.pdCategoryRB = RadioButtons(self.ax4, self.categories,
-                                         active=self.data[self.index]['pdCategory'])
+                                         active=self.recordings[self.index]['pdCategory'])
         self.pdCategoryRB.on_clicked(self.pdCatCB)
         
         self.axnext = plt.axes([0.85, 0.225, 0.1, 0.055])
@@ -261,19 +260,19 @@ class PD_Annotator(CurveAnnotator):
         self.ax1.set_title(self._get_title())
         self.ax1.axes.xaxis.set_ticklabels([])
 
-        pd = self.data[self.index]['pd']
+        pd = self.recordings[self.index]['pd']
         ultra_time = pd['ultra_time'] - pd['beep_uti']
         wav_time = pd['ultra_wav_time'] - pd['beep_uti']
-        textgrid = self.meta[self.index]['textgrid']
+        textgrid = self.recordings[self.index]['textgrid']
         
         plot_pd(self.ax1, pd, ultra_time, self.xlim, textgrid, -pd['beep_uti'],
                 picker=CurveAnnotator.line_xdirection_picker)
         plot_wav(self.ax3, pd, wav_time, self.xlim, textgrid, -pd['beep_uti'])
 
-        if self.data[self.index]['pdOnset'] > -1:
-            self.ax1.axvline(x = self.data[self.index]['pdOnset'],
+        if self.recordings[self.index]['pdOnset'] > -1:
+            self.ax1.axvline(x = self.recordings[self.index]['pdOnset'],
                              linestyle=':', color="deepskyblue", lw=1)
-            self.ax3.axvline(x = self.data[self.index]['pdOnset'],
+            self.ax3.axvline(x = self.recordings[self.index]['pdOnset'],
                              linestyle=':', color="deepskyblue", lw=1)
 
 
@@ -286,7 +285,7 @@ class PD_Annotator(CurveAnnotator):
         """ 
         Updates parts of the UI outwith the graphs.
         """        
-        self.pdCategoryRB.set_active(self.data[self.index]['pdCategory'])
+        self.pdCategoryRB.set_active(self.recordings[self.index]['pdCategory'])
 
 
     def save(self, event):
@@ -305,7 +304,7 @@ class PD_Annotator(CurveAnnotator):
                                     dialect='tabseparated')
 
             writer.writeheader()
-            for token in self.data:
+            for token in self.recordings:
                 writer.writerow(token)
             print('Wrote onset data in file ' + filename + '.')
             _annotator_logger.debug('Wrote onset data in file ' + filename + '.')
@@ -316,7 +315,7 @@ class PD_Annotator(CurveAnnotator):
         Callback funtion for the RadioButton for catogorising 
         the PD curve.
         """
-        self.data[self.index]['pdCategory'] = self.categories.index(event)
+        self.recordings[self.index]['pdCategory'] = self.categories.index(event)
         
         
     def onpick(self, event):
@@ -331,7 +330,7 @@ class PD_Annotator(CurveAnnotator):
                 break
 
         if subplot == 1:
-            self.data[self.index]['pdOnset'] = event.pickx
+            self.recordings[self.index]['pdOnset'] = event.pickx
 
         self.update()
 
@@ -346,7 +345,7 @@ class PD_MPBPD_Annotator(CurveAnnotator):
     are provided, the acoustic segment boundaries.
     """                
 
-    def __init__(self, meta, data, args, xlim = (-0.1, 1.0), figsize=(15, 8),
+    def __init__(self, recordings, args, xlim = (-0.1, 1.0), figsize=(15, 8),
                  categories = ['Stable', 'Hesitation', 'Chaos', 'No data', 'Not set']):
         """ 
         Constructor for the PD_MPBPD_Annotator GUI. 
@@ -355,11 +354,11 @@ class PD_MPBPD_Annotator(CurveAnnotator):
         pdOnset, splineOnset] to the data argument. For the categories -1 is used
         to mark 'not set', and for the onsets -1.0.
         """                
-        super().__init__(meta, data, args, xlim, figsize)
+        super().__init__(recordings, args, xlim, figsize)
 
         self.categories = categories
         
-        for token in self.data:
+        for token in self.recordings:
             token['pdCategory'] = -1
             token['splineCategory'] = -1
             token['pdOnset'] = -1.0
@@ -388,13 +387,13 @@ class PD_MPBPD_Annotator(CurveAnnotator):
         self.ax4 = plt.subplot2grid(sbuplot_grid,(0,6), rowspan=2)
         self.ax4.axes.set_axis_off()
         self.pdCategoryRB = RadioButtons(self.ax4, self.categories,
-                                         active=self.data[self.index]['pdCategory'])
+                                         active=self.recordings[self.index]['pdCategory'])
         self.pdCategoryRB.on_clicked(self.pdCatCB)
         
         self.ax5 = plt.subplot2grid(sbuplot_grid,(3,6), rowspan=2)
         self.ax5.axes.set_axis_off()
         self.splineCategoryRB = RadioButtons(self.ax5, self.categories,
-                                             active=self.data[self.index]['splineCategory'])
+                                             active=self.recordings[self.index]['splineCategory'])
         self.splineCategoryRB.on_clicked(self.splineCatCB)
 
         self.axnext = plt.axes([0.85, 0.225, 0.1, 0.055])
@@ -420,12 +419,12 @@ class PD_MPBPD_Annotator(CurveAnnotator):
         self.ax1.axes.xaxis.set_ticklabels([])
         self.ax2.axes.xaxis.set_ticklabels([])
 
-        pd = self.data[self.index]['pd']
-        annd = self.data[self.index]['annd']
+        pd = self.recordings[self.index]['pd']
+        annd = self.recordings[self.index]['annd']
         ultra_time = pd['ultra_time'] - pd['beep_uti']
         annd_time = annd['annd_time'] - pd['beep_uti']
         wav_time = pd['ultra_wav_time'] - pd['beep_uti']
-        textgrid = self.meta[self.index]['textgrid']
+        textgrid = self.recordings[self.index]['textgrid']
         
         plot_pd(self.ax1, pd, ultra_time, self.xlim, textgrid, -pd['beep_uti'],
                 picker=CurveAnnotator.line_xdirection_picker)
@@ -433,19 +432,19 @@ class PD_MPBPD_Annotator(CurveAnnotator):
                    picker=CurveAnnotator.line_xdirection_picker, plot_raw=True)
         plot_wav(self.ax3, pd, wav_time, self.xlim, textgrid, -pd['beep_uti'])
 
-        if self.data[self.index]['pdOnset'] > -1:
-            self.ax1.axvline(x = self.data[self.index]['pdOnset'],
+        if self.recordings[self.index]['pdOnset'] > -1:
+            self.ax1.axvline(x = self.recordings[self.index]['pdOnset'],
                              linestyle=':', color="deepskyblue", lw=1)
-            self.ax2.axvline(x = self.data[self.index]['pdOnset'],
+            self.ax2.axvline(x = self.recordings[self.index]['pdOnset'],
                              linestyle=':', color="deepskyblue", lw=1)
-            self.ax3.axvline(x = self.data[self.index]['pdOnset'],
+            self.ax3.axvline(x = self.recordings[self.index]['pdOnset'],
                              linestyle=':', color="deepskyblue", lw=1)
-        if self.data[self.index]['splineOnset'] > -1:
-            self.ax1.axvline(x = self.data[self.index]['splineOnset'],
+        if self.recordings[self.index]['splineOnset'] > -1:
+            self.ax1.axvline(x = self.recordings[self.index]['splineOnset'],
                              linestyle='-.', color="seagreen", lw=1)
-            self.ax2.axvline(x = self.data[self.index]['splineOnset'],
+            self.ax2.axvline(x = self.recordings[self.index]['splineOnset'],
                              linestyle='-.', color="seagreen", lw=1)
-            self.ax3.axvline(x = self.data[self.index]['splineOnset'],
+            self.ax3.axvline(x = self.recordings[self.index]['splineOnset'],
                              linestyle='-.', color="seagreen", lw=1)
 
 
@@ -459,8 +458,8 @@ class PD_MPBPD_Annotator(CurveAnnotator):
         """ 
         Updates parts of the UI outwith the graphs.
         """        
-        self.pdCategoryRB.set_active(self.data[self.index]['pdCategory'])
-        self.splineCategoryRB.set_active(self.data[self.index]['splineCategory'])
+        self.pdCategoryRB.set_active(self.recordings[self.index]['pdCategory'])
+        self.splineCategoryRB.set_active(self.recordings[self.index]['splineCategory'])
 
 
     def save(self, event):
@@ -479,7 +478,7 @@ class PD_MPBPD_Annotator(CurveAnnotator):
                                     dialect='tabseparated')
 
             writer.writeheader()
-            for token in self.data:
+            for token in self.recordings:
                 writer.writerow(token)
             print('Wrote onset data in file ' + filename + '.')
             _annotator_logger.debug('Wrote onset data in file ' + filename + '.')
@@ -490,7 +489,7 @@ class PD_MPBPD_Annotator(CurveAnnotator):
         Callback funtion for the RadioButton for catogorising 
         the PD curve.
         """
-        self.data[self.index]['pdCategory'] = self.categories.index(event)
+        self.recordings[self.index]['pdCategory'] = self.categories.index(event)
         
         
     def splineCatCB(self, event):
@@ -498,7 +497,7 @@ class PD_MPBPD_Annotator(CurveAnnotator):
         Callback funtion for the RadioButton for catogorising 
         the curve of the spline metric.
         """
-        self.data[self.index]['splineCategory'] = self.categories.index(event)
+        self.recordings[self.index]['splineCategory'] = self.categories.index(event)
 
         
     def onpick(self, event):
@@ -513,9 +512,9 @@ class PD_MPBPD_Annotator(CurveAnnotator):
                 break
 
         if subplot == 1:
-            self.data[self.index]['pdOnset'] = event.pickx
+            self.recordings[self.index]['pdOnset'] = event.pickx
         else:
-            self.data[self.index]['splineOnset'] = event.pickx
+            self.recordings[self.index]['splineOnset'] = event.pickx
 
         self.update()
 
@@ -530,7 +529,7 @@ class l1_MPBPD_Annotator(CurveAnnotator):
     are provided, the acoustic segment boundaries.
     """                
 
-    def __init__(self, meta, data, args, xlim = (-0.1, 1.0), figsize=(15, 8),
+    def __init__(self, recordings, args, xlim = (-0.1, 1.0), figsize=(15, 8),
                  categories = ['Stable', 'Hesitation', 'Chaos', 'No data', 'Not set']):
         """ 
         Constructor for the PD_MPBPD_Annotator GUI. 
@@ -539,11 +538,11 @@ class l1_MPBPD_Annotator(CurveAnnotator):
         l1Onset, splineOnset] to the data argument. For the categories -1 is used
         to mark 'not set', and for the onsets -1.0.
         """                
-        super().__init__(meta, data, args, xlim, figsize)
+        super().__init__(recordings, args, xlim, figsize)
 
         self.categories = categories
         
-        for token in self.data:
+        for token in self.recordings:
             token['l1Category'] = -1
             token['splineCategory'] = -1
             token['l1Onset'] = -1.0
@@ -572,13 +571,13 @@ class l1_MPBPD_Annotator(CurveAnnotator):
         self.ax4 = plt.subplot2grid(sbuplot_grid,(0,6), rowspan=2)
         self.ax4.axes.set_axis_off()
         self.pdCategoryRB = RadioButtons(self.ax4, self.categories,
-                                         active=self.data[self.index]['l1Category'])
+                                         active=self.recordings[self.index]['l1Category'])
         self.pdCategoryRB.on_clicked(self.pdCatCB)
         
         self.ax5 = plt.subplot2grid(sbuplot_grid,(3,6), rowspan=2)
         self.ax5.axes.set_axis_off()
         self.splineCategoryRB = RadioButtons(self.ax5, self.categories,
-                                             active=self.data[self.index]['splineCategory'])
+                                             active=self.recordings[self.index]['splineCategory'])
         self.splineCategoryRB.on_clicked(self.splineCatCB)
 
         self.axnext = plt.axes([0.85, 0.225, 0.1, 0.055])
@@ -604,12 +603,12 @@ class l1_MPBPD_Annotator(CurveAnnotator):
         self.ax1.axes.xaxis.set_ticklabels([])
         self.ax2.axes.xaxis.set_ticklabels([])
 
-        pd = self.data[self.index]['pd']
-        annd = self.data[self.index]['annd']
+        pd = self.recordings[self.index]['pd']
+        annd = self.recordings[self.index]['annd']
         ultra_time = pd['ultra_time'] - pd['beep_uti']
         annd_time = annd['annd_time'] - pd['beep_uti']
         wav_time = pd['ultra_wav_time'] - pd['beep_uti']
-        textgrid = self.meta[self.index]['textgrid']
+        textgrid = self.recordings[self.index]['textgrid']
         
         plot_l1(self.ax1, pd, ultra_time, self.xlim, textgrid, -pd['beep_uti'],
                 picker=CurveAnnotator.line_xdirection_picker)
@@ -617,19 +616,19 @@ class l1_MPBPD_Annotator(CurveAnnotator):
                    picker=CurveAnnotator.line_xdirection_picker, plot_raw=True)
         plot_wav(self.ax3, pd, wav_time, self.xlim, textgrid, -pd['beep_uti'])
 
-        if self.data[self.index]['l1Onset'] > -1:
-            self.ax1.axvline(x = self.data[self.index]['l1Onset'],
+        if self.recordings[self.index]['l1Onset'] > -1:
+            self.ax1.axvline(x = self.recordings[self.index]['l1Onset'],
                              linestyle=':', color="deepskyblue", lw=1)
-            self.ax2.axvline(x = self.data[self.index]['l1Onset'],
+            self.ax2.axvline(x = self.recordings[self.index]['l1Onset'],
                              linestyle=':', color="deepskyblue", lw=1)
-            self.ax3.axvline(x = self.data[self.index]['l1Onset'],
+            self.ax3.axvline(x = self.recordings[self.index]['l1Onset'],
                              linestyle=':', color="deepskyblue", lw=1)
-        if self.data[self.index]['splineOnset'] > -1:
-            self.ax1.axvline(x = self.data[self.index]['splineOnset'],
+        if self.recordings[self.index]['splineOnset'] > -1:
+            self.ax1.axvline(x = self.recordings[self.index]['splineOnset'],
                              linestyle='-.', color="seagreen", lw=1)
-            self.ax2.axvline(x = self.data[self.index]['splineOnset'],
+            self.ax2.axvline(x = self.recordings[self.index]['splineOnset'],
                              linestyle='-.', color="seagreen", lw=1)
-            self.ax3.axvline(x = self.data[self.index]['splineOnset'],
+            self.ax3.axvline(x = self.recordings[self.index]['splineOnset'],
                              linestyle='-.', color="seagreen", lw=1)
 
 
@@ -643,8 +642,8 @@ class l1_MPBPD_Annotator(CurveAnnotator):
         """ 
         Updates parts of the UI outwith the graphs.
         """        
-        self.pdCategoryRB.set_active(self.data[self.index]['l1Category'])
-        self.splineCategoryRB.set_active(self.data[self.index]['splineCategory'])
+        self.pdCategoryRB.set_active(self.recordings[self.index]['l1Category'])
+        self.splineCategoryRB.set_active(self.recordings[self.index]['splineCategory'])
 
 
     def save(self, event):
@@ -663,7 +662,7 @@ class l1_MPBPD_Annotator(CurveAnnotator):
                                     dialect='tabseparated')
 
             writer.writeheader()
-            for token in self.data:
+            for token in self.recordings:
                 writer.writerow(token)
             print('Wrote onset data in file ' + filename + '.')
             _annotator_logger.debug('Wrote onset data in file ' + filename + '.')
@@ -674,7 +673,7 @@ class l1_MPBPD_Annotator(CurveAnnotator):
         Callback funtion for the RadioButton for catogorising 
         the PD curve.
         """
-        self.data[self.index]['l1Category'] = self.categories.index(event)
+        self.recordings[self.index]['l1Category'] = self.categories.index(event)
         
         
     def splineCatCB(self, event):
@@ -682,7 +681,7 @@ class l1_MPBPD_Annotator(CurveAnnotator):
         Callback funtion for the RadioButton for catogorising 
         the curve of the spline metric.
         """
-        self.data[self.index]['splineCategory'] = self.categories.index(event)
+        self.recordings[self.index]['splineCategory'] = self.categories.index(event)
 
         
     def onpick(self, event):
@@ -697,9 +696,9 @@ class l1_MPBPD_Annotator(CurveAnnotator):
                 break
 
         if subplot == 1:
-            self.data[self.index]['l1Onset'] = event.pickx
+            self.recordings[self.index]['l1Onset'] = event.pickx
         else:
-            self.data[self.index]['splineOnset'] = event.pickx
+            self.recordings[self.index]['splineOnset'] = event.pickx
 
         self.update()
 

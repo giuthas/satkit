@@ -49,7 +49,7 @@ def main():
     logging.info('Elapsed time ' + str(elapsed_time))
 
     # Get the GUI running.
-    ca = PD_Annotator(cli.meta, cli.data, cli.args)
+    ca = PD_Annotator(cli.recordings, cli.args)
 
 if (__name__ == '__main__'):
     main()

@@ -158,10 +158,10 @@ class RawCLI(BaseCLI):
         """
         Setup and run the commandline interface.
         Description is what this version will be called if called with -h or --help.
-        processing_functions is a dict of the callables that will be run on each token.
+        processing_functions is a dict of the callables that will be run on each recording.
         """
         super().__init__(description)
-        
+
         if not os.path.exists(self.args.load_path):
             self.logger.critical('File or directory doesn not exist: ' + self.args.load_path)
             self.logger.critical('Exiting.')
@@ -171,39 +171,40 @@ class RawCLI(BaseCLI):
             if self.args.exclusion_filename:
                 exclusion_list_name = self.args.exclusion_filename
 
-            # this is the actual list of tokens that gets processed 
+            # this is the actual list of recordings that gets processed 
             # token_list includes meta data contained outwith the ult file
-            token_list = satkit_AAA.get_recording_list(self.args.load_path,
-                                                       self.args.exclusion_filename)
+            self.recordings = satkit_AAA.get_recording_list(self.args.load_path,
+                                                      self.args.exclusion_filename)
 
-            # calculate the metrics
-            data = []
-            for token in token_list:
-                datum = {}
-                for key in processing_functions.keys():
-                    datum[key] = processing_functions[key](token)
-                data.append(datum)
-            # the metric functions should maybe be wrapped as objects so
-            # that we can access names on other things via names and
-            # what not instead of wrapping them in a dict
-
-            #data = [datum for datum in data if not datum is None]
         elif os.path.splitext(self.args.load_path)[1] == '.pickle':
-            token_list, data = satkit_io.load_pickled_data(self.args.load_path)
+            self.recordings = satkit_io.load_pickled_data(self.args.load_path)
         elif os.path.splitext(self.args.load_path)[1] == '.json':
-            token_list, data = satkit_io.load_json_data(self.args.load_path)
+            self.recordings = satkit_io.load_json_data(self.args.load_path)
         else:
             self.logger.error('Unsupported filetype: ' + self.args.load_path + '.')
 
-        # Plot the data if asked to.
+### this is broken. it does not care if data has been read or not.
+        # calculate the metrics
+        self.data = []
+        for recording in self.recordings:
+            datum = {}
+            for key in processing_functions.keys():
+                # only run the metric calculations if the results do not already exist
+                if key not in datum:
+                    datum[key] = processing_functions[key](recording)
+            self.data.append(datum)
+        # the metric functions should maybe be wrapped as objects so
+        # that we can access names on other things via names and
+        # what not instead of wrapping them in a dict
+            
+        # Plot the data into files if asked to.
         if plot:
             self.logger.info("Drawing ISSP 2020 plot.")
-            pd_annd_plot.ISSP2020_plots(token_list, data, self.args.figure_dir)
-            #pd_annd_plot.ultrafest2020_plots(token_list, data, self.args.figure_dir)
+            pd_annd_plot.ISSP2020_plots(self.recordings, self.data, self.args.figure_dir)
 
         if self.args.output_filename:
             if os.path.splitext(self.args.output_filename)[1] == '.pickle':
-                pd.save2pickle((token_list, data), self.args.output_filename)
+                pd.save2pickle((self.recordings, self.data), self.args.output_filename)
                 self.logger.info("Wrote data to file " + self.args.output_filename + ".")
             elif os.path.splitext(self.args.output_filename)[1] == '.json':
                 self.logger.error('Unsupported filetype: ' + self.args.output_filename + '.')
@@ -212,10 +213,10 @@ class RawCLI(BaseCLI):
 
         self.logger.info('Data run ended at ' + str(datetime.datetime.now()))
 
-        self.meta = token_list
-        self.data = data
-
         
+    def process_recordings(self, processing_functions):
+        
+
     def _add_optional_arguments(self):
         self.parser.add_argument("-e", "--exclusion_list", dest="exclusion_filename",
                                  help="Exclusion list of data files that should be ignored.",
@@ -243,8 +244,8 @@ class RawCLI(BaseCLI):
         
 class RawAndSplineCLI(RawCLI):
 
-    def __init__(self):
-        super().__init__(description, processing_functions, plot=True)
+    def __init__(self, description, processing_functions, plot=True):
+        super().__init__(description, processing_functions, plot=plot)
         self.parse_args()
 
         if not os.path.exists(self.args.load_path):
@@ -256,18 +257,18 @@ class RawAndSplineCLI(RawCLI):
             if self.args.exclusion_filename:
                 exclusion_list_name = self.args.exclusion_filename
 
-            # this is the actual list of tokens that gets processed 
-            # token_list includes meta data contained outwith the ult file
-            token_list = satkit_AAA.get_recording_list(self.args.load_path,
+            # this is the actual list of recordings that gets processed 
+            # recording_list includes meta data contained outwith the ult file
+            recording_list = satkit_AAA.get_recording_list(self.args.load_path,
                                                        self.args.exclusion_filename,
                                                        self.args.spline_file)
 
             # calculate the metrics
             data = []
-            for token in token_list:
+            for recording in recording_list:
                 datum = {}
                 for key in processing_functions.keys():
-                    datum[key] = processing_functions[key](token)
+                    datum[key] = processing_functions[key](recording)
                 data.append(datum)
             # the metric functions should maybe be wrapped as objects so
             # that we can access names on other things via names and
@@ -275,21 +276,21 @@ class RawAndSplineCLI(RawCLI):
 
             #data = [datum for datum in data if not datum is None]
         elif os.path.splitext(self.args.load_path)[1] == '.pickle':
-            token_list, data = satkit_io.load_pickled_data(self.args.load_path)
+            recording_list, data = satkit_io.load_pickled_data(self.args.load_path)
         elif os.path.splitext(self.args.load_path)[1] == '.json':
-            token_list, data = satkit_io.load_json_data(self.args.load_path)
+            recording_list, data = satkit_io.load_json_data(self.args.load_path)
         else:
             self.logger.error('Unsupported filetype: ' + self.args.load_path + '.')
 
         # Plot the data if asked to.
         if plot:
             self.logger.info("Drawing ISSP 2020 plot.")
-            pd_annd_plot.ISSP2020_plots(token_list, data, self.args.figure_dir)
-            #pd_annd_plot.ultrafest2020_plots(token_list, data, self.args.figure_dir)
+            pd_annd_plot.ISSP2020_plots(recording_list, data, self.args.figure_dir)
+            #pd_annd_plot.ultrafest2020_plots(recording_list, data, self.args.figure_dir)
 
         if self.args.output_filename:
             if os.path.splitext(self.args.output_filename)[1] == '.pickle':
-                pd.save2pickle((token_list, data), self.args.output_filename)
+                pd.save2pickle((recording_list, data), self.args.output_filename)
                 self.logger.info("Wrote data to file " + self.args.output_filename + ".")
             elif os.path.splitext(self.args.output_filename)[1] == '.json':
                 self.logger.error('Unsupported filetype: ' + self.args.output_filename + '.')
@@ -298,7 +299,7 @@ class RawAndSplineCLI(RawCLI):
 
         self.logger.info('Data run ended at ' + str(datetime.datetime.now()))
 
-        self.token_list = token_list
+        self.recordings = recording_list
         self.data = data
 
         

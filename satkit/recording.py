@@ -2,7 +2,7 @@ import abc
 
 class Recording():
     """
-    A Recording contains 1-n synchronised Modalities 
+    A Recording contains 1-n synchronised Modalities.
 
     The recording also contains the non-modality 
     specific metadata (participant, speech content, etc) 
@@ -20,7 +20,7 @@ class Recording():
         
 class Modality(metaclass=abc.ABCMeta):
     """
-    Abstract superclass for all recording classes.
+    Abstract superclass for all Modality classes.
     """
 
     def __init__(self):

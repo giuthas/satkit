@@ -163,7 +163,7 @@ class RawCLI(BaseCLI):
         super().__init__(description)
 
         if not os.path.exists(self.args.load_path):
-            self.logger.critical('File or directory doesn not exist: ' + self.args.load_path)
+            self.logger.critical('File or directory does not exist: ' + self.args.load_path)
             self.logger.critical('Exiting.')
             sys.exit()
         elif os.path.isdir(self.args.load_path): 

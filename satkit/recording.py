@@ -13,22 +13,29 @@ class Recording():
     def __init__(self):
         self.excluded = False
         self.meta = {}
+# maybe a dict?
         self.modalities = []
-        self.timeOffSets = [] # Synchronisation time offsets
-                              # corresponding to each modality.
 
         
+#
+#Dynamic loadin or not should be a thing here
+#
 class Modality(metaclass=abc.ABCMeta):
     """
     Abstract superclass for all Modality classes.
     """
 
-    def __init__(self):
-        self.data = {} # To be used for only relatively small data vectors/matrices.
+    def __init__(self, timeOffSet = 0, data = None):
+        self.timeOffSet = timeOffset
+        self.data = data # Do not load data here unless you are sure their will be enough memory.
+
+# how do we set metadata of the parent recording? propably need a pointer to it? and
+# then certain things should be properties with get/set 
         self.meta = {}
+# this is a good idea here, but the recording needs to know if this has been set to True
         self.excluded = False
         
-
+# this should be a property
     @abc.abstractmethod
     def get_time_vector(self):
         """
@@ -45,13 +52,35 @@ class Ultrasound(Modality):
 
     def __init__(self):
         super.__init__()
-        self._recording_type = "ultrasound"
 
 
     @abc.abstractmethod
-    def get_ultrasound_data(self):
+    @property
+    def raw_ultrasound(self):
         """
-        Return ultrasound frames. Generally the frames are read from a
-        file when this method is called because keeping too much data in 
-        memory leads to a crash due to memory running out.
+        Raw ultrasound frames of this recording. 
+
+        The frames are either read from a file when needed to keep memory needs 
+        in check or if using large amounts of memory is not a problem they can be 
+        preloaded when the object is created.
+
+        Inheriting classes should raise a sensible error if they only contain
+        ultrasound video data.
         """
+
+    @abc.abstractmethod
+    @property
+    def interpolated_ultrasound(self):
+        """
+        Interpolated ultrasound frames. 
+
+        These should never be stored in memory but rather dynamically generated as needed
+        unless the class represents a video ultrasound recording, in which case the frames
+        should be loaded into memory before they are needed only if running out of memory will
+        not be an issue (i.e. there is a lot of it available).
+        """
+
+#when implementing do
+# @raw_ultrasound.setter
+# and put the getting thing in the raw_ultrasound(self) method
+# etc

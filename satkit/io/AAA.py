@@ -58,9 +58,9 @@ class AAA_Ultrasound_Recording(Ultrasound_Recording):
     def __init__(self, basename):
         super.__init__()
         if basename == None:
-            _AAA_logger.critical("Critical error: Basename is None.")
+            _AAA_logger.critical("Critical error: File basename is None.")
         elif basename == "":
-            _AAA_logger.critical("Critical error: Basename is empty.")
+            _AAA_logger.critical("Critical error: File basename is empty.")
         else:
             _AAA_logger.debug("Initialising a new recording with filename " + filename + ".")
             self.meta['base_name'] = basename

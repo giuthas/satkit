@@ -16,21 +16,38 @@ class Recording():
     def __init__(self):
         self.excluded = False
         self.meta = {}
-# maybe a dict?
-        self.modalities = []
+        self.modalities = {}
 
 
     def read_textgrid(self):
         # Try to open the file as textgrid
         try:
+# should this be in self.meta?
             grid = textgrids.TextGrid(self.textgridname)
         except:
+# add a logger
             _recording.logger.critical("Could not read textgrid in " + filename + ".")
             grid = None
 
         return grid
 
-        
+
+    def add_modality(self, name, modality, replace=False):
+        """
+        This method adds a new Modality object to the Recording.
+
+        Replacing a modality has to be specified otherwise if a
+        Modality with the same name already exists in this Recording
+        and the replace argument is not True, an Error is raised. 
+        """
+        if name in self.modalities.keys() and not replace:
+# this needs a suitable error
+# should the modalities be accessed as a property?
+            raise
+        else:
+            self.modalities[name] = modality
+            
+    
 #
 #Dynamic loadin or not should be a thing here
 #

@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2019-2020 Pertti Palo, Scott Moisik, and Matthew Faytak.
+# Copyright (c) 2019-2021 Pertti Palo, Scott Moisik, and Matthew Faytak.
 #
 # This file is part of Speech Articulation ToolKIT 
 # (see https://github.com/giuthas/satkit/).

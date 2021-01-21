@@ -1,7 +1,42 @@
+#
+# Copyright (c) 2019-2020 Pertti Palo, Scott Moisik, and Matthew Faytak.
+#
+# This file is part of Speech Articulation ToolKIT 
+# (see https://github.com/giuthas/satkit/).
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program. If not, see <http://www.gnu.org/licenses/>.
+#
+# The example data packaged with this program is licensed under the
+# Creative Commons Attribution-NonCommercial-ShareAlike 4.0
+# International (CC BY-NC-SA 4.0) License. You should have received a
+# copy of the Creative Commons Attribution-NonCommercial-ShareAlike 4.0
+# International (CC BY-NC-SA 4.0) License along with the data. If not,
+# see <https://creativecommons.org/licenses/by-nc-sa/4.0/> for details.
+#
+# When using the toolkit for scientific publications, please cite the
+# articles listed in README.markdown. They can also be found in
+# citations.bib in BibTeX format.
+#
+
+# Built in packages
 import abc
+import logging
 
 # Praat textgrids
 import textgrids
+
+_recording_logger = logging.getLogger('satkit.recording')
 
 class Recording():
     """
@@ -20,14 +55,18 @@ class Recording():
 
 
     def read_textgrid(self):
-        # Try to open the file as textgrid
+        """
+        Tries to open the textgrid specified in self.meta.
+
+        Currently it is a fatal error to call this function either before self.meta has been 
+        iniatialised or if the self.meta['textgrid'] is not a valid path to a valid textgrid.
+        This may change in the future.
+        """
         try:
-# should this be in self.meta?
-            grid = textgrids.TextGrid(self.textgridname)
+            self.textgrid = textgrids.TextGrid(self.meta['textgrid'])
         except:
-# add a logger
-            _recording.logger.critical("Could not read textgrid in " + filename + ".")
-            grid = None
+            _recording_logger.critical("Could not read textgrid in " + filename + ".")
+            self.textgrid = None
 
         return grid
 

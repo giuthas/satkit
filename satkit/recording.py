@@ -71,6 +71,7 @@ class Recording():
         return grid
 
 
+    # should the modalities dict be accessed as a property?
     def add_modality(self, name, modality, replace=False):
         """
         This method adds a new Modality object to the Recording.
@@ -80,15 +81,21 @@ class Recording():
         and the replace argument is not True, an Error is raised. 
         """
         if name in self.modalities.keys() and not replace:
-# this needs a suitable error
-# should the modalities be accessed as a property?
-            raise
+            raise Exception("A modality named " + name +
+                            " already exists and replace flag was False.")
+        elif replace:
+            self.modalities[name] = modality
+            _recording_logger.debug("Replaced modality " + name + ".")
         else:
             self.modalities[name] = modality
+            _recording_logger.debug("Added new modality " + name + ".")
             
-    
+
+#maybe implement an abstract Modality and inherit from it a dynamically loading AAA_Ultrasound
+# and from that a statically loading AAA_Ultrasound?
+
 #
-#Dynamic loadin or not should be a thing here
+#Dynamic loading or not should be a thing here
 #
 class Modality(metaclass=abc.ABCMeta):
     """
@@ -99,8 +106,8 @@ class Modality(metaclass=abc.ABCMeta):
         if parent == None or isinstance(parent, Recording):
             self.parent = parent
         else:
-            raise TypeError("Modality given a parent which is not of type Recording or a decendant: " +
-                            type(parent))
+            raise TypeError("Modality given a parent which is not of type Recording " +
+                            "or a decendant. Instead found: " + type(parent) + ".")
             
         self.timeOffSet = timeOffset
         self.data = data # Do not load data here unless you are sure their will be enough memory.

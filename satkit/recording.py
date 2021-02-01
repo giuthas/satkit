@@ -91,15 +91,17 @@ class Recording():
             _recording_logger.debug("Added new modality " + name + ".")
             
 
-#maybe implement an abstract Modality and inherit from it a dynamically loading AAA_Ultrasound
-# and from that a statically loading AAA_Ultrasound?
-
-#
-#Dynamic loading or not should be a thing here
-#
 class Modality(metaclass=abc.ABCMeta):
     """
     Abstract superclass for all Modality classes.
+
+    If the data in a modality that implements this interface is going to be 
+    large enough that it may not be possible to load it into memory for all recordings 
+    being processed, then the implementations should come in two tiers: 1. an 'almost 
+    concrete but still abstract' implementation with most functionality in place and 2. 
+    a separate concrete implementation for a) loading the data when requested and b) 
+    loading the data at init. Audio is an example of data that is not expected to run 
+    into this problem. 
     """
 
     def __init__(self, parent = None, timeOffSet = 0, data = None):
@@ -139,6 +141,19 @@ class Modality(metaclass=abc.ABCMeta):
         method is abstract to let subclasses either generate the timevector
         on the fly or preload or pregenerate it.
         """
+
+
+class Audio(Modality):
+    """
+    A mono audio track. 
+
+    Audio is currently assumed to be small enough that all of it fits in memory.
+    If this is not the case, this class should be made abstract and inherited by 
+    dynamically and statically loading concrete classes as described in Modality.
+    """
+
+    def __init__(self):
+        super.__init__()
 
         
 class Ultrasound(Modality):

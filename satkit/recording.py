@@ -104,7 +104,7 @@ class Modality(metaclass=abc.ABCMeta):
     into this problem. 
     """
 
-    def __init__(self, parent = None, timeOffSet = 0, data = None):
+    def __init__(self, name = None, parent = None, timeOffSet = 0, data = None):
         if parent == None or isinstance(parent, Recording):
             self.parent = parent
         else:
@@ -143,19 +143,29 @@ class Modality(metaclass=abc.ABCMeta):
         """
 
 
-class Audio(Modality):
+class MonoAudio(Modality):
     """
-    A mono audio track. 
+    An abstract mono audio track. 
 
-    Audio is currently assumed to be small enough that all of it fits in memory.
-    If this is not the case, this class should be made abstract and inherited by 
-    dynamically and statically loading concrete classes as described in Modality.
     """
 
-    def __init__(self):
-        super.__init__()
+    def __init__(self, name = 'audio', parent = None, timeOffSet = 0, data = None):
+        super.__init__(name, parent, timeOffSet, data)
 
-        
+#this needs work, audio has been statically loaded so far at time of processing pd, so it should be done at init.
+    (ult_wav_fs, ult_wav_frames) = sio_wavfile.read(token['ult_wav_file'])
+    # setup the high-pass filter for removing the mains frequency from the recorded sound.
+    b, a = satkit_audio.high_pass_50(ult_wav_fs)
+    beep_uti, has_speech = satkit_audio.detect_beep_and_speech(ult_wav_frames,
+                                                           ult_wav_fs,
+                                                           b, a,
+                                                           token['ult_wav_file'])
+
+
+# dynamically loading things have a problem with time vector generation. this may be taken care of by initing the timevector
+# on first call and raising an exception if somebody tries to access the vector before - or even just generating it on the fly by loading and discarding the data
+# this may be a really bad idea though, because it has a failure mode of
+# ask_for_time_vec(); triggers drive access, now that we have time_vec ask_for_data(); triggers drive access again...
 class Ultrasound(Modality):
     """
     Abstract superclass for ultrasound recording classes.

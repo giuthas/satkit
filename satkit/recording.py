@@ -33,8 +33,14 @@
 import abc
 import logging
 
+# wav file handling
+import scipy.io.wavfile as sio_wavfile
+
 # Praat textgrids
 import textgrids
+
+# local modules
+import satkit.audio as satkit_audio
 
 _recording_logger = logging.getLogger('satkit.recording')
 
@@ -133,7 +139,7 @@ class Modality(metaclass=abc.ABCMeta):
           self.parent.excluded = excluded  
 
             
-# this should be a property
+    @property
     @abc.abstractmethod
     def get_time_vector(self):
         """
@@ -152,20 +158,32 @@ class MonoAudio(Modality):
     def __init__(self, name = 'audio', parent = None, timeOffSet = 0, data = None):
         super.__init__(name, parent, timeOffSet, data)
 
-#this needs work, audio has been statically loaded so far at time of processing pd, so it should be done at init.
-    (ult_wav_fs, ult_wav_frames) = sio_wavfile.read(token['ult_wav_file'])
-    # setup the high-pass filter for removing the mains frequency from the recorded sound.
-    b, a = satkit_audio.high_pass_50(ult_wav_fs)
-    beep_uti, has_speech = satkit_audio.detect_beep_and_speech(ult_wav_frames,
-                                                           ult_wav_fs,
-                                                           b, a,
-                                                           token['ult_wav_file'])
+# this needs work: save the metadata somewhere
+        (ult_wav_fs, ult_wav_frames) = sio_wavfile.read(token['ult_wav_file'])
+        # setup the high-pass filter for removing the mains frequency from the recorded sound.
+        b, a = satkit_audio.high_pass_50(ult_wav_fs)
+        beep_uti, has_speech = satkit_audio.detect_beep_and_speech(ult_wav_frames,
+                                                                   ult_wav_fs,
+                                                                   b, a,
+                                                                   token['ult_wav_file'])
 
+        self.__time_vector = np.linspace(0, len(ult_wav_frames), 
+                                         len(ult_wav_frames), endpoint=False)/ult_wav_fs
 
-# dynamically loading things have a problem with time vector generation. this may be taken care of by initing the timevector
-# on first call and raising an exception if somebody tries to access the vector before - or even just generating it on the fly by loading and discarding the data
+        #where do we put the data? and when? should the call to super be here?
+        #where do we put meta? fs should be saved
+
+    def get_time_vector(self):
+        return self.__time_vector
+    
+
+# dynamically loading things have a problem with time vector generation.
+# this may be taken care of by initing the timevector
+# on first call and raising an exception if somebody tries to access the vector before - or
+# even just generating it on the fly by loading and discarding the data
 # this may be a really bad idea though, because it has a failure mode of
-# ask_for_time_vec(); triggers drive access, now that we have time_vec ask_for_data(); triggers drive access again...
+# ask_for_time_vec(); triggers drive access, now that we have time_vec ask_for_data();
+# triggers drive access again...
 class Ultrasound(Modality):
     """
     Abstract superclass for ultrasound recording classes.
@@ -175,8 +193,8 @@ class Ultrasound(Modality):
         super.__init__()
 
 
-    @abc.abstractmethod
     @property
+    @abc.abstractmethod
     def raw_ultrasound(self):
         """
         Raw ultrasound frames of this recording. 
@@ -189,8 +207,8 @@ class Ultrasound(Modality):
         ultrasound video data.
         """
 
-    @abc.abstractmethod
     @property
+    @abc.abstractmethod
     def interpolated_ultrasound(self):
         """
         Interpolated ultrasound frames. 

@@ -155,13 +155,16 @@ class MonoAudio(Modality):
 
     """
 
-    def __init__(self, name = 'audio', parent = None, timeOffSet = 0, data = None):
+    def __init__(self, name = 'audio', parent = None, timeOffSet = 0, data = None, mainsFrequency = 50):
         super.__init__(name, parent, timeOffSet, data)
 
 # this needs work: save the metadata somewhere
         (ult_wav_fs, ult_wav_frames) = sio_wavfile.read(token['ult_wav_file'])
-        # setup the high-pass filter for removing the mains frequency from the recorded sound.
-        b, a = satkit_audio.high_pass_50(ult_wav_fs)
+
+        # setup the high-pass filter for removing the mains frequency (and anything below it)
+        # from the recorded sound.
+# needs work: the high_pass filter coefs should be generated once for a set of recordings rather than create overhead everytime the code is run
+        b, a = satkit_audio.high_pass(ult_wav_fs, mainsFrequency)
         beep_uti, has_speech = satkit_audio.detect_beep_and_speech(ult_wav_frames,
                                                                    ult_wav_fs,
                                                                    b, a,
@@ -170,6 +173,11 @@ class MonoAudio(Modality):
         self.__time_vector = np.linspace(0, len(ult_wav_frames), 
                                          len(ult_wav_frames), endpoint=False)/ult_wav_fs
 
+        # things to be saved
+        ult_wav_fs, ult_wav_frames
+        beep_uti, has_speech
+        mainsFrequency # this should also be explained and noted that it should be locally checked if not clear from here https://en.wikipedia.org/wiki/Mains_electricity_by_country
+        
         #where do we put the data? and when? should the call to super be here?
         #where do we put meta? fs should be saved
 

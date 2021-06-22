@@ -49,6 +49,15 @@ def high_pass_50(fs):
     return(b, a)
 
 
+def high_pass_50(fs, sb):
+    """Returns a high-pass filter with a stop band of sb. Used for
+    filtering the mains frequency away from recorded sound.""" 
+    _audio_logger.debug("Generating high-pass filter.")
+    stop = (sb/(fs/2)) 
+    b, a = butter(10, stop, 'highpass')
+    return(b, a)
+
+
 def band_pass(fs):
     _audio_logger.debug("Generating band-pass filter.")
     nyq = 0.5 * fs
@@ -128,9 +137,8 @@ def detect_beep_and_speech(frames, fs, b, a, name):
     split_point = beep_index + int(.075*fs)
     if len(hp_signal) > split_point:
         ave_energy_pre_beep = np.sum(int_signal[:beep_index])/beep_index
-        ave_speech_energy = np.sum(int_signal[split_point:])/(len(int_signal)-split_point)
-        has_speech = ave_energy_pre_beep < ave_speech_energy
-
+        ave_energy_post_beep = np.sum(int_signal[split_point:])/(len(int_signal)-split_point)
+        has_speech = ave_energy_pre_beep < ave_energy_post_beep
     else:
         # if the signal is very very short, there is no speech
         has_speech = False

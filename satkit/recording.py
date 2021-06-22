@@ -158,9 +158,15 @@ class MonoAudio(Modality):
     def __init__(self, name = 'audio', parent = None, timeOffSet = 0, data = None, mainsFrequency = 50):
         super.__init__(name, parent, timeOffSet, data)
 
-# this needs work: save the metadata somewhere
-        (ult_wav_fs, ult_wav_frames) = sio_wavfile.read(token['ult_wav_file'])
+# this needs to go in the docs
+        # note that the mains frequency should be locally checked if not clear from here
+        # https://en.wikipedia.org/wiki/Mains_electricity_by_country
+        super.meta['mainsFrequency'] = mainsFrequency
 
+        (ult_wav_fs, ult_wav_frames) = sio_wavfile.read(token['ult_wav_file'])
+        super.meta['ult_wav_fs'] = ult_wav_fs
+        super.meta['ult_wav'] = ult_wav_frames
+        
         # setup the high-pass filter for removing the mains frequency (and anything below it)
         # from the recorded sound.
 # needs work: the high_pass filter coefs should be generated once for a set of recordings rather than create overhead everytime the code is run
@@ -170,16 +176,13 @@ class MonoAudio(Modality):
                                                                    b, a,
                                                                    token['ult_wav_file'])
 
+# needs work: this is a bad name for the beep: 1) this is an AAA thing, 2) the recording might not be UTI
+# should we save has_speech as well? it is not the most reliable metric
+        super.meta['beep_uti'] = beep_uti
+
+        
         self.__time_vector = np.linspace(0, len(ult_wav_frames), 
                                          len(ult_wav_frames), endpoint=False)/ult_wav_fs
-
-        # things to be saved
-        ult_wav_fs, ult_wav_frames
-        beep_uti, has_speech
-        mainsFrequency # this should also be explained and noted that it should be locally checked if not clear from here https://en.wikipedia.org/wiki/Mains_electricity_by_country
-        
-        #where do we put the data? and when? should the call to super be here?
-        #where do we put meta? fs should be saved
 
     def get_time_vector(self):
         return self.__time_vector

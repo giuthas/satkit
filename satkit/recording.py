@@ -110,7 +110,7 @@ class Modality(metaclass=abc.ABCMeta):
     into this problem. 
     """
 
-    def __init__(self, name = None, parent = None, timeOffSet = 0, data = None):
+    def __init__(self, name = None, parent = None, timeOffSet = 0):
         if parent == None or isinstance(parent, Recording):
             self.parent = parent
         else:
@@ -118,7 +118,6 @@ class Modality(metaclass=abc.ABCMeta):
                             "or a decendant. Instead found: " + type(parent) + ".")
             
         self.timeOffSet = timeOffset
-        self.data = data # Do not load data here unless you are sure their will be enough memory.
 
         # use self.parent.meta[key] to set parent metadata
         # certain things should be properties with get/set 
@@ -151,38 +150,59 @@ class Modality(metaclass=abc.ABCMeta):
 
 class MonoAudio(Modality):
     """
-    An abstract mono audio track. 
+    A mono audio track. 
 
+    Audio does not use the two tier implementation because the audio data is assumed to be small
+    enough to fit in working memory.
     """
 
-    def __init__(self, name = 'audio', parent = None, timeOffSet = 0, data = None, mainsFrequency = 50):
-        super.__init__(name, parent, timeOffSet, data)
+    def __init__(self, name = 'mono audio', parent = None, timeOffSet = 0, filename = None, mainsFrequency = 50):
+        """
+        Create a MonoAudio track.
 
-# this needs to go in the docs
-        # note that the mains frequency should be locally checked if not clear from here
-        # https://en.wikipedia.org/wiki/Mains_electricity_by_country
+        name is the name of this Modality.
+        parent is the parent Recording.
+        timeOffset (s) is the offset against the baseline audio track.
+        filename should be either None or the name of a wav-file.
+        mainsFrequency (Hz) is the mains frequency of the place of recording. When detecting the recording 
+        onset beep, the audio is high pass filtered with this frequency as the high end of the stop band.
+        The frequency should be checked locally, if not clear from here
+        https://en.wikipedia.org/wiki/Mains_electricity_by_country .
+        """
+
+        super.__init__(name, parent, timeOffSet)
+
+        super.meta['filename'] = filename
         super.meta['mainsFrequency'] = mainsFrequency
 
-        (ult_wav_fs, ult_wav_frames) = sio_wavfile.read(token['ult_wav_file'])
-        super.meta['ult_wav_fs'] = ult_wav_fs
-        super.meta['ult_wav'] = ult_wav_frames
+        # If we do not have a filename, there is not much to init.
+        if filename is None:
+            return self
         
+        (ult_wav_fs, ult_wav_frames) = sio_wavfile.read(filename)
+        super.meta['ult_wav_fs'] = ult_wav_fs
+        super.data = ult_wav_frames
+        
+        # before v1.0: the high_pass filter coefs should be generated once for a set of recordings
+        # rather than create overhead everytime the code is run
+        #
         # setup the high-pass filter for removing the mains frequency (and anything below it)
         # from the recorded sound.
-# needs work: the high_pass filter coefs should be generated once for a set of recordings rather than create overhead everytime the code is run
         b, a = satkit_audio.high_pass(ult_wav_fs, mainsFrequency)
         beep_uti, has_speech = satkit_audio.detect_beep_and_speech(ult_wav_frames,
                                                                    ult_wav_fs,
                                                                    b, a,
-                                                                   token['ult_wav_file'])
+                                                                   filename)
 
-# needs work: this is a bad name for the beep: 1) this is an AAA thing, 2) the recording might not be UTI
-# should we save has_speech as well? it is not the most reliable metric
+        # before v1.0: this is a bad name for the beep: 1) this is an AAA thing,
+        # 2) the recording might not be UTI
         super.meta['beep_uti'] = beep_uti
-
+        super.meta['has_speech'] = has_speech
         
         self.__time_vector = np.linspace(0, len(ult_wav_frames), 
-                                         len(ult_wav_frames), endpoint=False)/ult_wav_fs
+                                         len(ult_wav_frames),
+                                         endpoint=False)
+        self.__time_vector = self.__time_vector/ult_wav_fs
 
     def get_time_vector(self):
         return self.__time_vector

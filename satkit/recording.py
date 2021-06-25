@@ -297,6 +297,12 @@ class TongueUltrasound(AbstractUltrasound):
 class VideoUltrasound(AbstractUltrasound):
     """
     Ultrasound video Recording -- does not contain raw data.
+
+    This is the dynamically loading version and as such does not load the ultrasound data 
+    before it is actually accessed. While some metadata will only be populated once the video
+    has been loaded, it should be noted that the video itself will not be kept in memory 
+    by instances of this class. Rather every time the interpolated_ultrasound property of 
+    an instance is accessed, there will be a hard drive operation. 
     """
 
     def __init__(self, name = 'video ultrasound', parent = None, timeOffSet = 0, filename = None):
@@ -304,7 +310,6 @@ class VideoUltrasound(AbstractUltrasound):
 
 
     @property
-    @abc.abstractmethod
     def raw_ultrasound(self):
         """
         Raw ultrasound frames of this recording. 
@@ -313,14 +318,12 @@ class VideoUltrasound(AbstractUltrasound):
         in check, or if using large amounts of memory is not a problem, they can be 
         preloaded when the object is created.
 
-        Inheriting classes should raise a sensible error if they only contain
-        ultrasound video data.
+        NOTE: Not implemented yet and might never be. Calling this method will raise an error.
         """
         raise NotImplementedError('There is currently no conversion from video ultrasound data to raw data.')
 
         
     @property
-    @abc.abstractmethod
     def interpolated_ultrasound(self):
         """
         Interpolated ultrasound frames. 
@@ -331,7 +334,9 @@ class VideoUltrasound(AbstractUltrasound):
         not be an issue (i.e. there is a lot of it available).
         """
         
+        return self.__video
 
+        
 # dynamically loading things have a problem with time vector generation.
 # this may be taken care of by initing the timevector
 # on first call and raising an exception if somebody tries to access the vector before - or

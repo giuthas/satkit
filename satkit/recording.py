@@ -111,6 +111,13 @@ class Modality(metaclass=abc.ABCMeta):
     """
 
     def __init__(self, name = None, parent = None, timeOffSet = 0):
+        """
+        Modality constructor.
+
+        name is the name of this Modality and should be unique in this recording.
+        parent is the parent Recording.
+        timeOffset (s) is the offset against the baseline audio track.
+        """
         if parent == None or isinstance(parent, Recording):
             self.parent = parent
         else:
@@ -160,9 +167,6 @@ class MonoAudio(Modality):
         """
         Create a MonoAudio track.
 
-        name is the name of this Modality.
-        parent is the parent Recording.
-        timeOffset (s) is the offset against the baseline audio track.
         filename should be either None or the name of a wav-file.
         mainsFrequency (Hz) is the mains frequency of the place of recording. When detecting the recording 
         onset beep, the audio is high pass filtered with this frequency as the high end of the stop band.
@@ -172,16 +176,16 @@ class MonoAudio(Modality):
 
         super.__init__(name, parent, timeOffSet)
 
-        super.meta['filename'] = filename
-        super.meta['mainsFrequency'] = mainsFrequency
+        self.meta['filename'] = filename
+        self.meta['mainsFrequency'] = mainsFrequency
 
         # If we do not have a filename, there is not much to init.
         if filename is None:
             return self
         
         (ult_wav_fs, ult_wav_frames) = sio_wavfile.read(filename)
-        super.meta['ult_wav_fs'] = ult_wav_fs
-        super.data = ult_wav_frames
+        self.meta['ult_wav_fs'] = ult_wav_fs
+        self.audio = ult_wav_frames
         
         # before v1.0: the high_pass filter coefs should be generated once for a set of recordings
         # rather than create overhead everytime the code is run
@@ -196,8 +200,8 @@ class MonoAudio(Modality):
 
         # before v1.0: this is a bad name for the beep: 1) this is an AAA thing,
         # 2) the recording might not be UTI
-        super.meta['beep_uti'] = beep_uti
-        super.meta['has_speech'] = has_speech
+        self.meta['beep_uti'] = beep_uti
+        self.meta['has_speech'] = has_speech
         
         self.__time_vector = np.linspace(0, len(ult_wav_frames), 
                                          len(ult_wav_frames),
@@ -215,14 +219,15 @@ class MonoAudio(Modality):
 # this may be a really bad idea though, because it has a failure mode of
 # ask_for_time_vec(); triggers drive access, now that we have time_vec ask_for_data();
 # triggers drive access again...
-class Ultrasound(Modality):
+class AbstractUltrasound(Modality):
     """
     Abstract superclass for ultrasound recording classes.
     """
 
-    def __init__(self):
-        super.__init__()
+    def __init__(self, name = 'abstract ultrasound', parent = None, timeOffSet = 0, filename = None):
+        super.__init__(name, parent, timeOffSet)
 
+        
 
     @property
     @abc.abstractmethod
@@ -231,7 +236,7 @@ class Ultrasound(Modality):
         Raw ultrasound frames of this recording. 
 
         The frames are either read from a file when needed to keep memory needs 
-        in check or if using large amounts of memory is not a problem they can be 
+        in check, or if using large amounts of memory is not a problem, they can be 
         preloaded when the object is created.
 
         Inheriting classes should raise a sensible error if they only contain
@@ -250,7 +255,107 @@ class Ultrasound(Modality):
         not be an issue (i.e. there is a lot of it available).
         """
 
-#when implementing do
-# @raw_ultrasound.setter
-# and put the getting thing in the raw_ultrasound(self) method
-# etc
+        
+class TongueUltrasound(AbstractUltrasound):
+    """
+    Ultrasound Recording with raw (probe return) data.
+    """
+
+    def __init__(self, name = 'tongue ultrasound', parent = None, timeOffSet = 0, filename = None):
+        super.__init__(name, parent, timeOffSet, filename)
+
+
+    @property
+    def raw_ultrasound(self):
+        """
+        Raw ultrasound frames of this recording. 
+
+        The frames are read from a file when needed to keep memory needs 
+        in check.
+        """
+
+    @property
+    def interpolated_ultrasound(self):
+        """
+        Interpolated ultrasound frames. 
+
+        These are dynamically generated as needed.
+
+        NOTE: Not implemented yet. Calling this method will raise an error.
+        """
+
+        # before v1.0: consider implementing this
+        raise NotImplementedError('Conversion from raw data to video has not been implemented yet.')
+
+    
+    #when implementing do
+    @raw_ultrasound.setter
+    # and put the getting thing in the raw_ultrasound(self) method
+    # etc
+
+
+class VideoUltrasound(AbstractUltrasound):
+    """
+    Ultrasound video Recording -- does not contain raw data.
+    """
+
+    def __init__(self, name = 'video ultrasound', parent = None, timeOffSet = 0, filename = None):
+        super.__init__(name, parent, timeOffSet, filename)
+
+
+    @property
+    @abc.abstractmethod
+    def raw_ultrasound(self):
+        """
+        Raw ultrasound frames of this recording. 
+
+        The frames are either read from a file when needed to keep memory needs 
+        in check, or if using large amounts of memory is not a problem, they can be 
+        preloaded when the object is created.
+
+        Inheriting classes should raise a sensible error if they only contain
+        ultrasound video data.
+        """
+        raise NotImplementedError('There is currently no conversion from video ultrasound data to raw data.')
+
+        
+    @property
+    @abc.abstractmethod
+    def interpolated_ultrasound(self):
+        """
+        Interpolated ultrasound frames. 
+
+        These should never be stored in memory but rather dynamically generated as needed
+        unless the class represents a video ultrasound recording, in which case the frames
+        should be loaded into memory before they are needed only if running out of memory will
+        not be an issue (i.e. there is a lot of it available).
+        """
+        
+
+# dynamically loading things have a problem with time vector generation.
+# this may be taken care of by initing the timevector
+# on first call and raising an exception if somebody tries to access the vector before - or
+# even just generating it on the fly by loading and discarding the data
+# this may be a really bad idea though, because it has a failure mode of
+# ask_for_time_vec(); triggers drive access, now that we have time_vec ask_for_data();
+# triggers drive access again...
+class AbstractVideo(Modality):
+    """
+    Abstract superclass for video recording classes.
+    """
+
+    def __init__(self, name = 'video ultrasound', parent = None, timeOffSet = 0, filename = None):
+        super.__init__(name, parent, timeOffSet, filename)
+
+
+
+    @property
+    @abc.abstractmethod
+    def video(self):
+        """
+        Video frames of this recording. 
+
+        The frames are either read from a file when needed to keep memory needs 
+        in check, or if using large amounts of memory is not a problem, they can be 
+        preloaded when the object is created.
+        """

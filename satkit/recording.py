@@ -169,7 +169,7 @@ class MonoAudio(Modality):
         
         # setup the high-pass filter for removing the mains frequency (and anything below it)
         # from the recorded sound.
-# needs work: the high_pass filter coefs should be generated once for a set of recordings rather than create overhead everytime the code is run
+# needs work: the high_pass filter coefs should be generated once for a set of recordings rather than create overhead everytime a new recording is processed.
         b, a = satkit_audio.high_pass(ult_wav_fs, mainsFrequency)
         beep_uti, has_speech = satkit_audio.detect_beep_and_speech(ult_wav_frames,
                                                                    ult_wav_fs,
@@ -195,13 +195,57 @@ class MonoAudio(Modality):
 # this may be a really bad idea though, because it has a failure mode of
 # ask_for_time_vec(); triggers drive access, now that we have time_vec ask_for_data();
 # triggers drive access again...
+
+class LipVideo(Modality):
+
+    def __init__(self, name, parent, timeOffSet, data):
+        super().__init__(name=name, parent=parent, timeOffSet=timeOffSet, data=data)
+
 class Ultrasound(Modality):
     """
     Abstract superclass for ultrasound recording classes.
     """
 
-    def __init__(self):
-        super.__init__()
+    def __init__(self, name, parent, timeOffSet, data):
+
+    @property
+    @abc.abstractmethod
+    def raw_ultrasound(self):
+        """
+        Raw ultrasound frames of this recording. 
+
+        super().__init__(name=name, parent=parent, timeOffSet=timeOffSet, data=data)
+        The frames are either read from a file when needed to keep memory needs 
+        in check or if using large amounts of memory is not a problem they can be 
+        preloaded when the object is created.
+
+        Inheriting classes should raise a sensible error if they only contain
+        ultrasound video data.
+        """
+
+    @property
+    @abc.abstractmethod
+    def interpolated_ultrasound(self):
+        """
+        Interpolated ultrasound frames. 
+
+        These should never be stored in memory but rather dynamically generated as needed
+        unless the class represents a video ultrasound recording, in which case the frames
+        should be loaded into memory before they are needed only if running out of memory will
+        not be an issue (i.e. there is a lot of it available).
+        """
+
+#when implementing do
+# @raw_ultrasound.setter
+# and put the getting thing in the raw_ultrasound(self) method
+# etc
+class Ultrasound(Modality):
+    """
+    Abstract superclass for ultrasound recording classes.
+    """
+
+    def __init__(self, name, parent, timeOffSet, data):
+        super().__init__(name=name, parent=parent, timeOffSet=timeOffSet, data=data)
 
 
     @property
@@ -230,7 +274,17 @@ class Ultrasound(Modality):
         not be an issue (i.e. there is a lot of it available).
         """
 
-#when implementing do
-# @raw_ultrasound.setter
-# and put the getting thing in the raw_ultrasound(self) method
-# etc
+    meta = satkit_AAA.parse_ult_meta(token['ult_meta_file'])
+    ult_fps = meta['FramesPerSec']
+    ult_NumVectors = meta['NumVectors']
+    ult_PixPerVector = meta['PixPerVector']
+    ult_TimeInSecsOfFirstFrame = meta['TimeInSecsOfFirstFrame']
+
+    with closing(open(token['ult_file'], 'rb')) as ult_file:
+        ult_data = ult_file.read()
+        ultra = np.fromstring(ult_data, dtype=np.uint8)
+        ultra = ultra.astype("float32")
+        
+        ult_no_frames = int(len(ultra)/(ult_NumVectors*ult_PixPerVector))
+        # reshape into vectors containing a frame each
+        ultra = ultra.reshape((ult_no_frames, ult_NumVectors, ult_PixPerVector))

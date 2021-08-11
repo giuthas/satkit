@@ -110,7 +110,14 @@ class Modality(metaclass=abc.ABCMeta):
     into this problem. 
     """
 
-    def __init__(self, name = None, parent = None, timeOffSet = 0, data = None):
+    def __init__(self, name = None, parent = None, timeOffSet = 0):
+        """
+        Modality constructor.
+
+        name is the name of this Modality and should be unique in this recording.
+        parent is the parent Recording.
+        timeOffset (s) is the offset against the baseline audio track.
+        """
         if parent == None or isinstance(parent, Recording):
             self.parent = parent
         else:
@@ -118,7 +125,6 @@ class Modality(metaclass=abc.ABCMeta):
                             "or a decendant. Instead found: " + type(parent) + ".")
             
         self.timeOffSet = timeOffset
-        self.data = data # Do not load data here unless you are sure their will be enough memory.
 
         # use self.parent.meta[key] to set parent metadata
         # certain things should be properties with get/set 
@@ -151,22 +157,39 @@ class Modality(metaclass=abc.ABCMeta):
 
 class MonoAudio(Modality):
     """
-    An abstract mono audio track. 
+    A mono audio track. 
 
+    Audio does not use the two tier implementation because the audio data is assumed to be small
+    enough to fit in working memory.
     """
 
-    def __init__(self, name = 'audio', parent = None, timeOffSet = 0, data = None, mainsFrequency = 50):
-        super.__init__(name, parent, timeOffSet, data)
+    def __init__(self, name = 'mono audio', parent = None, timeOffSet = 0, filename = None, mainsFrequency = 50):
+        """
+        Create a MonoAudio track.
 
-# this needs to go in the docs
-        # note that the mains frequency should be locally checked if not clear from here
-        # https://en.wikipedia.org/wiki/Mains_electricity_by_country
-        super.meta['mainsFrequency'] = mainsFrequency
+        filename should be either None or the name of a wav-file.
+        mainsFrequency (Hz) is the mains frequency of the place of recording. When detecting the recording 
+        onset beep, the audio is high pass filtered with this frequency as the high end of the stop band.
+        The frequency should be checked locally, if not clear from here
+        https://en.wikipedia.org/wiki/Mains_electricity_by_country .
+        """
 
-        (ult_wav_fs, ult_wav_frames) = sio_wavfile.read(token['ult_wav_file'])
-        super.meta['ult_wav_fs'] = ult_wav_fs
-        super.meta['ult_wav'] = ult_wav_frames
+        super.__init__(name, parent, timeOffSet)
+
+        self.meta['filename'] = filename
+        self.meta['mainsFrequency'] = mainsFrequency
+
+        # If we do not have a filename, there is not much to init.
+        if filename is None:
+            return self
         
+        (ult_wav_fs, ult_wav_frames) = sio_wavfile.read(filename)
+        self.meta['ult_wav_fs'] = ult_wav_fs
+        self.audio = ult_wav_frames
+        
+        # before v1.0: the high_pass filter coefs should be generated once for a set of recordings
+        # rather than create overhead everytime the code is run
+        #
         # setup the high-pass filter for removing the mains frequency (and anything below it)
         # from the recorded sound.
 # needs work: the high_pass filter coefs should be generated once for a set of recordings rather than create overhead everytime a new recording is processed.
@@ -174,15 +197,17 @@ class MonoAudio(Modality):
         beep_uti, has_speech = satkit_audio.detect_beep_and_speech(ult_wav_frames,
                                                                    ult_wav_fs,
                                                                    b, a,
-                                                                   token['ult_wav_file'])
+                                                                   filename)
 
-# needs work: this is a bad name for the beep: 1) this is an AAA thing, 2) the recording might not be UTI
-# should we save has_speech as well? it is not the most reliable metric
-        super.meta['beep_uti'] = beep_uti
-
+        # before v1.0: this is a bad name for the beep: 1) this is an AAA thing,
+        # 2) the recording might not be UTI
+        self.meta['beep_uti'] = beep_uti
+        self.meta['has_speech'] = has_speech
         
         self.__time_vector = np.linspace(0, len(ult_wav_frames), 
-                                         len(ult_wav_frames), endpoint=False)/ult_wav_fs
+                                         len(ult_wav_frames),
+                                         endpoint=False)
+        self.__time_vector = self.__time_vector/ult_wav_fs
 
     def get_time_vector(self):
         return self.__time_vector
@@ -195,96 +220,173 @@ class MonoAudio(Modality):
 # this may be a really bad idea though, because it has a failure mode of
 # ask_for_time_vec(); triggers drive access, now that we have time_vec ask_for_data();
 # triggers drive access again...
-
-class LipVideo(Modality):
-
-    def __init__(self, name, parent, timeOffSet, data):
-        super().__init__(name=name, parent=parent, timeOffSet=timeOffSet, data=data)
-
-class Ultrasound(Modality):
+class AbstractUltrasound(Modality):
     """
     Abstract superclass for ultrasound recording classes.
     """
 
-    def __init__(self, name, parent, timeOffSet, data):
+    def __init__(self, name = 'abstract ultrasound', parent = None, timeOffSet = 0, filename = None):
+        super.__init__(name, parent, timeOffSet)
 
-    @property
-    @abc.abstractmethod
-    def raw_ultrasound(self):
-        """
-        Raw ultrasound frames of this recording. 
-
-        super().__init__(name=name, parent=parent, timeOffSet=timeOffSet, data=data)
-        The frames are either read from a file when needed to keep memory needs 
-        in check or if using large amounts of memory is not a problem they can be 
-        preloaded when the object is created.
-
-        Inheriting classes should raise a sensible error if they only contain
-        ultrasound video data.
-        """
-
-    @property
-    @abc.abstractmethod
-    def interpolated_ultrasound(self):
-        """
-        Interpolated ultrasound frames. 
-
-        These should never be stored in memory but rather dynamically generated as needed
-        unless the class represents a video ultrasound recording, in which case the frames
-        should be loaded into memory before they are needed only if running out of memory will
-        not be an issue (i.e. there is a lot of it available).
-        """
-
-#when implementing do
-# @raw_ultrasound.setter
-# and put the getting thing in the raw_ultrasound(self) method
-# etc
-class Ultrasound(Modality):
-    """
-    Abstract superclass for ultrasound recording classes.
-    """
-
-    def __init__(self, name, parent, timeOffSet, data):
-        super().__init__(name=name, parent=parent, timeOffSet=timeOffSet, data=data)
-
-
-    @property
-    @abc.abstractmethod
-    def raw_ultrasound(self):
-        """
-        Raw ultrasound frames of this recording. 
-
-        The frames are either read from a file when needed to keep memory needs 
-        in check or if using large amounts of memory is not a problem they can be 
-        preloaded when the object is created.
-
-        Inheriting classes should raise a sensible error if they only contain
-        ultrasound video data.
-        """
-
-    @property
-    @abc.abstractmethod
-    def interpolated_ultrasound(self):
-        """
-        Interpolated ultrasound frames. 
-
-        These should never be stored in memory but rather dynamically generated as needed
-        unless the class represents a video ultrasound recording, in which case the frames
-        should be loaded into memory before they are needed only if running out of memory will
-        not be an issue (i.e. there is a lot of it available).
-        """
-
-    meta = satkit_AAA.parse_ult_meta(token['ult_meta_file'])
-    ult_fps = meta['FramesPerSec']
-    ult_NumVectors = meta['NumVectors']
-    ult_PixPerVector = meta['PixPerVector']
-    ult_TimeInSecsOfFirstFrame = meta['TimeInSecsOfFirstFrame']
-
-    with closing(open(token['ult_file'], 'rb')) as ult_file:
-        ult_data = ult_file.read()
-        ultra = np.fromstring(ult_data, dtype=np.uint8)
-        ultra = ultra.astype("float32")
         
-        ult_no_frames = int(len(ultra)/(ult_NumVectors*ult_PixPerVector))
-        # reshape into vectors containing a frame each
-        ultra = ultra.reshape((ult_no_frames, ult_NumVectors, ult_PixPerVector))
+
+    @property
+    @abc.abstractmethod
+    def raw_ultrasound(self):
+        """
+        Raw ultrasound frames of this recording. 
+
+        super().__init__(name=name, parent=parent, timeOffSet=timeOffSet, data=data)
+        The frames are either read from a file when needed to keep memory needs 
+        in check, or if using large amounts of memory is not a problem, they can be 
+        preloaded when the object is created.
+
+        Inheriting classes should raise a sensible error if they only contain
+        ultrasound video data.
+        """
+
+    @property
+    @abc.abstractmethod
+    def interpolated_ultrasound(self):
+        """
+        Interpolated ultrasound frames. 
+
+        These should never be stored in memory but rather dynamically generated as needed
+        unless the class represents a video ultrasound recording, in which case the frames
+        should be loaded into memory before they are needed only if running out of memory will
+        not be an issue (i.e. there is a lot of it available).
+        """
+
+        
+class RawTongueUltrasound(AbstractUltrasound):
+    """
+    Ultrasound Recording with raw (probe return) data.
+    """
+
+    def __init__(self, name = 'raw tongue ultrasound', parent = None, timeOffSet = 0, filename = None):
+        super.__init__(name, parent, timeOffSet, filename)
+
+# needs work: this is just copy-paste from the old implementation
+        meta = satkit_AAA.parse_ult_meta(token['ult_meta_file'])
+        ult_fps = meta['FramesPerSec']
+        ult_NumVectors = meta['NumVectors']
+        ult_PixPerVector = meta['PixPerVector']
+        ult_TimeInSecsOfFirstFrame = meta['TimeInSecsOfFirstFrame']
+
+        with closing(open(token['ult_file'], 'rb')) as ult_file:
+            ult_data = ult_file.read()
+            ultra = np.fromstring(ult_data, dtype=np.uint8)
+            ultra = ultra.astype("float32")
+            
+            ult_no_frames = int(len(ultra)/(ult_NumVectors*ult_PixPerVector))
+            # reshape into vectors containing a frame each
+            ultra = ultra.reshape((ult_no_frames, ult_NumVectors, ult_PixPerVector))
+
+    @property
+    def raw_ultrasound(self):
+        """
+        Raw ultrasound frames of this recording. 
+
+        The frames are read from a file when needed to keep memory needs 
+        in check.
+        """
+
+    @property
+    def interpolated_ultrasound(self):
+        """
+        Interpolated ultrasound frames. 
+
+        These are dynamically generated as needed.
+
+        NOTE: Not implemented yet. Calling this method will raise an error.
+        """
+
+        # before v1.0: consider implementing this
+        raise NotImplementedError('Conversion from raw data to video has not been implemented yet.')
+
+    
+    #when implementing do
+    @raw_ultrasound.setter
+    # and put the getting thing in the raw_ultrasound(self) method
+    # etc
+
+
+class VideoUltrasound(AbstractUltrasound):
+    """
+    Ultrasound video Recording -- does not contain raw data.
+
+    This is the dynamically loading version and as such does not load the ultrasound data 
+    before it is actually accessed. While some metadata will only be populated once the video
+    has been loaded, it should be noted that the video itself will not be kept in memory 
+    by instances of this class. Rather every time the interpolated_ultrasound property of 
+    an instance is accessed, there will be a hard drive operation. 
+    """
+
+    def __init__(self, name = 'video ultrasound', parent = None, timeOffSet = 0, filename = None):
+        super.__init__(name, parent, timeOffSet, filename)
+
+
+    @property
+    def raw_ultrasound(self):
+        """
+        Raw ultrasound frames of this recording. 
+
+        The frames are either read from a file when needed to keep memory needs 
+        preloaded when the object is created.
+
+        NOTE: Not implemented yet and might never be. Calling this method will raise an error.
+        """
+        raise NotImplementedError('There is currently no conversion from video ultrasound data to raw data.')
+
+        
+    @property
+    @abc.abstractmethod
+    def interpolated_ultrasound(self):
+        """
+        Interpolated ultrasound frames. 
+
+        These should never be stored in memory but rather dynamically generated as needed
+        unless the class represents a video ultrasound recording, in which case the frames
+        should be loaded into memory before they are needed only if running out of memory will
+        not be an issue (i.e. there is a lot of it available).
+        """
+        
+        # This will be implemented with something like:
+        #return self.__video
+        # in the static loading case. Otherwise disk reading goes here.
+        
+
+        
+# dynamically loading things have a problem with time vector generation.
+# this may be taken care of by initing the timevector
+# on first call and raising an exception if somebody tries to access the vector before - or
+# even just generating it on the fly by loading and discarding the data
+# this may be a really bad idea though, because it has a failure mode of
+# ask_for_time_vec(); triggers drive access, now that we have time_vec ask_for_data();
+# triggers drive access again...
+class AbstractVideo(Modality):
+    """
+    Abstract superclass for video recording classes.
+    """
+
+    def __init__(self, name = 'video ultrasound', parent = None, timeOffSet = 0, filename = None):
+        super.__init__(name, parent, timeOffSet, filename)
+
+
+
+    @property
+    @abc.abstractmethod
+    def video(self):
+        """
+        Video frames of this recording. 
+
+        The frames are either read from a file when needed to keep memory needs 
+        in check, or if using large amounts of memory is not a problem, they can be 
+        preloaded when the object is created.
+        """
+
+
+class LipVideo(AbstractVideo):
+
+    def __init__(self, name = 'video ultrasound', parent = None, timeOffSet = 0, filename = None):
+        super.__init__(name, parent, timeOffSet, filename)

@@ -33,6 +33,9 @@
 import abc
 import logging
 
+# Numerical arrays and more
+import numpy as np
+
 # wav file handling
 import scipy.io.wavfile as sio_wavfile
 
@@ -220,16 +223,25 @@ class MonoAudio(Modality):
 # this may be a really bad idea though, because it has a failure mode of
 # ask_for_time_vec(); triggers drive access, now that we have time_vec ask_for_data();
 # triggers drive access again...
-class AbstractUltrasound(Modality):
+class AbstractAAAUltrasound(Modality):
     """
     Abstract superclass for ultrasound recording classes.
     """
 
-    def __init__(self, name = 'abstract ultrasound', parent = None, timeOffSet = 0, filename = None):
+    def __init__(self, name = 'abstract ultrasound', parent = None, timeOffSet = 0, filename = None, meta_filename = None):
         super.__init__(name, parent, timeOffSet)
 
+        self.meta['ultrasound_file'] = filename
+        self.meta['meta_file'] = meta_filename
         
-
+        if filename != None:
+            meta = satkit_AAA.parse_ult_meta(self.meta['meta_file'])
+            self.meta['fps'] = meta['FramesPerSec']
+            self.meta['NumVectors'] = meta['NumVectors']
+            self.meta['PixPerVector'] = meta['PixPerVector']
+            self.meta['TimeInSecsOfFirstFrame'] = meta['TimeInSecsOfFirstFrame']
+    
+        
     @property
     @abc.abstractmethod
     def raw_ultrasound(self):
@@ -258,38 +270,43 @@ class AbstractUltrasound(Modality):
         """
 
         
-class RawTongueUltrasound(AbstractUltrasound):
+class DynRawUltrasound(AbstractAAAUltrasound):
     """
-    Ultrasound Recording with raw (probe return) data.
+    Ultrasound Recording with dynamically loaded raw (probe return) data.
     """
 
     def __init__(self, name = 'raw tongue ultrasound', parent = None, timeOffSet = 0, filename = None):
         super.__init__(name, parent, timeOffSet, filename)
 
-# needs work: this is just copy-paste from the old implementation
-        meta = satkit_AAA.parse_ult_meta(token['ult_meta_file'])
-        ult_fps = meta['FramesPerSec']
-        ult_NumVectors = meta['NumVectors']
-        ult_PixPerVector = meta['PixPerVector']
-        ult_TimeInSecsOfFirstFrame = meta['TimeInSecsOfFirstFrame']
-
-        with closing(open(token['ult_file'], 'rb')) as ult_file:
-            ult_data = ult_file.read()
-            ultra = np.fromstring(ult_data, dtype=np.uint8)
-            ultra = ultra.astype("float32")
-            
-            ult_no_frames = int(len(ultra)/(ult_NumVectors*ult_PixPerVector))
-            # reshape into vectors containing a frame each
-            ultra = ultra.reshape((ult_no_frames, ult_NumVectors, ult_PixPerVector))
 
     @property
     def raw_ultrasound(self):
         """
-        Raw ultrasound frames of this recording. 
+        Raw ultrasound frames of this recording as a 3D numpy array. 
 
         The frames are read from a file when needed to keep memory needs 
         in check.
+
+        Output array has the dimensions [frames, scanlines, pixels].
         """
+        with closing(open(self.meta['ultrasound_file'], 'rb')) as ult_file:
+            ult_data = ult_file.read()
+            ultra = np.fromstring(ult_data, dtype=np.uint8)
+            ultra = ultra.astype("float32")
+            
+            self.meta['no_frames'] = int(len(ultra) / (self.meta['NumVectors']*self.meta['PixPerVector']))
+            return ultra.reshape((self.meta['no_frames'], self.meta['NumVectors'], self.meta['PixPerVector']))
+
+
+    @raw_ultrasound.setter
+    def raw_ultrasound(self):  
+        """
+        Writing over dynamically loaded data is not currently possible. 
+
+        NOTE: Not implemented yet. Calling this method will raise an error.
+        """
+        raise NotImplementedError('Writing over dynamically loaded raw ultrasound data has not been implemented yet.')
+
 
     @property
     def interpolated_ultrasound(self):
@@ -305,10 +322,81 @@ class RawTongueUltrasound(AbstractUltrasound):
         raise NotImplementedError('Conversion from raw data to video has not been implemented yet.')
 
     
-    #when implementing do
+    @interpolated_ultrasound.setter
+    def interpolated_ultrasound(self):  
+        """
+        Writing over dynamically loaded data is not currently possible. 
+
+        NOTE: Not implemented yet. Calling this method will raise an error.
+        """
+        raise NotImplementedError('Writing over dynamically loaded ultrasound data has not been implemented yet.')
+
+
+
+class StaticRawUltrasound(AbstractAAAUltrasound):
+    """
+    Ultrasound Recording with dynamically loaded raw (probe return) data.
+    """
+
+    def __init__(self, name = 'raw tongue ultrasound', parent = None, timeOffSet = 0, filename = None):
+        super.__init__(name, parent, timeOffSet, filename)
+
+        with closing(open(self.meta['ultrasound_file'], 'rb')) as ult_file:
+            ult_data = ult_file.read()
+            ultra = np.fromstring(ult_data, dtype=np.uint8)
+            ultra = ultra.astype("float32")
+            
+            self.meta['no_frames'] = int(len(ultra) / (self.meta['NumVectors']*self.meta['PixPerVector']))
+            self.__raw_ultrasound = ultra.reshape((self.meta['no_frames'], self.meta['NumVectors'], self.meta['PixPerVector']))
+
+
+    @property
+    def raw_ultrasound(self):
+        """
+        Raw ultrasound frames of this recording as a 3D numpy array. 
+
+        Output array has the dimensions [frames, scanlines, pixels].
+        """
+        return self.__raw_ultrasound
+
+
     @raw_ultrasound.setter
-    # and put the getting thing in the raw_ultrasound(self) method
-    # etc
+    def raw_ultrasound(self, raw_ultrasound):  
+        """
+        Replaces the raw ultrasound data of this recording. 
+
+        NOTE: Not fully implemented yet. Calling this method will raise an error.
+        """
+        raise NotImplementedError('Writing over dynamically loaded raw ultrasound data has not been implemented yet.')
+
+        # there needs to be type checking and meta data will need to be updated
+        self.__raw_ultrasound = raw_ultrasound
+
+
+
+    @property
+    def interpolated_ultrasound(self):
+        """
+        Interpolated ultrasound frames. 
+
+        These are dynamically generated as needed.
+
+        NOTE: Not implemented yet. Calling this method will raise an error.
+        """
+
+        # before v1.0: consider implementing this
+        raise NotImplementedError('Conversion from raw data to video has not been implemented yet.')
+
+
+    @interpolated_ultrasound.setter
+    def interpolated_ultrasound(self):  
+        """
+        Writing over dynamically generated videos is not currently possible. 
+
+        NOTE: Not implemented yet. Calling this method will raise an error.
+        """
+        raise NotImplementedError('Writing over dynamically generated ultrasound videos has not been implemented yet.')
+
 
 
 class VideoUltrasound(AbstractUltrasound):
@@ -349,8 +437,11 @@ class VideoUltrasound(AbstractUltrasound):
         unless the class represents a video ultrasound recording, in which case the frames
         should be loaded into memory before they are needed only if running out of memory will
         not be an issue (i.e. there is a lot of it available).
+        
+        NOTE: Not implemented yet.
         """
         
+        raise NotImplementedError('There is currently no conversion from video ultrasound data to raw data.')
         # This will be implemented with something like:
         #return self.__video
         # in the static loading case. Otherwise disk reading goes here.

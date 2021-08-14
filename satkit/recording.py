@@ -50,36 +50,53 @@ _recording_logger = logging.getLogger('satkit.recording')
 
 class Recording():
     """
-    A Recording contains 1-n synchronised Modalities.
+    A Recording contains 0-n synchronised Modalities.
 
     The recording also contains the non-modality 
     specific metadata (participant, speech content, etc) 
     as a dictionary, so that it can be easily written 
-    to .csv files.
+    to .csv files, as well as the textgrid for the whole recording.
     """
 
-    def __init__(self):
+    def __init__(self, path = None, basename = "", textgrid = None):
         self.excluded = False
-        self.meta = {}
+        self.meta = {path: path, 
+                    basename: basename, 
+                    textgrid: textgrid
+                    }
         self.modalities = {}
 
+        if self.meta['textgrid']:
+            self._read_textgrid()
+        else:
+            self.textgrid = None 
 
-    def read_textgrid(self):
+    def _read_textgrid(self):
         """
-        Tries to open the textgrid specified in self.meta.
-
-        Currently it is a fatal error to call this function either before self.meta has been 
-        iniatialised or if the self.meta['textgrid'] is not a valid path to a valid textgrid.
-        This may change in the future.
+        Helper method to open the textgrid specified in self.meta.
         """
         try:
             self.textgrid = textgrids.TextGrid(self.meta['textgrid'])
         except:
-            _recording_logger.critical("Could not read textgrid in " + filename + ".")
+            _recording_logger.critical("Could not read textgrid in " + self.meta['textgrid'] + ".")
             self.textgrid = None
 
-        return grid
+    # before v1.0: decide if a new filepath should be saved if given here. more of a UI responsibility maybe?
+    def write_textgrid(self, filepath = None):
+        """
+        Save this recording's textgrid to file.
 
+        If filepath is not specified, this method will try to overwrite the 
+        textgrid speficied in self.meta.
+        """
+        try:
+            if filepath:
+                self.textgrid.write(filepath)
+            else:
+                self.textgrid.write(self.meta['textgrid'])
+        except:
+            _recording_logger.critical("Could not write textgrid to " + self.meta['textgrid'] + ".")
+            self.textgrid = None
 
     # should the modalities dict be accessed as a property?
     def add_modality(self, name, modality, replace=False):
@@ -181,7 +198,7 @@ class Modality(metaclass=abc.ABCMeta):
     def timeOffset(self, timeOffset):
         self.__timeOffset = timeOffset
         if self.isPreloaded:
-            self.__time_vector = self.time_vector + (timeOffset - self.time_vector[0])
+            self.__time_vector = self.time_vector + (timeOffset - self.time_vector[0    ])
 
     @property
     @abc.abstractmethod
@@ -192,7 +209,6 @@ class Modality(metaclass=abc.ABCMeta):
         This method is abstract to let subclasses either generate the timevector
         on the fly or preload or pregenerate it.
         """
-
 
     @time_vector.setter
     @abc.abstractmethod

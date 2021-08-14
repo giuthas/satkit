@@ -31,6 +31,7 @@
 
 # Built in packages
 import abc
+from contextlib import closing
 import logging
 
 # Numerical arrays and more
@@ -113,12 +114,14 @@ class Modality(metaclass=abc.ABCMeta):
     into this problem. 
     """
 
-    def __init__(self, name = None, parent = None, timeOffSet = 0):
+    def __init__(self, name = None, parent = None, isPreloaded = True, timeOffset = 0):
         """
         Modality constructor.
 
         name is the name of this Modality and should be unique in this recording.
         parent is the parent Recording.
+        isPreloaded is a boolean indicating if this instance reads the data from disc 
+            on construction or only when needed.
         timeOffset (s) is the offset against the baseline audio track.
         """
         if parent == None or isinstance(parent, Recording):
@@ -127,18 +130,37 @@ class Modality(metaclass=abc.ABCMeta):
             raise TypeError("Modality given a parent which is not of type Recording " +
                             "or a decendant. Instead found: " + type(parent) + ".")
             
-        self.timeOffSet = timeOffset
+        self.isPreloaded = isPreloaded
+        self.timeOffset = timeOffset
 
         # use self.parent.meta[key] to set parent metadata
         # certain things should be properties with get/set 
         self.meta = {}
 
-        # This is a property that when set to True will also set parent.excluded to True.
+        # This is a property which when set to True will also set parent.excluded to True.
         self.excluded = False
 
     @property
+    @abc.abstractmethod
+    def data(self):
+        """
+        Return the data of this Modality as a NumPy array. 
+        
+        This method is abstract to let subclasses either load the data
+        on the fly or preload it.
+
+        In either case, the dimensions of the array should be in the 
+        order of [time, others]
+        """
+        
+    @data.setter
+    @abc.abstractmethod
+    def data(self, data):
+        
+    @property
     def excluded(self):
         return self.__excluded
+
 
     @excluded.setter
     def excluded(self, excluded):
@@ -150,11 +172,22 @@ class Modality(metaclass=abc.ABCMeta):
             
     @property
     @abc.abstractmethod
-    def get_time_vector(self):
+    def time_vector(self):
         """
-        Return timevector corresponding to self.frames. This
-        method is abstract to let subclasses either generate the timevector
+        Return the timevector corresponding to self.data as a NumPy array. 
+        
+        This method is abstract to let subclasses either generate the timevector
         on the fly or preload or pregenerate it.
+        """
+
+
+    @time_vector.setter
+    @abc.abstractmethod
+    def time_vector(self, time_vector):
+        """
+        Set the timevector corresponding to self.data. 
+        
+        This method is abstract to let subclasses decide if they allow this.
         """
 
 
@@ -166,7 +199,8 @@ class MonoAudio(Modality):
     enough to fit in working memory.
     """
 
-    def __init__(self, name = 'mono audio', parent = None, timeOffSet = 0, filename = None, mainsFrequency = 50):
+    def __init__(self, name = 'mono audio', parent = None, isPreloaded = True, timeOffset = 0, 
+        filename = None, mainsFrequency = 50):
         """
         Create a MonoAudio track.
 
@@ -177,7 +211,7 @@ class MonoAudio(Modality):
         https://en.wikipedia.org/wiki/Mains_electricity_by_country .
         """
 
-        super.__init__(name, parent, timeOffSet)
+        super.__init__(name, parent, isPreloaded, timeOffset)
 
         self.meta['filename'] = filename
         self.meta['mainsFrequency'] = mainsFrequency
@@ -212,9 +246,14 @@ class MonoAudio(Modality):
                                          endpoint=False)
         self.__time_vector = self.__time_vector/ult_wav_fs
 
-    def get_time_vector(self):
+    @property
+    def time_vector(self):
+        return self.__time_vector    
+
+    @time_vector.setter
+    def time_vector(self):
         return self.__time_vector
-    
+
 
 # dynamically loading things have a problem with time vector generation.
 # this may be taken care of by initing the timevector
@@ -228,18 +267,19 @@ class AbstractAAAUltrasound(Modality):
     Abstract superclass for ultrasound recording classes.
     """
 
-    def __init__(self, name = 'abstract ultrasound', parent = None, timeOffSet = 0, filename = None, meta_filename = None):
-        super.__init__(name, parent, timeOffSet)
+    def __init__(self, name = 'abstract ultrasound', parent = None, isPreloaded = True, timeOffset = 0, 
+        filename = None, meta_filename = None, meta_dict = None):
+        super.__init__(name, parent, timeOffset)
 
         self.meta['ultrasound_file'] = filename
         self.meta['meta_file'] = meta_filename
         
-        if filename != None:
-            meta = satkit_AAA.parse_ult_meta(self.meta['meta_file'])
-            self.meta['fps'] = meta['FramesPerSec']
+        if meta_dict != None:
+            self.meta.update(meta_dict)
+            self.meta['FramesPerSec'] = meta['FramesPerSec']
             self.meta['NumVectors'] = meta['NumVectors']
             self.meta['PixPerVector'] = meta['PixPerVector']
-            self.meta['TimeInSecsOfFirstFrame'] = meta['TimeInSecsOfFirstFrame']
+            self.meta['TimeInSecsOfFirstFrame'] = meta['TimeInSecsOfFirstFrame'] # this goes in timeOffset, not here
     
         
     @property
@@ -248,7 +288,7 @@ class AbstractAAAUltrasound(Modality):
         """
         Raw ultrasound frames of this recording. 
 
-        super().__init__(name=name, parent=parent, timeOffSet=timeOffSet, data=data)
+        super().__init__(name=name, parent=parent, timeOffset=timeOffset, data=data)
         The frames are either read from a file when needed to keep memory needs 
         in check, or if using large amounts of memory is not a problem, they can be 
         preloaded when the object is created.
@@ -275,8 +315,8 @@ class DynRawUltrasound(AbstractAAAUltrasound):
     Ultrasound Recording with dynamically loaded raw (probe return) data.
     """
 
-    def __init__(self, name = 'raw tongue ultrasound', parent = None, timeOffSet = 0, filename = None):
-        super.__init__(name, parent, timeOffSet, filename)
+    def __init__(self, name = 'raw tongue ultrasound', parent = None, isPreloaded = True, timeOffset = 0, filename = None):
+        super.__init__(name, parent, timeOffset, filename)
 
 
     @property
@@ -338,8 +378,8 @@ class StaticRawUltrasound(AbstractAAAUltrasound):
     Ultrasound Recording with dynamically loaded raw (probe return) data.
     """
 
-    def __init__(self, name = 'raw tongue ultrasound', parent = None, timeOffSet = 0, filename = None):
-        super.__init__(name, parent, timeOffSet, filename)
+    def __init__(self, name = 'raw tongue ultrasound', parent = None, isPreloaded = True, timeOffset = 0, filename = None):
+        super.__init__(name, parent, timeOffset, filename)
 
         with closing(open(self.meta['ultrasound_file'], 'rb')) as ult_file:
             ult_data = ult_file.read()
@@ -410,8 +450,8 @@ class VideoUltrasound(AbstractUltrasound):
     an instance is accessed, there will be a hard drive operation. 
     """
 
-    def __init__(self, name = 'video ultrasound', parent = None, timeOffSet = 0, filename = None):
-        super.__init__(name, parent, timeOffSet, filename)
+    def __init__(self, name = 'video ultrasound', parent = None, isPreloaded = True, timeOffset = 0, filename = None):
+        super.__init__(name, parent, timeOffset, filename)
 
 
     @property
@@ -460,8 +500,8 @@ class AbstractVideo(Modality):
     Abstract superclass for video recording classes.
     """
 
-    def __init__(self, name = 'video ultrasound', parent = None, timeOffSet = 0, filename = None):
-        super.__init__(name, parent, timeOffSet, filename)
+    def __init__(self, name = 'video ultrasound', parent = None, isPreloaded = True, timeOffset = 0, filename = None):
+        super.__init__(name, parent, timeOffset, filename)
 
 
 
@@ -479,5 +519,5 @@ class AbstractVideo(Modality):
 
 class LipVideo(AbstractVideo):
 
-    def __init__(self, name = 'video ultrasound', parent = None, timeOffSet = 0, filename = None):
-        super.__init__(name, parent, timeOffSet, filename)
+    def __init__(self, name = 'video ultrasound', parent = None, isPreloaded = True, timeOffset = 0, filename = None):
+        super.__init__(name, parent, timeOffset, filename)

@@ -132,7 +132,7 @@ class Modality(metaclass=abc.ABCMeta):
     into this problem. 
     """
 
-    def __init__(self, name = None, parent = None, isPreloaded = True, timeOffset = 0):
+    def __init__(self, name = None, parent = None, preload = False, timeOffset = 0):
         """
         Modality constructor.
 
@@ -148,15 +148,21 @@ class Modality(metaclass=abc.ABCMeta):
             raise TypeError("Modality given a parent which is not of type Recording " +
                             "or a decendant. Instead found: " + type(parent) + ".")
             
-        self.isPreloaded = isPreloaded
-        self.timeOffset = timeOffset
-
         # use self.parent.meta[key] to set parent metadata
         # certain things should be properties with get/set 
         self.meta = {}
 
         # This is a property which when set to True will also set parent.excluded to True.
         self.excluded = False
+
+        self.timeOffset = timeOffset
+
+# needs work: how do we call this only at the end of init in subclasses? maybe have to initialisers?
+        if preload:
+            self._loadData(self)
+            self.isPreloaded = True
+        else:
+            self.isPreloaded = False
 
     @property
     @abc.abstractmethod
@@ -245,7 +251,7 @@ class MonoAudio(Modality):
     enough to fit in working memory.
     """
 
-    def __init__(self, name = 'mono audio', parent = None, isPreloaded = True, timeOffset = 0, 
+    def __init__(self, name = 'mono audio', parent = None, preload = True, timeOffset = 0, 
         filename = None, mainsFrequency = 50):
         """
         Create a MonoAudio track.
@@ -258,7 +264,7 @@ class MonoAudio(Modality):
             https://en.wikipedia.org/wiki/Mains_electricity_by_country .
         """
 
-        super.__init__(name, parent, isPreloaded, timeOffset)
+        super.__init__(name, parent, preload, timeOffset)
 
         self.meta['filename'] = filename
         self.meta['mainsFrequency'] = mainsFrequency
@@ -267,9 +273,15 @@ class MonoAudio(Modality):
         if filename is None:
             return self
         
-        (wav_fs, wav_frames) = sio_wavfile.read(filename)
-        self.meta['wav_fs'] = wav_fs
-        self.data = wav_frames
+        if preload:
+# needs work: put this in a helper, so that it can be called outside of construction
+# maybe even make the whole of it abstract in Modality
+            (wav_fs, wav_frames) = sio_wavfile.read(filename)
+            self.meta['wav_fs'] = wav_fs
+            self.data = wav_frames
+            self.isPreloaded = True
+        else:
+            self.isPreloaded = False
         
         # before v1.0: the high_pass filter coefs should be generated once for a set of recordings
         # rather than create overhead everytime the code is run
@@ -343,17 +355,17 @@ class MatrixData(Modality):
     dataset to be contained in memory.
     """
 
-    def __init__(self, name = None, parent = None, isPreloaded = False, timeOffset = 0):
+    def __init__(self, name = None, parent = None, preload = False, timeOffset = 0):
         """
         Modality constructor.
 
         name is the name of this Modality and should be unique in this recording.
         parent is the parent Recording.
-        isPreloaded is a boolean indicating if this instance reads the data from disc 
+        preload is a boolean indicating if this instance should read the data from disc 
             on construction or only when needed.
         timeOffset (s) is the offset against the baseline audio track.
         """
-        super.__init__(name, parent, isPreloaded, timeOffset)
+        super.__init__(name, parent, preload, timeOffset)
 
 
     @property

@@ -81,7 +81,8 @@ class Recording():
             _recording_logger.critical("Could not read textgrid in " + self.meta['textgrid'] + ".")
             self.textgrid = None
 
-    # before v1.0: decide if a new filepath should be saved if given here. more of a UI responsibility maybe?
+    # before v1.0: decide if a new filepath should be saved if given here. 
+    # more of a UI responsibility maybe?
     def write_textgrid(self, filepath = None):
         """
         Save this recording's textgrid to file.
@@ -190,15 +191,31 @@ class Modality(metaclass=abc.ABCMeta):
           self.parent.excluded = excluded  
             
     @property
+    @abc.abstractmethod
     def timeOffset(self):
-        return self.__timeOffset
+        """
+        Return the time offset of this modality.
+
+        Subclasses should be implemted so that self.__time_vector[0] 
+        is equal to self.__timeOffset. 
+
+        Abstract because self.__time_vector may or may not 
+        be generated on the fly.
+        """
 
 
     @timeOffset.setter
+    @abc.abstractmethod
     def timeOffset(self, timeOffset):
-        self.__timeOffset = timeOffset
-        if self.isPreloaded:
-            self.__time_vector = self.time_vector + (timeOffset - self.time_vector[0    ])
+        """
+        Set the time offset of this modality. 
+        
+        Subclasses should be implemted so that self.__time_vector[0] 
+        is equal to self.__timeOffset. 
+
+        Abstract because self.__time_vector may or may not 
+        be generated on the fly.
+        """
 
     @property
     @abc.abstractmethod
@@ -299,8 +316,89 @@ class MonoAudio(Modality):
         self.__data = data
 
     @property
+    def timeOffset(self):
+        return self.__timeOffset
+
+    @timeOffset.setter
+    def timeOffset(self, timeOffset):
+        self.__timeOffset = timeOffset
+        if self.isPreloaded:
+            self.__time_vector = self.time_vector + (timeOffset - self.time_vector[0])
+
+    @property
     def time_vector(self):
-        return self.__time_vector    
+        return self.__time_vector
+
+    @time_vector.setter
+    def time_vector(self, time_vector):
+        self.__time_vector = time_vector
+        self.timeOffset = time_vector[0]
+
+
+class MatrixData(Modality):
+    """
+    Superclass of matrix data.
+
+    As a default, matrix data is assumed to be too large for the whole 
+    dataset to be contained in memory.
+    """
+
+    def __init__(self, name = None, parent = None, isPreloaded = False, timeOffset = 0):
+        """
+        Modality constructor.
+
+        name is the name of this Modality and should be unique in this recording.
+        parent is the parent Recording.
+        isPreloaded is a boolean indicating if this instance reads the data from disc 
+            on construction or only when needed.
+        timeOffset (s) is the offset against the baseline audio track.
+        """
+        super.__init__(name, parent, isPreloaded, timeOffset)
+
+
+    @property
+    def data(self):
+        """
+        Return the data of this Modality as a NumPy array. 
+        
+        This method is abstract to let subclasses either load the data
+        on the fly or preload it.
+
+        In either case, the dimensions of the array should be in the 
+        order of [time, others]
+        """
+        
+    @data.setter
+    def data(self, data):
+        """
+        Abstract data setter method.
+        """
+
+    @property
+    def excluded(self):
+        return self.__excluded
+
+
+    @excluded.setter
+    def excluded(self, excluded):
+        self.__excluded = excluded
+
+        if excluded:
+          self.parent.excluded = excluded  
+            
+    @property
+    def timeOffset(self):
+        return self.__timeOffset
+
+    @timeOffset.setter
+    def timeOffset(self, timeOffset):
+        self.__timeOffset = timeOffset
+        if self.isPreloaded:
+            self.__time_vector = self.time_vector + (timeOffset - self.time_vector[0])
+
+    @property
+    def time_vector(self):
+        return self.__time_vector
 
     @time_vector.setter
     def time_vector(self, time_vector):
@@ -334,7 +432,6 @@ class AbstractAAAUltrasound(Modality):
             self.meta['PixPerVector'] = meta['PixPerVector']
             self.meta['TimeInSecsOfFirstFrame'] = meta['TimeInSecsOfFirstFrame'] # this goes in timeOffset, not here
     
-        
     @property
     @abc.abstractmethod
     def raw_ultrasound(self):

@@ -156,7 +156,10 @@ class Modality(metaclass=abc.ABCMeta):
     @data.setter
     @abc.abstractmethod
     def data(self, data):
-        
+        """
+        Abstract data setter method.
+        """
+
     @property
     def excluded(self):
         return self.__excluded
@@ -168,8 +171,18 @@ class Modality(metaclass=abc.ABCMeta):
 
         if excluded:
           self.parent.excluded = excluded  
-
             
+    @property
+    def timeOffset(self):
+        return self.__timeOffset
+
+
+    @timeOffset.setter
+    def timeOffset(self, timeOffset):
+        self.__timeOffset = timeOffset
+        if self.isPreloaded:
+            self.__time_vector = self.time_vector + (timeOffset - self.time_vector[0])
+
     @property
     @abc.abstractmethod
     def time_vector(self):
@@ -205,10 +218,11 @@ class MonoAudio(Modality):
         Create a MonoAudio track.
 
         filename should be either None or the name of a wav-file.
-        mainsFrequency (Hz) is the mains frequency of the place of recording. When detecting the recording 
-        onset beep, the audio is high pass filtered with this frequency as the high end of the stop band.
-        The frequency should be checked locally, if not clear from here
-        https://en.wikipedia.org/wiki/Mains_electricity_by_country .
+        mainsFrequency (Hz) is the mains frequency of the place of recording. 
+            When detecting the recording onset beep, the audio is high pass 
+            filtered with this frequency as the high end of the stop band.
+            The frequency should be checked locally, if not clear from here
+            https://en.wikipedia.org/wiki/Mains_electricity_by_country .
         """
 
         super.__init__(name, parent, isPreloaded, timeOffset)
@@ -220,19 +234,21 @@ class MonoAudio(Modality):
         if filename is None:
             return self
         
-        (ult_wav_fs, ult_wav_frames) = sio_wavfile.read(filename)
-        self.meta['ult_wav_fs'] = ult_wav_fs
-        self.audio = ult_wav_frames
+        (wav_fs, wav_frames) = sio_wavfile.read(filename)
+        self.meta['wav_fs'] = wav_fs
+        self.data = wav_frames
         
         # before v1.0: the high_pass filter coefs should be generated once for a set of recordings
         # rather than create overhead everytime the code is run
         #
+        # Good place to do this would actually be in the satkit_audio module. Make a detector object or something.
+        #
         # setup the high-pass filter for removing the mains frequency (and anything below it)
         # from the recorded sound.
 # needs work: the high_pass filter coefs should be generated once for a set of recordings rather than create overhead everytime a new recording is processed.
-        b, a = satkit_audio.high_pass(ult_wav_fs, mainsFrequency)
-        beep_uti, has_speech = satkit_audio.detect_beep_and_speech(ult_wav_frames,
-                                                                   ult_wav_fs,
+        b, a = satkit_audio.high_pass(wav_fs, mainsFrequency)
+        beep_uti, has_speech = satkit_audio.detect_beep_and_speech(wav_frames,
+                                                                   wav_fs,
                                                                    b, a,
                                                                    filename)
 
@@ -241,18 +257,39 @@ class MonoAudio(Modality):
         self.meta['beep_uti'] = beep_uti
         self.meta['has_speech'] = has_speech
         
-        self.__time_vector = np.linspace(0, len(ult_wav_frames), 
-                                         len(ult_wav_frames),
+        self.__time_vector = np.linspace(0, len(wav_frames), 
+                                         len(wav_frames),
                                          endpoint=False)
-        self.__time_vector = self.__time_vector/ult_wav_fs
+        self.__time_vector = self.__time_vector/wav_fs + self.timeOffset
+
+    @property
+    def data(self):
+        """
+        Return the data of this Modality as a NumPy array. 
+        
+        This method is abstract to let subclasses either load the data
+        on the fly or preload it.
+
+        In either case, the dimensions of the array should be in the 
+        order of [time, others]
+        """
+        return self.__data
+        
+    @data.setter
+    def data(self, data):
+        """
+        Data setter method.
+        """
+        self.__data = data
 
     @property
     def time_vector(self):
         return self.__time_vector    
 
     @time_vector.setter
-    def time_vector(self):
-        return self.__time_vector
+    def time_vector(self, time_vector):
+        self.__time_vector = time_vector
+        self.timeOffset = time_vector[0]
 
 
 # dynamically loading things have a problem with time vector generation.

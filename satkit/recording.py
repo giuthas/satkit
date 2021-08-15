@@ -157,12 +157,18 @@ class Modality(metaclass=abc.ABCMeta):
 
         self.timeOffset = timeOffset
 
-# needs work: how do we call this only at the end of init in subclasses? maybe have to initialisers?
-        if preload:
-            self._loadData(self)
-            self.isPreloaded = True
-        else:
-            self.isPreloaded = False
+        self.isPreloaded = preload
+
+    @abc.abstractmethod
+    def _loadData(self):
+        """
+        Abstract helper method as a place holder for data loading methods in subclasses.
+        
+        This method should be implemented by subclasses to provide a unified 
+        way of handling preloading and on-the-fly loading of data.
+
+        This method is intended to rely on self.meta to know what to read.
+        """
 
     @property
     @abc.abstractmethod
@@ -195,7 +201,17 @@ class Modality(metaclass=abc.ABCMeta):
 
         if excluded:
           self.parent.excluded = excluded  
-            
+
+    # @property
+    # def isPreloaded(self):
+    #     return self.__isPreloaded
+
+    # @isPreloaded.setter            
+    # def isPreloaded(self, isPreloaded):
+    #     self.__isPreloaded = isPreloaded
+    #     if isPreloaded:
+    #         self.data = self._loadData()
+
     @property
     @abc.abstractmethod
     def timeOffset(self):
@@ -208,7 +224,6 @@ class Modality(metaclass=abc.ABCMeta):
         Abstract because self.__time_vector may or may not 
         be generated on the fly.
         """
-
 
     @timeOffset.setter
     @abc.abstractmethod
@@ -270,19 +285,22 @@ class MonoAudio(Modality):
         self.meta['mainsFrequency'] = mainsFrequency
 
         # If we do not have a filename, there is not much to init.
-        if filename is None:
-            return self
+        if filename:
+            if preload:
+                self._loadData()
+            else:
+                self.__data = None
+
+    def _loadData(self):
+        """
+        Helper for loading data, detecting beep and generating the timevector.
         
-        if preload:
-# needs work: put this in a helper, so that it can be called outside of construction
-# maybe even make the whole of it abstract in Modality
-            (wav_fs, wav_frames) = sio_wavfile.read(filename)
-            self.meta['wav_fs'] = wav_fs
-            self.data = wav_frames
-            self.isPreloaded = True
-        else:
-            self.isPreloaded = False
-        
+        Setting self.isPreloaded = True results in a call to this method.
+        """
+        (wav_fs, wav_frames) = sio_wavfile.read(self.meta['filename'])
+        self.meta['wav_fs'] = wav_fs
+        self.data = wav_frames
+
         # before v1.0: the high_pass filter coefs should be generated once for a set of recordings
         # rather than create overhead everytime the code is run
         #
@@ -290,7 +308,6 @@ class MonoAudio(Modality):
         #
         # setup the high-pass filter for removing the mains frequency (and anything below it)
         # from the recorded sound.
-# needs work: the high_pass filter coefs should be generated once for a set of recordings rather than create overhead everytime a new recording is processed.
         b, a = satkit_audio.high_pass(wav_fs, mainsFrequency)
         beep_uti, has_speech = satkit_audio.detect_beep_and_speech(wav_frames,
                                                                    wav_fs,
@@ -301,7 +318,7 @@ class MonoAudio(Modality):
         # 2) the recording might not be UTI
         self.meta['beep_uti'] = beep_uti
         self.meta['has_speech'] = has_speech
-        
+
         self.__time_vector = np.linspace(0, len(wav_frames), 
                                          len(wav_frames),
                                          endpoint=False)
@@ -318,8 +335,11 @@ class MonoAudio(Modality):
         In either case, the dimensions of the array should be in the 
         order of [time, others]
         """
+        if self.__data is None:
+            self._loadData()
         return self.__data
         
+# needs work: check that the data is actually valid, also call the beep detect etc. routines on it.
     @data.setter
     def data(self, data):
         """

@@ -49,13 +49,13 @@ def high_pass_50(fs):
     return(b, a)
 
 
-def high_pass_50(fs, sb):
+def high_pass(fs, sb):
     """Returns a high-pass filter with a stop band of sb. Used for
     filtering the mains frequency away from recorded sound.""" 
     _audio_logger.debug("Generating high-pass filter.")
     stop = (sb/(fs/2)) 
     b, a = butter(10, stop, 'highpass')
-    return(b, a)
+    return {'b': b, 'a': a)
 
 
 def band_pass(fs):

@@ -254,6 +254,11 @@ class MonoAudio(Modality):
     enough to fit in working memory.
     """
 
+    # Mains electricity frequency and filter coefficients for removing 
+    # it from audio with a highpass filter.
+    mainsFrequency = None
+    filter = None
+
     def __init__(self, name = 'mono audio', parent = None, preload = True, timeOffset = 0, 
         filename = None, mainsFrequency = 50):
         """
@@ -289,18 +294,18 @@ class MonoAudio(Modality):
         self.meta['wav_fs'] = wav_fs
         self.data = wav_frames
 
-        # before v1.0: the high_pass filter coefs should be generated once for a set of recordings
-        # rather than create overhead everytime the code is run
-        #
-        # Good place to do this would actually be in the satkit_audio module. Make a detector object or something.
-        #
         # setup the high-pass filter for removing the mains frequency (and anything below it)
         # from the recorded sound.
-        b, a = satkit_audio.high_pass(wav_fs, mainsFrequency)
+        if MonoAudio.mainsFrequency != self.mainsFrequency:
+            MonoAudio.mainsFrequency = self.mainsFrequency
+            MonoAudio.filter = satkit_audio.high_pass(wav_fs, self.mainsFrequency)
+
+
         beep_uti, has_speech = satkit_audio.detect_beep_and_speech(wav_frames,
                                                                    wav_fs,
-                                                                   b, a,
-                                                                   filename)
+                                                                   MonoAudio.filter['b'],
+                                                                   MonoAudio.filter['a'],
+                                                                   self.meta['filename'])
 
         # before v1.0: this is a bad name for the beep: 1) this is an AAA thing,
         # 2) the recording might not be UTI
@@ -312,7 +317,7 @@ class MonoAudio(Modality):
                                          endpoint=False)
         self.__timevector = self.__timevector/wav_fs + self.timeOffset
 
-# needs work: check that the data is actually valid, also call the beep detect etc. routines on it.
+    # before v1.0: check that the data is actually valid, also call the beep detect etc. routines on it.
     @data.setter
     def data(self, data):
         """
@@ -367,8 +372,15 @@ class MatrixData(Modality):
 
 class RawUltrasound(MatrixData):
     """
-    Ultrasound Recording with raw (probe return) data.
+    Ultrasound Recording with raw (probe return) data.    
     """
+
+    requiredMetaKeys = [
+        'meta_file',
+        'FramesPerSec',
+        'NumVectors',
+        'PixPerVector',
+    ]
 
     def __init__(self, name="raw ultrasound", parent = None, preload = False, timeOffset = 0, 
         filename = None, meta = None):
@@ -376,26 +388,23 @@ class RawUltrasound(MatrixData):
         Create a MonoAudio track.
 
         filename should be either None or the name of a .ult file containing raw ultrasound data.
+        meta should be a dict with (at least) the keys listed in RawUltrasound.requiredMetaKeys.
+            Extra keys will be ignored. 
         """
         super().__init__(name=name, parent=parent, preload=preload, timeOffset=timeOffset)
 
         self.meta['filename'] = filename
-        self.meta['meta_file'] = meta_filename
 
-# needs work: document which keys meta should have.
-        # Explicitly access meta data fields to ensure that we have what we expected to get
+        # Explicitly copy meta data fields to ensure that we have what we expected to get.
         if meta != None:
-            self.meta['FramesPerSec'] = meta['FramesPerSec']
-            self.meta['NumVectors'] = meta['NumVectors']
-            self.meta['PixPerVector'] = meta['PixPerVector']
+            wanted_meta = { key: meta[key] for key in RawUltrasound.requiredMetaKeys }
+            self.meta.update(wanted_meta)
 
-        if filename:
-            if preload:
-                self._loadData()
-            else:
-                self.__data = None
+        if filename and preload:
+            self._loadData()
+        else:
+            self.__data = None
 
-# non-functional: assignments missing.
     def _loadData(self):
         with closing(open(self.meata['filename'], 'rb')) as ult_file:
             ult_data = ult_file.read()
@@ -405,11 +414,13 @@ class RawUltrasound(MatrixData):
             self.meta['no_frames'] = int(len(ultra) / (self.meta['NumVectors']*self.meta['PixPerVector']))
             self.__data = ultra.reshape((self.meta['no_frames'], self.meta['NumVectors'], self.meta['PixPerVector']))
 
-            ultra_time = np.linspace(0, len(ultra_d), len(ultra_d), endpoint=False)/ult_fps
-            ultra_time = ultra_time + ult_TimeInSecsOfFirstFrame + .5/ult_fps
+            ultra_time = np.linspace(0, self.meta['no_frames'], num=self.meta['no_frames'], endpoint=False)
+            self.timevector = ultra_time/self.meta['framesPerSec'] + self.timeOffset
+            # this should be added for PD and similar time vectors: + .5/self.meta['framesPerSec'] 
+            # while at the same time dropping a suitable number of timestamps
 
 
-# needs work: check that the data is actually valid, also call the beep detect etc. routines on it.
+    # before v1.0: check that the data is actually valid, also call the beep detect etc. routines on it.
     @data.setter
     def data(self, data):
         """

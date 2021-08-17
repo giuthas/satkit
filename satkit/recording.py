@@ -156,7 +156,6 @@ class Modality(metaclass=abc.ABCMeta):
         self.excluded = False
 
         self.timeOffset = timeOffset
-
         self.isPreloaded = preload
 
     @abc.abstractmethod
@@ -171,29 +170,33 @@ class Modality(metaclass=abc.ABCMeta):
         """
 
     @property
-    @abc.abstractmethod
     def data(self):
         """
         Return the data of this Modality as a NumPy array. 
         
-        This method is abstract to let subclasses either load the data
-        on the fly or preload it.
-
-        In either case, the dimensions of the array should be in the 
+        The dimensions of the array should be in the 
         order of [time, others]
+
+        If this modality is not preloaded, accessing this property will
+        cause data to be loaded on the fly _and_ saved in memory. To 
+        release the memory, assign None to this Modality's data.
         """
+        if self.__data is None:
+            self._loadData()
+        return self.__data
         
     @data.setter
     @abc.abstractmethod
     def data(self, data):
         """
         Abstract data setter method.
+
+        Subclasses should check that they are being handed valid data.
         """
 
     @property
     def excluded(self):
         return self.__excluded
-
 
     @excluded.setter
     def excluded(self, excluded):
@@ -202,60 +205,45 @@ class Modality(metaclass=abc.ABCMeta):
         if excluded:
           self.parent.excluded = excluded  
 
-    # @property
-    # def isPreloaded(self):
-    #     return self.__isPreloaded
-
-    # @isPreloaded.setter            
-    # def isPreloaded(self, isPreloaded):
-    #     self.__isPreloaded = isPreloaded
-    #     if isPreloaded:
-    #         self.data = self._loadData()
-
     @property
-    @abc.abstractmethod
     def timeOffset(self):
         """
-        Return the time offset of this modality.
+        The time offset of this modality.
 
-        Subclasses should be implemted so that self.__time_vector[0] 
-        is equal to self.__timeOffset. 
-
-        Abstract because self.__time_vector may or may not 
-        be generated on the fly.
+        Assigning a value to this property is implemented so 
+        that self.__timevector[0] stays equal to self.__timeOffset. 
         """
+        return self.__timeOffset
 
     @timeOffset.setter
-    @abc.abstractmethod
     def timeOffset(self, timeOffset):
-        """
-        Set the time offset of this modality. 
-        
-        Subclasses should be implemted so that self.__time_vector[0] 
-        is equal to self.__timeOffset. 
-
-        Abstract because self.__time_vector may or may not 
-        be generated on the fly.
-        """
+        self.__timeOffset = timeOffset
+        if self.isPreloaded:
+            self.__timevector = self.timevector + (timeOffset - self.timevector[0])
 
     @property
-    @abc.abstractmethod
-    def time_vector(self):
+    def timevector(self):
         """
-        Return the timevector corresponding to self.data as a NumPy array. 
-        
-        This method is abstract to let subclasses either generate the timevector
-        on the fly or preload or pregenerate it.
-        """
+        The timevector corresponding to self.data as a NumPy array. 
 
-    @time_vector.setter
-    @abc.abstractmethod
-    def time_vector(self, time_vector):
+        If the data has not been previously loaded, accessing this 
+        property will cause data to be loaded on the fly _and_ saved 
+        in memory. To release the memory, assign None to this 
+        Modality's data. Please, note that if the data has been previously 
+        loaded and after that released, the timevector still persists and 
+        accessing it does not trigger a new loading operation.
+
+        Assigning a value to this property is implemented so 
+        that self.__timevector[0] stays equal to self.__timeOffset. 
         """
-        Set the timevector corresponding to self.data. 
-        
-        This method is abstract to let subclasses decide if they allow this.
-        """
+        if self.__timevector is None:
+            self._loadData()
+        return self.__timevector
+
+    @timevector.setter
+    def timevector(self, timevector):
+        self.__timevector = timevector
+        self.timeOffset = timevector[0]
 
 
 class MonoAudio(Modality):
@@ -319,52 +307,19 @@ class MonoAudio(Modality):
         self.meta['beep_uti'] = beep_uti
         self.meta['has_speech'] = has_speech
 
-        self.__time_vector = np.linspace(0, len(wav_frames), 
+        self.__timevector = np.linspace(0, len(wav_frames), 
                                          len(wav_frames),
                                          endpoint=False)
-        self.__time_vector = self.__time_vector/wav_fs + self.timeOffset
+        self.__timevector = self.__timevector/wav_fs + self.timeOffset
 
-    @property
-    def data(self):
-        """
-        Return the data of this Modality as a NumPy array. 
-        
-        This method is abstract to let subclasses either load the data
-        on the fly or preload it.
-
-        In either case, the dimensions of the array should be in the 
-        order of [time, others]
-        """
-        if self.__data is None:
-            self._loadData()
-        return self.__data
-        
 # needs work: check that the data is actually valid, also call the beep detect etc. routines on it.
     @data.setter
     def data(self, data):
         """
         Data setter method.
         """
+        raise NotImplementedError('Writing over dynamically loaded raw ultrasound data has not been implemented yet.')
         self.__data = data
-
-    @property
-    def timeOffset(self):
-        return self.__timeOffset
-
-    @timeOffset.setter
-    def timeOffset(self, timeOffset):
-        self.__timeOffset = timeOffset
-        if self.isPreloaded:
-            self.__time_vector = self.time_vector + (timeOffset - self.time_vector[0])
-
-    @property
-    def time_vector(self):
-        return self.__time_vector
-
-    @time_vector.setter
-    def time_vector(self, time_vector):
-        self.__time_vector = time_vector
-        self.timeOffset = time_vector[0]
 
 
 class MatrixData(Modality):
@@ -387,7 +342,6 @@ class MatrixData(Modality):
         """
         super.__init__(name, parent, preload, timeOffset)
 
-
     @property
     def data(self):
         """
@@ -399,43 +353,70 @@ class MatrixData(Modality):
         In either case, the dimensions of the array should be in the 
         order of [time, others]
         """
+
         
+    @property
+    def timevector(self):
+        return self.__timevector
+
+    @timevector.setter
+    def timevector(self, timevector):
+        self.__timevector = timevector
+        self.timeOffset = timevector[0]
+
+
+class RawUltrasound(MatrixData):
+    """
+    Ultrasound Recording with raw (probe return) data.
+    """
+
+    def __init__(self, name="raw ultrasound", parent = None, preload = False, timeOffset = 0, 
+        filename = None, meta = None):
+        """
+        Create a MonoAudio track.
+
+        filename should be either None or the name of a .ult file containing raw ultrasound data.
+        """
+        super().__init__(name=name, parent=parent, preload=preload, timeOffset=timeOffset)
+
+        self.meta['filename'] = filename
+        self.meta['meta_file'] = meta_filename
+
+# needs work: document which keys meta should have.
+        # Explicitly access meta data fields to ensure that we have what we expected to get
+        if meta != None:
+            self.meta['FramesPerSec'] = meta['FramesPerSec']
+            self.meta['NumVectors'] = meta['NumVectors']
+            self.meta['PixPerVector'] = meta['PixPerVector']
+
+        if filename:
+            if preload:
+                self._loadData()
+            else:
+                self.__data = None
+
+# non-functional: assignments missing.
+    def _loadData(self):
+        with closing(open(self.meata['filename'], 'rb')) as ult_file:
+            ult_data = ult_file.read()
+            ultra = np.fromstring(ult_data, dtype=np.uint8)
+            ultra = ultra.astype("float32")
+            
+            self.meta['no_frames'] = int(len(ultra) / (self.meta['NumVectors']*self.meta['PixPerVector']))
+            self.__data = ultra.reshape((self.meta['no_frames'], self.meta['NumVectors'], self.meta['PixPerVector']))
+
+            ultra_time = np.linspace(0, len(ultra_d), len(ultra_d), endpoint=False)/ult_fps
+            ultra_time = ultra_time + ult_TimeInSecsOfFirstFrame + .5/ult_fps
+
+
+# needs work: check that the data is actually valid, also call the beep detect etc. routines on it.
     @data.setter
     def data(self, data):
         """
-        Abstract data setter method.
+        Data setter method.
         """
-
-    @property
-    def excluded(self):
-        return self.__excluded
-
-
-    @excluded.setter
-    def excluded(self, excluded):
-        self.__excluded = excluded
-
-        if excluded:
-          self.parent.excluded = excluded  
-            
-    @property
-    def timeOffset(self):
-        return self.__timeOffset
-
-    @timeOffset.setter
-    def timeOffset(self, timeOffset):
-        self.__timeOffset = timeOffset
-        if self.isPreloaded:
-            self.__time_vector = self.time_vector + (timeOffset - self.time_vector[0])
-
-    @property
-    def time_vector(self):
-        return self.__time_vector
-
-    @time_vector.setter
-    def time_vector(self, time_vector):
-        self.__time_vector = time_vector
-        self.timeOffset = time_vector[0]
+        raise NotImplementedError('Writing over dynamically loaded raw ultrasound data has not been implemented yet.')
+        self.__data = data
 
 
 # dynamically loading things have a problem with time vector generation.
@@ -454,15 +435,7 @@ class AbstractAAAUltrasound(Modality):
         filename = None, meta_filename = None, meta_dict = None):
         super.__init__(name, parent, timeOffset)
 
-        self.meta['ultrasound_file'] = filename
-        self.meta['meta_file'] = meta_filename
         
-        if meta_dict != None:
-            self.meta.update(meta_dict)
-            self.meta['FramesPerSec'] = meta['FramesPerSec']
-            self.meta['NumVectors'] = meta['NumVectors']
-            self.meta['PixPerVector'] = meta['PixPerVector']
-            self.meta['TimeInSecsOfFirstFrame'] = meta['TimeInSecsOfFirstFrame'] # this goes in timeOffset, not here
     
     @property
     @abc.abstractmethod
@@ -490,69 +463,6 @@ class AbstractAAAUltrasound(Modality):
         should be loaded into memory before they are needed only if running out of memory will
         not be an issue (i.e. there is a lot of it available).
         """
-
-        
-class DynRawUltrasound(AbstractAAAUltrasound):
-    """
-    Ultrasound Recording with dynamically loaded raw (probe return) data.
-    """
-
-    def __init__(self, name = 'raw tongue ultrasound', parent = None, isPreloaded = True, timeOffset = 0, filename = None):
-        super.__init__(name, parent, timeOffset, filename)
-
-
-    @property
-    def raw_ultrasound(self):
-        """
-        Raw ultrasound frames of this recording as a 3D numpy array. 
-
-        The frames are read from a file when needed to keep memory needs 
-        in check.
-
-        Output array has the dimensions [frames, scanlines, pixels].
-        """
-        with closing(open(self.meta['ultrasound_file'], 'rb')) as ult_file:
-            ult_data = ult_file.read()
-            ultra = np.fromstring(ult_data, dtype=np.uint8)
-            ultra = ultra.astype("float32")
-            
-            self.meta['no_frames'] = int(len(ultra) / (self.meta['NumVectors']*self.meta['PixPerVector']))
-            return ultra.reshape((self.meta['no_frames'], self.meta['NumVectors'], self.meta['PixPerVector']))
-
-
-    @raw_ultrasound.setter
-    def raw_ultrasound(self):  
-        """
-        Writing over dynamically loaded data is not currently possible. 
-
-        NOTE: Not implemented yet. Calling this method will raise an error.
-        """
-        raise NotImplementedError('Writing over dynamically loaded raw ultrasound data has not been implemented yet.')
-
-
-    @property
-    def interpolated_ultrasound(self):
-        """
-        Interpolated ultrasound frames. 
-
-        These are dynamically generated as needed.
-
-        NOTE: Not implemented yet. Calling this method will raise an error.
-        """
-
-        # before v1.0: consider implementing this
-        raise NotImplementedError('Conversion from raw data to video has not been implemented yet.')
-
-    
-    @interpolated_ultrasound.setter
-    def interpolated_ultrasound(self):  
-        """
-        Writing over dynamically loaded data is not currently possible. 
-
-        NOTE: Not implemented yet. Calling this method will raise an error.
-        """
-        raise NotImplementedError('Writing over dynamically loaded ultrasound data has not been implemented yet.')
-
 
 
 class StaticRawUltrasound(AbstractAAAUltrasound):
@@ -668,38 +578,3 @@ class VideoUltrasound(AbstractUltrasound):
         #return self.__video
         # in the static loading case. Otherwise disk reading goes here.
         
-
-        
-# dynamically loading things have a problem with time vector generation.
-# this may be taken care of by initing the timevector
-# on first call and raising an exception if somebody tries to access the vector before - or
-# even just generating it on the fly by loading and discarding the data
-# this may be a really bad idea though, because it has a failure mode of
-# ask_for_time_vec(); triggers drive access, now that we have time_vec ask_for_data();
-# triggers drive access again...
-class AbstractVideo(Modality):
-    """
-    Abstract superclass for video recording classes.
-    """
-
-    def __init__(self, name = 'video ultrasound', parent = None, isPreloaded = True, timeOffset = 0, filename = None):
-        super.__init__(name, parent, timeOffset, filename)
-
-
-
-    @property
-    @abc.abstractmethod
-    def video(self):
-        """
-        Video frames of this recording. 
-
-        The frames are either read from a file when needed to keep memory needs 
-        in check, or if using large amounts of memory is not a problem, they can be 
-        preloaded when the object is created.
-        """
-
-
-class LipVideo(AbstractVideo):
-
-    def __init__(self, name = 'video ultrasound', parent = None, isPreloaded = True, timeOffset = 0, filename = None):
-        super.__init__(name, parent, timeOffset, filename)

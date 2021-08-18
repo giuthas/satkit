@@ -115,12 +115,12 @@ will be updated once there are more people working on this project.
 The Speech Articulation ToolKIT (SATKIT for short) and examples is a
 tool box for analysing articulatory data.
 
-SATKIT Copyright (C) 2019-2020 Pertti Palo, Scott Moisik, and Matthew
+SATKIT Copyright (C) 2019-2021 Pertti Palo, Scott Moisik, and Matthew
 Faytak.
 
-Optical Flow tools Copyright (C) 2020 Scott Moisik
+Optical Flow tools Copyright (C) 2020-2021 Scott Moisik
 
-Pixel Difference tools Copyright (C) 2019-2020 Pertti Palo
+Pixel Difference tools Copyright (C) 2019-2021 Pertti Palo
 
 Laryngeal example data Copyright (C) 2020 Scott Moisik
 
@@ -157,6 +157,11 @@ BY-NC-SA 4.0) License. See link above or
 
 
 ### Citing the code
+
+When using any part of SATKIT, please cite:
+1. Faytak, M., Moisik, S. & Palo, P. (2020): The Speech Articulation 
+Toolkit (SATKit): Ultrasound image analysis in Python. 
+In ISSP 2020, Online (planned as Providence, Rhode Island)
 
 When making use of the Optic Flow code, please cite:
 1. Esling, J. H., & Moisik, S. R. (2012). Laryngeal aperture in

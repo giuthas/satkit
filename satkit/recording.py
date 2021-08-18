@@ -316,9 +316,10 @@ class MonoAudio(Modality):
         """
         Data setter method.
 
-        Not implemented yet.
+        Assigning anything but None is not implemented yet.
         """
-        raise NotImplementedError('Writing over mono audio data has not been implemented yet.')
+        if data is not None:
+            raise NotImplementedError('Writing over mono audio data has not been implemented yet.')
         self.__data = data
 
 
@@ -410,9 +411,10 @@ class RawUltrasound(MatrixData):
         """
         Data setter method.
 
-        Not implemented yet.
+        Assigning anything but None is not implemented yet.
         """
-        raise NotImplementedError('Writing over raw ultrasound data has not been implemented yet.')
+        if data is not None:
+            raise NotImplementedError('Writing over raw ultrasound data has not been implemented yet.')
         self.__data = data
 
 

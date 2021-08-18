@@ -30,12 +30,12 @@
 #
 
 import argparse
+import datetime 
 import logging
 import os
 import os.path
 import sys
-import time
-import datetime 
+import warnings
 
 # local modules
 import satkit.pd as pd
@@ -69,12 +69,10 @@ class BaseCLI():
         self.parse_args()
 
         self.set_up_logging()
-
             
     ##
     ## Setting up and running the argument parser.
     ##
-        
     def _init_parser(self):
         self.parser = argparse.ArgumentParser(description=self.description,
             formatter_class = widen_help_formatter(argparse.HelpFormatter,
@@ -89,7 +87,6 @@ class BaseCLI():
         )
         self.parser.add_argument("load_path", help=helptext)
 
-
     def _add_optional_arguments(self):
         helptext = (
             'Set verbosity of console output. Range is [0, 3], default is 1, '
@@ -101,7 +98,6 @@ class BaseCLI():
                                  help=helptext,
                                  metavar = "verbosity")
     
-
     def parse_args(self):
         """
         Create a parser for commandline arguments with argparse and 
@@ -112,7 +108,6 @@ class BaseCLI():
         self._add_optional_arguments()
 
         self.args = self.parser.parse_args()
-
 
     ##
     ## Setting up logging.
@@ -183,7 +178,7 @@ class RawCLI(BaseCLI):
         else:
             self.logger.error('Unsupported filetype: ' + self.args.load_path + '.')
 
-### this is broken. it does not care if data has been read or not.
+        ### before v1.0: this is broken. it does not care if data has been read or not.
         # calculate the metrics
         self.data = []
         for recording in self.recordings:
@@ -215,7 +210,7 @@ class RawCLI(BaseCLI):
 
         
     def process_recordings(self, processing_functions):
-        
+        pass  
 
     def _add_optional_arguments(self):
         self.parser.add_argument("-e", "--exclusion_list", dest="exclusion_filename",
@@ -239,7 +234,6 @@ class RawCLI(BaseCLI):
 
         # Adds the verbosity argument.
         super()._add_optional_arguments()
-
 
         
 class RawAndSplineCLI(RawCLI):
@@ -301,7 +295,6 @@ class RawAndSplineCLI(RawCLI):
 
         self.recordings = recording_list
         self.data = data
-
         
     def parse_args(self):
         """

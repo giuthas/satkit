@@ -328,6 +328,9 @@ class MatrixData(Modality):
 
     As a default, matrix data is assumed to be too large for the whole 
     dataset to be contained in memory.
+
+    This class exists to provide an interface for algorithms and separate that 
+    interface from individual data types/modalities. 
     """
 
     def __init__(self, name = None, parent = None, preload = False, timeOffset = 0):

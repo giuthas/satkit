@@ -121,15 +121,7 @@ class Recording():
 
 class Modality(metaclass=abc.ABCMeta):
     """
-    Abstract superclass for all Modality classes.
-
-    If the data in a modality that implements this interface is going to be 
-    large enough that it may not be possible to load it into memory for all recordings 
-    being processed, then the implementations should come in two tiers: 1. an 'almost 
-    concrete but still abstract' implementation with most functionality in place and 2. 
-    a separate concrete implementation for a) loading the data when requested and b) 
-    loading the data at init. Audio is an example of data that is not expected to run 
-    into this problem. 
+    Abstract superclass for all data Modality classes.
     """
 
     def __init__(self, name = None, parent = None, preload = False, timeOffset = 0):
@@ -250,8 +242,7 @@ class MonoAudio(Modality):
     """
     A mono audio track. 
 
-    Audio does not use the two tier implementation because the audio data is assumed to be small
-    enough to fit in working memory.
+    Audio data is assumed to be small enough to fit in working memory.
     """
 
     # Mains electricity frequency and filter coefficients for removing 
@@ -264,6 +255,8 @@ class MonoAudio(Modality):
         """
         Create a MonoAudio track.
 
+        preload defaults to True because audio data is assumed to be small 
+            enough to fit in working memory.
         filename should be either None or the name of a wav-file.
         mainsFrequency (Hz) is the mains frequency of the place of recording. 
             When detecting the recording onset beep, the audio is high pass 
@@ -322,6 +315,8 @@ class MonoAudio(Modality):
     def data(self, data):
         """
         Data setter method.
+
+        Not implemented yet.
         """
         raise NotImplementedError('Writing over mono audio data has not been implemented yet.')
         self.__data = data
@@ -363,7 +358,7 @@ class RawUltrasound(MatrixData):
     def __init__(self, name="raw ultrasound", parent = None, preload = False, timeOffset = 0, 
         filename = None, meta = None):
         """
-        Create a MonoAudio track.
+        Create a RawUltrasound Modality.
 
         filename should be either None or the name of a .ult file containing raw ultrasound data.
         meta should be a dict with (at least) the keys listed in RawUltrasound.requiredMetaKeys.
@@ -411,6 +406,8 @@ class RawUltrasound(MatrixData):
     def data(self, data):
         """
         Data setter method.
+
+        Not implemented yet.
         """
         raise NotImplementedError('Writing over raw ultrasound data has not been implemented yet.')
         self.__data = data

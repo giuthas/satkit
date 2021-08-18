@@ -55,7 +55,7 @@ def high_pass(fs, sb):
     _audio_logger.debug("Generating high-pass filter.")
     stop = (sb/(fs/2)) 
     b, a = butter(10, stop, 'highpass')
-    return {'b': b, 'a': a)
+    return {'b': b, 'a': a}
 
 
 def band_pass(fs):

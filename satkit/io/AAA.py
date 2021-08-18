@@ -42,7 +42,7 @@ import os.path
 import numpy as np
 
 # Local packages
-from recordingTypes import *
+from satkit.recording import *
 
 _AAA_logger = logging.getLogger('satkit.AAA')
 
@@ -199,10 +199,9 @@ def set_file_exclusions_from_list(filename, recordings):
     else:
         exclusion_list = []
 
-    for recording in exclusion_list:
-        # mark as excluded
-        # also make sure an array is actually the sensible way of doing this
-
+    # mark as excluded
+    [recording.exclude() for recording in recordings if recording in exclusion_list]
+        
 
 def read_file_exclusion_list(filename):
     """
@@ -303,92 +302,92 @@ class AAA_Ultrasound_Recording(Ultrasound_Recording):
         
 
     def parse_AAA_promptfile(self, filename):
-    """
-    Read an AAA .txt (not US.txt) file and save prompt, recording date and time,  
-    and participant name into the meta dictionary.
-    """
-    with closing(open(filename, 'r')) as promptfile:
-        lines = promptfile.read().splitlines()
-        self.meta['prompt'] = lines[0]
+        """
+        Read an AAA .txt (not US.txt) file and save prompt, recording date and time,  
+        and participant name into the meta dictionary.
+        """
+        with closing(open(filename, 'r')) as promptfile:
+            lines = promptfile.read().splitlines()
+            self.meta['prompt'] = lines[0]
 
-        # The date used to be just a string, but needs to be more sturctured since
-        # the spline export files have a different date format.
-        self.meta['date'] = datetime.strptime(lines[1], '%d/%m/%Y %H:%M:%S')
+            # The date used to be just a string, but needs to be more sturctured since
+            # the spline export files have a different date format.
+            self.meta['date'] = datetime.strptime(lines[1], '%d/%m/%Y %H:%M:%S')
 
-        if len(lines) > 2 and lines[2].strip():
-            self.meta['participant'] = lines[2].split(',')[0]
-        else:
-            _AAA_logger.info("Participant does not have an id in file " + filename + ".")
-            self.meta['participant'] = ""
-            
-        _AAA_logger.debug("Read prompt file " + filename + ".")
+            if len(lines) > 2 and lines[2].strip():
+                self.meta['participant'] = lines[2].split(',')[0]
+            else:
+                _AAA_logger.info("Participant does not have an id in file " + filename + ".")
+                self.meta['participant'] = ""
+                
+            _AAA_logger.debug("Read prompt file " + filename + ".")
         
 
     def parse_AAA_meta(self, filename):
-    """
-    Parse metadata from an AAA 'US.txt' file into the meta dictionary.
-    """
-    with closing(open(filename, 'r')) as metafile:
-        for line in metafile:
-            (key, value_str) = line.split("=")
-            try:
-                value = int(value_str)
-            except ValueError:
-                value = float(value_str)
-            self.meta[key] = value
+        """
+        Parse metadata from an AAA 'US.txt' file into the meta dictionary.
+        """
+        with closing(open(filename, 'r')) as metafile:
+            for line in metafile:
+                (key, value_str) = line.split("=")
+                try:
+                    value = int(value_str)
+                except ValueError:
+                    value = float(value_str)
+                self.meta[key] = value
 
-        _AAA_logger.debug("Read and parsed ultrasound metafile " + filename + ".")
+            _AAA_logger.debug("Read and parsed ultrasound metafile " + filename + ".")
 
 
     def get_time_vector(self):
         # generate one
-
+        pass
 
     def get_ultrasound_data(self):
         # load from file, return
-        
+        pass
 
-    def parse_spline_line(line):
-        # This relies on none of the fields being empty and is necessary to be 
-        # able to process AAA's output which sometimes has extra tabs.
-        cells = line.split('\t')
-        token = {'id': cells[0],
-                 'date_and_time': datetime.strptime(cells[1], '%m/%d/%Y %I:%M:%S %p'),
-                 'sample_time': float(cells[2]),
-                 'prompt': cells[3],
-                 'nro_spline_points': int(cells[4]),
-                 'beg': 0,
-                 'end': 42}
+def parse_spline_line(line):
+    # This relies on none of the fields being empty and is necessary to be 
+    # able to process AAA's output which sometimes has extra tabs.
+    cells = line.split('\t')
+    token = {'id': cells[0],
+                'date_and_time': datetime.strptime(cells[1], '%m/%d/%Y %I:%M:%S %p'),
+                'sample_time': float(cells[2]),
+                'prompt': cells[3],
+                'nro_spline_points': int(cells[4]),
+                'beg': 0,
+                'end': 42}
 
-        # token['x'] = np.fromiter(cells[8:8+token['nro_spline_points']:2], dtype='float')
-        # token['y'] = np.fromiter(cells[9:9+token['nro_spline_points']:2], dtype='float')
+    # token['x'] = np.fromiter(cells[8:8+token['nro_spline_points']:2], dtype='float')
+    # token['y'] = np.fromiter(cells[9:9+token['nro_spline_points']:2], dtype='float')
 
-        #    temp = [token['x'], token['y']]
-        #    nans = np.sum(np.isnan(temp), axis=0)
-        #    print(token['prompt'])
-        #    print('first ' + str(nans[::-1].cumsum(0).argmax(0)))
-        #    print('last ' + str(nans.cumsum(0).argmax(0)))
+    #    temp = [token['x'], token['y']]
+    #    nans = np.sum(np.isnan(temp), axis=0)
+    #    print(token['prompt'])
+    #    print('first ' + str(nans[::-1].cumsum(0).argmax(0)))
+    #    print('last ' + str(nans.cumsum(0).argmax(0)))
 
-        token['r'] = np.fromiter(cells[5:5+token['nro_spline_points']], dtype='float')
-        token['phi'] = np.fromiter(cells[5+token['nro_spline_points']:5+2*token['nro_spline_points']],
-                                   dtype='float')
-        token['conf'] = np.fromiter(cells[5+2*token['nro_spline_points']:5+3*token['nro_spline_points']],
-                                    dtype='float')    
-        token['x'] = np.multiply(token['r'],np.sin(token['phi']))
-        token['y'] = np.multiply(token['r'],np.cos(token['phi']))
+    token['r'] = np.fromiter(cells[5:5+token['nro_spline_points']], dtype='float')
+    token['phi'] = np.fromiter(cells[5+token['nro_spline_points']:5+2*token['nro_spline_points']],
+                                dtype='float')
+    token['conf'] = np.fromiter(cells[5+2*token['nro_spline_points']:5+3*token['nro_spline_points']],
+                                dtype='float')    
+    token['x'] = np.multiply(token['r'],np.sin(token['phi']))
+    token['y'] = np.multiply(token['r'],np.cos(token['phi']))
 
-        return token
+    return token
 
-    
-    def retrieve_splines(filename):
-        """
-        """
-        with closing(open(filename, 'r')) as splinefile:
-            splinefile.readline() # Discard the headers on first line.
-            table = [parse_spline_line(line) for line in splinefile.readlines()]
 
-        _AAA_logger.info("Read file " + filename + ".")
-        return table
+def retrieve_splines(filename):
+    """
+    """
+    with closing(open(filename, 'r')) as splinefile:
+        splinefile.readline() # Discard the headers on first line.
+        table = [parse_spline_line(line) for line in splinefile.readlines()]
+
+    _AAA_logger.info("Read file " + filename + ".")
+    return table
 
 
 

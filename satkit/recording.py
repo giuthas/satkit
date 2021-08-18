@@ -81,6 +81,16 @@ class Recording():
             _recording_logger.critical("Could not read textgrid in " + self.meta['textgrid'] + ".")
             self.textgrid = None
 
+    def exclude(self):
+        """
+        Set self.excluded to True with a method.
+
+        This function exists to facilitate list comprehensions being used
+        for excluding recordings e.g. 
+        [recording.exclude() for recording in recordings if in some_list].
+        """
+        self.excluded = True
+
     # before v1.0: decide if a new filepath should be saved if given here. 
     # more of a UI responsibility maybe?
     def write_textgrid(self, filepath = None):
@@ -311,7 +321,7 @@ class MonoAudio(Modality):
         self.__timevector = self.__timevector/wav_fs + self.timeOffset
 
     # before v1.0: check that the data is actually valid, also call the beep detect etc. routines on it.
-    @data.setter
+    @Modality.data.setter
     def data(self, data):
         """
         Data setter method.
@@ -406,7 +416,7 @@ class RawUltrasound(MatrixData):
             # while at the same time dropping a suitable number of timestamps
 
     # before v1.0: check that the data is actually valid, also call the beep detect etc. routines on it.
-    @data.setter
+    @Modality.data.setter
     def data(self, data):
         """
         Data setter method.

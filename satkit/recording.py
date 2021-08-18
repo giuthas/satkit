@@ -323,7 +323,7 @@ class MonoAudio(Modality):
         """
         Data setter method.
         """
-        raise NotImplementedError('Writing over dynamically loaded raw ultrasound data has not been implemented yet.')
+        raise NotImplementedError('Writing over mono audio data has not been implemented yet.')
         self.__data = data
 
 
@@ -347,28 +347,6 @@ class MatrixData(Modality):
         """
         super.__init__(name, parent, preload, timeOffset)
 
-    @property
-    def data(self):
-        """
-        Return the data of this Modality as a NumPy array. 
-        
-        This method is abstract to let subclasses either load the data
-        on the fly or preload it.
-
-        In either case, the dimensions of the array should be in the 
-        order of [time, others]
-        """
-
-        
-    @property
-    def timevector(self):
-        return self.__timevector
-
-    @timevector.setter
-    def timevector(self, timevector):
-        self.__timevector = timevector
-        self.timeOffset = timevector[0]
-
 
 class RawUltrasound(MatrixData):
     """
@@ -379,7 +357,7 @@ class RawUltrasound(MatrixData):
         'meta_file',
         'FramesPerSec',
         'NumVectors',
-        'PixPerVector',
+        'PixPerVector'
     ]
 
     def __init__(self, name="raw ultrasound", parent = None, preload = False, timeOffset = 0, 
@@ -397,7 +375,16 @@ class RawUltrasound(MatrixData):
 
         # Explicitly copy meta data fields to ensure that we have what we expected to get.
         if meta != None:
-            wanted_meta = { key: meta[key] for key in RawUltrasound.requiredMetaKeys }
+            try:
+                wanted_meta = { key: meta[key] for key in RawUltrasound.requiredMetaKeys }
+            except KeyError:
+                notFound = set(RawUltrasound.requiredMetaKeys) - set(meta)
+                message = "Part of metadata missing when processing " + self.meta['filename'] + ". "
+                message += "Could not find " + notFound + "."
+                # Missing metadata for one recording may be ok and this could be handled with just
+                # a call to _recording_logger.critical and setting self.excluded = True
+                _recording_logger.fatal(message)
+
             self.meta.update(wanted_meta)
 
         if filename and preload:
@@ -419,14 +406,13 @@ class RawUltrasound(MatrixData):
             # this should be added for PD and similar time vectors: + .5/self.meta['framesPerSec'] 
             # while at the same time dropping a suitable number of timestamps
 
-
     # before v1.0: check that the data is actually valid, also call the beep detect etc. routines on it.
     @data.setter
     def data(self, data):
         """
         Data setter method.
         """
-        raise NotImplementedError('Writing over dynamically loaded raw ultrasound data has not been implemented yet.')
+        raise NotImplementedError('Writing over raw ultrasound data has not been implemented yet.')
         self.__data = data
 
 

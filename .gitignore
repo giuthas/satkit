@@ -32,5 +32,6 @@ gpl-v3.tmpl
 # Directories
 ####
 
-# Results of an optic flow run.
+# Results of data runs.
 of_results/
+figures/

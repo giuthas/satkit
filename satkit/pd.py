@@ -45,88 +45,53 @@ import satkit.io.AAA as satkit_AAA
 _pd_logger = logging.getLogger('satkit.pd')    
 
 
-def pd(token):
+    # this belongs in the thing that reads, not here
+    # if data.excluded:
+    #     notice += ': Token excluded.'
+    #     _pd_logger.info(notice)
+
+
+def pd(mModality, timestep = 1):
     """
-    Calculate PD (Pixel Distance) for the recording. 
+    Calculate PD and attach the results to the mModality. 
 
     Returns a dictionary containing PD and SBPD as functions of time,
     beep time and a time vector spanning the ultrasound recording.
-
     """
+    baseNotice = (mModality.parent.meta['base_name'] 
+            + " " + mModality.parent.meta['prompt'])
 
-    notice = token['base_name'] + " " + token['prompt']
-    if token['excluded']:
-        notice += ': Token excluded.'
-        _pd_logger.info(notice)
-        return None
-    else:
-        notice += ': Token being processed.'
-        _pd_logger.info(notice)
-
-    (ult_wav_fs, ult_wav_frames) = sio_wavfile.read(token['ult_wav_file'])
-    # setup the high-pass filter for removing the mains frequency from the recorded sound.
-    b, a = satkit_audio.high_pass_50(ult_wav_fs)
-    beep_uti, has_speech = satkit_audio.detect_beep_and_speech(ult_wav_frames,
-                                                           ult_wav_fs,
-                                                           b, a,
-                                                           token['ult_wav_file'])
+    _pd_logger.info(baseNotice + ': Token being processed.')
     
-    meta = satkit_AAA.parse_ult_meta(token['ult_meta_file'])
-    ult_fps = meta['FramesPerSec']
-    ult_NumVectors = meta['NumVectors']
-    ult_PixPerVector = meta['PixPerVector']
-    ult_TimeInSecsOfFirstFrame = meta['TimeInSecsOfFirstFrame']
-
-    with closing(open(token['ult_file'], 'rb')) as ult_file:
-        ult_data = ult_file.read()
-        ultra = np.fromstring(ult_data, dtype=np.uint8)
-        ultra = ultra.astype("float32")
+    data = mModality.data
         
-        ult_no_frames = int(len(ultra)/(ult_NumVectors*ult_PixPerVector))
-        # reshape into vectors containing a frame each
-        ultra = ultra.reshape((ult_no_frames, ult_NumVectors, ult_PixPerVector))
-            
-        ultra_diff = np.diff(ultra, axis=0)
-        abs_diff = np.abs(ultra_diff)
-        ultra_diff = np.square(ultra_diff)
-        slw_pd = np.sum(ultra_diff, axis=2) # this should be square rooted at some point
-        ultra_d = np.sqrt(np.sum(slw_pd, axis=1))
+    raw_diff = np.diff(data, axis=0)
+    abs_diff = np.abs(raw_diff)
+    square_diff = np.square(raw_diff)
+    slw_pd = np.sum(square_diff, axis=2) # this should be square rooted at some point
+    data_l2 = np.sqrt(np.sum(slw_pd, axis=1))
 
-        ultra_l1 = np.sum(abs_diff, axis=(1,2))
-        ultra_l3 = np.power(np.sum(np.power(abs_diff, 3), axis=(1,2)), 1.0/3.0)
-        ultra_l4 = np.power(np.sum(np.power(abs_diff, 4), axis=(1,2)), 1.0/4.0)
-        ultra_l5 = np.power(np.sum(np.power(abs_diff, 5), axis=(1,2)), 1.0/5.0)
-        ultra_l10 = np.power(np.sum(np.power(abs_diff, 10), axis=(1,2)), .1)
-        
-        notice = token['base_name'] + " " + token['prompt']
-        notice += ': PD calculated.'
-        _pd_logger.debug(notice)
+    data_l1 = np.sum(abs_diff, axis=(1,2))
+    data_l3 = np.power(np.sum(np.power(abs_diff, 3), axis=(1,2)), 1.0/3.0)
+    data_l4 = np.power(np.sum(np.power(abs_diff, 4), axis=(1,2)), 1.0/4.0)
+    data_l5 = np.power(np.sum(np.power(abs_diff, 5), axis=(1,2)), 1.0/5.0)
+    data_l10 = np.power(np.sum(np.power(abs_diff, 10), axis=(1,2)), .1)
 
-        
-    ultra_time = np.linspace(0, len(ultra_d), len(ultra_d), endpoint=False)/ult_fps
-    ultra_time = ultra_time + ult_TimeInSecsOfFirstFrame + .5/ult_fps
+    _pd_logger.debug(baseNotice + ': PD calculated.')
 
-    ult_wav_time = np.linspace(0, len(ult_wav_frames), 
-                               len(ult_wav_frames), endpoint=False)/ult_wav_fs
-        
-    notice = token['base_name'] + " " + token['prompt']
-    notice += ': Token processed.'
-    _pd_logger.info(notice)
+    pd_time = mModality.timevector + .5/mModality.meta['FramesPerSec']
 
-    data = {}
-    data['pd'] = ultra_d
-    data['l1'] = ultra_l1 
-    data['l3'] = ultra_l3 
-    data['l4'] = ultra_l4 
-    data['l5'] = ultra_l5 
-    data['l10'] = ultra_l10 
-    data['l_inf'] = np.max(abs_diff, axis=(1,2))
-    data['sbpd'] = slw_pd
-    data['ultra_time'] = ultra_time
-    data['beep_uti'] = beep_uti
-    data['ultra_wav_time'] = ult_wav_time
-    data['ultra_wav_frames'] = ult_wav_frames
+    result = {}
+    result['l1'] = data_l1 
+    result['pd'] = data_l2
+    result['l3'] = data_l3 
+    result['l4'] = data_l4 
+    result['l5'] = data_l5 
+    result['l10'] = data_l10 
+    result['l_inf'] = np.max(abs_diff, axis=(1,2))
+    result['sbpd'] = slw_pd
+    result['pd_time'] = pd_time
 
-    return data
+    mModality.pd = result
         
 

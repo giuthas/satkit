@@ -46,6 +46,15 @@ from satkit.recording import *
 
 _AAA_logger = logging.getLogger('satkit.AAA')
 
+def setMetaForRawUltra(token):
+    meta = satkit_AAA.parse_ult_meta(token['ult_meta_file'])
+    ult_fps = meta['FramesPerSec']
+    ult_NumVectors = meta['NumVectors']
+    ult_PixPerVector = meta['PixPerVector']
+    ult_TimeInSecsOfFirstFrame = meta['TimeInSecsOfFirstFrame']
+
+
+
 def get_recording_list(directory, exclusion_list_name = None, spline_file = None):
     """
     Prepare a list of files to be processed based on directory
@@ -55,7 +64,6 @@ def get_recording_list(directory, exclusion_list_name = None, spline_file = None
     
     The function returns a list of metadata dictionaries sorted by
     time and date of recording.
-
     """
     # directory handling:
     # add a config file for listing the directories and subdirectories where things are
@@ -297,8 +305,8 @@ class AAA_Ultrasound_Recording(Ultrasound_Recording):
             #     self.meta['type'] = 'regular trial'
             ########### store also the different variations of the
             ########### file name, checking for existence
+            
             self.parse_AAA_promptfile(filename)
-        
 
     def parse_AAA_promptfile(self, filename):
         """
@@ -321,7 +329,6 @@ class AAA_Ultrasound_Recording(Ultrasound_Recording):
                 
             _AAA_logger.debug("Read prompt file " + filename + ".")
         
-
     def parse_AAA_meta(self, filename):
         """
         Parse metadata from an AAA 'US.txt' file into the meta dictionary.

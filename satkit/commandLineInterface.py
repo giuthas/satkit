@@ -58,14 +58,16 @@ def widen_help_formatter(formatter, total_width=140, syntax_width=35):
 
 
 class BaseCLI():
-    """This class is the root class for SATKIT commandline interfaces. 
+    """
+    This class is the root class for SATKIT commandline interfaces. 
 
     This class is not fully functional by itself: It does not read files 
     nor run any processing on files. 
     """
 
     def __init__(self, description):
-        """Setup a commandline interface with the given description.
+        """
+        Setup a commandline interface with the given description.
 
         Sets up the parsers and runs it, and also sets up logging.
         Description is what this version will be called if called with -h or --help.
@@ -75,8 +77,7 @@ class BaseCLI():
         self._set_up_logging()
             
     def _add_optional_arguments(self):
-        """Adds the optional verbosity argument. 
-        """
+        """Adds the optional verbosity argument."""
         helptext = (
             'Set verbosity of console output. Range is [0, 3], default is 1, '
             'larger values mean greater verbosity.'
@@ -88,8 +89,7 @@ class BaseCLI():
                                  metavar = "verbosity")
     
     def _init_parser(self):
-        """Setup basic commandline parsing and the file loading argument. 
-        """
+        """Setup basic commandline parsing and the file loading argument."""
         self.parser = argparse.ArgumentParser(description=self.description,
             formatter_class = widen_help_formatter(argparse.HelpFormatter,
                                                    total_width=100,
@@ -104,8 +104,7 @@ class BaseCLI():
         self.parser.add_argument("load_path", help=helptext)
 
     def _parse_args(self):
-        """Create a parser for commandline arguments with argparse and parse the arguments.
-        """
+        """Create a parser for commandline arguments with argparse and parse the arguments."""
         self._init_parser()
         self._add_optional_arguments()
         self.args = self.parser.parse_args()
@@ -143,11 +142,11 @@ class BaseCLI():
 
 
 class RawCLI(BaseCLI):
-    """Run metrics on raw ultrasound data.
-    """
+    """Run metrics on raw ultrasound data."""
 
     def __init__(self, description, processing_functions, plot=True):
-        """Setup and run the commandline interface for processing raw ultrasound data.
+        """
+        Setup and run the commandline interface for processing raw ultrasound data.
 
         Description is what this version will be called if called with -h or --help.
         processing_functions is a dict of the callables that will be run on each recording.
@@ -173,8 +172,7 @@ class RawCLI(BaseCLI):
         self.logger.info('Data run ended at ' + str(datetime.datetime.now()))
 
     def _add_optional_arguments(self):
-        """ Adds optional commandline arguments. 
-        """
+        """ Adds optional commandline arguments."""
         self.parser.add_argument("-e", "--exclusion_list", dest="exclusion_filename",
                                  help="Exclusion list of data files that should be ignored.",
                                  metavar="file")
@@ -198,8 +196,7 @@ class RawCLI(BaseCLI):
         super()._add_optional_arguments()
 
     def _loadData(self):
-        """ Handle loading data from individual files or a previously saved session.
-        """        
+        """ Handle loading data from individual files or a previously saved session."""        
         if not os.path.exists(self.args.load_path):
             self.logger.critical('File or directory does not exist: ' + self.args.load_path)
             self.logger.critical('Exiting.')
@@ -216,7 +213,8 @@ class RawCLI(BaseCLI):
             self.logger.error('Unsupported filetype: ' + self.args.load_path + '.')
 
     def _plot(self):
-        """ Wrapper for plotting data.
+        """
+        Wrapper for plotting data.
 
         Having this as a separate method allows subclasses to change 
         arguments and plotting commands.
@@ -225,7 +223,8 @@ class RawCLI(BaseCLI):
         pd_annd_plot.ISSP2020_plots(self.recordings, self.data, self.args.figure_dir)
     
     def _readDataFromFiles(self):
-        """ Wrapper for reading data from a directory full of files.
+        """
+        Wrapper for reading data from a directory full of files.
 
         Having this as a separate method allows subclasses to change 
         arguments or even the parser.
@@ -248,8 +247,7 @@ class RawCLI(BaseCLI):
 
         
 class RawAndSplineCLI(RawCLI):
-    """Run metrics on raw ultrasound and extracted spline data.
-    """
+    """Run metrics on raw ultrasound and extracted spline data."""
 
     def __init__(self, description, processing_functions, plot=True):
         """Create a parser for commandline arguments with argparse and parse the arguments.
@@ -257,7 +255,8 @@ class RawAndSplineCLI(RawCLI):
         super().__init__(description, processing_functions, plot=plot)
         
     def _readDataFromFiles(self):
-        """ Wrapper for reading data from a directory full of files.
+        """
+        Wrapper for reading data from a directory full of files.
 
         Having this as a separate method allows subclasses to change 
         arguments or even the parser.
@@ -271,8 +270,7 @@ class RawAndSplineCLI(RawCLI):
                                     self.args.spline_file)
 
     def _parse_args(self):
-        """Create a parser for commandline arguments with argparse and parse the arguments.
-        """
+        """Create a parser for commandline arguments with argparse and parse the arguments."""
         super()._init_parser()
 
         helptext = (

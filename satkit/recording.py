@@ -92,18 +92,20 @@ class Recording():
         """
         self.excluded = True
 
-    # before v1.0: decide if a new filepath should be saved if given here. 
-    # more of a UI responsibility maybe?
     def write_textgrid(self, filepath = None):
         """
         Save this recording's textgrid to file.
 
         If filepath is not specified, this method will try to overwrite the 
         textgrid speficied in self.meta.
+
+        If filepath is specified, subsequent calls to this function will 
+        write into the new path rather than the original one.
         """
         try:
             if filepath:
                 self.textgrid.write(filepath)
+                self.meta['textgrid'] = filepath
             else:
                 self.textgrid.write(self.meta['textgrid'])
         except:

@@ -33,6 +33,7 @@
 import abc
 from contextlib import closing
 import logging
+import sys
 
 # Numerical arrays and more
 import numpy as np
@@ -107,7 +108,6 @@ class Recording():
                 self.textgrid.write(self.meta['textgrid'])
         except:
             _recording_logger.critical("Could not write textgrid to " + self.meta['textgrid'] + ".")
-            self.textgrid = None
 
     # should the modalities dict be accessed as a property?
     def add_modality(self, name, modality, replace=False):
@@ -387,12 +387,14 @@ class RawUltrasound(MatrixData):
             try:
                 wanted_meta = { key: meta[key] for key in RawUltrasound.requiredMetaKeys }
             except KeyError:
-                notFound = set(RawUltrasound.requiredMetaKeys) - set(meta)
-                message = "Part of metadata missing when processing " + self.meta['filename'] + ". "
-                message += "Could not find " + notFound + "."
                 # Missing metadata for one recording may be ok and this could be handled with just
                 # a call to _recording_logger.critical and setting self.excluded = True
-                _recording_logger.fatal(message)
+                notFound = set(RawUltrasound.requiredMetaKeys) - set(meta)
+                _recording_logger.critical("Part of metadata missing when processing " + self.meta['filename'] + ". ")
+                _recording_logger.critical("Could not find " + notFound + ".")
+                self.logger.critical('Exiting.')
+                sys.exit()
+
 
             self.meta.update(wanted_meta)
 

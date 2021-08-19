@@ -80,7 +80,6 @@ def get_recording_list(directory, exclusion_list_name = None, spline_file = None
 
     # strip file extensions off of filepaths to get the base names
     base_names = [os.path.splitext(prompt_file)[0] for prompt_file in ult_prompt_files]
-    recordings = [AAA_Ultrasound_recording(base_name) for base_name in base_names] 
 
     # iterate over file base names and check for required files
     for i, base_name in enumerate(base_names):
@@ -339,14 +338,6 @@ class AAA_Ultrasound_Recording(Ultrasound_Recording):
             _AAA_logger.debug("Read and parsed ultrasound metafile " + filename + ".")
 
 
-    def get_time_vector(self):
-        # generate one
-        pass
-
-    def get_ultrasound_data(self):
-        # load from file, return
-        pass
-
 def parse_spline_line(line):
     # This relies on none of the fields being empty and is necessary to be 
     # able to process AAA's output which sometimes has extra tabs.
@@ -381,6 +372,7 @@ def parse_spline_line(line):
 
 def retrieve_splines(filename):
     """
+    Read all splines from the file.
     """
     with closing(open(filename, 'r')) as splinefile:
         splinefile.readline() # Discard the headers on first line.

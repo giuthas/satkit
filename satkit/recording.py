@@ -162,22 +162,16 @@ class Modality(metaclass=abc.ABCMeta):
         self.timeOffset = timeOffset
         self.isPreloaded = preload
 
-    @abc.abstractmethod
-    def _loadData(self):
-        """
-        Abstract helper method as a place holder for data loading methods in subclasses.
-        
-        This method should be implemented by subclasses to provide a unified 
-        way of handling preloading and on-the-fly loading of data.
-
-        This method is intended to rely on self.meta to know what to read.
-        """
-
     @property
+    @abc.abstractmethod
     def data(self):
         """
         Return the data of this Modality as a NumPy array. 
         
+        The data refers to the actual data this modality represents
+        and for DerivedModality it is the result of running the 
+        modality's algorithm on the original data.
+
         The dimensions of the array should be in the 
         order of [time, others]
 
@@ -185,9 +179,6 @@ class Modality(metaclass=abc.ABCMeta):
         cause data to be loaded on the fly _and_ saved in memory. To 
         release the memory, assign None to this Modality's data.
         """
-        if self.__data is None:
-            self._loadData()
-        return self.__data
         
     @data.setter
     @abc.abstractmethod
@@ -250,7 +241,79 @@ class Modality(metaclass=abc.ABCMeta):
         self.timeOffset = timevector[0]
 
 
-class MonoAudio(Modality):
+class DataModality(Modality):
+
+    def __init__(self, name, parent, preload, timeOffset):
+        super().__init__(name=name, parent=parent, preload=preload, timeOffset=timeOffset)
+
+    @abc.abstractmethod
+    def _loadData(self):
+        """
+        Abstract helper method as a place holder for data loading methods in subclasses.
+        
+        This method should be implemented by subclasses to provide a unified 
+        way of handling preloading and on-the-fly loading of data.
+
+        This method is intended to rely on self.meta to know what to read.
+        """
+
+    @property
+    def data(self):
+        """
+        Return the data of this Modality as a NumPy array. 
+        
+        The dimensions of the array should be in the 
+        order of [time, others]
+
+        If this modality is not preloaded, accessing this property will
+        cause data to be loaded on the fly _and_ saved in memory. To 
+        release the memory, assign None to this Modality's data.
+        """
+        if self.__data is None:
+            self._loadData()
+        return self.__data
+
+
+class DerivedModality(Modality):
+
+    def __init__(self, name, parent=None, preload=True, timeOffset=0, dataModality=None):
+        super().__init__(name=name, parent=parent, preload=preload, timeOffset=timeOffset)
+
+        self.dataModality = dataModality
+
+        if self.isPreloaded:
+            self._calculate()
+
+    @abc.abstractmethod
+    def _calculate(self):
+        """
+        Abstract helper method as a place holder for the processing algorithm.
+        
+        This method should be implemented by subclasses to provide a unified 
+        way of handling preloading (preprocessing) and on-the-fly processing of data.
+
+        This method is intended to rely on self.dataModality and self.meta to 
+        know what to do.
+        """
+
+    @property
+    def data(self):
+        """
+        Return the _derived_ data of this Modality as a NumPy array. 
+        
+        The dimensions of the array should be in the 
+        order of [time, others]
+
+        If this modality is not preloaded, accessing this property will
+        cause data to be loaded on the fly _and_ saved in memory. To 
+        release the memory, assign None to this Modality's data.
+        """
+        if self.__data is None:
+            self._calculate()
+        return self.__data
+
+
+class MonoAudio(DataModality):
     """
     A mono audio track. 
 
@@ -335,7 +398,7 @@ class MonoAudio(Modality):
         self.__data = data
 
 
-class MatrixData(Modality):
+class MatrixData(DataModality):
     """
     Superclass of matrix data.
 

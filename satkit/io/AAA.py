@@ -46,12 +46,11 @@ from satkit.recording import *
 
 _AAA_logger = logging.getLogger('satkit.AAA')
 
-def setMetaForRawUltra(token):
-    meta = satkit_AAA.parse_ult_meta(token['ult_meta_file'])
-    ult_fps = meta['FramesPerSec']
-    ult_NumVectors = meta['NumVectors']
-    ult_PixPerVector = meta['PixPerVector']
-    ult_TimeInSecsOfFirstFrame = meta['TimeInSecsOfFirstFrame']
+
+    # this belongs in the thing that reads
+    # if data.excluded:
+    #     notice += ': Token excluded.'
+    #     _pd_logger.info(notice)
 
 
 
@@ -88,16 +87,17 @@ def get_recording_list(directory, exclusion_list_name = None, spline_file = None
 
     # strip file extensions off of filepaths to get the base names
     base_names = [os.path.splitext(prompt_file)[0] for prompt_file in ult_prompt_files]
+    meta = [{} for base_name in base_names]
 
     # iterate over file base names and check for required files
     for i, base_name in enumerate(base_names):
         # Prompt file should always exist and correspond to the base_name because 
         # the base_name list is generated from the directory listing of prompt files.
         meta[i]['ult_prompt_file'] = ult_prompt_files[i]
-        (prompt, date_and_time, participant) = read_prompt(ult_prompt_files[i])
-        meta[i]['prompt'] = prompt
-        meta[i]['date_and_time'] = date_and_time
-        meta[i]['participant'] = participant
+        # (prompt, date_and_time, participant) = read_prompt(ult_prompt_files[i])
+        # meta[i]['prompt'] = prompt
+        # meta[i]['date_and_time'] = date_and_time
+        # meta[i]['participant'] = participant
         
         if base_name in file_exclusion_list:
             notice = base_name + " is in the exclusion list."
@@ -142,7 +142,8 @@ def get_recording_list(directory, exclusion_list_name = None, spline_file = None
             meta[i]['excluded'] = True        
 
         if os.path.isfile(textgrid):
-            meta[i]['textgrid'] = read_textgrid(textgrid) 
+# needs work: following line should actually be done, not just excluded to get this through the compiler.            
+            #meta[i]['textgrid'] = read_textgrid(textgrid) 
             meta[i]['textgrid_exists'] = True
         else:
             notice = 'Note: ' + textgrid + " does not exist."
@@ -227,7 +228,7 @@ def read_file_exclusion_list(filename):
     return exclusion_list
 
 
-class AAA_Ultrasound_Recording(Ultrasound_Recording):
+class AAA_Ultrasound_Recording(RawUltrasound):
     """
     Ultrasound recording exported from AAA.
     """
@@ -239,28 +240,25 @@ class AAA_Ultrasound_Recording(Ultrasound_Recording):
         elif basename == "":
             _AAA_logger.critical("Critical error: File basename is empty.")
         else:
-            _AAA_logger.debug("Initialising a new recording with filename " + filename + ".")
+            _AAA_logger.debug("Initialising a new recording with filename " + basename + ".")
             self.meta['base_name'] = basename
 
             # Prompt file should always exist and correspond to the base_name because 
             # the base_name list is generated from the directory listing of prompt files.
             self.meta['ult_prompt_file'] = basename + '.txt'
-            (prompt, date, participant) = read_prompt(self.meta['ult_prompt_file'])
+            (prompt, date, participant) = self.parse_AAA_promptfile(self.meta['ult_prompt_file'])
             self.meta['prompt'] = prompt
             self.meta['date'] = date
             self.meta['participant'] = participant
 
-            if base_name in file_exclusion_list:
-                notice = base_name + " is in the exclusion list."
+            if self.excluded:
+                notice = basename + " is in the exclusion list."
                 _AAA_logger.info(notice)
-                self.meta['excluded'] = True
-            else:
-                self.meta['excluded'] = False
-
+            
             # Candidates for filenames. Existence tested below.
-            ult_meta_file = os.path.join(base_name + "US.txt")
-            ult_wav_file = os.path.join(base_name + ".wav")
-            ult_file = os.path.join(base_name + ".ult")
+            ult_meta_file = os.path.join(basename + "US.txt")
+            ult_wav_file = os.path.join(basename + ".wav")
+            ult_file = os.path.join(basename + ".ult")
 
             # check if assumed files exist, and arrange to skip them if any do not
             if os.path.isfile(ult_meta_file):
@@ -306,7 +304,15 @@ class AAA_Ultrasound_Recording(Ultrasound_Recording):
             ########### store also the different variations of the
             ########### file name, checking for existence
             
-            self.parse_AAA_promptfile(filename)
+            self.parse_AAA_promptfile(basename)
+
+# Needs work: this was moved from elsewhere and is waiting reimplementation.
+    def setMetaForRawUltra(self, token):
+        meta = self.parse_AAA_meta(token['ult_meta_file'])
+        ult_fps = meta['FramesPerSec']
+        ult_NumVectors = meta['NumVectors']
+        ult_PixPerVector = meta['PixPerVector']
+        ult_TimeInSecsOfFirstFrame = meta['TimeInSecsOfFirstFrame']
 
     def parse_AAA_promptfile(self, filename):
         """

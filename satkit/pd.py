@@ -45,10 +45,8 @@ from satkit.recording import DerivedModality
 
 _pd_logger = logging.getLogger('satkit.pd')    
 
-    # this belongs in the thing that reads, not here
-    # if data.excluded:
-    #     notice += ': Token excluded.'
-    #     _pd_logger.info(notice)
+def pd():
+    pass
 
 class PD(DerivedModality):
     """

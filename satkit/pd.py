@@ -40,58 +40,102 @@ import scipy.io.wavfile as sio_wavfile
 # local modules
 import satkit.audio as satkit_audio
 import satkit.io.AAA as satkit_AAA
+from satkit.recording import DerivedModality
 
 
 _pd_logger = logging.getLogger('satkit.pd')    
 
-
-    # this belongs in the thing that reads, not here
-    # if data.excluded:
-    #     notice += ': Token excluded.'
-    #     _pd_logger.info(notice)
-
-
-def pd(mModality, timestep = 1):
+class PD(DerivedModality):
     """
-    Calculate PD and attach the results to the mModality. 
+    Calculate PD and represent it as a DerivedModality. 
 
-    Returns a dictionary containing PD and SBPD as functions of time,
-    beep time and a time vector spanning the ultrasound recording.
+    PD maybe calculated using several different norms and therefore the
+    result may be non-singular. For this reason self.data is a dict
+    containing a PD curve for each key.
     """
-    baseNotice = (mModality.parent.meta['base_name'] 
-            + " " + mModality.parent.meta['prompt'])
 
-    _pd_logger.info(baseNotice + ': Token being processed.')
-    
-    data = mModality.data
+    acceptedNorms = [
+        'l1',
+        'l2',
+        'l3',
+        'l4',
+        'l5',
+        'l6',
+        'l7',
+        'l8',
+        'l9',
+        'l10',
+        'inf',
+    ]
+
+    def __init__(self, name = "pixel difference", parent=None, 
+                preload=True, timeOffset=0, dataModality=None,
+                norms=['l2'], timesteps=[1]):
+        """
+        Build a Pixel Difference (PD) Modality       
+
+        If timestep is given as a vector of positive integers, then calculate
+        and return pd for each of those.
+        """
+        super().__init__(name, parent=parent, preload=preload, timeOffset=timeOffset, dataModality=dataModality)
+
+        # This allows the caller to be lazy.
+        if not parent and dataModality:
+            self.parent = dataModality.parent
+
+        if all(norm in PD.acceptedNorms for norm in norms):
+            self._norms = norms
+        else:
+            ValueError("Unexpected norm requested in " + str(norms))
+
+        if all((isinstance(timestep,int) and timestep > 0) 
+                for timestep in timesteps):
+            # Since all timesteps are valid, we are ok.
+            self._timesteps = timesteps
+        else:
+            ValueError("Negative or non-integer timestep in " + str(timesteps))
+
+        self._loggingBaseNotice = (self.parent.meta['base_name'] 
+                                + " " + self.parent.meta['prompt'])
+
+        if preload:
+            self._calculate()
+
+    def _calculate(self):
+        """
+        Build a Pixel Difference (PD) Modality       
+
+        If timestep is given as a vector of positive integers, then calculate
+        and return pd for each of those.
+        """        
+        _pd_logger.info(self._loggingBaseNotice 
+                        + ': Token being processed.')
         
-    raw_diff = np.diff(data, axis=0)
-    abs_diff = np.abs(raw_diff)
-    square_diff = np.square(raw_diff)
-    slw_pd = np.sum(square_diff, axis=2) # this should be square rooted at some point
-    data_l2 = np.sqrt(np.sum(slw_pd, axis=1))
+        data = self.dataModality.data
+        result = {}
+            
+        raw_diff = np.diff(data, axis=0)
+        abs_diff = np.abs(raw_diff)
+        square_diff = np.square(raw_diff)
+        slw_pd = np.sum(square_diff, axis=2) # this should be square rooted at some point
 
-    data_l1 = np.sum(abs_diff, axis=(1,2))
-    data_l3 = np.power(np.sum(np.power(abs_diff, 3), axis=(1,2)), 1.0/3.0)
-    data_l4 = np.power(np.sum(np.power(abs_diff, 4), axis=(1,2)), 1.0/4.0)
-    data_l5 = np.power(np.sum(np.power(abs_diff, 5), axis=(1,2)), 1.0/5.0)
-    data_l10 = np.power(np.sum(np.power(abs_diff, 10), axis=(1,2)), .1)
+        
+        result['sbpd'] = slw_pd
+        result['pd'] = np.sqrt(np.sum(slw_pd, axis=1))
+        result['l1'] = np.sum(abs_diff, axis=(1,2))
+        result['l3'] = np.power(np.sum(np.power(abs_diff, 3), axis=(1,2)), 1.0/3.0)
+        result['l4'] = np.power(np.sum(np.power(abs_diff, 4), axis=(1,2)), 1.0/4.0)
+        result['l5'] = np.power(np.sum(np.power(abs_diff, 5), axis=(1,2)), 1.0/5.0)
+        result['l10'] = np.power(np.sum(np.power(abs_diff, 10), axis=(1,2)), .1)
+        result['l_inf'] = np.max(abs_diff, axis=(1,2))
 
-    _pd_logger.debug(baseNotice + ': PD calculated.')
+        _pd_logger.debug(self._loggingBaseNotice 
+                        + ': PD calculated.')
 
-    pd_time = mModality.timevector + .5/mModality.meta['FramesPerSec']
+        result['pd_time'] = (self.dataModality.timevector 
+                            + .5/self.dataModality.meta['FramesPerSec'])
 
-    result = {}
-    result['l1'] = data_l1 
-    result['pd'] = data_l2
-    result['l3'] = data_l3 
-    result['l4'] = data_l4 
-    result['l5'] = data_l5 
-    result['l10'] = data_l10 
-    result['l_inf'] = np.max(abs_diff, axis=(1,2))
-    result['sbpd'] = slw_pd
-    result['pd_time'] = pd_time
+        self.data = result
 
-    mModality.pd = result
         
 

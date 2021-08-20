@@ -60,7 +60,8 @@ class CurveAnnotator(ABC):
     
     def __init__(self, recordings, args, xlim = (-0.1, 1.0), figsize=(15, 8)):
         self.index = 0
-        self.max_index = len(meta)
+# Needs work: this is a non-sensical number to assign here, but also possibly the wrong place to assign anything
+        self.max_index = 0
 
         self.recordings = recordings
         self.commanlineargs = args

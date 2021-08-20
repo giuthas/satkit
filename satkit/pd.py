@@ -45,6 +45,11 @@ from satkit.recording import DerivedModality
 
 _pd_logger = logging.getLogger('satkit.pd')    
 
+    # this belongs in the thing that reads, not here
+    # if data.excluded:
+    #     notice += ': Token excluded.'
+    #     _pd_logger.info(notice)
+
 class PD(DerivedModality):
     """
     Calculate PD and represent it as a DerivedModality. 
@@ -76,6 +81,10 @@ class PD(DerivedModality):
 
         If timestep is given as a vector of positive integers, then calculate
         and return pd for each of those.
+
+        Note: Currently neither the norms nor the timesteps paremeter 
+        is respected. Instead, all the norms get calculated and a 
+        timestep of 1 is used always.
         """
         super().__init__(name, parent=parent, preload=preload, timeOffset=timeOffset, dataModality=dataModality)
 

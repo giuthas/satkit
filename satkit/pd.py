@@ -1,7 +1,7 @@
 #
 # Copyright (c) 2019-2021 Pertti Palo, Scott Moisik, and Matthew Faytak.
 #
-# This file is part of Speech Articulation ToolKIT 
+# This file is part of Speech Articulation ToolKIT
 # (see https://github.com/giuthas/satkit/).
 #
 # This program is free software: you can redistribute it and/or modify
@@ -43,10 +43,12 @@ import satkit.io.AAA as satkit_AAA
 from satkit.recording import DerivedModality
 
 
-_pd_logger = logging.getLogger('satkit.pd')    
+_pd_logger = logging.getLogger('satkit.pd')
+
 
 def pd():
     pass
+
 
 class PD(DerivedModality):
     """
@@ -71,9 +73,9 @@ class PD(DerivedModality):
         'inf',
     ]
 
-    def __init__(self, name = "pixel difference", parent=None, 
-                preload=True, timeOffset=0, dataModality=None,
-                norms=['l2'], timesteps=[1]):
+    def __init__(self, name="pixel difference", parent=None,
+                 preload=True, timeOffset=0, dataModality=None,
+                 norms=['l2'], timesteps=[1]):
         """
         Build a Pixel Difference (PD) Modality       
 
@@ -84,7 +86,8 @@ class PD(DerivedModality):
         is respected. Instead, all the norms get calculated and a 
         timestep of 1 is used always.
         """
-        super().__init__(name, parent=parent, preload=preload, timeOffset=timeOffset, dataModality=dataModality)
+        super().__init__(name, parent=parent, preload=preload,
+                         timeOffset=timeOffset, dataModality=dataModality)
 
         # This allows the caller to be lazy.
         if not parent and dataModality:
@@ -95,54 +98,55 @@ class PD(DerivedModality):
         else:
             ValueError("Unexpected norm requested in " + str(norms))
 
-        if all((isinstance(timestep,int) and timestep > 0) 
+        if all((isinstance(timestep, int) and timestep > 0)
                 for timestep in timesteps):
             # Since all timesteps are valid, we are ok.
             self._timesteps = timesteps
         else:
             ValueError("Negative or non-integer timestep in " + str(timesteps))
 
-        self._loggingBaseNotice = (self.parent.meta['base_name'] 
-                                + " " + self.parent.meta['prompt'])
+        self._loggingBaseNotice = (self.parent.meta['base_name']
+                                   + " " + self.parent.meta['prompt'])
 
         if preload:
-            self._calculate()
+            self._getData()
 
-    def _calculate(self):
+    def _getData(self):
         """
-        Build a Pixel Difference (PD) Modality       
+        Calculate Pixel Difference (PD) on the DataModality.       
 
-        If timestep is given as a vector of positive integers, then calculate
+        If self._timesteps is a vector of positive integers, then calculate
         and return pd for each of those.
-        """        
-        _pd_logger.info(self._loggingBaseNotice 
+        """
+        _pd_logger.info(self._loggingBaseNotice
                         + ': Token being processed.')
-        
+
         data = self.dataModality.data
         result = {}
-            
+
         raw_diff = np.diff(data, axis=0)
         abs_diff = np.abs(raw_diff)
         square_diff = np.square(raw_diff)
-        slw_pd = np.sum(square_diff, axis=2) # this should be square rooted at some point
+        # this should be square rooted at some point
+        slw_pd = np.sum(square_diff, axis=2)
 
-        
         result['sbpd'] = slw_pd
         result['pd'] = np.sqrt(np.sum(slw_pd, axis=1))
-        result['l1'] = np.sum(abs_diff, axis=(1,2))
-        result['l3'] = np.power(np.sum(np.power(abs_diff, 3), axis=(1,2)), 1.0/3.0)
-        result['l4'] = np.power(np.sum(np.power(abs_diff, 4), axis=(1,2)), 1.0/4.0)
-        result['l5'] = np.power(np.sum(np.power(abs_diff, 5), axis=(1,2)), 1.0/5.0)
-        result['l10'] = np.power(np.sum(np.power(abs_diff, 10), axis=(1,2)), .1)
-        result['l_inf'] = np.max(abs_diff, axis=(1,2))
+        result['l1'] = np.sum(abs_diff, axis=(1, 2))
+        result['l3'] = np.power(
+            np.sum(np.power(abs_diff, 3), axis=(1, 2)), 1.0/3.0)
+        result['l4'] = np.power(
+            np.sum(np.power(abs_diff, 4), axis=(1, 2)), 1.0/4.0)
+        result['l5'] = np.power(
+            np.sum(np.power(abs_diff, 5), axis=(1, 2)), 1.0/5.0)
+        result['l10'] = np.power(
+            np.sum(np.power(abs_diff, 10), axis=(1, 2)), .1)
+        result['l_inf'] = np.max(abs_diff, axis=(1, 2))
 
-        _pd_logger.debug(self._loggingBaseNotice 
-                        + ': PD calculated.')
+        _pd_logger.debug(self._loggingBaseNotice
+                         + ': PD calculated.')
 
-        result['pd_time'] = (self.dataModality.timevector 
-                            + .5/self.dataModality.meta['FramesPerSec'])
+        result['pd_time'] = (self.dataModality.timevector
+                             + .5/self.dataModality.meta['FramesPerSec'])
 
         self.data = result
-
-        
-

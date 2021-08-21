@@ -1,0 +1,5 @@
+# Generate docs with pdoc and some diagrams to be linked as well.
+
+pdoc --html --output-dir docs satkit --force
+pyreverse -o png -p satkit satkit/
+# after running pyreverse the resulting files need to be moved to docs/satkit/

@@ -1,7 +1,7 @@
 #
 # Copyright (c) 2019-2021 Pertti Palo, Scott Moisik, and Matthew Faytak.
 #
-# This file is part of Speech Articulation ToolKIT 
+# This file is part of Speech Articulation ToolKIT
 # (see https://github.com/giuthas/satkit/).
 #
 # This program is free software: you can redistribute it and/or modify
@@ -49,6 +49,7 @@ import satkit.audio as satkit_audio
 
 _recording_logger = logging.getLogger('satkit.recording')
 
+
 class Recording():
     """
     A Recording contains 0-n synchronised Modalities.
@@ -59,18 +60,18 @@ class Recording():
     to .csv files, as well as the textgrid for the whole recording.
     """
 
-    def __init__(self, path = None, basename = "", textgrid = None):
+    def __init__(self, path=None, basename="", textgrid=None):
         self.excluded = False
-        self.meta = {path: path, 
-                    basename: basename, 
-                    textgrid: textgrid
-                    }
+        self.meta = {path: path,
+                     basename: basename,
+                     textgrid: textgrid
+                     }
         self.modalities = {}
 
         if self.meta['textgrid']:
             self._read_textgrid()
         else:
-            self.textgrid = None 
+            self.textgrid = None
 
     def _read_textgrid(self):
         """
@@ -79,8 +80,8 @@ class Recording():
         try:
             self.textgrid = textgrids.TextGrid(self.meta['textgrid'])
         except:
-            _recording_logger.critical("Could not read textgrid in " 
-                                        + self.meta['textgrid'] + ".")
+            _recording_logger.critical("Could not read textgrid in "
+                                       + self.meta['textgrid'] + ".")
             self.textgrid = None
 
     def exclude(self):
@@ -93,7 +94,7 @@ class Recording():
         """
         self.excluded = True
 
-    def write_textgrid(self, filepath = None):
+    def write_textgrid(self, filepath=None):
         """
         Save this recording's textgrid to file.
 
@@ -114,8 +115,8 @@ class Recording():
             else:
                 self.textgrid.write(self.meta['textgrid'])
         except:
-            _recording_logger.critical("Could not write textgrid to " 
-                                        + self.meta['textgrid'] + ".")
+            _recording_logger.critical("Could not write textgrid to "
+                                       + self.meta['textgrid'] + ".")
 
     # should the modalities dict be accessed as a property?
     def add_modality(self, name, modality, replace=False):
@@ -137,23 +138,24 @@ class Recording():
             be replaced.
         """
         if name in self.modalities.keys() and not replace:
-            raise AttributeError("A modality named " + name 
-                            + " already exists and replace flag was False.")
+            raise AttributeError(
+                "A modality named " + name +
+                " already exists and replace flag was False.")
         elif replace:
             self.modalities[name] = modality
             _recording_logger.debug("Replaced modality " + name + ".")
         else:
             self.modalities[name] = modality
             _recording_logger.debug("Added new modality " + name + ".")
-            
 
-class Modality(metaclass=abc.ABCMeta):
+
+class Modality(abc.ABC):
     """
     Abstract superclass for all data Modality classes.
     """
 
-    def __init__(self, name = None, parent = None, 
-                preload = False, timeOffset = 0):
+    def __init__(self, name=None, parent=None,
+                 preload=False, timeOffset=0):
         """
         Modality constructor.
 
@@ -169,11 +171,11 @@ class Modality(metaclass=abc.ABCMeta):
             self.parent = parent
         else:
             raise TypeError("Modality given a parent which is not "
-                            + " of type Recording or a decendant. " 
+                            + " of type Recording or a decendant. "
                             + "Instead found: " + type(parent) + ".")
-            
+
         # use self.parent.meta[key] to set parent metadata
-        # certain things should be properties with get/set 
+        # certain things should be properties with get/set
         self.meta = {}
 
         # This is a property which when set to True will also set parent.excluded to True.
@@ -182,12 +184,26 @@ class Modality(metaclass=abc.ABCMeta):
         self.timeOffset = timeOffset
         self.isPreloaded = preload
 
+    @abc.abstractmethod
+    def _getData(self):
+        """
+        Load data from file -- abstract method to be overridden.
+
+        This method should be implemented by subclasses to provide a unified 
+        way of handling preloading and on-the-fly loading of data.
+
+        This method is intended to rely on self.meta to know what to read.
+        """
+        raise NotImplementedError(
+            "This is an abstract method that " +
+            "should be overridden by inheriting classes.")
+
     @property
     @abc.abstractmethod
     def data(self):
         """
         Abstract property: a NumPy array. 
-        
+
         The data refers to the actual data this modality represents
         and for DerivedModality it is the result of running the 
         modality's algorithm on the original data.
@@ -199,9 +215,10 @@ class Modality(metaclass=abc.ABCMeta):
         cause data to be loaded on the fly _and_ saved in memory. To 
         release the memory, assign None to this Modality's data.
         """
-        raise NotImplementedError("This is an abstract method that " 
-                            + "should be overridden by inheriting classes.")
-        
+        raise NotImplementedError(
+            "This is an abstract method that " +
+            "should be overridden by inheriting classes.")
+
     @data.setter
     @abc.abstractmethod
     def data(self, data):
@@ -210,8 +227,9 @@ class Modality(metaclass=abc.ABCMeta):
 
         Subclasses should check that they are being handed valid data.
         """
-        raise NotImplementedError("This is an abstract method that " 
-                            + "should be overridden by inheriting classes.")
+        raise NotImplementedError(
+            "This is an abstract method that " +
+            "should be overridden by inheriting classes.")
 
     @property
     def excluded(self):
@@ -228,7 +246,7 @@ class Modality(metaclass=abc.ABCMeta):
         self.__excluded = excluded
 
         if excluded:
-          self.parent.excluded = excluded  
+            self.parent.excluded = excluded
 
     @property
     def timeOffset(self):
@@ -244,7 +262,8 @@ class Modality(metaclass=abc.ABCMeta):
     def timeOffset(self, timeOffset):
         self.__timeOffset = timeOffset
         if self.isPreloaded:
-            self.__timevector = self.timevector + (timeOffset - self.timevector[0])
+            self.__timevector = self.timevector + \
+                (timeOffset - self.timevector[0])
 
     @property
     def timevector(self):
@@ -255,16 +274,17 @@ class Modality(metaclass=abc.ABCMeta):
         property will cause data to be loaded on the fly _and_ saved 
         in memory. To release the memory, assign None to this 
         Modality's data. Please, note that if the data has been previously 
-        loaded and after that released, the timevector still persists and 
+        loaded and after that released, the timevector still persists and  
         accessing it does not trigger a new loading operation.
 
         Assigning a value to this property is implemented so 
         that self.__timevector[0] stays equal to self.__timeOffset. 
         """
         if self.__timevector is None:
-            self._loadData()
+            self._getData()
         return self.__timevector
 
+    # before v1.0: check that the new timevector is same length as the data
     @timevector.setter
     def timevector(self, timevector):
         self.__timevector = timevector
@@ -273,30 +293,18 @@ class Modality(metaclass=abc.ABCMeta):
 
 class DataModality(Modality):
 
-    def __init__(self, name = None, parent = None, 
-                preload = False, timeOffset = 0):
+    def __init__(self, name=None, parent=None,
+                 preload=False, timeOffset=0):
         """Same defaults as with the super class"""
-        super().__init__(name=name, parent=parent, 
-                        preload=preload, timeOffset=timeOffset)
-
-    @abc.abstractmethod
-    def _loadData(self):
-        """
-        Load data from file -- abstract method to be overridden.
-        
-        This method should be implemented by subclasses to provide a unified 
-        way of handling preloading and on-the-fly loading of data.
-
-        This method is intended to rely on self.meta to know what to read.
-        """
-        raise NotImplementedError("This is an abstract method that " 
-                            + "should be overridden by inheriting classes.")
+        super().__init__(name=name, parent=parent,
+                         preload=preload, timeOffset=timeOffset)
+        self._data = None
 
     @property
     def data(self):
         """
         The data of this Modality as a NumPy array. 
-        
+
         The dimensions of the array are in the 
         order of [time, others]
 
@@ -304,9 +312,9 @@ class DataModality(Modality):
         cause data to be loaded on the fly _and_ saved in memory. To 
         release the memory, assign None to this Modality's data.
         """
-        if self.__data is None:
-            self._loadData()
-        return self.__data
+        if self._data is None:
+            self._getData()
+        return self._data
 
 
 class DerivedModality(Modality):
@@ -314,11 +322,11 @@ class DerivedModality(Modality):
     Modality for data produced from another Modality by calculations.
     """
 
-    def __init__(self, name, parent=None, preload=True, 
-                timeOffset=0, dataModality=None):
+    def __init__(self, name, parent=None, preload=True,
+                 timeOffset=0, dataModality=None):
         """
         Most arguments and default values inherited from super. 
-        
+
         However, preload defaults to True, because it is assumed that 
         the results are required immediately.
 
@@ -328,14 +336,15 @@ class DerivedModality(Modality):
 
         New keyword argument:
         dataModality -- object which belongs to a subclass of 
-            DataModality. This is the data on which the data of this
+            DataModality. This is the data on which the data of this 
             Modality is based.
         """
-        super().__init__(name=name, parent=parent, 
-                        preload=preload, timeOffset=timeOffset)
+        super().__init__(name=name, parent=parent,
+                         preload=preload, timeOffset=timeOffset)
 
         self.dataModality = dataModality
 
+        self._data = None
         if self.isPreloaded:
             self._calculate()
 
@@ -343,7 +352,7 @@ class DerivedModality(Modality):
     def _calculate(self):
         """
         Run this Modality's algorithm on the data. Abstract method.
-        
+
         This method should be implemented by subclasses to provide 
         a unified way of handling preloading (preprocessing) and 
         on-the-fly processing of data.
@@ -351,14 +360,15 @@ class DerivedModality(Modality):
         This method is intended to rely on self.dataModality and 
         self.meta to know what to do.
         """
-        raise NotImplementedError("This is an abstract method that " 
-                            + "should be overridden by inheriting classes.")
+        raise NotImplementedError(
+            "This is an abstract method that " +
+            "should be overridden by inheriting classes.")
 
     @property
     def data(self):
         """
         The _derived_ data of this Modality as a NumPy array. 
-        
+
         The dimensions of the array should be in the 
         order of [time, others]
 
@@ -366,9 +376,9 @@ class DerivedModality(Modality):
         cause data to be loaded on the fly _and_ saved in memory. To 
         release the memory, assign None to this Modality's data.
         """
-        if self.__data is None:
+        if self._data is None:
             self._calculate()
-        return self.__data
+        return self._data
 
 
 class MonoAudio(DataModality):
@@ -378,13 +388,13 @@ class MonoAudio(DataModality):
     Audio data is assumed to be small enough to fit in working memory.
     """
 
-    # Mains electricity frequency and filter coefficients for removing 
+    # Mains electricity frequency and filter coefficients for removing
     # it from audio with a highpass filter.
     mainsFrequency = None
-    filter = None
+    filter = {}
 
-    def __init__(self, name = 'mono audio', parent = None, preload = True, 
-                timeOffset = 0, filename = None, mainsFrequency = 50):
+    def __init__(self, name='mono audio', parent=None, preload=True,
+                 timeOffset=0, filename=None, mainsFrequency=50):
         """
         Create a MonoAudio track.
 
@@ -406,14 +416,14 @@ class MonoAudio(DataModality):
         # If we do not have a filename, there is not much to init.
         if filename:
             if preload:
-                self._loadData()
+                self._getData()
             else:
-                self.__data = None
+                self._data = None
 
-    def _loadData(self):
+    def _getData(self):
         """
         Helper for loading data, detecting beep and generating the timevector.
-        
+
         Setting self.isPreloaded = True results in a call to this method.
         """
         (wav_fs, wav_frames) = sio_wavfile.read(self.meta['filename'])
@@ -424,27 +434,30 @@ class MonoAudio(DataModality):
         # from the recorded sound.
         if MonoAudio.mainsFrequency != self.mainsFrequency:
             MonoAudio.mainsFrequency = self.mainsFrequency
-            MonoAudio.filter = satkit_audio.high_pass(wav_fs, self.mainsFrequency)
+            MonoAudio.filter = satkit_audio.high_pass(
+                wav_fs, self.mainsFrequency)
 
-
-        beep_uti, has_speech = satkit_audio.detect_beep_and_speech(wav_frames,
-                                                                   wav_fs,
-                                                                   MonoAudio.filter['b'],
-                                                                   MonoAudio.filter['a'],
-                                                                   self.meta['filename'])
+        beep_uti, has_speech = satkit_audio.detect_beep_and_speech(
+            wav_frames, wav_fs, MonoAudio.filter['b'],
+            MonoAudio.filter['a'],
+            self.meta['filename'])
 
         # before v1.0: this is a bad name for the beep: 1) this is an AAA thing,
         # 2) the recording might not be UTI
         self.meta['beep_uti'] = beep_uti
         self.meta['has_speech'] = has_speech
 
-        self.__timevector = np.linspace(0, len(wav_frames), 
-                                         len(wav_frames),
-                                         endpoint=False)
+        self.__timevector = np.linspace(0, len(wav_frames),
+                                        len(wav_frames),
+                                        endpoint=False)
         self.__timevector = self.__timevector/wav_fs + self.timeOffset
 
+    @property
+    def data(self):
+        return super().data
+
     # before v1.0: check that the data is actually valid, also call the beep detect etc. routines on it.
-    @Modality.data.setter
+    @data.setter
     def data(self, data):
         """
         The audio data of this Modality.
@@ -452,8 +465,9 @@ class MonoAudio(DataModality):
         Assigning any other value except None is not implemented yet.
         """
         if data is not None:
-            raise NotImplementedError('Writing over mono audio data has not been implemented yet.')
-        self.__data = data
+            raise NotImplementedError(
+                'Writing over mono audio data has not been implemented yet.')
+        self._data = data
 
 
 class MatrixData(DataModality):
@@ -467,7 +481,7 @@ class MatrixData(DataModality):
     interface from individual data types/modalities. 
     """
 
-    def __init__(self, name = None, parent = None, preload = False, timeOffset = 0):
+    def __init__(self, name=None, parent=None, preload=False, timeOffset=0):
         """
         New and changed keyword arguments:
         name -- the name of this Modality. The name should be unique 
@@ -494,8 +508,9 @@ class RawUltrasound(MatrixData):
         'PixPerVector'
     ]
 
-    def __init__(self, name="raw ultrasound", parent = None, preload = False, timeOffset = 0, 
-        filename = None, meta = None):
+    def __init__(
+            self, name="raw ultrasound", parent=None, preload=False,
+            timeOffset=0, filename=None, meta=None):
         """
 
         New keyword arguments:
@@ -512,40 +527,55 @@ class RawUltrasound(MatrixData):
         # Explicitly copy meta data fields to ensure that we have what we expected to get.
         if meta != None:
             try:
-                wanted_meta = { key: meta[key] for key in RawUltrasound.requiredMetaKeys }
+                wanted_meta = {key: meta[key]
+                               for key in RawUltrasound.requiredMetaKeys}
             except KeyError:
                 # Missing metadata for one recording may be ok and this could be handled with just
                 # a call to _recording_logger.critical and setting self.excluded = True
                 notFound = set(RawUltrasound.requiredMetaKeys) - set(meta)
-                _recording_logger.critical("Part of metadata missing when processing " + self.meta['filename'] + ". ")
+                _recording_logger.critical(
+                    "Part of metadata missing when processing " + self.meta
+                    ['filename'] + ". ")
                 _recording_logger.critical("Could not find " + notFound + ".")
-                self.logger.critical('Exiting.')
+                _recording_logger.critical('Exiting.')
                 sys.exit()
-
 
             self.meta.update(wanted_meta)
 
         if filename and preload:
-            self._loadData()
+            self._getData()
         else:
-            self.__data = None
+            self._data = None
 
-    def _loadData(self):
-        with closing(open(self.meata['filename'], 'rb')) as ult_file:
+    def _getData(self):
+        with closing(open(self.meta['filename'], 'rb')) as ult_file:
             ult_data = ult_file.read()
             ultra = np.fromstring(ult_data, dtype=np.uint8)
             ultra = ultra.astype("float32")
-            
-            self.meta['no_frames'] = int(len(ultra) / (self.meta['NumVectors']*self.meta['PixPerVector']))
-            self.__data = ultra.reshape((self.meta['no_frames'], self.meta['NumVectors'], self.meta['PixPerVector']))
 
-            ultra_time = np.linspace(0, self.meta['no_frames'], num=self.meta['no_frames'], endpoint=False)
-            self.timevector = ultra_time/self.meta['framesPerSec'] + self.timeOffset
-            # this should be added for PD and similar time vectors: + .5/self.meta['framesPerSec'] 
+            self.meta['no_frames'] = int(
+                len(ultra) /
+                (self.meta['NumVectors'] * self.meta['PixPerVector']))
+            self._data = ultra.reshape(
+                (self.meta['no_frames'],
+                 self.meta['NumVectors'],
+                 self.meta['PixPerVector']))
+
+            ultra_time = np.linspace(
+                0, self.meta['no_frames'],
+                num=self.meta['no_frames'],
+                endpoint=False)
+            self.timevector = ultra_time / \
+                self.meta['framesPerSec'] + self.timeOffset
+            # this should be added for PD and similar time vectors: + .5/self.meta['framesPerSec']
             # while at the same time dropping a suitable number of timestamps
 
+    @property
+    def data(self):
+        return super().data
+
     # before v1.0: check that the data is actually valid, also call the beep detect etc. routines on it.
-    @Modality.data.setter
+    @data.setter
     def data(self, data):
         """
         Data setter method.
@@ -553,7 +583,7 @@ class RawUltrasound(MatrixData):
         Assigning anything but None is not implemented yet.
         """
         if data is not None:
-            raise NotImplementedError('Writing over raw ultrasound data has not been implemented yet.')
-        self.__data = data
-
-
+            raise NotImplementedError(
+                'Writing over raw ultrasound data has not been implemented yet.')
+        else:
+            self._data = data

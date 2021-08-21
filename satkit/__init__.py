@@ -29,6 +29,21 @@
 # citations.bib in BibTeX format.
 #
 
+"""
+SATKIT -- The Speech Articulation ToolKIT
+
+SATKIT consists of several interdependent modules.
+
+![SATKIT Module hierarchy](packages_satkit.png "SATKIT Module hierarchy")
+
+SATKIT's data structures are built around two class hierarchies: 
+The Recording and the Modality. Similarly the commandline interface -- and 
+the batch processing of data -- is handled by classes that extend CLI and 
+graphical annotation tools derive from Annotator.
+
+![SATKIT Class hierarchies](classes_satkit.png "SATKIT Class hierarchies")
+"""
+
 import logging
 import logging.config
 import json

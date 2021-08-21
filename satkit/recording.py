@@ -79,14 +79,15 @@ class Recording():
         try:
             self.textgrid = textgrids.TextGrid(self.meta['textgrid'])
         except:
-            _recording_logger.critical("Could not read textgrid in " + self.meta['textgrid'] + ".")
+            _recording_logger.critical("Could not read textgrid in " 
+                                        + self.meta['textgrid'] + ".")
             self.textgrid = None
 
     def exclude(self):
         """
         Set self.excluded to True with a method.
 
-        This function exists to facilitate list comprehensions being used
+        This method exists to facilitate list comprehensions being used
         for excluding recordings e.g. 
         [recording.exclude() for recording in recordings if in some_list].
         """
@@ -96,11 +97,15 @@ class Recording():
         """
         Save this recording's textgrid to file.
 
-        If filepath is not specified, this method will try to overwrite the 
-        textgrid speficied in self.meta.
+        Keyword argument:
+        filepath -- string specifying the path and name of the 
+            file to be written. If filepath is not specified, this 
+            method will try to overwrite the textgrid speficied in 
+            self.meta.
 
-        If filepath is specified, subsequent calls to this function will 
-        write into the new path rather than the original one.
+            If filepath is specified, subsequent calls to this 
+            function will write into the new path rather than 
+            the original one.
         """
         try:
             if filepath:
@@ -109,7 +114,8 @@ class Recording():
             else:
                 self.textgrid.write(self.meta['textgrid'])
         except:
-            _recording_logger.critical("Could not write textgrid to " + self.meta['textgrid'] + ".")
+            _recording_logger.critical("Could not write textgrid to " 
+                                        + self.meta['textgrid'] + ".")
 
     # should the modalities dict be accessed as a property?
     def add_modality(self, name, modality, replace=False):
@@ -119,10 +125,20 @@ class Recording():
         Replacing a modality has to be specified otherwise if a
         Modality with the same name already exists in this Recording
         and the replace argument is not True, an Error is raised. 
+
+        Arguments:
+        name -- string giving the name of the Modality being added.
+            The name has to be unique in this Recording otherwise an
+            AttributeError will be raised.
+        modality -- object of type Modality to be added to 
+            this Recording.
+        Keyword arguments:
+        replace -- a boolean indicating if an existing Modality should
+            be replaced.
         """
         if name in self.modalities.keys() and not replace:
-            raise Exception("A modality named " + name +
-                            " already exists and replace flag was False.")
+            raise AttributeError("A modality named " + name 
+                            + " already exists and replace flag was False.")
         elif replace:
             self.modalities[name] = modality
             _recording_logger.debug("Replaced modality " + name + ".")
@@ -136,21 +152,25 @@ class Modality(metaclass=abc.ABCMeta):
     Abstract superclass for all data Modality classes.
     """
 
-    def __init__(self, name = None, parent = None, preload = False, timeOffset = 0):
+    def __init__(self, name = None, parent = None, 
+                preload = False, timeOffset = 0):
         """
         Modality constructor.
 
-        name is the name of this Modality and should be unique in this recording.
-        parent is the parent Recording.
-        isPreloaded is a boolean indicating if this instance reads the data from disc 
-            on construction or only when needed.
-        timeOffset (s) is the offset against the baseline audio track.
+        Keyword arguments:
+        name -- string specifying the name of this Modality. The name 
+            should be unique in the parent Recording.
+        parent -- the parent Recording.
+        isPreloaded -- a boolean indicating if this instance reads the 
+            data from disc on construction or only when needed.
+        timeOffset (s) -- the offset against the baseline audio track.
         """
         if parent == None or isinstance(parent, Recording):
             self.parent = parent
         else:
-            raise TypeError("Modality given a parent which is not of type Recording " +
-                            "or a decendant. Instead found: " + type(parent) + ".")
+            raise TypeError("Modality given a parent which is not "
+                            + " of type Recording or a decendant. " 
+                            + "Instead found: " + type(parent) + ".")
             
         # use self.parent.meta[key] to set parent metadata
         # certain things should be properties with get/set 
@@ -166,19 +186,21 @@ class Modality(metaclass=abc.ABCMeta):
     @abc.abstractmethod
     def data(self):
         """
-        Return the data of this Modality as a NumPy array. 
+        Abstract property: a NumPy array. 
         
         The data refers to the actual data this modality represents
         and for DerivedModality it is the result of running the 
         modality's algorithm on the original data.
 
-        The dimensions of the array should be in the 
+        The dimensions of the array are in the 
         order of [time, others]
 
         If this modality is not preloaded, accessing this property will
         cause data to be loaded on the fly _and_ saved in memory. To 
         release the memory, assign None to this Modality's data.
         """
+        raise NotImplementedError("This is an abstract method that " 
+                            + "should be overridden by inheriting classes.")
         
     @data.setter
     @abc.abstractmethod
@@ -188,9 +210,17 @@ class Modality(metaclass=abc.ABCMeta):
 
         Subclasses should check that they are being handed valid data.
         """
+        raise NotImplementedError("This is an abstract method that " 
+                            + "should be overridden by inheriting classes.")
 
     @property
     def excluded(self):
+        """
+        Boolen property for excluding this Modality from processing.
+
+        Setting this to True will result in the whole Recording being 
+        excluded by setting self.parent.excluded = True.
+        """
         return self.__excluded
 
     @excluded.setter
@@ -243,26 +273,31 @@ class Modality(metaclass=abc.ABCMeta):
 
 class DataModality(Modality):
 
-    def __init__(self, name, parent, preload, timeOffset):
-        super().__init__(name=name, parent=parent, preload=preload, timeOffset=timeOffset)
+    def __init__(self, name = None, parent = None, 
+                preload = False, timeOffset = 0):
+        """Same defaults as with the super class"""
+        super().__init__(name=name, parent=parent, 
+                        preload=preload, timeOffset=timeOffset)
 
     @abc.abstractmethod
     def _loadData(self):
         """
-        Abstract helper method as a place holder for data loading methods in subclasses.
+        Load data from file -- abstract method to be overridden.
         
         This method should be implemented by subclasses to provide a unified 
         way of handling preloading and on-the-fly loading of data.
 
         This method is intended to rely on self.meta to know what to read.
         """
+        raise NotImplementedError("This is an abstract method that " 
+                            + "should be overridden by inheriting classes.")
 
     @property
     def data(self):
         """
-        Return the data of this Modality as a NumPy array. 
+        The data of this Modality as a NumPy array. 
         
-        The dimensions of the array should be in the 
+        The dimensions of the array are in the 
         order of [time, others]
 
         If this modality is not preloaded, accessing this property will
@@ -275,9 +310,29 @@ class DataModality(Modality):
 
 
 class DerivedModality(Modality):
+    """
+    Modality for data produced from another Modality by calculations.
+    """
 
-    def __init__(self, name, parent=None, preload=True, timeOffset=0, dataModality=None):
-        super().__init__(name=name, parent=parent, preload=preload, timeOffset=timeOffset)
+    def __init__(self, name, parent=None, preload=True, 
+                timeOffset=0, dataModality=None):
+        """
+        Most arguments and default values inherited from super. 
+        
+        However, preload defaults to True, because it is assumed that 
+        the results are required immediately.
+
+        It is also worth to note that parent can be left unspecified
+        in which case the parent Recording of dataModality is used as 
+        the parent Recording of this Modality as well.
+
+        New keyword argument:
+        dataModality -- object which belongs to a subclass of 
+            DataModality. This is the data on which the data of this
+            Modality is based.
+        """
+        super().__init__(name=name, parent=parent, 
+                        preload=preload, timeOffset=timeOffset)
 
         self.dataModality = dataModality
 
@@ -287,19 +342,22 @@ class DerivedModality(Modality):
     @abc.abstractmethod
     def _calculate(self):
         """
-        Abstract helper method as a place holder for the processing algorithm.
+        Run this Modality's algorithm on the data. Abstract method.
         
-        This method should be implemented by subclasses to provide a unified 
-        way of handling preloading (preprocessing) and on-the-fly processing of data.
+        This method should be implemented by subclasses to provide 
+        a unified way of handling preloading (preprocessing) and 
+        on-the-fly processing of data.
 
-        This method is intended to rely on self.dataModality and self.meta to 
-        know what to do.
+        This method is intended to rely on self.dataModality and 
+        self.meta to know what to do.
         """
+        raise NotImplementedError("This is an abstract method that " 
+                            + "should be overridden by inheriting classes.")
 
     @property
     def data(self):
         """
-        Return the _derived_ data of this Modality as a NumPy array. 
+        The _derived_ data of this Modality as a NumPy array. 
         
         The dimensions of the array should be in the 
         order of [time, others]
@@ -325,8 +383,8 @@ class MonoAudio(DataModality):
     mainsFrequency = None
     filter = None
 
-    def __init__(self, name = 'mono audio', parent = None, preload = True, timeOffset = 0, 
-        filename = None, mainsFrequency = 50):
+    def __init__(self, name = 'mono audio', parent = None, preload = True, 
+                timeOffset = 0, filename = None, mainsFrequency = 50):
         """
         Create a MonoAudio track.
 
@@ -389,9 +447,9 @@ class MonoAudio(DataModality):
     @Modality.data.setter
     def data(self, data):
         """
-        Data setter method.
+        The audio data of this Modality.
 
-        Assigning anything but None is not implemented yet.
+        Assigning any other value except None is not implemented yet.
         """
         if data is not None:
             raise NotImplementedError('Writing over mono audio data has not been implemented yet.')
@@ -411,13 +469,15 @@ class MatrixData(DataModality):
 
     def __init__(self, name = None, parent = None, preload = False, timeOffset = 0):
         """
-        Modality constructor.
-
-        name is the name of this Modality and should be unique in this recording.
-        parent is the parent Recording.
-        preload is a boolean indicating if this instance should read the data from disc 
-            on construction or only when needed.
-        timeOffset (s) is the offset against the baseline audio track.
+        New and changed keyword arguments:
+        name -- the name of this Modality. The name should be unique 
+            in this Recording. If there is more then one Modality 
+            of the same type, then give them names to be able 
+            tell them apart.
+        parent -- the parent Recording.
+        preload -- a boolean indicating if this instance should read 
+            the data from disc on construction or only when needed.
+        timeOffset (s) -- the offset against the baseline audio track.
         """
         super.__init__(name, parent, preload, timeOffset)
 
@@ -437,11 +497,13 @@ class RawUltrasound(MatrixData):
     def __init__(self, name="raw ultrasound", parent = None, preload = False, timeOffset = 0, 
         filename = None, meta = None):
         """
-        Create a RawUltrasound Modality.
 
-        filename should be either None or the name of a .ult file containing raw ultrasound data.
-        meta should be a dict with (at least) the keys listed in RawUltrasound.requiredMetaKeys.
-            Extra keys will be ignored. 
+        New keyword arguments:
+        filename -- the name of a .ult file containing raw ultrasound 
+            data. Default is None.
+        meta -- a dict with (at least) the keys listed in 
+            RawUltrasound.requiredMetaKeys. Extra keys will be ignored. 
+            Default is None.
         """
         super().__init__(name=name, parent=parent, preload=preload, timeOffset=timeOffset)
 

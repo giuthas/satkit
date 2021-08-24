@@ -199,7 +199,7 @@ def parseUltrasoundMetaAAA(filename):
     return meta
 
 
-def set_file_exclusions_from_list(filename, recordings):
+def setExclusionsFromFile(filename, recordings):
     """
     Read list of files (that is, recordings) to be excluded from processing
     and mark them as excluded in the array of recording objects.
@@ -287,11 +287,27 @@ def retrieve_splines(filename):
     return table
 
 
-def getSplinesForRecordings(recordingList, spline_file):
+def addSplinesFromFile(recordingList, spline_file):
+    """
+    Add a Spline data object to each recording.
+
+    The splines are read from a single AAA export file and added to
+    the correct Recording by identifying the Recordings based on the date
+    and time of the original recording. If no splines are found for a 
+    given Recording, an empty Spline object will be attached to it.
+
+    Arguments:
+    recordingList -- a list of Recording objects
+    spline_file -- an AAA export file containing splines
+
+    Return -- None. Recordings are modified in place.
+    """
     # select the right recording here - we are accessing a database.
     # splines = retrieve_splines(token['spline_file'], token['prompt'])
     # splines = retrieve_splines('annd_sample/File003_splines.csv',
     #                            token['prompt'])
+    raise NotImplementedError(
+        "Adding splines nor the Spline modality have not yet been implemented.")
     if spline_file:
         splines = retrieve_splines(spline_file)
         for token in recordingList:

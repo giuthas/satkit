@@ -117,7 +117,7 @@ class Recording():
                                        + self.meta['textgrid'] + ".")
 
     # should the modalities dict be accessed as a property?
-    def add_modality(self, name, modality, replace=False):
+    def addModality(self, name, modality, replace=False):
         """
         This method adds a new Modality object to the Recording.
 

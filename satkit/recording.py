@@ -56,15 +56,13 @@ class Recording():
 
     The recording also contains the non-modality 
     specific metadata (participant, speech content, etc) 
-    as a dictionary, so that it can be easily written 
-    to .csv files, as well as the textgrid for the whole recording.
+    as a dictionary, as well as the textgrid for the whole recording.
     """
 
-    def __init__(self, path=None, basename="", textgrid=None):
+    def __init__(self, path=None, basename=""):
         self.excluded = False
         self.meta = {path: path,
                      basename: basename,
-                     textgrid: textgrid
                      }
         self.modalities = {}
 

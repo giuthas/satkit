@@ -1,7 +1,7 @@
 #
 # Copyright (c) 2019-2021 Pertti Palo, Scott Moisik, and Matthew Faytak.
 #
-# This file is part of Speech Articulation ToolKIT 
+# This file is part of Speech Articulation ToolKIT
 # (see https://github.com/giuthas/satkit/).
 #
 # This program is free software: you can redistribute it and/or modify
@@ -37,7 +37,8 @@ import logging
 import pickle
 
 
-_io_logger = logging.getLogger('satkit.io')    
+_io_logger = logging.getLogger('satkit.io')
+
 
 def save2pickle(data, filename):
     """
@@ -47,7 +48,7 @@ def save2pickle(data, filename):
     with closing(open(filename, 'bw')) as outfile:
         pickle.dump(data, outfile)
         _io_logger.debug('Wrote data to pickle file ' + filename + '.')
-        
+
 
 def load_pickled_data(filename):
     """
@@ -78,13 +79,14 @@ def save_data_2json(data, filename):
     #         if isinstance(obj, np.ndarray):
     #             return obj.tolist()
     #         return json.JSONEncoder.default(self, obj)
-        
+
     # a = np.array([[1, 2, 3], [4, 5, 6]])
     # print(a.shape)
     # json_dump = json.dumps({'a': a, 'aa': [2, (2, 3, 4), a], 'bb': [2]}, cls=NumpyEncoder)
     # print(json_dump)
 
-    _io_logger.critical('The function save_data_2json has not yet been implemented.')
+    _io_logger.critical(
+        'The function save_data_2json has not yet been implemented.')
     with closing(open(filename, 'w')) as outfile:
         json.dump(data, outfile)
 
@@ -94,7 +96,8 @@ def load_json_data(filename):
     THIS FUNCTION HAS NOT BEEN IMPLEMENTED YET.
     """
 
-    _io_logger.critical('The function load_json_data has not yet been implemented.')
+    _io_logger.critical(
+        'The function load_json_data has not yet been implemented.')
     data = None
     with closing(open(filename, 'r')) as infile:
         data = json.load(infile)
@@ -116,7 +119,7 @@ def write_metadata_to_csv(meta, filename):
         _io_logger.debug('Wrote metadata to file ' + filename + '.')
 
 
-def save_prompt_freq(prompt_freqs):
+def save_prompt_freq(filename, prompt_freqs):
     """
     NOT IN USE YET.
     Save frequency count of each prompt in a .csv file. 
@@ -126,5 +129,5 @@ def save_prompt_freq(prompt_freqs):
         writer.writerow(['prompt', 'frequency'])
         for prompt in sorted(prompt_freqs.keys()):
             writer.writerow([prompt, prompt_freqs[prompt]])
-        _io_logger.debug('Wrote prompt frequency counts to file ' + filename + '.')
-
+        _io_logger.debug(
+            'Wrote prompt frequency counts to file ' + filename + '.')

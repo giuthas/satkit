@@ -42,8 +42,9 @@ _io_logger = logging.getLogger('satkit.io')
 
 def save2pickle(data, filename):
     """
-    Saves a (token_metadata_list, data) tuple to a .pickle file.
+    Save data to a .pickle file.
 
+    Data can in principle be anything, but should be a list of recordings.
     """
     with closing(open(filename, 'bw')) as outfile:
         pickle.dump(data, outfile)

@@ -1,7 +1,7 @@
 #
 # Copyright (c) 2019-2021 Pertti Palo, Scott Moisik, and Matthew Faytak.
 #
-# This file is part of Speech Articulation ToolKIT 
+# This file is part of Speech Articulation ToolKIT
 # (see https://github.com/giuthas/satkit/).
 #
 # This program is free software: you can redistribute it and/or modify
@@ -30,7 +30,7 @@
 #
 
 import argparse
-import datetime 
+import datetime
 import logging
 import os
 import os.path
@@ -53,7 +53,8 @@ def widen_help_formatter(formatter, total_width=140, syntax_width=35):
         formatter(None, **kwargs)
         return lambda prog: formatter(prog, **kwargs)
     except TypeError:
-        warnings.warn("Widening argparse help formatter failed. Falling back on default settings.")
+        warnings.warn(
+            "Widening argparse help formatter failed. Falling back on default settings.")
     return formatter
 
 
@@ -75,7 +76,7 @@ class BaseCLI():
         self.description = description
         self._parse_args()
         self._set_up_logging()
-            
+
     def _add_optional_arguments(self):
         """Adds the optional verbosity argument."""
         helptext = (
@@ -86,21 +87,20 @@ class BaseCLI():
                                  type=int, dest="verbose",
                                  default=1,
                                  help=helptext,
-                                 metavar = "verbosity")
-    
+                                 metavar="verbosity")
+
     def _init_parser(self):
         """Setup basic commandline parsing and the file loading argument."""
-        self.parser = argparse.ArgumentParser(description=self.description,
-            formatter_class = widen_help_formatter(argparse.HelpFormatter,
-                                                   total_width=100,
-                                                   syntax_width=35))
+        self.parser = argparse.ArgumentParser(
+            description=self.description,
+            formatter_class=widen_help_formatter(
+                argparse.HelpFormatter, total_width=100, syntax_width=35))
 
         # mutually exclusive with reading previous results from a file
         helptext = (
             'Path containing the data to be read.'
             'Supported types are .pickle files, and directories containing files exported from AAA. '
-            'Loading from .m, .json, and .csv are in the works.'
-        )
+            'Loading from .m, .json, and .csv are in the works.')
         self.parser.add_argument("load_path", help=helptext)
 
     def _parse_args(self):
@@ -111,7 +111,7 @@ class BaseCLI():
 
     def _set_up_logging(self):
         """Set up logging with the logging module. 
-        
+
         Main thing to do is set the
         level of printed output based on the verbosity argument.
         """
@@ -119,7 +119,7 @@ class BaseCLI():
         self.logger.setLevel(logging.INFO)
 
         # also log to the console at a level determined by the --verbose flag
-        console_handler = logging.StreamHandler() # sys.stderr
+        console_handler = logging.StreamHandler()  # sys.stderr
 
         # Set the level of logging messages that will be printed to
         # console/stderr.
@@ -152,7 +152,7 @@ class RawCLI(BaseCLI):
         processing_functions is a dict of the callables that will be run on each recording.
         """
         super().__init__(description)
-        self._loadData(self.args.load_path)
+        self._loadData()
 
         # calculate the metrics
         for recording in self.recordings:
@@ -161,7 +161,7 @@ class RawCLI(BaseCLI):
         # the metric functions should maybe be wrapped as objects so
         # that we can access names on other things via names and
         # what not instead of wrapping them in a dict
-            
+
         # Plot the data into files if asked to.
         if plot:
             self._plot()
@@ -173,9 +173,10 @@ class RawCLI(BaseCLI):
 
     def _add_optional_arguments(self):
         """ Adds optional commandline arguments."""
-        self.parser.add_argument("-e", "--exclusion_list", dest="exclusion_filename",
-                                 help="Exclusion list of data files that should be ignored.",
-                                 metavar="file")
+        self.parser.add_argument(
+            "-e", "--exclusion_list", dest="exclusion_filename",
+            help="Exclusion list of data files that should be ignored.",
+            metavar="file")
 
         helptext = (
             'Save metrics to file. '
@@ -196,13 +197,14 @@ class RawCLI(BaseCLI):
         super()._add_optional_arguments()
 
     def _loadData(self):
-        """ Handle loading data from individual files or a previously saved session."""        
+        """Handle loading data from individual files or a previously saved session."""
         if not os.path.exists(self.args.load_path):
-            self.logger.critical('File or directory does not exist: ' + self.args.load_path)
+            self.logger.critical(
+                'File or directory does not exist: ' + self.args.load_path)
             self.logger.critical('Exiting.')
             sys.exit()
-        elif os.path.isdir(self.args.load_path): 
-            # this is the actual list of recordings that gets processed 
+        elif os.path.isdir(self.args.load_path):
+            # this is the actual list of recordings that gets processed
             # token_list includes meta data contained outwith the ult file
             self.recordings = self._readDataFromFiles()
         elif os.path.splitext(self.args.load_path)[1] == '.pickle':
@@ -210,7 +212,8 @@ class RawCLI(BaseCLI):
         elif os.path.splitext(self.args.load_path)[1] == '.json':
             self.recordings = satkit_io.load_json_data(self.args.load_path)
         else:
-            self.logger.error('Unsupported filetype: ' + self.args.load_path + '.')
+            self.logger.error(
+                'Unsupported filetype: ' + self.args.load_path + '.')
 
     def _plot(self):
         """
@@ -220,8 +223,9 @@ class RawCLI(BaseCLI):
         arguments and plotting commands.
         """
         self.logger.info("Drawing ISSP 2020 plot.")
-        pd_annd_plot.ISSP2020_plots(self.recordings, self.data, self.args.figure_dir)
-    
+        pd_annd_plot.ISSP2020_plots(
+            self.recordings, self.args.figure_dir)
+
     def _readDataFromFiles(self):
         """
         Wrapper for reading data from a directory full of files.
@@ -233,19 +237,26 @@ class RawCLI(BaseCLI):
         this method just returns the data and saving it in a 
         instance variable is left for the caller to handle. 
         """
-        return satkit_AAA.get_recording_list(self.args.load_path,
-                                    self.args.exclusion_filename)
+        recordings = satkit_AAA.generateRecordingList(self.args.load_path)
+        satkit_AAA.setExclusionsFromFile(
+            self.args.exclusion_filename, recordings)
+        return recordings
 
     def _saveData(self):
         if os.path.splitext(self.args.output_filename)[1] == '.pickle':
-            pd.save2pickle((self.recordings, self.data), self.args.output_filename)
-            self.logger.info("Wrote data to file " + self.args.output_filename + ".")
+            satkit_io.save2pickle(
+                self.recordings,
+                self.args.output_filename)
+            self.logger.info(
+                "Wrote data to file " + self.args.output_filename + ".")
         elif os.path.splitext(self.args.output_filename)[1] == '.json':
-            self.logger.error('Unsupported filetype: ' + self.args.output_filename + '.')
+            self.logger.error(
+                'Unsupported filetype: ' + self.args.output_filename + '.')
         else:
-            self.logger.error('Unsupported filetype: ' + self.args.output_filename + '.')
+            self.logger.error(
+                'Unsupported filetype: ' + self.args.output_filename + '.')
 
-        
+
 class RawAndSplineCLI(RawCLI):
     """Run metrics on raw ultrasound and extracted spline data."""
 
@@ -253,7 +264,7 @@ class RawAndSplineCLI(RawCLI):
         """Create a parser for commandline arguments with argparse and parse the arguments.
         """
         super().__init__(description, processing_functions, plot=plot)
-        
+
     def _readDataFromFiles(self):
         """
         Wrapper for reading data from a directory full of files.
@@ -265,9 +276,9 @@ class RawAndSplineCLI(RawCLI):
         this method just returns the data and saving it in a 
         instance variable is left for the caller to handle. 
         """
-        return satkit_AAA.get_recording_list(self.args.load_path,
-                                    self.args.exclusion_filename,
-                                    self.args.spline_file)
+        recordings = super()._readDataFromFiles()
+        satkit_AAA.addSplinesFromFile(recordings, self.args.spline_file)
+        return recordings
 
     def _parse_args(self):
         """Create a parser for commandline arguments with argparse and parse the arguments."""
@@ -278,8 +289,8 @@ class RawAndSplineCLI(RawCLI):
             'Should be a .csv (you may need to change the file ending) file exported from AAA.'
         )
         self.parser.add_argument("spline_file",
-                            help=helptext, metavar="file")
+                                 help=helptext, metavar="file")
 
         super()._add_optional_arguments()
-        
+
         self.args = self.parser.parse_args()

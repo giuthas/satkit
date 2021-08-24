@@ -105,26 +105,44 @@ def generateRecordingList(directory):
     base_names = [os.path.splitext(prompt_file)[0]
                   for prompt_file in ult_prompt_files]
     recordings = [
-        generateRecording(base_name, directory)
+        generateUltrasoundRecording(base_name, directory)
         for base_name in base_names
     ]
     return sorted(recordings, key=lambda token: token.meta['date_and_time'])
 
 
-def generateRecording(basename, directory=""):
+def generateUltrasoundRecording(
+        basename, directory="", wavPreload=True, ultPreload=False):
+    """
+    Generate an UltrasoundRecording with audio and raw ultrasound data.
 
-    # this wil do almost all of the testing and such below
+    Arguments:
+    basename -- name of the files to be read without type extensions but 
+        with path.
+
+    KeywordArguments:
+    directory -- path to files
+    wavPreload -- boolean indicating if the .wav file is to be read into 
+        memory on initialising. Defaults to True.
+    ultPreload -- boolean indicating if the .ult file is to be read into 
+        memory on initialising. Defaults to False.
+
+    Returns an AAA_UltrasoundRecording with data members MonoAudio and
+    RawUltrasound.
+
+    Throws KeyError if TimeInSecsOfFirstFrame is missing from the file.
+    """
+
     recording = AAA_UltrasoundRecording(
         path=directory,
         basename=basename
     )
 
-    # except when it comes to handling Data:
     ultMeta = parseUltrasoundMetaAAA(recording.meta['ult_meta_file'])
 
     waveform = MonoAudio(
         parent=recording,
-        preload=True,
+        preload=wavPreload,
         timeOffset=0,
         filename=recording.meta['ult_wav_file']
     )
@@ -132,11 +150,13 @@ def generateRecording(basename, directory=""):
 
     # We pop the timeoffset from the meta dict so that people will not
     # accidentally rely on setting that to alter the timeoffset of the
-    # ultrasound data in the Recording.
+    # ultrasound data in the Recording. This throws KeyError if the meta
+    # file didn't contain TimeInSecsOfFirstFrame.
     ult_timeOffSet = ultMeta.pop('TimeInSecsOfFirstFrame')
+
     ultrasound = RawUltrasound(
         parent=recording,
-        preload=False,
+        preload=ultPreload,
         timeOffset=ult_timeOffSet,
         filename=recording.meta['ult_file'],
         meta=ultMeta
@@ -163,8 +183,6 @@ def parseUltrasoundMetaAAA(filename):
         PixelsPerMm -- depth resolution of a scanline
         FramesPerSec -- framerate of ultrasound recording
         TimeInSecsOfFirstFrame -- time from recording start to first frame
-
-    Throws KeyError if TimeInSecsOfFirstFrame is missing from the file.
     """
     meta = {}
     with closing(open(filename, 'r')) as metafile:
@@ -179,107 +197,6 @@ def parseUltrasoundMetaAAA(filename):
         _AAA_logger.debug(
             "Read and parsed ultrasound metafile " + filename + ".")
     return meta
-
-
-class AAA_UltrasoundRecording(Recording):
-    """
-    Ultrasound recording exported from AAA.
-    """
-
-    def __init__(self, path=None, basename=""):
-        super().__init__(path=path, basename=basename)
-
-        if basename == None:
-            _AAA_logger.critical("Critical error: File basename is None.")
-        elif basename == "":
-            _AAA_logger.critical("Critical error: File basename is empty.")
-
-        _AAA_logger.debug(
-            "Initialising a new recording with filename " + basename + ".")
-        self.meta['base_name'] = basename
-
-        # Prompt file should always exist and correspond to the base_name because
-        # the base_name list is generated from the directory listing of prompt files.
-        ult_prompt_file = basename + ".txt"
-        self.meta['ult_prompt_file'] = ult_prompt_file
-        self.parse_AAA_promptfile(ult_prompt_file)
-
-        # (prompt, date_and_time, participant) = read_prompt(ult_prompt_file)
-        # meta['prompt'] = prompt
-        # meta['date_and_time'] = date_and_time
-        # meta['participant'] = participant
-
-        # Candidates for filenames. Existence tested below.
-        ult_meta_file = os.path.join(basename + "US.txt")
-        ult_wav_file = os.path.join(basename + ".wav")
-        ult_file = os.path.join(basename + ".ult")
-
-        # check if assumed files exist, and arrange to skip them if any do not
-        if os.path.isfile(ult_meta_file):
-            self.meta['ult_meta_file'] = ult_meta_file
-            self.meta['ult_meta_exists'] = True
-        else:
-            notice = 'Note: ' + ult_meta_file + " does not exist."
-            _AAA_logger.warning(notice)
-            self.meta['ult_meta_exists'] = False
-            self.meta['excluded'] = True
-
-        if os.path.isfile(ult_wav_file):
-            self.meta['ult_wav_file'] = ult_wav_file
-            self.meta['ult_wav_exists'] = True
-        else:
-            notice = 'Note: ' + ult_wav_file + " does not exist."
-            _AAA_logger.warning(notice)
-            self.meta['ult_wav_exists'] = False
-            self.meta['excluded'] = True
-
-        if os.path.isfile(ult_file):
-            self.meta['ult_file'] = ult_file
-            self.meta['ult_exists'] = True
-        else:
-            notice = 'Note: ' + ult_file + " does not exist."
-            _AAA_logger.warning(notice)
-            self.meta['ult_exists'] = False
-            self.meta['excluded'] = True
-
-        # TODO this needs to be moved to a decorator function
-        # if 'water swallow' in prompt:
-        #     notice = 'Note: ' + base_names[i] + ' prompt is a water swallow.'
-        #     _AAA_logger.info(notice)
-        #     self.meta['type'] = 'water swallow'
-        #     self.meta['excluded'] = True
-        # elif 'bite plate' in prompt:
-        #     notice = 'Note: ' + base_names[i] + ' prompt is a bite plate.'
-        #     _AAA_logger.info(notice)
-        #     self.meta['type'] = 'bite plate'
-        #     self.meta['excluded'] = True
-        # else:
-        #     self.meta['type'] = 'regular trial'
-        # store also the different variations of the
-        # file name, checking for existence
-
-    def parse_AAA_promptfile(self, filename):
-        """
-        Read an AAA .txt (not US.txt) file and save prompt, recording date and time,  
-        and participant name into the meta dictionary.
-        """
-        with closing(open(filename, 'r')) as promptfile:
-            lines = promptfile.read().splitlines()
-            self.meta['prompt'] = lines[0]
-
-            # The date used to be just a string, but needs to be more sturctured since
-            # the spline export files have a different date format.
-            self.meta['date'] = datetime.strptime(
-                lines[1], '%d/%m/%Y %H:%M:%S')
-
-            if len(lines) > 2 and lines[2].strip():
-                self.meta['participant'] = lines[2].split(',')[0]
-            else:
-                _AAA_logger.info(
-                    "Participant does not have an id in file " + filename + ".")
-                self.meta['participant'] = ""
-
-            _AAA_logger.debug("Read prompt file " + filename + ".")
 
 
 def set_file_exclusions_from_list(filename, recordings):
@@ -386,3 +303,104 @@ def getSplinesForRecordings(recordingList, spline_file):
                 token['prompt'] + ' has ' + str(len(table)) + 'splines.')
 
     return recordingList
+
+
+class AAA_UltrasoundRecording(Recording):
+    """
+    Ultrasound recording exported from AAA.
+    """
+
+    def __init__(self, path=None, basename=""):
+        super().__init__(path=path, basename=basename)
+
+        if basename == None:
+            _AAA_logger.critical("Critical error: File basename is None.")
+        elif basename == "":
+            _AAA_logger.critical("Critical error: File basename is empty.")
+
+        _AAA_logger.debug(
+            "Initialising a new recording with filename " + basename + ".")
+        self.meta['base_name'] = basename
+
+        # Prompt file should always exist and correspond to the base_name because
+        # the base_name list is generated from the directory listing of prompt files.
+        ult_prompt_file = basename + ".txt"
+        self.meta['ult_prompt_file'] = ult_prompt_file
+        self.parse_AAA_promptfile(ult_prompt_file)
+
+        # (prompt, date_and_time, participant) = read_prompt(ult_prompt_file)
+        # meta['prompt'] = prompt
+        # meta['date_and_time'] = date_and_time
+        # meta['participant'] = participant
+
+        # Candidates for filenames. Existence tested below.
+        ult_meta_file = os.path.join(basename + "US.txt")
+        ult_wav_file = os.path.join(basename + ".wav")
+        ult_file = os.path.join(basename + ".ult")
+
+        # check if assumed files exist, and arrange to skip them if any do not
+        if os.path.isfile(ult_meta_file):
+            self.meta['ult_meta_file'] = ult_meta_file
+            self.meta['ult_meta_exists'] = True
+        else:
+            notice = 'Note: ' + ult_meta_file + " does not exist."
+            _AAA_logger.warning(notice)
+            self.meta['ult_meta_exists'] = False
+            self.meta['excluded'] = True
+
+        if os.path.isfile(ult_wav_file):
+            self.meta['ult_wav_file'] = ult_wav_file
+            self.meta['ult_wav_exists'] = True
+        else:
+            notice = 'Note: ' + ult_wav_file + " does not exist."
+            _AAA_logger.warning(notice)
+            self.meta['ult_wav_exists'] = False
+            self.meta['excluded'] = True
+
+        if os.path.isfile(ult_file):
+            self.meta['ult_file'] = ult_file
+            self.meta['ult_exists'] = True
+        else:
+            notice = 'Note: ' + ult_file + " does not exist."
+            _AAA_logger.warning(notice)
+            self.meta['ult_exists'] = False
+            self.meta['excluded'] = True
+
+        # TODO this needs to be moved to a decorator function
+        # if 'water swallow' in prompt:
+        #     notice = 'Note: ' + base_names[i] + ' prompt is a water swallow.'
+        #     _AAA_logger.info(notice)
+        #     self.meta['type'] = 'water swallow'
+        #     self.meta['excluded'] = True
+        # elif 'bite plate' in prompt:
+        #     notice = 'Note: ' + base_names[i] + ' prompt is a bite plate.'
+        #     _AAA_logger.info(notice)
+        #     self.meta['type'] = 'bite plate'
+        #     self.meta['excluded'] = True
+        # else:
+        #     self.meta['type'] = 'regular trial'
+        # store also the different variations of the
+        # file name, checking for existence
+
+    def parse_AAA_promptfile(self, filename):
+        """
+        Read an AAA .txt (not US.txt) file and save prompt, recording date and time,  
+        and participant name into the meta dictionary.
+        """
+        with closing(open(filename, 'r')) as promptfile:
+            lines = promptfile.read().splitlines()
+            self.meta['prompt'] = lines[0]
+
+            # The date used to be just a string, but needs to be more sturctured since
+            # the spline export files have a different date format.
+            self.meta['date'] = datetime.strptime(
+                lines[1], '%d/%m/%Y %H:%M:%S')
+
+            if len(lines) > 2 and lines[2].strip():
+                self.meta['participant'] = lines[2].split(',')[0]
+            else:
+                _AAA_logger.info(
+                    "Participant does not have an id in file " + filename + ".")
+                self.meta['participant'] = ""
+
+            _AAA_logger.debug("Read prompt file " + filename + ".")

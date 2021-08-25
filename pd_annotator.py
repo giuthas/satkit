@@ -1,7 +1,7 @@
 #
 # Copyright (c) 2019-2021 Pertti Palo, Scott Moisik, and Matthew Faytak.
 #
-# This file is part of Speech Articulation ToolKIT 
+# This file is part of Speech Articulation ToolKIT
 # (see https://github.com/giuthas/satkit/).
 #
 # This program is free software: you can redistribute it and/or modify
@@ -38,18 +38,21 @@ from satkit import annd
 from satkit import pd
 from satkit.annotator import PD_Annotator
 
+
 def main():
     t = time.time()
 
     # Run the command line interface.
-    function_dict = {'pd':pd.pd, 'annd':annd.annd}
+    #function_dict = {'pd':pd.pd, 'annd':annd.annd}
+    function_dict = {'ultrasound PD': pd.addPD}
     cli = RawCLI("PD annotator", function_dict, plot=False)
-    
+
     elapsed_time = time.time() - t
     logging.info('Elapsed time ' + str(elapsed_time))
 
     # Get the GUI running.
     ca = PD_Annotator(cli.recordings, cli.args)
+
 
 if (__name__ == '__main__'):
     main()

@@ -68,6 +68,8 @@ class Recording():
                      }
         self.modalities = {}
 
+        self.annotations = {}
+
         self._read_textgrid()
 
     def _read_textgrid(self):

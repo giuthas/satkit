@@ -299,3 +299,42 @@ class RawAndSplineCLI(RawCLI):
         super()._add_optional_arguments()
 
         self.args = self.parser.parse_args()
+
+
+class RawAndVideoCLI(RawCLI):
+    """Run metrics on raw ultrasound and extracted spline data."""
+
+    def __init__(self, description, processing_functions, plot=True):
+        """Create a parser for commandline arguments with argparse and parse the arguments.
+        """
+        super().__init__(description, processing_functions, plot=plot)
+
+    def _readDataFromFiles(self):
+        """
+        Wrapper for reading data from a directory full of files.
+
+        Having this as a separate method allows subclasses to change 
+        arguments or even the parser.
+
+        Note that to make data loading work the in a consistent way,
+        this method just returns the data and saving it in a 
+        instance variable is left for the caller to handle. 
+        """
+        recordings = super()._readDataFromFiles()
+        satkit_AAA.addSplinesFromFile(recordings, self.args.spline_file)
+        return recordings
+
+    def _parse_args(self):
+        """Create a parser for commandline arguments with argparse and parse the arguments."""
+        super()._init_parser()
+
+        helptext = (
+            'Name of the spline file.'
+            'Should be a .csv (you may need to change the file ending) file exported from AAA.'
+        )
+        self.parser.add_argument("spline_file",
+                                 help=helptext, metavar="file")
+
+        super()._add_optional_arguments()
+
+        self.args = self.parser.parse_args()

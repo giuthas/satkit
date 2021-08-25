@@ -44,6 +44,7 @@ from satkit import recording
 
 # Local packages
 from satkit.recording import RawUltrasound, Recording, MonoAudio
+from satkit.io.AAA_video import LipVideo
 
 _AAA_logger = logging.getLogger('satkit.AAA')
 
@@ -80,9 +81,13 @@ def generateRecordingList(directory):
     The processed files are
     recording meta: .txt,
     ultrasound meta: US.txt,
-    ultrasound: .ult,
-    audio waveform: .wav, and
-    TextGrid: .textgrid.
+    ultrasound: .ult, and
+    audio waveform: .wav.
+
+    Additionally these will be added, but missing files are considered 
+    non-fatal
+    TextGrid: .textgrid, and
+    avi video: .avi.
 
     directory -- the path to the directory to be processed.
     Returns an array of Recording objects sorted by date and time
@@ -112,7 +117,8 @@ def generateRecordingList(directory):
 
 
 def generateUltrasoundRecording(
-        basename, directory="", wavPreload=True, ultPreload=False):
+        basename, directory="", wavPreload=True, ultPreload=False,
+        videoPreload=False):
     """
     Generate an UltrasoundRecording with audio and raw ultrasound data.
 
@@ -125,7 +131,13 @@ def generateUltrasoundRecording(
     wavPreload -- boolean indicating if the .wav file is to be read into 
         memory on initialising. Defaults to True.
     ultPreload -- boolean indicating if the .ult file is to be read into 
-        memory on initialising. Defaults to False.
+        memory on initialising. Defaults to False. Note: these 
+        files are, roughly one to two orders of magnitude 
+        larger than .wav files.
+    videoPreload -- boolean indicating if the .avi file is to be read into 
+        memory on initialising. Defaults to False. Note: these 
+        files are, yet again, roughly one to two orders of magnitude 
+        larger than .ult files.
 
     Returns an AAA_UltrasoundRecording with data members MonoAudio and
     RawUltrasound.
@@ -138,8 +150,6 @@ def generateUltrasoundRecording(
         basename=basename
     )
 
-    ultMeta = parseUltrasoundMetaAAA(recording.meta['ult_meta_file'])
-
     waveform = MonoAudio(
         parent=recording,
         preload=wavPreload,
@@ -147,6 +157,8 @@ def generateUltrasoundRecording(
         filename=recording.meta['ult_wav_file']
     )
     recording.addModality('AAA_audio', waveform)
+
+    ultMeta = parseUltrasoundMetaAAA(recording.meta['ult_meta_file'])
 
     # We pop the timeoffset from the meta dict so that people will not
     # accidentally rely on setting that to alter the timeoffset of the
@@ -162,6 +174,21 @@ def generateUltrasoundRecording(
         meta=ultMeta
     )
     recording.addModality('AAA_ultrasound', ultrasound)
+
+    # This is the correct value for fps for a de-interlaced video according
+    # to Alan, and he should know having written AAA.
+    videoMeta = {
+        'FramesPerSec': 59.94
+    }
+
+    if recording.meta['video_exists']:
+        video = LipVideo(
+            parent=recording,
+            preload=videoPreload,
+            filename=recording.meta['video_file'],
+            meta=videoMeta
+        )
+    recording.addModality('AAA_video', video)
 
     return recording
 
@@ -327,7 +354,7 @@ class AAA_UltrasoundRecording(Recording):
     Ultrasound recording exported from AAA.
     """
 
-    def __init__(self, path=None, basename=""):
+    def __init__(self, path=None, basename="", requireVideo=False):
         super().__init__(path=path, basename=basename)
 
         if basename == None:
@@ -354,6 +381,7 @@ class AAA_UltrasoundRecording(Recording):
         ult_meta_file = os.path.join(basename + "US.txt")
         ult_wav_file = os.path.join(basename + ".wav")
         ult_file = os.path.join(basename + ".ult")
+        video_file = os.path.join(basename + ".avi")
 
         # check if assumed files exist, and arrange to skip them if any do not
         if os.path.isfile(ult_meta_file):
@@ -382,6 +410,16 @@ class AAA_UltrasoundRecording(Recording):
             _AAA_logger.warning(notice)
             self.meta['ult_exists'] = False
             self.meta['excluded'] = True
+
+        if os.path.isfile(video_file):
+            self.meta['video_file'] = video_file
+            self.meta['video_exists'] = True
+        else:
+            notice = 'Note: ' + video_file + " does not exist."
+            _AAA_logger.warning(notice)
+            self.meta['video_exists'] = False
+            if requireVideo:
+                self.meta['excluded'] = True
 
         # TODO this needs to be moved to a decorator function
         # if 'water swallow' in prompt:

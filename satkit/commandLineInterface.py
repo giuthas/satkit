@@ -157,7 +157,12 @@ class RawCLI(BaseCLI):
         # calculate the metrics
         for recording in self.recordings:
             for key in processing_functions.keys():
-                processing_functions[key](recording)
+                processing_functions[key](
+                    key,
+                    recording,
+                    dataModality=recording.modalities['AAA_ultrasound'],
+                    preload=True,
+                    releaseDataMemory=True)
         # the metric functions should maybe be wrapped as objects so
         # that we can access names on other things via names and
         # what not instead of wrapping them in a dict

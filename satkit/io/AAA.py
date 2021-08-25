@@ -146,7 +146,7 @@ def generateUltrasoundRecording(
         timeOffset=0,
         filename=recording.meta['ult_wav_file']
     )
-    recording.addModality('AAAaudio', waveform)
+    recording.addModality('AAA_audio', waveform)
 
     # We pop the timeoffset from the meta dict so that people will not
     # accidentally rely on setting that to alter the timeoffset of the
@@ -161,7 +161,7 @@ def generateUltrasoundRecording(
         filename=recording.meta['ult_file'],
         meta=ultMeta
     )
-    recording.addModality('AAAultrasound', ultrasound)
+    recording.addModality('AAA_ultrasound', ultrasound)
 
     return recording
 

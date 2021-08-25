@@ -480,9 +480,9 @@ def plot_wav(
             elif segment.text == "beep":
                 continue
             else:
-                ax.axvline(x=segment.xmin+time_offset,
+                ax.axvline(x=segment.xmin - time_offset,
                            color="dimgrey", lw=1, linestyle='--')
-                ax.axvline(x=segment.xmax+time_offset,
+                ax.axvline(x=segment.xmax - time_offset,
                            color="dimgrey", lw=1, linestyle='--')
 
     ax.set_xlim(xlim)
@@ -510,12 +510,13 @@ def draw_pd(recording, figure_dir, xlim=(-.05, 1.25)):
         ax3 = plt.subplot2grid((4, 1), (3, 0))
         # plt.grid(True, 'major', 'x')
 
-        pd = recording.modalities['PD']
-        stimulus_onset = pd.dataModality.meta['stimulus_onset']
+        audio = recording.modalities['AAA_audio']
+        stimulus_onset = audio.meta['stimulus_onset']
+        wav = audio.data
+        wav_time = (audio.timevector - stimulus_onset)
+
+        pd = recording.modalities['ultrasound PD']
         ultra_time = pd.timevector - stimulus_onset
-        wav = recording.modalities['AAAaudio'].data
-        wav_time = (recording.modalities['AAAaudio'].timevector
-                    - stimulus_onset)
 
         plot_pd(ax1, pd.data['pd'], ultra_time, xlim,
                 recording.textgrid, stimulus_onset)

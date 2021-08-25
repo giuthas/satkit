@@ -46,8 +46,14 @@ from satkit.recording import DerivedModality
 _pd_logger = logging.getLogger('satkit.pd')
 
 
-def pd():
-    pass
+def addPD(name,
+          recording,
+          dataModality,
+          preload=True,
+          releaseDataMemory=True):
+    pd = PD(name=name, parent=recording, preload=preload,
+            dataModality=dataModality, releaseDataMemory=releaseDataMemory)
+    recording.addModality(name, pd)
 
 
 class PD(DerivedModality):
@@ -73,21 +79,29 @@ class PD(DerivedModality):
         'inf',
     ]
 
-    def __init__(self, name="PD", parent=None,
-                 preload=True, timeOffset=0, dataModality=None,
-                 norms=['l2'], timesteps=[1]):
+    def __init__(
+            self, name="PD", parent=None, preload=True, timeOffset=0,
+            dataModality=None, releaseDataMemory=True, norms=['l2'],
+            timesteps=[1]):
         """
         Build a Pixel Difference (PD) Modality       
 
         If timestep is given as a vector of positive integers, then calculate
         and return pd for each of those.
 
+        If parent is None, it will be copied from dataModality.
+        If not specified or 0, timeOffset will be copied from dataModality.
+
         Note: Currently neither the norms nor the timesteps paremeter 
         is respected. Instead, all the norms get calculated and a 
         timestep of 1 is used always.
         """
-        super().__init__(name, parent=parent, preload=preload,
-                         timeOffset=timeOffset, dataModality=dataModality)
+        # This allows the caller to be lazy.
+        if not timeOffset:
+            timeOffset = dataModality.timeOffset
+
+        super().__init__(name, parent=parent, preload=preload, timeOffset=timeOffset,
+                         dataModality=dataModality, releaseDataMemory=releaseDataMemory)
 
         # This allows the caller to be lazy.
         if not parent and dataModality:
@@ -146,7 +160,13 @@ class PD(DerivedModality):
         _pd_logger.debug(self._loggingBaseNotice
                          + ': PD calculated.')
 
-        self.timevector = (self.dataModality.timevector
+        self.timevector = (self.dataModality.timevector[:-1]
                            + .5/self.dataModality.meta['FramesPerSec'])
 
-        self.data = result
+        self._data = result
+
+        if self.releaseDataMemory:
+            # Accessing the data modality's data causes it to be
+            # loaded into memory. Keeping it there may cause memory
+            # overflow. This releases the memory.
+            self.dataModality.data = None

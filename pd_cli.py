@@ -1,7 +1,7 @@
 #
 # Copyright (c) 2019-2021 Pertti Palo, Scott Moisik, and Matthew Faytak.
 #
-# This file is part of Speech Articulation ToolKIT 
+# This file is part of Speech Articulation ToolKIT
 # (see https://github.com/giuthas/satkit/).
 #
 # This program is free software: you can redistribute it and/or modify
@@ -36,11 +36,12 @@ import logging
 from satkit.commandLineInterface import RawCLI
 from satkit import pd
 
+
 def main():
     # Run the command line interface.
-    function_dict = {'pd':pd.pd}
+    function_dict = {'ultrasound PD': pd.addPD}
     RawCLI("PD processing script", function_dict)
-    
+
 
 if (__name__ == '__main__'):
     t = time.time()

@@ -339,7 +339,7 @@ class DerivedModality(Modality):
     """
 
     def __init__(self, name, parent=None, preload=True,
-                 timeOffset=0, dataModality=None):
+                 timeOffset=0, dataModality=None, releaseDataMemory=True):
         """
         Most arguments and default values inherited from super. 
 
@@ -350,10 +350,14 @@ class DerivedModality(Modality):
         in which case the parent Recording of dataModality is used as 
         the parent Recording of this Modality as well.
 
-        New keyword argument:
+        New keyword arguments:
         dataModality -- object which belongs to a subclass of 
             DataModality. This is the data on which the data of this 
             Modality is based.
+        releaseDataMemory -- boolean indicating if None should be 
+            assigned to dataModality.data after processing. Set this 
+            true to prevent unwanted data being kept in memory and 
+            possibly causin memory overflow.
         """
         super().__init__(name=name, parent=parent,
                          preload=preload, timeOffset=timeOffset)
@@ -361,11 +365,10 @@ class DerivedModality(Modality):
         self.dataModality = dataModality
 
         self._data = None
-        if self.isPreloaded:
-            self._calculate()
+        self.releaseDataMemory = releaseDataMemory
 
     @abc.abstractmethod
-    def _calculate(self):
+    def _getData(self):
         """
         Run this Modality's algorithm on the data. Abstract method.
 
@@ -393,7 +396,7 @@ class DerivedModality(Modality):
         release the memory, assign None to this Modality's data.
         """
         if self._data is None:
-            self._calculate()
+            self._getData()
         return self._data
 
 
@@ -584,7 +587,7 @@ class RawUltrasound(MatrixData):
                 num=self.meta['no_frames'],
                 endpoint=False)
             self.timevector = ultra_time / \
-                self.meta['framesPerSec'] + self.timeOffset
+                self.meta['FramesPerSec'] + self.timeOffset
             # this should be added for PD and similar time vectors: + .5/self.meta['framesPerSec']
             # while at the same time dropping a suitable number of timestamps
 

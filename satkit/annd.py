@@ -1,7 +1,7 @@
 #
 # Copyright (c) 2019-2021 Pertti Palo, Scott Moisik, and Matthew Faytak.
 #
-# This file is part of Speech Articulation ToolKIT 
+# This file is part of Speech Articulation ToolKIT
 # (see https://github.com/giuthas/satkit/).
 #
 # This program is free software: you can redistribute it and/or modify
@@ -40,7 +40,7 @@ import scipy.io.wavfile as sio_wavfile
 import satkit.io.AAA as satkit_AAA
 
 
-_annd_logger = logging.getLogger('satkit.annd')    
+_annd_logger = logging.getLogger('satkit.annd')
 
 
 def annd(token):
@@ -49,7 +49,6 @@ def annd(token):
 
     Returns a dictionary containing ANND as a function of time,
     a time vector spanning the splined part of the ultrasound recording.
-
     """
 
     notice = token['base_name'] + " " + token['prompt']
@@ -60,13 +59,13 @@ def annd(token):
     else:
         notice += ': Token being processed.'
         _annd_logger.info(notice)
-    
+
     if 'splines' in token:
         # Taking a copy so that we don't mess things if other metrices are run
         # on the same splines.
         splines = token['splines']
     else:
-        notice = 'No splines found for ' + token['base_name'] + " " 
+        notice = 'No splines found for ' + token['base_name'] + " "
         notice += token['prompt'] + '.'
         _annd_logger.critical(notice)
         return
@@ -91,21 +90,23 @@ def annd(token):
     mpbpd = np.zeros(len(splines)-timestep)
     for i in range(len(splines)-timestep):
         current_points = np.stack((splines[i]['x'], splines[i]['y']))
-        next_points = np.stack((splines[i+timestep]['x'], splines[i+timestep]['y']))
+        next_points = np.stack(
+            (splines[i + timestep]['x'],
+             splines[i + timestep]['y']))
 
         diff = np.subtract(current_points, next_points)
         spline_l1[i] = np.sum(np.abs(diff))
         diff = np.square(diff)
         spline_d[i] = np.sqrt(np.sum(diff))
-        diff = np.sum(diff, axis=0) # sums over (x,y) for individual points
+        diff = np.sum(diff, axis=0)  # sums over (x,y) for individual points
         diff = np.sqrt(diff)
         apbpd[i] = np.average(diff)
         mpbpd[i] = np.median(diff)
-        
+
         nnd = np.zeros(num_points)
         for j in range(num_points):
-            current_point = np.tile(current_points[:,j:j+1], (1, num_points))
-            diff = np.subtract(current_point, next_points) 
+            current_point = np.tile(current_points[:, j:j+1], (1, num_points))
+            diff = np.subtract(current_point, next_points)
             diff = np.square(diff)
             diff = np.sum(diff, axis=0)
             diff = np.sqrt(diff)
@@ -113,15 +114,15 @@ def annd(token):
 
         annd[i] = np.average(nnd)
         mnnd[i] = np.median(nnd)
-        
+
     notice = token['base_name'] + " " + token['prompt']
     notice += ': ANND calculated.'
     _annd_logger.debug(notice)
-        
+
     spline_time = np.array([spline['sample_time'] for spline in splines])
     annd_time = np.add(spline_time[timestep:], spline_time[0:-timestep])
     annd_time = np.divide(annd_time, np.repeat(2.0, len(splines)-timestep))
-    
+
     notice = token['base_name'] + " " + token['prompt']
     notice += ': Token processed in ANND.'
     _annd_logger.info(notice)
@@ -133,11 +134,9 @@ def annd(token):
 
     # this one is no good, but should be documented as such before removing the code
     data['spline_d'] = spline_d/num_points
-    
-    data['apbpd'] = apbpd
-    data['mpbpd'] = mpbpd # median point-by-point Euclidean distance
-    data['annd_time'] = annd_time
-    
-    return data
-        
 
+    data['apbpd'] = apbpd
+    data['mpbpd'] = mpbpd  # median point-by-point Euclidean distance
+    data['annd_time'] = annd_time
+
+    return data

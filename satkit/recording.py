@@ -146,6 +146,7 @@ class Recording():
             AttributeError will be raised.
         modality -- object of type Modality to be added to 
             this Recording.
+
         Keyword arguments:
         replace -- a boolean indicating if an existing Modality should
             be replaced.
@@ -187,6 +188,8 @@ class Modality(abc.ABC):
                             + " of type Recording or a decendant. "
                             + "Instead found: " + type(parent) + ".")
 
+        self.name = name
+
         # use self.parent.meta[key] to set parent metadata
         # certain things should be properties with get/set
         self.meta = {}
@@ -194,8 +197,8 @@ class Modality(abc.ABC):
         # This is a property which when set to True will also set parent.excluded to True.
         self.excluded = False
 
-        self.timeOffset = timeOffset
         self.isPreloaded = preload
+        self._timeOffset = timeOffset
 
     @abc.abstractmethod
     def _getData(self):
@@ -252,11 +255,11 @@ class Modality(abc.ABC):
         Setting this to True will result in the whole Recording being 
         excluded by setting self.parent.excluded = True.
         """
-        return self.__excluded
+        return self._excluded
 
     @excluded.setter
     def excluded(self, excluded):
-        self.__excluded = excluded
+        self._excluded = excluded
 
         if excluded:
             self.parent.excluded = excluded
@@ -267,16 +270,16 @@ class Modality(abc.ABC):
         The time offset of this modality.
 
         Assigning a value to this property is implemented so 
-        that self.__timevector[0] stays equal to self.__timeOffset. 
+        that self._timevector[0] stays equal to self._timeOffset. 
         """
-        return self.__timeOffset
+        return self._timeOffset
 
     @timeOffset.setter
     def timeOffset(self, timeOffset):
-        self.__timeOffset = timeOffset
+        self._timeOffset = timeOffset
         if self.isPreloaded:
-            self.__timevector = self.timevector + \
-                (timeOffset - self.timevector[0])
+            self._timevector = (self.timevector +
+                                (timeOffset - self.timevector[0]))
 
     @property
     def timevector(self):
@@ -291,16 +294,16 @@ class Modality(abc.ABC):
         accessing it does not trigger a new loading operation.
 
         Assigning a value to this property is implemented so 
-        that self.__timevector[0] stays equal to self.__timeOffset. 
+        that self._timevector[0] stays equal to self._timeOffset. 
         """
-        if self.__timevector is None:
+        if self._timevector is None:
             self._getData()
-        return self.__timevector
+        return self._timevector
 
     # before v1.0: check that the new timevector is same length as the data
     @timevector.setter
     def timevector(self, timevector):
-        self.__timevector = timevector
+        self._timevector = timevector
         self.timeOffset = timevector[0]
 
 
@@ -421,7 +424,7 @@ class MonoAudio(DataModality):
             https://en.wikipedia.org/wiki/Mains_electricity_by_country .
         """
 
-        super.__init__(name, parent, preload, timeOffset)
+        super().__init__(name, parent, preload, timeOffset)
 
         self.meta['filename'] = filename
         self.meta['mainsFrequency'] = mainsFrequency
@@ -432,6 +435,7 @@ class MonoAudio(DataModality):
                 self._getData()
             else:
                 self._data = None
+                self._timevector = None
 
     def _getData(self):
         """
@@ -441,29 +445,29 @@ class MonoAudio(DataModality):
         """
         (wav_fs, wav_frames) = sio_wavfile.read(self.meta['filename'])
         self.meta['wav_fs'] = wav_fs
-        self.data = wav_frames
+        self._data = wav_frames
 
         # setup the high-pass filter for removing the mains frequency (and anything below it)
         # from the recorded sound.
-        if MonoAudio.mainsFrequency != self.mainsFrequency:
-            MonoAudio.mainsFrequency = self.mainsFrequency
+        if MonoAudio.mainsFrequency != self.meta['mainsFrequency']:
+            MonoAudio.mainsFrequency = self.meta['mainsFrequency']
             MonoAudio.filter = satkit_audio.high_pass(
-                wav_fs, self.mainsFrequency)
+                wav_fs, self.meta['mainsFrequency'])
 
-        beep_uti, has_speech = satkit_audio.detect_beep_and_speech(
+        beep, has_speech = satkit_audio.detect_beep_and_speech(
             wav_frames, wav_fs, MonoAudio.filter['b'],
             MonoAudio.filter['a'],
             self.meta['filename'])
 
         # before v1.0: this is a bad name for the beep: 1) this is an AAA thing,
         # 2) the recording might not be UTI
-        self.meta['beep_uti'] = beep_uti
+        self.meta['stimulus_onset'] = beep
         self.meta['has_speech'] = has_speech
 
-        self.__timevector = np.linspace(0, len(wav_frames),
-                                        len(wav_frames),
-                                        endpoint=False)
-        self.__timevector = self.__timevector/wav_fs + self.timeOffset
+        self._timevector = np.linspace(0, len(wav_frames),
+                                       len(wav_frames),
+                                       endpoint=False)
+        self._timevector = self._timevector/wav_fs + self.timeOffset
 
     @property
     def data(self):
@@ -506,7 +510,7 @@ class MatrixData(DataModality):
             the data from disc on construction or only when needed.
         timeOffset (s) -- the offset against the baseline audio track.
         """
-        super.__init__(name, parent, preload, timeOffset)
+        super().__init__(name, parent, preload, timeOffset)
 
 
 class RawUltrasound(MatrixData):
@@ -549,7 +553,8 @@ class RawUltrasound(MatrixData):
                 _recording_logger.critical(
                     "Part of metadata missing when processing " + self.meta
                     ['filename'] + ". ")
-                _recording_logger.critical("Could not find " + notFound + ".")
+                _recording_logger.critical(
+                    "Could not find " + str(notFound) + ".")
                 _recording_logger.critical('Exiting.')
                 sys.exit()
 

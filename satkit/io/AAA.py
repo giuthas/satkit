@@ -108,7 +108,7 @@ def generateRecordingList(directory):
         generateUltrasoundRecording(base_name, directory)
         for base_name in base_names
     ]
-    return sorted(recordings, key=lambda token: token.meta['date_and_time'])
+    return sorted(recordings, key=lambda token: token.meta['date'])
 
 
 def generateUltrasoundRecording(
@@ -146,7 +146,7 @@ def generateUltrasoundRecording(
         timeOffset=0,
         filename=recording.meta['ult_wav_file']
     )
-    recording.addModality(waveform)
+    recording.addModality('AAAaudio', waveform)
 
     # We pop the timeoffset from the meta dict so that people will not
     # accidentally rely on setting that to alter the timeoffset of the
@@ -161,7 +161,7 @@ def generateUltrasoundRecording(
         filename=recording.meta['ult_file'],
         meta=ultMeta
     )
-    recording.addModality(ultrasound)
+    recording.addModality('AAAultrasound', ultrasound)
 
     return recording
 
@@ -196,6 +196,7 @@ def parseUltrasoundMetaAAA(filename):
 
         _AAA_logger.debug(
             "Read and parsed ultrasound metafile " + filename + ".")
+        meta['meta_file'] = filename
     return meta
 
 

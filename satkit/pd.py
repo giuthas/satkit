@@ -73,7 +73,7 @@ class PD(DerivedModality):
         'inf',
     ]
 
-    def __init__(self, name="pixel difference", parent=None,
+    def __init__(self, name="PD", parent=None,
                  preload=True, timeOffset=0, dataModality=None,
                  norms=['l2'], timesteps=[1]):
         """
@@ -116,7 +116,7 @@ class PD(DerivedModality):
         Calculate Pixel Difference (PD) on the DataModality.       
 
         If self._timesteps is a vector of positive integers, then calculate
-        and return pd for each of those.
+        pd for each of those. NOTE! Changing timestep is not yet implemented.
         """
         _pd_logger.info(self._loggingBaseNotice
                         + ': Token being processed.')
@@ -146,7 +146,7 @@ class PD(DerivedModality):
         _pd_logger.debug(self._loggingBaseNotice
                          + ': PD calculated.')
 
-        result['pd_time'] = (self.dataModality.timevector
-                             + .5/self.dataModality.meta['FramesPerSec'])
+        self.timevector = (self.dataModality.timevector
+                           + .5/self.dataModality.meta['FramesPerSec'])
 
         self.data = result

@@ -328,3 +328,14 @@ class RawAndVideoCLI(RawCLI):
         super()._add_optional_arguments()
 
         self.args = self.parser.parse_args()
+
+    def _plot(self):
+        """
+        Wrapper for plotting data.
+
+        Having this as a separate method allows subclasses to change 
+        arguments and plotting commands.
+        """
+        self.logger.info("Drawing CAW 2021 plot.")
+        pd_annd_plot.CAW_2021_plots(
+            self.recordings, self.args.figure_dir)

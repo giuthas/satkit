@@ -145,7 +145,55 @@ def plot_pd(ax, pd, time, xlim, textgrid=None, stimulus_onset=0,
         ax.legend((pd_curve, go_line),
                   ('Pixel difference', 'Go-signal onset'),
                   loc='upper right')
-    ax.set_ylabel("PD")
+    ax.set_ylabel("PD on ultrasound")
+
+
+def plot_pd_vid(ax, pd, time, xlim, textgrid=None, stimulus_onset=0,
+                picker=None):
+    """
+    Plot a Recordings PD timeseries.
+
+    Arguments:
+    ax -- matplotlib axes to plot on.
+    pd -- the timeseries - NOT the PD data object.
+    time -- timestamps for the timeseries.
+    xlim -- limits for the x-axis in seconds.
+
+    Keyword arguments:
+    textgrid -- a textgrids module textgrid object.
+    stimulus_onset -- onset time of the stimulus in the recording in
+        seconds.
+    picker -- a picker tied to the plotted PD curve to facilitate
+        annotation.
+
+    Returns None.
+    """
+
+    # The PD curve and the official fix for it not showing up on the legend.
+    # ax.plot(time, pd[:, 0], color="r", lw=1, picker=picker)
+    # ax.plot(time, pd[:, 1], color="g", lw=1, picker=picker)
+    # ax.plot(time, pd[:, 2], color="deepskyblue", lw=1, picker=picker)
+    # ax.plot(time, np.sum(pd, 1), color="deepskyblue", lw=1, picker=picker)
+    ax.plot(time, pd, color="deepskyblue", lw=1, picker=picker)
+    pd_curve = mlines.Line2D([], [], color="deepskyblue", lw=1)
+
+    go_line = ax.axvline(x=0, color="dimgrey", lw=1, linestyle=(0, (5, 10)))
+
+    segment_line = None
+    if textgrid:
+        segment_line = plot_textgrid(ax, textgrid, stimulus_onset)
+
+    ax.set_xlim(xlim)
+    ax.set_ylim((3500, 4050))
+    if segment_line:
+        ax.legend((pd_curve, go_line, segment_line),
+                  ('Pixel difference', 'Go-signal onset', 'Acoustic segments'),
+                  loc='upper right')
+    else:
+        ax.legend((pd_curve, go_line),
+                  ('Pixel difference', 'Go-signal onset'),
+                  loc='upper right')
+    ax.set_ylabel("PD on lip video")
 
 
 def plot_l1(ax, pd, ultra_time, xlim, textgrid=None, time_offset=0,
@@ -528,6 +576,47 @@ def draw_pd(recording, figure_dir, xlim=(-.05, 1.25)):
         _plot_logger.info("Drew PD plot in " + str(filename) + ".")
 
 
+def draw_pd_ult_and_vid(recording, figure_dir, xlim=(-.05, 1.25)):
+    base_name = Path(recording.meta['base_name'])
+    filename = base_name.name + '_pd_ult_and_vid.pdf'
+    filename = figure_dir.joinpath(filename)
+
+    with PdfPages(str(filename)) as pdf:
+        fig = plt.figure(figsize=(9, 4))
+
+        ax1 = plt.subplot2grid((7, 1), (0, 0), rowspan=3)
+        plt.title(recording.meta['prompt'].split()[0])
+        # plt.grid(True, 'major', 'x')
+        ax1.axes.xaxis.set_ticklabels([])
+        ax2 = plt.subplot2grid((7, 1), (3, 0), rowspan=3)
+        # plt.grid(True, 'major', 'x')
+        ax2.axes.xaxis.set_ticklabels([])
+        ax3 = plt.subplot2grid((7, 1), (6, 0))
+        # plt.grid(True, 'major', 'x')
+
+        audio = recording.modalities['MonoAudio']
+        stimulus_onset = audio.meta['stimulus_onset']
+        wav = audio.data
+        wav_time = (audio.timevector - stimulus_onset)
+
+        ult_pd = recording.modalities['PD on RawUltrasound']
+        ultra_time = ult_pd.timevector - stimulus_onset
+
+        vid_pd = recording.modalities['PD on LipVideo']
+        video_time = vid_pd.timevector - stimulus_onset
+
+        plot_pd(ax1, ult_pd.data['pd'], ultra_time, xlim,
+                recording.textgrid, stimulus_onset)
+        plot_pd_vid(ax2, vid_pd.data['pd'], video_time, xlim,
+                    recording.textgrid, stimulus_onset)
+        plot_wav(ax3, wav, wav_time, xlim, recording.textgrid, stimulus_onset)
+
+        fig.align_ylabels()
+        pdf.savefig()  # saves the current figure into a pdf page
+        plt.close()
+        _plot_logger.info("Drew PD plot in " + str(filename) + ".")
+
+
 def draw_annd(recording, figure_dir, xlim=(-.05, 1.25)):
     base_name = Path(recording.meta['base_name'])
     filename = base_name.name + '_annd.pdf'
@@ -666,6 +755,19 @@ def draw_annd_mpbpd_pd(meta, datum, figure_dir, xlim=(-.05, 1.25)):
 #####
 # Iteration over recordings
 #####
+
+def CAW_2021_plots(recordings, figure_dir):
+    figure_dir = Path(figure_dir)
+    if not figure_dir.is_dir():
+        if figure_dir.exists():
+            _plot_logger.critical('Name conflict: ' + figure_dir +
+                                  ' exists and is not a directory.')
+        else:
+            figure_dir.mkdir()
+
+    for recording in recordings:
+        draw_pd_ult_and_vid(recording, figure_dir, xlim=(-.05, 1.5))
+
 
 def ISSP2020_plots(recordings, figure_dir):
     figure_dir = Path(figure_dir)

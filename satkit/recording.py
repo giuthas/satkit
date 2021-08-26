@@ -331,6 +331,8 @@ class DataModality(Modality):
         release the memory, assign None to this Modality's data.
         """
         if self._data is None:
+            _recording_logger.debug(
+                "in DataModality data getter. data was None.")
             self._getData()
         return self._data
 

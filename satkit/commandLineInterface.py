@@ -319,19 +319,11 @@ class RawAndVideoCLI(RawCLI):
         instance variable is left for the caller to handle. 
         """
         recordings = super()._readDataFromFiles()
-        satkit_AAA.addSplinesFromFile(recordings, self.args.spline_file)
         return recordings
 
     def _parse_args(self):
         """Create a parser for commandline arguments with argparse and parse the arguments."""
         super()._init_parser()
-
-        helptext = (
-            'Name of the spline file.'
-            'Should be a .csv (you may need to change the file ending) file exported from AAA.'
-        )
-        self.parser.add_argument("spline_file",
-                                 help=helptext, metavar="file")
 
         super()._add_optional_arguments()
 

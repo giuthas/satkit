@@ -104,15 +104,15 @@ class LipVideo(MatrixData):
     def _getData(self):
         # possibly try importing as grey scale
         # videodata = skvideo.io.vread(self.meta['filename'])
-        videodata = skvideo.io.vread(self.meta['filename'])
+        self._data = skvideo.io.vread(self.meta['filename'])
 
         # Before 1.0: 'NumVectors' and 'PixPerVector' are bad names here.
         # They come from the AAA ultrasound side of things and should be
         # replaced, but haven't been yet as I'm in a hurry to get PD
         # running on videos.
-        self.meta['no_frames'] = videodata.shape[0]
-        self.meta['NumVectors'] = videodata.shape[1]
-        self.meta['PixPerVector'] = videodata.shape[2]
+        self.meta['no_frames'] = self.data.shape[0]
+        self.meta['NumVectors'] = self.data.shape[1]
+        self.meta['PixPerVector'] = self.data.shape[2]
         video_time = np.linspace(
             0, self.meta['no_frames'],
             num=self.meta['no_frames'],

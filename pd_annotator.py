@@ -34,9 +34,10 @@ import logging
 
 # local modules
 from satkit.commandLineInterface import RawCLI
-from satkit import annd
-from satkit import pd
 from satkit.annotator import PD_Annotator
+from satkit.recording import RawUltrasound
+from satkit.io.AAA_video import LipVideo
+from satkit import pd
 
 
 def main():
@@ -44,7 +45,7 @@ def main():
 
     # Run the command line interface.
     #function_dict = {'pd':pd.pd, 'annd':annd.annd}
-    function_dict = {'ultrasound PD': pd.addPD}
+    function_dict = {'PD': (pd.addPD, [RawUltrasound, LipVideo])}
     cli = RawCLI("PD annotator", function_dict, plot=False)
 
     elapsed_time = time.time() - t

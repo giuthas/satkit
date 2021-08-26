@@ -33,13 +33,14 @@ import time
 import logging
 
 # local modules
-from satkit.commandLineInterface import RawCLI
 from satkit import pd
+from satkit.commandLineInterface import RawCLI
+from satkit.recording import RawUltrasound
 
 
 def main():
     # Run the command line interface.
-    function_dict = {'ultrasound PD': pd.addPD}
+    function_dict = {'PD': (pd.addPD, [RawUltrasound])}
     RawCLI("PD processing script", function_dict)
 
 

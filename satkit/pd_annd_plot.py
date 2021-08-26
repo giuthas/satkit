@@ -510,12 +510,12 @@ def draw_pd(recording, figure_dir, xlim=(-.05, 1.25)):
         ax3 = plt.subplot2grid((4, 1), (3, 0))
         # plt.grid(True, 'major', 'x')
 
-        audio = recording.modalities['AAA_audio']
+        audio = recording.modalities['MonoAudio']
         stimulus_onset = audio.meta['stimulus_onset']
         wav = audio.data
         wav_time = (audio.timevector - stimulus_onset)
 
-        pd = recording.modalities['ultrasound PD']
+        pd = recording.modalities['PD on RawUltrasound']
         ultra_time = pd.timevector - stimulus_onset
 
         plot_pd(ax1, pd.data['pd'], ultra_time, xlim,

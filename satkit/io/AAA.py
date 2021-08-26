@@ -40,18 +40,12 @@ import os.path
 
 # Numpy
 import numpy as np
-from satkit import recording
 
 # Local packages
 from satkit.recording import RawUltrasound, Recording, MonoAudio
 from satkit.io.AAA_video import LipVideo
 
 _AAA_logger = logging.getLogger('satkit.AAA')
-
-# this belongs in the thing that reads
-# if data.excluded:
-#     notice += ': Token excluded.'
-#     _pd_logger.info(notice)
 
 
 #
@@ -156,7 +150,9 @@ def generateUltrasoundRecording(
         timeOffset=0,
         filename=recording.meta['ult_wav_file']
     )
-    recording.addModality('AAA_audio', waveform)
+    recording.addModality(MonoAudio.__name__, waveform)
+    _AAA_logger.debug(
+        "Added MonoAudio to Recording representing" + basename + ".")
 
     ultMeta = parseUltrasoundMetaAAA(recording.meta['ult_meta_file'])
 
@@ -173,22 +169,27 @@ def generateUltrasoundRecording(
         filename=recording.meta['ult_file'],
         meta=ultMeta
     )
-    recording.addModality('AAA_ultrasound', ultrasound)
-
-    # This is the correct value for fps for a de-interlaced video according
-    # to Alan, and he should know having written AAA.
-    videoMeta = {
-        'FramesPerSec': 59.94
-    }
+    recording.addModality(RawUltrasound.__name__, ultrasound)
+    _AAA_logger.debug(
+        "Added RawUltrasound to Recording representing" + basename + ".")
 
     if recording.meta['video_exists']:
+        # This is the correct value for fps for a de-interlaced
+        # video according to Alan, and he should know having
+        # written AAA.
+        videoMeta = {
+            'FramesPerSec': 59.94
+        }
+
         video = LipVideo(
             parent=recording,
             preload=videoPreload,
             filename=recording.meta['video_file'],
             meta=videoMeta
         )
-    recording.addModality('AAA_video', video)
+        recording.addModality(LipVideo.__name__, video)
+        _AAA_logger.debug(
+            "Added LipVideo to Recording representing" + basename + ".")
 
     return recording
 

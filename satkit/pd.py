@@ -46,11 +46,32 @@ from satkit.recording import DerivedModality
 _pd_logger = logging.getLogger('satkit.pd')
 
 
-def addPD(name,
-          recording,
-          dataModality,
+def addPD(recording,
+          modality,
           preload=True,
           releaseDataMemory=True):
+    """
+    Calculate PD on dataModality and add it to recording.
+
+    Positional arguments:
+    recording -- a Recording object
+    modality -- the type of the Modality to be processed. The access will 
+        be by recording.modalities[modality.__name__]
+
+    Keyword arguments:
+    preload -- boolean indicating if PD should be calculated on creation 
+        (preloaded) or only on access.
+    releaseDataMemor -- boolean indicatin if the data attribute of the 
+        data modality should be set to None after access. Only set this 
+        to False, if you know that you have enough memory to hold all 
+        of the data in RAM.
+    """
+    # Name of the new modality is constructed from the type names of
+    # PD and the data modality.
+    name = PD.__name__ + ' on ' + modality.__name__
+
+    dataModality = recording.modalities[modality.__name__]
+
     pd = PD(name=name, parent=recording, preload=preload,
             dataModality=dataModality, releaseDataMemory=releaseDataMemory)
     recording.addModality(name, pd)

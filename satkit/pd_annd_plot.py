@@ -828,7 +828,8 @@ def CAW_2021_plots(recordings, figure_dir):
             figure_dir.mkdir()
 
     for recording in recordings:
-        draw_pd_ult_and_vid(recording, figure_dir, xlim=(-.05, 1.5))
+        if not recording.excluded:
+            draw_pd_ult_and_vid(recording, figure_dir, xlim=(-.05, 1.5))
 
 
 def ISSP2020_plots(recordings, figure_dir):

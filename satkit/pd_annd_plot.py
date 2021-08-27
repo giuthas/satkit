@@ -136,7 +136,7 @@ def plot_pd(ax, pd, time, xlim, textgrid=None, stimulus_onset=0,
         segment_line = plot_textgrid(ax, textgrid, stimulus_onset)
 
     ax.set_xlim(xlim)
-    ax.set_ylim((-50, 3050))
+    ax.set_ylim((-50, 3550))
     if segment_line:
         ax.legend((pd_curve, go_line, segment_line),
                   ('Pixel difference', 'Go-signal onset', 'Acoustic segments'),
@@ -150,6 +150,55 @@ def plot_pd(ax, pd, time, xlim, textgrid=None, stimulus_onset=0,
 
 def plot_pd_vid(ax, pd, time, xlim, textgrid=None, stimulus_onset=0,
                 picker=None):
+    """
+    Plot a Recordings PD timeseries.
+
+    Arguments:
+    ax -- matplotlib axes to plot on.
+    pd -- the timeseries - NOT the PD data object.
+    time -- timestamps for the timeseries.
+    xlim -- limits for the x-axis in seconds.
+
+    Keyword arguments:
+    textgrid -- a textgrids module textgrid object.
+    stimulus_onset -- onset time of the stimulus in the recording in
+        seconds.
+    picker -- a picker tied to the plotted PD curve to facilitate
+        annotation.
+
+    Returns None.
+    """
+
+    # The PD curve and the official fix for it not showing up on the legend.
+    ax.plot(time, pd, color="deepskyblue", lw=1, picker=picker)
+    ax.plot(time[1::2], pd[1::2], color="deepskyblue",
+            lw=1, picker=picker, linestyle=':')
+    ax.plot(time[0::2], pd[0::2], color="deepskyblue",
+            lw=1, picker=picker, linestyle=':')
+    # ax.plot(time, pd, color="deepskyblue", lw=1, picker=picker)
+    pd_curve = mlines.Line2D([], [], color="deepskyblue", lw=1)
+
+    go_line = ax.axvline(x=0, color="dimgrey", lw=1, linestyle=(0, (5, 10)))
+
+    segment_line = None
+    if textgrid:
+        segment_line = plot_textgrid(ax, textgrid, stimulus_onset)
+
+    ax.set_xlim(xlim)
+    ax.set_ylim((3500, 4150))
+    if segment_line:
+        ax.legend((pd_curve, go_line, segment_line),
+                  ('Pixel difference', 'Go-signal onset', 'Acoustic segments'),
+                  loc='upper right')
+    else:
+        ax.legend((pd_curve, go_line),
+                  ('Pixel difference', 'Go-signal onset'),
+                  loc='upper right')
+    ax.set_ylabel("PD on lip video")
+
+
+def plot_pd_vid_rgb(ax, pd, time, xlim, textgrid=None, stimulus_onset=0,
+                    picker=None):
     """
     Plot a Recordings PD timeseries.
 
@@ -206,7 +255,7 @@ def plot_pd_vid(ax, pd, time, xlim, textgrid=None, stimulus_onset=0,
         ax.legend((pd_curve, go_line),
                   ('Pixel difference', 'Go-signal onset'),
                   loc='upper right')
-    ax.set_ylabel("PD on lip video")
+    ax.set_ylabel("PD on lip video\nSeparate rgb channels")
 
 
 def plot_l1(ax, pd, ultra_time, xlim, textgrid=None, time_offset=0,

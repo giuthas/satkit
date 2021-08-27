@@ -30,16 +30,12 @@
 #
 
 # Built in packages
-from contextlib import closing
 import logging
 
 # Numpy and scipy
 import numpy as np
-import scipy.io.wavfile as sio_wavfile
 
 # local modules
-import satkit.audio as satkit_audio
-import satkit.io.AAA as satkit_AAA
 from satkit.recording import DerivedModality
 
 
@@ -159,15 +155,51 @@ class PD(DerivedModality):
         data = self.dataModality.data
         result = {}
 
+        # Hacky hack to recognise LipVideo data and change the timestep for it.
+        if len(data.shape) != 3:
+            self._timesteps[0] = 2
+
         # timevector needs fixing
         if self._timesteps[0] != 1:
-            # if raw_diff.ndim > 2:
-            #     old_shape = raw_diff.shape
-            #     new_shape = (old_shape[0], old_shape[1], np.prod(old_shape[2:]))
-            #     raw_diff.shape = new_shape
-            raw_diff = data
+            # Before 1.0: We are only dealing with the one timestep currently. For 1.0, come up with a way of dealing with multiple timesteps in parallel.
+            timestep = self._timesteps[0]
+
+            # Flatten the data into a vector at each timestamp.
+            old_shape = data.shape
+            new_shape = (old_shape[0], np.prod(old_shape[1:]))
+            data.shape = new_shape
+
+            # Calculate differences and reshape the result to matrices.
+            raw_diff = np.subtract(
+                data[: -timestep, :],
+                data[timestep:, :])
+            diff_shape = [old_shape[0]-timestep]
+            [diff_shape.append(i) for i in old_shape[1:]]
+            raw_diff.shape = tuple(diff_shape)
+
+            # After using data, restore the shape.
+            data.shape = old_shape
+
+            if timestep % 2 == 1:
+                self.timevector = self.dataModality.timevector[timestep // 2: (
+                    timestep // 2 + 1)]
+                self.timevector = (
+                    self.timevector
+                    + .5 * self.dataModality.meta['FramesPerSec'])
+            else:
+                self.timevector = (
+                    self.dataModality.timevector
+                    [timestep//2:-timestep//2])
         else:
             raw_diff = np.diff(data, axis=0)
+            self.timevector = (self.dataModality.timevector[:-1]
+                               + .5/self.dataModality.meta['FramesPerSec'])
+
+        # Use this if we want to collapse e.g. rgb data into grayscale.
+        if raw_diff.ndim > 2:
+            old_shape = raw_diff.shape
+            new_shape = (old_shape[0], old_shape[1], np.prod(old_shape[2:]))
+            raw_diff.shape = new_shape
 
         abs_diff = np.abs(raw_diff)
         square_diff = np.square(raw_diff)
@@ -189,9 +221,6 @@ class PD(DerivedModality):
 
         _pd_logger.debug(self._loggingBaseNotice
                          + ': PD calculated.')
-
-        self.timevector = (self.dataModality.timevector[:-1]
-                           + .5/self.dataModality.meta['FramesPerSec'])
 
         self._data = result
 

@@ -170,11 +170,24 @@ def plot_pd_vid(ax, pd, time, xlim, textgrid=None, stimulus_onset=0,
     """
 
     # The PD curve and the official fix for it not showing up on the legend.
-    # ax.plot(time, pd[:, 0], color="r", lw=1, picker=picker)
-    # ax.plot(time, pd[:, 1], color="g", lw=1, picker=picker)
-    # ax.plot(time, pd[:, 2], color="deepskyblue", lw=1, picker=picker)
-    # ax.plot(time, np.sum(pd, 1), color="deepskyblue", lw=1, picker=picker)
-    ax.plot(time, pd, color="deepskyblue", lw=1, picker=picker)
+    ax.plot(time, pd[:, 0], color="r", lw=1, picker=picker)
+    ax.plot(time[1::2], pd[1::2, 0], color="r",
+            lw=1, picker=picker, linestyle='--')
+    ax.plot(time[0::2], pd[0::2, 0], color="r",
+            lw=1, picker=picker, linestyle='--')
+
+    ax.plot(time, pd[:, 1], color="g", lw=1, picker=picker)
+    ax.plot(time[1::2], pd[1::2, 1], color="g",
+            lw=1, picker=picker, linestyle='--')
+    ax.plot(time[0::2], pd[0::2, 1], color="g",
+            lw=1, picker=picker, linestyle='--')
+
+    ax.plot(time, pd[:, 2]-650, color="deepskyblue", lw=1, picker=picker)
+    ax.plot(time[1::2], pd[1::2, 2]-650, color="deepskyblue",
+            lw=1, picker=picker, linestyle='--')
+    ax.plot(time[0::2], pd[0::2, 2]-650, color="deepskyblue",
+            lw=1, picker=picker, linestyle='--')
+    # ax.plot(time, pd, color="deepskyblue", lw=1, picker=picker)
     pd_curve = mlines.Line2D([], [], color="deepskyblue", lw=1)
 
     go_line = ax.axvline(x=0, color="dimgrey", lw=1, linestyle=(0, (5, 10)))
@@ -184,7 +197,7 @@ def plot_pd_vid(ax, pd, time, xlim, textgrid=None, stimulus_onset=0,
         segment_line = plot_textgrid(ax, textgrid, stimulus_onset)
 
     ax.set_xlim(xlim)
-    ax.set_ylim((3500, 4050))
+    ax.set_ylim((1750, 2200))
     if segment_line:
         ax.legend((pd_curve, go_line, segment_line),
                   ('Pixel difference', 'Go-signal onset', 'Acoustic segments'),
@@ -582,10 +595,10 @@ def draw_pd_ult_and_vid(recording, figure_dir, xlim=(-.05, 1.25)):
     filename = figure_dir.joinpath(filename)
 
     with PdfPages(str(filename)) as pdf:
-        fig = plt.figure(figsize=(9, 4))
+        fig = plt.figure(figsize=(9, 7))
 
         ax1 = plt.subplot2grid((7, 1), (0, 0), rowspan=3)
-        plt.title(recording.meta['prompt'].split()[0])
+        plt.title(base_name.name + ': ' + recording.meta['prompt'].split()[0])
         # plt.grid(True, 'major', 'x')
         ax1.axes.xaxis.set_ticklabels([])
         ax2 = plt.subplot2grid((7, 1), (3, 0), rowspan=3)

@@ -159,11 +159,16 @@ class PD(DerivedModality):
         data = self.dataModality.data
         result = {}
 
-        raw_diff = np.diff(data, axis=0)
-        if raw_diff.ndim > 2:
-            old_shape = raw_diff.shape
-            new_shape = (old_shape[0], old_shape[1], np.prod(old_shape[2:]))
-            raw_diff.shape = new_shape
+        # timevector needs fixing
+        if self._timesteps[0] != 1:
+            # if raw_diff.ndim > 2:
+            #     old_shape = raw_diff.shape
+            #     new_shape = (old_shape[0], old_shape[1], np.prod(old_shape[2:]))
+            #     raw_diff.shape = new_shape
+            raw_diff = data
+        else:
+            raw_diff = np.diff(data, axis=0)
+
         abs_diff = np.abs(raw_diff)
         square_diff = np.square(raw_diff)
         # this should be square rooted at some point

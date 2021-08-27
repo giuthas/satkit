@@ -65,12 +65,19 @@ def addPD(recording,
     # Name of the new modality is constructed from the type names of
     # PD and the data modality.
     name = PD.__name__ + ' on ' + modality.__name__
+    if name in recording.modalities:
+        _pd_logger.info(
+            "Modality '" + name +
+            "' already exists in recording: " + recording.meta['basename'] + '.')
+    else:
+        dataModality = recording.modalities[modality.__name__]
 
-    dataModality = recording.modalities[modality.__name__]
-
-    pd = PD(name=name, parent=recording, preload=preload,
-            dataModality=dataModality, releaseDataMemory=releaseDataMemory)
-    recording.addModality(name, pd)
+        pd = PD(name=name, parent=recording, preload=preload,
+                dataModality=dataModality, releaseDataMemory=releaseDataMemory)
+        recording.addModality(name, pd)
+        _pd_logger.info(
+            "Added '" + name +
+            "' to recording: " + recording.meta['basename'] + '.')
 
 
 class PD(DerivedModality):
@@ -157,7 +164,7 @@ class PD(DerivedModality):
 
         # Hacky hack to recognise LipVideo data and change the timestep for it.
         if len(data.shape) != 3:
-            self._timesteps[0] = 2
+            self._timesteps[0] = 3
 
         # timevector needs fixing
         if self._timesteps[0] != 1:
@@ -181,11 +188,12 @@ class PD(DerivedModality):
             data.shape = old_shape
 
             if timestep % 2 == 1:
-                self.timevector = self.dataModality.timevector[timestep // 2: (
-                    timestep // 2 + 1)]
+                self.timevector = (
+                    self.dataModality.timevector
+                    [timestep // 2: -(timestep // 2 + 1)])
                 self.timevector = (
                     self.timevector
-                    + .5 * self.dataModality.meta['FramesPerSec'])
+                    + .5/self.dataModality.meta['FramesPerSec'])
             else:
                 self.timevector = (
                     self.dataModality.timevector

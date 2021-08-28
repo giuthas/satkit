@@ -64,25 +64,25 @@ def moving_average(a, n=3):
 # Subplot functions
 #####
 
-def plot_textgrid(ax, textgrid, stimulus_onset=0, draw_text=True):
+def plot_textgrid_lines(ax, textgrid, stimulus_onset=0, draw_text=True):
     """
     Plot vertical lines for the segments in the textgrid.
 
     Arguments:
     ax -- matplotlib axes to plot on.
-    textgrid -- a textgrids module textgrid object containing a tier 
+    textgrid -- a textgrids module textgrid object containing a tier
         called 'segment'.
 
     Keyword arguments:
     stimulus_onset -- onset time of the stimulus in the recording in
         seconds. Default is 0s.
-    draw_text -- boolean value indicating if each segment's text should 
+    draw_text -- boolean value indicating if each segment's text should
         be drawn on the plot. Default is True.
 
     Returns a line object for the segment line, so that it
     can be included in the legend.
 
-    Throws a KeyError if a tier called 'segment' is not present in the 
+    Throws a KeyError if a tier called 'segment' is not present in the
     textgrid.
     """
     text_settings = {'horizontalalignment': 'center',
@@ -133,7 +133,7 @@ def plot_pd(ax, pd, time, xlim, textgrid=None, stimulus_onset=0,
 
     segment_line = None
     if textgrid:
-        segment_line = plot_textgrid(ax, textgrid, stimulus_onset)
+        segment_line = plot_textgrid_lines(ax, textgrid, stimulus_onset)
 
     ax.set_xlim(xlim)
     ax.set_ylim((-50, 3550))
@@ -149,7 +149,7 @@ def plot_pd(ax, pd, time, xlim, textgrid=None, stimulus_onset=0,
 
 
 def plot_pd_vid(ax, pd, time, xlim, textgrid=None, stimulus_onset=0,
-                picker=None):
+                picker=None, draw_legend=False):
     """
     Plot a Recordings PD timeseries.
 
@@ -182,19 +182,24 @@ def plot_pd_vid(ax, pd, time, xlim, textgrid=None, stimulus_onset=0,
 
     segment_line = None
     if textgrid:
-        segment_line = plot_textgrid(ax, textgrid, stimulus_onset)
+        segment_line = plot_textgrid_lines(ax, textgrid, stimulus_onset)
 
     ax.set_xlim(xlim)
-    ax.set_ylim((3500, 4150))
-    if segment_line:
+
+    # Before 1.0 implement a way - peak normalisation for example - for doing this better than by hard coded values.
+    # ex2 day3
+    ax.set_ylim((3550, 4150))
+    # ex2 day2b
+    # ax.set_ylim((3950, 5050))
+    if draw_legend and segment_line:
         ax.legend((pd_curve, go_line, segment_line),
                   ('Pixel difference', 'Go-signal onset', 'Acoustic segments'),
                   loc='upper right')
-    else:
+    elif draw_legend:
         ax.legend((pd_curve, go_line),
                   ('Pixel difference', 'Go-signal onset'),
                   loc='upper right')
-    ax.set_ylabel("PD on lip video")
+    ax.set_ylabel("PD on lip video\ntime step = 2")
 
 
 def plot_pd_vid_rgb(ax, pd, time, xlim, textgrid=None, stimulus_onset=0,
@@ -243,7 +248,7 @@ def plot_pd_vid_rgb(ax, pd, time, xlim, textgrid=None, stimulus_onset=0,
 
     segment_line = None
     if textgrid:
-        segment_line = plot_textgrid(ax, textgrid, stimulus_onset)
+        segment_line = plot_textgrid_lines(ax, textgrid, stimulus_onset)
 
     ax.set_xlim(xlim)
     ax.set_ylim((1750, 2200))
@@ -271,7 +276,7 @@ def plot_l1(ax, pd, ultra_time, xlim, textgrid=None, time_offset=0,
 
     segment_line = None
     if textgrid:
-        segment_line = plot_textgrid(ax, textgrid, time_offset)
+        segment_line = plot_textgrid_lines(ax, textgrid, time_offset)
 
     ax.set_xlim(xlim)
     # ax.set_ylim((-50,3050))
@@ -299,7 +304,7 @@ def plot_pd_peak_normalised(
 
     segment_line = None
     if textgrid:
-        segment_line = plot_textgrid(ax, textgrid, time_offset)
+        segment_line = plot_textgrid_lines(ax, textgrid, time_offset)
 
     ax.set_xlim(xlim)
     ax.set_ylim((0, 1.1))
@@ -314,7 +319,9 @@ def plot_pd_peak_normalised(
     ax.set_ylabel("Peak normalised PD")
 
 
-def plot_pd_norms(ax, pd, ultra_time, xlim, textgrid=None, time_offset=0):
+def plot_pd_norms(
+        ax, pd, ultra_time, xlim, textgrid=None, time_offset=0,
+        draw_legend=False):
     ax.plot(ultra_time, pd['l1']/np.max(pd['l1'][1:]), color="black", lw=1)
     ax.plot(ultra_time, pd['pd']/np.max(pd['pd'][1:]), color="dimgrey", lw=1)
     ax.plot(ultra_time, pd['l3']/np.max(pd['l3'][1:]), color="grey", lw=1)
@@ -331,7 +338,18 @@ def plot_pd_norms(ax, pd, ultra_time, xlim, textgrid=None, time_offset=0):
 
     segment_line = None
     if textgrid:
-        segment_line = plot_textgrid(ax, textgrid, time_offset)
+        segment_line = plot_textgrid_lines(ax, textgrid, time_offset)
+
+    if draw_legend:
+        pd_curve = mlines.Line2D([], [], color="dimgrey", lw=1)
+    if draw_legend and segment_line:
+        ax.legend((pd_curve, go_line, segment_line),
+                  ('Pixel difference', 'Go-signal onset', 'Acoustic segments'),
+                  loc='upper right')
+    elif draw_legend:
+        ax.legend((pd_curve, go_line),
+                  ('Pixel difference', 'Go-signal onset'),
+                  loc='upper right')
 
     ax.set_xlim(xlim)
     ax.set_ylim((0, 1.1))
@@ -339,21 +357,21 @@ def plot_pd_norms(ax, pd, ultra_time, xlim, textgrid=None, time_offset=0):
 
 
 def plot_annd_mpbpd(
-        ax, annd, annd_time, xlim, textgrid=None, time_offset=0, picker=None,
-        plot_raw=True):
+        ax, annd, mpbpd, annd_time, xlim, textgrid=None, time_offset=0,
+        picker=None, plot_raw=True):
     half_window = 2
     smooth_length = 2*half_window+1
 
     # last annd seems to be broken so leave it out
     # ax.plot(annd_time[:-1], annd['annd'][:-1], color="deepskyblue", lw=1, alpha=.5)
-    ave_annd = moving_average(annd['annd'][:-1], n=smooth_length)
+    ave_annd = moving_average(annd[:-1], n=smooth_length)
     ax.plot(annd_time[half_window:-(half_window+1)], ave_annd/np.max(ave_annd),
             color="orange", lw=1, label='Average Nearest Neighbour Distance')
 
-    ave_mpbpd = moving_average(annd['mpbpd'][:-1], n=smooth_length)
+    ave_mpbpd = moving_average(mpbpd[:-1], n=smooth_length)
 
     if plot_raw:
-        ax.plot(annd_time[:-1], annd['mpbpd'][:-1]/np.max(ave_mpbpd),
+        ax.plot(annd_time[:-1], mpbpd[:-1]/np.max(ave_mpbpd),
                 color="seagreen", lw=1, alpha=.4)
 
     if picker:
@@ -368,19 +386,10 @@ def plot_annd_mpbpd(
             ave_mpbpd / np.max(ave_mpbpd),
             color="seagreen", lw=1, label='Median Point-by-point Distance')
 
-    go_line = ax.axvline(x=0, color="dimgrey", lw=1, linestyle=(0, (5, 10)))
+    ax.axvline(x=0, color="dimgrey", lw=1, linestyle=(0, (5, 10)))
 
     if textgrid:
-        for segment in textgrid['segment']:
-            if segment.text == "":
-                continue
-            elif segment.text == "beep":
-                continue
-            else:
-                ax.axvline(x=segment.xmin+time_offset,
-                           color="dimgrey", lw=1, linestyle='--')
-                ax.axvline(x=segment.xmax+time_offset,
-                           color="dimgrey", lw=1, linestyle='--')
+        plot_textgrid_lines(ax, textgrid, time_offset)
 
     ax.set_xlim(xlim)
     ax.set_ylim((-0.05, 1.05))
@@ -404,19 +413,10 @@ def plot_annd(
     ax.plot(annd_time[half_window:-(half_window+1)], ave_annd/np.max(ave_annd),
             color="orange", lw=1, label='Average Nearest Neighbour Distance')
 
-    go_line = ax.axvline(x=0, color="dimgrey", lw=1, linestyle=(0, (5, 10)))
+    ax.axvline(x=0, color="dimgrey", lw=1, linestyle=(0, (5, 10)))
 
     if textgrid:
-        for segment in textgrid['segment']:
-            if segment.text == "":
-                continue
-            elif segment.text == "beep":
-                continue
-            else:
-                ax.axvline(x=segment.xmin+time_offset,
-                           color="dimgrey", lw=1, linestyle='--')
-                ax.axvline(x=segment.xmax+time_offset,
-                           color="dimgrey", lw=1, linestyle='--')
+        plot_textgrid_lines(ax, textgrid, time_offset)
 
     ax.set_xlim(xlim)
     ax.set_ylim((-0.05, 1.05))
@@ -425,14 +425,14 @@ def plot_annd(
 
 
 def plot_mpbpd(
-        ax, annd, annd_time, xlim, textgrid=None, time_offset=0, picker=None,
+        ax, mpbpd, annd_time, xlim, textgrid=None, time_offset=0, picker=None,
         plot_raw=True):
     half_window = 2
     smooth_length = 2*half_window+1
 
-    ave_mpbpd = moving_average(annd['mpbpd'][:-1], n=smooth_length)
+    ave_mpbpd = moving_average(mpbpd[:-1], n=smooth_length)
     if plot_raw:
-        ax.plot(annd_time[:-1], annd['mpbpd'][:-1]/np.max(ave_mpbpd),
+        ax.plot(annd_time[:-1], mpbpd[:-1]/np.max(ave_mpbpd),
                 color="seagreen", lw=1, alpha=.4)
 
     if picker:
@@ -447,19 +447,10 @@ def plot_mpbpd(
             ave_mpbpd / np.max(ave_mpbpd),
             color="seagreen", lw=1, label='Median Point-by-point Distance')
 
-    go_line = ax.axvline(x=0, color="dimgrey", lw=1, linestyle=(0, (5, 10)))
+    ax.axvline(x=0, color="dimgrey", lw=1, linestyle=(0, (5, 10)))
 
     if textgrid:
-        for segment in textgrid['segment']:
-            if segment.text == "":
-                continue
-            elif segment.text == "beep":
-                continue
-            else:
-                ax.axvline(x=segment.xmin+time_offset,
-                           color="dimgrey", lw=1, linestyle='--')
-                ax.axvline(x=segment.xmax+time_offset,
-                           color="dimgrey", lw=1, linestyle='--')
+        plot_textgrid_lines(ax, textgrid, time_offset)
 
     ax.set_xlim(xlim)
     ax.set_ylim((-0.05, 1.05))
@@ -506,19 +497,11 @@ def plot_spline_metrics(
             ave_spline_l1 / np.max(ave_spline_l1),
             color="seagreen", lw=1, linestyle='-.')
 
-    if textgrid:
-        for segment in textgrid['segment']:
-            if segment.text == "":
-                continue
-            elif segment.text == "beep":
-                continue
-            else:
-                ax.axvline(x=segment.xmin+time_offset,
-                           color="dimgrey", lw=1, linestyle='--')
-                ax.axvline(x=segment.xmax+time_offset,
-                           color="dimgrey", lw=1, linestyle='--')
+    ax.axvline(x=0, color="dimgrey", lw=1, linestyle=(0, (5, 10)))
 
-    go_line = ax.axvline(x=0, color="dimgrey", lw=1, linestyle=(0, (5, 10)))
+    if textgrid:
+        plot_textgrid_lines(ax, textgrid, time_offset)
+
     ax.set_xlim(xlim)
     ax.set_ylim((0, 1.05))
     ax.set_ylabel("Peak normalised spline metrics")
@@ -552,19 +535,11 @@ def plot_annd_options(ax, annd, annd_time, xlim, textgrid=None, time_offset=0):
                        n=7),
         color="k", lw=1)
 
-    if textgrid:
-        for segment in textgrid['segment']:
-            if segment.text == "":
-                continue
-            elif segment.text == "beep":
-                continue
-            else:
-                ax.axvline(x=segment.xmin+time_offset,
-                           color="dimgrey", lw=1, linestyle='--')
-                ax.axvline(x=segment.xmax+time_offset,
-                           color="dimgrey", lw=1, linestyle='--')
+    ax.axvline(x=0, color="dimgrey", lw=1, linestyle=(0, (5, 10)))
 
-    go_line = ax.axvline(x=0, color="dimgrey", lw=1, linestyle=(0, (5, 10)))
+    if textgrid:
+        plot_textgrid_lines(ax, textgrid, time_offset)
+
     ax.axvline(x=0, color="k", lw=1)
     ax.set_xlim(xlim)
     ax.set_ylim((0, 2.05))
@@ -573,7 +548,7 @@ def plot_annd_options(ax, annd, annd_time, xlim, textgrid=None, time_offset=0):
 
 def plot_wav(
         ax, waveform, wav_time, xlim, textgrid=None, time_offset=0,
-        picker=None):
+        picker=None, draw_legend=False):
     normalised_wav = waveform / \
         np.amax(np.abs(waveform))
     if picker:
@@ -583,21 +558,25 @@ def plot_wav(
 
     ax.axvline(x=0, color="dimgrey", lw=1, linestyle=(0, (5, 10)))
 
+    segment_line = None
     if textgrid:
-        for segment in textgrid['segment']:
-            if segment.text == "":
-                continue
-            elif segment.text == "beep":
-                continue
-            else:
-                ax.axvline(x=segment.xmin - time_offset,
-                           color="dimgrey", lw=1, linestyle='--')
-                ax.axvline(x=segment.xmax - time_offset,
-                           color="dimgrey", lw=1, linestyle='--')
+        segment_line = plot_textgrid_lines(
+            ax, textgrid, time_offset, draw_text=False)
+
+    if draw_legend:
+        wave_curve = mlines.Line2D([], [], color="k", lw=1)
+    if draw_legend and segment_line:
+        ax.legend((wave_curve, segment_line),
+                  ('Waveform', 'Acoustic segments'),
+                  loc='upper right')
+    elif draw_legend:
+        ax.legend((wave_curve,),
+                  ('Waveform',),
+                  loc='upper right')
 
     ax.set_xlim(xlim)
     ax.set_ylim((-1.05, 1.05))
-    ax.set_ylabel("Waveform")
+    ax.set_ylabel("Wave")
     ax.set_xlabel("Time (s), go-signal at 0 s.")
 
 
@@ -606,15 +585,18 @@ def plot_wav(
 #####
 
 def draw_pd(recording, figure_dir, xlim=(-.05, 1.25)):
-    base_name = Path(recording.meta['base_name'])
-    filename = base_name.name + '_pd.pdf'
+    filename = recording.meta['basename'] + '_pd.pdf'
     filename = figure_dir.joinpath(filename)
 
     with PdfPages(str(filename)) as pdf:
         fig = plt.figure(figsize=(9, 4))
 
         ax1 = plt.subplot2grid((4, 1), (0, 0), rowspan=3)
-        plt.title(recording.meta['prompt'].split()[0])
+
+        # Before 1.0 Selecting the title should be done elsewhere.
+        # This breaks often with format of the prompt changing from session to session.
+        plt.title(recording.meta['prompt'].split()[1])
+
         # plt.grid(True, 'major', 'x')
         ax1.axes.xaxis.set_ticklabels([])
         ax3 = plt.subplot2grid((4, 1), (3, 0))
@@ -628,9 +610,11 @@ def draw_pd(recording, figure_dir, xlim=(-.05, 1.25)):
         pd = recording.modalities['PD on RawUltrasound']
         ultra_time = pd.timevector - stimulus_onset
 
+        textgrid = recording.textgrid
+
         plot_pd(ax1, pd.data['pd'], ultra_time, xlim,
-                recording.textgrid, stimulus_onset)
-        plot_wav(ax3, wav, wav_time, xlim, recording.textgrid, stimulus_onset)
+                textgrid, stimulus_onset)
+        plot_wav(ax3, wav, wav_time, xlim, textgrid, stimulus_onset)
 
         fig.align_ylabels()
         pdf.savefig()  # saves the current figure into a pdf page
@@ -639,15 +623,23 @@ def draw_pd(recording, figure_dir, xlim=(-.05, 1.25)):
 
 
 def draw_pd_ult_and_vid(recording, figure_dir, xlim=(-.05, 1.25)):
-    base_name = Path(recording.meta['base_name'])
-    filename = base_name.name + '_pd_ult_and_vid.pdf'
+    filename = recording.meta['basename'] + '_pd_ult_and_vid.pdf'
     filename = figure_dir.joinpath(filename)
 
     with PdfPages(str(filename)) as pdf:
+        # Before 1.0: Plot sizes should be adjustable by some sort of setup file or argument.
+        # Same goes for title and at least y-labels.
         fig = plt.figure(figsize=(9, 7))
+        # These are the values for CAW 2021 2-page paper
+        #fig = plt.figure(figsize=(7, 5.5))
 
         ax1 = plt.subplot2grid((7, 1), (0, 0), rowspan=3)
-        plt.title(base_name.name + ': ' + recording.meta['prompt'].split()[0])
+
+        # Before 1.0 Selecting the title should be done elsewhere.
+        # This breaks often with format of the prompt changing from session to session.
+        plt.title(
+            recording.meta['basename'] + ': ' + recording.meta['prompt'].split()[0])
+
         # plt.grid(True, 'major', 'x')
         ax1.axes.xaxis.set_ticklabels([])
         ax2 = plt.subplot2grid((7, 1), (3, 0), rowspan=3)
@@ -667,11 +659,13 @@ def draw_pd_ult_and_vid(recording, figure_dir, xlim=(-.05, 1.25)):
         vid_pd = recording.modalities['PD on LipVideo']
         video_time = vid_pd.timevector - stimulus_onset
 
+        textgrid = recording.textgrid
+
         plot_pd(ax1, ult_pd.data['pd'], ultra_time, xlim,
-                recording.textgrid, stimulus_onset)
+                textgrid, stimulus_onset)
         plot_pd_vid(ax2, vid_pd.data['pd'], video_time, xlim,
-                    recording.textgrid, stimulus_onset)
-        plot_wav(ax3, wav, wav_time, xlim, recording.textgrid, stimulus_onset)
+                    textgrid, stimulus_onset)
+        plot_wav(ax3, wav, wav_time, xlim, textgrid, stimulus_onset)
 
         fig.align_ylabels()
         pdf.savefig()  # saves the current figure into a pdf page
@@ -680,8 +674,7 @@ def draw_pd_ult_and_vid(recording, figure_dir, xlim=(-.05, 1.25)):
 
 
 def draw_annd(recording, figure_dir, xlim=(-.05, 1.25)):
-    base_name = Path(recording.meta['base_name'])
-    filename = base_name.name + '_annd.pdf'
+    filename = recording.meta['basename'] + '_annd.pdf'
     filename = figure_dir.joinpath(filename)
 
     with PdfPages(str(filename)) as pdf:
@@ -694,14 +687,20 @@ def draw_annd(recording, figure_dir, xlim=(-.05, 1.25)):
         ax3 = plt.subplot2grid((4, 1), (3, 0))
         # plt.grid(True, 'major', 'x')
 
-        pd = recording.modalities['PD']
-        annd = recording.modalities['ANND']
-        annd_time = annd['annd_time'] - pd['beep_uti']
-        wav_time = pd['ultra_wav_time'] - pd['beep_uti']
+        audio = recording.modalities['MonoAudio']
+        stimulus_onset = audio.meta['stimulus_onset']
+        wav = audio.data
+        wav_time = (audio.timevector - stimulus_onset)
 
-        plot_annd(ax2, annd, annd_time, xlim,
-                  recording.textgrid, -pd['beep_uti'])
-        plot_wav(ax3, pd, wav_time, xlim, recording.textgrid, -pd['beep_uti'])
+        annd = recording.modalities['ANND on Splines']
+        annd_time = annd.timevector - stimulus_onset
+
+        textgrid = recording.textgrid
+
+        plot_annd(ax2, annd.data['annd'], annd_time, xlim,
+                  textgrid, stimulus_onset)
+        plot_wav(ax3, wav, wav_time, xlim,
+                 textgrid, stimulus_onset)
 
         fig.align_ylabels()
         pdf.savefig()  # saves the current figure into a pdf page
@@ -709,16 +708,15 @@ def draw_annd(recording, figure_dir, xlim=(-.05, 1.25)):
         _plot_logger.info("Drew ANND plot in " + str(filename) + ".")
 
 
-def draw_annd_pd(meta, datum, figure_dir, xlim=(-.05, 1.25)):
-    base_name = Path(meta['base_name'])
-    filename = base_name.name + '_annd_pd.pdf'
+def draw_annd_pd(recording, figure_dir, xlim=(-.05, 1.25)):
+    filename = recording.meta['basename'] + '_annd_pd.pdf'
     filename = figure_dir.joinpath(filename)
 
     with PdfPages(str(filename)) as pdf:
         fig = plt.figure(figsize=(9, 6))
 
         ax1 = plt.subplot2grid((7, 1), (0, 0), rowspan=3)
-        plt.title(meta['prompt'].split()[0])
+        plt.title(recording.meta['prompt'].split()[0])
         # plt.grid(True, 'major', 'x')
         ax1.axes.xaxis.set_ticklabels([])
         ax2 = plt.subplot2grid((7, 1), (3, 0), rowspan=3)
@@ -727,16 +725,25 @@ def draw_annd_pd(meta, datum, figure_dir, xlim=(-.05, 1.25)):
         ax3 = plt.subplot2grid((7, 1), (6, 0))
         # plt.grid(True, 'major', 'x')
 
-        pd = datum['pd']
-        annd = datum['annd']
-        ultra_time = pd['ultra_time'] - pd['beep_uti']
-        annd_time = annd['annd_time'] - pd['beep_uti']
-        wav_time = pd['ultra_wav_time'] - pd['beep_uti']
+        audio = recording.modalities['MonoAudio']
+        stimulus_onset = audio.meta['stimulus_onset']
+        wav = audio.data
+        wav_time = (audio.timevector - stimulus_onset)
 
-        plot_pd(ax1, pd, ultra_time, xlim, meta['textgrid'], -pd['beep_uti'])
-        plot_annd(ax2, annd, annd_time, xlim,
-                  meta['textgrid'], -pd['beep_uti'])
-        plot_wav(ax3, pd, wav_time, xlim, meta['textgrid'], -pd['beep_uti'])
+        ult_pd = recording.modalities['PD on RawUltrasound']
+        ultra_time = ult_pd.timevector - stimulus_onset
+
+        annd = recording.modalities['ANND on Splines']
+        annd_time = annd.timevector - stimulus_onset
+
+        textgrid = recording.textgrid
+
+        plot_pd(ax1, ult_pd.data['pd'], ultra_time, xlim,
+                textgrid, stimulus_onset)
+        plot_annd(ax2, annd.data['annd'], annd_time, xlim,
+                  textgrid, stimulus_onset)
+        plot_wav(ax3, wav, wav_time, xlim,
+                 textgrid, stimulus_onset)
 
         fig.align_ylabels()
         pdf.savefig()  # saves the current figure into a pdf page
@@ -744,16 +751,15 @@ def draw_annd_pd(meta, datum, figure_dir, xlim=(-.05, 1.25)):
         _plot_logger.info("Drew PD and ANND plot in " + str(filename) + ".")
 
 
-def draw_mpbpd_pd(meta, datum, figure_dir, xlim=(-.05, 1.25)):
-    base_name = Path(meta['base_name'])
-    filename = base_name.name + '_mpbpd_pd.pdf'
+def draw_mpbpd_pd(recording, figure_dir, xlim=(-.05, 1.25)):
+    filename = recording.meta['basename'] + '_mpbpd_pd.pdf'
     filename = figure_dir.joinpath(filename)
 
     with PdfPages(str(filename)) as pdf:
         fig = plt.figure(figsize=(9, 6))
 
         ax1 = plt.subplot2grid((7, 1), (0, 0), rowspan=3)
-        plt.title(meta['prompt'].split()[0])
+        plt.title(recording.meta['prompt'].split()[0])
         # plt.grid(True, 'major', 'x')
         ax1.axes.xaxis.set_ticklabels([])
         ax2 = plt.subplot2grid((7, 1), (3, 0), rowspan=3)
@@ -762,16 +768,25 @@ def draw_mpbpd_pd(meta, datum, figure_dir, xlim=(-.05, 1.25)):
         ax3 = plt.subplot2grid((7, 1), (6, 0))
         # plt.grid(True, 'major', 'x')
 
-        pd = datum['pd']
-        annd = datum['annd']
-        ultra_time = pd['ultra_time'] - pd['beep_uti']
-        annd_time = annd['annd_time'] - pd['beep_uti']
-        wav_time = pd['ultra_wav_time'] - pd['beep_uti']
+        audio = recording.modalities['MonoAudio']
+        stimulus_onset = audio.meta['stimulus_onset']
+        wav = audio.data
+        wav_time = (audio.timevector - stimulus_onset)
 
-        plot_pd(ax1, pd, ultra_time, xlim, meta['textgrid'], -pd['beep_uti'])
-        plot_mpbpd(ax2, annd, annd_time, xlim,
-                   meta['textgrid'], -pd['beep_uti'])
-        plot_wav(ax3, pd, wav_time, xlim, meta['textgrid'], -pd['beep_uti'])
+        ult_pd = recording.modalities['PD on RawUltrasound']
+        ultra_time = ult_pd.timevector - stimulus_onset
+
+        annd = recording.modalities['ANND on Splines']
+        annd_time = annd.timevector - stimulus_onset
+
+        textgrid = recording.textgrid
+
+        plot_pd(ax1, ult_pd.data['pd'], ultra_time, xlim,
+                textgrid, stimulus_onset)
+        plot_mpbpd(ax2, annd.data['mpbpd'], annd_time, xlim,
+                   textgrid, stimulus_onset)
+        plot_wav(ax3, wav, wav_time, xlim,
+                 textgrid, stimulus_onset)
 
         fig.align_ylabels()
         pdf.savefig()  # saves the current figure into a pdf page
@@ -779,16 +794,15 @@ def draw_mpbpd_pd(meta, datum, figure_dir, xlim=(-.05, 1.25)):
         _plot_logger.info("Drew PD and SPBPD plot in " + str(filename) + ".")
 
 
-def draw_annd_mpbpd_pd(meta, datum, figure_dir, xlim=(-.05, 1.25)):
-    base_name = Path(meta['base_name'])
-    filename = base_name.name + '_annd_mpbpd_pd.pdf'
+def draw_annd_mpbpd_pd(recording, figure_dir, xlim=(-.05, 1.25)):
+    filename = recording.meta['basename'] + '_annd_mpbpd_pd.pdf'
     filename = figure_dir.joinpath(filename)
 
     with PdfPages(str(filename)) as pdf:
         fig = plt.figure(figsize=(9, 6))
 
         ax1 = plt.subplot2grid((7, 1), (0, 0), rowspan=3)
-        plt.title(meta['prompt'].split()[0])
+        plt.title(recording.meta['prompt'].split()[0])
         # plt.grid(True, 'major', 'x')
         ax1.axes.xaxis.set_ticklabels([])
         ax2 = plt.subplot2grid((7, 1), (3, 0), rowspan=3)
@@ -797,16 +811,27 @@ def draw_annd_mpbpd_pd(meta, datum, figure_dir, xlim=(-.05, 1.25)):
         ax3 = plt.subplot2grid((7, 1), (6, 0))
         # plt.grid(True, 'major', 'x')
 
-        pd = datum['pd']
-        annd = datum['annd']
-        ultra_time = pd['ultra_time'] - pd['beep_uti']
-        annd_time = annd['annd_time'] - pd['beep_uti']
-        wav_time = pd['ultra_wav_time'] - pd['beep_uti']
+        audio = recording.modalities['MonoAudio']
+        stimulus_onset = audio.meta['stimulus_onset']
+        wav = audio.data
+        wav_time = (audio.timevector - stimulus_onset)
 
-        plot_pd(ax1, pd, ultra_time, xlim, meta['textgrid'], -pd['beep_uti'])
-        plot_annd_mpbpd(ax2, annd, annd_time, xlim,
-                        meta['textgrid'], -pd['beep_uti'], plot_raw=False)
-        plot_wav(ax3, pd, wav_time, xlim, meta['textgrid'], -pd['beep_uti'])
+        ult_pd = recording.modalities['PD on RawUltrasound']
+        ultra_time = ult_pd.timevector - stimulus_onset
+
+        annd = recording.modalities['ANND on Splines']
+        annd_time = annd.timevector - stimulus_onset
+
+        textgrid = recording.textgrid
+
+        plot_pd(ax1, ult_pd.data['pd'], ultra_time, xlim,
+                textgrid, stimulus_onset)
+        plot_annd_mpbpd(
+            ax2, annd.data['annd'],
+            annd.data['mpbpd'],
+            annd_time, xlim, textgrid, stimulus_onset, plot_raw=False)
+        plot_wav(ax3, wav, wav_time, xlim,
+                 textgrid, stimulus_onset)
 
         fig.align_ylabels()
         pdf.savefig()  # saves the current figure into a pdf page
@@ -828,7 +853,8 @@ def CAW_2021_plots(recordings, figure_dir):
             figure_dir.mkdir()
 
     for recording in recordings:
-        draw_pd_ult_and_vid(recording, figure_dir, xlim=(-.05, 1.5))
+        if not recording.excluded:
+            draw_pd_ult_and_vid(recording, figure_dir, xlim=(-.05, .85))
 
 
 def ISSP2020_plots(recordings, figure_dir):
@@ -846,17 +872,6 @@ def ISSP2020_plots(recordings, figure_dir):
         # draw_annd_pd(recording, figure_dir, xlim=(-.05, 1.5))
         # draw_annd(recording, figure_dir, xlim=(-.05, 1.5))
         draw_pd(recording, figure_dir, xlim=(-.05, 1.5))
-
-
-def ultrafest2020_plots(metalist, datalist, figure_dir):
-    for i in range(len(metalist)):
-        meta = metalist[i]
-        data = datalist[i]
-        basename = os.path.basename(meta['ult_prompt_file'])
-        basename = os.path.splitext(basename)[0]
-        draw_annd_pd(meta, data, basename, figure_dir)
-        # draw_annd(meta, data, basename, figure_dir)
-        # draw_pd(meta, data, basename, figure_dir)
 
 
 #

@@ -64,7 +64,7 @@ class Recording():
         self.excluded = False
         self.meta = {'path': path,
                      'basename': basename,
-                     'textgrid': os.path.join(basename + ".TextGrid")
+                     'textgrid': os.path.join(path, basename + ".TextGrid")
                      }
         self.modalities = {}
 

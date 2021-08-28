@@ -165,12 +165,13 @@ class RawCLI(BaseCLI):
                         preload=True,
                         releaseDataMemory=True)
 
+        # save before plotting just in case.
+        if self.args.output_filename:
+            self._saveData()
+
         # Plot the data into files if asked to.
         if plot:
             self._plot()
-
-        if self.args.output_filename:
-            self._saveData()
 
         self.logger.info('Data run ended at ' + str(datetime.datetime.now()))
 
@@ -241,8 +242,13 @@ class RawCLI(BaseCLI):
         instance variable is left for the caller to handle. 
         """
         recordings = satkit_AAA.generateRecordingList(self.args.load_path)
+
         satkit_AAA.setExclusionsFromFile(
             self.args.exclusion_filename, recordings)
+
+        [satkit_AAA.addModalities(recording)
+         for recording in recordings if not recording.excluded]
+
         return recordings
 
     def _saveData(self):

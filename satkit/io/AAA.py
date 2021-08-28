@@ -37,6 +37,7 @@ import glob
 import logging
 import os
 import os.path
+from pathlib import Path
 
 # Numpy
 import numpy as np
@@ -78,7 +79,7 @@ def generateRecordingList(directory):
     ultrasound: .ult, and
     audio waveform: .wav.
 
-    Additionally these will be added, but missing files are considered 
+    Additionally these will be added, but missing files are considered
     non-fatal
     TextGrid: .textgrid, and
     avi video: .avi.
@@ -101,48 +102,72 @@ def generateRecordingList(directory):
     ult_prompt_files = sorted(ult_prompt_files)
 
     # strip file extensions off of filepaths to get the base names
-    base_names = [os.path.splitext(prompt_file)[0]
+    base_paths = [os.path.splitext(prompt_file)[0]
                   for prompt_file in ult_prompt_files]
+    basenames = [Path(path).name for path in base_paths]
     recordings = [
-        generateUltrasoundRecording(base_name, directory)
-        for base_name in base_names
+        generateUltrasoundRecording(basename, directory)
+        for basename in basenames
     ]
     return sorted(recordings, key=lambda token: token.meta['date'])
 
 
-def generateUltrasoundRecording(
-        basename, directory="", wavPreload=True, ultPreload=False,
-        videoPreload=False):
+def generateUltrasoundRecording(basename, directory=""):
     """
-    Generate an UltrasoundRecording with audio and raw ultrasound data.
+    Generate an UltrasoundRecording without Modalities.
 
     Arguments:
-    basename -- name of the files to be read without type extensions but 
+    basename -- name of the files to be read without type extensions but
         with path.
 
     KeywordArguments:
     directory -- path to files
-    wavPreload -- boolean indicating if the .wav file is to be read into 
-        memory on initialising. Defaults to True.
-    ultPreload -- boolean indicating if the .ult file is to be read into 
-        memory on initialising. Defaults to False. Note: these 
-        files are, roughly one to two orders of magnitude 
-        larger than .wav files.
-    videoPreload -- boolean indicating if the .avi file is to be read into 
-        memory on initialising. Defaults to False. Note: these 
-        files are, yet again, roughly one to two orders of magnitude 
-        larger than .ult files.
 
-    Returns an AAA_UltrasoundRecording with data members MonoAudio and
-    RawUltrasound.
-
-    Throws KeyError if TimeInSecsOfFirstFrame is missing from the file.
+    Returns an AAA_UltrasoundRecording without any modalities.
     """
+
+    _AAA_logger.info("Building Recording object for "
+                     + basename + " in " + directory + ".")
 
     recording = AAA_UltrasoundRecording(
         path=directory,
         basename=basename
     )
+
+    # If we aren't going to process this recording,
+    # don't bother with the rest.
+    if recording.excluded:
+        _AAA_logger.info(
+            "Recording " + basename + " automatically excluded.")
+
+    return recording
+
+
+def addModalities(recording, wavPreload=True, ultPreload=False,
+                  videoPreload=False):
+    """
+    Add audio and raw ultrasound data to the recording.
+
+    Postional arguments:
+    recording -- a recording object that has been initialised.
+
+    Keyword arguments:
+    wavPreload -- boolean indicating if the .wav file is to be read into
+        memory on initialising. Defaults to True.
+    ultPreload -- boolean indicating if the .ult file is to be read into
+        memory on initialising. Defaults to False. Note: these
+        files are, roughly one to two orders of magnitude
+        larger than .wav files.
+    videoPreload -- boolean indicating if the .avi file is to be read into
+        memory on initialising. Defaults to False. Note: these
+        files are, yet again, roughly one to two orders of magnitude
+        larger than .ult files.
+
+    Throws KeyError if TimeInSecsOfFirstFrame is missing from the 
+    meta file: [directory]/basename + .txt.
+    """
+    _AAA_logger.info("Adding modalities to recording for "
+                     + recording.meta['basename'] + ".")
 
     waveform = MonoAudio(
         parent=recording,
@@ -152,7 +177,8 @@ def generateUltrasoundRecording(
     )
     recording.addModality(MonoAudio.__name__, waveform)
     _AAA_logger.debug(
-        "Added MonoAudio to Recording representing" + basename + ".")
+        "Added MonoAudio to Recording representing "
+        + recording.meta['basename'] + ".")
 
     ultMeta = parseUltrasoundMetaAAA(recording.meta['ult_meta_file'])
 
@@ -171,7 +197,8 @@ def generateUltrasoundRecording(
     )
     recording.addModality(RawUltrasound.__name__, ultrasound)
     _AAA_logger.debug(
-        "Added RawUltrasound to Recording representing" + basename + ".")
+        "Added RawUltrasound to Recording representing "
+        + recording.meta['basename'] + ".")
 
     if recording.meta['video_exists']:
         # This is the correct value for fps for a de-interlaced
@@ -189,9 +216,8 @@ def generateUltrasoundRecording(
         )
         recording.addModality(LipVideo.__name__, video)
         _AAA_logger.debug(
-            "Added LipVideo to Recording representing" + basename + ".")
-
-    return recording
+            "Added LipVideo to Recording representing"
+            + recording.meta['basename'] + ".")
 
 
 def parseUltrasoundMetaAAA(filename):
@@ -204,10 +230,10 @@ def parseUltrasoundMetaAAA(filename):
     Returns a dictionary which should contain the following keys:
         NumVectors -- number of scanlines in a frame
         PixPerVector -- number of pixels in a scanline
-        ZeroOffset -- 
+        ZeroOffset --
         BitsPerPixel -- byte length of a single pixel in the .ult file
         Angle -- angle in radians between two scanlines
-        Kind -- 
+        Kind --
         PixelsPerMm -- depth resolution of a scanline
         FramesPerSec -- framerate of ultrasound recording
         TimeInSecsOfFirstFrame -- time from recording start to first frame
@@ -234,17 +260,22 @@ def setExclusionsFromFile(filename, recordings):
     and mark them as excluded in the array of recording objects.
     """
     if filename is not None:
+        _AAA_logger.debug(
+            "Setting exclusions from file " + filename + ".")
         with closing(open(filename, 'r')) as csvfile:
             reader = csv.reader(csvfile, delimiter='\t')
             # Throw away the second field - it is a comment for human readers.
-            exclusion_list = [row[0] for row in reader]
+            exclusion_list = [row[0] for row in reader if row]
             _AAA_logger.info('Read exclusion list ' + filename + ' with ' +
                              str(len(exclusion_list)) + ' names.')
     else:
+        _AAA_logger.debug(
+            "No exclusion file. Using an empty list.")
         exclusion_list = []
 
     # mark as excluded
-    [recording.exclude() for recording in recordings if recording in exclusion_list]
+    [recording.exclude() for recording in recordings
+     if recording.meta['basename'] in exclusion_list]
 
 
 def read_file_exclusion_list(filename):
@@ -270,12 +301,12 @@ def parse_spline_line(line):
     cells = line.split('\t')
     token = {'id': cells[0],
              'date_and_time': datetime.strptime(
-                 cells[1],
-                 '%m/%d/%Y %I:%M:%S %p'),
-             'sample_time': float(cells[2]),
-             'prompt': cells[3],
-             'nro_spline_points': int(cells[4]),
-             'beg': 0, 'end': 42}
+        cells[1],
+        '%m/%d/%Y %I:%M:%S %p'),
+        'sample_time': float(cells[2]),
+        'prompt': cells[3],
+        'nro_spline_points': int(cells[4]),
+        'beg': 0, 'end': 42}
 
     # token['x'] = np.fromiter(cells[8:8+token['nro_spline_points']:2], dtype='float')
     # token['y'] = np.fromiter(cells[9:9+token['nro_spline_points']:2], dtype='float')
@@ -322,7 +353,7 @@ def addSplinesFromFile(recordingList, spline_file):
 
     The splines are read from a single AAA export file and added to
     the correct Recording by identifying the Recordings based on the date
-    and time of the original recording. If no splines are found for a 
+    and time of the original recording. If no splines are found for a
     given Recording, an empty Spline object will be attached to it.
 
     Arguments:
@@ -365,11 +396,10 @@ class AAA_UltrasoundRecording(Recording):
 
         _AAA_logger.debug(
             "Initialising a new recording with filename " + basename + ".")
-        self.meta['base_name'] = basename
 
-        # Prompt file should always exist and correspond to the base_name because
-        # the base_name list is generated from the directory listing of prompt files.
-        ult_prompt_file = basename + ".txt"
+        # Prompt file should always exist and correspond to the basename because
+        # the basename list is generated from the directory listing of prompt files.
+        ult_prompt_file = os.path.join(path, basename + ".txt")
         self.meta['ult_prompt_file'] = ult_prompt_file
         self.parse_AAA_promptfile(ult_prompt_file)
 
@@ -379,10 +409,10 @@ class AAA_UltrasoundRecording(Recording):
         # meta['participant'] = participant
 
         # Candidates for filenames. Existence tested below.
-        ult_meta_file = os.path.join(basename + "US.txt")
-        ult_wav_file = os.path.join(basename + ".wav")
-        ult_file = os.path.join(basename + ".ult")
-        video_file = os.path.join(basename + ".avi")
+        ult_meta_file = os.path.join(path, basename + "US.txt")
+        ult_wav_file = os.path.join(path, basename + ".wav")
+        ult_file = os.path.join(path, basename + ".ult")
+        video_file = os.path.join(path, basename + ".avi")
 
         # check if assumed files exist, and arrange to skip them if any do not
         if os.path.isfile(ult_meta_file):
@@ -392,7 +422,7 @@ class AAA_UltrasoundRecording(Recording):
             notice = 'Note: ' + ult_meta_file + " does not exist."
             _AAA_logger.warning(notice)
             self.meta['ult_meta_exists'] = False
-            self.meta['excluded'] = True
+            self.excluded = True
 
         if os.path.isfile(ult_wav_file):
             self.meta['ult_wav_file'] = ult_wav_file
@@ -401,7 +431,7 @@ class AAA_UltrasoundRecording(Recording):
             notice = 'Note: ' + ult_wav_file + " does not exist."
             _AAA_logger.warning(notice)
             self.meta['ult_wav_exists'] = False
-            self.meta['excluded'] = True
+            self.excluded = True
 
         if os.path.isfile(ult_file):
             self.meta['ult_file'] = ult_file
@@ -410,7 +440,7 @@ class AAA_UltrasoundRecording(Recording):
             notice = 'Note: ' + ult_file + " does not exist."
             _AAA_logger.warning(notice)
             self.meta['ult_exists'] = False
-            self.meta['excluded'] = True
+            self.excluded = True
 
         if os.path.isfile(video_file):
             self.meta['video_file'] = video_file
@@ -420,27 +450,25 @@ class AAA_UltrasoundRecording(Recording):
             _AAA_logger.warning(notice)
             self.meta['video_exists'] = False
             if requireVideo:
-                self.meta['excluded'] = True
+                self.excluded = True
 
-        # TODO this needs to be moved to a decorator function
-        # if 'water swallow' in prompt:
-        #     notice = 'Note: ' + base_names[i] + ' prompt is a water swallow.'
+        # # TODO this needs to be moved to a decorator function
+        # if 'water swallow' in self.meta['prompt']:
+        #     notice = 'Note: ' + basename + ' prompt is a water swallow.'
         #     _AAA_logger.info(notice)
         #     self.meta['type'] = 'water swallow'
-        #     self.meta['excluded'] = True
-        # elif 'bite plate' in prompt:
-        #     notice = 'Note: ' + base_names[i] + ' prompt is a bite plate.'
+        #     self.excluded = True
+        # elif 'bite plate' in self.meta['prompt']:
+        #     notice = 'Note: ' + basename + ' prompt is a bite plate.'
         #     _AAA_logger.info(notice)
         #     self.meta['type'] = 'bite plate'
-        #     self.meta['excluded'] = True
+        #     self.excluded = True
         # else:
         #     self.meta['type'] = 'regular trial'
-        # store also the different variations of the
-        # file name, checking for existence
 
     def parse_AAA_promptfile(self, filename):
         """
-        Read an AAA .txt (not US.txt) file and save prompt, recording date and time,  
+        Read an AAA .txt (not US.txt) file and save prompt, recording date and time,
         and participant name into the meta dictionary.
         """
         with closing(open(filename, 'r')) as promptfile:

@@ -69,6 +69,10 @@ def addPD(recording,
         _pd_logger.info(
             "Modality '" + name +
             "' already exists in recording: " + recording.meta['basename'] + '.')
+    elif recording.excluded:
+        _pd_logger.info(
+            "Recording " + recording.meta['basename']
+            + " excluded from processing.")
     else:
         dataModality = recording.modalities[modality.__name__]
 
@@ -143,7 +147,7 @@ class PD(DerivedModality):
         else:
             ValueError("Negative or non-integer timestep in " + str(timesteps))
 
-        self._loggingBaseNotice = (self.parent.meta['base_name']
+        self._loggingBaseNotice = (self.parent.meta['basename']
                                    + " " + self.parent.meta['prompt'])
 
         if preload:
@@ -157,14 +161,15 @@ class PD(DerivedModality):
         pd for each of those. NOTE! Changing timestep is not yet implemented.
         """
         _pd_logger.info(self._loggingBaseNotice
-                        + ': Token being processed.')
+                        + ': Calculating PD on '
+                        + type(self.dataModality).__name__ + '.')
 
         data = self.dataModality.data
         result = {}
 
         # Hacky hack to recognise LipVideo data and change the timestep for it.
         if len(data.shape) != 3:
-            self._timesteps[0] = 3
+            self._timesteps[0] = 2
 
         # timevector needs fixing
         if self._timesteps[0] != 1:

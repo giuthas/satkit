@@ -30,15 +30,12 @@
 #
 
 # Built in packages
-from satkit.recording import MatrixData, Recording, MonoAudio
-from contextlib import closing
+from satkit.recording import MatrixData
 import logging
-import os.path
 import sys
 
 # Numpy
 import numpy as np
-from satkit import recording
 
 # scikit-video for io and processing of video data.
 import skvideo.io

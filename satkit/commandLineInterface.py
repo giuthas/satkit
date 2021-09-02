@@ -38,9 +38,9 @@ import sys
 import warnings
 
 # local modules
-import satkit.pd as pd
 import satkit.pd_annd_plot as pd_annd_plot
 import satkit.io.AAA as satkit_AAA
+import satkit.io.ThreeD_ultrasound as ThreeD_ultrasound
 import satkit.io as satkit_io
 
 
@@ -243,7 +243,7 @@ class RawCLI(BaseCLI):
         """
         recordings = satkit_AAA.generateRecordingList(self.args.load_path)
 
-        satkit_AAA.setExclusionsFromFile(
+        satkit_io.setExclusionsFromFile(
             self.args.exclusion_filename, recordings)
 
         [satkit_AAA.addModalities(recording)
@@ -345,3 +345,31 @@ class RawAndVideoCLI(RawCLI):
         self.logger.info("Drawing CAW 2021 plot.")
         pd_annd_plot.CAW_2021_plots(
             self.recordings, self.args.figure_dir)
+
+
+class Raw3D_CLI(RawCLI):
+
+    def __init__(self, description, processing_functions, plot=False):
+        super().__init__(description, processing_functions, plot=plot)
+
+    def _readDataFromFiles(self):
+        """
+        Wrapper for reading data from a directory full of files.
+
+        Having this as a separate method allows subclasses to change 
+        arguments or even the parser.
+
+        Note that to make data loading work the in a consistent way,
+        this method just returns the data and saving it in a 
+        instance variable is left for the caller to handle. 
+        """
+        recordings = ThreeD_ultrasound.generateRecordingList(
+            self.args.load_path)
+
+        satkit_io.setExclusionsFromFile(
+            self.args.exclusion_filename, recordings)
+
+        [ThreeD_ultrasound.addModalities(recording)
+         for recording in recordings if not recording.excluded]
+
+        return recordings

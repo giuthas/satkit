@@ -30,8 +30,14 @@
 #
 
 # Built in packages
-from satkit.recording import MatrixData
+from contextlib import closing
+from datetime import datetime
+import glob
 import logging
+import os
+import os.path
+from pathlib import Path
+import warnings
 import sys
 
 # Numpy
@@ -42,22 +48,170 @@ from numpy.matlib import repmat
 import pydicom
 
 # Local packages
+from satkit.recording import MatrixData, Recording
+from satkit.io.AAA_video import LipVideo
 
-_Phillips_ultra_logger = logging.getLogger('satkit.Phillips_ultrasound')
+_3D4D_ultra_logger = logging.getLogger('satkit.ThreeD_ultrasound')
+
+
+def generateRecordingList(directory):
+    """
+    Produce an array of Recordings from a 3D4D ultrasound directory.
+
+    Prepare a list of Recording objects from the files exported by AAA
+    into the named directory. File existence is tested for,
+    and if crucial files are missing from a given recording it will be
+    excluded.
+
+    If problems are found with a recording, exclusion is marked with
+    recordingObjet.excluded rather than not listing the recording. Log
+    file will show reasons of exclusion.
+
+    The processed files are
+    ultrasound and corresponding meta: .DCM, and
+    audio waveform: .DAT.
+
+    Additionally this will be added, but missing files are considered
+    non-fatal
+    TextGrid: .textgrid.
+
+    Positional argument:
+    directory -- the path to the directory to be processed.
+    Returns an array of Recording objects sorted by date and time
+        of recording.
+    """
+    # this is equivalent with the following:
+    # sorted(glob.glob(directory + '/.' +  '/*US.txt'))
+    ult_meta_files = sorted(glob.glob(directory + '/*US.txt'))
+
+    # this takes care of *.txt and *US.txt overlapping. Goal
+    # here is to include also failed recordings with missing
+    # ultrasound data in the list for completeness.
+    ult_prompt_files = [prompt_file
+                        for prompt_file in glob.glob(directory + '/*.txt')
+                        if not prompt_file in ult_meta_files
+                        ]
+    ult_prompt_files = sorted(ult_prompt_files)
+
+    # strip file extensions off of filepaths to get the base names
+    base_paths = [os.path.splitext(prompt_file)[0]
+                  for prompt_file in ult_prompt_files]
+    basenames = [Path(path).name for path in base_paths]
+    recordings = [
+        generateUltrasoundRecording(basename, directory)
+        for basename in basenames
+    ]
+    return sorted(recordings, key=lambda token: token.meta['date'])
+
+
+def generateUltrasoundRecording(basename, directory=""):
+    """
+    Generate an UltrasoundRecording without Modalities.
+
+    Arguments:
+    basename -- name of the files to be read without type extensions but
+        with path.
+
+    KeywordArguments:
+    directory -- path to files
+
+    Returns an AAA_UltrasoundRecording without any modalities.
+    """
+
+    _3D4D_ultra_logger.info("Building Recording object for "
+                            + basename + " in " + directory + ".")
+
+    recording = ThreeD_UltrasoundRecording(
+        path=directory,
+        basename=basename
+    )
+
+    # If we aren't going to process this recording,
+    # don't bother with the rest.
+    if recording.excluded:
+        _3D4D_ultra_logger.info(
+            "Recording " + basename + " automatically excluded.")
+
+    return recording
+
+
+def addModalities(recording, wavPreload=True, ultPreload=False,
+                  videoPreload=False):
+    """
+    Add audio and raw ultrasound data to the recording.
+
+    Postional arguments:
+    recording -- a recording object that has been initialised.
+
+    Keyword arguments:
+    wavPreload -- boolean indicating if the .wav file is to be read into
+        memory on initialising. Defaults to True.
+    ultPreload -- boolean indicating if the .ult file is to be read into
+        memory on initialising. Defaults to False. Note: these
+        files are, roughly one to two orders of magnitude
+        larger than .wav files.
+    videoPreload -- boolean indicating if the .avi file is to be read into
+        memory on initialising. Defaults to False. Note: these
+        files are, yet again, roughly one to two orders of magnitude
+        larger than .ult files.
+
+    Throws KeyError if TimeInSecsOfFirstFrame is missing from the 
+    meta file: [directory]/basename + .txt.
+    """
+    _3D4D_ultra_logger.info("Adding modalities to recording for "
+                            + recording.meta['basename'] + ".")
+
+    # before 1.0: load the audio as well, just need to check that beep detect is not run.
+    # waveform = MonoAudio(
+    #     parent=recording,
+    #     preload=wavPreload,
+    #     timeOffset=0,
+    #     filename=recording.meta['ult_wav_file']
+    # )
+    # recording.addModality(MonoAudio.__name__, waveform)
+    # _3D4D_ultra_logger.debug(
+    #     "Added MonoAudio to Recording representing "
+    #     + recording.meta['basename'] + ".")
+
+    # ultMeta = parseUltrasoundMetaAAA(recording.meta['ult_meta_file'])
+
+    ultrasound = ThreeD_Ultrasound(
+        parent=recording,
+        preload=ultPreload,
+        filename=recording.meta['ult_file']
+    )
+    recording.addModality(ThreeD_Ultrasound.__name__, ultrasound)
+    _3D4D_ultra_logger.debug(
+        "Added RawUltrasound to Recording representing "
+        + recording.meta['basename'] + ".")
+
+    if recording.meta['video_exists']:
+        # This is the correct value for fps for a de-interlaced
+        # video for AAA recordings. Check it for other data.
+        videoMeta = {
+            'FramesPerSec': 59.94
+        }
+        warnings.warn(
+            "Video (.avi) fps set to " + str(videoMeta['FramesPerSec'])
+            + "This is the correct value for fps for a de-interlaced video "
+            + " for AAA recordings. Check it for other data.")
+
+        video = LipVideo(
+            parent=recording,
+            preload=videoPreload,
+            filename=recording.meta['video_file'],
+            meta=videoMeta
+        )
+        recording.addModality(LipVideo.__name__, video)
+        _3D4D_ultra_logger.debug(
+            "Added LipVideo to Recording representing"
+            + recording.meta['basename'] + ".")
 
 
 class ThreeD_Ultrasound(MatrixData):
     """
-    Ultrasound Recording with raw (probe return) data.    
+    Ultrasound Recording with raw 3D/4D (probe return) data.    
     """
-
-    # Before 1.0: Figure out how to move this to MatrixData
-    # and how to extend it when necessary. Practically whole of
-    # __init__ is shared with RawUltrasound and so should be in MatrixData
-    # instead of here. Only _getData and data.setter's message change.
-    requiredMetaKeys = [
-        'FramesPerSec'
-    ]
 
     def __init__(
             self, name="lip video", parent=None, preload=False,
@@ -75,25 +229,6 @@ class ThreeD_Ultrasound(MatrixData):
 
         self.meta['filename'] = filename
 
-        # Explicitly copy meta data fields to ensure that we have what we expected to get.
-        if meta != None:
-            try:
-                wanted_meta = {key: meta[key]
-                               for key in ThreeD_Ultrasound.requiredMetaKeys}
-            except KeyError:
-                # Missing metadata for one recording may be ok and this could be handled with just
-                # a call to _recording_logger.critical and setting self.excluded = True
-                notFound = set(ThreeD_Ultrasound.requiredMetaKeys) - set(meta)
-                _Phillips_ultra_logger.critical(
-                    "Part of metadata missing when processing "
-                    + self.meta['filename'] + ". ")
-                _Phillips_ultra_logger.critical(
-                    "Could not find " + str(notFound) + ".")
-                _Phillips_ultra_logger.critical('Exiting.')
-                sys.exit()
-
-            self.meta.update(wanted_meta)
-
         if filename and preload:
             self._getData()
         else:
@@ -109,17 +244,17 @@ class ThreeD_Ultrasound(MatrixData):
             if type == 'UDM_USD_DATATYPE_DIN_3D_ECHO':
                 self._read_3D_ultra(ds)
             else:
-                _Phillips_ultra_logger.critical(
+                _3D4D_ultra_logger.critical(
                     "Unknown DICOM ultrasound type: " + type + " in "
                     + self.meta['filename'] + ".")
-                _Phillips_ultra_logger.critical('Exiting.')
+                _3D4D_ultra_logger.critical('Exiting.')
                 sys.exit()
         else:
-            _Phillips_ultra_logger.critical(
+            _3D4D_ultra_logger.critical(
                 "Do not know what to do with data with "
                 + str(len(ds.SequenceOfUltrasoundRegions)) + " regions in "
                 + self.meta['filename'] + ".")
-            _Phillips_ultra_logger.critical('Exiting.')
+            _3D4D_ultra_logger.critical('Exiting.')
             sys.exit()
 
         # Before 1.0: 'NumVectors' and 'PixPerVector' are bad names here.
@@ -195,3 +330,114 @@ class ThreeD_Ultrasound(MatrixData):
                 'Writing over video data has not been implemented yet.')
         else:
             self._data = data
+
+
+class ThreeD_UltrasoundRecording(Recording):
+    """
+    Ultrasound recording exported from AAA.
+    """
+
+    def __init__(self, path=None, basename="", requireVideo=False):
+        super().__init__(path=path, basename=basename)
+
+        if basename == None:
+            _3D4D_ultra_logger.critical(
+                "Critical error: File basename is None.")
+        elif basename == "":
+            _3D4D_ultra_logger.critical(
+                "Critical error: File basename is empty.")
+
+        _3D4D_ultra_logger.debug(
+            "Initialising a new recording with filename " + basename + ".")
+
+        # Prompt file should always exist and correspond to the basename because
+        # the basename list is generated from the directory listing of prompt files.
+        ult_prompt_file = os.path.join(path, basename + ".txt")
+        self.meta['ult_prompt_file'] = ult_prompt_file
+        self.parse_AAA_promptfile(ult_prompt_file)
+
+        # (prompt, date_and_time, participant) = read_prompt(ult_prompt_file)
+        # meta['prompt'] = prompt
+        # meta['date_and_time'] = date_and_time
+        # meta['participant'] = participant
+
+        # Candidates for filenames. Existence tested below.
+        ult_meta_file = os.path.join(path, basename + "US.txt")
+        ult_wav_file = os.path.join(path, basename + ".wav")
+        ult_file = os.path.join(path, basename + ".ult")
+        video_file = os.path.join(path, basename + ".avi")
+
+        # check if assumed files exist, and arrange to skip them if any do not
+        if os.path.isfile(ult_meta_file):
+            self.meta['ult_meta_file'] = ult_meta_file
+            self.meta['ult_meta_exists'] = True
+        else:
+            notice = 'Note: ' + ult_meta_file + " does not exist."
+            _3D4D_ultra_logger.warning(notice)
+            self.meta['ult_meta_exists'] = False
+            self.excluded = True
+
+        if os.path.isfile(ult_wav_file):
+            self.meta['ult_wav_file'] = ult_wav_file
+            self.meta['ult_wav_exists'] = True
+        else:
+            notice = 'Note: ' + ult_wav_file + " does not exist."
+            _3D4D_ultra_logger.warning(notice)
+            self.meta['ult_wav_exists'] = False
+            self.excluded = True
+
+        if os.path.isfile(ult_file):
+            self.meta['ult_file'] = ult_file
+            self.meta['ult_exists'] = True
+        else:
+            notice = 'Note: ' + ult_file + " does not exist."
+            _3D4D_ultra_logger.warning(notice)
+            self.meta['ult_exists'] = False
+            self.excluded = True
+
+        if os.path.isfile(video_file):
+            self.meta['video_file'] = video_file
+            self.meta['video_exists'] = True
+        else:
+            notice = 'Note: ' + video_file + " does not exist."
+            _3D4D_ultra_logger.warning(notice)
+            self.meta['video_exists'] = False
+            if requireVideo:
+                self.excluded = True
+
+        # # TODO this needs to be moved to a decorator function
+        # if 'water swallow' in self.meta['prompt']:
+        #     notice = 'Note: ' + basename + ' prompt is a water swallow.'
+        #     _3D4D_ultra_logger.info(notice)
+        #     self.meta['type'] = 'water swallow'
+        #     self.excluded = True
+        # elif 'bite plate' in self.meta['prompt']:
+        #     notice = 'Note: ' + basename + ' prompt is a bite plate.'
+        #     _3D4D_ultra_logger.info(notice)
+        #     self.meta['type'] = 'bite plate'
+        #     self.excluded = True
+        # else:
+        #     self.meta['type'] = 'regular trial'
+
+    def parse_AAA_promptfile(self, filename):
+        """
+        Read an AAA .txt (not US.txt) file and save prompt, recording date and time,
+        and participant name into the meta dictionary.
+        """
+        with closing(open(filename, 'r')) as promptfile:
+            lines = promptfile.read().splitlines()
+            self.meta['prompt'] = lines[0]
+
+            # The date used to be just a string, but needs to be more sturctured since
+            # the spline export files have a different date format.
+            self.meta['date'] = datetime.strptime(
+                lines[1], '%d/%m/%Y %H:%M:%S')
+
+            if len(lines) > 2 and lines[2].strip():
+                self.meta['participant'] = lines[2].split(',')[0]
+            else:
+                _3D4D_ultra_logger.info(
+                    "Participant does not have an id in file " + filename + ".")
+                self.meta['participant'] = ""
+
+            _3D4D_ultra_logger.debug("Read prompt file " + filename + ".")

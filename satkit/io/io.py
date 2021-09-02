@@ -132,3 +132,44 @@ def save_prompt_freq(filename, prompt_freqs):
             writer.writerow([prompt, prompt_freqs[prompt]])
         _io_logger.debug(
             'Wrote prompt frequency counts to file ' + filename + '.')
+
+
+def setExclusionsFromFile(filename, recordings):
+    """
+    Read list of files (that is, recordings) to be excluded from processing
+    and mark them as excluded in the array of recording objects.
+    """
+    if filename is not None:
+        _io_logger.debug(
+            "Setting exclusions from file " + filename + ".")
+        with closing(open(filename, 'r')) as csvfile:
+            reader = csv.reader(csvfile, delimiter='\t')
+            # Throw away the second field - it is a comment for human readers.
+            exclusion_list = [row[0] for row in reader if row]
+            _io_logger.info('Read exclusion list ' + filename + ' with ' +
+                            str(len(exclusion_list)) + ' names.')
+    else:
+        _io_logger.debug(
+            "No exclusion file. Using an empty list.")
+        exclusion_list = []
+
+    # mark as excluded
+    [recording.exclude() for recording in recordings
+     if recording.meta['basename'] in exclusion_list]
+
+
+def read_file_exclusion_list(filename):
+    """
+    Read list of files (that is, recordings) to be excluded from processing.
+    """
+    if filename is not None:
+        with closing(open(filename, 'r')) as csvfile:
+            reader = csv.reader(csvfile, delimiter='\t')
+            # Throw away the second field - it is a comment for human readers.
+            exclusion_list = [row[0] for row in reader]
+            _io_logger.info('Read exclusion list ' + filename + ' with ' +
+                            str(len(exclusion_list)) + ' names.')
+    else:
+        exclusion_list = []
+
+    return exclusion_list

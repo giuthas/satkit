@@ -31,7 +31,6 @@
 
 # Built in packages
 from contextlib import closing
-import csv
 from datetime import datetime
 import glob
 import logging
@@ -252,47 +251,6 @@ def parseUltrasoundMetaAAA(filename):
             "Read and parsed ultrasound metafile " + filename + ".")
         meta['meta_file'] = filename
     return meta
-
-
-def setExclusionsFromFile(filename, recordings):
-    """
-    Read list of files (that is, recordings) to be excluded from processing
-    and mark them as excluded in the array of recording objects.
-    """
-    if filename is not None:
-        _AAA_logger.debug(
-            "Setting exclusions from file " + filename + ".")
-        with closing(open(filename, 'r')) as csvfile:
-            reader = csv.reader(csvfile, delimiter='\t')
-            # Throw away the second field - it is a comment for human readers.
-            exclusion_list = [row[0] for row in reader if row]
-            _AAA_logger.info('Read exclusion list ' + filename + ' with ' +
-                             str(len(exclusion_list)) + ' names.')
-    else:
-        _AAA_logger.debug(
-            "No exclusion file. Using an empty list.")
-        exclusion_list = []
-
-    # mark as excluded
-    [recording.exclude() for recording in recordings
-     if recording.meta['basename'] in exclusion_list]
-
-
-def read_file_exclusion_list(filename):
-    """
-    Read list of files (that is, recordings) to be excluded from processing.
-    """
-    if filename is not None:
-        with closing(open(filename, 'r')) as csvfile:
-            reader = csv.reader(csvfile, delimiter='\t')
-            # Throw away the second field - it is a comment for human readers.
-            exclusion_list = [row[0] for row in reader]
-            _AAA_logger.info('Read exclusion list ' + filename + ' with ' +
-                             str(len(exclusion_list)) + ' names.')
-    else:
-        exclusion_list = []
-
-    return exclusion_list
 
 
 def parse_spline_line(line):

@@ -171,7 +171,6 @@ class PD(DerivedModality):
         if len(data.shape) != 3:
             self._timesteps[0] = 2
 
-        # timevector needs fixing
         if self._timesteps[0] != 1:
             # Before 1.0: We are only dealing with the one timestep currently. For 1.0, come up with a way of dealing with multiple timesteps in parallel.
             timestep = self._timesteps[0]
@@ -185,8 +184,8 @@ class PD(DerivedModality):
             raw_diff = np.subtract(
                 data[: -timestep, :],
                 data[timestep:, :])
-            diff_shape = [old_shape[0]-timestep]
-            [diff_shape.append(i) for i in old_shape[1:]]
+            diff_shape = old_shape
+            diff_shape[0] = [old_shape[0]-timestep]
             raw_diff.shape = tuple(diff_shape)
 
             # After using data, restore the shape.
@@ -208,7 +207,8 @@ class PD(DerivedModality):
             self.timevector = (self.dataModality.timevector[:-1]
                                + .5/self.dataModality.meta['FramesPerSec'])
 
-        # Use this if we want to collapse e.g. rgb data into grayscale.
+        # Use this if we want to collapse e.g. rgb data without producing a 
+        # PD contour for each colour or channel.
         if raw_diff.ndim > 2:
             old_shape = raw_diff.shape
             new_shape = (old_shape[0], old_shape[1], np.prod(old_shape[2:]))

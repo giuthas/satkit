@@ -105,7 +105,7 @@ class ThreeD_Ultrasound(MatrixData):
         # There are other options, but we don't deal with them just yet.
         # Before 1.0: fix the above. see loadPhillipsDCM.m on how.
         if len(ds.SequenceOfUltrasoundRegions) == 3:
-            type = ds[0x200d, 0x3016][1][0x200d, 0x300d].value
+            type = ds[0x200d, 0x3016][1][0x200d, 0x300d].valuex
             if type == 'UDM_USD_DATATYPE_DIN_3D_ECHO':
                 self._read_3D_ultra(ds)
             else:
@@ -125,20 +125,16 @@ class ThreeD_Ultrasound(MatrixData):
         # Before 1.0: 'NumVectors' and 'PixPerVector' are bad names here.
         # They come from the AAA ultrasound side of things and should be
         # replaced, but haven't been yet as I'm in a hurry to get PD
-        # running on videos.
+        # running on 3d4d ultrasound.
         self.meta['no_frames'] = self.data.shape[0]
         self.meta['NumVectors'] = self.data.shape[1]
         self.meta['PixPerVector'] = self.data.shape[2]
-        video_time = np.linspace(
+        ultra3D_time = np.linspace(
             0, self.meta['no_frames'],
             num=self.meta['no_frames'],
             endpoint=False)
-        self.timevector = video_time / \
+        self.timevector = ultra3D_time / \
             self.meta['FramesPerSec'] + self.timeOffset
-        # this should be added for PD and similar time vectors:
-        # + .5/self.meta['framesPerSec']
-        # while at the same time dropping a suitable number
-        # (most likely = timestep) of timestamps
 
     def _read_3D_ultra(self, ds):
         ultra_sequence = ds[0x200d, 0x3016][1][0x200d, 0x3020][0]

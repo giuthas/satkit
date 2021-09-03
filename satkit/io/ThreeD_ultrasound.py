@@ -30,19 +30,19 @@
 #
 
 # Built in packages
-from contextlib import closing
 from datetime import datetime
 import glob
 import logging
 import os
 import os.path
-from pathlib import Path
+from pathlib import Path, PureWindowsPath
 import warnings
 import sys
 
-# Numpy
+# Numpy and scipy
 import numpy as np
 from numpy.matlib import repmat
+import scipy.io
 
 # dicom reading
 import pydicom
@@ -80,31 +80,41 @@ def generateRecordingList(directory):
     Returns an array of Recording objects sorted by date and time
         of recording.
     """
-    # this is equivalent with the following:
-    # sorted(glob.glob(directory + '/.' +  '/*US.txt'))
-    ult_meta_files = sorted(glob.glob(directory + '/*US.txt'))
 
-    # this takes care of *.txt and *US.txt overlapping. Goal
-    # here is to include also failed recordings with missing
-    # ultrasound data in the list for completeness.
-    ult_prompt_files = [prompt_file
-                        for prompt_file in glob.glob(directory + '/*.txt')
-                        if not prompt_file in ult_meta_files
-                        ]
-    ult_prompt_files = sorted(ult_prompt_files)
+    dicom_dir = directory / "DCM"
+    note_dir = directory / "NOTES"
+    # dat_dir = directory / "DAT"
+
+    dicom_files = sorted(dicom_dir.glob('*.DCM'))
+    mat_file = note_dir.glob('*.mat')[0]
+    # dat_files = sorted(dat_dir.glob('*.dat'))
 
     # strip file extensions off of filepaths to get the base names
-    base_paths = [os.path.splitext(prompt_file)[0]
-                  for prompt_file in ult_prompt_files]
-    basenames = [Path(path).name for path in base_paths]
+    basenames = [filepath.name for filepath in dicom_files]
+
     recordings = [
         generateUltrasoundRecording(basename, directory)
         for basename in basenames
     ]
+
+    # This replaces the commented section that came from ThreeD_UltrasoundRecording
+    meta = readMetaFromMat(mat_file)
+    [addMeta(meta, recording) for recording in recordings]
+    # # Prompt file should always exist and correspond to the basename because
+    # # the basename list is generated from the directory listing of prompt files.
+    # ult_prompt_file = os.path.join(path, basename + ".txt")
+    # self.meta['ult_prompt_file'] = ult_prompt_file
+    # self.parse_AAA_promptfile(ult_prompt_file)
+
+    # # (prompt, date_and_time, participant) = read_prompt(ult_prompt_file)
+    # # meta['prompt'] = prompt
+    # # meta['date_and_time'] = date_and_time
+    # # meta['participant'] = participant
+
     return sorted(recordings, key=lambda token: token.meta['date'])
 
 
-def generateUltrasoundRecording(basename, directory=""):
+def generateUltrasoundRecording(basename, directory=None):
     """
     Generate an UltrasoundRecording without Modalities.
 
@@ -135,6 +145,40 @@ def generateUltrasoundRecording(basename, directory=""):
     return recording
 
 
+def readMetaFromMat(mat_file):
+    mat = scipy.io.loadmat(str(mat_file), squeeze_me=True)
+    meta = []
+    for element in mat['officialNotes']:
+        # apparently squeeze_me=True is a bit too strident and somehow looses
+        # the shape of the most interesting level in the loadmat call.
+        element = element.item()
+        if len(element) > 5:
+            # We try this two ways, because at least once filename and
+            # date were reversed in order inside the .mat.
+            try:
+                date_and_time = datetime.strptime(
+                    element[4], "%d-%b-%Y %H:%M:%S")
+                file_path = element[5]
+            except ValueError:
+                date_and_time = datetime.strptime(
+                    element[5], "%d-%b-%Y %H:%M:%S")
+                file_path = element[4]
+
+            meta_token = {
+                'trial_number': element[0],
+                'prompt': element[1],
+                'date_and_time': date_and_time,
+                'dat_file_name': PureWindowsPath(file_path).name
+            }
+            meta.append(meta_token)
+    return mat
+
+
+def addMeta(meta, recording):
+    warnings.warn("Adding meta blindly in ThreeD_ultrasound. Might not work.")
+    recording.meta.update(meta)
+
+
 def addModalities(recording, wavPreload=True, ultPreload=False,
                   videoPreload=False):
     """
@@ -161,7 +205,7 @@ def addModalities(recording, wavPreload=True, ultPreload=False,
     _3D4D_ultra_logger.info("Adding modalities to recording for "
                             + recording.meta['basename'] + ".")
 
-    # before 1.0: load the audio as well, just need to check that beep detect is not run.
+    # before 1.0: load the audio as well, just need to make sure that beep detect is not run.
     # waveform = MonoAudio(
     #     parent=recording,
     #     preload=wavPreload,
@@ -348,35 +392,15 @@ class ThreeD_UltrasoundRecording(Recording):
                 "Critical error: File basename is empty.")
 
         _3D4D_ultra_logger.debug(
-            "Initialising a new recording with filename " + basename + ".")
-
-        # Prompt file should always exist and correspond to the basename because
-        # the basename list is generated from the directory listing of prompt files.
-        ult_prompt_file = os.path.join(path, basename + ".txt")
-        self.meta['ult_prompt_file'] = ult_prompt_file
-        self.parse_AAA_promptfile(ult_prompt_file)
-
-        # (prompt, date_and_time, participant) = read_prompt(ult_prompt_file)
-        # meta['prompt'] = prompt
-        # meta['date_and_time'] = date_and_time
-        # meta['participant'] = participant
+            "Initialising a new 3D ultrasound recording with filename " +
+            basename + ".")
 
         # Candidates for filenames. Existence tested below.
-        ult_meta_file = os.path.join(path, basename + "US.txt")
         ult_wav_file = os.path.join(path, basename + ".wav")
-        ult_file = os.path.join(path, basename + ".ult")
+        ult_file = os.path.join(path, basename + ".DCM")
         video_file = os.path.join(path, basename + ".avi")
 
         # check if assumed files exist, and arrange to skip them if any do not
-        if os.path.isfile(ult_meta_file):
-            self.meta['ult_meta_file'] = ult_meta_file
-            self.meta['ult_meta_exists'] = True
-        else:
-            notice = 'Note: ' + ult_meta_file + " does not exist."
-            _3D4D_ultra_logger.warning(notice)
-            self.meta['ult_meta_exists'] = False
-            self.excluded = True
-
         if os.path.isfile(ult_wav_file):
             self.meta['ult_wav_file'] = ult_wav_file
             self.meta['ult_wav_exists'] = True
@@ -404,40 +428,3 @@ class ThreeD_UltrasoundRecording(Recording):
             self.meta['video_exists'] = False
             if requireVideo:
                 self.excluded = True
-
-        # # TODO this needs to be moved to a decorator function
-        # if 'water swallow' in self.meta['prompt']:
-        #     notice = 'Note: ' + basename + ' prompt is a water swallow.'
-        #     _3D4D_ultra_logger.info(notice)
-        #     self.meta['type'] = 'water swallow'
-        #     self.excluded = True
-        # elif 'bite plate' in self.meta['prompt']:
-        #     notice = 'Note: ' + basename + ' prompt is a bite plate.'
-        #     _3D4D_ultra_logger.info(notice)
-        #     self.meta['type'] = 'bite plate'
-        #     self.excluded = True
-        # else:
-        #     self.meta['type'] = 'regular trial'
-
-    def parse_AAA_promptfile(self, filename):
-        """
-        Read an AAA .txt (not US.txt) file and save prompt, recording date and time,
-        and participant name into the meta dictionary.
-        """
-        with closing(open(filename, 'r')) as promptfile:
-            lines = promptfile.read().splitlines()
-            self.meta['prompt'] = lines[0]
-
-            # The date used to be just a string, but needs to be more sturctured since
-            # the spline export files have a different date format.
-            self.meta['date'] = datetime.strptime(
-                lines[1], '%d/%m/%Y %H:%M:%S')
-
-            if len(lines) > 2 and lines[2].strip():
-                self.meta['participant'] = lines[2].split(',')[0]
-            else:
-                _3D4D_ultra_logger.info(
-                    "Participant does not have an id in file " + filename + ".")
-                self.meta['participant'] = ""
-
-            _3D4D_ultra_logger.debug("Read prompt file " + filename + ".")

@@ -98,8 +98,8 @@ def generateRecordingList(directory):
     ]
 
     # This replaces the commented section that came from ThreeD_UltrasoundRecording
-    meta = readMetaFromMat(mat_file)
-    [addMeta(meta, recording) for recording in recordings]
+    meta = ThreeD_UltrasoundRecording.readMetaFromMat(mat_file)
+    [recording.addMeta(meta) for recording in recordings]
     # # Prompt file should always exist and correspond to the basename because
     # # the basename list is generated from the directory listing of prompt files.
     # ult_prompt_file = os.path.join(path, basename + ".txt")
@@ -143,40 +143,6 @@ def generateUltrasoundRecording(basename, directory=None):
             "Recording " + basename + " automatically excluded.")
 
     return recording
-
-
-def readMetaFromMat(mat_file):
-    mat = scipy.io.loadmat(str(mat_file), squeeze_me=True)
-    meta = []
-    for element in mat['officialNotes']:
-        # apparently squeeze_me=True is a bit too strident and somehow looses
-        # the shape of the most interesting level in the loadmat call.
-        element = element.item()
-        if len(element) > 5:
-            # We try this two ways, because at least once filename and
-            # date were reversed in order inside the .mat.
-            try:
-                date_and_time = datetime.strptime(
-                    element[4], "%d-%b-%Y %H:%M:%S")
-                file_path = element[5]
-            except ValueError:
-                date_and_time = datetime.strptime(
-                    element[5], "%d-%b-%Y %H:%M:%S")
-                file_path = element[4]
-
-            meta_token = {
-                'trial_number': element[0],
-                'prompt': element[1],
-                'date_and_time': date_and_time,
-                'dat_file_name': PureWindowsPath(file_path).name
-            }
-            meta.append(meta_token)
-    return mat
-
-
-def addMeta(meta, recording):
-    warnings.warn("Adding meta blindly in ThreeD_ultrasound. Might not work.")
-    recording.meta.update(meta)
 
 
 def addModalities(recording, wavPreload=True, ultPreload=False,
@@ -378,8 +344,37 @@ class ThreeD_Ultrasound(MatrixData):
 
 class ThreeD_UltrasoundRecording(Recording):
     """
-    Ultrasound recording exported from AAA.
+    3D/4D Ultrasound recording.
     """
+
+    @staticmethod
+    def readMetaFromMat(mat_file):
+        mat = scipy.io.loadmat(str(mat_file), squeeze_me=True)
+        meta = []
+        for element in mat['officialNotes']:
+            # apparently squeeze_me=True is a bit too strident and somehow looses
+            # the shape of the most interesting level in the loadmat call.
+            element = element.item()
+            if len(element) > 5:
+                # We try this two ways, because at least once filename and
+                # date were reversed in order inside the .mat.
+                try:
+                    date_and_time = datetime.strptime(
+                        element[4], "%d-%b-%Y %H:%M:%S")
+                    file_path = element[5]
+                except ValueError:
+                    date_and_time = datetime.strptime(
+                        element[5], "%d-%b-%Y %H:%M:%S")
+                    file_path = element[4]
+
+                meta_token = {
+                    'trial_number': element[0],
+                    'prompt': element[1],
+                    'date_and_time': date_and_time,
+                    'dat_file_name': PureWindowsPath(file_path).name
+                }
+                meta.append(meta_token)
+        return mat
 
     def __init__(self, path=None, basename="", requireVideo=False):
         super().__init__(path=path, basename=basename)
@@ -428,3 +423,6 @@ class ThreeD_UltrasoundRecording(Recording):
             self.meta['video_exists'] = False
             if requireVideo:
                 self.excluded = True
+
+    def addMeta(self, meta):
+        self.meta.update(meta)

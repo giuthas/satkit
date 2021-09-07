@@ -347,6 +347,15 @@ class ThreeD_UltrasoundRecording(Recording):
     3D/4D Ultrasound recording.
     """
 
+    # This is for future use cases where meta comes from outside the
+    # class itself.
+    requiredMetaKeys = [
+        'trial_number',
+        'prompt',
+        'date_and_time',
+        'dat_file_name'
+    ]
+
     @staticmethod
     def readMetaFromMat(mat_file):
         """
@@ -443,4 +452,37 @@ class ThreeD_UltrasoundRecording(Recording):
                 self.excluded = True
 
     def addMeta(self, meta):
-        self.meta.update(meta)
+        """
+        Update self.meta with only the required key-value pairs.
+
+        The keys in meta are checked against
+        ThreeD_UltrasoundRecording.requiredMetaKeys.
+        It is a fatal error to not provide a value for all of those keys.
+        Any extra key-value pairs are discarded.
+
+        Positional argument:
+        meta -- a dict containing metadata.
+
+        Returns None.
+        """
+        if meta != None:
+            try:
+                wanted_meta = {
+                    key: meta[key]
+                    for key in ThreeD_UltrasoundRecording.requiredMetaKeys}
+            except KeyError:
+                # Missing metadata for one recording may be ok and this
+                # could be handled with just a call to
+                # _recording_logger.critical and setting
+                # self.excluded = True.
+                notFound = set(
+                    ThreeD_UltrasoundRecording.requiredMetaKeys) - set(meta)
+                _3D4D_ultra_logger.critical(
+                    "Part of metadata missing when processing " + self.meta
+                    ['filename'] + ". ")
+                _3D4D_ultra_logger.critical(
+                    "Could not find " + str(notFound) + ".")
+                _3D4D_ultra_logger.critical('Exiting.')
+                sys.exit()
+
+            self.meta.update(wanted_meta)

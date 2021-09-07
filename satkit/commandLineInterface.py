@@ -246,7 +246,7 @@ class RawCLI(BaseCLI):
         satkit_io.setExclusionsFromFile(
             self.args.exclusion_filename, recordings)
 
-        [satkit_AAA.addModalities(recording)
+        [recording.addModalities()
          for recording in recordings if not recording.excluded]
 
         return recordings
@@ -369,7 +369,7 @@ class Raw3D_CLI(RawCLI):
         satkit_io.setExclusionsFromFile(
             self.args.exclusion_filename, recordings)
 
-        [ThreeD_ultrasound.addModalities(recording)
+        [recording.addModalities()
          for recording in recordings if not recording.excluded]
 
         return recordings

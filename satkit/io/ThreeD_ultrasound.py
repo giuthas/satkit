@@ -48,7 +48,7 @@ import scipy.io
 import pydicom
 
 # Local packages
-from satkit.recording import MatrixData, Recording
+from satkit.recording import MatrixData, MonoAudio, Recording
 from satkit.io.AAA_video import LipVideo
 
 _3D4D_ultra_logger = logging.getLogger('satkit.ThreeD_ultrasound')
@@ -100,16 +100,6 @@ def generateRecordingList(directory):
     # This replaces the commented section that came from ThreeD_UltrasoundRecording
     meta = ThreeD_UltrasoundRecording.readMetaFromMat(mat_file)
     [recording.addMeta(meta) for recording in recordings]
-    # # Prompt file should always exist and correspond to the basename because
-    # # the basename list is generated from the directory listing of prompt files.
-    # ult_prompt_file = os.path.join(path, basename + ".txt")
-    # self.meta['ult_prompt_file'] = ult_prompt_file
-    # self.parse_AAA_promptfile(ult_prompt_file)
-
-    # # (prompt, date_and_time, participant) = read_prompt(ult_prompt_file)
-    # # meta['prompt'] = prompt
-    # # meta['date_and_time'] = date_and_time
-    # # meta['participant'] = participant
 
     return sorted(recordings, key=lambda token: token.meta['date'])
 
@@ -143,79 +133,6 @@ def generateUltrasoundRecording(basename, directory=None):
             "Recording " + basename + " automatically excluded.")
 
     return recording
-
-
-def addModalities(recording, wavPreload=True, ultPreload=False,
-                  videoPreload=False):
-    """
-    Add audio and raw ultrasound data to the recording.
-
-    Postional arguments:
-    recording -- a recording object that has been initialised.
-
-    Keyword arguments:
-    wavPreload -- boolean indicating if the .wav file is to be read into
-        memory on initialising. Defaults to True.
-    ultPreload -- boolean indicating if the .ult file is to be read into
-        memory on initialising. Defaults to False. Note: these
-        files are, roughly one to two orders of magnitude
-        larger than .wav files.
-    videoPreload -- boolean indicating if the .avi file is to be read into
-        memory on initialising. Defaults to False. Note: these
-        files are, yet again, roughly one to two orders of magnitude
-        larger than .ult files.
-
-    Throws KeyError if TimeInSecsOfFirstFrame is missing from the 
-    meta file: [directory]/basename + .txt.
-    """
-    _3D4D_ultra_logger.info("Adding modalities to recording for "
-                            + recording.meta['basename'] + ".")
-
-    # before 1.0: load the audio as well, just need to make sure that beep detect is not run.
-    # waveform = MonoAudio(
-    #     parent=recording,
-    #     preload=wavPreload,
-    #     timeOffset=0,
-    #     filename=recording.meta['ult_wav_file']
-    # )
-    # recording.addModality(MonoAudio.__name__, waveform)
-    # _3D4D_ultra_logger.debug(
-    #     "Added MonoAudio to Recording representing "
-    #     + recording.meta['basename'] + ".")
-
-    # ultMeta = parseUltrasoundMetaAAA(recording.meta['ult_meta_file'])
-
-    ultrasound = ThreeD_Ultrasound(
-        parent=recording,
-        preload=ultPreload,
-        filename=recording.meta['ult_file']
-    )
-    recording.addModality(ThreeD_Ultrasound.__name__, ultrasound)
-    _3D4D_ultra_logger.debug(
-        "Added RawUltrasound to Recording representing "
-        + recording.meta['basename'] + ".")
-
-    if recording.meta['video_exists']:
-        # This is the correct value for fps for a de-interlaced
-        # video for AAA recordings. Check it for other data.
-        videoMeta = {
-            'FramesPerSec': 59.94
-        }
-        warnings.warn(
-            "Video (.avi) fps set to " + str(videoMeta['FramesPerSec'])
-            + "This is the correct value for fps for a de-interlaced video "
-            + " for AAA recordings. Check it for other data.")
-
-        video = LipVideo(
-            parent=recording,
-            preload=videoPreload,
-            filename=recording.meta['video_file'],
-            meta=videoMeta
-        )
-        recording.addModality(LipVideo.__name__, video)
-        _3D4D_ultra_logger.debug(
-            "Added LipVideo to Recording representing"
-            + recording.meta['basename'] + ".")
 
 
 class ThreeD_Ultrasound(MatrixData):
@@ -362,8 +279,8 @@ class ThreeD_UltrasoundRecording(Recording):
         Read a WASL .mat file and return relevant contents as a dict.
 
         Positional argument:
-        mat_file -- either a Path to the .mat file or a string of 
-            the path.
+        mat_file -- either a pathlib Path object representing the .mat 
+            file or a string of the same.
 
         Returns -- an array of dicts that contain the following fields:
             'trial_number': number of the recording within this session,
@@ -486,3 +403,72 @@ class ThreeD_UltrasoundRecording(Recording):
                 sys.exit()
 
             self.meta.update(wanted_meta)
+
+    def addModalities(self, wavPreload=True, ultPreload=False,
+                      videoPreload=False):
+        """
+        Add audio and raw ultrasound data to the recording.
+
+        Keyword arguments:
+        wavPreload -- boolean indicating if the .wav file is to be read into
+            memory on initialising. Defaults to True.
+        ultPreload -- boolean indicating if the .ult file is to be read into
+            memory on initialising. Defaults to False. Note: these
+            files are, roughly one to two orders of magnitude
+            larger than .wav files.
+        videoPreload -- boolean indicating if the .avi file is to be read into
+            memory on initialising. Defaults to False. Note: these
+            files are, yet again, roughly one to two orders of magnitude
+            larger than .ult files.
+
+        Throws KeyError if TimeInSecsOfFirstFrame is missing from the 
+        meta file: [directory]/basename + .txt.
+        """
+        _3D4D_ultra_logger.info("Adding modalities to recording for "
+                                + self.meta['basename'] + ".")
+
+        # TODO: need to make sure that beep detect is not run.
+        waveform = MonoAudio(
+            parent=self,
+            preload=wavPreload,
+            timeOffset=0,
+            filename=self.meta['ult_wav_file']
+        )
+        self.addModality(MonoAudio.__name__, waveform)
+        _3D4D_ultra_logger.debug(
+            "Added MonoAudio to Recording representing "
+            + self.meta['basename'] + ".")
+
+        # ultMeta = parseUltrasoundMetaAAA(recording.meta['ult_meta_file'])
+
+        ultrasound = ThreeD_Ultrasound(
+            parent=self,
+            preload=ultPreload,
+            filename=self.meta['ult_file']
+        )
+        self.addModality(ThreeD_Ultrasound.__name__, ultrasound)
+        _3D4D_ultra_logger.debug(
+            "Added RawUltrasound to Recording representing "
+            + self.meta['basename'] + ".")
+
+        if self.meta['video_exists']:
+            # This is the correct value for fps for a de-interlaced
+            # video for AAA recordings. Check it for other data.
+            videoMeta = {
+                'FramesPerSec': 59.94
+            }
+            warnings.warn(
+                "Video (.avi) fps set to " + str(videoMeta['FramesPerSec']) +
+                "This is the correct value for fps for a de-interlaced video "
+                + " for AAA recordings. Check it for other data.")
+
+            video = LipVideo(
+                parent=self,
+                preload=videoPreload,
+                filename=self.meta['video_file'],
+                meta=videoMeta
+            )
+            self.addModality(LipVideo.__name__, video)
+            _3D4D_ultra_logger.debug(
+                "Added LipVideo to Recording representing"
+                + self.meta['basename'] + ".")

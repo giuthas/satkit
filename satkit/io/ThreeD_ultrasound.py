@@ -349,15 +349,33 @@ class ThreeD_UltrasoundRecording(Recording):
 
     @staticmethod
     def readMetaFromMat(mat_file):
+        """
+        Read a WASL .mat file and return relevant contents as a dict.
+
+        Positional argument:
+        mat_file -- either a Path to the .mat file or a string of 
+            the path.
+
+        Returns -- an array of dicts that contain the following fields:
+            'trial_number': number of the recording within this session,
+            'prompt': prompt displayed to the participant,
+            'date_and_time': a datetime object of the time recording 
+                started, and
+            'dat_file_name': string representing the name of the .dat 
+                sound file.
+        """
         mat = scipy.io.loadmat(str(mat_file), squeeze_me=True)
         meta = []
         for element in mat['officialNotes']:
-            # apparently squeeze_me=True is a bit too strident and somehow looses
-            # the shape of the most interesting level in the loadmat call.
+            # Apparently squeeze_me=True is a bit too strident and
+            # somehow looses the shape of the most interesting level
+            # in the loadmat call. Not using it is not a good idea
+            # though so we do this:
             element = element.item()
             if len(element) > 5:
-                # We try this two ways, because at least once filename and
-                # date were reversed in order inside the .mat.
+                # We try this two ways, because at least once filename
+                # and date fields were in reversed order inside the
+                # .mat file.
                 try:
                     date_and_time = datetime.strptime(
                         element[4], "%d-%b-%Y %H:%M:%S")
@@ -374,7 +392,7 @@ class ThreeD_UltrasoundRecording(Recording):
                     'dat_file_name': PureWindowsPath(file_path).name
                 }
                 meta.append(meta_token)
-        return mat
+        return meta
 
     def __init__(self, path=None, basename="", requireVideo=False):
         super().__init__(path=path, basename=basename)

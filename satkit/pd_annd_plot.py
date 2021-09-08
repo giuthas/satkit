@@ -148,6 +148,50 @@ def plot_pd(ax, pd, time, xlim, textgrid=None, stimulus_onset=0,
     ax.set_ylabel("PD on ultrasound")
 
 
+def plot_pd_3d(ax, pd, time, xlim, textgrid=None, stimulus_onset=0,
+               picker=None):
+    """
+    Plot a Recordings PD timeseries.
+
+    Arguments:
+    ax -- matplotlib axes to plot on.
+    pd -- the timeseries - NOT the PD data object.
+    time -- timestamps for the timeseries.
+    xlim -- limits for the x-axis in seconds.
+
+    Keyword arguments:
+    textgrid -- a textgrids module textgrid object.
+    stimulus_onset -- onset time of the stimulus in the recording in
+        seconds.
+    picker -- a picker tied to the plotted PD curve to facilitate
+        annotation.
+
+    Returns None.
+    """
+
+    # The PD curve and the official fix for it not showing up on the legend.
+    ax.plot(time, pd, color="deepskyblue", lw=1, picker=picker)
+    pd_curve = mlines.Line2D([], [], color="deepskyblue", lw=1)
+
+    go_line = ax.axvline(x=0, color="dimgrey", lw=1, linestyle=(0, (5, 10)))
+
+    segment_line = None
+    if textgrid:
+        segment_line = plot_textgrid_lines(ax, textgrid, stimulus_onset)
+
+#    ax.set_xlim(xlim)
+#    ax.set_ylim((-50, 3550))
+    if segment_line:
+        ax.legend((pd_curve, go_line, segment_line),
+                  ('Pixel difference', 'Go-signal onset', 'Acoustic segments'),
+                  loc='upper right')
+    else:
+        ax.legend((pd_curve, go_line),
+                  ('Pixel difference', 'Go-signal onset'),
+                  loc='upper right')
+    ax.set_ylabel("PD on ultrasound")
+
+
 def plot_pd_vid(ax, pd, time, xlim, textgrid=None, stimulus_onset=0,
                 picker=None, draw_legend=False):
     """
@@ -622,6 +666,45 @@ def draw_pd(recording, figure_dir, xlim=(-.05, 1.25)):
         _plot_logger.info("Drew PD plot in " + str(filename) + ".")
 
 
+def draw_pd_3d_ult(recording, figure_dir, xlim=(-.05, 1.25)):
+    filename = recording.meta['basename'] + '_pd_ult3D.pdf'
+    filename = figure_dir.joinpath(filename)
+
+    with PdfPages(str(filename)) as pdf:
+        # Before 1.0: Plot sizes should be adjustable by some sort of setup file or argument.
+        # Same goes for title and at least y-labels.
+        fig = plt.figure(figsize=(9, 4))
+
+        ax1 = plt.subplot2grid((4, 1), (0, 0), rowspan=3)
+
+        # Before 1.0 Selecting the title should be done elsewhere.
+        # This breaks often with format of the prompt changing from session to session.
+        plt.title(
+            recording.meta['basename'] + ': ' + recording.meta['prompt'].split()[0])
+
+        ax1.axes.xaxis.set_ticklabels([])
+        ax3 = plt.subplot2grid((4, 1), (3, 0))
+
+        audio = recording.modalities['MonoAudio']
+        #stimulus_onset = audio.meta['stimulus_onset']
+        wav = audio.data
+        wav_time = audio.timevector  # - stimulus_onset)
+
+        ult_pd = recording.modalities['PD on ThreeD_Ultrasound']
+        ultra_time = ult_pd.timevector  # - stimulus_onset
+
+        textgrid = recording.textgrid
+
+        plot_pd_3d(ax1, ult_pd.data['pd'], ultra_time, xlim,
+                   textgrid)  # , stimulus_onset)
+        plot_wav(ax3, wav, wav_time, xlim, textgrid)  # , stimulus_onset)
+
+        fig.align_ylabels()
+        pdf.savefig()  # saves the current figure into a pdf page
+        plt.close()
+        _plot_logger.info("Drew PD plot in " + str(filename) + ".")
+
+
 def draw_pd_ult_and_vid(recording, figure_dir, xlim=(-.05, 1.25)):
     filename = recording.meta['basename'] + '_pd_ult_and_vid.pdf'
     filename = figure_dir.joinpath(filename)
@@ -855,6 +938,20 @@ def CAW_2021_plots(recordings, figure_dir):
     for recording in recordings:
         if not recording.excluded:
             draw_pd_ult_and_vid(recording, figure_dir, xlim=(-.05, .85))
+
+
+def CAW_2021_3D_plots(recordings, figure_dir):
+    figure_dir = Path(figure_dir)
+    if not figure_dir.is_dir():
+        if figure_dir.exists():
+            _plot_logger.critical('Name conflict: ' + figure_dir +
+                                  ' exists and is not a directory.')
+        else:
+            figure_dir.mkdir()
+
+    for recording in recordings:
+        if not recording.excluded:
+            draw_pd_3d_ult(recording, figure_dir, xlim=(-.05, 2))
 
 
 def ISSP2020_plots(recordings, figure_dir):

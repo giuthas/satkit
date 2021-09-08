@@ -350,7 +350,7 @@ class RawAndVideoCLI(RawCLI):
 
 class Raw3D_CLI(RawCLI):
 
-    def __init__(self, description, processing_functions, plot=False):
+    def __init__(self, description, processing_functions, plot=True):
         super().__init__(description, processing_functions, plot=plot)
 
     def _readDataFromFiles(self):
@@ -374,3 +374,14 @@ class Raw3D_CLI(RawCLI):
          for recording in recordings if not recording.excluded]
 
         return recordings
+
+    def _plot(self):
+        """
+        Wrapper for plotting data.
+
+        Having this as a separate method allows subclasses to change 
+        arguments and plotting commands.
+        """
+        self.logger.info("Drawing CAW 2021 plots for 3D.")
+        pd_annd_plot.CAW_2021_3D_plots(
+            self.recordings, self.args.figure_dir)

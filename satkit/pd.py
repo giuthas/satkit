@@ -65,14 +65,18 @@ def addPD(recording,
     # Name of the new modality is constructed from the type names of
     # PD and the data modality.
     name = PD.__name__ + ' on ' + modality.__name__
-    if name in recording.modalities:
-        _pd_logger.info(
-            "Modality '" + name +
-            "' already exists in recording: " + recording.meta['basename'] + '.')
-    elif recording.excluded:
+    if recording.excluded:
         _pd_logger.info(
             "Recording " + recording.meta['basename']
             + " excluded from processing.")
+    elif name in recording.modalities:
+        _pd_logger.info(
+            "Modality '" + name +
+            "' already exists in recording: " + recording.meta['basename'] + '.')
+    elif not modality.__name__ in recording.modalities:
+        _pd_logger.info(
+            "Data modality '" + modality.__name__ +
+            "' not found in recording: " + recording.meta['basename'] + '.')
     else:
         dataModality = recording.modalities[modality.__name__]
 

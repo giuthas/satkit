@@ -30,10 +30,9 @@
 #
 
 # Built in packages
-from contextlib import closing
 import logging
-import os.path
 from pathlib import Path
+import sys
 
 # Efficient array operations
 import numpy as np
@@ -179,7 +178,7 @@ def plot_pd_3d(ax, pd, time, xlim, textgrid=None, stimulus_onset=0,
     if textgrid:
         segment_line = plot_textgrid_lines(ax, textgrid, stimulus_onset)
 
-#    ax.set_xlim(xlim)
+    ax.set_xlim(xlim)
 #    ax.set_ylim((-50, 3550))
     if segment_line:
         ax.legend((pd_curve, go_line, segment_line),
@@ -666,7 +665,7 @@ def draw_pd(recording, figure_dir, xlim=(-.05, 1.25)):
         _plot_logger.info("Drew PD plot in " + str(filename) + ".")
 
 
-def draw_pd_3d_ult(recording, figure_dir, xlim=(-.05, 1.25)):
+def draw_pd_3d_ult(recording, figure_dir, xlim=(-.05, 2.55)):
     filename = recording.meta['basename'] + '_pd_ult3D.pdf'
     filename = figure_dir.joinpath(filename)
 
@@ -684,6 +683,9 @@ def draw_pd_3d_ult(recording, figure_dir, xlim=(-.05, 1.25)):
 
         ax1.axes.xaxis.set_ticklabels([])
         ax3 = plt.subplot2grid((4, 1), (3, 0))
+
+        print(recording.meta)
+        print(recording.modalities['ThreeD_Ultrasound'].meta)
 
         audio = recording.modalities['MonoAudio']
         #stimulus_onset = audio.meta['stimulus_onset']
@@ -951,7 +953,7 @@ def CAW_2021_3D_plots(recordings, figure_dir):
 
     for recording in recordings:
         if not recording.excluded:
-            draw_pd_3d_ult(recording, figure_dir, xlim=(-.05, 2))
+            draw_pd_3d_ult(recording, figure_dir, xlim=(-.05, 2.55))
 
 
 def ISSP2020_plots(recordings, figure_dir):

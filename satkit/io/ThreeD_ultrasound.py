@@ -243,21 +243,21 @@ class ThreeD_Ultrasound(MatrixData):
 
         # Get the number of junk data points between each frame
         interval = (
-            len(ultra_sequence[0x200d, 0x300e].value)-frameSize*shape[3])
-        interval = int(interval/shape[3])
+            len(ultra_sequence[0x200d, 0x300e].value)-frameSize*numberOfFrames)
+        interval = int(interval/numberOfFrames)
 
         data = np.frombuffer(
             ultra_sequence[0x200d, 0x300e].value, dtype=np.uint8)
 
-        # would but no junk in beginning in pydicom
-        #data = data[32:]
-
-        data.shape = (frameSize+interval, numberOfFrames)
-        index = np.transpose(repmat(np.arange(frameSize), numberOfFrames, 1))
-
-        data = np.take_along_axis(data, index, axis=0)
+        data.shape = (numberOfFrames, frameSize+interval)
+        data = np.take(data, np.arange(frameSize)+32, axis=1)
+        shape.reverse()
         data.shape = shape
-        self._data = np.transpose(data)
+
+        self._data = data
+
+        # this should be unnecessary now
+        # self._data = np.transpose(data)
 
     @property
     def data(self):

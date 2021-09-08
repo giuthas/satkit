@@ -48,7 +48,7 @@ from numpy.random import rand
 # local modules
 from satkit import annd
 from satkit import pd
-from satkit.pd_annd_plot import plot_mpbpd, plot_pd, plot_l1, plot_wav
+from satkit.pd_annd_plot import plot_mpbpd, plot_pd, plot_l1, plot_pd_vid, plot_wav
 
 _annotator_logger = logging.getLogger('satkit.curveannotator')
 
@@ -361,10 +361,10 @@ class PD_MPBPD_Annotator(CurveAnnotator):
         self.categories = categories
 
         for token in self.recordings:
-            token['pdCategory'] = -1
-            token['splineCategory'] = -1
-            token['pdOnset'] = -1.0
-            token['splineOnset'] = -1.0
+            token.annotations['pdCategory'] = -1
+            token.annotations['splineCategory'] = -1
+            token.annotations['pdOnset'] = -1.0
+            token.annotations['splineOnset'] = -1.0
 
         #
         # Subplot grid shape
@@ -557,10 +557,10 @@ class l1_MPBPD_Annotator(CurveAnnotator):
         self.categories = categories
 
         for token in self.recordings:
-            token['l1Category'] = -1
-            token['splineCategory'] = -1
-            token['l1Onset'] = -1.0
-            token['splineOnset'] = -1.0
+            token.annotations['l1Category'] = -1
+            token.annotations['splineCategory'] = -1
+            token.annotations['l1Onset'] = -1.0
+            token.annotations['splineOnset'] = -1.0
 
         #
         # Subplot grid shape
@@ -723,5 +723,203 @@ class l1_MPBPD_Annotator(CurveAnnotator):
             self.current.annotations['l1Onset'] = event.pickx
         else:
             self.current.annotations['splineOnset'] = event.pickx
+
+        self.update()
+
+
+class PD_UTI_video_Annotator(CurveAnnotator):
+    """ 
+    Annotate PD on Ultrasound and Video.
+
+    The annotator works with PD on ultrasound and video. It allows 
+    selection of single points (labelled as [metric]Onset in the saved 
+    file) -- one per curve. The GUI also displays the waveform, and if 
+    TextGrids are provided, the acoustic segment boundaries.
+    """
+
+    def __init__(self, recordings, args, xlim=(-0.1, 1.0),
+                 figsize=(15, 8),
+                 categories=['Stable', 'Hesitation', 'Chaos', 'No data',
+                             'Not set']):
+        """ 
+        Constructor for the PD_UTI_VID_Annotator GUI. 
+
+        Also sets up internal state and adds keys [pd_uti_Category, splineCategory, 
+        pd_uti_Onset, pd_video_Onset] to the data argument. For the categories -1 is used
+        to mark 'not set', and for the onsets -1.0.
+        """
+        super().__init__(recordings, args, xlim, figsize)
+
+        self.categories = categories
+
+        for token in self.recordings:
+            token.annotations = {}
+            token.annotations['pd_uti_Category'] = -1
+            token.annotations['pd_video_Category'] = -1
+            token.annotations['pd_uti_Onset'] = -1.0
+            token.annotations['pd_video_Onset'] = -1.0
+
+        #
+        # Subplot grid shape
+        #
+        sbuplot_grid = (7, 7)
+
+        #
+        # Graphs to be annotated and the waveform for reference.
+        #
+        self.ax1 = plt.subplot2grid(sbuplot_grid, (0, 0), rowspan=3, colspan=6)
+        self.ax2 = plt.subplot2grid(sbuplot_grid, (3, 0), rowspan=3, colspan=6)
+        self.ax3 = plt.subplot2grid(sbuplot_grid, (6, 0), colspan=6)
+
+        self.draw_plots()
+
+        self.fig.align_ylabels()
+        self.fig.canvas.mpl_connect('pick_event', self.onpick)
+
+        #
+        # Buttons and such.
+        #
+        self.ax4 = plt.subplot2grid(sbuplot_grid, (0, 6), rowspan=2)
+        self.ax4.axes.set_axis_off()
+        self.pd_uti_CategoryRB = RadioButtons(
+            self.ax4, self.categories,
+            active=self.current.annotations['pd_uti_Category'])
+        self.pd_uti_CategoryRB.on_clicked(self.pdCatCB)
+
+        self.ax5 = plt.subplot2grid(sbuplot_grid, (3, 6), rowspan=2)
+        self.ax5.axes.set_axis_off()
+        self.pd_video_CategoryRB = RadioButtons(
+            self.ax5, self.categories,
+            active=self.current.annotations['pd_video_Category'])
+        self.pd_video_CategoryRB.on_clicked(self.splineCatCB)
+
+        self.axnext = plt.axes([0.85, 0.225, 0.1, 0.055])
+        self.bnext = Button(self.axnext, 'Next')
+        self.bnext.on_clicked(self.next)
+
+        self.axprev = plt.axes([0.85, 0.15, 0.1, 0.055])
+        self.bprev = Button(self.axprev, 'Previous')
+        self.bprev.on_clicked(self.prev)
+
+        self.axsave = plt.axes([0.85, 0.05, 0.1, 0.055])
+        self.bsave = Button(self.axsave, 'Save')
+        self.bsave.on_clicked(self.save)
+
+        plt.show()
+
+    def draw_plots(self):
+        """ 
+        Updates title and graphs. Called by self.update().
+        """
+        self.ax1.set_title(self._get_title())
+        self.ax1.axes.xaxis.set_ticklabels([])
+        self.ax2.axes.xaxis.set_ticklabels([])
+
+        audio = self.current.modalities['MonoAudio']
+        stimulus_onset = audio.meta['stimulus_onset']
+        wav = audio.data
+        wav_time = (audio.timevector - stimulus_onset)
+
+        pd = self.current.modalities['PD on RawUltrasound']
+        ultra_time = pd.timevector - stimulus_onset
+
+        annd = self.current.modalities['PD on LipVideo']
+        annd_time = annd.timevector - stimulus_onset
+
+        textgrid = self.current.textgrid
+
+        plot_pd(
+            self.ax1, pd.data['pd'],
+            ultra_time, self.xlim, textgrid, stimulus_onset,
+            picker=CurveAnnotator.line_xdirection_picker)
+        plot_pd_vid(
+            self.ax2, annd.data, annd_time, self.xlim, textgrid,
+            stimulus_onset, picker=CurveAnnotator.line_xdirection_picker)
+        plot_wav(self.ax3, wav, wav_time, self.xlim, textgrid, stimulus_onset)
+
+        if self.current.annotations['pd_uti_Onset'] > -1:
+            self.ax1.axvline(x=self.current.annotations['pd_uti_Onset'],
+                             linestyle=':', color="deepskyblue", lw=1)
+            self.ax2.axvline(x=self.current.annotations['pd_uti_Onset'],
+                             linestyle=':', color="deepskyblue", lw=1)
+            self.ax3.axvline(x=self.current.annotations['pd_uti_Onset'],
+                             linestyle=':', color="deepskyblue", lw=1)
+        if self.current.annotations['pd_video_Onset'] > -1:
+            self.ax1.axvline(x=self.current.annotations['pd_video_Onset'],
+                             linestyle='-.', color="seagreen", lw=1)
+            self.ax2.axvline(x=self.current.annotations['pd_video_Onset'],
+                             linestyle='-.', color="seagreen", lw=1)
+            self.ax3.axvline(x=self.current.annotations['pd_video_Onset'],
+                             linestyle='-.', color="seagreen", lw=1)
+
+    def clear_axis(self):
+        self.ax1.cla()
+        self.ax2.cla()
+        self.ax3.cla()
+
+    def updateUI(self):
+        """ 
+        Updates parts of the UI outwith the graphs.
+        """
+        self.pd_uti_CategoryRB.set_active(
+            self.current.annotations['pd_uti_Category'])
+        self.pd_video_CategoryRB.set_active(
+            self.current.annotations['pd_video_Category'])
+
+    def save(self, event):
+        """ 
+        Callback funtion for the Save button.
+        Currently overwrites what ever is at 
+        local_data/onsets.csv
+        """
+        # eventually get this from commandline/caller/dialog window
+        filename = 'local_data/PD_uti_and_video_onsets.csv'
+        fieldnames = ['pd_uti_Category', 'pd_video_Category',
+                      'pd_uti_Onset', 'pd_video_Onset']
+        csv.register_dialect('tabseparated', delimiter='\t',
+                             quoting=csv.QUOTE_NONE)
+
+        with closing(open(filename, 'w')) as csvfile:
+            writer = csv.DictWriter(csvfile, fieldnames, extrasaction='ignore',
+                                    dialect='tabseparated')
+
+            writer.writeheader()
+            for token in self.recordings:
+                writer.writerow(token)
+            print('Wrote onset data in file ' + filename + '.')
+            _annotator_logger.debug(
+                'Wrote onset data in file ' + filename + '.')
+
+    def pdCatCB(self, event):
+        """ 
+        Callback funtion for the RadioButton for catogorising 
+        the PD curve.
+        """
+        self.current.annotations['pd_uti_Category'] = self.categories.index(
+            event)
+
+    def splineCatCB(self, event):
+        """ 
+        Callback funtion for the RadioButton for catogorising 
+        the curve of the spline metric.
+        """
+        self.current.annotations['pd_video_Category'] = self.categories.index(
+            event)
+
+    def onpick(self, event):
+        """
+        Callback for handling time selection on events.
+        """
+        subplot = 0
+        for i, ax in enumerate([self.ax1, self.ax2]):
+            # For infomation, print which axes the click was in
+            if ax == event.inaxes:
+                subplot = i+1
+                break
+
+        if subplot == 1:
+            self.current.annotations['pd_uti_Onset'] = event.pickx
+        else:
+            self.current.annotations['pd_video_Onset'] = event.pickx
 
         self.update()

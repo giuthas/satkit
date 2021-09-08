@@ -255,12 +255,12 @@ class PD_Annotator(CurveAnnotator):
         self.ax1.set_title(self._get_title())
         self.ax1.axes.xaxis.set_ticklabels([])
 
-        audio = self.current.modalities['AAA_audio']
+        audio = self.current.modalities['MonoAudio']
         stimulus_onset = audio.meta['stimulus_onset']
         wav = audio.data
         wav_time = (audio.timevector - stimulus_onset)
 
-        pd = self.current.modalities['ultrasound PD']
+        pd = self.current.modalities['PD on RawUltrasound']
         ultra_time = pd.timevector - stimulus_onset
 
         textgrid = self.current.textgrid
@@ -422,12 +422,12 @@ class PD_MPBPD_Annotator(CurveAnnotator):
         self.ax1.axes.xaxis.set_ticklabels([])
         self.ax2.axes.xaxis.set_ticklabels([])
 
-        audio = self.current.modalities['AAA_audio']
+        audio = self.current.modalities['MonoAudio']
         stimulus_onset = audio.meta['stimulus_onset']
         wav = audio.data
         wav_time = (audio.timevector - stimulus_onset)
 
-        pd = self.current.modalities['ultrasound PD']
+        pd = self.current.modalities['PD on RawUltrasound']
         ultra_time = pd.timevector - stimulus_onset
 
         annd = self.current.modalities['annd']
@@ -618,12 +618,12 @@ class l1_MPBPD_Annotator(CurveAnnotator):
         self.ax1.axes.xaxis.set_ticklabels([])
         self.ax2.axes.xaxis.set_ticklabels([])
 
-        audio = self.current.modalities['AAA_audio']
+        audio = self.current.modalities['MonoAudio']
         stimulus_onset = audio.meta['stimulus_onset']
         wav = audio.data
         wav_time = (audio.timevector - stimulus_onset)
 
-        pd = self.current.modalities['ultrasound PD']
+        pd = self.current.modalities['PD on RawUltrasound']
         ultra_time = pd.timevector - stimulus_onset
 
         annd = self.current.modalities['annd']

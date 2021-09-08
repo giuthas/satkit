@@ -31,11 +31,8 @@
 
 # Built in packages
 from datetime import datetime
-import glob
 import logging
-import os
-import os.path
-from pathlib import Path, PureWindowsPath
+from pathlib import PureWindowsPath
 import warnings
 import sys
 
@@ -69,10 +66,10 @@ def generateRecordingList(directory):
 
     The processed files are
     ultrasound and corresponding meta: .DCM, and
-    audio waveform: .DAT.
+    audio waveform: .dat or .wav.
 
     Additionally this will be added, but missing files are considered
-    non-fatal
+    non-fatal:
     TextGrid: .textgrid.
 
     Positional argument:
@@ -81,36 +78,58 @@ def generateRecordingList(directory):
         of recording.
     """
 
-    dicom_dir = directory / "DCM"
+    dicom_dir = directory / "DICOM"
     note_dir = directory / "NOTES"
-    # dat_dir = directory / "DAT"
+    directories = {
+        'root_dir': directory,
+        'dicom_dir': dicom_dir,
+        'note_dir': note_dir,
+    }
 
     dicom_files = sorted(dicom_dir.glob('*.DCM'))
-    mat_file = note_dir.glob('*.mat')[0]
-    # dat_files = sorted(dat_dir.glob('*.dat'))
+    mat_file = list(note_dir.glob('*.mat'))[0]
 
     # strip file extensions off of filepaths to get the base names
-    basenames = [filepath.name for filepath in dicom_files]
-
-    recordings = [
-        generateUltrasoundRecording(basename, directory)
-        for basename in basenames
-    ]
-
-    # This replaces the commented section that came from ThreeD_UltrasoundRecording
+    dicom_basenames = [filepath.name for filepath in dicom_files]
     meta = ThreeD_UltrasoundRecording.readMetaFromMat(mat_file)
-    [recording.addMeta(meta) for recording in recordings]
+
+    # Create a lookup table for matching sound and dicom.
+    # First file names with their ordinal numbers.
+    dicom_names_numbers = [[name, name.split('_')[1]]
+                           for name in dicom_basenames]
+    # Then a dict mapping number strings to filenames.
+    dicom_dict = {
+        name_number[1].split('.')[0]: name_number[0]
+        for name_number in dicom_names_numbers
+    }
+
+    recordings = []
+    for token in meta:
+        if token['trial_number'] in dicom_dict:
+            print(dicom_dict[token['trial_number']])
+            recording = generateUltrasoundRecording(
+                dicom_dict[token['trial_number']],
+                token['dat_filename'],
+                directories)
+            recording.addMeta(token)
+            recordings.append(recording)
+        else:
+            _3D4D_ultra_logger.info(
+                'No DICOM file corresponding to number ' +
+                token['trial_number'] + ' found in ' + directory + '.')
 
     return sorted(recordings, key=lambda token: token.meta['date'])
 
 
-def generateUltrasoundRecording(basename, directory=None):
+def generateUltrasoundRecording(dicom_name, sound_name, directories=None):
     """
     Generate an UltrasoundRecording without Modalities.
 
     Arguments:
-    basename -- name of the files to be read without type extensions but
-        with path.
+    dicom_name -- name of the DICOM files to be read without type 
+        extensions but with path.
+    sound_name -- name of the sound files (.dat and .wav) to be read 
+        without type extensions but with path.
 
     KeywordArguments:
     directory -- path to files
@@ -118,19 +137,21 @@ def generateUltrasoundRecording(basename, directory=None):
     Returns an AAA_UltrasoundRecording without any modalities.
     """
 
-    _3D4D_ultra_logger.info("Building Recording object for "
-                            + basename + " in " + directory + ".")
+    _3D4D_ultra_logger.info(
+        "Building Recording object for " + dicom_name + " in " +
+        directories['root_dir'] + ".")
 
     recording = ThreeD_UltrasoundRecording(
-        path=directory,
-        basename=basename
+        paths=directories,
+        basename=dicom_name,
+        sound_name=sound_name
     )
 
     # If we aren't going to process this recording,
     # don't bother with the rest.
     if recording.excluded:
         _3D4D_ultra_logger.info(
-            "Recording " + basename + " automatically excluded.")
+            "Recording " + dicom_name + " automatically excluded.")
 
     return recording
 
@@ -270,7 +291,7 @@ class ThreeD_UltrasoundRecording(Recording):
         'trial_number',
         'prompt',
         'date_and_time',
-        'dat_file_name'
+        'dat_filename'
     ]
 
     @staticmethod
@@ -287,7 +308,7 @@ class ThreeD_UltrasoundRecording(Recording):
             'prompt': prompt displayed to the participant,
             'date_and_time': a datetime object of the time recording 
                 started, and
-            'dat_file_name': string representing the name of the .dat 
+            'dat_filename': string representing the name of the .dat 
                 sound file.
         """
         mat = scipy.io.loadmat(str(mat_file), squeeze_me=True)
@@ -315,13 +336,14 @@ class ThreeD_UltrasoundRecording(Recording):
                     'trial_number': element[0],
                     'prompt': element[1],
                     'date_and_time': date_and_time,
-                    'dat_file_name': PureWindowsPath(file_path).name
+                    'dat_filename': PureWindowsPath(file_path).name
                 }
                 meta.append(meta_token)
         return meta
 
-    def __init__(self, path=None, basename="", requireVideo=False):
-        super().__init__(path=path, basename=basename)
+    def __init__(self, paths=None, basename="", sound_name="",
+                 requireVideo=False):
+        super().__init__(path=paths['root_dir'], basename=basename)
 
         if basename == None:
             _3D4D_ultra_logger.critical(
@@ -334,35 +356,42 @@ class ThreeD_UltrasoundRecording(Recording):
             "Initialising a new 3D ultrasound recording with filename " +
             basename + ".")
 
-        # Candidates for filenames. Existence tested below.
-        ult_wav_file = os.path.join(path, basename + ".wav")
-        ult_file = os.path.join(path, basename + ".DCM")
-        video_file = os.path.join(path, basename + ".avi")
+        self._paths = paths
+        self._paths['wav_dir'] = paths['root_dir'] / 'WAV'
+        self._paths['avi_dir'] = paths['root_dir'] / 'AVI'
 
-        # check if assumed files exist, and arrange to skip them if any do not
-        if os.path.isfile(ult_wav_file):
-            self.meta['ult_wav_file'] = ult_wav_file
+        # Candidates for filenames. Existence tested below.
+        ult_wav_file = self._paths['wav_dir'].joinpath(sound_name + ".wav")
+        ult_file = self._paths['dicom_dir'].jointpath(basename + ".DCM")
+        video_file = self._paths['avi_dir'].joinpath(basename + ".avi")
+
+        # Before 1.0: change the stored format to be a pathlib Path rather than
+        # string.
+        # check if assumed files exist, and arrange to skip them
+        # if any do not
+        if ult_wav_file.isfile():
+            self.meta['ult_wav_file'] = str(ult_wav_file)
             self.meta['ult_wav_exists'] = True
         else:
-            notice = 'Note: ' + ult_wav_file + " does not exist."
+            notice = 'Note: ' + str(ult_wav_file) + " does not exist."
             _3D4D_ultra_logger.warning(notice)
             self.meta['ult_wav_exists'] = False
             self.excluded = True
 
-        if os.path.isfile(ult_file):
-            self.meta['ult_file'] = ult_file
+        if ult_file.isfile():
+            self.meta['ult_file'] = str(ult_file)
             self.meta['ult_exists'] = True
         else:
-            notice = 'Note: ' + ult_file + " does not exist."
+            notice = 'Note: ' + str(ult_file) + " does not exist."
             _3D4D_ultra_logger.warning(notice)
             self.meta['ult_exists'] = False
             self.excluded = True
 
-        if os.path.isfile(video_file):
-            self.meta['video_file'] = video_file
+        if video_file.isfile():
+            self.meta['video_file'] = str(video_file)
             self.meta['video_exists'] = True
         else:
-            notice = 'Note: ' + video_file + " does not exist."
+            notice = 'Note: ' + str(video_file) + " does not exist."
             _3D4D_ultra_logger.warning(notice)
             self.meta['video_exists'] = False
             if requireVideo:

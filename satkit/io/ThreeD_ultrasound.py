@@ -257,9 +257,7 @@ class ThreeD_Ultrasound(MatrixData):
 
         data = np.take_along_axis(data, index, axis=0)
         data.shape = shape
-        print(shape)
         self._data = np.transpose(data)
-        print(self._data.shape)
 
     @property
     def data(self):

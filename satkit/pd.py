@@ -176,20 +176,18 @@ class PD(DerivedModality):
             timestep = self._timesteps[0]
 
             # Flatten the data into a vector at each timestamp.
-            old_shape = data.shape
-            new_shape = (old_shape[0], np.prod(old_shape[1:]))
-            data.shape = new_shape
+            #old_shape = data.shape
+            #new_shape = (old_shape[0], np.prod(old_shape[1:]))
+            #data.shape = new_shape
 
             # Calculate differences and reshape the result to matrices.
-            raw_diff = np.subtract(
-                data[: -timestep, :],
-                data[timestep:, :])
-            diff_shape = old_shape
-            diff_shape[0] = [old_shape[0]-timestep]
-            raw_diff.shape = tuple(diff_shape)
+            raw_diff = np.subtract(data[: -timestep], data[timestep:])
+            # diff_shape = list(raw_diff.shape)
+            # diff_shape[0] = [diff_shape[0]-timestep]
+            # raw_diff.shape = tuple(diff_shape)
 
             # After using data, restore the shape.
-            data.shape = old_shape
+            #data.shape = old_shape
 
             if timestep % 2 == 1:
                 self.timevector = (
@@ -207,12 +205,12 @@ class PD(DerivedModality):
             self.timevector = (self.dataModality.timevector[:-1]
                                + .5/self.dataModality.meta['FramesPerSec'])
 
-        # Use this if we want to collapse e.g. rgb data without producing a 
+        # Use this if we want to collapse e.g. rgb data without producing a
         # PD contour for each colour or channel.
         if raw_diff.ndim > 2:
             old_shape = raw_diff.shape
             new_shape = (old_shape[0], old_shape[1], np.prod(old_shape[2:]))
-            raw_diff.shape = new_shape
+            raw_diff = raw_diff.reshape(new_shape)
 
         abs_diff = np.abs(raw_diff)
         square_diff = np.square(raw_diff)

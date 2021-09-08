@@ -116,9 +116,9 @@ def generateRecordingList(directory):
         else:
             _3D4D_ultra_logger.info(
                 'No DICOM file corresponding to number ' +
-                token['trial_number'] + ' found in ' + directory + '.')
+                token['trial_number'] + ' found in ' + str(directory) + '.')
 
-    return sorted(recordings, key=lambda token: token.meta['date'])
+    return sorted(recordings, key=lambda token: token.meta['date_and_time'])
 
 
 def generateUltrasoundRecording(dicom_name, sound_name, directories=None):
@@ -138,8 +138,8 @@ def generateUltrasoundRecording(dicom_name, sound_name, directories=None):
     """
 
     _3D4D_ultra_logger.info(
-        "Building Recording object for " + dicom_name + " in " +
-        directories['root_dir'] + ".")
+        "Building Recording object for " + str(dicom_name) + " in " +
+        str(directories['root_dir']) + ".")
 
     recording = ThreeD_UltrasoundRecording(
         paths=directories,
@@ -151,7 +151,7 @@ def generateUltrasoundRecording(dicom_name, sound_name, directories=None):
     # don't bother with the rest.
     if recording.excluded:
         _3D4D_ultra_logger.info(
-            "Recording " + dicom_name + " automatically excluded.")
+            "Recording " + str(dicom_name) + " automatically excluded.")
 
     return recording
 
@@ -188,7 +188,7 @@ class ThreeD_Ultrasound(MatrixData):
         # There are other options, but we don't deal with them just yet.
         # Before 1.0: fix the above. see loadPhillipsDCM.m on how.
         if len(ds.SequenceOfUltrasoundRegions) == 3:
-            type = ds[0x200d, 0x3016][1][0x200d, 0x300d].valuex
+            type = ds[0x200d, 0x3016][1][0x200d, 0x300d].value
             if type == 'UDM_USD_DATATYPE_DIN_3D_ECHO':
                 self._read_3D_ultra(ds)
             else:
@@ -362,14 +362,15 @@ class ThreeD_UltrasoundRecording(Recording):
 
         # Candidates for filenames. Existence tested below.
         ult_wav_file = self._paths['wav_dir'].joinpath(sound_name + ".wav")
-        ult_file = self._paths['dicom_dir'].jointpath(basename + ".DCM")
-        video_file = self._paths['avi_dir'].joinpath(basename + ".avi")
+        ult_file = self._paths['dicom_dir'].joinpath(basename)
+        video_file = self._paths['avi_dir'].joinpath(basename)
+        video_file = video_file.with_suffix(".avi")
 
         # Before 1.0: change the stored format to be a pathlib Path rather than
         # string.
         # check if assumed files exist, and arrange to skip them
         # if any do not
-        if ult_wav_file.isfile():
+        if ult_wav_file.is_file():
             self.meta['ult_wav_file'] = str(ult_wav_file)
             self.meta['ult_wav_exists'] = True
         else:
@@ -378,7 +379,7 @@ class ThreeD_UltrasoundRecording(Recording):
             self.meta['ult_wav_exists'] = False
             self.excluded = True
 
-        if ult_file.isfile():
+        if ult_file.is_file():
             self.meta['ult_file'] = str(ult_file)
             self.meta['ult_exists'] = True
         else:
@@ -387,7 +388,7 @@ class ThreeD_UltrasoundRecording(Recording):
             self.meta['ult_exists'] = False
             self.excluded = True
 
-        if video_file.isfile():
+        if video_file.is_file():
             self.meta['video_file'] = str(video_file)
             self.meta['video_exists'] = True
         else:

@@ -34,6 +34,7 @@ import datetime
 import logging
 import os
 import os.path
+from pathlib import Path
 import sys
 import warnings
 
@@ -364,7 +365,7 @@ class Raw3D_CLI(RawCLI):
         instance variable is left for the caller to handle. 
         """
         recordings = ThreeD_ultrasound.generateRecordingList(
-            self.args.load_path)
+            Path(self.args.load_path))
 
         satkit_io.setExclusionsFromFile(
             self.args.exclusion_filename, recordings)

@@ -104,7 +104,7 @@ def plot_textgrid_lines(ax, textgrid, stimulus_onset=0, draw_text=True):
 
 
 def plot_pd(ax, pd, time, xlim, textgrid=None, stimulus_onset=0,
-            picker=None):
+            picker=None, color="deepskyblue"):
     """
     Plot a Recordings PD timeseries.
 
@@ -125,8 +125,8 @@ def plot_pd(ax, pd, time, xlim, textgrid=None, stimulus_onset=0,
     """
 
     # The PD curve and the official fix for it not showing up on the legend.
-    ax.plot(time, pd, color="deepskyblue", lw=1, picker=picker)
-    pd_curve = mlines.Line2D([], [], color="deepskyblue", lw=1)
+    ax.plot(time, pd, color=color, lw=1, picker=picker)
+    pd_curve = mlines.Line2D([], [], color=color, lw=1)
 
     go_line = ax.axvline(x=0, color="dimgrey", lw=1, linestyle=(0, (5, 10)))
 
@@ -148,7 +148,7 @@ def plot_pd(ax, pd, time, xlim, textgrid=None, stimulus_onset=0,
 
 
 def plot_pd_3d(ax, pd, time, xlim, textgrid=None, stimulus_onset=0,
-               picker=None):
+               picker=None, color="deepskyblue"):
     """
     Plot a Recordings PD timeseries.
 
@@ -169,8 +169,8 @@ def plot_pd_3d(ax, pd, time, xlim, textgrid=None, stimulus_onset=0,
     """
 
     # The PD curve and the official fix for it not showing up on the legend.
-    ax.plot(time, pd, color="deepskyblue", lw=1, picker=picker)
-    pd_curve = mlines.Line2D([], [], color="deepskyblue", lw=1)
+    ax.plot(time, pd, color=color, lw=1, picker=picker)
+    pd_curve = mlines.Line2D([], [], color=color, lw=1)
 
     go_line = ax.axvline(x=0, color="dimgrey", lw=1, linestyle=(0, (5, 10)))
 
@@ -192,7 +192,7 @@ def plot_pd_3d(ax, pd, time, xlim, textgrid=None, stimulus_onset=0,
 
 
 def plot_pd_vid(ax, pd, time, xlim, textgrid=None, stimulus_onset=0,
-                picker=None, draw_legend=False):
+                picker=None, draw_legend=False, color="deepskyblue"):
     """
     Plot a Recordings PD timeseries.
 
@@ -213,13 +213,13 @@ def plot_pd_vid(ax, pd, time, xlim, textgrid=None, stimulus_onset=0,
     """
 
     # The PD curve and the official fix for it not showing up on the legend.
-    ax.plot(time, pd, color="deepskyblue", lw=1, picker=picker)
-    ax.plot(time[1::2], pd[1::2], color="deepskyblue",
+    ax.plot(time, pd, color=color, lw=1, picker=picker)
+    ax.plot(time[1::2], pd[1::2], color=color,
             lw=1, linestyle=':')
-    ax.plot(time[0::2], pd[0::2], color="deepskyblue",
+    ax.plot(time[0::2], pd[0::2], color=color,
             lw=1, linestyle=':')
-    # ax.plot(time, pd, color="deepskyblue", lw=1, picker=picker)
-    pd_curve = mlines.Line2D([], [], color="deepskyblue", lw=1)
+    # ax.plot(time, pd, color=color, lw=1, picker=picker)
+    pd_curve = mlines.Line2D([], [], color=color, lw=1)
 
     go_line = ax.axvline(x=0, color="dimgrey", lw=1, linestyle=(0, (5, 10)))
 
@@ -269,21 +269,21 @@ def plot_pd_vid_rgb(ax, pd, time, xlim, textgrid=None, stimulus_onset=0,
     # The PD curve and the official fix for it not showing up on the legend.
     ax.plot(time, pd[:, 0], color="r", lw=1, picker=picker)
     ax.plot(time[1::2], pd[1::2, 0], color="r",
-            lw=1, picker=picker, linestyle='--')
+            lw=1, linestyle='--')
     ax.plot(time[0::2], pd[0::2, 0], color="r",
-            lw=1, picker=picker, linestyle='--')
+            lw=1, linestyle='--')
 
     ax.plot(time, pd[:, 1], color="g", lw=1, picker=picker)
     ax.plot(time[1::2], pd[1::2, 1], color="g",
-            lw=1, picker=picker, linestyle='--')
+            lw=1, linestyle='--')
     ax.plot(time[0::2], pd[0::2, 1], color="g",
-            lw=1, picker=picker, linestyle='--')
+            lw=1, linestyle='--')
 
     ax.plot(time, pd[:, 2]-650, color="deepskyblue", lw=1, picker=picker)
     ax.plot(time[1::2], pd[1::2, 2]-650, color="deepskyblue",
-            lw=1, picker=picker, linestyle='--')
+            lw=1, linestyle='--')
     ax.plot(time[0::2], pd[0::2, 2]-650, color="deepskyblue",
-            lw=1, picker=picker, linestyle='--')
+            lw=1, linestyle='--')
     # ax.plot(time, pd, color="deepskyblue", lw=1, picker=picker)
     pd_curve = mlines.Line2D([], [], color="deepskyblue", lw=1)
 

@@ -855,6 +855,22 @@ class PD_UTI_video_Annotator(CurveAnnotator):
             self.ax3.axvline(x=self.current.annotations['pd_video_Onset'],
                              linestyle='-.', color=pd_video_color, lw=1)
 
+    def draw_current_annotations(self, annotation_colors):
+        for annotation in annotation_colors:
+            if self.current.annotations[annotation] > -1:
+                self.ax1.axvline(
+                    x=self.current.annotations[annotation],
+                    linestyle=':', color=annotation_colors[annotation],
+                    lw=1)
+                self.ax2.axvline(
+                    x=self.current.annotations[annotation],
+                    linestyle=':', color=annotation_colors[annotation],
+                    lw=1)
+                self.ax3.axvline(
+                    x=self.current.annotations[annotation],
+                    linestyle=':', color=annotation_colors[annotation],
+                    lw=1)
+
     def clear_axis(self):
         self.ax1.cla()
         self.ax2.cla()
@@ -877,8 +893,8 @@ class PD_UTI_video_Annotator(CurveAnnotator):
         """
         # eventually get this from commandline/caller/dialog window
         filename = 'local_data/PD_uti_and_video_onsets.csv'
-        fieldnames = ['pd_uti_Category', 'pd_video_Category',
-                      'pd_uti_Onset', 'pd_video_Onset']
+        fieldnames = ['basename', 'date_and_time', 'prompt', 'pd_uti_Category',
+                      'pd_video_Category', 'pd_uti_Onset', 'pd_video_Onset']
         csv.register_dialect('tabseparated', delimiter='\t',
                              quoting=csv.QUOTE_NONE)
 
@@ -887,8 +903,12 @@ class PD_UTI_video_Annotator(CurveAnnotator):
                                     dialect='tabseparated')
 
             writer.writeheader()
-            for token in self.recordings:
-                writer.writerow(token.annotations)
+            for recording in self.recordings:
+                annotations = recording.annotations.copy()
+                annotations['basename'] = recording.meta['basename']
+                annotations['data_and_time'] = recording.meta['data_and_time']
+                annotations['prompt'] = recording.meta['prompt']
+                writer.writerow(annotations)
             print('Wrote onset data in file ' + filename + '.')
             _annotator_logger.debug(
                 'Wrote onset data in file ' + filename + '.')

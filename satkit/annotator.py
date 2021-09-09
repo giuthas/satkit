@@ -820,20 +820,20 @@ class PD_UTI_video_Annotator(CurveAnnotator):
         wav = audio.data
         wav_time = (audio.timevector - stimulus_onset)
 
-        pd = self.current.modalities['PD on RawUltrasound']
-        ultra_time = pd.timevector - stimulus_onset
+        pd_uti = self.current.modalities['PD on RawUltrasound']
+        ultra_time = pd_uti.timevector - stimulus_onset
 
-        annd = self.current.modalities['PD on LipVideo']
-        annd_time = annd.timevector - stimulus_onset
+        pd_video = self.current.modalities['PD on LipVideo']
+        video_time = pd_video.timevector - stimulus_onset
 
         textgrid = self.current.textgrid
 
         plot_pd(
-            self.ax1, pd.data['pd'],
+            self.ax1, pd_uti.data['pd'],
             ultra_time, self.xlim, textgrid, stimulus_onset,
             picker=CurveAnnotator.line_xdirection_picker)
         plot_pd_vid(
-            self.ax2, annd.data, annd_time, self.xlim, textgrid,
+            self.ax2, pd_video.data['pd'], video_time, self.xlim, textgrid,
             stimulus_onset, picker=CurveAnnotator.line_xdirection_picker)
         plot_wav(self.ax3, wav, wav_time, self.xlim, textgrid, stimulus_onset)
 
@@ -885,7 +885,7 @@ class PD_UTI_video_Annotator(CurveAnnotator):
 
             writer.writeheader()
             for token in self.recordings:
-                writer.writerow(token)
+                writer.writerow(token.annotations)
             print('Wrote onset data in file ' + filename + '.')
             _annotator_logger.debug(
                 'Wrote onset data in file ' + filename + '.')

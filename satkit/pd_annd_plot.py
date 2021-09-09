@@ -215,9 +215,9 @@ def plot_pd_vid(ax, pd, time, xlim, textgrid=None, stimulus_onset=0,
     # The PD curve and the official fix for it not showing up on the legend.
     ax.plot(time, pd, color="deepskyblue", lw=1, picker=picker)
     ax.plot(time[1::2], pd[1::2], color="deepskyblue",
-            lw=1, picker=picker, linestyle=':')
+            lw=1, linestyle=':')
     ax.plot(time[0::2], pd[0::2], color="deepskyblue",
-            lw=1, picker=picker, linestyle=':')
+            lw=1, linestyle=':')
     # ax.plot(time, pd, color="deepskyblue", lw=1, picker=picker)
     pd_curve = mlines.Line2D([], [], color="deepskyblue", lw=1)
 

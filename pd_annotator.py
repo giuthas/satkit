@@ -36,7 +36,6 @@ import logging
 from satkit.commandLineInterface import RawCLI
 from satkit.annotator import PD_Annotator
 from satkit.recording import RawUltrasound
-from satkit.io.AAA_video import LipVideo
 from satkit import pd
 
 

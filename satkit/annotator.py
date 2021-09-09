@@ -822,35 +822,38 @@ class PD_UTI_video_Annotator(CurveAnnotator):
 
         pd_uti = self.current.modalities['PD on RawUltrasound']
         ultra_time = pd_uti.timevector - stimulus_onset
+        pd_uti_color = "deepskyblue"
 
         pd_video = self.current.modalities['PD on LipVideo']
         video_time = pd_video.timevector - stimulus_onset
+        pd_video_color = "seagreen"
 
         textgrid = self.current.textgrid
 
         plot_pd(
             self.ax1, pd_uti.data['pd'],
             ultra_time, self.xlim, textgrid, stimulus_onset,
-            picker=CurveAnnotator.line_xdirection_picker)
+            picker=CurveAnnotator.line_xdirection_picker, color=pd_uti_color)
         plot_pd_vid(
-            self.ax2, pd_video.data['pd'], video_time, self.xlim, textgrid,
-            stimulus_onset, picker=CurveAnnotator.line_xdirection_picker)
+            self.ax2, pd_video.data['pd'],
+            video_time, self.xlim, textgrid, stimulus_onset,
+            picker=CurveAnnotator.line_xdirection_picker, color=pd_video_color)
         plot_wav(self.ax3, wav, wav_time, self.xlim, textgrid, stimulus_onset)
 
         if self.current.annotations['pd_uti_Onset'] > -1:
             self.ax1.axvline(x=self.current.annotations['pd_uti_Onset'],
-                             linestyle=':', color="deepskyblue", lw=1)
+                             linestyle=':', color=pd_uti_color, lw=1)
             self.ax2.axvline(x=self.current.annotations['pd_uti_Onset'],
-                             linestyle=':', color="deepskyblue", lw=1)
+                             linestyle=':', color=pd_uti_color, lw=1)
             self.ax3.axvline(x=self.current.annotations['pd_uti_Onset'],
-                             linestyle=':', color="deepskyblue", lw=1)
+                             linestyle=':', color=pd_uti_color, lw=1)
         if self.current.annotations['pd_video_Onset'] > -1:
             self.ax1.axvline(x=self.current.annotations['pd_video_Onset'],
-                             linestyle='-.', color="seagreen", lw=1)
+                             linestyle='-.', color=pd_video_color, lw=1)
             self.ax2.axvline(x=self.current.annotations['pd_video_Onset'],
-                             linestyle='-.', color="seagreen", lw=1)
+                             linestyle='-.', color=pd_video_color, lw=1)
             self.ax3.axvline(x=self.current.annotations['pd_video_Onset'],
-                             linestyle='-.', color="seagreen", lw=1)
+                             linestyle='-.', color=pd_video_color, lw=1)
 
     def clear_axis(self):
         self.ax1.cla()

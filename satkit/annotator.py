@@ -906,8 +906,9 @@ class PD_UTI_video_Annotator(CurveAnnotator):
             for recording in self.recordings:
                 annotations = recording.annotations.copy()
                 annotations['basename'] = recording.meta['basename']
-                annotations['data_and_time'] = recording.meta['data_and_time']
+                annotations['date_and_time'] = recording.meta['date']
                 annotations['prompt'] = recording.meta['prompt']
+                annotations['C1'] = recording.meta['prompt'][0]
                 writer.writerow(annotations)
             print('Wrote onset data in file ' + filename + '.')
             _annotator_logger.debug(

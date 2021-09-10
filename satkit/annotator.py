@@ -48,7 +48,7 @@ from numpy.random import rand
 # local modules
 from satkit import annd
 from satkit import pd
-from satkit.pd_annd_plot import plot_mpbpd, plot_pd, plot_pd_3d, plot_pd_vid, plot_wav
+from satkit.pd_annd_plot import plot_mpbpd, plot_pd, plot_pd_3d, plot_pd_vid, plot_wav, plot_wav_3D_ultra
 
 _annotator_logger = logging.getLogger('satkit.curveannotator')
 
@@ -431,7 +431,8 @@ class PD_3D_end_Annotator(PD_Annotator):
             self.ax1, pd.data['pd'],
             ultra_time, self.xlim, textgrid, stimulus_onset,
             picker=CurveAnnotator.line_xdirection_picker)
-        plot_wav(self.ax3, wav, wav_time, self.xlim, textgrid, stimulus_onset)
+        plot_wav_3D_ultra(self.ax3, wav, wav_time, self.xlim,
+                          textgrid, stimulus_onset)
 
         if self.current.annotations['pdOffset'] > -1:
             self.ax1.axvline(x=self.current.annotations['pdOffset'],
@@ -447,8 +448,10 @@ class PD_3D_end_Annotator(PD_Annotator):
         """
         # eventually get this from commandline/caller/dialog window
         filename = 'local_data/PD_3D_offsets.csv'
-        fieldnames = ['basename', 'sound_name' 'date_and_time',
-                      'prompt', 'C1', 'word_dur', 'pdCategory', 'pdOffset']
+        fieldnames = [
+            'basename', 'sound_name'
+            'date_and_time', 'prompt', 'C1', 'pdCategory', 'pdOffset',
+            'word_dur', 'final_dur']
         csv.register_dialect('tabseparated', delimiter='\t',
                              quoting=csv.QUOTE_NONE)
 
@@ -464,6 +467,7 @@ class PD_3D_end_Annotator(PD_Annotator):
                 annotations['prompt'] = recording.meta['prompt']
 
                 word_dur = -1.0
+                sound_end = -1.0
                 for interval in recording.textgrid['word']:
                     if interval.text == "":
                         continue
@@ -472,7 +476,13 @@ class PD_3D_end_Annotator(PD_Annotator):
                         # more intelligent by selecting purposefully the last non-empty first and
                         # taking the duration?
                         word_dur = interval.xmax - interval.xmin
+                        sound_end = interval.xmax
                 annotations['word_dur'] = word_dur
+                if sound_end < 0:
+                    final_dur = -1.0
+                else:
+                    final_dur = annotations['pdOffset'] - sound_end
+                annotations['final_dur'] = final_dur
 
                 annotations['C1'] = recording.meta['prompt'][0]
                 writer.writerow(annotations)

@@ -33,6 +33,7 @@
 import logging
 from pathlib import Path
 import sys
+import warnings
 
 # Efficient array operations
 import numpy as np
@@ -130,16 +131,22 @@ def plot_textgrid_lines_3D_ultra(
     for segment in textgrid['word']:
         if segment.text == "":
             continue
-        elif segment.text == "beep":
-            continue
         else:
+            _plot_logger.debug("drawing lower word limit at " +
+                               str(segment.xmin - stimulus_onset))
+            if stimulus_onset != 0:
+                _plot_logger.critical(
+                    "Stimulus onset is " + str(stimulus_onset))
+                _plot_logger.critical(
+                    "which is presumably wrong in 3D ultrasound. Resetting to 0.")
+                stimulus_onset = 0
             segment_line = ax.axvline(
                 x=segment.xmin - stimulus_onset, color="dimgrey", lw=1,
                 linestyle='--')
             ax.axvline(x=segment.xmax - stimulus_onset,
                        color="dimgrey", lw=1, linestyle='--')
             if draw_text:
-                ax.text(segment.mid - stimulus_onset, 500, segment.text,
+                ax.text(segment.mid - stimulus_onset, 8000, segment.text,
                         text_settings, color="dimgrey")
     return segment_line
 
@@ -680,7 +687,7 @@ def plot_wav_3D_ultra(
     segment_line = None
     if textgrid:
         segment_line = plot_textgrid_lines_3D_ultra(
-            ax, textgrid, time_offset, draw_text=False)
+            ax, textgrid, stimulus_onset=0, draw_text=False)
 
     if draw_legend:
         wave_curve = mlines.Line2D([], [], color="k", lw=1)

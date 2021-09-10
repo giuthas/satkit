@@ -84,6 +84,8 @@ class Recording():
             self.meta['textgrid_exists'] = True
             try:
                 self.textgrid = textgrids.TextGrid(self.meta['textgrid'])
+                _recording_logger.info("Read textgrid in "
+                                       + self.meta['textgrid'] + ".")
             except Exception as e:
                 _recording_logger.critical("Could not read textgrid in "
                                            + self.meta['textgrid'] + ".")

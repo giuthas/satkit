@@ -360,6 +360,7 @@ class ThreeD_UltrasoundRecording(Recording):
 
         # Candidates for filenames. Existence tested below.
         ult_wav_file = self._paths['wav_dir'].joinpath(sound_name + ".wav")
+        textgrid = self._paths['wav_dir'].joinpath(sound_name + ".TextGrid")
         ult_file = self._paths['dicom_dir'].joinpath(basename)
         video_file = self._paths['avi_dir'].joinpath(basename)
         video_file = video_file.with_suffix(".avi")
@@ -375,6 +376,18 @@ class ThreeD_UltrasoundRecording(Recording):
             notice = 'Note: ' + str(ult_wav_file) + " does not exist."
             _3D4D_ultra_logger.warning(notice)
             self.meta['ult_wav_exists'] = False
+            self.excluded = True
+
+        if textgrid.is_file():
+            self.meta['textgrid'] = str(textgrid)
+            self.meta['textgrid_exists'] = True
+            # Before 1.0: this is called here and in super().__init__()
+            # only one call should actually be done.
+            self._read_textgrid()
+        else:
+            notice = 'Note: ' + str(textgrid) + " does not exist."
+            _3D4D_ultra_logger.warning(notice)
+            self.meta['textgrid_exists'] = False
             self.excluded = True
 
         if ult_file.is_file():

@@ -353,11 +353,14 @@ class PD_3D_end_Annotator(PD_Annotator):
         """ 
         Constructor for the PD_Annotator GUI. 
 
-        Also sets up internal state and adds keys [pdCategory, splineCategory, 
-        pdOnset, splineOnset] to the data argument. For the categories -1 is used
-        to mark 'not set', and for the onsets -1.0.
+        Also sets up internal state and adds keys [pdCategory, 
+        splineCategory, pdOnset, splineOnset] to the data argument. 
+        For the categories -1 is used to mark 'not set', and for 
+        the onsets -1.0.
         """
-        super().__init__(recordings, args, xlim, figsize)
+        # Go directly to grandparent because parent would try to init
+        # pictures and GUI.
+        CurveAnnotator.__init__(self, recordings, args, xlim, figsize)
 
         self.categories = categories
 
@@ -430,10 +433,10 @@ class PD_3D_end_Annotator(PD_Annotator):
             picker=CurveAnnotator.line_xdirection_picker)
         plot_wav(self.ax3, wav, wav_time, self.xlim, textgrid, stimulus_onset)
 
-        if self.current.annotations['pdOnset'] > -1:
-            self.ax1.axvline(x=self.current.annotations['pdOnset'],
+        if self.current.annotations['pdOffset'] > -1:
+            self.ax1.axvline(x=self.current.annotations['pdOffset'],
                              linestyle=':', color="deepskyblue", lw=1)
-            self.ax3.axvline(x=self.current.annotations['pdOnset'],
+            self.ax3.axvline(x=self.current.annotations['pdOffset'],
                              linestyle=':', color="deepskyblue", lw=1)
 
     def save(self, event):
@@ -444,8 +447,8 @@ class PD_3D_end_Annotator(PD_Annotator):
         """
         # eventually get this from commandline/caller/dialog window
         filename = 'local_data/PD_3D_offsets.csv'
-        fieldnames = ['basename', 'date_and_time',
-                      'prompt', 'C1', 'pdCategory', 'pdOffset']
+        fieldnames = ['basename', 'sound_name' 'date_and_time',
+                      'prompt', 'C1', 'word_dur', 'pdCategory', 'pdOffset']
         csv.register_dialect('tabseparated', delimiter='\t',
                              quoting=csv.QUOTE_NONE)
 
@@ -457,10 +460,22 @@ class PD_3D_end_Annotator(PD_Annotator):
             for recording in self.recordings:
                 annotations = recording.annotations.copy()
                 annotations['basename'] = recording.meta['basename']
-                annotations['date_and_time'] = recording.meta['date']
+                annotations['date_and_time'] = recording.meta['date_and_time']
                 annotations['prompt'] = recording.meta['prompt']
+
+                word_dur = -1.0
+                for interval in recording.textgrid['word']:
+                    if interval.text == "":
+                        continue
+                    else:
+                        # Before 1.0: check if there is a duration to use here. and maybe make this
+                        # more intelligent by selecting purposefully the last non-empty first and
+                        # taking the duration?
+                        word_dur = interval.xmax - interval.xmin
+                annotations['word_dur'] = word_dur
+
                 annotations['C1'] = recording.meta['prompt'][0]
-                writer.writerow(recording)
+                writer.writerow(annotations)
             print('Wrote onset data in file ' + filename + '.')
             _annotator_logger.debug(
                 'Wrote onset data in file ' + filename + '.')

@@ -103,6 +103,47 @@ def plot_textgrid_lines(ax, textgrid, stimulus_onset=0, draw_text=True):
     return segment_line
 
 
+def plot_textgrid_lines_3D_ultra(
+        ax, textgrid, stimulus_onset=0, draw_text=True):
+    """
+    Plot vertical lines for the segments in the textgrid.
+
+    Arguments:
+    ax -- matplotlib axes to plot on.
+    textgrid -- a textgrids module textgrid object containing a tier
+        called 'segment'.
+
+    Keyword arguments:
+    stimulus_onset -- onset time of the stimulus in the recording in
+        seconds. Default is 0s.
+    draw_text -- boolean value indicating if each segment's text should
+        be drawn on the plot. Default is True.
+
+    Returns a line object for the segment line, so that it
+    can be included in the legend.
+
+    Throws a KeyError if a tier called 'segment' is not present in the
+    textgrid.
+    """
+    text_settings = {'horizontalalignment': 'center',
+                     'verticalalignment': 'center'}
+    for segment in textgrid['word']:
+        if segment.text == "":
+            continue
+        elif segment.text == "beep":
+            continue
+        else:
+            segment_line = ax.axvline(
+                x=segment.xmin - stimulus_onset, color="dimgrey", lw=1,
+                linestyle='--')
+            ax.axvline(x=segment.xmax - stimulus_onset,
+                       color="dimgrey", lw=1, linestyle='--')
+            if draw_text:
+                ax.text(segment.mid - stimulus_onset, 500, segment.text,
+                        text_settings, color="dimgrey")
+    return segment_line
+
+
 def plot_pd(ax, pd, time, xlim, textgrid=None, stimulus_onset=0,
             picker=None, color="deepskyblue"):
     """
@@ -172,21 +213,22 @@ def plot_pd_3d(ax, pd, time, xlim, textgrid=None, stimulus_onset=0,
     ax.plot(time, pd, color=color, lw=1, picker=picker)
     pd_curve = mlines.Line2D([], [], color=color, lw=1)
 
-    go_line = ax.axvline(x=0, color="dimgrey", lw=1, linestyle=(0, (5, 10)))
+    #go_line = ax.axvline(x=0, color="dimgrey", lw=1, linestyle=(0, (5, 10)))
 
     segment_line = None
     if textgrid:
-        segment_line = plot_textgrid_lines(ax, textgrid, stimulus_onset)
+        segment_line = plot_textgrid_lines_3D_ultra(
+            ax, textgrid, stimulus_onset)
 
     ax.set_xlim(xlim)
 #    ax.set_ylim((-50, 3550))
     if segment_line:
-        ax.legend((pd_curve, go_line, segment_line),
-                  ('Pixel difference', 'Go-signal onset', 'Acoustic segments'),
+        ax.legend((pd_curve, segment_line),
+                  ('Pixel difference', 'Acoustic segments'),
                   loc='upper right')
     else:
-        ax.legend((pd_curve, go_line),
-                  ('Pixel difference', 'Go-signal onset'),
+        ax.legend((pd_curve),
+                  ('Pixel difference'),
                   loc='upper right')
     ax.set_ylabel("PD on ultrasound")
 
@@ -604,6 +646,40 @@ def plot_wav(
     segment_line = None
     if textgrid:
         segment_line = plot_textgrid_lines(
+            ax, textgrid, time_offset, draw_text=False)
+
+    if draw_legend:
+        wave_curve = mlines.Line2D([], [], color="k", lw=1)
+    if draw_legend and segment_line:
+        ax.legend((wave_curve, segment_line),
+                  ('Waveform', 'Acoustic segments'),
+                  loc='upper right')
+    elif draw_legend:
+        ax.legend((wave_curve,),
+                  ('Waveform',),
+                  loc='upper right')
+
+    ax.set_xlim(xlim)
+    ax.set_ylim((-1.05, 1.05))
+    ax.set_ylabel("Wave")
+    ax.set_xlabel("Time (s), go-signal at 0 s.")
+
+
+def plot_wav_3D_ultra(
+        ax, waveform, wav_time, xlim, textgrid=None, time_offset=0,
+        picker=None, draw_legend=False):
+    normalised_wav = waveform / \
+        np.amax(np.abs(waveform))
+    if picker:
+        ax.plot(wav_time, normalised_wav, color="k", lw=1, picker=picker)
+    else:
+        ax.plot(wav_time, normalised_wav, color="k", lw=1)
+
+    #ax.axvline(x=0, color="dimgrey", lw=1, linestyle=(0, (5, 10)))
+
+    segment_line = None
+    if textgrid:
+        segment_line = plot_textgrid_lines_3D_ultra(
             ax, textgrid, time_offset, draw_text=False)
 
     if draw_legend:

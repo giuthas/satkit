@@ -48,7 +48,7 @@ from numpy.random import rand
 # local modules
 from satkit import annd
 from satkit import pd
-from satkit.pd_annd_plot import plot_mpbpd, plot_pd, plot_l1, plot_pd_vid, plot_wav
+from satkit.pd_annd_plot import plot_mpbpd, plot_pd, plot_pd_3d, plot_pd_vid, plot_wav
 
 _annotator_logger = logging.getLogger('satkit.curveannotator')
 
@@ -211,13 +211,13 @@ class PD_Annotator(CurveAnnotator):
         #
         # Subplot grid shape
         #
-        sbuplot_grid = (4, 7)
+        subplot_grid = (4, 7)
 
         #
         # Graphs to be annotated and the waveform for reference.
         #
-        self.ax1 = plt.subplot2grid(sbuplot_grid, (0, 0), rowspan=3, colspan=6)
-        self.ax3 = plt.subplot2grid(sbuplot_grid, (3, 0), colspan=6)
+        self.ax1 = plt.subplot2grid(subplot_grid, (0, 0), rowspan=3, colspan=6)
+        self.ax3 = plt.subplot2grid(subplot_grid, (3, 0), colspan=6)
 
         self.draw_plots()
 
@@ -227,7 +227,7 @@ class PD_Annotator(CurveAnnotator):
         #
         # Buttons and such.
         #
-        self.ax4 = plt.subplot2grid(sbuplot_grid, (0, 6), rowspan=2)
+        self.ax4 = plt.subplot2grid(subplot_grid, (0, 6), rowspan=2)
         self.ax4.axes.set_axis_off()
         self.pdCategoryRB = RadioButtons(
             self.ax4, self.categories,
@@ -331,6 +331,153 @@ class PD_Annotator(CurveAnnotator):
 
         if subplot == 1:
             self.current.annotations['pdOnset'] = event.pickx
+
+        self.update()
+
+
+class PD_3D_end_Annotator(PD_Annotator):
+    """ 
+    PD_Annotator is a GUI class for annotating PD curves.
+
+    The annotator works with PD curves and allows 
+    selection of a single points (labelled as pdOnset in the saved file).
+    The GUI also displays the waveform, and if TextGrids
+    are provided, the acoustic segment boundaries.
+    """
+
+    def __init__(
+            self, recordings, args, xlim=(-0.1, 1.0),
+            figsize=(15, 6),
+            categories=['Stable', 'Excluded by audio', 'Cut short', 'No data',
+                        'Not set']):
+        """ 
+        Constructor for the PD_Annotator GUI. 
+
+        Also sets up internal state and adds keys [pdCategory, splineCategory, 
+        pdOnset, splineOnset] to the data argument. For the categories -1 is used
+        to mark 'not set', and for the onsets -1.0.
+        """
+        super().__init__(recordings, args, xlim, figsize)
+
+        self.categories = categories
+
+        for token in self.recordings:
+            token.annotations['pdCategory'] = -1
+            token.annotations['pdOffset'] = -1.0
+
+        #
+        # Subplot grid shape
+        #
+        subplot_grid = (4, 7)
+
+        #
+        # Graphs to be annotated and the waveform for reference.
+        #
+        self.ax1 = plt.subplot2grid(subplot_grid, (0, 0), rowspan=3, colspan=6)
+        self.ax3 = plt.subplot2grid(subplot_grid, (3, 0), colspan=6)
+
+        self.draw_plots()
+
+        self.fig.align_ylabels()
+        self.fig.canvas.mpl_connect('pick_event', self.onpick)
+
+        #
+        # Buttons and such.
+        #
+        self.ax4 = plt.subplot2grid(subplot_grid, (0, 6), rowspan=2)
+        self.ax4.axes.set_axis_off()
+        self.pdCategoryRB = RadioButtons(
+            self.ax4, self.categories,
+            active=self.current.annotations['pdCategory'])
+        self.pdCategoryRB.on_clicked(self.pdCatCB)
+
+        self.axnext = plt.axes([0.85, 0.225, 0.1, 0.055])
+        self.bnext = Button(self.axnext, 'Next')
+        self.bnext.on_clicked(self.next)
+
+        self.axprev = plt.axes([0.85, 0.15, 0.1, 0.055])
+        self.bprev = Button(self.axprev, 'Previous')
+        self.bprev.on_clicked(self.prev)
+
+        self.axsave = plt.axes([0.85, 0.05, 0.1, 0.055])
+        self.bsave = Button(self.axsave, 'Save')
+        self.bsave.on_clicked(self.save)
+
+        plt.show()
+
+    def draw_plots(self):
+        """ 
+        Updates title and graphs. Called by self.update().
+        """
+        self.ax1.set_title(self._get_title())
+        self.ax1.axes.xaxis.set_ticklabels([])
+
+        audio = self.current.modalities['MonoAudio']
+        stimulus_onset = audio.meta['stimulus_onset']
+        wav = audio.data
+        wav_time = audio.timevector
+
+        pd = self.current.modalities['PD on ThreeD_Ultrasound']
+        ultra_time = pd.timevector - pd.timevector[-1] + wav_time[-1]
+
+        self.xlim = [ultra_time[0] - 0.05, ultra_time[-1]+0.05]
+
+        textgrid = self.current.textgrid
+
+        plot_pd_3d(
+            self.ax1, pd.data['pd'],
+            ultra_time, self.xlim, textgrid, stimulus_onset,
+            picker=CurveAnnotator.line_xdirection_picker)
+        plot_wav(self.ax3, wav, wav_time, self.xlim, textgrid, stimulus_onset)
+
+        if self.current.annotations['pdOnset'] > -1:
+            self.ax1.axvline(x=self.current.annotations['pdOnset'],
+                             linestyle=':', color="deepskyblue", lw=1)
+            self.ax3.axvline(x=self.current.annotations['pdOnset'],
+                             linestyle=':', color="deepskyblue", lw=1)
+
+    def save(self, event):
+        """ 
+        Callback funtion for the Save button.
+        Currently overwrites what ever is at 
+        local_data/onsets.csv
+        """
+        # eventually get this from commandline/caller/dialog window
+        filename = 'local_data/PD_3D_offsets.csv'
+        fieldnames = ['basename', 'date_and_time',
+                      'prompt', 'C1', 'pdCategory', 'pdOffset']
+        csv.register_dialect('tabseparated', delimiter='\t',
+                             quoting=csv.QUOTE_NONE)
+
+        with closing(open(filename, 'w')) as csvfile:
+            writer = csv.DictWriter(csvfile, fieldnames, extrasaction='ignore',
+                                    dialect='tabseparated')
+
+            writer.writeheader()
+            for recording in self.recordings:
+                annotations = recording.annotations.copy()
+                annotations['basename'] = recording.meta['basename']
+                annotations['date_and_time'] = recording.meta['date']
+                annotations['prompt'] = recording.meta['prompt']
+                annotations['C1'] = recording.meta['prompt'][0]
+                writer.writerow(recording)
+            print('Wrote onset data in file ' + filename + '.')
+            _annotator_logger.debug(
+                'Wrote onset data in file ' + filename + '.')
+
+    def onpick(self, event):
+        """
+        Callback for handling time selection on events.
+        """
+        subplot = 0
+        for i, ax in enumerate([self.ax1]):
+            # For infomation, print which axes the click was in
+            if ax == event.inaxes:
+                subplot = i+1
+                break
+
+        if subplot == 1:
+            self.current.annotations['pdOffset'] = event.pickx
 
         self.update()
 

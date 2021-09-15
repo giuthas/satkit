@@ -48,7 +48,7 @@ conda-forge dipy`.
 ### What's included
 
 See
-[MANIFEST.markdown](https://github.com/giuthas/pd/blob/master/MANIFEST.markdown)
+[MANIFEST.markdown](https://github.com/giuthas/satkit/blob/master/MANIFEST.markdown)
 for a description of the contents.
 
 
@@ -96,7 +96,7 @@ the additional understanding that releases before 1.0 (i.e. current
 releases at time of writing) have not been tested in any way.
 
 For the versions available, see the [tags on this
-repository](https://github.com/giuthas/pd/tags).
+repository](https://github.com/giuthas/satkit/tags).
 
 
 ## Authors
@@ -128,7 +128,7 @@ Tongue Example data Copyright (C) 2013-2020 Pertti Palo
 
 ### Program license
 
-[Program License](https://github.com/giuthas/pd/blob/master/LICENSE.markdown)
+[Program License](https://github.com/giuthas/satkit/blob/master/LICENSE.markdown)
 
 This program (see below for data) is free software: you can
 redistribute it and/or modify it under the terms of the GNU General
@@ -147,7 +147,7 @@ along with this program.  If not, see
 
 ### Data license
 
-[Data License](https://github.com/giuthas/pd/blob/master/DATA_LICENSE_by-nc-sa.markdown)
+[Data License](https://github.com/giuthas/satkit/blob/master/DATA_LICENSE_by-nc-sa.markdown)
 
 The data in directories `larynx_data`, `tongue_data_1`,
 `tongue_data_1_2`, and `tongue_data_2` are licensed under the Creative

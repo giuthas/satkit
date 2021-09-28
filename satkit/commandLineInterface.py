@@ -142,6 +142,114 @@ class BaseCLI():
         self.logger.info('Data run started at ' + str(datetime.datetime.now()))
 
 
+class AudioCLI(BaseCLI):
+    """Run an operation on all of audio data."""
+
+    def __init__(self, description, processing_functions):
+        """
+        Setup and run the commandline interface for processing raw ultrasound data.
+
+        Description is what this version will be called if called with -h or --help.
+        processing_functions is a dict of the callables that will be run on each recording.
+        """
+        super().__init__(description)
+        self._loadData()
+
+        # calculate the metrics
+        for key in processing_functions:
+            (function, modalities) = processing_functions[key]
+            for modality in modalities:
+                function(
+                    self.recordings,
+                    modality,
+                    preload=True,
+                    releaseDataMemory=True)
+
+        if self.args.output_filename:
+            self._saveData()
+
+        self.logger.info('Data run ended at ' + str(datetime.datetime.now()))
+
+    def _add_optional_arguments(self):
+        """ Adds optional commandline arguments."""
+        self.parser.add_argument(
+            "-e", "--exclusion_list", dest="exclusion_filename",
+            help="Exclusion list of data files that should be ignored.",
+            metavar="file")
+
+        helptext = (
+            'Save metrics to file. '
+            'Supported type is .pickle. '
+            'Saving to .json, .csv., and .m may be possible in the future.'
+        )
+        self.parser.add_argument("-o", "--output", dest="output_filename",
+                                 help=helptext, metavar="file")
+
+        helptext = (
+            'Destination directory for generated figures.'
+        )
+        self.parser.add_argument("-f", "--figures", dest="figure_dir",
+                                 default="figures",
+                                 help=helptext, metavar="dir")
+
+        # Adds the verbosity argument.
+        super()._add_optional_arguments()
+
+    def _loadData(self):
+        """Handle loading data from individual files or a previously saved session."""
+        if not os.path.exists(self.args.load_path):
+            self.logger.critical(
+                'File or directory does not exist: ' + self.args.load_path)
+            self.logger.critical('Exiting.')
+            sys.exit()
+        elif os.path.isdir(self.args.load_path):
+            # this is the actual list of recordings that gets processed
+            # token_list includes meta data contained outwith the ult file
+            self.recordings = self._readDataFromFiles()
+        elif os.path.splitext(self.args.load_path)[1] == '.pickle':
+            self.recordings = satkit_io.load_pickled_data(self.args.load_path)
+        elif os.path.splitext(self.args.load_path)[1] == '.json':
+            self.recordings = satkit_io.load_json_data(self.args.load_path)
+        else:
+            self.logger.error(
+                'Unsupported filetype: ' + self.args.load_path + '.')
+
+    def _readDataFromFiles(self):
+        """
+        Read data from a directory full of files.
+
+        Having this as a separate method allows subclasses to change 
+        arguments or even the parser.
+
+        Note that to make data loading work the in a consistent way,
+        this method just returns the data and saving it in a 
+        instance variable is left for the caller to handle. 
+        """
+        recordings = satkit_AAA.generateRecordingList(self.args.load_path)
+
+        satkit_io.setExclusionsFromFile(
+            self.args.exclusion_filename, recordings)
+
+        [recording.addModalities()
+         for recording in recordings if not recording.excluded]
+
+        return recordings
+
+    def _saveData(self):
+        if os.path.splitext(self.args.output_filename)[1] == '.pickle':
+            satkit_io.save2pickle(
+                self.recordings,
+                self.args.output_filename)
+            self.logger.info(
+                "Wrote data to file " + self.args.output_filename + ".")
+        elif os.path.splitext(self.args.output_filename)[1] == '.json':
+            self.logger.error(
+                'Unsupported filetype: ' + self.args.output_filename + '.')
+        else:
+            self.logger.error(
+                'Unsupported filetype: ' + self.args.output_filename + '.')
+
+
 class RawCLI(BaseCLI):
     """Run metrics on raw ultrasound data."""
 

@@ -33,14 +33,14 @@ import time
 import logging
 
 # local modules
-from satkit.io import concatSounds
+from satkit.io import concatenateSounds
 from satkit.commandLineInterface import AudioCLI
 from satkit.recording import MonoAudio
 
 
 def main():
     # Run the command line interface.
-    function_dict = {'concat': (concatSounds, [MonoAudio])}
+    function_dict = {'concat': (concatenateSounds, [MonoAudio])}
     AudioCLI("Sound concatenation script", function_dict)
 
 

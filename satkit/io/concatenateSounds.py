@@ -34,6 +34,7 @@ from contextlib import closing
 import csv
 import logging
 import sys
+import warnings
 
 # Numerical arrays and more
 import numpy as np
@@ -49,7 +50,8 @@ _concat_logger = logging.getLogger('satkit.concat')
 
 def concatenateSounds(recordings,
                       dirname,
-                      modality='MonoAudio'):
+                      modality='MonoAudio',
+                      speaker_id=None):
     """
     Calculate PD on dataModality and add it to recording.
 
@@ -67,8 +69,13 @@ def concatenateSounds(recordings,
         of the data in RAM.
     """
     if(len(recordings) < 1):
-        print("Didn't find any sound files to concatanate in \'"+dirname+"\'.")
+        warnings.warn(
+            "Didn't find any sound files to concatanate in "+dirname+".")
+        warnings.warn("Exiting.")
         sys.exit()
+
+    if speaker_id is None:
+        speaker_id = dirname
 
     # if(len(prompt_files) < 1):
     #     print("Didn't find any prompt files.")
@@ -82,7 +89,6 @@ def concatenateSounds(recordings,
     #              for filename in filenames]
 
     cursor = 0.0
-    fs = 0
 
     # find params from first recording
     fs = recordings[0].modalities['MonoAudio'].meta['wav_fs']
@@ -102,7 +108,6 @@ def concatenateSounds(recordings,
 
     # initialise table with the speaker_id and name repeated and other fields empty
     table = [{'id': 'n/a',
-              # TODO this should be the ugly dirname where the modality directories live
               'speaker': speaker_id,
               'sliceBegin': 'n/a',
               'begin': 'n/a',

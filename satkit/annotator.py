@@ -203,7 +203,7 @@ class PD_Annotator(CurveAnnotator):
         self.categories = categories
 
         for token in self.recordings:
-            token.annotations['pdCategory'] = -1
+            token.annotations['pdCategory'] = len(categories)-1
             token.annotations['splineCategory'] = -1
             token.annotations['pdOnset'] = -1.0
             token.annotations['splineOnset'] = -1.0
@@ -348,8 +348,8 @@ class PD_3D_end_Annotator(PD_Annotator):
     def __init__(
             self, recordings, args, xlim=(-0.1, 1.0),
             figsize=(15, 6),
-            categories=['Stable', 'Excluded by audio', 'Cut short', 'No data',
-                        'Not set']):
+            categories=['Stable', 'Excluded by audio', 'Cut short',
+                        'Excluded by ultra', 'Not set']):
         """ 
         Constructor for the PD_Annotator GUI. 
 
@@ -365,7 +365,7 @@ class PD_3D_end_Annotator(PD_Annotator):
         self.categories = categories
 
         for token in self.recordings:
-            token.annotations['pdCategory'] = -1
+            token.annotations['pdCategory'] = len(categories)-1
             token.annotations['pdOffset'] = -1.0
 
         #
@@ -547,8 +547,8 @@ class PD_MPBPD_Annotator(CurveAnnotator):
         self.categories = categories
 
         for token in self.recordings:
-            token.annotations['pdCategory'] = -1
-            token.annotations['splineCategory'] = -1
+            token.annotations['pdCategory'] = len(categories)-1
+            token.annotations['splineCategory'] = len(categories)-1
             token.annotations['pdOnset'] = -1.0
             token.annotations['splineOnset'] = -1.0
 

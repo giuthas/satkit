@@ -449,9 +449,9 @@ class PD_3D_end_Annotator(PD_Annotator):
         # eventually get this from commandline/caller/dialog window
         filename = 'local_data/PD_3D_offsets.csv'
         fieldnames = [
-            'basename', 'sound_name'
-            'date_and_time', 'prompt', 'C1', 'pdCategory', 'pdOffset',
-            'word_dur', 'final_sound', 'final_sound_dur', 'final_mov_dur']
+            'basename', 'date_and_time', 'prompt', 'C1',
+            'pdCategory', 'pdOffset', 'word_dur', 'final_sound',
+            'final_sound_dur', 'final_mov_dur']
         csv.register_dialect('tabseparated', delimiter='\t',
                              quoting=csv.QUOTE_NONE)
 

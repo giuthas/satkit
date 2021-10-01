@@ -448,10 +448,12 @@ class PD_3D_end_Annotator(PD_Annotator):
         """
         # eventually get this from commandline/caller/dialog window
         filename = 'local_data/PD_3D_offsets.csv'
-        fieldnames = [
-            'basename', 'date_and_time', 'prompt', 'C1',
-            'pdCategory', 'pdOffset', 'word_dur', 'final_sound',
-            'final_sound_dur', 'final_mov_dur']
+
+        vowels = ['a', 'A', 'e', 'E', 'i', 'I',
+                  'o', 'O', 'u', '@', "@`", 'OI', 'V']
+        fieldnames = ['basename', 'date_and_time', 'prompt', 'C1',
+                      'pdCategory', 'pdOffset', 'word_dur', 'final_sound',
+                      'final_sound_type', 'final_sound_dur', 'final_mov_dur']
         csv.register_dialect('tabseparated', delimiter='\t',
                              quoting=csv.QUOTE_NONE)
 
@@ -497,6 +499,10 @@ class PD_3D_end_Annotator(PD_Annotator):
                         break
                 annotations['final_sound_dur'] = final_sound_dur
                 annotations['final_sound'] = final_sound
+                if final_sound in vowels:
+                    annotations['final_sound_type'] = 'V'
+                else:
+                    annotations['final_sound_type'] = 'C'
 
                 annotations['C1'] = recording.meta['prompt'][0]
                 writer.writerow(annotations)

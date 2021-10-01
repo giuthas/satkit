@@ -146,7 +146,7 @@ def plot_textgrid_lines_3D_ultra(
             ax.axvline(x=segment.xmax - stimulus_onset,
                        color="dimgrey", lw=1, linestyle='--')
             if draw_text:
-                min, max = ax.get_ylim
+                min, max = ax.get_ylim()
                 center = (min+max)/2
                 ax.text(segment.mid - stimulus_onset, center, segment.text,
                         text_settings, color="dimgrey")

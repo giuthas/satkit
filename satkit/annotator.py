@@ -469,20 +469,23 @@ class PD_3D_end_Annotator(PD_Annotator):
                 word_dur = -1.0
                 sound_end = -1.0
                 for interval in recording.textgrid['word']:
+                    # change this to access the phonemeDict and check for included words, then search for
+                    # phonemes based on the same
                     if interval.text == "":
                         continue
                     else:
                         # Before 1.0: check if there is a duration to use here. and maybe make this
                         # more intelligent by selecting purposefully the last non-empty first and
                         # taking the duration?
-                        word_dur = interval.xmax - interval.xmin
+                        word_dur = interval.dur
                         sound_end = interval.xmax
                 annotations['word_dur'] = word_dur
+
                 if sound_end < 0:
-                    final_dur = -1.0
+                    final_mov_dur = -1.0
                 else:
-                    final_dur = annotations['pdOffset'] - sound_end
-                annotations['final_dur'] = final_dur
+                    final_mov_dur = annotations['pdOffset'] - sound_end
+                annotations['final_mov_dur'] = final_mov_dur
 
                 annotations['C1'] = recording.meta['prompt'][0]
                 writer.writerow(annotations)

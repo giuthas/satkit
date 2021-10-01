@@ -451,7 +451,7 @@ class PD_3D_end_Annotator(PD_Annotator):
         fieldnames = [
             'basename', 'sound_name'
             'date_and_time', 'prompt', 'C1', 'pdCategory', 'pdOffset',
-            'word_dur', 'final_dur']
+            'word_dur', 'final_sound', 'final_sound_dur', 'final_mov_dur']
         csv.register_dialect('tabseparated', delimiter='\t',
                              quoting=csv.QUOTE_NONE)
 
@@ -486,6 +486,17 @@ class PD_3D_end_Annotator(PD_Annotator):
                 else:
                     final_mov_dur = annotations['pdOffset'] - sound_end
                 annotations['final_mov_dur'] = final_mov_dur
+
+                final_sound_dur = -1.0
+                final_sound = ""
+                for interval in reversed(recording.textgrid['phoneme']):
+                    if interval.text:
+                        # This is the last sound.
+                        final_sound_dur = interval.dur
+                        final_sound = interval.text
+                        break
+                annotations['final_sound_dur'] = final_sound_dur
+                annotations['final_sound'] = final_sound
 
                 annotations['C1'] = recording.meta['prompt'][0]
                 writer.writerow(annotations)

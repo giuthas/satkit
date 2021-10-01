@@ -128,7 +128,7 @@ def plot_textgrid_lines_3D_ultra(
     """
     text_settings = {'horizontalalignment': 'center',
                      'verticalalignment': 'center'}
-    for segment in textgrid['word']:
+    for segment in textgrid['phoneme']:
         if segment.text == "":
             continue
         else:

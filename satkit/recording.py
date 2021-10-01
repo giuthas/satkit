@@ -58,9 +58,14 @@ class Recording():
     The recording also contains the non-modality 
     specific metadata (participant, speech content, etc) 
     as a dictionary, as well as the textgrid for the whole recording.
+
+    In inheriting classes call self._read_textgrid() after calling
+    super.__init__() (with correct arguments) and doing any updates
+    to self.meta['textgrid'] that are necessary.
     """
 
     def __init__(self, path=None, basename=""):
+        """"""
         self.excluded = False
         self.meta = {'path': path,
                      'basename': basename,
@@ -70,11 +75,9 @@ class Recording():
 
         self.annotations = {}
 
-        self._read_textgrid()
-
     def _read_textgrid(self):
         """
-        Helper method to open the textgrid specified in self.meta.
+        Read the textgrid specified in self.meta.
 
         If file does not exist or reading fails, recovery is attempted 
         by logging an error and creating an empty textgrid for this 
@@ -97,8 +100,8 @@ class Recording():
             notice = 'Note: ' + self.meta['textgrid'] + " did not exist."
             _recording_logger.warning(notice)
             self.meta['textgrid_exists'] = False
-            _recording_logger.critical("Creating an empty textgrid "
-                                       + "instead.")
+            _recording_logger.warning("Creating an empty textgrid "
+                                      + "instead.")
             self.textgrid = textgrids.TextGrid()
 
     def exclude(self):

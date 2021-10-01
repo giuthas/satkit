@@ -269,6 +269,7 @@ class AAA_UltrasoundRecording(Recording):
 
     def __init__(self, path=None, basename="", requireVideo=False):
         super().__init__(path=path, basename=basename)
+        self._read_textgrid()
 
         if basename == None:
             _AAA_logger.critical("Critical error: File basename is None.")

@@ -46,7 +46,7 @@ import scipy.io.wavfile as sio_wavfile
 import textgrids
 
 # local modules
-import satkit.audio as satkit_audio
+import satkit.audio_processing as satkit_audio
 
 _recording_logger = logging.getLogger('satkit.recording')
 

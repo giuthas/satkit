@@ -116,7 +116,7 @@ def detect_beep_and_speech(frames, fs, b, a, name):
     # big rise in the band passed signal.
     threshold_bp = .9*max(bp_int_signal) + .1*min(bp_int_signal)
     bp_spike_indeces = np.where(bp_int_signal > threshold_bp)
-    bp_beep = int_time[bp_spike_indeces[0]]
+    # bp_beep = int_time[bp_spike_indeces[0]]
 
     # Search for the actual beep in the area from beginning of the recording to
     # 25 ms before and after where band passing thinks the beep begins.
@@ -127,7 +127,7 @@ def detect_beep_and_speech(frames, fs, b, a, name):
     threshold = .1*min(frames[0:roi_end])
     candidates = np.where(frames[roi_beg:roi_end] < threshold)[0]
     beep_approx_index = roi_beg + candidates[0]
-    beep_approx = int_time[beep_approx_index]
+    # beep_approx = int_time[beep_approx_index]
 
     zero_crossings = np.where(
         np.diff(np.signbit(frames[beep_approx_index:roi_end])))[0]

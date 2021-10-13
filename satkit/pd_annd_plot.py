@@ -128,7 +128,7 @@ def plot_textgrid_lines_3D_ultra(
     """
     text_settings = {'horizontalalignment': 'center',
                      'verticalalignment': 'center'}
-    for segment in textgrid['word']:
+    for segment in textgrid['phoneme']:
         if segment.text == "":
             continue
         else:
@@ -146,7 +146,9 @@ def plot_textgrid_lines_3D_ultra(
             ax.axvline(x=segment.xmax - stimulus_onset,
                        color="dimgrey", lw=1, linestyle='--')
             if draw_text:
-                ax.text(segment.mid - stimulus_onset, 8000, segment.text,
+                min, max = ax.get_ylim()
+                center = (min+max)/2
+                ax.text(segment.mid - stimulus_onset, center, segment.text,
                         text_settings, color="dimgrey")
     return segment_line
 

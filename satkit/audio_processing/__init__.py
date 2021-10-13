@@ -1,7 +1,7 @@
 #
 # Copyright (c) 2019-2021 Pertti Palo, Scott Moisik, and Matthew Faytak.
 #
-# This file is part of Speech Articulation ToolKIT 
+# This file is part of Speech Articulation ToolKIT
 # (see https://github.com/giuthas/satkit/).
 #
 # This program is free software: you can redistribute it and/or modify
@@ -29,5 +29,4 @@
 # citations.bib in BibTeX format.
 #
 
-from .audio import *
-
+from .audio_processing import band_pass, detect_beep_and_speech, high_pass, high_pass_50

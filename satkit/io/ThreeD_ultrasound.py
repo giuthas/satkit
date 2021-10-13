@@ -87,7 +87,7 @@ def generateRecordingList(directory):
     }
 
     dicom_files = sorted(dicom_dir.glob('*.DCM'))
-    mat_file = list(note_dir.glob('*.mat'))[0]
+    mat_file = list(note_dir.glob('officialNotes*.mat'))[0]
 
     # strip file extensions off of filepaths to get the base names
     dicom_basenames = [filepath.name for filepath in dicom_files]

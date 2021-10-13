@@ -203,7 +203,7 @@ class PD_Annotator(CurveAnnotator):
         self.categories = categories
 
         for token in self.recordings:
-            token.annotations['pdCategory'] = -1
+            token.annotations['pdCategory'] = len(categories)-1
             token.annotations['splineCategory'] = -1
             token.annotations['pdOnset'] = -1.0
             token.annotations['splineOnset'] = -1.0
@@ -348,8 +348,8 @@ class PD_3D_end_Annotator(PD_Annotator):
     def __init__(
             self, recordings, args, xlim=(-0.1, 1.0),
             figsize=(15, 6),
-            categories=['Stable', 'Excluded by audio', 'Cut short', 'No data',
-                        'Not set']):
+            categories=['Stable', 'Excluded by audio', 'Cut short',
+                        'Excluded by ultra', 'Not set']):
         """ 
         Constructor for the PD_Annotator GUI. 
 
@@ -365,7 +365,7 @@ class PD_3D_end_Annotator(PD_Annotator):
         self.categories = categories
 
         for token in self.recordings:
-            token.annotations['pdCategory'] = -1
+            token.annotations['pdCategory'] = len(categories)-1
             token.annotations['pdOffset'] = -1.0
 
         #
@@ -448,10 +448,12 @@ class PD_3D_end_Annotator(PD_Annotator):
         """
         # eventually get this from commandline/caller/dialog window
         filename = 'local_data/PD_3D_offsets.csv'
-        fieldnames = [
-            'basename', 'sound_name'
-            'date_and_time', 'prompt', 'C1', 'pdCategory', 'pdOffset',
-            'word_dur', 'final_dur']
+
+        vowels = ['a', 'A', 'e', 'E', 'i', 'I',
+                  'o', 'O', 'u', '@', "@`", 'OI', 'V']
+        fieldnames = ['basename', 'date_and_time', 'prompt', 'C1',
+                      'pdCategory', 'pdOffset', 'word_dur', 'final_sound',
+                      'final_sound_type', 'final_sound_dur', 'final_mov_dur']
         csv.register_dialect('tabseparated', delimiter='\t',
                              quoting=csv.QUOTE_NONE)
 
@@ -469,20 +471,38 @@ class PD_3D_end_Annotator(PD_Annotator):
                 word_dur = -1.0
                 sound_end = -1.0
                 for interval in recording.textgrid['word']:
+                    # change this to access the phonemeDict and check for included words, then search for
+                    # phonemes based on the same
                     if interval.text == "":
                         continue
                     else:
                         # Before 1.0: check if there is a duration to use here. and maybe make this
                         # more intelligent by selecting purposefully the last non-empty first and
                         # taking the duration?
-                        word_dur = interval.xmax - interval.xmin
+                        word_dur = interval.dur
                         sound_end = interval.xmax
                 annotations['word_dur'] = word_dur
+
                 if sound_end < 0:
-                    final_dur = -1.0
+                    final_mov_dur = -1.0
                 else:
-                    final_dur = annotations['pdOffset'] - sound_end
-                annotations['final_dur'] = final_dur
+                    final_mov_dur = annotations['pdOffset'] - sound_end
+                annotations['final_mov_dur'] = final_mov_dur
+
+                final_sound_dur = -1.0
+                final_sound = ""
+                for interval in reversed(recording.textgrid['phoneme']):
+                    if interval.text:
+                        # This is the last sound.
+                        final_sound_dur = interval.dur
+                        final_sound = interval.text
+                        break
+                annotations['final_sound_dur'] = final_sound_dur
+                annotations['final_sound'] = final_sound
+                if final_sound in vowels:
+                    annotations['final_sound_type'] = 'V'
+                else:
+                    annotations['final_sound_type'] = 'C'
 
                 annotations['C1'] = recording.meta['prompt'][0]
                 writer.writerow(annotations)
@@ -533,8 +553,8 @@ class PD_MPBPD_Annotator(CurveAnnotator):
         self.categories = categories
 
         for token in self.recordings:
-            token.annotations['pdCategory'] = -1
-            token.annotations['splineCategory'] = -1
+            token.annotations['pdCategory'] = len(categories)-1
+            token.annotations['splineCategory'] = len(categories)-1
             token.annotations['pdOnset'] = -1.0
             token.annotations['splineOnset'] = -1.0
 

@@ -31,6 +31,7 @@
 
 # Built in packages
 from contextlib import closing
+from copy import deepcopy
 import csv
 import logging
 from pathlib import Path
@@ -63,13 +64,17 @@ class CurveAnnotator(ABC):
         self.max_index = len(recordings)
 
         self.recordings = recordings
-        self.commanlineargs = args
+        self.commandlineargs = args
 
         self.fig = plt.figure(figsize=figsize)
         self.keypress_id = self.fig.canvas.mpl_connect(
             'key_press_event', self.on_key)
 
         self.xlim = xlim
+
+    @abstractmethod
+    def _addAnnotations(self):
+        pass
 
     @abstractmethod
     def draw_plots(self):
@@ -201,12 +206,7 @@ class PD_Annotator(CurveAnnotator):
         super().__init__(recordings, args, xlim, figsize)
 
         self.categories = categories
-
-        for token in self.recordings:
-            token.annotations['pdCategory'] = len(categories)-1
-            token.annotations['splineCategory'] = -1
-            token.annotations['pdOnset'] = -1.0
-            token.annotations['splineOnset'] = -1.0
+        self._addAnnotations()
 
         #
         # Subplot grid shape
@@ -247,6 +247,19 @@ class PD_Annotator(CurveAnnotator):
         self.bsave.on_clicked(self.save)
 
         plt.show()
+
+    def _addAnnotations(self):
+        default_annotations = {
+            'pdCategory': len(self.categories)-1,
+            'splineCategory': -1,
+            'pdOnset': -1.0,
+            'splineOnset': -1.0
+        }
+        for recording in self.recordings:
+            if recording.annotations:
+                recording.annotations.update(default_annotations)
+            else:
+                recording.annotations = deepcopy(default_annotations)
 
     def draw_plots(self):
         """ 

@@ -47,10 +47,12 @@ Ui_MainWindow, QMainWindow = loadUiType('annotator.ui')
 
 
 # TODO: PD_Annotator needs to be agnostic about which implementation it follows.
-class Main(QMainWindow, Ui_MainWindow, PD_Annotator):
-    def __init__(self, ):
-        # TODO: how do super calls work in multiple inheriting?
-        super(Main, self).__init__()
+class PD_Qt_Annotator(QMainWindow, Ui_MainWindow, PD_Annotator):
+    def __init__(self, recordings, args):
+        QMainWindow.__init__(self)
+        Ui_MainWindow.__init__(self)
+        PD_Annotator.__init__(self, recordings, args)
+
         self.setupUi(self)
         self.fig_dict = {}
 
@@ -75,7 +77,6 @@ class Main(QMainWindow, Ui_MainWindow, PD_Annotator):
 
         self.addmpl(self.fig)
 
-    # TODO: import enough things for this to work
     def draw_plots(self):
         """ 
         Updates title and graphs. Called by self.update().
@@ -108,18 +109,18 @@ class Main(QMainWindow, Ui_MainWindow, PD_Annotator):
             self.ax3.axvline(x=self.current.annotations['pdOffset'],
                              linestyle=':', color="deepskyblue", lw=1)
 
-    # TODO:
+    # TODO: better names
     def changefig(self, item):
         text = item.text()
         self.rmmpl()
         self.addmpl(self.fig_dict[text])
 
-    # TODO:
+    # TODO: better names
     def addfig(self, name, fig):
         self.fig_dict[name] = fig
         self.mplfigs.addItem(name)
 
-    # TODO:
+    # TODO: better names
     def addmpl(self, fig):
         self.canvas = FigureCanvas(fig)
         self.mplWindowVerticalLayout.addWidget(self.canvas)
@@ -128,40 +129,9 @@ class Main(QMainWindow, Ui_MainWindow, PD_Annotator):
                                          self, coordinates=True)
         self.addToolBar(self.toolbar)
 
-    # TODO:
+    # TODO: better names
     def rmmpl(self):
         self.mplWindowVerticalLayout.removeWidget(self.canvas)
         self.canvas.close()
         self.mplWindowVerticalLayout.removeWidget(self.toolbar)
         self.toolbar.close()
-
-
-# TODO: this file should never be main. change this to conform with the pyplot based GUIs.
-if __name__ == '__main__':
-    import sys
-    from PyQt5 import QtWidgets
-
-    # fig1 = Figure()
-    # ax1f1 = fig1.add_subplot(111)
-    # ax1f1.plot(np.random.rand(5))
-
-    # fig2 = Figure()
-    # ax1f2 = fig2.add_subplot(121)
-    # ax1f2.plot(np.random.rand(5))
-    # ax2f2 = fig2.add_subplot(122)
-    # ax2f2.plot(np.random.rand(10))
-
-    # fig3 = Figure()
-    # ax1f3 = fig3.add_subplot(111)
-    # ax1f3.pcolormesh(np.random.rand(20, 20))
-
-    # fig2 = Figure()
-    # ax1f2 = fig2.add_subplot(121)
-    # ax1f2.plot(np.random.rand(5))
-    # ax2f2 = fig2.add_subplot(122)
-    # ax2f2.plot(np.random.rand(10))
-
-    app = QtWidgets.QApplication(sys.argv)
-    main = Main()
-    main.show()
-    sys.exit(app.exec_())

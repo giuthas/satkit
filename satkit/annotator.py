@@ -73,8 +73,16 @@ class CurveAnnotator(ABC):
         self.xlim = xlim
 
     @abstractmethod
-    def _addAnnotations(self):
+    @property
+    def default_annotations(self):
         pass
+
+    def _addAnnotations(self):
+        for recording in self.recordings:
+            if recording.annotations:
+                recording.annotations.update(self.default_annotations)
+            else:
+                recording.annotations = deepcopy(self.default_annotations)
 
     @abstractmethod
     def draw_plots(self):
@@ -248,18 +256,12 @@ class PD_Annotator(CurveAnnotator):
 
         plt.show()
 
-    def _addAnnotations(self):
-        default_annotations = {
+    @property
+    def default_annotations(self):
+        return {
             'pdCategory': len(self.categories)-1,
-            'splineCategory': -1,
             'pdOnset': -1.0,
-            'splineOnset': -1.0
         }
-        for recording in self.recordings:
-            if recording.annotations:
-                recording.annotations.update(default_annotations)
-            else:
-                recording.annotations = deepcopy(default_annotations)
 
     def draw_plots(self):
         """ 
@@ -376,10 +378,7 @@ class PD_3D_end_Annotator(PD_Annotator):
         CurveAnnotator.__init__(self, recordings, args, xlim, figsize)
 
         self.categories = categories
-
-        for token in self.recordings:
-            token.annotations['pdCategory'] = len(categories)-1
-            token.annotations['pdOffset'] = -1.0
+        self._addAnnotations()
 
         #
         # Subplot grid shape
@@ -420,6 +419,13 @@ class PD_3D_end_Annotator(PD_Annotator):
         self.bsave.on_clicked(self.save)
 
         plt.show()
+
+    @property
+    def default_annotations(self):
+        return {
+            'pdCategory': len(self.categories)-1,
+            'pdOffset': -1.0,
+        }
 
     def draw_plots(self):
         """ 
@@ -564,12 +570,7 @@ class PD_MPBPD_Annotator(CurveAnnotator):
         super().__init__(recordings, args, xlim, figsize)
 
         self.categories = categories
-
-        for token in self.recordings:
-            token.annotations['pdCategory'] = len(categories)-1
-            token.annotations['splineCategory'] = len(categories)-1
-            token.annotations['pdOnset'] = -1.0
-            token.annotations['splineOnset'] = -1.0
+        self._addAnnotations()
 
         #
         # Subplot grid shape
@@ -618,6 +619,15 @@ class PD_MPBPD_Annotator(CurveAnnotator):
         self.bsave.on_clicked(self.save)
 
         plt.show()
+
+    @property
+    def default_annotations(self):
+        return {
+            'pdCategory': len(self.categories)-1,
+            'splineCategory': len(self.categories)-1,
+            'pdOnset': -1.0,
+            'splineOnset': -1.0
+        }
 
     def draw_plots(self):
         """ 
@@ -760,12 +770,7 @@ class l1_MPBPD_Annotator(CurveAnnotator):
         super().__init__(recordings, args, xlim, figsize)
 
         self.categories = categories
-
-        for token in self.recordings:
-            token.annotations['l1Category'] = -1
-            token.annotations['splineCategory'] = -1
-            token.annotations['l1Onset'] = -1.0
-            token.annotations['splineOnset'] = -1.0
+        self._addAnnotations()
 
         #
         # Subplot grid shape
@@ -814,6 +819,15 @@ class l1_MPBPD_Annotator(CurveAnnotator):
         self.bsave.on_clicked(self.save)
 
         plt.show()
+
+    @property
+    def default_annotations(self):
+        return {
+            'l1Category': len(self.categories)-1,
+            'splineCategory': len(self.categories)-1,
+            'l1Onset': -1.0,
+            'splineOnset': -1.0
+        }
 
     def draw_plots(self):
         """ 
@@ -956,13 +970,7 @@ class PD_UTI_video_Annotator(CurveAnnotator):
         super().__init__(recordings, args, xlim, figsize)
 
         self.categories = categories
-
-        for token in self.recordings:
-            token.annotations = {}
-            token.annotations['pd_uti_Category'] = -1
-            token.annotations['pd_video_Category'] = -1
-            token.annotations['pd_uti_Onset'] = -1.0
-            token.annotations['pd_video_Onset'] = -1.0
+        self._addAnnotations()
 
         #
         # Subplot grid shape
@@ -1011,6 +1019,15 @@ class PD_UTI_video_Annotator(CurveAnnotator):
         self.bsave.on_clicked(self.save)
 
         plt.show()
+
+    @property
+    def default_annotations(self):
+        return {
+            'pd_uti_Category': len(self.categories)-1,
+            'pd_video_Category': len(self.categories)-1,
+            'pd_uti_Onset': -1.0,
+            'pd_video_Onset': -1.0
+        }
 
     def draw_plots(self):
         """ 

@@ -55,7 +55,7 @@ _annotator_logger = logging.getLogger('satkit.curveannotator')
 
 
 class CurveAnnotator(ABC):
-    """ 
+    """
     Annotator is an abstract base class for GUIs for annotating speech data.
     """
 
@@ -72,8 +72,8 @@ class CurveAnnotator(ABC):
 
         self.xlim = xlim
 
-    @abstractmethod
     @property
+    @abstractmethod
     def default_annotations(self):
         pass
 
@@ -90,7 +90,7 @@ class CurveAnnotator(ABC):
 
     @abstractmethod
     def updateUI(self):
-        """ 
+        """
         Updates parts of the UI outwith the graphs.
         """
         pass
@@ -100,7 +100,7 @@ class CurveAnnotator(ABC):
         pass
 
     def update(self):
-        """ 
+        """
         Updates the graphs but not the buttons.
         """
         self.clear_axis()
@@ -121,7 +121,7 @@ class CurveAnnotator(ABC):
         return self.recordings[self.index]
 
     def next(self, event):
-        """ 
+        """
         Callback function for the Next button.
         Increases cursor index, updates the view.
         """
@@ -131,7 +131,7 @@ class CurveAnnotator(ABC):
             self.updateUI()
 
     def prev(self, event):
-        """ 
+        """
         Callback function for the Previous button.
         Decreases cursor index, updates the view.
         """
@@ -145,7 +145,7 @@ class CurveAnnotator(ABC):
         pass
 
     def on_key(self, event):
-        """ 
+        """
         Callback function for keypresses.
 
         Right and left arrows move to the next and previous token. 
@@ -167,8 +167,8 @@ class CurveAnnotator(ABC):
     def line_xdirection_picker(line, mouseevent):
         """
         Find the nearest point in the x (time) direction from the mouseclick in
-        data coordinates. Return index of selected point, x and y coordinates of 
-        the data at that point, and inaxes to enable originating subplot to be 
+        data coordinates. Return index of selected point, x and y coordinates of
+        the data at that point, and inaxes to enable originating subplot to be
         identified.
         """
         if mouseevent.xdata is None:
@@ -191,10 +191,10 @@ class CurveAnnotator(ABC):
 
 
 class PD_Annotator(CurveAnnotator):
-    """ 
+    """
     PD_Annotator is a GUI class for annotating PD curves.
 
-    The annotator works with PD curves and allows 
+    The annotator works with PD curves and allows
     selection of a single points (labelled as pdOnset in the saved file).
     The GUI also displays the waveform, and if TextGrids
     are provided, the acoustic segment boundaries.

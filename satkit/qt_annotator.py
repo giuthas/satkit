@@ -43,15 +43,13 @@ from satkit.annotator import CurveAnnotator, PD_Annotator
 from satkit.pd_annd_plot import plot_mpbpd, plot_pd, plot_pd_3d, plot_pd_vid, plot_wav, plot_wav_3D_ultra
 
 # Load the GUI layout generated with QtDesigner.
-Ui_MainWindow, QMainWindow = loadUiType('annotator.ui')
+Ui_MainWindow, QMainWindow = loadUiType('satkit/qt_annotator.ui')
 
 
-# TODO: PD_Annotator needs to be agnostic about which implementation it follows.
-class PD_Qt_Annotator(QMainWindow, Ui_MainWindow, PD_Annotator):
-    def __init__(self, recordings, args):
+class Qt_Annotator_Window(QMainWindow, Ui_MainWindow):
+    def __init__(self):
         QMainWindow.__init__(self)
         Ui_MainWindow.__init__(self)
-        PD_Annotator.__init__(self, recordings, args)
 
         self.setupUi(self)
         self.fig_dict = {}
@@ -77,8 +75,50 @@ class PD_Qt_Annotator(QMainWindow, Ui_MainWindow, PD_Annotator):
 
         self.addmpl(self.fig)
 
+    # TODO: better names
+    def changefig(self, item):
+        text = item.text()
+        self.rmmpl()
+        self.addmpl(self.fig_dict[text])
+
+    # TODO: better names
+    def addfig(self, name, fig):
+        self.fig_dict[name] = fig
+        self.mplfigs.addItem(name)
+
+    # TODO: better names
+    def addmpl(self, fig):
+        self.canvas = FigureCanvas(fig)
+        self.mplWindowVerticalLayout.addWidget(self.canvas)
+        self.canvas.draw()
+        self.toolbar = NavigationToolbar(self.canvas,
+                                         self, coordinates=True)
+        self.addToolBar(self.toolbar)
+
+    # TODO: better names
+    def rmmpl(self):
+        self.mplWindowVerticalLayout.removeWidget(self.canvas)
+        self.canvas.close()
+        self.mplWindowVerticalLayout.removeWidget(self.toolbar)
+        self.toolbar.close()
+
+
+# TODO: PD_Annotator needs to be agnostic about which implementation it follows.
+class PD_Qt_Annotator(PD_Annotator):
+    def __init__(self, recordings, args):
+        super().__init__(self, recordings, args)
+
+        self.qtWindow = Qt_Annotator_Window()
+
+    @property
+    def default_annotations(self):
+        return {
+            'pdCategory': len(self.categories)-1,
+            'pdOnset': -1.0,
+        }
+
     def draw_plots(self):
-        """ 
+        """
         Updates title and graphs. Called by self.update().
         """
         self.ax1.set_title(self._get_title())
@@ -108,30 +148,3 @@ class PD_Qt_Annotator(QMainWindow, Ui_MainWindow, PD_Annotator):
                              linestyle=':', color="deepskyblue", lw=1)
             self.ax3.axvline(x=self.current.annotations['pdOffset'],
                              linestyle=':', color="deepskyblue", lw=1)
-
-    # TODO: better names
-    def changefig(self, item):
-        text = item.text()
-        self.rmmpl()
-        self.addmpl(self.fig_dict[text])
-
-    # TODO: better names
-    def addfig(self, name, fig):
-        self.fig_dict[name] = fig
-        self.mplfigs.addItem(name)
-
-    # TODO: better names
-    def addmpl(self, fig):
-        self.canvas = FigureCanvas(fig)
-        self.mplWindowVerticalLayout.addWidget(self.canvas)
-        self.canvas.draw()
-        self.toolbar = NavigationToolbar(self.canvas,
-                                         self, coordinates=True)
-        self.addToolBar(self.toolbar)
-
-    # TODO: better names
-    def rmmpl(self):
-        self.mplWindowVerticalLayout.removeWidget(self.canvas)
-        self.canvas.close()
-        self.mplWindowVerticalLayout.removeWidget(self.toolbar)
-        self.toolbar.close()

@@ -109,6 +109,7 @@ class PD_Qt_Annotator(PD_Annotator):
         super().__init__(self, recordings, args)
 
         self.qtWindow = Qt_Annotator_Window()
+        self.qtWindow.show()
 
     @property
     def default_annotations(self):

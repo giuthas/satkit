@@ -56,8 +56,7 @@ def main():
 
     # Get the GUI running.
     app = QtWidgets.QApplication(sys.argv)
-    mainAnnotatorWindow = PD_Qt_Annotator(cli.recordings, cli.args)
-    mainAnnotatorWindow.show()
+    annotator = PD_Qt_Annotator(cli.recordings, cli.args)
     sys.exit(app.exec_())
 
 

@@ -40,21 +40,21 @@ from matplotlib.backends.backend_qt5agg import (
 
 # Local modules
 from satkit.annotator import CurveAnnotator, PD_Annotator
-from satkit.pd_annd_plot import plot_mpbpd, plot_pd, plot_pd_3d, plot_pd_vid, plot_wav, plot_wav_3D_ultra
+from satkit.pd_annd_plot import plot_pd, plot_pd_3d, plot_pd_vid, plot_wav, plot_wav_3D_ultra
 
 # Load the GUI layout generated with QtDesigner.
 Ui_MainWindow, QMainWindow = loadUiType('satkit/qt_annotator.ui')
 
 
 class Qt_Annotator_Window(QMainWindow, Ui_MainWindow):
-    def __init__(self):
+    def __init__(self, draw_plots):
         QMainWindow.__init__(self)
         Ui_MainWindow.__init__(self)
 
         self.setupUi(self)
         self.fig_dict = {}
 
-        self.mplfigs.itemClicked.connect(self.changefig)
+        self.mplfigs.itemClicked.connect(self.change_figure)
 
         self.fig = Figure()
         #
@@ -68,26 +68,24 @@ class Qt_Annotator_Window(QMainWindow, Ui_MainWindow):
         #     rowspan=3, colspan=6)
         # self.ax3 = fig.subplot2grid(self.subplot_grid, (3, 0), colspan=6)
 
+        self.draw_plots = draw_plots
         self.draw_plots()
 
         self.fig.align_ylabels()
         self.fig.canvas.mpl_connect('pick_event', self.onpick)
 
-        self.addmpl(self.fig)
+        self.add_mpl_elements(self.fig)
 
-    # TODO: better names
-    def changefig(self, item):
+    def change_figure(self, item):
         text = item.text()
         self.rmmpl()
         self.addmpl(self.fig_dict[text])
 
-    # TODO: better names
-    def addfig(self, name, fig):
+    def add_figure(self, name, fig):
         self.fig_dict[name] = fig
         self.mplfigs.addItem(name)
 
-    # TODO: better names
-    def addmpl(self, fig):
+    def add_mpl_elements(self, fig):
         self.canvas = FigureCanvas(fig)
         self.mplWindowVerticalLayout.addWidget(self.canvas)
         self.canvas.draw()
@@ -95,20 +93,18 @@ class Qt_Annotator_Window(QMainWindow, Ui_MainWindow):
                                          self, coordinates=True)
         self.addToolBar(self.toolbar)
 
-    # TODO: better names
-    def rmmpl(self):
+    def remove_mpl_elements(self):
         self.mplWindowVerticalLayout.removeWidget(self.canvas)
         self.canvas.close()
         self.mplWindowVerticalLayout.removeWidget(self.toolbar)
         self.toolbar.close()
 
 
-# TODO: PD_Annotator needs to be agnostic about which implementation it follows.
 class PD_Qt_Annotator(PD_Annotator):
     def __init__(self, recordings, args):
-        super().__init__(self, recordings, args)
+        super().__init__(recordings, args)
 
-        self.qtWindow = Qt_Annotator_Window()
+        self.qtWindow = Qt_Annotator_Window(self.draw_plots)
         self.qtWindow.show()
 
     @property
@@ -144,8 +140,8 @@ class PD_Qt_Annotator(PD_Annotator):
         plot_wav_3D_ultra(self.ax3, wav, wav_time, self.xlim,
                           textgrid, stimulus_onset)
 
-        if self.current.annotations['pdOffset'] > -1:
-            self.ax1.axvline(x=self.current.annotations['pdOffset'],
+        if self.current.annotations['pdOnset'] > -1:
+            self.ax1.axvline(x=self.current.annotations['pdOnset'],
                              linestyle=':', color="deepskyblue", lw=1)
             self.ax3.axvline(x=self.current.annotations['pdOffset'],
                              linestyle=':', color="deepskyblue", lw=1)

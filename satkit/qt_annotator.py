@@ -38,9 +38,9 @@ from pathlib import Path
 
 # Numpy
 import numpy as np
-from numpy.random import rand
 
 # GUI functionality
+from PyQt5 import QFileDialog
 from PyQt5.uic import loadUiType
 
 # Plotting functions and hooks for GUI
@@ -309,13 +309,15 @@ class Qt_Annotator_Window(QMainWindow, Ui_MainWindow):
         self.pdCategoryRB.set_active(self.current.annotations['pdCategory'])
 
     def save(self, event):
-        """ 
+        """
         Callback funtion for the Save button.
-        Currently overwrites what ever is at 
+        Currently overwrites what ever is at
         local_data/onsets.csv
         """
         # eventually get this from commandline/caller/dialog window
-        filename = 'local_data/PD_MPBPD_onsets.csv'
+        filename = QFileDialog.getSaveFileName(
+            self, 'Save file', dir='.', filter="CSV files (*.csv)")
+
         fieldnames = ['pdCategory', 'pdOnset']
         csv.register_dialect('tabseparated', delimiter='\t',
                              quoting=csv.QUOTE_NONE)

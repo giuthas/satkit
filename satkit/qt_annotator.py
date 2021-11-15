@@ -39,6 +39,7 @@ import logging
 import numpy as np
 
 # GUI functionality
+from PyQt5.QtCore import QCoreApplication
 from PyQt5.QtWidgets import QFileDialog
 from PyQt5.uic import loadUiType
 
@@ -71,6 +72,8 @@ class PD_Qt_Annotator(QMainWindow, Ui_MainWindow):
     default_categories = ['Stable', 'Hesitation', 'Chaos', 'No data',
                           'Not set']
 
+    default_tongue_positions = ['High', 'Low', 'Other / Not visible']
+
     @staticmethod
     def line_xdirection_picker(line, mouseevent):
         """
@@ -99,7 +102,7 @@ class PD_Qt_Annotator(QMainWindow, Ui_MainWindow):
 
     def __init__(self, recordings, args, xlim=(-0.1, 1.0),
                  categories=None):
-        super(PD_Qt_Annotator, self).__init__()
+        super().__init__()
 
         self.setupUi(self)
 
@@ -113,6 +116,7 @@ class PD_Qt_Annotator(QMainWindow, Ui_MainWindow):
             self.categories = PD_Qt_Annotator.default_categories
         else:
             self.categories = categories
+        self.tongue_positions = PD_Qt_Annotator.default_tongue_positions
         self._addAnnotations()
 
         self.fig_dict = {}
@@ -121,14 +125,39 @@ class PD_Qt_Annotator(QMainWindow, Ui_MainWindow):
         self.keypress_id = self.fig.canvas.mpl_connect(
             'key_press_event', self.on_key)
 
+        self.actionNext.triggered.connect(self.next)
+        self.actionPrevious.triggered.connect(self.prev)
+
+        self.actionQuit.triggered.connect(self.quit)
+
+        self.nextButton.clicked.connect(self.next)
+        self.prevButton.clicked.connect(self.prev)
+        self.saveButton.clicked.connect(self.save)
+
+        self.categoryRB_1.toggled.connect(self.pdCategoryCB)
+        self.categoryRB_2.toggled.connect(self.pdCategoryCB)
+        self.categoryRB_3.toggled.connect(self.pdCategoryCB)
+        self.categoryRB_4.toggled.connect(self.pdCategoryCB)
+        self.categoryRB_5.toggled.connect(self.pdCategoryCB)
+
+        self.positionRB_1.toggled.connect(self.tonguePositionCB)
+        self.positionRB_2.toggled.connect(self.tonguePositionCB)
+        self.positionRB_3.toggled.connect(self.tonguePositionCB)
+
         self.xlim = xlim
 
         #
         # Graphs to be annotated and the waveform for reference.
         #
-        gs = self.fig.add_gridspec(4, 7)
-        self.ax1 = self.fig.add_subplot(gs[0:0+3, 0:0+6])
-        self.ax3 = self.fig.add_subplot(gs[3:3+1, 0:0+6])
+        # gs = self.fig.add_gridspec(4, 7)
+        # self.ax1 = self.fig.add_subplot(gs[0:0+3, 0:0+7])
+        # self.ax3 = self.fig.add_subplot(gs[3:3+1, 0:0+7])
+        gs = self.fig.add_gridspec(5)
+        self.ax1 = self.fig.add_subplot(gs[0:0+4])
+        self.ax3 = self.fig.add_subplot(gs[4:4+1])
+
+        self.ultra_fig = Figure()
+        self.ultra_axes = self.ultra_fig.add_axes([0, 0, 1, 1])
 
         self.draw_plots()
 
@@ -138,7 +167,6 @@ class PD_Qt_Annotator(QMainWindow, Ui_MainWindow):
         self.add_mpl_elements()
 
         self.show()
-        print(self.__dict__.keys())
 
     @property
     def current(self):
@@ -147,7 +175,8 @@ class PD_Qt_Annotator(QMainWindow, Ui_MainWindow):
     @property
     def default_annotations(self):
         return {
-            'pdCategory': len(self.categories)-1,
+            'pdCategory': self.categories[-1],
+            'tonguePosition': self.tongue_positions[-1],
             'pdOnset': -1.0,
         }
 
@@ -159,7 +188,7 @@ class PD_Qt_Annotator(QMainWindow, Ui_MainWindow):
                 recording.annotations = deepcopy(self.default_annotations)
 
     def _get_title(self):
-        """ 
+        """
         Private helper function for generating the title.
         """
         text = 'SATKIT Annotator'
@@ -185,22 +214,46 @@ class PD_Qt_Annotator(QMainWindow, Ui_MainWindow):
         """
         Updates parts of the UI outwith the graphs.
         """
-        self.pdCategoryRB.set_active(self.current.annotations['pdCategory'])
+        # self.pdCategoryRB.set_active(self.current.annotations['pdCategory'])
+        if self.categoryRB_1.text() == self.current.annotations['pdCategory']:
+            self.categoryRB_1.setChecked(True)
+        if self.categoryRB_2.text() == self.current.annotations['pdCategory']:
+            self.categoryRB_2.setChecked(True)
+        if self.categoryRB_3.text() == self.current.annotations['pdCategory']:
+            self.categoryRB_3.setChecked(True)
+        if self.categoryRB_4.text() == self.current.annotations['pdCategory']:
+            self.categoryRB_4.setChecked(True)
+        if self.categoryRB_5.text() == self.current.annotations['pdCategory']:
+            self.categoryRB_5.setChecked(True)
+
+        if self.positionRB_1.text() == self.current.annotations['tonguePosition']:
+            self.positionRB_1.setChecked(True)
+        if self.positionRB_2.text() == self.current.annotations['tonguePosition']:
+            self.positionRB_2.setChecked(True)
+        if self.positionRB_3.text() == self.current.annotations['tonguePosition']:
+            self.positionRB_3.setChecked(True)
 
     def add_mpl_elements(self):
         self.canvas = FigureCanvas(self.fig)
-        print(self.__dict__.keys())
         self.mplWindowVerticalLayout.addWidget(self.canvas)
         self.canvas.draw()
         self.toolbar = NavigationToolbar(self.canvas,
                                          self, coordinates=True)
         self.addToolBar(self.toolbar)
 
+        self.ultra_canvas = FigureCanvas(self.ultra_fig)
+        self.verticalLayout_6.addWidget(self.ultra_canvas)
+        self.ultra_canvas.draw()
+
     def remove_mpl_elements(self):
         self.mplWindowVerticalLayout.removeWidget(self.canvas)
         self.canvas.close()
+
         self.mplWindowVerticalLayout.removeWidget(self.toolbar)
         self.toolbar.close()
+
+        self.verticalLayout_6.removeWidget(self.ultra_canvas)
+        self.ultra_canvas.close()
 
     def draw_plots(self):
         """
@@ -231,10 +284,18 @@ class PD_Qt_Annotator(QMainWindow, Ui_MainWindow):
         if self.current.annotations['pdOnset'] > -1:
             self.ax1.axvline(x=self.current.annotations['pdOnset'],
                              linestyle=':', color="deepskyblue", lw=1)
-            self.ax3.axvline(x=self.current.annotations['pdOffset'],
+            self.ax3.axvline(x=self.current.annotations['pdOnset'],
                              linestyle=':', color="deepskyblue", lw=1)
 
-    def next(self, event):
+        # TODO: fix this
+        # need to select the correct index still
+        array = self.current.modalities['ThreeD_Ultrasound'].data[3, :, :, 32]
+        array = np.transpose(array)
+        array = np.flip(array, 0).copy()
+        array = array.astype(np.int8)
+        self.ultra_axes.imshow(array, interpolation='nearest', cmap='Greys')
+
+    def next(self):
         """
         Callback function for the Next button.
         Increases cursor index, updates the view.
@@ -244,7 +305,7 @@ class PD_Qt_Annotator(QMainWindow, Ui_MainWindow):
             self.update()
             self.updateUI()
 
-    def prev(self, event):
+    def prev(self):
         """
         Callback function for the Previous button.
         Decreases cursor index, updates the view.
@@ -263,13 +324,16 @@ class PD_Qt_Annotator(QMainWindow, Ui_MainWindow):
         Pressing 'q' seems to be captured by matplotlib and interpeted as quit.
         """
         if event.key == "right":
-            self.next(event)
+            self.next()
         elif event.key == "left":
-            self.prev(event)
+            self.prev()
         elif event.key == "s":
-            self.save(event)
+            self.save()
 
-    def save(self, event):
+    def quit(self):
+        QCoreApplication.quit()
+
+    def save(self):
         """
         Callback funtion for the Save button.
         Currently overwrites what ever is at
@@ -294,13 +358,23 @@ class PD_Qt_Annotator(QMainWindow, Ui_MainWindow):
             _qt_annotator_logger.debug(
                 'Wrote onset data in file ' + filename + '.')
 
-    def pdCatCB(self, event):
-        """ 
-        Callback funtion for the RadioButton for catogorising 
+    def pdCategoryCB(self):
+        """
+        Callback funtion for the RadioButton for catogorising
         the PD curve.
         """
-        self.current.annotations['pdCategory'] = self.categories.index(
-            event)
+        radioBtn = self.sender()
+        if radioBtn.isChecked():
+            self.current.annotations['pdCategory'] = radioBtn.text()
+
+    def tonguePositionCB(self):
+        """
+        Callback funtion for the RadioButton for catogorising
+        the PD curve.
+        """
+        radioBtn = self.sender()
+        if radioBtn.isChecked():
+            self.current.annotations['tonguePosition'] = radioBtn.text()
 
     def onpick(self, event):
         """

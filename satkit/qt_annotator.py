@@ -178,6 +178,7 @@ class PD_Qt_Annotator(QMainWindow, Ui_MainWindow):
             'pdCategory': self.categories[-1],
             'tonguePosition': self.tongue_positions[-1],
             'pdOnset': -1.0,
+            'pdOnsetIndex': -1,
         }
 
     def _addAnnotations(self):
@@ -209,6 +210,7 @@ class PD_Qt_Annotator(QMainWindow, Ui_MainWindow):
         self.draw_plots()
         self.add_mpl_elements()
         self.fig.canvas.draw()
+        self.draw_ultra_frame()
 
     def updateUI(self):
         """
@@ -286,10 +288,14 @@ class PD_Qt_Annotator(QMainWindow, Ui_MainWindow):
                              linestyle=':', color="deepskyblue", lw=1)
             self.ax3.axvline(x=self.current.annotations['pdOnset'],
                              linestyle=':', color="deepskyblue", lw=1)
+        self.draw_ultra_frame()
 
-        # TODO: fix this
-        # need to select the correct index still
-        array = self.current.modalities['ThreeD_Ultrasound'].data[3, :, :, 32]
+    def draw_ultra_frame(self):
+        if self.current.annotations['pdOnsetIndex']:
+            ind = self.current.annotations['pdOnsetIndex']
+            array = self.current.modalities['ThreeD_Ultrasound'].data[ind, :, :, 32]
+        else:
+            array = self.current.modalities['ThreeD_Ultrasound'].data[1, :, :, 32]
         array = np.transpose(array)
         array = np.flip(array, 0).copy()
         array = array.astype(np.int8)
@@ -390,4 +396,11 @@ class PD_Qt_Annotator(QMainWindow, Ui_MainWindow):
         if subplot == 1:
             self.current.annotations['pdOnset'] = event.pickx
 
+            audio = self.current.modalities['MonoAudio']
+            wav_time = audio.timevector
+
+            pd = self.current.modalities['PD on ThreeD_Ultrasound']
+            ultra_time = pd.timevector - pd.timevector[-1] + wav_time[-1]
+            self.current.annotations['pdOnsetIndex'] = np.nonzero(
+                ultra_time >= event.pickx)[0][0]
         self.update()

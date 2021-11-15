@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>707</width>
-    <height>480</height>
+    <width>1024</width>
+    <height>601</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -27,12 +27,18 @@
      </widget>
     </item>
     <item>
-     <widget class="QListWidget" name="mplfigs">
+     <widget class="QFrame" name="button_organiser">
       <property name="sizePolicy">
-       <sizepolicy hsizetype="Maximum" vsizetype="Expanding">
+       <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
         <horstretch>0</horstretch>
         <verstretch>0</verstretch>
        </sizepolicy>
+      </property>
+      <property name="minimumSize">
+       <size>
+        <width>200</width>
+        <height>0</height>
+       </size>
       </property>
       <property name="maximumSize">
        <size>
@@ -40,6 +46,208 @@
         <height>16777215</height>
        </size>
       </property>
+      <layout class="QVBoxLayout" name="verticalLayout_3">
+       <property name="leftMargin">
+        <number>0</number>
+       </property>
+       <property name="topMargin">
+        <number>0</number>
+       </property>
+       <property name="rightMargin">
+        <number>0</number>
+       </property>
+       <property name="bottomMargin">
+        <number>0</number>
+       </property>
+       <item>
+        <widget class="QGroupBox" name="groupBox">
+         <property name="title">
+          <string>PD category</string>
+         </property>
+         <layout class="QVBoxLayout" name="verticalLayout_4">
+          <item>
+           <widget class="QRadioButton" name="categoryRB_1">
+            <property name="autoFillBackground">
+             <bool>false</bool>
+            </property>
+            <property name="text">
+             <string>Stable</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QRadioButton" name="categoryRB_3">
+            <property name="autoFillBackground">
+             <bool>false</bool>
+            </property>
+            <property name="text">
+             <string>Hesitation</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QRadioButton" name="categoryRB_2">
+            <property name="autoFillBackground">
+             <bool>false</bool>
+            </property>
+            <property name="text">
+             <string>Chaos</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QRadioButton" name="categoryRB_4">
+            <property name="autoFillBackground">
+             <bool>false</bool>
+            </property>
+            <property name="text">
+             <string>No data</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QRadioButton" name="categoryRB_5">
+            <property name="autoFillBackground">
+             <bool>false</bool>
+            </property>
+            <property name="text">
+             <string>Not set</string>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </widget>
+       </item>
+       <item>
+        <widget class="QGroupBox" name="groupBox_2">
+         <property name="title">
+          <string>TonguePosition</string>
+         </property>
+         <layout class="QVBoxLayout" name="verticalLayout_5">
+          <item>
+           <widget class="QRadioButton" name="positionRB_1">
+            <property name="autoFillBackground">
+             <bool>false</bool>
+            </property>
+            <property name="text">
+             <string>High</string>
+            </property>
+            <attribute name="buttonGroup">
+             <string notr="true">tonguePositionRBs</string>
+            </attribute>
+           </widget>
+          </item>
+          <item>
+           <widget class="QRadioButton" name="positionRB_2">
+            <property name="autoFillBackground">
+             <bool>false</bool>
+            </property>
+            <property name="text">
+             <string>Low</string>
+            </property>
+            <attribute name="buttonGroup">
+             <string notr="true">tonguePositionRBs</string>
+            </attribute>
+           </widget>
+          </item>
+          <item>
+           <widget class="QRadioButton" name="positionRB_3">
+            <property name="autoFillBackground">
+             <bool>false</bool>
+            </property>
+            <property name="text">
+             <string>Other / Not visible</string>
+            </property>
+            <attribute name="buttonGroup">
+             <string notr="true">tonguePositionRBs</string>
+            </attribute>
+           </widget>
+          </item>
+         </layout>
+        </widget>
+       </item>
+       <item>
+        <widget class="QWidget" name="ultrasoundFrame" native="true">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="minimumSize">
+          <size>
+           <width>160</width>
+           <height>160</height>
+          </size>
+         </property>
+         <layout class="QVBoxLayout" name="verticalLayout_6"/>
+        </widget>
+       </item>
+       <item>
+        <spacer name="verticalSpacer">
+         <property name="orientation">
+          <enum>Qt::Vertical</enum>
+         </property>
+         <property name="sizeHint" stdset="0">
+          <size>
+           <width>20</width>
+           <height>40</height>
+          </size>
+         </property>
+        </spacer>
+       </item>
+       <item>
+        <widget class="QFrame" name="frame">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Minimum" vsizetype="Maximum">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="minimumSize">
+          <size>
+           <width>160</width>
+           <height>50</height>
+          </size>
+         </property>
+         <property name="maximumSize">
+          <size>
+           <width>200</width>
+           <height>16777215</height>
+          </size>
+         </property>
+         <property name="frameShape">
+          <enum>QFrame::StyledPanel</enum>
+         </property>
+         <property name="frameShadow">
+          <enum>QFrame::Raised</enum>
+         </property>
+         <layout class="QGridLayout" name="gridLayout">
+          <item row="1" column="0">
+           <widget class="QPushButton" name="nextButton">
+            <property name="text">
+             <string>Next</string>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="0">
+           <widget class="QPushButton" name="prevButton">
+            <property name="text">
+             <string>Previous</string>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="1" rowspan="2">
+           <widget class="QPushButton" name="saveButton">
+            <property name="text">
+             <string>Save...</string>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </widget>
+       </item>
+      </layout>
      </widget>
     </item>
    </layout>
@@ -49,17 +257,19 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>707</width>
+     <width>1024</width>
      <height>22</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuFile">
     <property name="title">
-     <string>Data</string>
+     <string>File</string>
     </property>
     <addaction name="actionOpen"/>
-    <addaction name="actionSave_2"/>
-    <addaction name="actionSave"/>
+    <addaction name="actionSaveToPickle"/>
+    <addaction name="actionSaveAsPickle"/>
+    <addaction name="separator"/>
+    <addaction name="actionExport_analysis"/>
    </widget>
    <widget class="QMenu" name="menuImage">
     <property name="title">
@@ -75,9 +285,17 @@
     <addaction name="actionShow_interpreter"/>
     <addaction name="actionRun_file"/>
    </widget>
+   <widget class="QMenu" name="menuRecordings">
+    <property name="title">
+     <string>Recordings</string>
+    </property>
+    <addaction name="actionNext"/>
+    <addaction name="actionPrevious"/>
+   </widget>
    <addaction name="menuFile"/>
    <addaction name="menuImage"/>
    <addaction name="menuScript"/>
+   <addaction name="menuRecordings"/>
   </widget>
   <widget class="QStatusBar" name="statusbar"/>
   <action name="actionNew">
@@ -90,14 +308,14 @@
     <string>Open...</string>
    </property>
   </action>
-  <action name="actionSave">
+  <action name="actionSaveAsPickle">
    <property name="text">
-    <string>Save as...</string>
+    <string>Save as Pickle...</string>
    </property>
   </action>
-  <action name="actionSave_2">
+  <action name="actionSaveToPickle">
    <property name="text">
-    <string>Save</string>
+    <string>Save to Pickle</string>
    </property>
   </action>
   <action name="actionSave_as">
@@ -120,7 +338,31 @@
     <string>Run file...</string>
    </property>
   </action>
+  <action name="actionNext">
+   <property name="text">
+    <string>Next</string>
+   </property>
+   <property name="shortcut">
+    <string>Right</string>
+   </property>
+  </action>
+  <action name="actionPrevious">
+   <property name="text">
+    <string>Previous</string>
+   </property>
+   <property name="shortcut">
+    <string>Left</string>
+   </property>
+  </action>
+  <action name="actionExport_analysis">
+   <property name="text">
+    <string>Export analysis...</string>
+   </property>
+  </action>
  </widget>
  <resources/>
  <connections/>
+ <buttongroups>
+  <buttongroup name="tonguePositionRBs"/>
+ </buttongroups>
 </ui>

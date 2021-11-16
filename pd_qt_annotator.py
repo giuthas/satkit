@@ -37,7 +37,7 @@ import time
 # local modules
 from satkit.commandLineInterface import RawCLI
 from satkit.qt_annotator import PD_Qt_Annotator
-from satkit.io.ThreeD_ultrasound import ThreeD_Ultrasound
+from satkit.recording import RawUltrasound
 from satkit import pd
 
 # For running a Qt GUI
@@ -49,7 +49,7 @@ def main():
 
     # Run the command line interface.
     #function_dict = {'pd':pd.pd, 'annd':annd.annd}
-    function_dict = {'PD': (pd.addPD, [ThreeD_Ultrasound])}
+    function_dict = {'PD': (pd.addPD, [RawUltrasound])}
     cli = RawCLI("PD annotator", function_dict, plot=False)
 
     elapsed_time = time.time() - t

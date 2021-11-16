@@ -294,9 +294,9 @@ class PD_Qt_Annotator(QMainWindow, Ui_MainWindow):
     def draw_ultra_frame(self):
         if self.current.annotations['pdOnsetIndex']:
             ind = self.current.annotations['pdOnsetIndex']
-            array = self.current.modalities['RawUltrasound'].data[ind, :, :, 32]
+            array = self.current.modalities['RawUltrasound'].data[ind, :, :]
         else:
-            array = self.current.modalities['RawUltrasound'].data[1, :, :, 32]
+            array = self.current.modalities['RawUltrasound'].data[1, :, :]
         array = np.transpose(array)
         array = np.flip(array, 0).copy()
         array = array.astype(np.int8)

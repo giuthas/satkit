@@ -269,6 +269,7 @@ class PD_Qt_Annotator(QMainWindow, Ui_MainWindow):
         wav = audio.data
         wav_time = audio.timevector
 
+        print(self.current.modalities.keys())
         pd = self.current.modalities['PD on RawUltrasound']
         ultra_time = pd.timevector - pd.timevector[-1] + wav_time[-1]
 

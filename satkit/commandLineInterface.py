@@ -357,12 +357,12 @@ class Raw3D_CLI(RawCLI):
         """
         Wrapper for reading data from a directory full of files.
 
-        Having this as a separate method allows subclasses to change 
+        Having this as a separate method allows subclasses to change
         arguments or even the parser.
 
         Note that to make data loading work the in a consistent way,
-        this method just returns the data and saving it in a 
-        instance variable is left for the caller to handle. 
+        this method just returns the data and saving it in a
+        instance variable is left for the caller to handle.
         """
         recordings = ThreeD_ultrasound.generateRecordingList(
             Path(self.args.load_path))
@@ -379,7 +379,7 @@ class Raw3D_CLI(RawCLI):
         """
         Wrapper for plotting data.
 
-        Having this as a separate method allows subclasses to change 
+        Having this as a separate method allows subclasses to change
         arguments and plotting commands.
         """
         self.logger.info("Drawing CAW 2021 plots for 3D.")

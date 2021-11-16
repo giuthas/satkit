@@ -29,17 +29,18 @@
 # citations.bib in BibTeX format.
 #
 
+# built-in modules
 import logging
 import sys
 import time
 
 # local modules
-from satkit.commandLineInterface import Raw3D_CLI
+from satkit.commandLineInterface import RawCLI
 from satkit.qt_annotator import PD_Qt_Annotator
 from satkit.io.ThreeD_ultrasound import ThreeD_Ultrasound
 from satkit import pd
 
-
+# For running a Qt GUI
 from PyQt5 import QtWidgets
 
 
@@ -49,7 +50,7 @@ def main():
     # Run the command line interface.
     #function_dict = {'pd':pd.pd, 'annd':annd.annd}
     function_dict = {'PD': (pd.addPD, [ThreeD_Ultrasound])}
-    cli = Raw3D_CLI("PD 3D annotator", function_dict, plot=False)
+    cli = RawCLI("PD 3D annotator", function_dict, plot=False)
 
     elapsed_time = time.time() - t
     logging.info('Elapsed time ' + str(elapsed_time))

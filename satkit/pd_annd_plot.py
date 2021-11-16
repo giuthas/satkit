@@ -128,6 +128,7 @@ def plot_textgrid_lines_3D_ultra(
     """
     text_settings = {'horizontalalignment': 'center',
                      'verticalalignment': 'center'}
+    segment_line = None
     for segment in textgrid['phoneme']:
         if segment.text == "":
             continue
@@ -236,8 +237,8 @@ def plot_pd_3d(ax, pd, time, xlim, textgrid=None, stimulus_onset=0,
                   ('Pixel difference', 'Acoustic segments'),
                   loc='upper right')
     else:
-        ax.legend((pd_curve),
-                  ('Pixel difference'),
+        ax.legend((pd_curve,),
+                  ('Pixel difference',),
                   loc='upper right')
     ax.set_ylabel("PD on ultrasound")
 

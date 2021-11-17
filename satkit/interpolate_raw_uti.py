@@ -30,47 +30,62 @@
 # citations.bib in BibTeX format.
 #
 
-import numpy as np
-import cv2
-from scipy import ndimage
 import math
 from tqdm import tqdm
 
 
-def to_fan(imgs, angle=None, zero_offset=None, pix_per_mm=None,
+import numpy as np
+from scipy import ndimage
+
+import cv2
+
+
+def to_fan(scanline_data, angle=None, zero_offset=None, pix_per_mm=None,
            num_vectors=None, magnify=1, reserve=1800, show_progress=False):
-    if len(imgs.shape) == 4:  # multiple RGB images
+    """
+    Generate interpolated images from scanline ultrasound data.
+
+    Positional argument:
+    scanline_data - numpy array containing each frame as a vector, but in case of RGB data, each color as its own vector.
+    angle - angle between scanlines in radians
+    zero_offset - distance between probe center and first pixel of a scanline
+    pix_per_mm - pixels per mm in the depth direction of a scanline
+    num_vectors - number of scanlines per frame 
+
+    Returns a numpy array containing the generated image(s).
+    """
+    if len(scanline_data.shape) == 4:  # multiple RGB images
         if show_progress:
-            imgs = [
+            images = [
                 to_fan_2d(
                     i, angle, zero_offset, pix_per_mm, num_vectors,
                     magnify, reserve)
-                for i in tqdm(imgs, desc='Fanshape')]
+                for i in tqdm(scanline_data, desc='Fanshape')]
         else:
-            imgs = [
+            images = [
                 to_fan_2d(
                     i, angle, zero_offset, pix_per_mm, num_vectors,
-                    magnify, reserve) for i in imgs]
-    elif len(imgs.shape) == 3:
-        if imgs.shape[-1] == 3:  # single RGB image
-            imgs = to_fan_2d(imgs, angle, zero_offset,
-                             pix_per_mm, num_vectors, magnify, reserve)
+                    magnify, reserve) for i in scanline_data]
+    elif len(scanline_data.shape) == 3:
+        if scanline_data.shape[-1] == 3:  # single RGB image
+            images = to_fan_2d(scanline_data, angle, zero_offset,
+                               pix_per_mm, num_vectors, magnify, reserve)
         else:  # multiple grayscale images
             if show_progress:
-                imgs = [
+                images = [
                     to_fan_2d(
                         i, angle, zero_offset, pix_per_mm, num_vectors,
                         magnify, reserve)
-                    for i in tqdm(imgs, desc='Fanshape')]
+                    for i in tqdm(scanline_data, desc='Fanshape')]
             else:
-                imgs = [
+                images = [
                     to_fan_2d(
                         i, angle, zero_offset, pix_per_mm, num_vectors,
-                        magnify, reserve) for i in imgs]
+                        magnify, reserve) for i in scanline_data]
     else:  # single grayscale image
-        imgs = to_fan_2d(imgs, angle, zero_offset, pix_per_mm,
-                         num_vectors, magnify, reserve)
-    return np.array(imgs)
+        images = to_fan_2d(scanline_data, angle, zero_offset, pix_per_mm,
+                           num_vectors, magnify, reserve)
+    return np.array(images)
 
 
 def to_fan_2d(img, angle=None, zero_offset=None, pix_per_mm=None,

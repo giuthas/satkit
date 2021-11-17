@@ -406,10 +406,10 @@ class PD_Qt_Annotator(QMainWindow, Ui_MainWindow):
             self.current.annotations['pdOnset'] = event.pickx
 
             audio = self.current.modalities['MonoAudio']
-            wav_time = audio.timevector
+            stimulus_onset = audio.meta['stimulus_onset']
 
             pd = self.current.modalities['PD on RawUltrasound']
-            ultra_time = pd.timevector - pd.timevector[-1] + wav_time[-1]
+            ultra_time = pd.timevector - stimulus_onset
             self.current.annotations['pdOnsetIndex'] = np.nonzero(
                 ultra_time >= event.pickx)[0][0]
         self.update()

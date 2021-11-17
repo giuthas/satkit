@@ -34,6 +34,7 @@ from contextlib import closing
 from copy import deepcopy
 import csv
 import logging
+from operator import index
 
 # Numpy
 import numpy as np
@@ -267,11 +268,10 @@ class PD_Qt_Annotator(QMainWindow, Ui_MainWindow):
         audio = self.current.modalities['MonoAudio']
         stimulus_onset = audio.meta['stimulus_onset']
         wav = audio.data
-        wav_time = audio.timevector
+        wav_time = (audio.timevector - stimulus_onset)
 
-        print(self.current.modalities.keys())
         pd = self.current.modalities['PD on RawUltrasound']
-        ultra_time = pd.timevector - pd.timevector[-1] + wav_time[-1]
+        ultra_time = pd.timevector - stimulus_onset
 
         self.xlim = [ultra_time[0] - 0.05, ultra_time[-1]+0.05]
 
@@ -292,6 +292,14 @@ class PD_Qt_Annotator(QMainWindow, Ui_MainWindow):
         self.draw_ultra_frame()
 
     def draw_ultra_frame(self):
+        index = 1
+        if self.current.annotations['pdOnsetIndex']:
+            index = self.current.annotations['pdOnsetIndex']
+        image = self.current.modalities['RawUltrasound'].interpolated_image(
+            index)
+        self.ultra_axes.imshow(image, interpolation='nearest', cmap='gray')
+
+    def draw_raw_ultra_frame(self):
         if self.current.annotations['pdOnsetIndex']:
             ind = self.current.annotations['pdOnsetIndex']
             array = self.current.modalities['RawUltrasound'].data[ind, :, :]
@@ -300,7 +308,7 @@ class PD_Qt_Annotator(QMainWindow, Ui_MainWindow):
         array = np.transpose(array)
         array = np.flip(array, 0).copy()
         array = array.astype(np.int8)
-        self.ultra_axes.imshow(array, interpolation='nearest', cmap='Greys')
+        self.ultra_axes.imshow(array, interpolation='nearest', cmap='gray')
 
     def next(self):
         """

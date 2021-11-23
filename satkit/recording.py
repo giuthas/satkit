@@ -581,6 +581,10 @@ class RawUltrasound(MatrixData):
         else:
             self._data = None
 
+        # State variables for fast retrieval of previously tagged ultrasound frames.
+        self._stored_index = -1
+        self._stored_image = None
+
     def _getData(self):
         with closing(open(self.meta['filename'], 'rb')) as ult_file:
             ult_data = ult_file.read()
@@ -625,11 +629,16 @@ class RawUltrasound(MatrixData):
     def interpolated_image(self, index):
         # frame = self.data[index, :, :].copy().reshape(
         #         [self.meta['NumVectors'] * self.meta['PixPerVector']])
-        frame = np.transpose(self.data[index, :, :].copy())
-        frame = np.flip(frame, 0)
-        return to_fan_2d(
-            frame,
-            angle=self.meta['Angle'],
-            zero_offset=self.meta['ZeroOffset'],
-            pix_per_mm=self.meta['PixelsPerMm'],
-            num_vectors=self.meta['NumVectors'])
+        if self._stored_index == index:
+            return self._stored_image
+        else:
+            self._stored_index = index
+            frame = np.transpose(self.data[index, :, :].copy())
+            frame = np.flip(frame, 0)
+            self._stored_image = to_fan_2d(
+                frame,
+                angle=self.meta['Angle'],
+                zero_offset=self.meta['ZeroOffset'],
+                pix_per_mm=self.meta['PixelsPerMm'],
+                num_vectors=self.meta['NumVectors'])
+            return self._stored_image

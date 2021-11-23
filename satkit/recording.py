@@ -582,7 +582,7 @@ class RawUltrasound(MatrixData):
             self._data = None
 
         # State variables for fast retrieval of previously tagged ultrasound frames.
-        self._stored_index = -1
+        self._stored_index = None
         self._stored_image = None
 
     def _getData(self):
@@ -629,7 +629,7 @@ class RawUltrasound(MatrixData):
     def interpolated_image(self, index):
         # frame = self.data[index, :, :].copy().reshape(
         #         [self.meta['NumVectors'] * self.meta['PixPerVector']])
-        if self._stored_index == index:
+        if self._stored_index and self._stored_index == index:
             return self._stored_image
         else:
             self._stored_index = index

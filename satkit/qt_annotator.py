@@ -358,7 +358,12 @@ class PD_Qt_Annotator(QMainWindow, Ui_MainWindow):
         filename = QFileDialog.getSaveFileName(
             self, 'Save file', dir='.', filter="CSV files (*.csv)")
 
-        fieldnames = ['pdCategory', 'pdOnset']
+        vowels = ['a', 'A', 'e', 'E', 'i', 'I',
+                  'o', 'O', 'u', '@', "@`", 'OI', 'V']
+        fieldnames = ['basename', 'date_and_time', 'prompt', 'C1', 'C1_dur',
+                      'word_dur', 'first_sound',
+                      'first_sound_type', 'first_sound_dur', 'AAI']
+        fieldnames.append(self.default_annotations.keys())
         csv.register_dialect('tabseparated', delimiter='\t',
                              quoting=csv.QUOTE_NONE)
 
@@ -367,8 +372,50 @@ class PD_Qt_Annotator(QMainWindow, Ui_MainWindow):
                                     dialect='tabseparated')
 
             writer.writeheader()
-            for token in self.recordings:
-                writer.writerow(token)
+            for recording in self.recordings:
+                annotations = recording.annotations.copy()
+                annotations['basename'] = recording.meta['basename']
+                annotations['date_and_time'] = recording.meta['date_and_time']
+                annotations['prompt'] = recording.meta['prompt']
+
+                word_dur = -1.0
+                acoustic_onset = -1.0
+                for interval in recording.textgrid['word']:
+                    # change this to access the phonemeDict and check for included words, then search for
+                    # phonemes based on the same
+                    if interval.text == "":
+                        continue
+                    else:
+                        # Before 1.0: check if there is a duration to use here. and maybe make this
+                        # more intelligent by selecting purposefully the last non-empty first and
+                        # taking the duration?
+                        word_dur = interval.dur
+                        acoustic_onset = interval.xmin
+                annotations['word_dur'] = word_dur
+
+                if acoustic_onset < 0:
+                    AAI = -1.0
+                else:
+                    AAI = acoustic_onset - annotations['pdOnset']
+                annotations['AAI'] = AAI
+
+                first_sound_dur = -1.0
+                first_sound = ""
+                for interval in recording.textgrid['segment']:
+                    if interval.text and interval.text != 'beep':
+                        # This is the last sound.
+                        first_sound_dur = interval.dur
+                        first_sound = interval.text
+                        break
+                annotations['first_sound_dur'] = first_sound_dur
+                annotations['first_sound'] = first_sound
+                if first_sound in vowels:
+                    annotations['first_sound_type'] = 'V'
+                else:
+                    annotations['first_sound_type'] = 'C'
+
+                annotations['C1'] = recording.meta['prompt'][0]
+                writer.writerow(annotations)
             print('Wrote onset data in file ' + filename + '.')
             _qt_annotator_logger.debug(
                 'Wrote onset data in file ' + filename + '.')

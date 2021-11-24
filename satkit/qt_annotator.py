@@ -354,16 +354,15 @@ class PD_Qt_Annotator(QMainWindow, Ui_MainWindow):
         Currently overwrites what ever is at
         local_data/onsets.csv
         """
-        # eventually get this from commandline/caller/dialog window
-        filename = QFileDialog.getSaveFileName(
-            self, 'Save file', dir='.', filter="CSV files (*.csv)")
+        (filename, filetype) = QFileDialog.getSaveFileName(
+            self, 'Save file', directory='.', filter="CSV files (*.csv)")
 
         vowels = ['a', 'A', 'e', 'E', 'i', 'I',
                   'o', 'O', 'u', '@', "@`", 'OI', 'V']
         fieldnames = ['basename', 'date_and_time', 'prompt', 'C1', 'C1_dur',
                       'word_dur', 'first_sound',
                       'first_sound_type', 'first_sound_dur', 'AAI']
-        fieldnames.append(self.default_annotations.keys())
+        fieldnames.extend(self.default_annotations.keys())
         csv.register_dialect('tabseparated', delimiter='\t',
                              quoting=csv.QUOTE_NONE)
 
@@ -393,7 +392,7 @@ class PD_Qt_Annotator(QMainWindow, Ui_MainWindow):
                         acoustic_onset = interval.xmin
                 annotations['word_dur'] = word_dur
 
-                if acoustic_onset < 0:
+                if acoustic_onset < 0 or annotations['pdOnset'] < 0:
                     AAI = -1.0
                 else:
                     AAI = acoustic_onset - annotations['pdOnset']

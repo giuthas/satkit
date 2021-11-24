@@ -359,8 +359,10 @@ class AAA_UltrasoundRecording(Recording):
 
             # The date used to be just a string, but needs to be more sturctured since
             # the spline export files have a different date format.
-            self.meta['date'] = datetime.strptime(
+            self.meta['date_and_time'] = datetime.strptime(
                 lines[1], '%d/%m/%Y %H:%M:%S')
+            # TODO: hunt and remove uses of either date or date_and_time and use only one in the future.
+            self.meta['date'] = self.meta['date_and_time']
 
             if len(lines) > 2 and lines[2].strip():
                 self.meta['participant'] = lines[2].split(',')[0]

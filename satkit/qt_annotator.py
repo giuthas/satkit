@@ -387,12 +387,13 @@ class PD_Qt_Annotator(QMainWindow, Ui_MainWindow):
                     # phonemes based on the same
                     if interval.text == "":
                         continue
-                    else:
-                        # Before 1.0: check if there is a duration to use here. and maybe make this
-                        # more intelligent by selecting purposefully the last non-empty first and
-                        # taking the duration?
-                        word_dur = interval.dur
-                        acoustic_onset = interval.xmin
+
+                    # Before 1.0: check if there is a duration to use here. and maybe make this
+                    # more intelligent by selecting purposefully the last non-empty first and
+                    # taking the duration?
+                    word_dur = interval.dur
+                    stimulus_onset = self.current.modalities['MonoAudio'].meta['stimulus_onset']
+                    acoustic_onset = interval.xmin - stimulus_onset
                 annotations['word_dur'] = word_dur
 
                 if acoustic_onset < 0 or annotations['pdOnset'] < 0:

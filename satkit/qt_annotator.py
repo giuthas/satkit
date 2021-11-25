@@ -34,7 +34,6 @@ from contextlib import closing
 from copy import deepcopy
 import csv
 import logging
-from operator import index
 
 # Numpy
 import numpy as np
@@ -316,6 +315,8 @@ class PD_Qt_Annotator(QMainWindow, Ui_MainWindow):
         Increases cursor index, updates the view.
         """
         if self.index < self.max_index-1:
+            # TODO: wrap in a data modalities accessor and possibly make these preloading at +/-1 step
+            self.current.modalities['RawUltrasound'].data = None
             self.index += 1
             self.update()
             self.updateUI()
@@ -326,6 +327,8 @@ class PD_Qt_Annotator(QMainWindow, Ui_MainWindow):
         Decreases cursor index, updates the view.
         """
         if self.index > 0:
+            # TODO: wrap in a data modalities accessor and possibly make these preloading at +/-1 step
+            self.current.modalities['RawUltrasound'].data = None
             self.index -= 1
             self.update()
             self.updateUI()

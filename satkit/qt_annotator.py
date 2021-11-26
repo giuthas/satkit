@@ -396,8 +396,9 @@ class PD_Qt_Annotator(QMainWindow, Ui_MainWindow):
                     # more intelligent by selecting purposefully the last non-empty first and
                     # taking the duration?
                     word_dur = interval.dur
-                    stimulus_onset = self.current.modalities['MonoAudio'].meta['stimulus_onset']
+                    stimulus_onset = recording.modalities['MonoAudio'].meta['stimulus_onset']
                     acoustic_onset = interval.xmin - stimulus_onset
+                    break
                 annotations['word_dur'] = word_dur
 
                 if acoustic_onset < 0 or annotations['pdOnset'] < 0:

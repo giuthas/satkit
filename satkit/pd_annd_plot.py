@@ -87,6 +87,7 @@ def plot_textgrid_lines(ax, textgrid, stimulus_onset=0, draw_text=True):
     """
     text_settings = {'horizontalalignment': 'center',
                      'verticalalignment': 'center'}
+    segment_line = None
     for segment in textgrid['segment']:
         if segment.text == "":
             continue

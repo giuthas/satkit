@@ -272,7 +272,8 @@ class PD_Qt_Annotator(QMainWindow, Ui_MainWindow):
         pd = self.current.modalities['PD on RawUltrasound']
         ultra_time = pd.timevector - stimulus_onset
 
-        self.xlim = [ultra_time[0] - 0.05, ultra_time[-1]+0.05]
+        #self.xlim = [ultra_time[0] - 0.05, ultra_time[-1]+0.05]
+        self.xlim = [-0.25, 1.0]
 
         textgrid = self.current.textgrid
 
@@ -359,6 +360,9 @@ class PD_Qt_Annotator(QMainWindow, Ui_MainWindow):
         """
         (filename, filetype) = QFileDialog.getSaveFileName(
             self, 'Save file', directory='.', filter="CSV files (*.csv)")
+
+        if not filename:
+            return
 
         vowels = ['a', 'A', 'e', 'E', 'i', 'I',
                   'o', 'O', 'u', '@', "@`", 'OI', 'V']

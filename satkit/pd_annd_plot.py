@@ -187,7 +187,7 @@ def plot_pd(ax, pd, time, xlim, textgrid=None, stimulus_onset=0,
         segment_line = plot_textgrid_lines(ax, textgrid, stimulus_onset)
 
     ax.set_xlim(xlim)
-    ax.set_ylim((-50, 3550))
+    ax.set_ylim((-50, 2550))
     if segment_line:
         ax.legend((pd_curve, go_line, segment_line),
                   ('Pixel difference', 'Go-signal onset', 'Acoustic segments'),

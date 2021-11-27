@@ -52,6 +52,7 @@ from matplotlib.backends.backend_qt5agg import (
 # Local modules
 #from satkit.annotator import CurveAnnotator, PD_Annotator
 from satkit.pd_annd_plot import plot_pd, plot_pd_3d, plot_wav, plot_wav_3D_ultra
+import satkit.io as satkit_io
 
 # Load the GUI layout generated with QtDesigner.
 Ui_MainWindow, QMainWindow = loadUiType('satkit/qt_annotator.ui')
@@ -101,7 +102,7 @@ class PD_Qt_Annotator(QMainWindow, Ui_MainWindow):
         #     return False, dict()
 
     def __init__(self, recordings, args, xlim=(-0.1, 1.0),
-                 categories=None):
+                 categories=None, pickle_filename=None):
         super().__init__()
 
         self.setupUi(self)
@@ -118,6 +119,8 @@ class PD_Qt_Annotator(QMainWindow, Ui_MainWindow):
             self.categories = categories
         self.tongue_positions = PD_Qt_Annotator.default_tongue_positions
         self._addAnnotations()
+
+        self.pickle_filename = pickle_filename
 
         self.fig_dict = {}
 
@@ -353,12 +356,24 @@ class PD_Qt_Annotator(QMainWindow, Ui_MainWindow):
         QCoreApplication.quit()
 
     def save(self):
+
+        if not self.pickle_filename:
+            (self.pickle_filename, _) = QFileDialog.getSaveFileName(
+                self, 'Save file', directory='.', filter="Pickle files (*.pickle)")
+        if self.pickle_filename:
+            satkit_io.save2pickle(
+                self.recordings,
+                self.pickle_filename)
+            _qt_annotator_logger.info(
+                "Wrote data to file " + self.pickle_filename + ".")
+
+    def export(self):
         """
         Callback funtion for the Save button.
         Currently overwrites what ever is at
         local_data/onsets.csv
         """
-        (filename, filetype) = QFileDialog.getSaveFileName(
+        (filename, _) = QFileDialog.getSaveFileName(
             self, 'Save file', directory='.', filter="CSV files (*.csv)")
 
         if not filename:
@@ -383,6 +398,7 @@ class PD_Qt_Annotator(QMainWindow, Ui_MainWindow):
                 annotations['basename'] = recording.meta['basename']
                 annotations['date_and_time'] = recording.meta['date_and_time']
                 annotations['prompt'] = recording.meta['prompt']
+                annotations['word'] = recording.meta['prompt'].split()[1]
 
                 word_dur = -1.0
                 acoustic_onset = -1.0
@@ -544,6 +560,7 @@ class PD_3D_Qt_Annotator(QMainWindow, Ui_MainWindow):
         self.nextButton.clicked.connect(self.next)
         self.prevButton.clicked.connect(self.prev)
         self.saveButton.clicked.connect(self.save)
+        self.exportButton.clicked.connect(self.export)
 
         self.categoryRB_1.toggled.connect(self.pdCategoryCB)
         self.categoryRB_2.toggled.connect(self.pdCategoryCB)

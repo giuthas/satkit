@@ -136,6 +136,7 @@ class PD_Qt_Annotator(QMainWindow, Ui_MainWindow):
         self.nextButton.clicked.connect(self.next)
         self.prevButton.clicked.connect(self.prev)
         self.saveButton.clicked.connect(self.save)
+        self.exportButton.clicked.connect(self.export)
 
         self.categoryRB_1.toggled.connect(self.pdCategoryCB)
         self.categoryRB_2.toggled.connect(self.pdCategoryCB)

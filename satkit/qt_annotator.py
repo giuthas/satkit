@@ -188,7 +188,9 @@ class PD_Qt_Annotator(QMainWindow, Ui_MainWindow):
     def _addAnnotations(self):
         for recording in self.recordings:
             if recording.annotations:
-                recording.annotations.update(self.default_annotations)
+                recording.annotations = dict(
+                    list(self.default_annotations.items()) +
+                    list(recording.annotations.items()))
             else:
                 recording.annotations = deepcopy(self.default_annotations)
 

@@ -138,6 +138,9 @@ class PD_Qt_Annotator(QMainWindow, Ui_MainWindow):
         self.saveButton.clicked.connect(self.save)
         self.exportButton.clicked.connect(self.export)
 
+        self.goSpinBox.setMaximum(self.max_index + 1)
+        self.goButton.clicked.connect(self.go)
+
         self.categoryRB_1.toggled.connect(self.pdCategoryCB)
         self.categoryRB_2.toggled.connect(self.pdCategoryCB)
         self.categoryRB_3.toggled.connect(self.pdCategoryCB)
@@ -241,6 +244,8 @@ class PD_Qt_Annotator(QMainWindow, Ui_MainWindow):
         if self.positionRB_3.text() == self.current.annotations['tonguePosition']:
             self.positionRB_3.setChecked(True)
 
+        self.goSpinBox.setValue(self.index + 1)
+
     def add_mpl_elements(self):
         self.canvas = FigureCanvas(self.fig)
         self.mplWindowVerticalLayout.addWidget(self.canvas)
@@ -340,11 +345,17 @@ class PD_Qt_Annotator(QMainWindow, Ui_MainWindow):
             self.update()
             self.updateUI()
 
+    def go(self):
+        self.current.modalities['RawUltrasound'].data = None
+        self.index = self.goSpinBox.value()-1
+        self.update()
+        self.updateUI()
+
     def on_key(self, event):
         """
         Callback function for keypresses.
 
-        Right and left arrows move to the next and previous token. 
+        Right and left arrows move to the next and previous token.
         Pressing 's' saves the annotations in a csv-file.
         Pressing 'q' seems to be captured by matplotlib and interpeted as quit.
         """

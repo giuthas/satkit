@@ -405,20 +405,23 @@ class PD_Qt_Annotator(QMainWindow, Ui_MainWindow):
 
                 word_dur = -1.0
                 acoustic_onset = -1.0
-                for interval in recording.textgrid['word']:
-                    # change this to access the phonemeDict and check for included words, then search for
-                    # phonemes based on the same
-                    if interval.text == "":
-                        continue
+                if 'word' in recording.textgrid:
+                    for interval in recording.textgrid['word']:
+                        # change this to access the phonemeDict and check for included words, then search for
+                        # phonemes based on the same
+                        if interval.text == "":
+                            continue
 
-                    # Before 1.0: check if there is a duration to use here. and maybe make this
-                    # more intelligent by selecting purposefully the last non-empty first and
-                    # taking the duration?
-                    word_dur = interval.dur
-                    stimulus_onset = recording.modalities['MonoAudio'].meta['stimulus_onset']
-                    acoustic_onset = interval.xmin - stimulus_onset
-                    break
-                annotations['word_dur'] = word_dur
+                        # Before 1.0: check if there is a duration to use here. and maybe make this
+                        # more intelligent by selecting purposefully the last non-empty first and
+                        # taking the duration?
+                        word_dur = interval.dur
+                        stimulus_onset = recording.modalities['MonoAudio'].meta['stimulus_onset']
+                        acoustic_onset = interval.xmin - stimulus_onset
+                        break
+                    annotations['word_dur'] = word_dur
+                else:
+                    annotations['word_dur'] = -1.0
 
                 if acoustic_onset < 0 or annotations['pdOnset'] < 0:
                     AAI = -1.0
@@ -428,12 +431,13 @@ class PD_Qt_Annotator(QMainWindow, Ui_MainWindow):
 
                 first_sound_dur = -1.0
                 first_sound = ""
-                for interval in recording.textgrid['segment']:
-                    if interval.text and interval.text != 'beep':
-                        # This is the last sound.
-                        first_sound_dur = interval.dur
-                        first_sound = interval.text
-                        break
+                if 'segment' in recording.textgrid:
+                    for interval in recording.textgrid['segment']:
+                        if interval.text and interval.text != 'beep':
+                            # This is the last sound.
+                            first_sound_dur = interval.dur
+                            first_sound = interval.text
+                            break
                 annotations['first_sound_dur'] = first_sound_dur
                 annotations['first_sound'] = first_sound
                 if first_sound in vowels:

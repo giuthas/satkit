@@ -126,8 +126,6 @@ class PD_Qt_Annotator(QMainWindow, Ui_MainWindow):
         self.fig_dict = {}
 
         self.fig = Figure()
-        self.keypress_id = self.fig.canvas.mpl_connect(
-            'key_press_event', self.on_key)
 
         self.actionNext.triggered.connect(self.next)
         self.actionPrevious.triggered.connect(self.prev)
@@ -305,6 +303,9 @@ class PD_Qt_Annotator(QMainWindow, Ui_MainWindow):
         self.draw_ultra_frame()
 
     def draw_ultra_frame(self):
+        """
+        Display an already interpolated ultrasound frame.
+        """
         index = 1
         if self.current.annotations['pdOnsetIndex']:
             index = self.current.annotations['pdOnsetIndex']
@@ -313,6 +314,9 @@ class PD_Qt_Annotator(QMainWindow, Ui_MainWindow):
         self.ultra_axes.imshow(image, interpolation='nearest', cmap='gray')
 
     def draw_raw_ultra_frame(self):
+        """
+        Interpolate and display a raw ultrasound frame.
+        """
         if self.current.annotations['pdOnsetIndex']:
             ind = self.current.annotations['pdOnsetIndex']
             array = self.current.modalities['RawUltrasound'].data[ind, :, :]
@@ -348,31 +352,24 @@ class PD_Qt_Annotator(QMainWindow, Ui_MainWindow):
             self.updateUI()
 
     def go(self):
+        """
+        Go to a recording.
+        """
         self.current.modalities['RawUltrasound'].data = None
         self.index = int(self.goLineEdit.text())-1
         self.update()
         self.updateUI()
 
-    def on_key(self, event):
-        """
-        Callback function for keypresses.
-
-        Right and left arrows move to the next and previous token.
-        Pressing 's' saves the annotations in a csv-file.
-        Pressing 'q' seems to be captured by matplotlib and interpeted as quit.
-        """
-        if event.key == "right":
-            self.next()
-        elif event.key == "left":
-            self.prev()
-        elif event.key == "s":
-            self.save()
-
     def quit(self):
+        """
+        Quit the app.
+        """
         QCoreApplication.quit()
 
     def save(self):
-
+        """
+        Save the recordings.
+        """
         if not self.pickle_filename:
             (self.pickle_filename, _) = QFileDialog.getSaveFileName(
                 self, 'Save file', directory='.', filter="Pickle files (*.pickle)")
@@ -385,9 +382,7 @@ class PD_Qt_Annotator(QMainWindow, Ui_MainWindow):
 
     def export(self):
         """
-        Callback funtion for the Save button.
-        Currently overwrites what ever is at
-        local_data/onsets.csv
+        Export annotations and some other meta data.
         """
         (filename, _) = QFileDialog.getSaveFileName(
             self, 'Save file', directory='.', filter="CSV files (*.csv)")

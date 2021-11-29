@@ -40,7 +40,8 @@ import numpy as np
 
 # GUI functionality
 from PyQt5.QtCore import QCoreApplication
-from PyQt5.QtWidgets import QFileDialog
+from PyQt5.QtWidgets import QFileDialog, QLineEdit
+from PyQt5.QtGui import QIntValidator
 from PyQt5.uic import loadUiType
 
 # Plotting functions and hooks for GUI
@@ -138,7 +139,8 @@ class PD_Qt_Annotator(QMainWindow, Ui_MainWindow):
         self.saveButton.clicked.connect(self.save)
         self.exportButton.clicked.connect(self.export)
 
-        self.goSpinBox.setMaximum(self.max_index + 1)
+        goValidator = QIntValidator(1, self.max_index + 1, self)
+        self.goLineEdit.setValidator(goValidator)
         self.goButton.clicked.connect(self.go)
 
         self.categoryRB_1.toggled.connect(self.pdCategoryCB)
@@ -244,7 +246,7 @@ class PD_Qt_Annotator(QMainWindow, Ui_MainWindow):
         if self.positionRB_3.text() == self.current.annotations['tonguePosition']:
             self.positionRB_3.setChecked(True)
 
-        self.goSpinBox.setValue(self.index + 1)
+        self.goLineEdit.setText(str(self.index + 1))
 
     def add_mpl_elements(self):
         self.canvas = FigureCanvas(self.fig)
@@ -347,7 +349,7 @@ class PD_Qt_Annotator(QMainWindow, Ui_MainWindow):
 
     def go(self):
         self.current.modalities['RawUltrasound'].data = None
-        self.index = self.goSpinBox.value()-1
+        self.index = int(self.goLineEdit.text())-1
         self.update()
         self.updateUI()
 

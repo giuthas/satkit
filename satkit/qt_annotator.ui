@@ -10,6 +10,9 @@
     <height>775</height>
    </rect>
   </property>
+  <property name="focusPolicy">
+   <enum>Qt::StrongFocus</enum>
+  </property>
   <property name="windowTitle">
    <string>MainWindow</string>
   </property>
@@ -234,7 +237,7 @@
            <number>0</number>
           </property>
           <item>
-           <widget class="QSpinBox" name="goSpinBox">
+           <widget class="QLineEdit" name="goLineEdit">
             <property name="maximumSize">
              <size>
               <width>80</width>
@@ -242,13 +245,7 @@
              </size>
             </property>
             <property name="focusPolicy">
-             <enum>Qt::TabFocus</enum>
-            </property>
-            <property name="buttonSymbols">
-             <enum>QAbstractSpinBox::UpDownArrows</enum>
-            </property>
-            <property name="minimum">
-             <number>1</number>
+             <enum>Qt::StrongFocus</enum>
             </property>
            </widget>
           </item>

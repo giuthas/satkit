@@ -105,6 +105,7 @@ repository](https://github.com/giuthas/satkit/tags).
   by the combined toolkit* - [giuthas](https://github.com/giuthas)
 * **Scott Moisik** - *Initial work on OF* - [ScottMoisik](https://github.com/ScottMoisik)
 * **Matthew Faytak** - [mfaytak](https://github.com/mfaytak)
+* **Motoki Saito** - *Producing interpolated ultrasound images from raw data* [msaito8623](https://github.com/msaito8623)
 
 List of [contributors](https://github.com/your/project/CONTRIBUTORS.markdown)
 will be updated once there are more people working on this project.
@@ -115,12 +116,12 @@ will be updated once there are more people working on this project.
 The Speech Articulation ToolKIT (SATKIT for short) and examples is a
 tool box for analysing articulatory data.
 
-SATKIT Copyright (C) 2019-2021 Pertti Palo, Scott Moisik, and Matthew
-Faytak.
+SATKIT Copyright (C) 2019-2022 Pertti Palo, Scott Moisik, Matthew
+Faytak and Motoki Saito.
 
-Optical Flow tools Copyright (C) 2020-2021 Scott Moisik
+Optical Flow tools Copyright (C) 2020-2022 Scott Moisik
 
-Pixel Difference tools Copyright (C) 2019-2021 Pertti Palo
+Pixel Difference tools Copyright (C) 2019-2022 Pertti Palo
 
 Laryngeal example data Copyright (C) 2020 Scott Moisik
 

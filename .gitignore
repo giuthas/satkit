@@ -32,6 +32,9 @@ gpl-v3.tmpl
 # Directories
 ####
 
+# VScode settings
+.vscode/
+
 # Results of an optic flow run.
 of_results/
 

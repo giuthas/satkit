@@ -30,15 +30,18 @@
 #
 
 # Built in packages
+from contextlib import closing
+from copy import deepcopy
+import csv
 from datetime import datetime
 import logging
-from pathlib import PureWindowsPath
+from pathlib import Path, PureWindowsPath
 import warnings
 import sys
 
 # Numpy and scipy
 import numpy as np
-from numpy.matlib import repmat
+#from numpy.matlib import repmat
 import scipy.io
 
 # dicom reading
@@ -110,6 +113,111 @@ def generateRecordingList(directory):
             recording = generateUltrasoundRecording(
                 dicom_dict[token['trial_number']],
                 token['dat_filename'],
+                directories)
+            recording.addMeta(token)
+            recordings.append(recording)
+        else:
+            _3D4D_ultra_logger.info(
+                'No DICOM file corresponding to number ' +
+                token['trial_number'] + ' found in ' + str(directory) + '.')
+
+    return sorted(recordings, key=lambda token: token.meta['date_and_time'])
+
+
+def generateRecordingListOldStyle(directory):
+    """
+    Produce an array of Recordings from a 3D4D ultrasound directory without .mat notes file.
+
+    Prepare a list of Recording objects from the files exported by AAA
+    into the named directory. File existence is tested for,
+    and if crucial files are missing from a given recording it will be
+    excluded.
+
+    If problems are found with a recording, exclusion is marked with
+    recordingObjet.excluded rather than not listing the recording. Log
+    file will show reasons of exclusion.
+
+    The processed files are
+    ultrasound and corresponding meta: .DCM, and
+    audio waveform: .dat or .wav.
+
+    Additionally this will be added, but missing files are considered
+    non-fatal:
+    TextGrid: .textgrid.
+
+    Positional argument:
+    directory -- the path to the directory to be processed.
+    Returns an array of Recording objects sorted by date and time
+        of recording.
+    """
+
+    path = Path(directory)
+    wav_dir = path / "WAV"
+
+    dicom_dir = directory / "DICOM"
+    note_dir = directory / "NOTES"
+    directories = {
+        'root_dir': directory,
+        'dicom_dir': dicom_dir,
+        'note_dir': note_dir,
+    }
+
+    with closing(open(path/"notes.csv", 'r')) as csvfile:
+        reader = csv.DictReader(csvfile, delimiter='\t',)
+
+        rows = [row for row in reader if row]
+
+        for row in rows:
+            row['DCM'] = "DICOM/{name}_{number:0>3}.DCM".format(
+                name=row['US File Name'],
+                number=row['US File Number'])
+            row['number_portion'] = "{number:0>3}".format(
+                number=row['US File Number'])
+
+            # print(row['Stimulus'])
+            # print(row['DCM'])
+
+            textgrid = list(wav_dir.glob(
+                "*" + row['DAT File Time Stamp'] + "*.TextGrid"))[0]
+            wav = deepcopy(textgrid)
+            wav = wav.with_suffix('.wav')
+
+            # print(textgrid)
+            # print(wav)
+
+            row['TextGrid'] = str(textgrid)
+            row['sound_filename'] = wav.stem
+
+    dicom_files = sorted(dicom_dir.glob('*.DCM'))
+    # dicom_files = [Path(row['DCM']) for row in rows if row]
+
+    # strip file extensions off of filepaths to get the base names
+    dicom_basenames = [filepath.name for filepath in dicom_files]
+    meta = ThreeD_UltrasoundRecording.generateMeta(rows)
+
+    # Create a lookup table for matching sound and dicom.
+    # First file names with their ordinal numbers.
+    dicom_names_numbers = [[name, name.split('_')[1]]
+                           for name in dicom_basenames]
+    # Then a dict mapping number strings to filenames.
+    dicom_dict = {
+        name_number[1].split('.')[0]: name_number[0]
+        for name_number in dicom_names_numbers
+    }
+
+    for token in meta:
+        if token['trial_number'] in dicom_dict:
+            token['filename'] = dicom_dict[token['trial_number']]
+        else:
+            meta.remove(token)
+
+    recordings = []
+    for token in meta:
+        if token['trial_number'] in dicom_dict:
+            print(dicom_dict[token['trial_number']])
+            recording = generateUltrasoundRecording(
+                dicom_dict[token['trial_number']],
+                token['sound_filename'],
                 directories)
             recording.addMeta(token)
             recordings.append(recording)
@@ -337,6 +445,38 @@ class ThreeD_UltrasoundRecording(Recording):
                     'dat_filename': PureWindowsPath(file_path).name
                 }
                 meta.append(meta_token)
+        return meta
+
+    @staticmethod
+    def generateMeta(rows):
+        """
+        Read a WASL .mat file and return relevant contents as a dict.
+
+        Positional argument:
+        mat_file -- either a pathlib Path object representing the .mat
+            file or a string of the same.
+
+        Returns -- an array of dicts that contain the following fields:
+            'trial_number': number of the recording within this session,
+            'prompt': prompt displayed to the participant,
+            'date_and_time': a datetime object of the time recording
+                started, and
+            'dat_filename': string representing the name of the .dat
+                sound file.
+        """
+        meta = []
+        for row in rows:
+            date_and_time = datetime.strptime(
+                row['US File Name'], "%Y%m%d%H%M%S")
+
+            meta_token = {
+                'trial_number': row['number_portion'],
+                'prompt': row['Stimulus'],
+                'date_and_time': date_and_time,
+                'dat_filename': row['sound_filename'],
+                'sound_filename': row['sound_filename']
+            }
+            meta.append(meta_token)
         return meta
 
     def __init__(self, paths=None, basename="", sound_name="",

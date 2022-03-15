@@ -1,10 +1,10 @@
 =======
 # Speech Articulation ToolKIT - SATKIT
 
-Currently these tools are meant for processing ultrasound speech data
-from both the tongue and the larynx. In future, the toolkit will
+Tools for processing ultrasound speech data. While currently these tools
+mainly work on tongue and larynx ultrasound. In future, the toolkit will
 include facilities for processing other kinds of articulatory
-data. The first two to be implemented are Optical Flow and Pixel
+data. The first two tools to be implemented are Optical Flow and Pixel
 Difference.
 
 Optical Flow tracks local changes in ultrasound frames and estimates
@@ -26,24 +26,40 @@ want to use the tools on or a suitable place that you then add to your
 $PYTHONPATH. 
 
 
-### Prerequisites
+### Requisites
 
-For all of the tools you will need the following or more recent:
-* Python 3.7.4
-* MatPlotLib 3.1.1
-* NumPy 1.17.2
-* SciPy 1.3.1
+SATKit has been tested with the following or more recent:
+* Python 3.10
+* PyQt5 v5.12
+* MatPlotLib 3.5
+* NumPy 1.22
+* OpenCV 4.5
+* SciPy 1.3
+* praat-textgrids 1.4
 
 A handy way of getting MatPlotLib, NumPy, and SciPy is to get them as
 part of the [Anaconda
-distribution](https://www.anaconda.com/distribution/#download-section).
+distribution](https://www.anaconda.com/distribution/#download-section). 
+Using mamba as the environment manager when creating virtual environments
+is recommended because conda may not manage to solve the dependencies and 
+may refuse to install anything.
+
+Note: If you decide to use Anaconda, you should install any additional 
+packages you are getting with mamba (or conda) before installing praat-textgrids 
+with pip *as the final step* of setting up a virtual environment. 
 
 For OF you will need in addition:
-* DIPY 1.1.0
+* DIPY 1.5
 
-Which, if you installed anaconda, you can get with `conda install -c
-conda-forge dipy`.
+Which, if you installed anaconda, you can get with 
+`conda install -c conda-forge dipy`.
 
+For processing lip videos:
+* Scikit-video 1.1
+`conda install -c conda-forge sk-video`
+
+And then as the final step:
+`pip install praat-textgrids`
 
 ### What's included
 
@@ -105,6 +121,7 @@ repository](https://github.com/giuthas/satkit/tags).
   by the combined toolkit* - [giuthas](https://github.com/giuthas)
 * **Scott Moisik** - *Initial work on OF* - [ScottMoisik](https://github.com/ScottMoisik)
 * **Matthew Faytak** - [mfaytak](https://github.com/mfaytak)
+* **Motoki Saito** - *Producing interpolated ultrasound images from raw data* [msaito8623](https://github.com/msaito8623)
 
 List of [contributors](https://github.com/your/project/CONTRIBUTORS.markdown)
 will be updated once there are more people working on this project.
@@ -115,12 +132,12 @@ will be updated once there are more people working on this project.
 The Speech Articulation ToolKIT (SATKIT for short) and examples is a
 tool box for analysing articulatory data.
 
-SATKIT Copyright (C) 2019-2021 Pertti Palo, Scott Moisik, and Matthew
-Faytak.
+SATKIT Copyright (C) 2019-2022 Pertti Palo, Scott Moisik, Matthew
+Faytak and Motoki Saito.
 
-Optical Flow tools Copyright (C) 2020-2021 Scott Moisik
+Optical Flow tools Copyright (C) 2020-2022 Scott Moisik
 
-Pixel Difference tools Copyright (C) 2019-2021 Pertti Palo
+Pixel Difference tools Copyright (C) 2019-2022 Pertti Palo
 
 Laryngeal example data Copyright (C) 2020 Scott Moisik
 

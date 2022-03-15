@@ -33,17 +33,26 @@ For all of the tools you will need the following or more recent:
 * MatPlotLib 3.1.1
 * NumPy 1.17.2
 * SciPy 1.3.1
+* praat-textgrids 1.4.0
 
 A handy way of getting MatPlotLib, NumPy, and SciPy is to get them as
 part of the [Anaconda
-distribution](https://www.anaconda.com/distribution/#download-section).
+distribution](https://www.anaconda.com/distribution/#download-section). 
+
+Note: If you decide to use Anaconda, you should install any additional packages you are getting from Anaconda, before installing praat-textgrids with pip *as the final step* of setting up a virtual environment. 
 
 For OF you will need in addition:
 * DIPY 1.1.0
 
-Which, if you installed anaconda, you can get with `conda install -c
-conda-forge dipy`.
+Which, if you installed anaconda, you can get with 
+`conda install -c conda-forge dipy`.
 
+For processing lip videos:
+* Scikit-video
+`conda install -c conda-forge sk-video`
+
+And then as the final step:
+`pip install praat-textgrids`
 
 ### What's included
 

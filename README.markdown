@@ -26,29 +26,36 @@ want to use the tools on or a suitable place that you then add to your
 $PYTHONPATH. 
 
 
-### Prerequisites
+### Requisites
 
-For all of the tools you will need the following or more recent:
-* Python 3.7.4
-* MatPlotLib 3.1.1
-* NumPy 1.17.2
-* SciPy 1.3.1
-* praat-textgrids 1.4.0
+SATKit has been tested with the following or more recent:
+* Python 3.10
+* PyQt5 v5.12
+* MatPlotLib 3.5
+* NumPy 1.22
+* OpenCV 4.5
+* SciPy 1.3
+* praat-textgrids 1.4
 
 A handy way of getting MatPlotLib, NumPy, and SciPy is to get them as
 part of the [Anaconda
 distribution](https://www.anaconda.com/distribution/#download-section). 
+Using mamba as the environment manager when creating virtual environments
+is recommended because conda may not manage to solve the dependencies and 
+may refuse to install anything.
 
-Note: If you decide to use Anaconda, you should install any additional packages you are getting from Anaconda, before installing praat-textgrids with pip *as the final step* of setting up a virtual environment. 
+Note: If you decide to use Anaconda, you should install any additional 
+packages you are getting with mamba (or conda) before installing praat-textgrids 
+with pip *as the final step* of setting up a virtual environment. 
 
 For OF you will need in addition:
-* DIPY 1.1.0
+* DIPY 1.5
 
 Which, if you installed anaconda, you can get with 
 `conda install -c conda-forge dipy`.
 
 For processing lip videos:
-* Scikit-video
+* Scikit-video 1.1
 `conda install -c conda-forge sk-video`
 
 And then as the final step:

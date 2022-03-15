@@ -1,10 +1,10 @@
 =======
 # Speech Articulation ToolKIT - SATKIT
 
-Currently these tools are meant for processing ultrasound speech data
-from both the tongue and the larynx. In future, the toolkit will
+Tools for processing ultrasound speech data. While currently these tools
+mainly work on tongue and larynx ultrasound. In future, the toolkit will
 include facilities for processing other kinds of articulatory
-data. The first two to be implemented are Optical Flow and Pixel
+data. The first two tools to be implemented are Optical Flow and Pixel
 Difference.
 
 Optical Flow tracks local changes in ultrasound frames and estimates

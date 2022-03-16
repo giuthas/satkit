@@ -9,9 +9,13 @@ dependencies:
   - dipy >= 1.4
   - opencv >= 4.5
 <<<<<<< HEAD
+<<<<<<< HEAD
   - sk-video >= 1.1
 =======
 >>>>>>> 9f9260d (Changed the file extension to be more explicit.)
+=======
+  - sk-video >= 1.1
+>>>>>>> 050f6be (Added another missing dependency.)
   - matplotlib >= 3.5
   - pylint >= 2.9
   - pip 

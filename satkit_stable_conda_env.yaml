@@ -8,7 +8,10 @@ dependencies:
   - scipy >= 1.7
   - dipy >= 1.4
   - opencv >= 4.5
+<<<<<<< HEAD
   - sk-video >= 1.1
+=======
+>>>>>>> 9f9260d (Changed the file extension to be more explicit.)
   - matplotlib >= 3.5
   - pylint >= 2.9
   - pip 

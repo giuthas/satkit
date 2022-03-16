@@ -101,7 +101,7 @@ class PD_Qt_Annotator(QMainWindow, Ui_MainWindow):
         #     return False, dict()
 
     def __init__(self, recordings, args, xlim=(-0.1, 1.0),
-                 categories=None):
+                 categories=None, displayTongue=True):
         super().__init__()
 
         self.setupUi(self)
@@ -118,6 +118,8 @@ class PD_Qt_Annotator(QMainWindow, Ui_MainWindow):
             self.categories = categories
         self.tongue_positions = PD_Qt_Annotator.default_tongue_positions
         self._addAnnotations()
+
+        self.displayTongue = displayTongue
 
         self.fig_dict = {}
 
@@ -210,7 +212,8 @@ class PD_Qt_Annotator(QMainWindow, Ui_MainWindow):
         self.draw_plots()
         self.add_mpl_elements()
         self.fig.canvas.draw()
-        self.draw_ultra_frame()
+        if self.displayTongue:
+            self.draw_ultra_frame()
 
     def updateUI(self):
         """
@@ -288,7 +291,8 @@ class PD_Qt_Annotator(QMainWindow, Ui_MainWindow):
                              linestyle=':', color="deepskyblue", lw=1)
             self.ax3.axvline(x=self.current.annotations['pdOnset'],
                              linestyle=':', color="deepskyblue", lw=1)
-        self.draw_ultra_frame()
+        if self.displayTongue:
+            self.draw_ultra_frame()
 
     def draw_ultra_frame(self):
         if self.current.annotations['pdOnsetIndex']:

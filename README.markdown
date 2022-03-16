@@ -35,7 +35,7 @@ SATKit has been tested with the following or more recent:
 * NumPy 1.22
 * OpenCV 4.5
 * SciPy 1.3
-* praat-textgrids 1.4
+* praat-textgrids 1.3
 
 A handy way of getting MatPlotLib, NumPy, and SciPy is to get them as
 part of the [Anaconda

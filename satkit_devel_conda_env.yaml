@@ -1,4 +1,4 @@
-name: satkit-stable
+name: satkit-devel
 channels:
   - conda-forge 
   - defaults
@@ -11,7 +11,7 @@ dependencies:
   - sk-video >= 1.1
   - matplotlib >= 3.5
   - pylint >= 2.9
+  - build
   - pip 
   - pip:
     - praat-textgrids >= 1.3
-

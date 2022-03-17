@@ -11,7 +11,9 @@ dependencies:
   - sk-video >= 1.1
   - matplotlib >= 3.5
   - pylint >= 2.9
-  - build
-  - pip 
+  - setuptools >= 58
+  - build 
+  - virtualenv
+  - pip >= 22
   - pip:
     - praat-textgrids >= 1.3

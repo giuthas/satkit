@@ -49,8 +49,13 @@ def main():
 
     # Run the command line interface.
     #function_dict = {'pd':pd.pd, 'annd':annd.annd}
+<<<<<<< HEAD
     function_dict = {'PD': (pd.addPD, [RawUltrasound])}
     cli = RawCLI("PD annotator", function_dict, plot=False)
+=======
+    function_dict = {'PD': (pd.addPD, [ThreeD_Ultrasound])}
+    cli = RawCLI("PD 3D annotator", function_dict, plot = False)
+>>>>>>> simple-qt-annotator
 
     elapsed_time = time.time() - t
     logging.info('Elapsed time ' + str(elapsed_time))

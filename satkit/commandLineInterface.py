@@ -198,6 +198,14 @@ class RawCLI(BaseCLI):
                                  default="figures",
                                  help=helptext, metavar="dir")
 
+        helptext = (
+            'Should an ultrasound frame be displayed by the annotator.'
+            'Set to False if the .ult files are not available.'
+        )
+        self.parser.add_argument("--displayUltraFrame", dest="displayTongue", 
+                                default=True, action=argparse.BooleanOptionalAction,
+                                help=helptext)
+
         # Adds the verbosity argument.
         super()._add_optional_arguments()
 

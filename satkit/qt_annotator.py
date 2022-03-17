@@ -378,7 +378,7 @@ class PD_Qt_Annotator(QMainWindow, Ui_MainWindow):
                 self.recordings,
                 self.pickle_filename)
             _qt_annotator_logger.info(
-                "Wrote data to file " + self.pickle_filename + ".")
+                "Wrote data to file %s.", self.pickle_filename)
 
     def export(self):
         """
@@ -442,7 +442,6 @@ class PD_Qt_Annotator(QMainWindow, Ui_MainWindow):
                 if 'segment' in recording.textgrid:
                     for interval in recording.textgrid['segment']:
                         if interval.text and interval.text != 'beep':
-                            # This is the last sound.
                             first_sound_dur = interval.dur
                             first_sound = interval.text
                             break
@@ -455,9 +454,8 @@ class PD_Qt_Annotator(QMainWindow, Ui_MainWindow):
 
                 annotations['C1'] = recording.meta['prompt'][0]
                 writer.writerow(annotations)
-            print('Wrote onset data in file ' + filename + '.')
-            _qt_annotator_logger.debug(
-                'Wrote onset data in file ' + filename + '.')
+            _qt_annotator_logger.info(
+                'Wrote onset data in file %s.', filename)
 
     def pdCategoryCB(self):
         """
@@ -543,7 +541,7 @@ class PD_3D_Qt_Annotator(QMainWindow, Ui_MainWindow):
         #     return False, dict()
 
     def __init__(self, recordings, args, xlim=(-0.1, 1.0),
-                 categories=None):
+                 categories=None, pickle_filename=None):
         super().__init__()
 
         self.setupUi(self)
@@ -561,6 +559,8 @@ class PD_3D_Qt_Annotator(QMainWindow, Ui_MainWindow):
         self.tongue_positions = PD_3D_Qt_Annotator.default_tongue_positions
         self._addAnnotations()
 
+        self.pickle_filename = pickle_filename
+
         self.fig_dict = {}
 
         self.fig = Figure()
@@ -571,6 +571,10 @@ class PD_3D_Qt_Annotator(QMainWindow, Ui_MainWindow):
         self.actionPrevious.triggered.connect(self.prev)
 
         self.actionQuit.triggered.connect(self.quit)
+
+        goValidator = QIntValidator(1, self.max_index + 1, self)
+        self.goLineEdit.setValidator(goValidator)
+        self.goButton.clicked.connect(self.go)
 
         self.nextButton.clicked.connect(self.next)
         self.prevButton.clicked.connect(self.prev)
@@ -750,6 +754,8 @@ class PD_3D_Qt_Annotator(QMainWindow, Ui_MainWindow):
         Increases cursor index, updates the view.
         """
         if self.index < self.max_index-1:
+            # TODO: wrap in a data modalities accessor and possibly make these preloading at +/-1 step
+            self.current.modalities['ThreeD_Ultrasound'].data = None
             self.index += 1
             self.update()
             self.updateUI()
@@ -760,9 +766,20 @@ class PD_3D_Qt_Annotator(QMainWindow, Ui_MainWindow):
         Decreases cursor index, updates the view.
         """
         if self.index > 0:
+            # TODO: wrap in a data modalities accessor and possibly make these preloading at +/-1 step
+            self.current.modalities['ThreeD_Ultrasound'].data = None
             self.index -= 1
             self.update()
             self.updateUI()
+
+    def go(self):
+        """
+        Go to a recording.
+        """
+        self.current.modalities['ThreeD_Ultrasound'].data = None
+        self.index = int(self.goLineEdit.text())-1
+        self.update()
+        self.updateUI()
 
     def on_key(self, event):
         """
@@ -784,15 +801,34 @@ class PD_3D_Qt_Annotator(QMainWindow, Ui_MainWindow):
 
     def save(self):
         """
-        Callback funtion for the Save button.
-        Currently overwrites what ever is at
-        local_data/onsets.csv
+        Save the recordings.
         """
-        # eventually get this from commandline/caller/dialog window
-        filename = QFileDialog.getSaveFileName(
-            self, 'Save file', dir='.', filter="CSV files (*.csv)")
+        if not self.pickle_filename:
+            (self.pickle_filename, _) = QFileDialog.getSaveFileName(
+                self, 'Save file', directory='.', filter="Pickle files (*.pickle)")
+        if self.pickle_filename:
+            satkit_io.save2pickle(
+                self.recordings,
+                self.pickle_filename)
+            _qt_annotator_logger.info(
+                "Wrote data to file %s.", self.pickle_filename)
 
-        fieldnames = ['pdCategory', 'pdOnset']
+    def export(self):
+        """
+        Export annotations and some other meta data.
+        """
+        (filename, _) = QFileDialog.getSaveFileName(
+            self, 'Save file', directory='.', filter="CSV files (*.csv)")
+
+        if not filename:
+            return
+
+        vowels = ['a', 'A', 'e', 'E', 'i', 'I',
+                  'o', 'O', 'u', '@', "@`", 'OI', 'V']
+        fieldnames = ['basename', 'date_and_time', 'prompt', 'C1', 'C1_dur',
+                      'word_dur', 'first_sound',
+                      'first_sound_type', 'first_sound_dur', 'AAI']
+        fieldnames.extend(self.default_annotations.keys())
         csv.register_dialect('tabseparated', delimiter='\t',
                              quoting=csv.QUOTE_NONE)
 
@@ -801,11 +837,58 @@ class PD_3D_Qt_Annotator(QMainWindow, Ui_MainWindow):
                                     dialect='tabseparated')
 
             writer.writeheader()
-            for token in self.recordings:
-                writer.writerow(token)
-            print('Wrote onset data in file ' + filename + '.')
-            _qt_annotator_logger.debug(
-                'Wrote onset data in file ' + filename + '.')
+            for recording in self.recordings:
+                annotations = recording.annotations.copy()
+                annotations['basename'] = recording.meta['basename']
+                annotations['date_and_time'] = recording.meta['date_and_time']
+                annotations['prompt'] = recording.meta['prompt']
+                annotations['word'] = recording.meta['prompt']
+                print(recording.meta['prompt'])
+
+                word_dur = -1.0
+                acoustic_onset = -1.0
+                if 'word' in recording.textgrid:
+                    for interval in recording.textgrid['word']:
+                        # change this to access the phonemeDict and check for included words, then search for
+                        # phonemes based on the same
+                        if interval.text == "":
+                            continue
+
+                        # Before 1.0: check if there is a duration to use here. and maybe make this
+                        # more intelligent by selecting purposefully the last non-empty first and
+                        # taking the duration?
+                        word_dur = interval.dur
+                        acoustic_onset = interval.xmin
+                        break
+                    annotations['word_dur'] = word_dur
+                else:
+                    annotations['word_dur'] = -1.0
+
+                if acoustic_onset < 0 or annotations['pdOnset'] < 0:
+                    AAI = -1.0
+                else:
+                    AAI = acoustic_onset - annotations['pdOnset']
+                annotations['AAI'] = AAI
+
+                first_sound_dur = -1.0
+                first_sound = ""
+                if 'phoneme' in recording.textgrid:
+                    for interval in recording.textgrid['phoneme']:
+                        if interval.text and interval.text != 'beep':
+                            first_sound_dur = interval.dur
+                            first_sound = interval.text
+                            break
+                annotations['first_sound_dur'] = first_sound_dur
+                annotations['first_sound'] = first_sound
+                if first_sound in vowels:
+                    annotations['first_sound_type'] = 'V'
+                else:
+                    annotations['first_sound_type'] = 'C'
+
+                annotations['C1'] = recording.meta['prompt'][0]
+                writer.writerow(annotations)
+            _qt_annotator_logger.info(
+                'Wrote onset data in file %s.', filename)
 
     def pdCategoryCB(self):
         """

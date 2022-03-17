@@ -385,3 +385,45 @@ class Raw3D_CLI(RawCLI):
         self.logger.info("Drawing CAW 2021 plots for 3D.")
         pd_annd_plot.CAW_2021_3D_plots(
             self.recordings, self.args.figure_dir)
+
+
+class Old_Style_3D_CLI(RawCLI):
+    """
+    This class deals with 3D/4D ultrasound data that does not have a official notes .mat file.
+    """
+
+    def __init__(self, description, processing_functions, plot=True):
+        super().__init__(description, processing_functions, plot=plot)
+
+    def _readDataFromFiles(self):
+        """
+        Wrapper for reading data from a directory full of files.
+
+        Having this as a separate method allows subclasses to change
+        arguments or even the parser.
+
+        Note that to make data loading work the in a consistent way,
+        this method just returns the data and saving it in a
+        instance variable is left for the caller to handle.
+        """
+        recordings = ThreeD_ultrasound.generateRecordingListOldStyle(
+            Path(self.args.load_path))
+
+        satkit_io.setExclusionsFromFile(
+            self.args.exclusion_filename, recordings)
+
+        [recording.addModalities()
+         for recording in recordings if not recording.excluded]
+
+        return recordings
+
+    def _plot(self):
+        """
+        Wrapper for plotting data.
+
+        Having this as a separate method allows subclasses to change
+        arguments and plotting commands.
+        """
+        self.logger.info("Drawing CAW 2021 plots for 3D.")
+        pd_annd_plot.CAW_2021_3D_plots(
+            self.recordings, self.args.figure_dir)

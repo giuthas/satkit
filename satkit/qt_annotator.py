@@ -103,8 +103,7 @@ class PD_Qt_Annotator(QMainWindow, Ui_MainWindow):
         #     return False, dict()
 
     def __init__(self, recordings, args, xlim=(-0.1, 1.0),
-                 categories=None, pickle_filename=None, 
-                 displayTongue=True):
+                 categories=None, pickle_filename=None):
         super().__init__()
 
         self.setupUi(self)
@@ -114,6 +113,7 @@ class PD_Qt_Annotator(QMainWindow, Ui_MainWindow):
 
         self.recordings = recordings
         self.commandlineargs = args
+        self.displayTongue = args.displayTongue
 
         if categories is None:
             self.categories = PD_Qt_Annotator.default_categories
@@ -123,7 +123,6 @@ class PD_Qt_Annotator(QMainWindow, Ui_MainWindow):
         self._addAnnotations()
 
         self.pickle_filename = pickle_filename
-        self.displayTongue = displayTongue
 
         self.fig_dict = {}
 

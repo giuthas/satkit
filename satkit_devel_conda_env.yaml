@@ -7,7 +7,6 @@ dependencies:
   - numpy >= 1.22
   - scipy >= 1.7
   - dipy >= 1.4
-  - opencv >= 4.5
   - sk-video >= 1.1
   - matplotlib >= 3.5
   - pylint >= 2.9
@@ -16,4 +15,5 @@ dependencies:
   - virtualenv
   - pip >= 22
   - pip:
+    - opencv-python >= 4.5
     - praat-textgrids >= 1.3

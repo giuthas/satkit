@@ -54,26 +54,33 @@ For OF you will need in addition:
 For processing lip videos:
 * Scikit-video 1.1
 
+
 ### Installing for development
 
 To install all of the above and create a conda environment to run SATKIT in 
-first install anaconda. Then install mamba because anaconda is unlikely 
-to solve the dependencies correctly. Do this on the command line with:
+first install anaconda from the link above. Then install mamba because 
+anaconda is unlikely to solve the dependencies correctly. 
+Do this on the command line with:
 `conda install mamba -n base -c conda-forge`
 
-After you've cloned the repository from github cd into the repository root. 
-There you should find a file called `satkit_stable_conda_env.yaml`. To install 
+After you've (possibly forked and) cloned the repository from github 
+with your favourite tool for doing so cd into the repository root. 
+There you should find a file called `satkit_devel_conda_env.yaml`. 
+To install 
 the required packages and create the environment, simply run:
-`mamba env create -f satkit_stable_conda_env.yaml`
+`mamba env create -f satkit_devel_conda_env.yaml`
 
-After activating the environment with `conda activate satkit_stable` you 
-should be good to go.
-
+Activate the environment with `conda activate satkit_stable` and the basics 
+are set up. If you want to have an editable install (changing code in the repo changes behaviour of the installed SATKIT immediately) run finally
+`pip install -e .`
+or 
+`python3 -m pip install --editable .`
+if you prefer being explicit.
 
 ### Installing for regular use
 
-An installation through pypi is in the works. Do send a message if you would 
-like to test it.
+An installation through pypi is in the works. Do get in touch if you 
+would like to test it.
 
 
 ### What's included

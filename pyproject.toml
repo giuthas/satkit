@@ -1,3 +1,44 @@
 [build-system]
-requires = ["setuptools>=42"]
 build-backend = "setuptools.build_meta"
+requires = ["setuptools>=42"]
+
+[project]
+authors = [
+  {email = "giuthas@gmail.com"},
+  {name = "Pertti Palo, Scott Moisik, Matthew Faytak, Motoki Saito"},
+]
+classifiers = [
+  "Development Status :: 3 - Alpha",
+  "Programming Language :: Python",
+  "Intended Audience :: Speech researchers",
+]
+description = "Speech Articulation ToolKit: tools for processing ultrasound speech data"
+keywords = ["egg", "bacon", "sausage", "tomatoes", "Lobster Thermidor"]
+license = {file = "LICENSE.markdown"}
+maintainers = [
+  {name = "Brett Cannon", email = "brett@python.org"},
+]
+name = "satkit"
+readme = "README.markdown"
+requires-python = ">=3.9"
+version = "0.3.1"
+
+dependencies = [
+  "httpx",
+  "gidgethub[httpx]>4.0.0",
+  "django>2.1; os_name != 'nt'",
+  "django>2.0; os_name == 'nt'",
+]
+
+[project.urls]
+bug_tracker = "https://github.com/giuthas/satkit/issues"
+changelog = "github.com/giuthas/satkit/blob/master/CHANGELOG.markdown"
+documentation = "coming soon"
+homepage = "github.com/giuthas/satkit"
+repository = "github.com"
+
+[project.scripts]
+satkit-cli = "satkit:main_cli"
+
+[project.gui-scripts]
+satkit-gui = "satkit:main_gui"

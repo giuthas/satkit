@@ -1,4 +1,3 @@
-=======
 # Speech Articulation ToolKIT - SATKIT
 
 Tools for processing ultrasound speech data. While currently these tools
@@ -167,7 +166,7 @@ Tongue Example data Copyright (C) 2013-2020 Pertti Palo
 
 ### Program license
 
-[Program License](https://github.com/giuthas/satkit/blob/master/LICENSE.markdown)
+SATKIT is licensed under [GPL 3.0](https://github.com/giuthas/satkit/blob/master/LICENSE.markdown).
 
 This program (see below for data) is free software: you can
 redistribute it and/or modify it under the terms of the GNU General

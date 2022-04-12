@@ -1,4 +1,4 @@
-name: satkit-stable
+name: satkit-devel
 channels:
   - defaults
 dependencies:

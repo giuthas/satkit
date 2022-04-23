@@ -90,6 +90,9 @@ def to_fan(scanline_data, angle=None, zero_offset=None, pix_per_mm=None,
 
 def to_fan_2d(img, angle=None, zero_offset=None, pix_per_mm=None,
               num_vectors=None, magnify=1, reserve=1800):
+    """
+    Transform a gray scale image to a fanshaped image.
+    """
 
     use_genpar = any([i is None
                       for i in [angle, zero_offset, pix_per_mm, num_vectors]])
@@ -144,6 +147,12 @@ def to_fan_2d(img, angle=None, zero_offset=None, pix_per_mm=None,
 def ult_cart2pol(
         output_coordinates, origin, num_of_vectors, angle, zero_offset,
         pix_per_mm, grayscale):
+    """
+    Transform an ultrasound image from cartesian to polar coordinates.
+
+    More specifically map a raw image onto a scanline fan and interpolate the
+    result for viewing by humans.
+    """
     def cart2pol(x, y):
         r = math.sqrt(x**2 + y**2)
         th = math.atan2(y, x)
@@ -161,6 +170,9 @@ def ult_cart2pol(
 
 
 def trim_picture(img):
+    """
+    Place holder.
+    """
     def unique_element_number(vec):
         try:
             aaa = [tuple(i) for i in vec]

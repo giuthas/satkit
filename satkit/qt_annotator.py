@@ -227,7 +227,7 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
         if self.displayTongue:
             self.draw_ultra_frame()
 
-    def updateUI(self):
+    def update_ui(self):
         """
         Updates parts of the UI outwith the graphs.
         """
@@ -253,6 +253,7 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
         self.goLineEdit.setText(str(self.index + 1))
 
     def add_mpl_elements(self):
+        """Add matplotlib elements."""
         self.canvas = FigureCanvas(self.fig)
         self.mplWindowVerticalLayout.addWidget(self.canvas)
         self.canvas.draw()
@@ -265,6 +266,7 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
         self.ultra_canvas.draw()
 
     def remove_mpl_elements(self):
+        """Remove matplotlib elements."""
         self.mplWindowVerticalLayout.removeWidget(self.canvas)
         self.canvas.close()
 
@@ -344,7 +346,7 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
             self.current.modalities['RawUltrasound'].data = None
             self.index += 1
             self.update()
-            self.updateUI()
+            self.update_ui()
 
     def prev(self):
         """
@@ -356,7 +358,7 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
             self.current.modalities['RawUltrasound'].data = None
             self.index -= 1
             self.update()
-            self.updateUI()
+            self.update_ui()
 
     def go(self):
         """
@@ -365,7 +367,7 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
         self.current.modalities['RawUltrasound'].data = None
         self.index = int(self.goLineEdit.text())-1
         self.update()
-        self.updateUI()
+        self.update_ui()
 
     def quit(self):
         """
@@ -422,8 +424,8 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
                 acoustic_onset = -1.0
                 if 'word' in recording.textgrid:
                     for interval in recording.textgrid['word']:
-                        # change this to access the phonemeDict and check for included words, then search for
-                        # phonemes based on the same
+                        # change this to access the phonemeDict and check for included words,
+                        # then search for phonemes based on the same
                         if interval.text == "":
                             continue
 

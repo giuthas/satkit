@@ -46,11 +46,12 @@ def to_fan(scanline_data, angle=None, zero_offset=None, pix_per_mm=None,
     Generate interpolated images from scanline ultrasound data.
 
     Positional argument:
-    scanline_data - numpy array containing each frame as a vector, but in case of RGB data, each color as its own vector.
+    scanline_data - numpy array containing each frame as a vector,
+        but in case of RGB data, each color as its own vector.
     angle - angle between scanlines in radians
     zero_offset - distance between probe center and first pixel of a scanline
     pix_per_mm - pixels per mm in the depth direction of a scanline
-    num_vectors - number of scanlines per frame 
+    num_vectors - number of scanlines per frame
 
     Returns a numpy array containing the generated image(s).
     """
@@ -97,7 +98,9 @@ def to_fan_2d(img, angle=None, zero_offset=None, pix_per_mm=None,
     use_genpar = any([i is None
                       for i in [angle, zero_offset, pix_per_mm, num_vectors]])
     if use_genpar:
-        print('WARNING: Not all the necessary information are provided. General parameters are used instead.')
+        warning = 'WARNING: Not all the necessary information are provided. '
+        warning += 'General parameters are used instead.'
+        print(warning)
         img = cv2.resize(img, (500, 500))
         angle = 0.0031
         zero_offset = 150

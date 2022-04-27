@@ -40,7 +40,7 @@ import numpy as np
 
 # GUI functionality
 from PyQt5.QtCore import QCoreApplication
-from PyQt5.QtWidgets import QFileDialog, QLineEdit
+from PyQt5.QtWidgets import QFileDialog
 from PyQt5.QtGui import QIntValidator
 from PyQt5.uic import loadUiType
 
@@ -61,7 +61,7 @@ Ui_MainWindow, QMainWindow = loadUiType('satkit/qt_annotator.ui')
 _qt_annotator_logger = logging.getLogger('satkit.qt_annotator')
 
 
-class PD_Qt_Annotator(QMainWindow, Ui_MainWindow):
+class PdQtAnnotator(QMainWindow, Ui_MainWindow):
     """
     Qt_Annotator_Window is a GUI class for annotating PD curves.
 
@@ -116,10 +116,10 @@ class PD_Qt_Annotator(QMainWindow, Ui_MainWindow):
         self.displayTongue = args.displayTongue
 
         if categories is None:
-            self.categories = PD_Qt_Annotator.default_categories
+            self.categories = PdQtAnnotator.default_categories
         else:
             self.categories = categories
-        self.tongue_positions = PD_Qt_Annotator.default_tongue_positions
+        self.tongue_positions = PdQtAnnotator.default_tongue_positions
         self._addAnnotations()
 
         self.pickle_filename = pickle_filename
@@ -208,6 +208,7 @@ class PD_Qt_Annotator(QMainWindow, Ui_MainWindow):
         return text
 
     def clear_axis(self):
+        """Clear the axis."""
         self.ax1.cla()
         self.ax3.cla()
 
@@ -293,7 +294,7 @@ class PD_Qt_Annotator(QMainWindow, Ui_MainWindow):
         plot_pd(
             self.ax1, pd.data['pd'],
             ultra_time, self.xlim, textgrid, stimulus_onset,
-            picker=PD_Qt_Annotator.line_xdirection_picker)
+            picker=PdQtAnnotator.line_xdirection_picker)
         plot_wav(self.ax3, wav, wav_time, self.xlim,
                  textgrid, stimulus_onset)
 

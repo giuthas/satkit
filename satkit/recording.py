@@ -47,6 +47,7 @@ import textgrids
 
 # local modules
 import satkit.audio_processing as satkit_audio
+from satkit.interpolate_raw_uti import to_fan_2d
 
 _recording_logger = logging.getLogger('satkit.recording')
 
@@ -527,14 +528,17 @@ class MatrixData(DataModality):
 
 class RawUltrasound(MatrixData):
     """
-    Ultrasound Recording with raw (probe return) data.    
+    Ultrasound Recording with raw (probe return) data.
     """
 
     requiredMetaKeys = [
         'meta_file',
+        'Angle',
         'FramesPerSec',
         'NumVectors',
-        'PixPerVector'
+        'PixPerVector',
+        'PixelsPerMm',
+        'ZeroOffset'
     ]
 
     def __init__(
@@ -577,6 +581,10 @@ class RawUltrasound(MatrixData):
         else:
             self._data = None
 
+        # State variables for fast retrieval of previously tagged ultrasound frames.
+        self._stored_index = None
+        self._stored_image = None
+
     def _getData(self):
         with closing(open(self.meta['filename'], 'rb')) as ult_file:
             ult_data = ult_file.read()
@@ -617,3 +625,20 @@ class RawUltrasound(MatrixData):
                 'Writing over raw ultrasound data has not been implemented yet.')
         else:
             self._data = data
+
+    def interpolated_image(self, index):
+        # frame = self.data[index, :, :].copy().reshape(
+        #         [self.meta['NumVectors'] * self.meta['PixPerVector']])
+        if self._stored_index and self._stored_index == index:
+            return self._stored_image
+        else:
+            self._stored_index = index
+            frame = np.transpose(self.data[index, :, :].copy())
+            frame = np.flip(frame, 0)
+            self._stored_image = to_fan_2d(
+                frame,
+                angle=self.meta['Angle'],
+                zero_offset=self.meta['ZeroOffset'],
+                pix_per_mm=self.meta['PixelsPerMm'],
+                num_vectors=self.meta['NumVectors'])
+            return self._stored_image

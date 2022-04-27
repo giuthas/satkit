@@ -1,7 +1,7 @@
 #
-# Copyright (c) 2019-2022 Pertti Palo, Scott Moisik, Matthew Faytak, and Motoki Saito.
+# Copyright (c) 2019-2021 Pertti Palo, Scott Moisik, and Matthew Faytak.
 #
-# This file is part of Speech Articulation ToolKIT 
+# This file is part of Speech Articulation ToolKIT
 # (see https://github.com/giuthas/satkit/).
 #
 # This program is free software: you can redistribute it and/or modify
@@ -29,19 +29,17 @@
 # citations.bib in BibTeX format.
 #
 
-# built-in modules
 import logging
 import sys
 import time
 
-# local modules
-from satkit.commandLineInterface import RawCLI
-from satkit.qt_annotator import PD_Qt_Annotator
-from satkit.recording import RawUltrasound
-from satkit import pd
-
-# For running a Qt GUI
 from PyQt5 import QtWidgets
+
+# local modules
+from satkit.commandLineInterface import Old_Style_3D_CLI
+from satkit.qt_annotator import PD_3D_Qt_Annotator
+from satkit.io.ThreeD_ultrasound import ThreeD_Ultrasound
+from satkit import pd
 
 
 def main():
@@ -49,17 +47,17 @@ def main():
 
     # Run the command line interface.
     #function_dict = {'pd':pd.pd, 'annd':annd.annd}
-    function_dict = {'PD': (pd.addPD, [RawUltrasound])}
-    cli = RawCLI("PD annotator", function_dict, plot=False)
+    function_dict = {'PD': (pd.addPD, [ThreeD_Ultrasound])}
+    cli = Old_Style_3D_CLI("PD 3D annotator", function_dict, plot=False)
 
     elapsed_time = time.time() - t
     logging.info('Elapsed time ' + str(elapsed_time))
 
     # Get the GUI running.
     app = QtWidgets.QApplication(sys.argv)
-    annotator = PD_Qt_Annotator(cli.recordings, cli.args)
+    annotator = PD_3D_Qt_Annotator(cli.recordings, cli.args)
     sys.exit(app.exec_())
 
 
-if (__name__ == '__main__'):
+if __name__ == '__main__':
     main()

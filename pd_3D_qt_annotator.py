@@ -33,14 +33,13 @@ import logging
 import sys
 import time
 
+from PyQt5 import QtWidgets
+
 # local modules
 from satkit.commandLineInterface import Raw3D_CLI
 from satkit.qt_annotator import PD_3D_Qt_Annotator
 from satkit.io.ThreeD_ultrasound import ThreeD_Ultrasound
 from satkit import pd
-
-
-from PyQt5 import QtWidgets
 
 
 def main():
@@ -60,5 +59,5 @@ def main():
     sys.exit(app.exec_())
 
 
-if (__name__ == '__main__'):
+if __name__ == '__main__':
     main()

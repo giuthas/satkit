@@ -40,7 +40,8 @@ import numpy as np
 
 # GUI functionality
 from PyQt5.QtCore import QCoreApplication
-from PyQt5.QtWidgets import QFileDialog
+from PyQt5.QtWidgets import QFileDialog, QLineEdit
+from PyQt5.QtGui import QIntValidator
 from PyQt5.uic import loadUiType
 
 # Plotting functions and hooks for GUI
@@ -52,6 +53,7 @@ from matplotlib.backends.backend_qt5agg import (
 # Local modules
 #from satkit.annotator import CurveAnnotator, PD_Annotator
 from satkit.pd_annd_plot import plot_pd, plot_pd_3d, plot_wav, plot_wav_3D_ultra
+import satkit.io as satkit_io
 
 # Load the GUI layout generated with QtDesigner.
 Ui_MainWindow, QMainWindow = loadUiType('satkit/qt_annotator.ui')
@@ -101,7 +103,7 @@ class PD_Qt_Annotator(QMainWindow, Ui_MainWindow):
         #     return False, dict()
 
     def __init__(self, recordings, args, xlim=(-0.1, 1.0),
-                 categories=None):
+                 categories=None, pickle_filename=None):
         super().__init__()
 
         self.setupUi(self)
@@ -111,6 +113,7 @@ class PD_Qt_Annotator(QMainWindow, Ui_MainWindow):
 
         self.recordings = recordings
         self.commandlineargs = args
+        self.displayTongue = args.displayTongue
 
         if categories is None:
             self.categories = PD_Qt_Annotator.default_categories
@@ -119,11 +122,11 @@ class PD_Qt_Annotator(QMainWindow, Ui_MainWindow):
         self.tongue_positions = PD_Qt_Annotator.default_tongue_positions
         self._addAnnotations()
 
+        self.pickle_filename = pickle_filename
+
         self.fig_dict = {}
 
         self.fig = Figure()
-        self.keypress_id = self.fig.canvas.mpl_connect(
-            'key_press_event', self.on_key)
 
         self.actionNext.triggered.connect(self.next)
         self.actionPrevious.triggered.connect(self.prev)
@@ -133,6 +136,11 @@ class PD_Qt_Annotator(QMainWindow, Ui_MainWindow):
         self.nextButton.clicked.connect(self.next)
         self.prevButton.clicked.connect(self.prev)
         self.saveButton.clicked.connect(self.save)
+        self.exportButton.clicked.connect(self.export)
+
+        goValidator = QIntValidator(1, self.max_index + 1, self)
+        self.goLineEdit.setValidator(goValidator)
+        self.goButton.clicked.connect(self.go)
 
         self.categoryRB_1.toggled.connect(self.pdCategoryCB)
         self.categoryRB_2.toggled.connect(self.pdCategoryCB)
@@ -184,7 +192,9 @@ class PD_Qt_Annotator(QMainWindow, Ui_MainWindow):
     def _addAnnotations(self):
         for recording in self.recordings:
             if recording.annotations:
-                recording.annotations.update(self.default_annotations)
+                recording.annotations = dict(
+                    list(self.default_annotations.items()) +
+                    list(recording.annotations.items()))
             else:
                 recording.annotations = deepcopy(self.default_annotations)
 
@@ -210,7 +220,8 @@ class PD_Qt_Annotator(QMainWindow, Ui_MainWindow):
         self.draw_plots()
         self.add_mpl_elements()
         self.fig.canvas.draw()
-        self.draw_ultra_frame()
+        if self.displayTongue:
+            self.draw_ultra_frame()
 
     def updateUI(self):
         """
@@ -234,6 +245,8 @@ class PD_Qt_Annotator(QMainWindow, Ui_MainWindow):
             self.positionRB_2.setChecked(True)
         if self.positionRB_3.text() == self.current.annotations['tonguePosition']:
             self.positionRB_3.setChecked(True)
+
+        self.goLineEdit.setText(str(self.index + 1))
 
     def add_mpl_elements(self):
         self.canvas = FigureCanvas(self.fig)
@@ -267,12 +280,13 @@ class PD_Qt_Annotator(QMainWindow, Ui_MainWindow):
         audio = self.current.modalities['MonoAudio']
         stimulus_onset = audio.meta['stimulus_onset']
         wav = audio.data
-        wav_time = audio.timevector
+        wav_time = (audio.timevector - stimulus_onset)
 
         pd = self.current.modalities['PD on RawUltrasound']
-        ultra_time = pd.timevector - pd.timevector[-1] + wav_time[-1]
+        ultra_time = pd.timevector - stimulus_onset
 
-        self.xlim = [ultra_time[0] - 0.05, ultra_time[-1]+0.05]
+        #self.xlim = [ultra_time[0] - 0.05, ultra_time[-1]+0.05]
+        self.xlim = [-0.25, 1.0]
 
         textgrid = self.current.textgrid
 
@@ -288,18 +302,33 @@ class PD_Qt_Annotator(QMainWindow, Ui_MainWindow):
                              linestyle=':', color="deepskyblue", lw=1)
             self.ax3.axvline(x=self.current.annotations['pdOnset'],
                              linestyle=':', color="deepskyblue", lw=1)
-        self.draw_ultra_frame()
+        if self.displayTongue:
+            self.draw_ultra_frame()
 
     def draw_ultra_frame(self):
+        """
+        Display an already interpolated ultrasound frame.
+        """
+        index = 1
+        if self.current.annotations['pdOnsetIndex']:
+            index = self.current.annotations['pdOnsetIndex']
+        image = self.current.modalities['RawUltrasound'].interpolated_image(
+            index)
+        self.ultra_axes.imshow(image, interpolation='nearest', cmap='gray')
+
+    def draw_raw_ultra_frame(self):
+        """
+        Interpolate and display a raw ultrasound frame.
+        """
         if self.current.annotations['pdOnsetIndex']:
             ind = self.current.annotations['pdOnsetIndex']
-            array = self.current.modalities['RawUltrasound'].data[ind, :, :, 32]
+            array = self.current.modalities['RawUltrasound'].data[ind, :, :]
         else:
-            array = self.current.modalities['RawUltrasound'].data[1, :, :, 32]
+            array = self.current.modalities['RawUltrasound'].data[1, :, :]
         array = np.transpose(array)
         array = np.flip(array, 0).copy()
         array = array.astype(np.int8)
-        self.ultra_axes.imshow(array, interpolation='nearest', cmap='Greys')
+        self.ultra_axes.imshow(array, interpolation='nearest', cmap='gray')
 
     def next(self):
         """
@@ -307,6 +336,8 @@ class PD_Qt_Annotator(QMainWindow, Ui_MainWindow):
         Increases cursor index, updates the view.
         """
         if self.index < self.max_index-1:
+            # TODO: wrap in a data modalities accessor and possibly make these preloading at +/-1 step
+            self.current.modalities['RawUltrasound'].data = None
             self.index += 1
             self.update()
             self.updateUI()
@@ -317,39 +348,57 @@ class PD_Qt_Annotator(QMainWindow, Ui_MainWindow):
         Decreases cursor index, updates the view.
         """
         if self.index > 0:
+            # TODO: wrap in a data modalities accessor and possibly make these preloading at +/-1 step
+            self.current.modalities['RawUltrasound'].data = None
             self.index -= 1
             self.update()
             self.updateUI()
 
-    def on_key(self, event):
+    def go(self):
         """
-        Callback function for keypresses.
-
-        Right and left arrows move to the next and previous token. 
-        Pressing 's' saves the annotations in a csv-file.
-        Pressing 'q' seems to be captured by matplotlib and interpeted as quit.
+        Go to a recording.
         """
-        if event.key == "right":
-            self.next()
-        elif event.key == "left":
-            self.prev()
-        elif event.key == "s":
-            self.save()
+        self.current.modalities['RawUltrasound'].data = None
+        self.index = int(self.goLineEdit.text())-1
+        self.update()
+        self.updateUI()
 
     def quit(self):
+        """
+        Quit the app.
+        """
         QCoreApplication.quit()
 
     def save(self):
         """
-        Callback funtion for the Save button.
-        Currently overwrites what ever is at
-        local_data/onsets.csv
+        Save the recordings.
         """
-        # eventually get this from commandline/caller/dialog window
-        filename = QFileDialog.getSaveFileName(
-            self, 'Save file', dir='.', filter="CSV files (*.csv)")
+        if not self.pickle_filename:
+            (self.pickle_filename, _) = QFileDialog.getSaveFileName(
+                self, 'Save file', directory='.', filter="Pickle files (*.pickle)")
+        if self.pickle_filename:
+            satkit_io.save2pickle(
+                self.recordings,
+                self.pickle_filename)
+            _qt_annotator_logger.info(
+                "Wrote data to file %s.", self.pickle_filename)
 
-        fieldnames = ['pdCategory', 'pdOnset']
+    def export(self):
+        """
+        Export annotations and some other meta data.
+        """
+        (filename, _) = QFileDialog.getSaveFileName(
+            self, 'Save file', directory='.', filter="CSV files (*.csv)")
+
+        if not filename:
+            return
+
+        vowels = ['a', 'A', 'e', 'E', 'i', 'I',
+                  'o', 'O', 'u', '@', "@`", 'OI', 'V']
+        fieldnames = ['basename', 'date_and_time', 'prompt', 'C1', 'C1_dur',
+                      'word_dur', 'first_sound',
+                      'first_sound_type', 'first_sound_dur', 'AAI']
+        fieldnames.extend(self.default_annotations.keys())
         csv.register_dialect('tabseparated', delimiter='\t',
                              quoting=csv.QUOTE_NONE)
 
@@ -358,11 +407,58 @@ class PD_Qt_Annotator(QMainWindow, Ui_MainWindow):
                                     dialect='tabseparated')
 
             writer.writeheader()
-            for token in self.recordings:
-                writer.writerow(token)
-            print('Wrote onset data in file ' + filename + '.')
-            _qt_annotator_logger.debug(
-                'Wrote onset data in file ' + filename + '.')
+            for recording in self.recordings:
+                annotations = recording.annotations.copy()
+                annotations['basename'] = recording.meta['basename']
+                annotations['date_and_time'] = recording.meta['date_and_time']
+                annotations['prompt'] = recording.meta['prompt']
+                annotations['word'] = recording.meta['prompt'].split()[1]
+
+                word_dur = -1.0
+                acoustic_onset = -1.0
+                if 'word' in recording.textgrid:
+                    for interval in recording.textgrid['word']:
+                        # change this to access the phonemeDict and check for included words, then search for
+                        # phonemes based on the same
+                        if interval.text == "":
+                            continue
+
+                        # Before 1.0: check if there is a duration to use here. and maybe make this
+                        # more intelligent by selecting purposefully the last non-empty first and
+                        # taking the duration?
+                        word_dur = interval.dur
+                        stimulus_onset = recording.modalities['MonoAudio'].meta['stimulus_onset']
+                        acoustic_onset = interval.xmin - stimulus_onset
+                        break
+                    annotations['word_dur'] = word_dur
+                else:
+                    annotations['word_dur'] = -1.0
+
+                if acoustic_onset < 0 or annotations['pdOnset'] < 0:
+                    AAI = -1.0
+                else:
+                    AAI = acoustic_onset - annotations['pdOnset']
+                annotations['AAI'] = AAI
+
+                first_sound_dur = -1.0
+                first_sound = ""
+                if 'segment' in recording.textgrid:
+                    for interval in recording.textgrid['segment']:
+                        if interval.text and interval.text != 'beep':
+                            first_sound_dur = interval.dur
+                            first_sound = interval.text
+                            break
+                annotations['first_sound_dur'] = first_sound_dur
+                annotations['first_sound'] = first_sound
+                if first_sound in vowels:
+                    annotations['first_sound_type'] = 'V'
+                else:
+                    annotations['first_sound_type'] = 'C'
+
+                annotations['C1'] = recording.meta['prompt'][0]
+                writer.writerow(annotations)
+            _qt_annotator_logger.info(
+                'Wrote onset data in file %s.', filename)
 
     def pdCategoryCB(self):
         """
@@ -397,10 +493,10 @@ class PD_Qt_Annotator(QMainWindow, Ui_MainWindow):
             self.current.annotations['pdOnset'] = event.pickx
 
             audio = self.current.modalities['MonoAudio']
-            wav_time = audio.timevector
+            stimulus_onset = audio.meta['stimulus_onset']
 
             pd = self.current.modalities['PD on RawUltrasound']
-            ultra_time = pd.timevector - pd.timevector[-1] + wav_time[-1]
+            ultra_time = pd.timevector - stimulus_onset
             self.current.annotations['pdOnsetIndex'] = np.nonzero(
                 ultra_time >= event.pickx)[0][0]
         self.update()
@@ -448,7 +544,7 @@ class PD_3D_Qt_Annotator(QMainWindow, Ui_MainWindow):
         #     return False, dict()
 
     def __init__(self, recordings, args, xlim=(-0.1, 1.0),
-                 categories=None):
+                 categories=None, pickle_filename=None):
         super().__init__()
 
         self.setupUi(self)
@@ -466,6 +562,8 @@ class PD_3D_Qt_Annotator(QMainWindow, Ui_MainWindow):
         self.tongue_positions = PD_3D_Qt_Annotator.default_tongue_positions
         self._addAnnotations()
 
+        self.pickle_filename = pickle_filename
+
         self.fig_dict = {}
 
         self.fig = Figure()
@@ -477,9 +575,14 @@ class PD_3D_Qt_Annotator(QMainWindow, Ui_MainWindow):
 
         self.actionQuit.triggered.connect(self.quit)
 
+        goValidator = QIntValidator(1, self.max_index + 1, self)
+        self.goLineEdit.setValidator(goValidator)
+        self.goButton.clicked.connect(self.go)
+
         self.nextButton.clicked.connect(self.next)
         self.prevButton.clicked.connect(self.prev)
         self.saveButton.clicked.connect(self.save)
+        self.exportButton.clicked.connect(self.export)
 
         self.categoryRB_1.toggled.connect(self.pdCategoryCB)
         self.categoryRB_2.toggled.connect(self.pdCategoryCB)
@@ -654,6 +757,8 @@ class PD_3D_Qt_Annotator(QMainWindow, Ui_MainWindow):
         Increases cursor index, updates the view.
         """
         if self.index < self.max_index-1:
+            # TODO: wrap in a data modalities accessor and possibly make these preloading at +/-1 step
+            self.current.modalities['ThreeD_Ultrasound'].data = None
             self.index += 1
             self.update()
             self.updateUI()
@@ -664,9 +769,20 @@ class PD_3D_Qt_Annotator(QMainWindow, Ui_MainWindow):
         Decreases cursor index, updates the view.
         """
         if self.index > 0:
+            # TODO: wrap in a data modalities accessor and possibly make these preloading at +/-1 step
+            self.current.modalities['ThreeD_Ultrasound'].data = None
             self.index -= 1
             self.update()
             self.updateUI()
+
+    def go(self):
+        """
+        Go to a recording.
+        """
+        self.current.modalities['ThreeD_Ultrasound'].data = None
+        self.index = int(self.goLineEdit.text())-1
+        self.update()
+        self.updateUI()
 
     def on_key(self, event):
         """
@@ -688,15 +804,34 @@ class PD_3D_Qt_Annotator(QMainWindow, Ui_MainWindow):
 
     def save(self):
         """
-        Callback funtion for the Save button.
-        Currently overwrites what ever is at
-        local_data/onsets.csv
+        Save the recordings.
         """
-        # eventually get this from commandline/caller/dialog window
-        filename = QFileDialog.getSaveFileName(
-            self, 'Save file', dir='.', filter="CSV files (*.csv)")
+        if not self.pickle_filename:
+            (self.pickle_filename, _) = QFileDialog.getSaveFileName(
+                self, 'Save file', directory='.', filter="Pickle files (*.pickle)")
+        if self.pickle_filename:
+            satkit_io.save2pickle(
+                self.recordings,
+                self.pickle_filename)
+            _qt_annotator_logger.info(
+                "Wrote data to file %s.", self.pickle_filename)
 
-        fieldnames = ['pdCategory', 'pdOnset']
+    def export(self):
+        """
+        Export annotations and some other meta data.
+        """
+        (filename, _) = QFileDialog.getSaveFileName(
+            self, 'Save file', directory='.', filter="CSV files (*.csv)")
+
+        if not filename:
+            return
+
+        vowels = ['a', 'A', 'e', 'E', 'i', 'I',
+                  'o', 'O', 'u', '@', "@`", 'OI', 'V']
+        fieldnames = ['basename', 'date_and_time', 'prompt', 'C1', 'C1_dur',
+                      'word_dur', 'first_sound',
+                      'first_sound_type', 'first_sound_dur', 'AAI']
+        fieldnames.extend(self.default_annotations.keys())
         csv.register_dialect('tabseparated', delimiter='\t',
                              quoting=csv.QUOTE_NONE)
 
@@ -705,11 +840,58 @@ class PD_3D_Qt_Annotator(QMainWindow, Ui_MainWindow):
                                     dialect='tabseparated')
 
             writer.writeheader()
-            for token in self.recordings:
-                writer.writerow(token)
-            print('Wrote onset data in file ' + filename + '.')
-            _qt_annotator_logger.debug(
-                'Wrote onset data in file ' + filename + '.')
+            for recording in self.recordings:
+                annotations = recording.annotations.copy()
+                annotations['basename'] = recording.meta['basename']
+                annotations['date_and_time'] = recording.meta['date_and_time']
+                annotations['prompt'] = recording.meta['prompt']
+                annotations['word'] = recording.meta['prompt']
+                print(recording.meta['prompt'])
+
+                word_dur = -1.0
+                acoustic_onset = -1.0
+                if 'word' in recording.textgrid:
+                    for interval in recording.textgrid['word']:
+                        # change this to access the phonemeDict and check for included words, then search for
+                        # phonemes based on the same
+                        if interval.text == "":
+                            continue
+
+                        # Before 1.0: check if there is a duration to use here. and maybe make this
+                        # more intelligent by selecting purposefully the last non-empty first and
+                        # taking the duration?
+                        word_dur = interval.dur
+                        acoustic_onset = interval.xmin
+                        break
+                    annotations['word_dur'] = word_dur
+                else:
+                    annotations['word_dur'] = -1.0
+
+                if acoustic_onset < 0 or annotations['pdOnset'] < 0:
+                    AAI = -1.0
+                else:
+                    AAI = acoustic_onset - annotations['pdOnset']
+                annotations['AAI'] = AAI
+
+                first_sound_dur = -1.0
+                first_sound = ""
+                if 'phoneme' in recording.textgrid:
+                    for interval in recording.textgrid['phoneme']:
+                        if interval.text and interval.text != 'beep':
+                            first_sound_dur = interval.dur
+                            first_sound = interval.text
+                            break
+                annotations['first_sound_dur'] = first_sound_dur
+                annotations['first_sound'] = first_sound
+                if first_sound in vowels:
+                    annotations['first_sound_type'] = 'V'
+                else:
+                    annotations['first_sound_type'] = 'C'
+
+                annotations['C1'] = recording.meta['prompt'][0]
+                writer.writerow(annotations)
+            _qt_annotator_logger.info(
+                'Wrote onset data in file %s.', filename)
 
     def pdCategoryCB(self):
         """

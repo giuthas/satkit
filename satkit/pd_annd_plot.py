@@ -87,6 +87,7 @@ def plot_textgrid_lines(ax, textgrid, stimulus_onset=0, draw_text=True):
     """
     text_settings = {'horizontalalignment': 'center',
                      'verticalalignment': 'center'}
+    segment_line = None
     for segment in textgrid['segment']:
         if segment.text == "":
             continue
@@ -186,7 +187,7 @@ def plot_pd(ax, pd, time, xlim, textgrid=None, stimulus_onset=0,
         segment_line = plot_textgrid_lines(ax, textgrid, stimulus_onset)
 
     ax.set_xlim(xlim)
-    ax.set_ylim((-50, 3550))
+    ax.set_ylim((-50, 3050))
     if segment_line:
         ax.legend((pd_curve, go_line, segment_line),
                   ('Pixel difference', 'Go-signal onset', 'Acoustic segments'),

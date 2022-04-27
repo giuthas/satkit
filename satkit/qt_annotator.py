@@ -178,10 +178,12 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
 
     @property
     def current(self):
+        """Current recording."""
         return self.recordings[self.index]
 
     @property
     def default_annotations(self):
+        """List of default annotations with default values."""
         return {
             'pdCategory': self.categories[-1],
             'tonguePosition': self.tongue_positions[-1],
@@ -190,6 +192,7 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
         }
 
     def _addAnnotations(self):
+        """Add annotation dicts to this annotators recordings."""
         for recording in self.recordings:
             if recording.annotations:
                 recording.annotations = dict(

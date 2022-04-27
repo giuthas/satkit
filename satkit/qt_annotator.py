@@ -120,7 +120,7 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
         else:
             self.categories = categories
         self.tongue_positions = PdQtAnnotator.default_tongue_positions
-        self._addAnnotations()
+        self._add_annotations()
 
         self.pickle_filename = pickle_filename
 
@@ -183,7 +183,7 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
 
     @property
     def default_annotations(self):
-        """List of default annotations with default values."""
+        """Default annotations with default values."""
         return {
             'pdCategory': self.categories[-1],
             'tonguePosition': self.tongue_positions[-1],
@@ -191,8 +191,8 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
             'pdOnsetIndex': -1,
         }
 
-    def _addAnnotations(self):
-        """Add annotation dicts to this annotators recordings."""
+    def _add_annotations(self):
+        """Add annotation dicts to this annotator's recordings."""
         for recording in self.recordings:
             if recording.annotations:
                 recording.annotations = dict(

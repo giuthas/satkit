@@ -88,9 +88,9 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
             return False, dict()
         xdata = line.get_xdata()
         ydata = line.get_ydata()
-        d = np.abs(xdata - mouseevent.xdata)
+        distances = np.abs(xdata - mouseevent.xdata)
 
-        ind = np.argmin(d)
+        ind = np.argmin(distances)
         # if 1:
         pickx = np.take(xdata, ind)
         picky = np.take(ydata, ind)
@@ -113,7 +113,7 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
 
         self.recordings = recordings
         self.commandlineargs = args
-        self.displayTongue = args.displayTongue
+        self.display_tongue = args.displayTongue
 
         if categories is None:
             self.categories = PdQtAnnotator.default_categories
@@ -138,19 +138,19 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
         self.saveButton.clicked.connect(self.save)
         self.exportButton.clicked.connect(self.export)
 
-        goValidator = QIntValidator(1, self.max_index + 1, self)
-        self.goLineEdit.setValidator(goValidator)
+        go_validator = QIntValidator(1, self.max_index + 1, self)
+        self.goLineEdit.setValidator(go_validator)
         self.goButton.clicked.connect(self.go)
 
-        self.categoryRB_1.toggled.connect(self.pdCategoryCB)
-        self.categoryRB_2.toggled.connect(self.pdCategoryCB)
-        self.categoryRB_3.toggled.connect(self.pdCategoryCB)
-        self.categoryRB_4.toggled.connect(self.pdCategoryCB)
-        self.categoryRB_5.toggled.connect(self.pdCategoryCB)
+        self.categoryRB_1.toggled.connect(self.pd_category_callback)
+        self.categoryRB_2.toggled.connect(self.pd_category_callback)
+        self.categoryRB_3.toggled.connect(self.pd_category_callback)
+        self.categoryRB_4.toggled.connect(self.pd_category_callback)
+        self.categoryRB_5.toggled.connect(self.pd_category_callback)
 
-        self.positionRB_1.toggled.connect(self.tonguePositionCB)
-        self.positionRB_2.toggled.connect(self.tonguePositionCB)
-        self.positionRB_3.toggled.connect(self.tonguePositionCB)
+        self.positionRB_1.toggled.connect(self.tongue_position_callback)
+        self.positionRB_2.toggled.connect(self.tongue_position_callback)
+        self.positionRB_3.toggled.connect(self.tongue_position_callback)
 
         self.xlim = xlim
 
@@ -160,9 +160,9 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
         # gs = self.fig.add_gridspec(4, 7)
         # self.ax1 = self.fig.add_subplot(gs[0:0+3, 0:0+7])
         # self.ax3 = self.fig.add_subplot(gs[3:3+1, 0:0+7])
-        gs = self.fig.add_gridspec(5)
-        self.ax1 = self.fig.add_subplot(gs[0:0+4])
-        self.ax3 = self.fig.add_subplot(gs[4:4+1])
+        gridspec = self.fig.add_gridspec(5)
+        self.ax1 = self.fig.add_subplot(gridspec[0:0+4])
+        self.ax3 = self.fig.add_subplot(gridspec[4:4+1])
 
         self.ultra_fig = Figure()
         self.ultra_axes = self.ultra_fig.add_axes([0, 0, 1, 1])
@@ -224,7 +224,7 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
         self.draw_plots()
         self.add_mpl_elements()
         self.fig.canvas.draw()
-        if self.displayTongue:
+        if self.display_tongue:
             self.draw_ultra_frame()
 
     def update_ui(self):
@@ -308,7 +308,7 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
                              linestyle=':', color="deepskyblue", lw=1)
             self.ax3.axvline(x=self.current.annotations['pdOnset'],
                              linestyle=':', color="deepskyblue", lw=1)
-        if self.displayTongue:
+        if self.display_tongue:
             self.draw_ultra_frame()
 
     def draw_ultra_frame(self):
@@ -441,10 +441,10 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
                     annotations['word_dur'] = -1.0
 
                 if acoustic_onset < 0 or annotations['pdOnset'] < 0:
-                    AAI = -1.0
+                    aai = -1.0
                 else:
-                    AAI = acoustic_onset - annotations['pdOnset']
-                annotations['AAI'] = AAI
+                    aai = acoustic_onset - annotations['pdOnset']
+                annotations['AAI'] = aai
 
                 first_sound_dur = -1.0
                 first_sound = ""
@@ -466,32 +466,32 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
             _qt_annotator_logger.info(
                 'Wrote onset data in file %s.', filename)
 
-    def pdCategoryCB(self):
+    def pd_category_callback(self):
         """
         Callback funtion for the RadioButton for catogorising
         the PD curve.
         """
-        radioBtn = self.sender()
-        if radioBtn.isChecked():
-            self.current.annotations['pdCategory'] = radioBtn.text()
+        radio_button = self.sender()
+        if radio_button.isChecked():
+            self.current.annotations['pdCategory'] = radio_button.text()
 
-    def tonguePositionCB(self):
+    def tongue_position_callback(self):
         """
         Callback funtion for the RadioButton for catogorising
         the PD curve.
         """
-        radioBtn = self.sender()
-        if radioBtn.isChecked():
-            self.current.annotations['tonguePosition'] = radioBtn.text()
+        radio_button = self.sender()
+        if radio_button.isChecked():
+            self.current.annotations['tonguePosition'] = radio_button.text()
 
     def onpick(self, event):
         """
         Callback for handling time selection on events.
         """
         subplot = 0
-        for i, ax in enumerate([self.ax1]):
+        for i, axis in enumerate([self.ax1]):
             # For infomation, print which axes the click was in
-            if ax == event.inaxes:
+            if axis == event.inaxes:
                 subplot = i+1
                 break
 

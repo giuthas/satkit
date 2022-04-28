@@ -60,6 +60,50 @@ Ui_MainWindow, QMainWindow = loadUiType('satkit/qt_annotator.ui')
 
 _qt_annotator_logger = logging.getLogger('satkit.qt_annotator')
 
+class QAnnotatorWindow(QMainWindow, Ui_MainWindow):
+    """
+    QAnnotatorWindow provides the GUI for Annotator.
+    
+    In View-Model-Controller
+    Annotator is the Controller and a Recordings array is the Model.
+    """
+
+    @staticmethod
+    def line_xdirection_picker(line, mouseevent):
+        """
+        Find the nearest point in the x (time) direction from the mouseclick in
+        data coordinates. Return index of selected point, x and y coordinates of
+        the data at that point, and inaxes to enable originating subplot to be
+        identified.
+        """
+        if mouseevent.xdata is None:
+            return False, dict()
+        xdata = line.get_xdata()
+        ydata = line.get_ydata()
+        distances = np.abs(xdata - mouseevent.xdata)
+
+        ind = np.argmin(distances)
+        # if 1:
+        pickx = np.take(xdata, ind)
+        picky = np.take(ydata, ind)
+        props = dict(ind=ind,
+                     pickx=pickx,
+                     picky=picky,
+                     inaxes=mouseevent.inaxes)
+        return True, props
+        # else:
+        #     return False, dict()
+
+
+class Annotator():
+    """
+    Annotator controls QAnnotatorWindow and the data.
+    
+    In View-Model-Controller
+    QAnnotatorWindow is the View and a Recordings array is the Model.
+    """
+
+
 
 class PdQtAnnotator(QMainWindow, Ui_MainWindow):
     """
@@ -142,15 +186,15 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
         self.goLineEdit.setValidator(go_validator)
         self.goButton.clicked.connect(self.go)
 
-        self.categoryRB_1.toggled.connect(self.pd_category_callback)
-        self.categoryRB_2.toggled.connect(self.pd_category_callback)
-        self.categoryRB_3.toggled.connect(self.pd_category_callback)
-        self.categoryRB_4.toggled.connect(self.pd_category_callback)
-        self.categoryRB_5.toggled.connect(self.pd_category_callback)
+        self.categoryRB_1.toggled.connect(self.pd_category_cb)
+        self.categoryRB_2.toggled.connect(self.pd_category_cb)
+        self.categoryRB_3.toggled.connect(self.pd_category_cb)
+        self.categoryRB_4.toggled.connect(self.pd_category_cb)
+        self.categoryRB_5.toggled.connect(self.pd_category_cb)
 
-        self.positionRB_1.toggled.connect(self.tongue_position_callback)
-        self.positionRB_2.toggled.connect(self.tongue_position_callback)
-        self.positionRB_3.toggled.connect(self.tongue_position_callback)
+        self.positionRB_1.toggled.connect(self.tongue_position_cb)
+        self.positionRB_2.toggled.connect(self.tongue_position_cb)
+        self.positionRB_3.toggled.connect(self.tongue_position_cb)
 
         self.xlim = xlim
 
@@ -387,7 +431,7 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
                 self.recordings,
                 self.pickle_filename)
             _qt_annotator_logger.info(
-                "Wrote data to file %s.", self.pickle_filename)
+                "Wrote data to file {file}.", file = self.pickle_filename)
 
     def export(self):
         """
@@ -464,9 +508,9 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
                 annotations['C1'] = recording.meta['prompt'][0]
                 writer.writerow(annotations)
             _qt_annotator_logger.info(
-                'Wrote onset data in file %s.', filename)
+                'Wrote onset data in file {file}.', file = filename)
 
-    def pd_category_callback(self):
+    def pd_category_cb(self):
         """
         Callback funtion for the RadioButton for catogorising
         the PD curve.
@@ -475,7 +519,7 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
         if radio_button.isChecked():
             self.current.annotations['pdCategory'] = radio_button.text()
 
-    def tongue_position_callback(self):
+    def tongue_position_cb(self):
         """
         Callback funtion for the RadioButton for catogorising
         the PD curve.
@@ -820,7 +864,7 @@ class PD_3D_Qt_Annotator(QMainWindow, Ui_MainWindow):
                 self.recordings,
                 self.pickle_filename)
             _qt_annotator_logger.info(
-                "Wrote data to file %s.", self.pickle_filename)
+                "Wrote data to file {file}.", file = self.pickle_filename)
 
     def export(self):
         """
@@ -897,7 +941,7 @@ class PD_3D_Qt_Annotator(QMainWindow, Ui_MainWindow):
                 annotations['C1'] = recording.meta['prompt'][0]
                 writer.writerow(annotations)
             _qt_annotator_logger.info(
-                'Wrote onset data in file %s.', filename)
+                'Wrote onset data in file {}.', file = filename)
 
     def pdCategoryCB(self):
         """

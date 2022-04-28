@@ -174,7 +174,7 @@ def ult_cart2pol(
 
 def trim_picture(img):
     """
-    Place holder docstring.
+    TODO: docstring.
     """
     def unique_element_number(vec):
         try:

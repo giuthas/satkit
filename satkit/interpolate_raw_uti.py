@@ -158,16 +158,16 @@ def ult_cart2pol(
     """
     def cart2pol(x, y):
         r = math.sqrt(x**2 + y**2)
-        th = math.atan2(y, x)
-        return r, th
-    (r, th) = cart2pol(output_coordinates[0] - origin[0],
+        theta = math.atan2(y, x)
+        return r, theta
+    (r, theta) = cart2pol(output_coordinates[0] - origin[0],
                        output_coordinates[1] - origin[1])
     r *= pix_per_mm
     cl = num_of_vectors // 2
     if grayscale:
-        res = cl - ((th - np.pi / 2) / angle), r - zero_offset
+        res = cl - ((theta - np.pi / 2) / angle), r - zero_offset
     else:
-        res = cl - ((th - np.pi / 2) / angle), r - \
+        res = cl - ((theta - np.pi / 2) / angle), r - \
             zero_offset, output_coordinates[2]
     return res
 

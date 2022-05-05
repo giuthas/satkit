@@ -71,7 +71,7 @@ with: `conda install mamba -n base -c conda-forge`
 
 After you've (possibly forked and) cloned the repository from github with your
 favourite git tool, cd into the repository root. There you should find the file
-called `satkit_devel_conda_env.yaml` and `satkit_stable_conda_env.yaml`. 
+called `satkit_devel_conda_env.yaml` and `satkit_stable_conda_env.yaml`.
 
 #### Using SATKIT as a library in program development
 

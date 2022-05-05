@@ -7,7 +7,7 @@ data. The first two tools to be implemented are Optical Flow and Pixel
 Difference.
 
 Optical Flow tracks local changes in ultrasound frames and estimates
-the flow field based on these. 
+the flow field based on these.
 
 Pixel Difference and Scanline Based Pixel Difference -- work on raw,
 uniterpolated data and produce measures of change over the course of a
@@ -17,17 +17,16 @@ thesis](https://eresearch.qmu.ac.uk/handle/20.500.12289/10163). The
 next stage is a automated reaction time measure, followed possibly by
 spline distance measures and optic flow.
 
-
 ## Getting Started
 
 Download the repository to either a subdirectory of the project you
 want to use the tools on or a suitable place that you then add to your
-$PYTHONPATH. 
-
+$PYTHONPATH.
 
 ### Requisites
 
 SATKit has been tested with the following or more recent:
+
 * Python 3.10
 * PyQt5 v5.12
 * MatPlotLib 3.5
@@ -36,58 +35,65 @@ SATKit has been tested with the following or more recent:
 * SciPy 1.3
 * praat-textgrids 1.3
 
-A handy way of getting MatPlotLib, NumPy, and SciPy is to get them as
-part of the [Anaconda
-distribution](https://www.anaconda.com/distribution/#download-section). 
-Using mamba as the environment manager when creating virtual environments
-is recommended because conda may not manage to solve the dependencies and 
-may refuse to install anything.
+A handy way of getting MatPlotLib, NumPy, and SciPy is to get them as part of
+the [Anaconda distribution](https://www.anaconda.com/distribution/#download-section).
+Using mamba as the environment manager when creating virtual environments is
+recommended because conda may not manage to solve the dependencies and may
+refuse to install anything.
 
-Note: If you decide to use Anaconda, you should install any additional 
-packages you are getting with mamba (or conda) before installing praat-textgrids 
-with pip *as the final step* of setting up a virtual environment. 
+Note: If you decide to use Anaconda, you should install any additional packages
+you are getting with mamba (or conda) before installing praat-textgrids with pip
+*as the final step* of setting up a virtual environment.
 
 For OF you will need in addition:
+
 * DIPY 1.5
 
 For processing lip videos:
+
 * Scikit-video 1.1
-
-
-### Installing for development
-
-To install all of the above and create a conda environment to run SATKIT in 
-first install anaconda from the link above. Then install mamba because 
-anaconda is unlikely to solve the dependencies correctly. 
-Do this on the command line with:
-`conda install mamba -n base -c conda-forge`
-
-After you've (possibly forked and) cloned the repository from github 
-with your favourite tool for doing so cd into the repository root. 
-There you should find a file called `satkit_devel_conda_env.yaml`. 
-To install 
-the required packages and create the environment, simply run:
-`mamba env create -f satkit_devel_conda_env.yaml`
-
-Activate the environment with `conda activate satkit_stable` and the basics 
-are set up. If you want to have an editable install (changing code in the repo changes behaviour of the installed SATKIT immediately) run finally
-`pip install -e .`
-or 
-`python3 -m pip install --editable .`
-if you prefer being explicit.
 
 ### Installing for regular use
 
-An installation through pypi is in the works. Do get in touch if you 
-would like to test it.
+An installation through pypi is in the works. Do get in touch if you
+would like to *test* it.
 
+A downloadable executable will hopefully also become reality. Do get in touch if
+you would like to *develop* it.
+
+### Installing for development
+
+To install all of the above and create a conda environment to run SATKIT in
+first install anaconda from the link above. Then install mamba because anaconda
+is unlikely to solve the dependencies correctly. Do this on the command line
+with: `conda install mamba -n base -c conda-forge`
+
+After you've (possibly forked and) cloned the repository from github with your
+favourite git tool, cd into the repository root. There you should find the file
+called `satkit_devel_conda_env.yaml` and `satkit_stable_conda_env.yaml`.
+
+#### Using SATKIT as a library in program development
+
+If you are not going to work on SATKIT itself, you should setup the stable
+environment. To install the required packages and create the environment, run:
+`mamba env create -f satkit_stable_conda_env.yaml`
+
+Activate the environment with `conda activate satkit-stable` and the basics are
+set up. If you want to have an editable install (changing code in the repo
+changes behaviour of the installed SATKIT immediately) run finally `pip install
+-e .` or `python3 -m pip install --editable .` if you prefer being explicit.
+
+#### Working on SATKIT
+
+If you plan on working on SATKIT, run the commands
+`mamba env create -f satkit_devel_conda_env.yaml` and
+`conda activate satkit-devel` instead of the ones above.
 
 ### What's included
 
 See
 [MANIFEST.markdown](https://github.com/giuthas/satkit/blob/master/MANIFEST.markdown)
 for a description of the contents.
-
 
 ### Running the examples
 
@@ -96,7 +102,7 @@ run tests on them with the test script `pd_test.py`. Currently the
 following work and produce a new spaghetti_plot.pdf and a transcript
 in `[method_name].log`.
 
-```
+``` shell
 python of_cli.py larynx_data
 python pd_cli.py tongue_data_1_1
 python pd_cli.py tongue_data_1_1 exclusion_list.csv
@@ -113,17 +119,14 @@ couple more curves in it.
 The routines to deal with a directory structure like that of `test2`
 are yet to be implemented.
 
-
 ## Running the tests
 
 Proper testing is yet to be implemented.
-
 
 ## Contributing
 
 Please get in touch with [Pertti](https://taurlin.org), if you would
 like to contribute to the project.
-
 
 ## Versioning
 
@@ -135,7 +138,6 @@ releases at time of writing) have not been tested in any way.
 For the versions available, see the [tags on this
 repository](https://github.com/giuthas/satkit/tags).
 
-
 ## Authors
 
 * **Pertti Palo** - *Initial work on PD and the Python framework used
@@ -146,7 +148,6 @@ repository](https://github.com/giuthas/satkit/tags).
 
 List of [contributors](https://github.com/your/project/CONTRIBUTORS.markdown)
 will be updated once there are more people working on this project.
-
 
 ## Copyright and License
 
@@ -182,7 +183,6 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see
 <https://www.gnu.org/licenses/gpl-3.0.en.html>
 
-
 ### Data license
 
 [Data License](https://github.com/giuthas/satkit/blob/master/DATA_LICENSE_by-nc-sa.markdown)
@@ -190,18 +190,19 @@ along with this program.  If not, see
 The data in directories `larynx_data`, `tongue_data_1`,
 `tongue_data_1_2`, and `tongue_data_2` are licensed under the Creative
 Commons Attribution-NonCommercial-ShareAlike 4.0 International (CC
-BY-NC-SA 4.0) License. See link above or 
+BY-NC-SA 4.0) License. See link above or
 <https://creativecommons.org/licenses/by-nc-sa/4.0/> for details.
-
 
 ### Citing the code
 
 When using any part of SATKIT, please cite:
-1. Faytak, M., Moisik, S. & Palo, P. (2020): The Speech Articulation 
-Toolkit (SATKit): Ultrasound image analysis in Python. 
+
+1. Faytak, M., Moisik, S. & Palo, P. (2020): The Speech Articulation
+Toolkit (SATKit): Ultrasound image analysis in Python.
 In ISSP 2020, Online (planned as Providence, Rhode Island)
 
 When making use of the Optic Flow code, please cite:
+
 1. Esling, J. H., & Moisik, S. R. (2012). Laryngeal aperture in
 relation to larynx height change: An analysis using simultaneous
 laryngoscopy and laryngeal ultrasound. In D. Gibbon, D. Hirst, &
@@ -220,10 +221,10 @@ P. Warren (Eds.), Proceedings of the 19th International Congress of
 the Phonetic Sciences.
 
 When using the Pixel Difference (PD) code, please cite:
+
 1. Pertti Palo (2019). Measuring Pre-Speech Articulation. PhD
 thesis. Queen Margaret University, Scotland, UK. Available here [PhD
 thesis](https://eresearch.qmu.ac.uk/handle/20.500.12289/10163).
-
 
 ## Acknowledgments
 

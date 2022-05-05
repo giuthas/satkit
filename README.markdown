@@ -54,6 +54,14 @@ For processing lip videos:
 
 * Scikit-video 1.1
 
+### Installing for regular use
+
+An installation through pypi is in the works. Do get in touch if you
+would like to *test* it.
+
+A downloadable executable will hopefully also become reality. Do get in touch if
+you would like to *develop* it.
+
 ### Installing for development
 
 To install all of the above and create a conda environment to run SATKIT in
@@ -62,20 +70,25 @@ is unlikely to solve the dependencies correctly. Do this on the command line
 with: `conda install mamba -n base -c conda-forge`
 
 After you've (possibly forked and) cloned the repository from github with your
-favourite tool for doing so cd into the repository root. There you should find a
-file called `satkit_devel_conda_env.yaml`. To install the required packages and
-create the environment, run:
-`mamba env create -fsatkit_devel_conda_env.yaml`
+favourite git tool, cd into the repository root. There you should find the file
+called `satkit_devel_conda_env.yaml` and `satkit_stable_conda_env.yaml`. 
 
-Activate the environment with `conda activate satkit_stable` and the basics are
+#### Using SATKIT as a library in program development
+
+If you are not going to work on SATKIT itself, you should setup the stable
+environment. To install the required packages and create the environment, run:
+`mamba env create -f satkit_stable_conda_env.yaml`
+
+Activate the environment with `conda activate satkit-stable` and the basics are
 set up. If you want to have an editable install (changing code in the repo
 changes behaviour of the installed SATKIT immediately) run finally `pip install
 -e .` or `python3 -m pip install --editable .` if you prefer being explicit.
 
-### Installing for regular use
+#### Working on SATKIT
 
-An installation through pypi is in the works. Do get in touch if you
-would like to test it.
+If you plan on working on SATKIT, run the commands
+`mamba env create -f satkit_devel_conda_env.yaml` and
+`conda activate satkit-devel` instead of the ones above.
 
 ### What's included
 

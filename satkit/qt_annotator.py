@@ -355,7 +355,7 @@ class Annotator():
         Increases cursor index, updates the view.
         """
         if self.index < self.max_index-1:
-            # TODO: wrap in a data modalities accessor and possibly make these preloading at +/-1 step
+            # TODO: wrap in a data modalities accessor
             self.current.modalities['RawUltrasound'].data = None
             self.index += 1
             self.view_window.update_figures()
@@ -367,7 +367,7 @@ class Annotator():
         Decreases cursor index, updates the view.
         """
         if self.index > 0:
-            # TODO: wrap in a data modalities accessor and possibly make these preloading at +/-1 step
+            # TODO: wrap in a data modalities accessor
             self.current.modalities['RawUltrasound'].data = None
             self.index -= 1
             self.view_window.update_figures()
@@ -425,7 +425,7 @@ class Annotator():
         csv.register_dialect('tabseparated', delimiter='\t',
                              quoting=csv.QUOTE_NONE)
 
-        with closing(open(filename, 'w')) as csvfile:
+        with closing(open(filename, 'w', encoding='utf-8')) as csvfile:
             writer = csv.DictWriter(csvfile, fieldnames, extrasaction='ignore',
                                     dialect='tabseparated')
 
@@ -810,7 +810,7 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
         Increases cursor index, updates the view.
         """
         if self.index < self.max_index-1:
-            # TODO: wrap in a data modalities accessor and possibly make these preloading at +/-1 step
+            # TODO: wrap in a data modalities accessor
             self.current.modalities['RawUltrasound'].data = None
             self.index += 1
             self.update()
@@ -822,7 +822,7 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
         Decreases cursor index, updates the view.
         """
         if self.index > 0:
-            # TODO: wrap in a data modalities accessor and possibly make these preloading at +/-1 step
+            # TODO: wrap in a data modalities accessor
             self.current.modalities['RawUltrasound'].data = None
             self.index -= 1
             self.update()
@@ -876,7 +876,7 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
         csv.register_dialect('tabseparated', delimiter='\t',
                              quoting=csv.QUOTE_NONE)
 
-        with closing(open(filename, 'w')) as csvfile:
+        with closing(open(filename, 'w', encoding='utf-8')) as csvfile:
             writer = csv.DictWriter(csvfile, fieldnames, extrasaction='ignore',
                                     dialect='tabseparated')
 
@@ -1231,7 +1231,7 @@ class PD_3D_Qt_Annotator(QMainWindow, Ui_MainWindow):
         Increases cursor index, updates the view.
         """
         if self.index < self.max_index-1:
-            # TODO: wrap in a data modalities accessor and possibly make these preloading at +/-1 step
+            # TODO: wrap in a data modalities accessor
             self.current.modalities['ThreeD_Ultrasound'].data = None
             self.index += 1
             self.update()
@@ -1243,7 +1243,7 @@ class PD_3D_Qt_Annotator(QMainWindow, Ui_MainWindow):
         Decreases cursor index, updates the view.
         """
         if self.index > 0:
-            # TODO: wrap in a data modalities accessor and possibly make these preloading at +/-1 step
+            # TODO: wrap in a data modalities accessor
             self.current.modalities['ThreeD_Ultrasound'].data = None
             self.index -= 1
             self.update()
@@ -1309,7 +1309,7 @@ class PD_3D_Qt_Annotator(QMainWindow, Ui_MainWindow):
         csv.register_dialect('tabseparated', delimiter='\t',
                              quoting=csv.QUOTE_NONE)
 
-        with closing(open(filename, 'w')) as csvfile:
+        with closing(open(filename, 'w', encoding='utf-8')) as csvfile:
             writer = csv.DictWriter(csvfile, fieldnames, extrasaction='ignore',
                                     dialect='tabseparated')
 

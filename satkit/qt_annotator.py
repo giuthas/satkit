@@ -408,7 +408,7 @@ class Annotator():
 
     def export_cb(self):
         """
-        Export annotations and some other meta data.
+        Export annotations and some other meta data to a utf-8 .csv file.
         """
         (filename, _) = QFileDialog.getSaveFileName(
             self, 'Save file', directory='.', filter="CSV files (*.csv)")

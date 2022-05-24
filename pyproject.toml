@@ -19,7 +19,7 @@ maintainers = [
   {name = "Brett Cannon", email = "brett@python.org"},
 ]
 name = "satkit"
-readme = "README.markdown"
+readme = "README.md"
 requires-python = ">=3.9"
 version = "0.3.1"
 

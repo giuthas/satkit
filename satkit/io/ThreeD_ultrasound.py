@@ -54,7 +54,7 @@ from satkit.io.AAA_video import LipVideo
 _3D4D_ultra_logger = logging.getLogger('satkit.ThreeD_ultrasound')
 
 
-def generateRecordingList(directory):
+def generate_recording_list(directory):
     """
     Produce an array of Recordings from a 3D4D ultrasound directory.
 
@@ -124,7 +124,7 @@ def generateRecordingList(directory):
     return sorted(recordings, key=lambda token: token.meta['date_and_time'])
 
 
-def generateRecordingListOldStyle(directory):
+def generate_recording_list_old_style(directory):
     """
     Produce an array of Recordings from a 3D4D ultrasound directory without .mat notes file.
 

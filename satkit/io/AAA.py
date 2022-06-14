@@ -50,14 +50,14 @@ _AAA_logger = logging.getLogger('satkit.AAA')
 
 #
 # The logic here is to do a as much as we can with minimal arguments.
-# Therefore, generateRecordingList uses helpers to read all the meta
+# Therefore, generate_recording_list uses helpers to read all the meta
 # and all the Data that it can without using any other arguments.
 #
 # Next step is to decorate that list with single file passes
 # like the exclusion list and splines.
 #
 
-def generateRecordingList(directory):
+def generate_recording_list(directory):
     """
     Produce an array of Recordings from an AAA export directory.
 
@@ -105,13 +105,13 @@ def generateRecordingList(directory):
                   for prompt_file in ult_prompt_files]
     basenames = [Path(path).name for path in base_paths]
     recordings = [
-        generateUltrasoundRecording(basename, directory)
+        generate_ultrasound_recording(basename, directory)
         for basename in basenames
     ]
     return sorted(recordings, key=lambda token: token.meta['date'])
 
 
-def generateUltrasoundRecording(basename, directory=""):
+def generate_ultrasound_recording(basename, directory=""):
     """
     Generate an UltrasoundRecording without Modalities.
 
@@ -125,8 +125,9 @@ def generateUltrasoundRecording(basename, directory=""):
     Returns an AAA_UltrasoundRecording without any modalities.
     """
 
-    _AAA_logger.info("Building Recording object for "
-                     + basename + " in " + directory + ".")
+    _AAA_logger.info(
+        "Building Recording object for {basename} in {directory}.",
+        basename = basename, directory = directory)
 
     recording = AAA_UltrasoundRecording(
         path=directory,
@@ -137,7 +138,8 @@ def generateUltrasoundRecording(basename, directory=""):
     # don't bother with the rest.
     if recording.excluded:
         _AAA_logger.info(
-            "Recording " + basename + " automatically excluded.")
+            "Recording {basename} automatically excluded.",
+            basename = basename)
 
     return recording
 

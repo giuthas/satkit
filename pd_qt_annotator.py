@@ -1,7 +1,7 @@
 #
 # Copyright (c) 2019-2022 Pertti Palo, Scott Moisik, Matthew Faytak, and Motoki Saito.
 #
-# This file is part of Speech Articulation ToolKIT 
+# This file is part of Speech Articulation ToolKIT
 # (see https://github.com/giuthas/satkit/).
 #
 # This program is free software: you can redistribute it and/or modify
@@ -34,32 +34,35 @@ import logging
 import sys
 import time
 
+# For running a Qt GUI
+from PyQt5 import QtWidgets
+
 # local modules
 from satkit.commandLineInterface import RawCLI
 from satkit.qt_annotator import PD_Qt_Annotator
 from satkit.recording import RawUltrasound
 from satkit import pd
 
-# For running a Qt GUI
-from PyQt5 import QtWidgets
-
 
 def main():
-    t = time.time()
+    """Simple main to run the CLI back end and start the QT front end."""
+    start_time = time.time()
 
     # Run the command line interface.
     #function_dict = {'pd':pd.pd, 'annd':annd.annd}
     function_dict = {'PD': (pd.addPD, [RawUltrasound])}
     cli = RawCLI("PD annotator", function_dict, plot=False)
 
-    elapsed_time = time.time() - t
-    logging.info('Elapsed time ' + str(elapsed_time))
+    elapsed_time = time.time() - start_time
+    log_text = 'Elapsed time ' + str(elapsed_time)
+    logging.info(log_text)
 
     # Get the GUI running.
     app = QtWidgets.QApplication(sys.argv)
+    # Apparently the assigment to an unused variable is needed to avoid a segfault.
     annotator = PD_Qt_Annotator(cli.recordings, cli.args)
     sys.exit(app.exec_())
 
 
-if (__name__ == '__main__'):
+if __name__ == '__main__':
     main()

@@ -255,7 +255,7 @@ class RawCLI(BaseCLI):
         satkit_io.setExclusionsFromFile(
             self.args.exclusion_filename, recordings)
 
-        [recording.addModalities()
+        [recording.add_modalities()
          for recording in recordings if not recording.excluded]
 
         return recordings
@@ -295,7 +295,7 @@ class RawAndSplineCLI(RawCLI):
         instance variable is left for the caller to handle. 
         """
         recordings = super()._readDataFromFiles()
-        satkit_AAA.addSplinesFromFile(recordings, self.args.spline_file)
+        satkit_AAA.add_splines_from_file(recordings, self.args.spline_file)
         return recordings
 
     def _parse_args(self):

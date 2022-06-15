@@ -74,7 +74,7 @@ def generate_recording_list(directory):
 
     The processed files are
     recording meta: .txt,
-    ultrasound meta: US.txt,
+    ultrasound meta: US.txt or .param,
     ultrasound: .ult, and
     audio waveform: .wav.
 
@@ -90,6 +90,8 @@ def generate_recording_list(directory):
     # this is equivalent with the following:
     # sorted(glob.glob(directory + '/.' +  '/*US.txt'))
     ult_meta_files = sorted(glob.glob(directory + '/*US.txt'))
+    if len(ult_meta_files) == 0:
+        ult_meta_files = sorted(glob.glob(directory + '/*.param'))
 
     # this takes care of *.txt and *US.txt overlapping. Goal
     # here is to include also failed recordings with missing
@@ -146,7 +148,10 @@ def generate_ultrasound_recording(basename, directory=""):
 
 def parse_ultrasound_meta_aaa(filename):
     """
-    Parse metadata from an AAA 'US.txt' file into a dictionary.
+    Parse metadata from an AAA export file into a dictionary.
+
+    This is either a 'US.txt' or a '.param' file. They have 
+    the same format.
 
     Arguments:
     filename -- path and name of file to be parsed.
@@ -297,6 +302,7 @@ class AaaUltrasoundRecording(Recording):
 
         # Candidates for filenames. Existence tested below.
         ult_meta_file = os.path.join(path, basename + "US.txt")
+        ult_meta_file2 = os.path.join(path, basename + ".param")
         ult_wav_file = os.path.join(path, basename + ".wav")
         ult_file = os.path.join(path, basename + ".ult")
         video_file = os.path.join(path, basename + ".avi")
@@ -304,6 +310,9 @@ class AaaUltrasoundRecording(Recording):
         # check if assumed files exist, and arrange to skip them if any do not
         if os.path.isfile(ult_meta_file):
             self.meta['ult_meta_file'] = ult_meta_file
+            self.meta['ult_meta_exists'] = True
+        elif os.path.isfile(ult_meta_file2):
+            self.meta['ult_meta_file'] = ult_meta_file2
             self.meta['ult_meta_exists'] = True
         else:
             notice = 'Note: ' + ult_meta_file + " does not exist."
@@ -355,8 +364,8 @@ class AaaUltrasoundRecording(Recording):
 
     def parse_aaa_promptfile(self, filename):
         """
-        Read an AAA .txt (not US.txt) file and save prompt, recording date and time,
-        and participant name into the meta dictionary.
+        Read an AAA .txt (not US.txt or .param) file and save prompt, 
+        recording date and time, and participant name into the meta dictionary.
         """
         with closing(open(filename, 'r', encoding="utf8")) as promptfile:
             lines = promptfile.read().splitlines()

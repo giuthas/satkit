@@ -258,17 +258,17 @@ def add_splines_from_file(recording_list, spline_file):
     #                            token['prompt'])
     raise NotImplementedError(
         "Adding splines nor the Spline modality have not yet been implemented.")
-    if spline_file:
-        splines = retrieve_splines(spline_file)
-        for token in recording_list:
-            table = [
-                row for row in splines
-                if row['date_and_time'] == token['date_and_time']]
-            token['splines'] = table
-            _AAA_logger.debug(
-                token['prompt'] + ' has ' + str(len(table)) + 'splines.')
-
-    return recording_list
+    # if spline_file:
+    #     splines = retrieve_splines(spline_file)
+    #     for token in recording_list:
+    #         table = [
+    #             row for row in splines
+    #             if row['date_and_time'] == token['date_and_time']]
+    #         token['splines'] = table
+    #         _AAA_logger.debug(
+    #             token['prompt'] + ' has ' + str(len(table)) + 'splines.')
+    #
+    # return recording_list
 
 
 class AaaUltrasoundRecording(Recording):

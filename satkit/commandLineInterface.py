@@ -251,7 +251,7 @@ class RawCLI(BaseCLI):
         this method just returns the data and saving it in a
         instance variable is left for the caller to handle.
         """
-        recordings = satkit_AAA.generateRecordingList(self.args.load_path)
+        recordings = satkit_AAA.generate_recording_list(self.args.load_path)
 
         satkit_io.setExclusionsFromFile(
             self.args.exclusion_filename, recordings)
@@ -374,7 +374,7 @@ class Raw3D_CLI(RawCLI):
         this method just returns the data and saving it in a
         instance variable is left for the caller to handle.
         """
-        recordings = ThreeD_ultrasound.generateRecordingList(
+        recordings = ThreeD_ultrasound.generate_recording_list(
             Path(self.args.load_path))
 
         satkit_io.setExclusionsFromFile(
@@ -417,7 +417,7 @@ class Old_Style_3D_CLI(RawCLI):
         this method just returns the data and saving it in a
         instance variable is left for the caller to handle.
         """
-        recordings = ThreeD_ultrasound.generateRecordingListOldStyle(
+        recordings = ThreeD_ultrasound.generate_recording_list_old_style(
             Path(self.args.load_path))
 
         satkit_io.setExclusionsFromFile(

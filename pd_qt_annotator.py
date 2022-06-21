@@ -46,14 +46,14 @@ from satkit import pd
 
 def main():
     """Simple main to run the CLI back end and start the QT front end."""
-    t = time.time()
+    start_time = time.time()
 
     # Run the command line interface.
     #function_dict = {'pd':pd.pd, 'annd':annd.annd}
     function_dict = {'PD': (pd.addPD, [RawUltrasound])}
     cli = RawCLI("PD annotator", function_dict, plot=False)
 
-    elapsed_time = time.time() - t
+    elapsed_time = time.time() - start_time
     log_text = 'Elapsed time ' + str(elapsed_time)
     logging.info(log_text)
 
@@ -63,5 +63,5 @@ def main():
     sys.exit(app.exec_())
 
 
-if (__name__ == '__main__'):
+if __name__ == '__main__':
     main()

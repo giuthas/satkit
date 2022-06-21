@@ -297,7 +297,7 @@ class RawAndSplineCLI(RawCLI):
         instance variable is left for the caller to handle. 
         """
         recordings = super()._read_data_from_files()
-        satkit_AAA.addSplinesFromFile(recordings, self.args.spline_file)
+        satkit_AAA.add_splines_from_file(recordings, self.args.spline_file)
         return recordings
 
     def _parse_args(self):

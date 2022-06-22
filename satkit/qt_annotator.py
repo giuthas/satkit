@@ -62,11 +62,20 @@ _qt_annotator_logger = logging.getLogger('satkit.qt_annotator')
 
 class QtAnnotatorWindow(QMainWindow, Ui_MainWindow):
     """
-    QtAnnotatorWindow provides the GUI for Annotator.
+    QtAnnotatorWindow provides the GUI basis for Annotator.
 
     In the Model-view-presenter pattern this class is the View, current
-    Annotator is the Presenter and a Recordings array is the Model.
-    See https://en.wikipedia.org/wiki/Model%E2%80%93view%E2%80%93presenter
+    Annotator is the Presenter and a Recordings array is the Model. See
+    https://en.wikipedia.org/wiki/Model%E2%80%93view%E2%80%93presenter
+
+    The idea is for QtAnnotatorWindow to only have minimal functionality. Adding
+    display views, buttons and such is the job of Annotator. Annotator in turn
+    may delegate these to other classes.
+
+    Reason for not implementing much anything in QtAnnotatorWindow is two-fold:
+    1. Inheriting a class that inherits QMainWindow and Ui_MainWindow does not
+    seem to work. 2. We will try to keep inheritance trees fairly shallow to
+    make them easier to manage and maintain.
     """
 
     @staticmethod
@@ -288,7 +297,6 @@ class QtAnnotatorWindow(QMainWindow, Ui_MainWindow):
         array = np.flip(array, 0).copy()
         array = array.astype(np.int8)
         self.ultra_axes.imshow(array, interpolation='nearest', cmap='gray')
-
 
 
 class Annotator():

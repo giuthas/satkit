@@ -60,9 +60,9 @@ Ui_MainWindow, QMainWindow = loadUiType('satkit/qt_annotator.ui')
 
 _qt_annotator_logger = logging.getLogger('satkit.qt_annotator')
 
-class QAnnotatorWindow(QMainWindow, Ui_MainWindow):
+class QtAnnotatorWindow(QMainWindow, Ui_MainWindow):
     """
-    QAnnotatorWindow provides the GUI for Annotator.
+    QtAnnotatorWindow provides the GUI for Annotator.
 
     In the Model-view-presenter pattern this class is the View, current
     Annotator is the Presenter and a Recordings array is the Model.
@@ -70,18 +70,18 @@ class QAnnotatorWindow(QMainWindow, Ui_MainWindow):
     """
 
     @staticmethod
-    def line_xdirection_picker(line, mouseevent):
+    def line_xdirection_picker(line, mouse_event):
         """
         Find the nearest point in the x (time) direction from the mouseclick in
         data coordinates. Return index of selected point, x and y coordinates of
         the data at that point, and inaxes to enable originating subplot to be
         identified.
         """
-        if mouseevent.xdata is None:
+        if mouse_event.xdata is None:
             return False, dict()
         xdata = line.get_xdata()
         ydata = line.get_ydata()
-        distances = np.abs(xdata - mouseevent.xdata)
+        distances = np.abs(xdata - mouse_event.xdata)
 
         ind = np.argmin(distances)
         # if 1:
@@ -90,7 +90,7 @@ class QAnnotatorWindow(QMainWindow, Ui_MainWindow):
         props = dict(ind=ind,
                      pickx=pickx,
                      picky=picky,
-                     inaxes=mouseevent.inaxes)
+                     inaxes=mouse_event.inaxes)
         return True, props
         # else:
         #     return False, dict()
@@ -293,16 +293,16 @@ class QAnnotatorWindow(QMainWindow, Ui_MainWindow):
 
 class Annotator():
     """
-    Annotator controls QAnnotatorWindow and the data.
-    
+    Annotator controls QtAnnotatorWindow and the data.
+
     In the Model-view-presenter pattern this class is the Presenter,
-    QAnnotatorWindow is the View and a Recordings array is the Model.
+    QtAnnotatorWindow is the View and a Recordings array is the Model.
     """
 
     def __init__(self, recordings, args, xlim=(-0.1, 1.0),
                  categories=None, pickle_filename=None):
 
-        self.view_window = QAnnotatorWindow(self)
+        self.view_window = QtAnnotatorWindow(self)
 
         self.index = 0
         self.max_index = len(recordings)

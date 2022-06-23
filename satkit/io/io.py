@@ -163,12 +163,12 @@ def read_file_exclusion_list(filename):
     Read list of files (that is, recordings) to be excluded from processing.
     """
     if filename is not None:
-        with closing(open(filename, 'r')) as csvfile:
+        with closing(open(filename, 'r', encoding = 'utf-8')) as csvfile:
             reader = csv.reader(csvfile, delimiter='\t')
             # Throw away the second field - it is a comment for human readers.
             exclusion_list = [row[0] for row in reader]
-            _io_logger.info('Read exclusion list ' + filename + ' with ' +
-                            str(len(exclusion_list)) + ' names.')
+            _io_logger.info('Read exclusion list {filename} with {length} names.', 
+                        filename = filename, length = str(len(exclusion_list)))
     else:
         exclusion_list = []
 

@@ -253,7 +253,7 @@ class RawCLI(BaseCLI):
         """
         recordings = satkit_AAA.generate_recording_list(self.args.load_path)
 
-        satkit_io.setExclusionsFromFile(
+        satkit_io.set_exclusions_from_file(
             self.args.exclusion_filename, recordings)
 
         for recording in recordings: 
@@ -377,7 +377,7 @@ class Raw3D_CLI(RawCLI):
         recordings = ThreeD_ultrasound.generate_recording_list(
             Path(self.args.load_path))
 
-        satkit_io.setExclusionsFromFile(
+        satkit_io.set_exclusions_from_file(
             self.args.exclusion_filename, recordings)
 
         for recording in recordings:
@@ -420,7 +420,7 @@ class Old_Style_3D_CLI(RawCLI):
         recordings = ThreeD_ultrasound.generate_recording_list_old_style(
             Path(self.args.load_path))
 
-        satkit_io.setExclusionsFromFile(
+        satkit_io.set_exclusions_from_file(
             self.args.exclusion_filename, recordings)
 
         for recording in recordings:

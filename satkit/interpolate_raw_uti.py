@@ -48,6 +48,8 @@ def to_fan(scanline_data, angle=None, zero_offset=None, pix_per_mm=None,
     Positional argument:
     scanline_data - numpy array containing each frame as a vector,
         but in case of RGB data, each color as its own vector.
+
+    Keyword arguments:
     angle - angle between scanlines in radians
     zero_offset - distance between probe center and first pixel of a scanline
     pix_per_mm - pixels per mm in the depth direction of a scanline
@@ -92,13 +94,11 @@ def to_fan(scanline_data, angle=None, zero_offset=None, pix_per_mm=None,
 def to_fan_2d(img, angle=None, zero_offset=None, pix_per_mm=None,
               num_vectors=None, magnify=1, reserve=1800):
     """
-    Transform a gray scale image to a fanshaped image.
+    Transform a raw ultrasound image to a fanshaped image.
     """
 
-    use_genpar = any([i is None
-                      for i in [angle, zero_offset, pix_per_mm, num_vectors]])
-    if use_genpar:
-        warning = 'WARNING: Not all the necessary information are provided. '
+    if None in [angle, zero_offset, pix_per_mm, num_vectors]:
+        warning = 'WARNING: Not all the necessary information was provided. '
         warning += 'General parameters are used instead.'
         print(warning)
         img = cv2.resize(img, (500, 500))

@@ -37,7 +37,7 @@ from PyQt5 import QtWidgets
 
 # local modules
 from satkit.commandLineInterface import Raw3D_CLI
-from satkit.qt_annotator import PD_3D_Qt_Annotator
+from satkit.qt_annotator import Pd3dQtAnnotator
 from satkit.io.ThreeD_ultrasound import ThreeD_Ultrasound
 from satkit import pd
 
@@ -55,7 +55,7 @@ def main():
 
     # Get the GUI running.
     app = QtWidgets.QApplication(sys.argv)
-    annotator = PD_3D_Qt_Annotator(cli.recordings, cli.args)
+    annotator = Pd3dQtAnnotator(cli.recordings, cli.args)
     sys.exit(app.exec_())
 
 

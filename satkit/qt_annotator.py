@@ -102,7 +102,7 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
         # else:
         #     return False, dict()
 
-    def __init__(self, recordings, args, xlim=(-0.1, 1.0),
+    def __init__(self, recordings, args, xlim=(-0.25, 1.5),
                  categories=None, pickle_filename=None):
         super().__init__()
 
@@ -153,6 +153,10 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
         self.positionRB_3.toggled.connect(self.tongue_position_cb)
 
         self.xlim = xlim
+        max_pds = np.zeros(len(self.recordings))
+        for i, recording in enumerate(self.recordings):
+            max_pds[i] = np.max(recording.modalities['PD on RawUltrasound'].data['pd'])
+        self.ylim = (-50, np.max(max_pds)+50)
 
         #
         # Graphs to be annotated and the waveform for reference.
@@ -292,13 +296,12 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
         ultra_time = pd.timevector - stimulus_onset
 
         #self.xlim = [ultra_time[0] - 0.05, ultra_time[-1]+0.05]
-        self.xlim = [-0.25, 1.0]
 
         textgrid = self.current.textgrid
 
         plot_pd(
             self.ax1, pd.data['pd'],
-            ultra_time, self.xlim, textgrid, stimulus_onset,
+            ultra_time, self.xlim, self.ylim, textgrid, stimulus_onset,
             picker=PdQtAnnotator.line_xdirection_picker)
         plot_wav(self.ax3, wav, wav_time, self.xlim,
                  textgrid, stimulus_onset)

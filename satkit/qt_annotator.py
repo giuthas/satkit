@@ -140,7 +140,7 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
 
         goValidator = QIntValidator(1, self.max_index + 1, self)
         self.goLineEdit.setValidator(goValidator)
-        self.goButton.clicked.connect(self.go)
+        self.goButton.clicked.connect(self.go_to_recording)
 
         self.categoryRB_1.toggled.connect(self.pdCategoryCB)
         self.categoryRB_2.toggled.connect(self.pdCategoryCB)
@@ -178,10 +178,12 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
 
     @property
     def current(self):
+        """Current recording index."""
         return self.recordings[self.index]
 
     @property
     def default_annotations(self):
+        """List default annotations and their default values as a dict."""
         return {
             'pdCategory': self.categories[-1],
             'tonguePosition': self.tongue_positions[-1],
@@ -358,9 +360,9 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
             self.update()
             self.update_ui()
 
-    def go(self):
+    def go_to_recording(self):
         """
-        Go to a recording.
+        Go to a recording specified in the goLineEdit text input field.
         """
         self.current.modalities['RawUltrasound'].data = None
         self.index = int(self.goLineEdit.text())-1

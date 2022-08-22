@@ -88,9 +88,9 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
             return False, dict()
         xdata = line.get_xdata()
         ydata = line.get_ydata()
-        d = np.abs(xdata - mouseevent.xdata)
+        distances = np.abs(xdata - mouseevent.xdata)
 
-        ind = np.argmin(d)
+        ind = np.argmin(distances)
         # if 1:
         pickx = np.take(xdata, ind)
         picky = np.take(ydata, ind)
@@ -113,7 +113,7 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
 
         self.recordings = recordings
         self.commandlineargs = args
-        self.displayTongue = args.displayTongue
+        self.display_tongue = args.displayTongue
 
         if categories is None:
             self.categories = PdQtAnnotator.default_categories
@@ -138,8 +138,8 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
         self.saveButton.clicked.connect(self.save)
         self.exportButton.clicked.connect(self.export)
 
-        goValidator = QIntValidator(1, self.max_index + 1, self)
-        self.goLineEdit.setValidator(goValidator)
+        go_validator = QIntValidator(1, self.max_index + 1, self)
+        self.goLineEdit.setValidator(go_validator)
         self.goButton.clicked.connect(self.go_to_recording)
 
         self.categoryRB_1.toggled.connect(self.pdCategoryCB)
@@ -160,9 +160,9 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
         # gs = self.fig.add_gridspec(4, 7)
         # self.ax1 = self.fig.add_subplot(gs[0:0+3, 0:0+7])
         # self.ax3 = self.fig.add_subplot(gs[3:3+1, 0:0+7])
-        gs = self.fig.add_gridspec(5)
-        self.ax1 = self.fig.add_subplot(gs[0:0+4])
-        self.ax3 = self.fig.add_subplot(gs[4:4+1])
+        grid_specification = self.fig.add_gridspec(5)
+        self.ax1 = self.fig.add_subplot(grid_specification[0:0+4])
+        self.ax3 = self.fig.add_subplot(grid_specification[4:4+1])
 
         self.ultra_fig = Figure()
         self.ultra_axes = self.ultra_fig.add_axes([0, 0, 1, 1])
@@ -224,7 +224,7 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
         self.draw_plots()
         self.add_mpl_elements()
         self.fig.canvas.draw()
-        if self.displayTongue:
+        if self.display_tongue:
             self.draw_ultra_frame()
 
     def update_ui(self):
@@ -308,7 +308,7 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
                              linestyle=':', color="deepskyblue", lw=1)
             self.ax3.axvline(x=self.current.annotations['pdOnset'],
                              linestyle=':', color="deepskyblue", lw=1)
-        if self.displayTongue:
+        if self.display_tongue:
             self.draw_ultra_frame()
 
     def draw_ultra_frame(self):

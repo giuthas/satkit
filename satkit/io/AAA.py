@@ -148,7 +148,7 @@ def parse_ultrasound_meta_aaa(filename):
     """
     Parse metadata from an AAA export file into a dictionary.
 
-    This is either a 'US.txt' or a '.param' file. They have 
+    This is either a 'US.txt' or a '.param' file. They have
     the same format.
 
     Arguments:

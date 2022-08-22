@@ -120,7 +120,7 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
         else:
             self.categories = categories
         self.tongue_positions = PdQtAnnotator.default_tongue_positions
-        self._addAnnotations()
+        self._add_annotations()
 
         self.pickle_filename = pickle_filename
 
@@ -189,7 +189,8 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
             'pdOnsetIndex': -1,
         }
 
-    def _addAnnotations(self):
+    def _add_annotations(self):
+        """Plot the annotations."""
         for recording in self.recordings:
             if recording.annotations:
                 recording.annotations = dict(
@@ -208,6 +209,7 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
         return text
 
     def clear_axis(self):
+        """Clear all plotting axis of this annotator."""
         self.ax1.cla()
         self.ax3.cla()
 

@@ -39,7 +39,7 @@ from PyQt5 import QtWidgets
 
 # local modules
 from satkit.commandLineInterface import RawCLI
-from satkit.qt_annotator import PD_Qt_Annotator
+from satkit.qt_annotator import PdQtAnnotator
 from satkit.recording import RawUltrasound
 from satkit import pd
 
@@ -60,7 +60,7 @@ def main():
     # Get the GUI running.
     app = QtWidgets.QApplication(sys.argv)
     # Apparently the assigment to an unused variable is needed to avoid a segfault.
-    annotator = PD_Qt_Annotator(cli.recordings, cli.args)
+    annotator = PdQtAnnotator(cli.recordings, cli.args)
     sys.exit(app.exec_())
 
 

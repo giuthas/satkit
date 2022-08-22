@@ -61,7 +61,7 @@ Ui_MainWindow, QMainWindow = loadUiType('satkit/qt_annotator.ui')
 _qt_annotator_logger = logging.getLogger('satkit.qt_annotator')
 
 
-class PD_Qt_Annotator(QMainWindow, Ui_MainWindow):
+class PdQtAnnotator(QMainWindow, Ui_MainWindow):
     """
     Qt_Annotator_Window is a GUI class for annotating PD curves.
 
@@ -116,10 +116,10 @@ class PD_Qt_Annotator(QMainWindow, Ui_MainWindow):
         self.displayTongue = args.displayTongue
 
         if categories is None:
-            self.categories = PD_Qt_Annotator.default_categories
+            self.categories = PdQtAnnotator.default_categories
         else:
             self.categories = categories
-        self.tongue_positions = PD_Qt_Annotator.default_tongue_positions
+        self.tongue_positions = PdQtAnnotator.default_tongue_positions
         self._addAnnotations()
 
         self.pickle_filename = pickle_filename
@@ -223,7 +223,7 @@ class PD_Qt_Annotator(QMainWindow, Ui_MainWindow):
         if self.displayTongue:
             self.draw_ultra_frame()
 
-    def updateUI(self):
+    def update_ui(self):
         """
         Updates parts of the UI outwith the graphs.
         """
@@ -249,6 +249,7 @@ class PD_Qt_Annotator(QMainWindow, Ui_MainWindow):
         self.goLineEdit.setText(str(self.index + 1))
 
     def add_mpl_elements(self):
+        """Add matplotlib elements - used also in updating."""
         self.canvas = FigureCanvas(self.fig)
         self.mplWindowVerticalLayout.addWidget(self.canvas)
         self.canvas.draw()
@@ -261,6 +262,7 @@ class PD_Qt_Annotator(QMainWindow, Ui_MainWindow):
         self.ultra_canvas.draw()
 
     def remove_mpl_elements(self):
+        """Remove matplotlib elements before update."""
         self.mplWindowVerticalLayout.removeWidget(self.canvas)
         self.canvas.close()
 
@@ -293,7 +295,7 @@ class PD_Qt_Annotator(QMainWindow, Ui_MainWindow):
         plot_pd(
             self.ax1, pd.data['pd'],
             ultra_time, self.xlim, textgrid, stimulus_onset,
-            picker=PD_Qt_Annotator.line_xdirection_picker)
+            picker=PdQtAnnotator.line_xdirection_picker)
         plot_wav(self.ax3, wav, wav_time, self.xlim,
                  textgrid, stimulus_onset)
 
@@ -340,7 +342,7 @@ class PD_Qt_Annotator(QMainWindow, Ui_MainWindow):
             self.current.modalities['RawUltrasound'].data = None
             self.index += 1
             self.update()
-            self.updateUI()
+            self.update_ui()
 
     def prev(self):
         """
@@ -352,7 +354,7 @@ class PD_Qt_Annotator(QMainWindow, Ui_MainWindow):
             self.current.modalities['RawUltrasound'].data = None
             self.index -= 1
             self.update()
-            self.updateUI()
+            self.update_ui()
 
     def go(self):
         """
@@ -361,7 +363,7 @@ class PD_Qt_Annotator(QMainWindow, Ui_MainWindow):
         self.current.modalities['RawUltrasound'].data = None
         self.index = int(self.goLineEdit.text())-1
         self.update()
-        self.updateUI()
+        self.update_ui()
 
     def quit(self):
         """

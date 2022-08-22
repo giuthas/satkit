@@ -128,8 +128,7 @@ def generate_ultrasound_recording(basename, directory=""):
     """
 
     _AAA_logger.info(
-        "Building Recording object for {basename} in {directory}.",
-        basename = basename, directory = directory)
+        "Building Recording object for %s in %s.", basename, directory)
 
     recording = AaaUltrasoundRecording(
         path=directory,
@@ -140,8 +139,7 @@ def generate_ultrasound_recording(basename, directory=""):
     # don't bother with the rest.
     if recording.excluded:
         _AAA_logger.info(
-            "Recording {basename} automatically excluded.",
-            basename = basename)
+            'Recording %s automatically excluded.', basename)
 
     return recording
 
@@ -178,8 +176,7 @@ def parse_ultrasound_meta_aaa(filename):
             meta[key] = value
 
         _AAA_logger.debug(
-            "Read and parsed ultrasound metafile {filename}.",
-            filename = filename)
+            "Read and parsed ultrasound metafile %s.", filename)
         meta['meta_file'] = filename
     return meta
 
@@ -233,7 +230,7 @@ def retrieve_splines(filename):
         splinefile.readline()  # Discard the headers on first line.
         table = [parse_spline_line(line) for line in splinefile.readlines()]
 
-    _AAA_logger.info("Read file {filename}.", filename = filename)
+    _AAA_logger.info("Read file %s.", filename)
     return table
 
 
@@ -286,8 +283,7 @@ class AaaUltrasoundRecording(Recording):
             _AAA_logger.critical("Critical error: File basename is empty.")
 
         _AAA_logger.debug(
-            "Initialising a new recording with filename {basename}.",
-            basename = basename)
+            "Initialising a new recording with filename %s.", basename)
 
         # Prompt file should always exist and correspond to the basename because
         # the basename list is generated from the directory listing of prompt files.
@@ -382,12 +378,10 @@ class AaaUltrasoundRecording(Recording):
                 self.meta['participant'] = lines[2].split(',')[0]
             else:
                 _AAA_logger.info(
-                    "Participant does not have an id in file {filename}.",
-                    filename = filename)
+                    "Participant does not have an id in file %s.", filename)
                 self.meta['participant'] = ""
 
-            _AAA_logger.debug("Read prompt file {filename}.",
-                filename = filename)
+            _AAA_logger.debug("Read prompt file %s.", filename)
 
     def add_modalities(self, wav_preload=True, ult_preload=False,
                       video_preload=False):
@@ -409,8 +403,8 @@ class AaaUltrasoundRecording(Recording):
         Throws KeyError if TimeInSecsOfFirstFrame is missing from the
         meta file: [directory]/basename + .txt.
         """
-        _AAA_logger.info("Adding modalities to recording for {basename}.",
-            basename = self.meta['basename'])
+        _AAA_logger.info("Adding modalities to recording for %s.",
+            self.meta['basename'])
 
         waveform = MonoAudio(
             parent=self,
@@ -420,8 +414,8 @@ class AaaUltrasoundRecording(Recording):
         )
         self.addModality(MonoAudio.__name__, waveform)
         _AAA_logger.debug(
-            "Added MonoAudio to Recording representing {basename}.",
-                basename = self.meta['basename'])
+            "Added MonoAudio to Recording representing %s.",
+            self.meta['basename'])
 
         ult_meta = parse_ultrasound_meta_aaa(self.meta['ult_meta_file'])
 
@@ -440,8 +434,8 @@ class AaaUltrasoundRecording(Recording):
         )
         self.addModality(RawUltrasound.__name__, ultrasound)
         _AAA_logger.debug(
-            "Added RawUltrasound to Recording representing {basename}.",
-                basename = self.meta['basename'])
+            "Added RawUltrasound to Recording representing %s.",
+            self.meta['basename'])
 
         if self.meta['video_exists']:
             # This is the correct value for fps for a de-interlaced
@@ -459,5 +453,5 @@ class AaaUltrasoundRecording(Recording):
             )
             self.addModality(LipVideo.__name__, video)
             _AAA_logger.debug(
-                "Added LipVideo to Recording representing {basename}.",
-                    basename = self.meta['basename'])
+                "Added LipVideo to Recording representing %s.",
+                self.meta['basename'])

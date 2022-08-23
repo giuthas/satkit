@@ -284,10 +284,17 @@ good-names=i,
            j,
            k,
            r,
+<<<<<<< HEAD
            ex,
            go,
            Run,
            _
+=======
+           x, y, z,
+           pd, 
+           ex,
+           go
+>>>>>>> main
 
 # Good variable names regexes, separated by a comma. If names match any regex,
 # they will always be accepted

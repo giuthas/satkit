@@ -250,12 +250,12 @@ class RawCLI(BaseCLI):
         this method just returns the data and saving it in a 
         instance variable is left for the caller to handle. 
         """
-        recordings = satkit_AAA.generateRecordingList(self.args.load_path)
+        recordings = satkit_AAA.generate_recording_list(self.args.load_path)
 
         satkit_io.setExclusionsFromFile(
             self.args.exclusion_filename, recordings)
 
-        [recording.addModalities()
+        [recording.add_modalities()
          for recording in recordings if not recording.excluded]
 
         return recordings
@@ -266,7 +266,7 @@ class RawCLI(BaseCLI):
                 self.recordings,
                 self.args.output_filename)
             self.logger.info(
-                "Wrote data to file " + self.args.output_filename + ".")
+                "Wrote data to file " + os.getcwd() + '/' + self.args.output_filename + ".")
         elif os.path.splitext(self.args.output_filename)[1] == '.json':
             self.logger.error(
                 'Unsupported filetype: ' + self.args.output_filename + '.')
@@ -295,7 +295,7 @@ class RawAndSplineCLI(RawCLI):
         instance variable is left for the caller to handle. 
         """
         recordings = super()._readDataFromFiles()
-        satkit_AAA.addSplinesFromFile(recordings, self.args.spline_file)
+        satkit_AAA.add_splines_from_file(recordings, self.args.spline_file)
         return recordings
 
     def _parse_args(self):
@@ -372,7 +372,7 @@ class Raw3D_CLI(RawCLI):
         this method just returns the data and saving it in a
         instance variable is left for the caller to handle.
         """
-        recordings = ThreeD_ultrasound.generateRecordingList(
+        recordings = ThreeD_ultrasound.generate_recording_list(
             Path(self.args.load_path))
 
         satkit_io.setExclusionsFromFile(
@@ -414,7 +414,7 @@ class Old_Style_3D_CLI(RawCLI):
         this method just returns the data and saving it in a
         instance variable is left for the caller to handle.
         """
-        recordings = ThreeD_ultrasound.generateRecordingListOldStyle(
+        recordings = ThreeD_ultrasound.generate_recording_list_old_style(
             Path(self.args.load_path))
 
         satkit_io.setExclusionsFromFile(

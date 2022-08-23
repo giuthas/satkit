@@ -54,7 +54,7 @@ from satkit.io.AAA_video import LipVideo
 _3D4D_ultra_logger = logging.getLogger('satkit.ThreeD_ultrasound')
 
 
-def generateRecordingList(directory):
+def generate_recording_list(directory):
     """
     Produce an array of Recordings from a 3D4D ultrasound directory.
 
@@ -124,7 +124,7 @@ def generateRecordingList(directory):
     return sorted(recordings, key=lambda token: token.meta['date_and_time'])
 
 
-def generateRecordingListOldStyle(directory):
+def generate_recording_list_old_style(directory):
     """
     Produce an array of Recordings from a 3D4D ultrasound directory without .mat notes file.
 
@@ -162,7 +162,7 @@ def generateRecordingListOldStyle(directory):
         'note_dir': note_dir,
     }
 
-    with closing(open(path/"notes.csv", 'r')) as csvfile:
+    with closing(open(path/"notes.csv", 'r', encoding="utf8")) as csvfile:
         reader = csv.DictReader(csvfile, delimiter='\t',)
 
         rows = [row for row in reader if row]
@@ -242,7 +242,7 @@ def generateUltrasoundRecording(dicom_name, sound_name, directories=None):
     KeywordArguments:
     directory -- path to files
 
-    Returns an AAA_UltrasoundRecording without any modalities.
+    Returns an ThreeD_UltrasoundRecording without any modalities.
     """
 
     _3D4D_ultra_logger.info(

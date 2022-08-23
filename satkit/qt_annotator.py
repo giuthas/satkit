@@ -88,9 +88,9 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
             return False, dict()
         xdata = line.get_xdata()
         ydata = line.get_ydata()
-        d = np.abs(xdata - mouseevent.xdata)
+        distances = np.abs(xdata - mouseevent.xdata)
 
-        ind = np.argmin(d)
+        ind = np.argmin(distances)
         # if 1:
         pickx = np.take(xdata, ind)
         picky = np.take(ydata, ind)
@@ -102,7 +102,7 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
         # else:
         #     return False, dict()
 
-    def __init__(self, recordings, args, xlim=(-0.1, 1.0),
+    def __init__(self, recordings, args, xlim=(-0.25, 1.5),
                  categories=None, pickle_filename=None):
         super().__init__()
 
@@ -113,14 +113,14 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
 
         self.recordings = recordings
         self.commandlineargs = args
-        self.displayTongue = args.displayTongue
+        self.display_tongue = args.displayTongue
 
         if categories is None:
             self.categories = PdQtAnnotator.default_categories
         else:
             self.categories = categories
         self.tongue_positions = PdQtAnnotator.default_tongue_positions
-        self._addAnnotations()
+        self._add_annotations()
 
         self.pickle_filename = pickle_filename
 
@@ -138,21 +138,26 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
         self.saveButton.clicked.connect(self.save)
         self.exportButton.clicked.connect(self.export)
 
-        goValidator = QIntValidator(1, self.max_index + 1, self)
-        self.goLineEdit.setValidator(goValidator)
-        self.goButton.clicked.connect(self.go)
+        go_validator = QIntValidator(1, self.max_index + 1, self)
+        self.goLineEdit.setValidator(go_validator)
+        self.goButton.clicked.connect(self.go_to_recording)
 
-        self.categoryRB_1.toggled.connect(self.pdCategoryCB)
-        self.categoryRB_2.toggled.connect(self.pdCategoryCB)
-        self.categoryRB_3.toggled.connect(self.pdCategoryCB)
-        self.categoryRB_4.toggled.connect(self.pdCategoryCB)
-        self.categoryRB_5.toggled.connect(self.pdCategoryCB)
+        self.categoryRB_1.toggled.connect(self.pd_category_cb)
+        self.categoryRB_2.toggled.connect(self.pd_category_cb)
+        self.categoryRB_3.toggled.connect(self.pd_category_cb)
+        self.categoryRB_4.toggled.connect(self.pd_category_cb)
+        self.categoryRB_5.toggled.connect(self.pd_category_cb)
 
-        self.positionRB_1.toggled.connect(self.tonguePositionCB)
-        self.positionRB_2.toggled.connect(self.tonguePositionCB)
-        self.positionRB_3.toggled.connect(self.tonguePositionCB)
+        self.positionRB_1.toggled.connect(self.tongue_position_cb)
+        self.positionRB_2.toggled.connect(self.tongue_position_cb)
+        self.positionRB_3.toggled.connect(self.tongue_position_cb)
 
         self.xlim = xlim
+        max_pds = np.zeros(len(self.recordings))
+        for i, recording in enumerate(self.recordings):
+            if 'PD on RawUltrasound' in recording.modalities:
+                max_pds[i] = np.max(recording.modalities['PD on RawUltrasound'].data['pd'])
+        self.ylim = (-50, np.max(max_pds)+50)
 
         #
         # Graphs to be annotated and the waveform for reference.
@@ -160,9 +165,9 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
         # gs = self.fig.add_gridspec(4, 7)
         # self.ax1 = self.fig.add_subplot(gs[0:0+3, 0:0+7])
         # self.ax3 = self.fig.add_subplot(gs[3:3+1, 0:0+7])
-        gs = self.fig.add_gridspec(5)
-        self.ax1 = self.fig.add_subplot(gs[0:0+4])
-        self.ax3 = self.fig.add_subplot(gs[4:4+1])
+        grid_specification = self.fig.add_gridspec(5)
+        self.ax1 = self.fig.add_subplot(grid_specification[0:0+4])
+        self.ax3 = self.fig.add_subplot(grid_specification[4:4+1])
 
         self.ultra_fig = Figure()
         self.ultra_axes = self.ultra_fig.add_axes([0, 0, 1, 1])
@@ -178,10 +183,12 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
 
     @property
     def current(self):
+        """Current recording index."""
         return self.recordings[self.index]
 
     @property
     def default_annotations(self):
+        """List default annotations and their default values as a dict."""
         return {
             'pdCategory': self.categories[-1],
             'tonguePosition': self.tongue_positions[-1],
@@ -189,7 +196,8 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
             'pdOnsetIndex': -1,
         }
 
-    def _addAnnotations(self):
+    def _add_annotations(self):
+        """Plot the annotations."""
         for recording in self.recordings:
             if recording.annotations:
                 recording.annotations = dict(
@@ -208,7 +216,7 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
         return text
 
     def clear_axis(self):
-        """Clear the axis."""
+        """Clear all plotting axis of this annotator."""
         self.ax1.cla()
         self.ax3.cla()
 
@@ -221,10 +229,10 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
         self.draw_plots()
         self.add_mpl_elements()
         self.fig.canvas.draw()
-        if self.displayTongue:
+        if self.display_tongue:
             self.draw_ultra_frame()
 
-    def updateUI(self):
+    def update_ui(self):
         """
         Updates parts of the UI outwith the graphs.
         """
@@ -250,6 +258,7 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
         self.goLineEdit.setText(str(self.index + 1))
 
     def add_mpl_elements(self):
+        """Add matplotlib elements - used also in updating."""
         self.canvas = FigureCanvas(self.fig)
         self.mplWindowVerticalLayout.addWidget(self.canvas)
         self.canvas.draw()
@@ -262,6 +271,7 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
         self.ultra_canvas.draw()
 
     def remove_mpl_elements(self):
+        """Remove matplotlib elements before update."""
         self.mplWindowVerticalLayout.removeWidget(self.canvas)
         self.canvas.close()
 
@@ -283,17 +293,16 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
         wav = audio.data
         wav_time = (audio.timevector - stimulus_onset)
 
-        pd = self.current.modalities['PD on RawUltrasound']
-        ultra_time = pd.timevector - stimulus_onset
+        pd_metrics = self.current.modalities['PD on RawUltrasound']
+        ultra_time = pd_metrics.timevector - stimulus_onset
 
         #self.xlim = [ultra_time[0] - 0.05, ultra_time[-1]+0.05]
-        self.xlim = [-0.25, 1.0]
 
         textgrid = self.current.textgrid
 
         plot_pd(
-            self.ax1, pd.data['pd'],
-            ultra_time, self.xlim, textgrid, stimulus_onset,
+            self.ax1, pd_metrics.data['pd'],
+            ultra_time, self.xlim, self.ylim, textgrid, stimulus_onset,
             picker=PdQtAnnotator.line_xdirection_picker)
         plot_wav(self.ax3, wav, wav_time, self.xlim,
                  textgrid, stimulus_onset)
@@ -303,7 +312,7 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
                              linestyle=':', color="deepskyblue", lw=1)
             self.ax3.axvline(x=self.current.annotations['pdOnset'],
                              linestyle=':', color="deepskyblue", lw=1)
-        if self.displayTongue:
+        if self.display_tongue:
             self.draw_ultra_frame()
 
     def draw_ultra_frame(self):
@@ -337,11 +346,11 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
         Increases cursor index, updates the view.
         """
         if self.index < self.max_index-1:
-            # TODO: wrap in a data modalities accessor and possibly make these preloading at +/-1 step
+            # TODO: wrap in a data modalities accessor
             self.current.modalities['RawUltrasound'].data = None
             self.index += 1
             self.update()
-            self.updateUI()
+            self.update_ui()
 
     def prev(self):
         """
@@ -349,20 +358,20 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
         Decreases cursor index, updates the view.
         """
         if self.index > 0:
-            # TODO: wrap in a data modalities accessor and possibly make these preloading at +/-1 step
+            # TODO: wrap in a data modalities accessor
             self.current.modalities['RawUltrasound'].data = None
             self.index -= 1
             self.update()
-            self.updateUI()
+            self.update_ui()
 
-    def go(self):
+    def go_to_recording(self):
         """
-        Go to a recording.
+        Go to a recording specified in the goLineEdit text input field.
         """
         self.current.modalities['RawUltrasound'].data = None
         self.index = int(self.goLineEdit.text())-1
         self.update()
-        self.updateUI()
+        self.update_ui()
 
     def quit(self):
         """
@@ -403,7 +412,7 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
         csv.register_dialect('tabseparated', delimiter='\t',
                              quoting=csv.QUOTE_NONE)
 
-        with closing(open(filename, 'w')) as csvfile:
+        with closing(open(filename, 'w', encoding="utf8")) as csvfile:
             writer = csv.DictWriter(csvfile, fieldnames, extrasaction='ignore',
                                     dialect='tabseparated')
 
@@ -413,13 +422,14 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
                 annotations['basename'] = recording.meta['basename']
                 annotations['date_and_time'] = recording.meta['date_and_time']
                 annotations['prompt'] = recording.meta['prompt']
-                annotations['word'] = recording.meta['prompt'].split()[1]
+                annotations['word'] = recording.meta['prompt'].split()[0]
 
                 word_dur = -1.0
                 acoustic_onset = -1.0
                 if 'word' in recording.textgrid:
                     for interval in recording.textgrid['word']:
-                        # change this to access the phonemeDict and check for included words, then search for
+                        # change this to access the phonemeDict and
+                        # check for included words, then search for
                         # phonemes based on the same
                         if interval.text == "":
                             continue
@@ -436,10 +446,10 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
                     annotations['word_dur'] = -1.0
 
                 if acoustic_onset < 0 or annotations['pdOnset'] < 0:
-                    AAI = -1.0
+                    aai = -1.0
                 else:
-                    AAI = acoustic_onset - annotations['pdOnset']
-                annotations['AAI'] = AAI
+                    aai = acoustic_onset - annotations['pdOnset']
+                annotations['AAI'] = aai
 
                 first_sound_dur = -1.0
                 first_sound = ""
@@ -461,32 +471,32 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
             _qt_annotator_logger.info(
                 'Wrote onset data in file %s.', filename)
 
-    def pdCategoryCB(self):
+    def pd_category_cb(self):
         """
         Callback funtion for the RadioButton for catogorising
         the PD curve.
         """
-        radioBtn = self.sender()
-        if radioBtn.isChecked():
-            self.current.annotations['pdCategory'] = radioBtn.text()
+        radio_button = self.sender()
+        if radio_button.isChecked():
+            self.current.annotations['pdCategory'] = radio_button.text()
 
-    def tonguePositionCB(self):
+    def tongue_position_cb(self):
         """
         Callback funtion for the RadioButton for catogorising
         the PD curve.
         """
-        radioBtn = self.sender()
-        if radioBtn.isChecked():
-            self.current.annotations['tonguePosition'] = radioBtn.text()
+        radio_button = self.sender()
+        if radio_button.isChecked():
+            self.current.annotations['tonguePosition'] = radio_button.text()
 
     def onpick(self, event):
         """
         Callback for handling time selection on events.
         """
         subplot = 0
-        for i, ax in enumerate([self.ax1]):
+        for i, axis in enumerate([self.ax1]):
             # For infomation, print which axes the click was in
-            if ax == event.inaxes:
+            if axis == event.inaxes:
                 subplot = i+1
                 break
 
@@ -496,14 +506,14 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
             audio = self.current.modalities['MonoAudio']
             stimulus_onset = audio.meta['stimulus_onset']
 
-            pd = self.current.modalities['PD on RawUltrasound']
-            ultra_time = pd.timevector - stimulus_onset
+            pd_metrics = self.current.modalities['PD on RawUltrasound']
+            ultra_time = pd_metrics.timevector - stimulus_onset
             self.current.annotations['pdOnsetIndex'] = np.nonzero(
                 ultra_time >= event.pickx)[0][0]
         self.update()
 
 
-class PD_3D_Qt_Annotator(QMainWindow, Ui_MainWindow):
+class Pd3dQtAnnotator(QMainWindow, Ui_MainWindow):
     """
     Qt_Annotator_Window is a GUI class for annotating PD curves.
 
@@ -530,9 +540,9 @@ class PD_3D_Qt_Annotator(QMainWindow, Ui_MainWindow):
             return False, dict()
         xdata = line.get_xdata()
         ydata = line.get_ydata()
-        d = np.abs(xdata - mouseevent.xdata)
+        distances = np.abs(xdata - mouseevent.xdata)
 
-        ind = np.argmin(d)
+        ind = np.argmin(distances)
         # if 1:
         pickx = np.take(xdata, ind)
         picky = np.take(ydata, ind)
@@ -557,11 +567,11 @@ class PD_3D_Qt_Annotator(QMainWindow, Ui_MainWindow):
         self.commandlineargs = args
 
         if categories is None:
-            self.categories = PD_3D_Qt_Annotator.default_categories
+            self.categories = Pd3dQtAnnotator.default_categories
         else:
             self.categories = categories
-        self.tongue_positions = PD_3D_Qt_Annotator.default_tongue_positions
-        self._addAnnotations()
+        self.tongue_positions = Pd3dQtAnnotator.default_tongue_positions
+        self._add_annotations()
 
         self.pickle_filename = pickle_filename
 
@@ -576,24 +586,24 @@ class PD_3D_Qt_Annotator(QMainWindow, Ui_MainWindow):
 
         self.actionQuit.triggered.connect(self.quit)
 
-        goValidator = QIntValidator(1, self.max_index + 1, self)
-        self.goLineEdit.setValidator(goValidator)
-        self.goButton.clicked.connect(self.go)
+        go_validator = QIntValidator(1, self.max_index + 1, self)
+        self.goLineEdit.setValidator(go_validator)
+        self.goButton.clicked.connect(self.go_to_recording)
 
         self.nextButton.clicked.connect(self.next)
         self.prevButton.clicked.connect(self.prev)
         self.saveButton.clicked.connect(self.save)
         self.exportButton.clicked.connect(self.export)
 
-        self.categoryRB_1.toggled.connect(self.pdCategoryCB)
-        self.categoryRB_2.toggled.connect(self.pdCategoryCB)
-        self.categoryRB_3.toggled.connect(self.pdCategoryCB)
-        self.categoryRB_4.toggled.connect(self.pdCategoryCB)
-        self.categoryRB_5.toggled.connect(self.pdCategoryCB)
+        self.categoryRB_1.toggled.connect(self.pd_category_cb)
+        self.categoryRB_2.toggled.connect(self.pd_category_cb)
+        self.categoryRB_3.toggled.connect(self.pd_category_cb)
+        self.categoryRB_4.toggled.connect(self.pd_category_cb)
+        self.categoryRB_5.toggled.connect(self.pd_category_cb)
 
-        self.positionRB_1.toggled.connect(self.tonguePositionCB)
-        self.positionRB_2.toggled.connect(self.tonguePositionCB)
-        self.positionRB_3.toggled.connect(self.tonguePositionCB)
+        self.positionRB_1.toggled.connect(self.tongue_position_cb)
+        self.positionRB_2.toggled.connect(self.tongue_position_cb)
+        self.positionRB_3.toggled.connect(self.tongue_position_cb)
 
         self.xlim = xlim
 
@@ -603,9 +613,9 @@ class PD_3D_Qt_Annotator(QMainWindow, Ui_MainWindow):
         # gs = self.fig.add_gridspec(4, 7)
         # self.ax1 = self.fig.add_subplot(gs[0:0+3, 0:0+7])
         # self.ax3 = self.fig.add_subplot(gs[3:3+1, 0:0+7])
-        gs = self.fig.add_gridspec(5)
-        self.ax1 = self.fig.add_subplot(gs[0:0+4])
-        self.ax3 = self.fig.add_subplot(gs[4:4+1])
+        grid_specification = self.fig.add_gridspec(5)
+        self.ax1 = self.fig.add_subplot(grid_specification[0:0+4])
+        self.ax3 = self.fig.add_subplot(grid_specification[4:4+1])
 
         self.ultra_fig = Figure()
         self.ultra_axes = self.ultra_fig.add_axes([0, 0, 1, 1])
@@ -621,10 +631,12 @@ class PD_3D_Qt_Annotator(QMainWindow, Ui_MainWindow):
 
     @property
     def current(self):
+        """Current recording index."""
         return self.recordings[self.index]
 
     @property
     def default_annotations(self):
+        """List default annotations and their default values as a dict."""
         return {
             'pdCategory': self.categories[-1],
             'tonguePosition': self.tongue_positions[-1],
@@ -632,7 +644,8 @@ class PD_3D_Qt_Annotator(QMainWindow, Ui_MainWindow):
             'pdOnsetIndex': -1,
         }
 
-    def _addAnnotations(self):
+    def _add_annotations(self):
+        """Add expected annotations."""
         for recording in self.recordings:
             if recording.annotations:
                 recording.annotations.update(self.default_annotations)
@@ -649,6 +662,7 @@ class PD_3D_Qt_Annotator(QMainWindow, Ui_MainWindow):
         return text
 
     def clear_axis(self):
+        """Clear the curve axis."""
         self.ax1.cla()
         self.ax3.cla()
 
@@ -663,7 +677,7 @@ class PD_3D_Qt_Annotator(QMainWindow, Ui_MainWindow):
         self.fig.canvas.draw()
         self.draw_ultra_frame()
 
-    def updateUI(self):
+    def update_ui(self):
         """
         Updates parts of the UI outwith the graphs.
         """
@@ -687,6 +701,7 @@ class PD_3D_Qt_Annotator(QMainWindow, Ui_MainWindow):
             self.positionRB_3.setChecked(True)
 
     def add_mpl_elements(self):
+        """Add matplotlib elements. Used also in updating the UI."""
         self.canvas = FigureCanvas(self.fig)
         self.mplWindowVerticalLayout.addWidget(self.canvas)
         self.canvas.draw()
@@ -699,6 +714,7 @@ class PD_3D_Qt_Annotator(QMainWindow, Ui_MainWindow):
         self.ultra_canvas.draw()
 
     def remove_mpl_elements(self):
+        """Remove matplotlib elements. Used in updating the UI."""
         self.mplWindowVerticalLayout.removeWidget(self.canvas)
         self.canvas.close()
 
@@ -720,17 +736,17 @@ class PD_3D_Qt_Annotator(QMainWindow, Ui_MainWindow):
         wav = audio.data
         wav_time = audio.timevector
 
-        pd = self.current.modalities['PD on ThreeD_Ultrasound']
-        ultra_time = pd.timevector - pd.timevector[-1] + wav_time[-1]
+        pd_metrics = self.current.modalities['PD on ThreeD_Ultrasound']
+        ultra_time = pd_metrics.timevector - pd_metrics.timevector[-1] + wav_time[-1]
 
         self.xlim = [ultra_time[0] - 0.05, ultra_time[-1]+0.05]
 
         textgrid = self.current.textgrid
 
         plot_pd_3d(
-            self.ax1, pd.data['pd'],
+            self.ax1, pd_metrics.data['pd'],
             ultra_time, self.xlim, textgrid, stimulus_onset,
-            picker=PD_3D_Qt_Annotator.line_xdirection_picker)
+            picker=Pd3dQtAnnotator.line_xdirection_picker)
         plot_wav_3D_ultra(self.ax3, wav, wav_time, self.xlim,
                           textgrid, stimulus_onset)
 
@@ -742,6 +758,11 @@ class PD_3D_Qt_Annotator(QMainWindow, Ui_MainWindow):
         self.draw_ultra_frame()
 
     def draw_ultra_frame(self):
+        """
+        Display the ultrasound frame at current index.
+
+        Draws in the designated part of the UI.
+        """
         if self.current.annotations['pdOnsetIndex']:
             ind = self.current.annotations['pdOnsetIndex']
             array = self.current.modalities['ThreeD_Ultrasound'].data[ind, :, :, 32]
@@ -758,11 +779,11 @@ class PD_3D_Qt_Annotator(QMainWindow, Ui_MainWindow):
         Increases cursor index, updates the view.
         """
         if self.index < self.max_index-1:
-            # TODO: wrap in a data modalities accessor and possibly make these preloading at +/-1 step
+            # TODO: wrap in a data modalities accessor
             self.current.modalities['ThreeD_Ultrasound'].data = None
             self.index += 1
             self.update()
-            self.updateUI()
+            self.update_ui()
 
     def prev(self):
         """
@@ -770,26 +791,26 @@ class PD_3D_Qt_Annotator(QMainWindow, Ui_MainWindow):
         Decreases cursor index, updates the view.
         """
         if self.index > 0:
-            # TODO: wrap in a data modalities accessor and possibly make these preloading at +/-1 step
+            # TODO: wrap in a data modalities accessor
             self.current.modalities['ThreeD_Ultrasound'].data = None
             self.index -= 1
             self.update()
-            self.updateUI()
+            self.update_ui()
 
-    def go(self):
+    def go_to_recording(self):
         """
-        Go to a recording.
+        Go to the Recording specified by the index in the goLineEdit field.
         """
         self.current.modalities['ThreeD_Ultrasound'].data = None
         self.index = int(self.goLineEdit.text())-1
         self.update()
-        self.updateUI()
+        self.update_ui()
 
     def on_key(self, event):
         """
         Callback function for keypresses.
 
-        Right and left arrows move to the next and previous token. 
+        Right and left arrows move to the next and previous token.
         Pressing 's' saves the annotations in a csv-file.
         Pressing 'q' seems to be captured by matplotlib and interpeted as quit.
         """
@@ -801,6 +822,7 @@ class PD_3D_Qt_Annotator(QMainWindow, Ui_MainWindow):
             self.save()
 
     def quit(self):
+        """Quit the application."""
         QCoreApplication.quit()
 
     def save(self):
@@ -836,7 +858,7 @@ class PD_3D_Qt_Annotator(QMainWindow, Ui_MainWindow):
         csv.register_dialect('tabseparated', delimiter='\t',
                              quoting=csv.QUOTE_NONE)
 
-        with closing(open(filename, 'w')) as csvfile:
+        with closing(open(filename, 'w', encoding="utf8")) as csvfile:
             writer = csv.DictWriter(csvfile, fieldnames, extrasaction='ignore',
                                     dialect='tabseparated')
 
@@ -853,7 +875,8 @@ class PD_3D_Qt_Annotator(QMainWindow, Ui_MainWindow):
                 acoustic_onset = -1.0
                 if 'word' in recording.textgrid:
                     for interval in recording.textgrid['word']:
-                        # change this to access the phonemeDict and check for included words, then search for
+                        # change this to access the phonemeDict and
+                        # check for included words, then search for
                         # phonemes based on the same
                         if interval.text == "":
                             continue
@@ -869,10 +892,10 @@ class PD_3D_Qt_Annotator(QMainWindow, Ui_MainWindow):
                     annotations['word_dur'] = -1.0
 
                 if acoustic_onset < 0 or annotations['pdOnset'] < 0:
-                    AAI = -1.0
+                    aai = -1.0
                 else:
-                    AAI = acoustic_onset - annotations['pdOnset']
-                annotations['AAI'] = AAI
+                    aai = acoustic_onset - annotations['pdOnset']
+                annotations['AAI'] = aai
 
                 first_sound_dur = -1.0
                 first_sound = ""
@@ -894,32 +917,32 @@ class PD_3D_Qt_Annotator(QMainWindow, Ui_MainWindow):
             _qt_annotator_logger.info(
                 'Wrote onset data in file %s.', filename)
 
-    def pdCategoryCB(self):
+    def pd_category_cb(self):
         """
         Callback funtion for the RadioButton for catogorising
         the PD curve.
         """
-        radioBtn = self.sender()
-        if radioBtn.isChecked():
-            self.current.annotations['pdCategory'] = radioBtn.text()
+        radio_button = self.sender()
+        if radio_button.isChecked():
+            self.current.annotations['pdCategory'] = radio_button.text()
 
-    def tonguePositionCB(self):
+    def tongue_position_cb(self):
         """
         Callback funtion for the RadioButton for catogorising
         the PD curve.
         """
-        radioBtn = self.sender()
-        if radioBtn.isChecked():
-            self.current.annotations['tonguePosition'] = radioBtn.text()
+        radio_button = self.sender()
+        if radio_button.isChecked():
+            self.current.annotations['tonguePosition'] = radio_button.text()
 
     def onpick(self, event):
         """
         Callback for handling time selection on events.
         """
         subplot = 0
-        for i, ax in enumerate([self.ax1]):
+        for i, axes in enumerate([self.ax1]):
             # For infomation, print which axes the click was in
-            if ax == event.inaxes:
+            if axes == event.inaxes:
                 subplot = i+1
                 break
 
@@ -929,8 +952,8 @@ class PD_3D_Qt_Annotator(QMainWindow, Ui_MainWindow):
             audio = self.current.modalities['MonoAudio']
             wav_time = audio.timevector
 
-            pd = self.current.modalities['PD on ThreeD_Ultrasound']
-            ultra_time = pd.timevector - pd.timevector[-1] + wav_time[-1]
+            pd_metrics = self.current.modalities['PD on ThreeD_Ultrasound']
+            ultra_time = pd_metrics.timevector - pd_metrics.timevector[-1] + wav_time[-1]
             self.current.annotations['pdOnsetIndex'] = np.nonzero(
                 ultra_time >= event.pickx)[0][0]
         self.update()

@@ -292,15 +292,15 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
         wav = audio.data
         wav_time = (audio.timevector - stimulus_onset)
 
-        pd = self.current.modalities['PD on RawUltrasound']
-        ultra_time = pd.timevector - stimulus_onset
+        pd_metrics = self.current.modalities['PD on RawUltrasound']
+        ultra_time = pd_metrics.timevector - stimulus_onset
 
         #self.xlim = [ultra_time[0] - 0.05, ultra_time[-1]+0.05]
 
         textgrid = self.current.textgrid
 
         plot_pd(
-            self.ax1, pd.data['pd'],
+            self.ax1, pd_metrics.data['pd'],
             ultra_time, self.xlim, self.ylim, textgrid, stimulus_onset,
             picker=PdQtAnnotator.line_xdirection_picker)
         plot_wav(self.ax3, wav, wav_time, self.xlim,
@@ -345,7 +345,7 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
         Increases cursor index, updates the view.
         """
         if self.index < self.max_index-1:
-            # TODO: wrap in a data modalities accessor and possibly make these preloading at +/-1 step
+            # TODO: wrap in a data modalities accessor
             self.current.modalities['RawUltrasound'].data = None
             self.index += 1
             self.update()
@@ -357,7 +357,7 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
         Decreases cursor index, updates the view.
         """
         if self.index > 0:
-            # TODO: wrap in a data modalities accessor and possibly make these preloading at +/-1 step
+            # TODO: wrap in a data modalities accessor
             self.current.modalities['RawUltrasound'].data = None
             self.index -= 1
             self.update()
@@ -411,7 +411,7 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
         csv.register_dialect('tabseparated', delimiter='\t',
                              quoting=csv.QUOTE_NONE)
 
-        with closing(open(filename, 'w')) as csvfile:
+        with closing(open(filename, 'w', encoding="utf8")) as csvfile:
             writer = csv.DictWriter(csvfile, fieldnames, extrasaction='ignore',
                                     dialect='tabseparated')
 
@@ -505,8 +505,8 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
             audio = self.current.modalities['MonoAudio']
             stimulus_onset = audio.meta['stimulus_onset']
 
-            pd = self.current.modalities['PD on RawUltrasound']
-            ultra_time = pd.timevector - stimulus_onset
+            pd_metrics = self.current.modalities['PD on RawUltrasound']
+            ultra_time = pd_metrics.timevector - stimulus_onset
             self.current.annotations['pdOnsetIndex'] = np.nonzero(
                 ultra_time >= event.pickx)[0][0]
         self.update()
@@ -735,15 +735,15 @@ class Pd3dQtAnnotator(QMainWindow, Ui_MainWindow):
         wav = audio.data
         wav_time = audio.timevector
 
-        pd = self.current.modalities['PD on ThreeD_Ultrasound']
-        ultra_time = pd.timevector - pd.timevector[-1] + wav_time[-1]
+        pd_metrics = self.current.modalities['PD on ThreeD_Ultrasound']
+        ultra_time = pd_metrics.timevector - pd_metrics.timevector[-1] + wav_time[-1]
 
         self.xlim = [ultra_time[0] - 0.05, ultra_time[-1]+0.05]
 
         textgrid = self.current.textgrid
 
         plot_pd_3d(
-            self.ax1, pd.data['pd'],
+            self.ax1, pd_metrics.data['pd'],
             ultra_time, self.xlim, textgrid, stimulus_onset,
             picker=Pd3dQtAnnotator.line_xdirection_picker)
         plot_wav_3D_ultra(self.ax3, wav, wav_time, self.xlim,
@@ -778,7 +778,7 @@ class Pd3dQtAnnotator(QMainWindow, Ui_MainWindow):
         Increases cursor index, updates the view.
         """
         if self.index < self.max_index-1:
-            # TODO: wrap in a data modalities accessor and possibly make these preloading at +/-1 step
+            # TODO: wrap in a data modalities accessor
             self.current.modalities['ThreeD_Ultrasound'].data = None
             self.index += 1
             self.update()
@@ -790,7 +790,7 @@ class Pd3dQtAnnotator(QMainWindow, Ui_MainWindow):
         Decreases cursor index, updates the view.
         """
         if self.index > 0:
-            # TODO: wrap in a data modalities accessor and possibly make these preloading at +/-1 step
+            # TODO: wrap in a data modalities accessor
             self.current.modalities['ThreeD_Ultrasound'].data = None
             self.index -= 1
             self.update()
@@ -857,7 +857,7 @@ class Pd3dQtAnnotator(QMainWindow, Ui_MainWindow):
         csv.register_dialect('tabseparated', delimiter='\t',
                              quoting=csv.QUOTE_NONE)
 
-        with closing(open(filename, 'w')) as csvfile:
+        with closing(open(filename, 'w', encoding="utf8")) as csvfile:
             writer = csv.DictWriter(csvfile, fieldnames, extrasaction='ignore',
                                     dialect='tabseparated')
 
@@ -951,8 +951,8 @@ class Pd3dQtAnnotator(QMainWindow, Ui_MainWindow):
             audio = self.current.modalities['MonoAudio']
             wav_time = audio.timevector
 
-            pd = self.current.modalities['PD on ThreeD_Ultrasound']
-            ultra_time = pd.timevector - pd.timevector[-1] + wav_time[-1]
+            pd_metrics = self.current.modalities['PD on ThreeD_Ultrasound']
+            ultra_time = pd_metrics.timevector - pd_metrics.timevector[-1] + wav_time[-1]
             self.current.annotations['pdOnsetIndex'] = np.nonzero(
                 ultra_time >= event.pickx)[0][0]
         self.update()

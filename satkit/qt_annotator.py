@@ -421,7 +421,7 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
                 annotations['basename'] = recording.meta['basename']
                 annotations['date_and_time'] = recording.meta['date_and_time']
                 annotations['prompt'] = recording.meta['prompt']
-                annotations['word'] = recording.meta['prompt'].split()[1]
+                annotations['word'] = recording.meta['prompt'].split()[0]
 
                 word_dur = -1.0
                 acoustic_onset = -1.0

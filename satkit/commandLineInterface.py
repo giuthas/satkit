@@ -1,7 +1,7 @@
 #
 # Copyright (c) 2019-2022 Pertti Palo, Scott Moisik, Matthew Faytak, and Motoki Saito.
 #
-# This file is part of Speech Articulation ToolKIT 
+# This file is part of Speech Articulation ToolKIT
 # (see https://github.com/giuthas/satkit/).
 #
 # This program is free software: you can redistribute it and/or modify
@@ -100,7 +100,8 @@ class BaseCLI():
         # mutually exclusive with reading previous results from a file
         helptext = (
             'Path containing the data to be read.'
-            'Supported types are .pickle files, and directories containing files exported from AAA. '
+            'Supported types are .pickle files, and directories '
+            'containing files exported from AAA. '
             'Loading from .m, .json, and .csv are in the works.')
         self.parser.add_argument("load_path", help=helptext)
 
@@ -111,7 +112,7 @@ class BaseCLI():
         self.args = self.parser.parse_args()
 
     def _set_up_logging(self):
-        """Set up logging with the logging module. 
+        """Set up logging with the logging module.
 
         Main thing to do is set the
         level of printed output based on the verbosity argument.
@@ -135,11 +136,11 @@ class BaseCLI():
         elif self.args.verbose >= 3:
             console_handler.setLevel('DEBUG')
         else:
-            logging.critical("Unexplained negative argument " +
-                             str(self.args.verbose) + " to verbose!")
+            logging.critical("Unexplained negative argument %s to verbose!",
+                str(self.args.verbose))
         self.logger.addHandler(console_handler)
 
-        self.logger.info('Data run started at ' + str(datetime.datetime.now()))
+        self.logger.info('Data run started at %s.', str(datetime.datetime.now()))
 
 
 class RawCLI(BaseCLI):
@@ -153,7 +154,7 @@ class RawCLI(BaseCLI):
         processing_functions is a dict of the callables that will be run on each recording.
         """
         super().__init__(description)
-        self._loadData()
+        self._load_data()
 
         # calculate the metrics
         for recording in self.recordings:
@@ -168,13 +169,13 @@ class RawCLI(BaseCLI):
 
         # save before plotting just in case.
         if self.args.output_filename:
-            self._saveData()
+            self._save_data()
 
         # Plot the data into files if asked to.
         if plot:
             self._plot()
 
-        self.logger.info('Data run ended at ' + str(datetime.datetime.now()))
+        self.logger.info('Data run ended at %s.', str(datetime.datetime.now()))
 
     def _add_optional_arguments(self):
         """ Adds optional commandline arguments."""
@@ -209,24 +210,24 @@ class RawCLI(BaseCLI):
         # Adds the verbosity argument.
         super()._add_optional_arguments()
 
-    def _loadData(self):
+    def _load_data(self):
         """Handle loading data from individual files or a previously saved session."""
         if not os.path.exists(self.args.load_path):
             self.logger.critical(
-                'File or directory does not exist: ' + self.args.load_path)
+                'File or directory does not exist: %s.', self.args.load_path)
             self.logger.critical('Exiting.')
             sys.exit()
         elif os.path.isdir(self.args.load_path):
             # this is the actual list of recordings that gets processed
             # token_list includes meta data contained outwith the ult file
-            self.recordings = self._readDataFromFiles()
+            self.recordings = self._read_data_from_files()
         elif os.path.splitext(self.args.load_path)[1] == '.pickle':
             self.recordings = satkit_io.load_pickled_data(self.args.load_path)
         elif os.path.splitext(self.args.load_path)[1] == '.json':
             self.recordings = satkit_io.load_json_data(self.args.load_path)
         else:
             self.logger.error(
-                'Unsupported filetype: ' + self.args.load_path + '.')
+                'Unsupported filetype: %s.', self.args.load_path + '.')
 
     def _plot(self):
         """
@@ -239,7 +240,7 @@ class RawCLI(BaseCLI):
         pd_annd_plot.ISSP2020_plots(
             self.recordings, self.args.figure_dir)
 
-    def _readDataFromFiles(self):
+    def _read_data_from_files(self):
         """
         Wrapper for reading data from a directory full of files.
 
@@ -255,24 +256,25 @@ class RawCLI(BaseCLI):
         satkit_io.setExclusionsFromFile(
             self.args.exclusion_filename, recordings)
 
-        [recording.add_modalities()
-         for recording in recordings if not recording.excluded]
+        for recording in recordings:
+            if not recording.excluded:
+                recording.add_modalities()
 
         return recordings
 
-    def _saveData(self):
+    def _save_data(self):
         if os.path.splitext(self.args.output_filename)[1] == '.pickle':
             satkit_io.save2pickle(
                 self.recordings,
                 self.args.output_filename)
             self.logger.info(
-                "Wrote data to file " + os.getcwd() + '/' + self.args.output_filename + ".")
+                "Wrote data to file %s/%s.", os.getcwd(), self.args.output_filename)
         elif os.path.splitext(self.args.output_filename)[1] == '.json':
             self.logger.error(
-                'Unsupported filetype: ' + self.args.output_filename + '.')
+                'Unsupported filetype: %s.', self.args.output_filename)
         else:
             self.logger.error(
-                'Unsupported filetype: ' + self.args.output_filename + '.')
+                'Unsupported filetype: %s.', self.args.output_filename)
 
 
 class RawAndSplineCLI(RawCLI):
@@ -283,7 +285,7 @@ class RawAndSplineCLI(RawCLI):
         """
         super().__init__(description, processing_functions, plot=plot)
 
-    def _readDataFromFiles(self):
+    def _read_data_from_files(self):
         """
         Wrapper for reading data from a directory full of files.
 
@@ -294,7 +296,7 @@ class RawAndSplineCLI(RawCLI):
         this method just returns the data and saving it in a 
         instance variable is left for the caller to handle. 
         """
-        recordings = super()._readDataFromFiles()
+        recordings = super()._read_data_from_files()
         satkit_AAA.add_splines_from_file(recordings, self.args.spline_file)
         return recordings
 
@@ -322,7 +324,7 @@ class RawAndVideoCLI(RawCLI):
         """
         super().__init__(description, processing_functions, plot=plot)
 
-    def _readDataFromFiles(self):
+    def _read_data_from_files(self):
         """
         Wrapper for reading data from a directory full of files.
 
@@ -333,7 +335,7 @@ class RawAndVideoCLI(RawCLI):
         this method just returns the data and saving it in a 
         instance variable is left for the caller to handle. 
         """
-        recordings = super()._readDataFromFiles()
+        recordings = super()._read_data_from_files()
         return recordings
 
     def _parse_args(self):
@@ -361,7 +363,7 @@ class Raw3D_CLI(RawCLI):
     def __init__(self, description, processing_functions, plot=True):
         super().__init__(description, processing_functions, plot=plot)
 
-    def _readDataFromFiles(self):
+    def _read_data_from_files(self):
         """
         Wrapper for reading data from a directory full of files.
 
@@ -403,7 +405,7 @@ class Old_Style_3D_CLI(RawCLI):
     def __init__(self, description, processing_functions, plot=True):
         super().__init__(description, processing_functions, plot=plot)
 
-    def _readDataFromFiles(self):
+    def _read_data_from_files(self):
         """
         Wrapper for reading data from a directory full of files.
 

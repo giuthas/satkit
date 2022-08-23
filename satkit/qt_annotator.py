@@ -40,7 +40,7 @@ import numpy as np
 
 # GUI functionality
 from PyQt5.QtCore import QCoreApplication
-from PyQt5.QtWidgets import QFileDialog, QLineEdit
+from PyQt5.QtWidgets import QFileDialog
 from PyQt5.QtGui import QIntValidator
 from PyQt5.uic import loadUiType
 

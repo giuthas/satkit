@@ -155,7 +155,7 @@ def plot_textgrid_lines_3D_ultra(
     return segment_line
 
 
-def plot_pd(ax, pd, time, xlim, textgrid=None, stimulus_onset=0,
+def plot_pd(axis, pd, time, xlim, ylim=None, textgrid=None, stimulus_onset=0,
             picker=None, color="deepskyblue"):
     """
     Plot a Recordings PD timeseries.
@@ -177,26 +177,30 @@ def plot_pd(ax, pd, time, xlim, textgrid=None, stimulus_onset=0,
     """
 
     # The PD curve and the official fix for it not showing up on the legend.
-    ax.plot(time, pd, color=color, lw=1, picker=picker)
+    axis.plot(time, pd, color=color, lw=1, picker=picker)
     pd_curve = mlines.Line2D([], [], color=color, lw=1)
 
-    go_line = ax.axvline(x=0, color="dimgrey", lw=1, linestyle=(0, (5, 10)))
+    go_line = axis.axvline(x=0, color="dimgrey", lw=1, linestyle=(0, (5, 10)))
 
     segment_line = None
     if textgrid:
-        segment_line = plot_textgrid_lines(ax, textgrid, stimulus_onset)
+        segment_line = plot_textgrid_lines(axis, textgrid, stimulus_onset)
 
-    ax.set_xlim(xlim)
-    ax.set_ylim((-50, 3050))
+    axis.set_xlim(xlim)
+    if not ylim:
+        axis.set_ylim((-50, 3050))
+    else:
+        axis.set_ylim(ylim)
+
     if segment_line:
-        ax.legend((pd_curve, go_line, segment_line),
+        axis.legend((pd_curve, go_line, segment_line),
                   ('Pixel difference', 'Go-signal onset', 'Acoustic segments'),
                   loc='upper right')
     else:
-        ax.legend((pd_curve, go_line),
+        axis.legend((pd_curve, go_line),
                   ('Pixel difference', 'Go-signal onset'),
                   loc='upper right')
-    ax.set_ylabel("PD on ultrasound")
+    axis.set_ylabel("PD on ultrasound")
 
 
 def plot_pd_3d(ax, pd, time, xlim, textgrid=None, stimulus_onset=0,

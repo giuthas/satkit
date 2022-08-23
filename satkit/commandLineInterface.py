@@ -268,7 +268,7 @@ class RawCLI(BaseCLI):
                 self.recordings,
                 self.args.output_filename)
             self.logger.info(
-                "Wrote data to file {file}-", file = self.args.output_filename)
+                "Wrote data to file " + os.getcwd() + '/' + self.args.output_filename + ".")
         elif os.path.splitext(self.args.output_filename)[1] == '.json':
             self.logger.error(
                 'Unsupported filetype: {file}.', file = self.args.output_filename)

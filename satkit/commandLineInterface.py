@@ -1,7 +1,7 @@
 #
 # Copyright (c) 2019-2022 Pertti Palo, Scott Moisik, Matthew Faytak, and Motoki Saito.
 #
-# This file is part of Speech Articulation ToolKIT 
+# This file is part of Speech Articulation ToolKIT
 # (see https://github.com/giuthas/satkit/).
 #
 # This program is free software: you can redistribute it and/or modify
@@ -100,7 +100,12 @@ class BaseCLI():
         # mutually exclusive with reading previous results from a file
         helptext = (
             'Path containing the data to be read.'
+<<<<<<< HEAD
             'Supported types are .pickle files, and directories containing files exported from AAA.'
+=======
+            'Supported types are .pickle files, and directories '
+            'containing files exported from AAA. '
+>>>>>>> devel
             'Loading from .m, .json, and .csv are in the works.')
         self.parser.add_argument("load_path", help=helptext)
 
@@ -135,12 +140,20 @@ class BaseCLI():
         elif self.args.verbose >= 3:
             console_handler.setLevel('DEBUG')
         else:
+<<<<<<< HEAD
             log_message = "Unexplained negative argument "
             log_message += str(self.args.verbose) + " to verbose!"
             logging.critical(log_message)
         self.logger.addHandler(console_handler)
 
         self.logger.info("Data run started at {time}.", time = str(datetime.datetime.now()))
+=======
+            logging.critical("Unexplained negative argument %s to verbose!",
+                str(self.args.verbose))
+        self.logger.addHandler(console_handler)
+
+        self.logger.info('Data run started at %s.', str(datetime.datetime.now()))
+>>>>>>> devel
 
 
 class RawCLI(BaseCLI):
@@ -175,7 +188,11 @@ class RawCLI(BaseCLI):
         if plot:
             self._plot()
 
+<<<<<<< HEAD
         self.logger.info('Data run ended at {time}', time = str(datetime.datetime.now()))
+=======
+        self.logger.info('Data run ended at %s.', str(datetime.datetime.now()))
+>>>>>>> devel
 
     def _add_optional_arguments(self):
         """ Adds optional commandline arguments."""
@@ -214,7 +231,11 @@ class RawCLI(BaseCLI):
         """Handle loading data from individual files or a previously saved session."""
         if not os.path.exists(self.args.load_path):
             self.logger.critical(
+<<<<<<< HEAD
                 'File or directory does not exist: {path}.', path = self.args.load_path)
+=======
+                'File or directory does not exist: %s.', self.args.load_path)
+>>>>>>> devel
             self.logger.critical('Exiting.')
             sys.exit()
         elif os.path.isdir(self.args.load_path):
@@ -227,7 +248,11 @@ class RawCLI(BaseCLI):
             self.recordings = satkit_io.load_json_data(self.args.load_path)
         else:
             self.logger.error(
+<<<<<<< HEAD
                 "Unsupported filetype: {file}.", file = self.args.load_path)
+=======
+                'Unsupported filetype: %s.', self.args.load_path + '.')
+>>>>>>> devel
 
     def _plot(self):
         """
@@ -256,9 +281,15 @@ class RawCLI(BaseCLI):
         satkit_io.set_exclusions_from_file(
             self.args.exclusion_filename, recordings)
 
+<<<<<<< HEAD
         for recording in recordings: 
             if not recording.excluded:
                 recording.addModalities()
+=======
+        for recording in recordings:
+            if not recording.excluded:
+                recording.add_modalities()
+>>>>>>> devel
 
         return recordings
 
@@ -268,13 +299,20 @@ class RawCLI(BaseCLI):
                 self.recordings,
                 self.args.output_filename)
             self.logger.info(
-                "Wrote data to file " + os.getcwd() + '/' + self.args.output_filename + ".")
+                "Wrote data to file %s/%s.", os.getcwd(), self.args.output_filename)
         elif os.path.splitext(self.args.output_filename)[1] == '.json':
             self.logger.error(
+<<<<<<< HEAD
                 'Unsupported filetype: {file}.', file = self.args.output_filename)
         else:
             self.logger.error(
                 'Unsupported filetype: {file}.', file = self.args.output_filename)
+=======
+                'Unsupported filetype: %s.', self.args.output_filename)
+        else:
+            self.logger.error(
+                'Unsupported filetype: %s.', self.args.output_filename)
+>>>>>>> devel
 
 
 class RawAndSplineCLI(RawCLI):

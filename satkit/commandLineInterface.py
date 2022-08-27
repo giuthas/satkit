@@ -61,10 +61,10 @@ def widen_help_formatter(formatter, total_width=140, syntax_width=35):
 
 class BaseCLI():
     """
-    This class is the root class for SATKIT commandline interfaces. 
+    This class is the root class for SATKIT commandline interfaces.
 
-    This class is not fully functional by itself: It does not read files 
-    nor run any processing on files. 
+    This class is not fully functional by itself: It does not read files
+    nor run any processing on files.
     """
 
     def __init__(self, description):
@@ -236,24 +236,23 @@ class RawCLI(BaseCLI):
         Having this as a separate method allows subclasses to change 
         arguments and plotting commands.
         """
-        self.logger.info("Drawing ISSP 2020 plot.")
-        pd_annd_plot.ISSP2020_plots(
-            self.recordings, self.args.figure_dir)
+        self.logger.info("Drawing FP 2022 plot.")
+        pd_annd_plot.draw_fp2022_spaghetti(self.recordings)
 
     def _read_data_from_files(self):
         """
         Wrapper for reading data from a directory full of files.
 
-        Having this as a separate method allows subclasses to change 
+        Having this as a separate method allows subclasses to change
         arguments or even the parser.
 
         Note that to make data loading work the in a consistent way,
-        this method just returns the data and saving it in a 
-        instance variable is left for the caller to handle. 
+        this method just returns the data and saving it in a
+        instance variable is left for the caller to handle.
         """
         recordings = satkit_AAA.generate_recording_list(self.args.load_path)
 
-        satkit_io.setExclusionsFromFile(
+        satkit_io.set_exclusions_from_file(
             self.args.exclusion_filename, recordings)
 
         for recording in recordings:
@@ -377,12 +376,13 @@ class Raw3D_CLI(RawCLI):
         recordings = ThreeD_ultrasound.generate_recording_list(
             Path(self.args.load_path))
 
-        satkit_io.setExclusionsFromFile(
+        satkit_io.set_exclusions_from_file(
             self.args.exclusion_filename, recordings)
 
-        [recording.addModalities()
-         for recording in recordings if not recording.excluded]
-
+        for recording in recordings:
+            if not recording.excluded:
+                recording.addModalities()
+                
         return recordings
 
     def _plot(self):
@@ -419,11 +419,12 @@ class Old_Style_3D_CLI(RawCLI):
         recordings = ThreeD_ultrasound.generate_recording_list_old_style(
             Path(self.args.load_path))
 
-        satkit_io.setExclusionsFromFile(
+        satkit_io.set_exclusions_from_file(
             self.args.exclusion_filename, recordings)
 
-        [recording.addModalities()
-         for recording in recordings if not recording.excluded]
+        for recording in recordings:
+            if not recording.excluded:
+                recording.addModalities()
 
         return recordings
 

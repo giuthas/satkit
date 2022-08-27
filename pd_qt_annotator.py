@@ -51,7 +51,7 @@ def main():
     # Run the command line interface.
     #function_dict = {'pd':pd.pd, 'annd':annd.annd}
     function_dict = {'PD': (pd.addPD, [RawUltrasound])}
-    cli = RawCLI("PD annotator", function_dict, plot=False)
+    cli = RawCLI("PD annotator", function_dict, plot=True)
 
     elapsed_time = time.time() - start_time
     log_text = 'Elapsed time ' + str(elapsed_time)

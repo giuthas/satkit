@@ -165,7 +165,7 @@ def plot_textgrid_lines_3D_ultra(
 
 
 def plot_pd(axis, pd, time, xlim, ylim=None, textgrid=None, stimulus_onset=0,
-            picker=None, color="deepskyblue"):
+            picker=None, color="deepskyblue", alpha=1.0):
     """
     Plot a Recordings PD timeseries.
 
@@ -186,7 +186,10 @@ def plot_pd(axis, pd, time, xlim, ylim=None, textgrid=None, stimulus_onset=0,
     """
 
     # The PD curve and the official fix for it not showing up on the legend.
-    axis.plot(time, pd, color=color, lw=1, picker=picker)
+    if picker:
+        axis.plot(time, pd, color=color, lw=1, picker=picker, alpha=alpha)
+    else:
+        axis.plot(time, pd, color=color, lw=1, alpha=alpha)
     pd_curve = mlines.Line2D([], [], color=color, lw=1)
 
     go_line = axis.axvline(x=0, color="dimgrey", lw=1, linestyle=(0, (5, 10)))
@@ -1153,3 +1156,38 @@ def draw_spaghetti(meta, data):
         pdf.savefig()  # saves the current figure into a pdf page
         plt.close()
         _plot_logger.info("Drew spaghetti plot in " + filename + ".")
+
+
+#
+# Used for verifying test runs at the moment. Wrap later into it's own thing.
+#
+def draw_fp2022_spaghetti(recordings):
+    filename = 'fp2022_spaghetti_plot.pdf'
+    with PdfPages(filename) as pdf:
+        plt.figure(figsize=(14, 7))
+        # ax = plt.subplot2grid((2,1),(1,0))
+        axis = plt.axes()
+        xlim = (-1.0, 1.5)
+
+        for recording in recordings:
+            audio = recording.modalities['MonoAudio']
+            stimulus_onset = audio.meta['stimulus_onset']
+            last_gesture = recording.annotations['pdOnset']
+            if last_gesture < 0.0:
+                continue
+            # wav = audio.data
+            # wav_time = (audio.timevector - stimulus_onset)
+
+            pd_metrics = recording.modalities['PD on RawUltrasound']
+            ultra_time = pd_metrics.timevector - stimulus_onset - last_gesture
+
+            plot_pd(axis, pd_metrics.data['pd'], ultra_time, xlim, ylim=(-50, 7050), alpha=.1)
+
+        axis.axvline(x=0, color="r", lw=1)
+        axis.set_xlim(xlim)
+        axis.set_ylabel("Pixel Difference")
+        axis.set_xlabel("Time (s), final peak at 0 s.")
+
+        plt.tight_layout()
+        pdf.savefig()  # saves the current figure into a pdf page
+        plt.close()

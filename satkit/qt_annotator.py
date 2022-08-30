@@ -52,7 +52,7 @@ from matplotlib.backends.backend_qt5agg import (
 
 # Local modules
 #from satkit.annotator import CurveAnnotator, PD_Annotator
-from satkit.pd_annd_plot import plot_pd, plot_pd_3d, plot_wav, plot_wav_3D_ultra
+from satkit.pd_annd_plot import plot_pd, plot_pd_3d, plot_wav, plot_wav_3D_ultra, plot_pd_norms_intensity
 import satkit.io as satkit_io
 
 # Load the GUI layout generated with QtDesigner.
@@ -300,10 +300,12 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
 
         textgrid = self.current.textgrid
 
-        plot_pd(
-            self.ax1, pd_metrics.data['pd'],
-            ultra_time, self.xlim, self.ylim, textgrid, stimulus_onset,
-            picker=PdQtAnnotator.line_xdirection_picker)
+        plot_pd_norms_intensity(self.ax1, pd_metrics, ultra_time, self.xlim, 
+            textgrid=textgrid, time_offset=stimulus_onset)
+        # plot_pd(
+        #     self.ax1, pd_metrics.data['pd'],
+        #     ultra_time, self.xlim, self.ylim, textgrid, stimulus_onset,
+        #     picker=PdQtAnnotator.line_xdirection_picker)
         plot_wav(self.ax3, wav, wav_time, self.xlim,
                  textgrid, stimulus_onset)
 

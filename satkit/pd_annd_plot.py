@@ -96,6 +96,7 @@ def plot_textgrid_lines(ax, textgrid, stimulus_onset=0, draw_text=True):
         segments = textgrid['Segments']
     else:
         _plot_logger.critical("Could not guess the name of the segment tier. Exiting.")
+        sys.exit()
 
     for segment in segments:
         if segment.text == "":
@@ -444,6 +445,45 @@ def plot_pd_norms(
         color="lightgrey", lw=1)
     ax.plot(
         ultra_time, pd['l_inf'] / np.max(pd['l_inf'][1:]),
+        color="k", lw=1, linestyle='--')
+
+    go_line = ax.axvline(x=0, color="dimgrey", lw=1, linestyle=(0, (5, 10)))
+
+    segment_line = None
+    if textgrid:
+        segment_line = plot_textgrid_lines(ax, textgrid, time_offset)
+
+    if draw_legend:
+        pd_curve = mlines.Line2D([], [], color="dimgrey", lw=1)
+    if draw_legend and segment_line:
+        ax.legend((pd_curve, go_line, segment_line),
+                  ('Pixel difference', 'Go-signal onset', 'Acoustic segments'),
+                  loc='upper right')
+    elif draw_legend:
+        ax.legend((pd_curve, go_line),
+                  ('Pixel difference', 'Go-signal onset'),
+                  loc='upper right')
+
+    ax.set_xlim(xlim)
+    ax.set_ylim((0, 1.1))
+    ax.set_ylabel("PD")
+
+
+def plot_pd_norms_intensity(
+        ax, pd, pd_time, xlim, textgrid=None, time_offset=0,
+        draw_legend=False):
+    pd = pd.data
+    ax.plot(pd_time, pd['intensity']/np.max(pd['intensity'][10:]), color="green", lw=1)
+    ax.plot(pd_time, pd['l1']/np.max(pd['l1'][10:]), color="black", lw=1)
+    ax.plot(pd_time, pd['pd']/np.max(pd['pd'][10:]), color="dimgrey", lw=1)
+    ax.plot(pd_time, pd['l3']/np.max(pd['l3'][10:]), color="grey", lw=1)
+    ax.plot(pd_time, pd['l4']/np.max(pd['l4'][10:]), color="darkgrey", lw=1)
+    ax.plot(pd_time, pd['l5']/np.max(pd['l5'][10:]), color="silver", lw=1)
+    ax.plot(
+        pd_time, pd['l10'] / np.max(pd['l10'][1:]),
+        color="lightgrey", lw=1)
+    ax.plot(
+        pd_time, pd['l_inf'] / np.max(pd['l_inf'][1:]),
         color="k", lw=1, linestyle='--')
 
     go_line = ax.axvline(x=0, color="dimgrey", lw=1, linestyle=(0, (5, 10)))
@@ -1172,6 +1212,7 @@ def draw_fp2022_spaghetti(recordings):
         for recording in recordings:
             audio = recording.modalities['MonoAudio']
             stimulus_onset = audio.meta['stimulus_onset']
+            print(recording.annotations)
             last_gesture = recording.annotations['pdOnset']
             if last_gesture < 0.0:
                 continue

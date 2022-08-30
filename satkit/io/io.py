@@ -134,7 +134,7 @@ def save_prompt_freq(filename, prompt_freqs):
             'Wrote prompt frequency counts to file ' + filename + '.')
 
 
-def setExclusionsFromFile(filename, recordings):
+def set_exclusions_from_file(filename, recordings):
     """
     Read list of files (that is, recordings) to be excluded from processing
     and mark them as excluded in the array of recording objects.

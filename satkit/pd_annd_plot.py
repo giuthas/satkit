@@ -473,7 +473,7 @@ def plot_pd_norms_intensity(
         ax, pd, pd_time, xlim, textgrid=None, time_offset=0,
         draw_legend=False):
     pd = pd.data
-    ax.plot(pd_time, pd['intensity']/np.max(pd['intensity'][10:]), color="green", lw=1)
+    ax.plot(pd_time, pd['intensity'][1:]/np.max(pd['intensity'][10:]), color="green", lw=1)
     ax.plot(pd_time, pd['l1']/np.max(pd['l1'][10:]), color="black", lw=1)
     ax.plot(pd_time, pd['pd']/np.max(pd['pd'][10:]), color="dimgrey", lw=1)
     ax.plot(pd_time, pd['l3']/np.max(pd['l3'][10:]), color="grey", lw=1)
@@ -1212,7 +1212,8 @@ def draw_fp2022_spaghetti(recordings):
         for recording in recordings:
             audio = recording.modalities['MonoAudio']
             stimulus_onset = audio.meta['stimulus_onset']
-            print(recording.annotations)
+            if not recording.annotations:
+                continue
             last_gesture = recording.annotations['pdOnset']
             if last_gesture < 0.0:
                 continue

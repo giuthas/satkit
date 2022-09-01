@@ -131,6 +131,9 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
         self.actionNext.triggered.connect(self.next)
         self.actionPrevious.triggered.connect(self.prev)
 
+        self.actionNext_Frame.triggered.connect(self.next_frame)
+        self.actionPrevious_Frame.triggered.connect(self.previous_frame)
+
         self.actionQuit.triggered.connect(self.quit)
 
         self.nextButton.clicked.connect(self.next)
@@ -352,6 +355,36 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
             # TODO: wrap in a data modalities accessor
             self.current.modalities['RawUltrasound'].data = None
             self.index += 1
+            self.update()
+            self.update_ui()
+
+    def _update_pd_onset(self):
+        audio = self.current.modalities['MonoAudio']
+        stimulus_onset = audio.meta['stimulus_onset']
+
+        pd_metrics = self.current.modalities['PD on RawUltrasound']
+        ultra_time = pd_metrics.timevector - stimulus_onset
+        self.current.annotations['pdOnset'] = ultra_time[self.current.annotations['pdOnsetIndex']]
+
+    def next_frame(self):
+        """
+        Move the data cursor to the next frame.
+        """
+        if (self.current.annotations['pdOnsetIndex'] > -1 and 
+            self.current.annotations['pdOnsetIndex'] < self.current.modalities['RawUltrasound'].data.size-1):
+
+            self.current.annotations['pdOnsetIndex'] += 1            
+            self._update_pd_onset()
+            self.update()
+            self.update_ui()
+
+    def previous_frame(self):
+        """
+        Move the data cursor to the previous frame.
+        """
+        if self.current.annotations['pdOnsetIndex'] > 0:
+            self.current.annotations['pdOnsetIndex'] -= 1
+            self._update_pd_onset()
             self.update()
             self.update_ui()
 
@@ -587,6 +620,9 @@ class Pd3dQtAnnotator(QMainWindow, Ui_MainWindow):
         self.actionNext.triggered.connect(self.next)
         self.actionPrevious.triggered.connect(self.prev)
 
+        self.actionNext_Frame.triggered.connect(self.next_frame)
+        self.actionPrevious_Frame.triggered.connect(self.previous_frame)
+
         self.actionQuit.triggered.connect(self.quit)
 
         go_validator = QIntValidator(1, self.max_index + 1, self)
@@ -776,6 +812,25 @@ class Pd3dQtAnnotator(QMainWindow, Ui_MainWindow):
         array = array.astype(np.int8)
         self.ultra_axes.imshow(array, interpolation='nearest', cmap='Greys')
 
+    def next_frame(self):
+        """
+        Move the data cursor to the next frame.
+        """
+        if (self.current.annotations['pdOnsetIndex'] > -1 and 
+            self.current.annotations['pdOnsetIndex'] < self.current.data.size[0]-1):
+            self.current.annotations['pdOnsetIndex'] += 1
+            self.update()
+            self.update_ui()
+
+    def previous_frame(self):
+        """
+        Move the data cursor to the previous frame.
+        """
+        if self.current.annotations['pdOnsetIndex'] > 0:
+            self.current.annotations['pdOnsetIndex'] -= 1
+            self.update()
+            self.update_ui()
+
     def next(self):
         """
         Callback function for the Next button.
@@ -817,9 +872,9 @@ class Pd3dQtAnnotator(QMainWindow, Ui_MainWindow):
         Pressing 's' saves the annotations in a csv-file.
         Pressing 'q' seems to be captured by matplotlib and interpeted as quit.
         """
-        if event.key == "right":
+        if event.key == "up":
             self.next()
-        elif event.key == "left":
+        elif event.key == "down":
             self.prev()
         elif event.key == "s":
             self.save()

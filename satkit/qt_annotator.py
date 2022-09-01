@@ -301,7 +301,8 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
         textgrid = self.current.textgrid
 
         plot_pd_norms_intensity(self.ax1, pd_metrics, ultra_time, self.xlim, 
-            textgrid=textgrid, time_offset=stimulus_onset)
+            textgrid=textgrid, time_offset=stimulus_onset, 
+            picker=PdQtAnnotator.line_xdirection_picker)
         # plot_pd(
         #     self.ax1, pd_metrics.data['pd'],
         #     ultra_time, self.xlim, self.ylim, textgrid, stimulus_onset,

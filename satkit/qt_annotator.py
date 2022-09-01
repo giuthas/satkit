@@ -311,7 +311,8 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
         #     ultra_time, self.xlim, self.ylim, textgrid, stimulus_onset,
         #     picker=PdQtAnnotator.line_xdirection_picker)
         plot_wav(self.ax3, wav, wav_time, self.xlim,
-                 textgrid, stimulus_onset)
+                 textgrid, stimulus_onset, 
+                 picker=PdQtAnnotator.line_xdirection_picker)
 
         if self.current.annotations['pdOnset'] > -1:
             self.ax1.axvline(x=self.current.annotations['pdOnset'],
@@ -529,23 +530,24 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
         """
         Callback for handling time selection on events.
         """
-        subplot = 0
-        for i, axis in enumerate([self.ax1]):
-            # For infomation, print which axes the click was in
-            if axis == event.inaxes:
-                subplot = i+1
-                break
+        # TODO: BY VERSION 1.0 The below commented out code is possibly useful if dealing with more
+        # than one modality to annotate.
+        # subplot = 0
+        # for i, axis in enumerate([self.ax1]):
+        #     if axis == event.inaxes:
+        #         subplot = i+1
+        #         break
 
-        if subplot == 1:
-            self.current.annotations['pdOnset'] = event.pickx
+        # if subplot == 1:
+        self.current.annotations['pdOnset'] = event.pickx
 
-            audio = self.current.modalities['MonoAudio']
-            stimulus_onset = audio.meta['stimulus_onset']
+        audio = self.current.modalities['MonoAudio']
+        stimulus_onset = audio.meta['stimulus_onset']
 
-            pd_metrics = self.current.modalities['PD on RawUltrasound']
-            ultra_time = pd_metrics.timevector - stimulus_onset
-            self.current.annotations['pdOnsetIndex'] = np.nonzero(
-                ultra_time >= event.pickx)[0][0]
+        pd_metrics = self.current.modalities['PD on RawUltrasound']
+        ultra_time = pd_metrics.timevector - stimulus_onset
+        self.current.annotations['pdOnsetIndex'] = np.nonzero(
+            ultra_time >= event.pickx)[0][0]
         self.update()
 
 

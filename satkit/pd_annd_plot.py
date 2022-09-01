@@ -471,10 +471,13 @@ def plot_pd_norms(
 
 def plot_pd_norms_intensity(
         ax, pd, pd_time, xlim, textgrid=None, time_offset=0,
-        draw_legend=False):
+        picker=None, draw_legend=False):
     pd = pd.data
     ax.plot(pd_time, pd['intensity'][1:]/np.max(pd['intensity'][10:]), color="green", lw=1)
-    ax.plot(pd_time, pd['l1']/np.max(pd['l1'][10:]), color="black", lw=1)
+    if picker:
+        ax.plot(pd_time, pd['l1']/np.max(pd['l1'][10:]), color="black", lw=1, picker=picker)
+    else:
+        ax.plot(pd_time, pd['l1']/np.max(pd['l1'][10:]), color="black", lw=1)
     ax.plot(pd_time, pd['pd']/np.max(pd['pd'][10:]), color="dimgrey", lw=1)
     ax.plot(pd_time, pd['l3']/np.max(pd['l3'][10:]), color="grey", lw=1)
     ax.plot(pd_time, pd['l4']/np.max(pd['l4'][10:]), color="darkgrey", lw=1)

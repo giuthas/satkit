@@ -39,6 +39,9 @@ import sys
 # Numerical arrays and more
 import numpy as np
 
+# median filter
+from scipy.signal import medfilt as scipy_medfilt
+
 # wav file handling
 import scipy.io.wavfile as sio_wavfile
 
@@ -612,28 +615,44 @@ class RawUltrasound(MatrixData):
     def data(self):
         return super().data
 
-    # before v1.0: check that the data is actually valid, also call the beep detect etc. routines on it.
     @data.setter
     def data(self, data):
         """
         Data setter method.
 
-        Assigning anything but None is not implemented yet.
+        Assigning anything but None or a numpy ndarray with matching
+        dtype, size, and shape has not been implemented yet and will
+        raise a NotImplementedError.
         """
         if data is not None:
-            raise NotImplementedError(
-                'Writing over raw ultrasound data has not been implemented yet.')
+            if (isinstance(data, np.ndarray) and data.dtype == self._data.dtype and 
+                data.size == self._data.size and data.shape == self._data.shape):
+                self._data = data
+            else:
+                raise NotImplementedError(
+                    "Writing over raw ultrasound data with data that is not a numpy ndarray or " +
+                    "a numpy array that has non-matching dtype, size, or shape has not been " +
+                    "implemented yet.")
         else:
             self._data = data
 
     def interpolated_image(self, index):
-        # frame = self.data[index, :, :].copy().reshape(
-        #         [self.meta['NumVectors'] * self.meta['PixPerVector']])
+        """
+        Return an interpolated version of the ultrasound frame at index.
+        
+        A new interpolated image is calculated, if necessary. To avoid large memory overheads
+        only the current frame's interpolated version maybe stored in memory.
+
+        Arguments:
+        index - the index of the ultrasound frame to be returned
+        """
         if self._stored_index and self._stored_index == index:
             return self._stored_image
         else:
             self._stored_index = index
-            frame = np.transpose(self.data[index, :, :].copy())
+            #frame = scipy_medfilt(self.data[index, :, :].copy(), [1,15])
+            frame = self.data[index, :, :].copy()
+            frame = np.transpose(frame)
             frame = np.flip(frame, 0)
             self._stored_image = to_fan_2d(
                 frame,

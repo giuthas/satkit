@@ -34,6 +34,7 @@ import logging
 
 # Numpy and scipy
 import numpy as np
+from scipy.signal import medfilt as scipy_medfilt
 
 # local modules
 from satkit.recording import DerivedModality
@@ -45,7 +46,8 @@ _pd_logger = logging.getLogger('satkit.pd')
 def addPD(recording,
           modality,
           preload=True,
-          releaseDataMemory=True):
+          releaseDataMemory=True,
+          median_filter_kernel=None):
     """
     Calculate PD on dataModality and add it to recording.
 
@@ -81,7 +83,8 @@ def addPD(recording,
         dataModality = recording.modalities[modality.__name__]
 
         pd = PD(name=name, parent=recording, preload=preload,
-                dataModality=dataModality, releaseDataMemory=releaseDataMemory)
+                dataModality=dataModality, releaseDataMemory=releaseDataMemory,
+                median_filter_kernel=median_filter_kernel)
         recording.addModality(name, pd)
         _pd_logger.info(
             "Added '" + name +
@@ -114,7 +117,7 @@ class PD(DerivedModality):
     def __init__(
             self, name="PD", parent=None, preload=True, timeOffset=0,
             dataModality=None, releaseDataMemory=True, norms=['l2'],
-            timesteps=[1]):
+            timesteps=[1], median_filter_kernel=None):
         """
         Build a Pixel Difference (PD) Modality       
 
@@ -154,6 +157,8 @@ class PD(DerivedModality):
         self._loggingBaseNotice = (self.parent.meta['basename']
                                    + " " + self.parent.meta['prompt'])
 
+        self.median_filter_kernel = median_filter_kernel
+
         if preload:
             self._getData()
 
@@ -168,7 +173,11 @@ class PD(DerivedModality):
                         + ': Calculating PD on '
                         + type(self.dataModality).__name__ + '.')
 
-        data = self.dataModality.data
+        data = scipy_medfilt(self.dataModality.data, [1,1,15])
+        
+        if self.median_filter_kernel:
+            data = scipy_medfilt(data, self.median_filter_kernel)
+
         result = {}
 
         # Hacky hack to recognise LipVideo data and change the timestep for it.
@@ -176,7 +185,8 @@ class PD(DerivedModality):
             self._timesteps[0] = 2
 
         if self._timesteps[0] != 1:
-            # Before 1.0: We are only dealing with the one timestep currently. For 1.0, come up with a way of dealing with multiple timesteps in parallel.
+            # Before 1.0: We are only dealing with the one timestep currently.
+            # For 1.0, come up with a way of dealing with multiple timesteps in parallel.
             timestep = self._timesteps[0]
 
             # Flatten the data into a vector at each timestamp.

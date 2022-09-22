@@ -427,7 +427,7 @@
     <string>Next Recording</string>
    </property>
    <property name="shortcut">
-    <string>Up</string>
+    <string>Down</string>
    </property>
   </action>
   <action name="actionPrevious">
@@ -435,7 +435,7 @@
     <string>Previous Recording</string>
    </property>
    <property name="shortcut">
-    <string>Down</string>
+    <string>Up</string>
    </property>
   </action>
   <action name="actionExport_analysis">
@@ -451,7 +451,7 @@
     <string>Quit</string>
    </property>
    <property name="shortcut">
-    <string>Ctrl+W</string>
+    <string>Ctrl+Q</string>
    </property>
   </action>
   <action name="actionNext_Frame">

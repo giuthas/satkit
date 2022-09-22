@@ -52,7 +52,7 @@ from matplotlib.backends.backend_qt5agg import (
 
 # Local modules
 #from satkit.annotator import CurveAnnotator, PD_Annotator
-from satkit.pd_annd_plot import plot_pd, plot_pd_3d, plot_wav, plot_wav_3D_ultra
+from satkit.pd_annd_plot import plot_pd, plot_pd_3d, plot_wav, plot_wav_3D_ultra, plot_pd_norms_intensity
 import satkit.io as satkit_io
 
 # Load the GUI layout generated with QtDesigner.
@@ -607,6 +607,9 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
         self.actionNext.triggered.connect(self.next)
         self.actionPrevious.triggered.connect(self.prev)
 
+        self.actionNext_Frame.triggered.connect(self.next_frame)
+        self.actionPrevious_Frame.triggered.connect(self.previous_frame)
+
         self.actionQuit.triggered.connect(self.quit)
 
         self.nextButton.clicked.connect(self.next)
@@ -776,12 +779,16 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
 
         textgrid = self.current.textgrid
 
+        # plot_pd_norms_intensity(self.ax1, pd_metrics, ultra_time, self.xlim, 
+        #     textgrid=textgrid, time_offset=stimulus_onset, 
+        #     picker=PdQtAnnotator.line_xdirection_picker)
         plot_pd(
             self.ax1, pd_metrics.data['pd'],
             ultra_time, self.xlim, self.ylim, textgrid, stimulus_onset,
             picker=PdQtAnnotator.line_xdirection_picker)
         plot_wav(self.ax3, wav, wav_time, self.xlim,
-                 textgrid, stimulus_onset)
+                 textgrid, stimulus_onset, 
+                 picker=PdQtAnnotator.line_xdirection_picker)
 
         if self.current.annotations['pdOnset'] > -1:
             self.ax1.axvline(x=self.current.annotations['pdOnset'],
@@ -825,6 +832,36 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
             # TODO: wrap in a data modalities accessor
             self.current.modalities['RawUltrasound'].data = None
             self.index += 1
+            self.update()
+            self.update_ui()
+
+    def _update_pd_onset(self):
+        audio = self.current.modalities['MonoAudio']
+        stimulus_onset = audio.meta['stimulus_onset']
+
+        pd_metrics = self.current.modalities['PD on RawUltrasound']
+        ultra_time = pd_metrics.timevector - stimulus_onset
+        self.current.annotations['pdOnset'] = ultra_time[self.current.annotations['pdOnsetIndex']]
+
+    def next_frame(self):
+        """
+        Move the data cursor to the next frame.
+        """
+        if (self.current.annotations['pdOnsetIndex'] > -1 and 
+            self.current.annotations['pdOnsetIndex'] < self.current.modalities['RawUltrasound'].data.size-1):
+
+            self.current.annotations['pdOnsetIndex'] += 1            
+            self._update_pd_onset()
+            self.update()
+            self.update_ui()
+
+    def previous_frame(self):
+        """
+        Move the data cursor to the previous frame.
+        """
+        if self.current.annotations['pdOnsetIndex'] > 0:
+            self.current.annotations['pdOnsetIndex'] -= 1
+            self._update_pd_onset()
             self.update()
             self.update_ui()
 
@@ -969,23 +1006,24 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
         """
         Callback for handling time selection on events.
         """
-        subplot = 0
-        for i, axis in enumerate([self.ax1]):
-            # For infomation, print which axes the click was in
-            if axis == event.inaxes:
-                subplot = i+1
-                break
+        # TODO: BY VERSION 1.0 The below commented out code is possibly useful if dealing with more
+        # than one modality to annotate.
+        # subplot = 0
+        # for i, axis in enumerate([self.ax1]):
+        #     if axis == event.inaxes:
+        #         subplot = i+1
+        #         break
 
-        if subplot == 1:
-            self.current.annotations['pdOnset'] = event.pickx
+        # if subplot == 1:
+        self.current.annotations['pdOnset'] = event.pickx
 
-            audio = self.current.modalities['MonoAudio']
-            stimulus_onset = audio.meta['stimulus_onset']
+        audio = self.current.modalities['MonoAudio']
+        stimulus_onset = audio.meta['stimulus_onset']
 
-            pd_metrics = self.current.modalities['PD on RawUltrasound']
-            ultra_time = pd_metrics.timevector - stimulus_onset
-            self.current.annotations['pdOnsetIndex'] = np.nonzero(
-                ultra_time >= event.pickx)[0][0]
+        pd_metrics = self.current.modalities['PD on RawUltrasound']
+        ultra_time = pd_metrics.timevector - stimulus_onset
+        self.current.annotations['pdOnsetIndex'] = np.nonzero(
+            ultra_time >= event.pickx)[0][0]
         self.update()
 
 
@@ -1059,6 +1097,9 @@ class Pd3dQtAnnotator(QMainWindow, Ui_MainWindow):
 
         self.actionNext.triggered.connect(self.next)
         self.actionPrevious.triggered.connect(self.prev)
+
+        self.actionNext_Frame.triggered.connect(self.next_frame)
+        self.actionPrevious_Frame.triggered.connect(self.previous_frame)
 
         self.actionQuit.triggered.connect(self.quit)
 
@@ -1249,6 +1290,25 @@ class Pd3dQtAnnotator(QMainWindow, Ui_MainWindow):
         array = array.astype(np.int8)
         self.ultra_axes.imshow(array, interpolation='nearest', cmap='Greys')
 
+    def next_frame(self):
+        """
+        Move the data cursor to the next frame.
+        """
+        if (self.current.annotations['pdOnsetIndex'] > -1 and 
+            self.current.annotations['pdOnsetIndex'] < self.current.data.size[0]-1):
+            self.current.annotations['pdOnsetIndex'] += 1
+            self.update()
+            self.update_ui()
+
+    def previous_frame(self):
+        """
+        Move the data cursor to the previous frame.
+        """
+        if self.current.annotations['pdOnsetIndex'] > 0:
+            self.current.annotations['pdOnsetIndex'] -= 1
+            self.update()
+            self.update_ui()
+
     def next(self):
         """
         Callback function for the Next button.
@@ -1290,9 +1350,9 @@ class Pd3dQtAnnotator(QMainWindow, Ui_MainWindow):
         Pressing 's' saves the annotations in a csv-file.
         Pressing 'q' seems to be captured by matplotlib and interpeted as quit.
         """
-        if event.key == "right":
+        if event.key == "up":
             self.next()
-        elif event.key == "left":
+        elif event.key == "down":
             self.prev()
         elif event.key == "s":
             self.save()

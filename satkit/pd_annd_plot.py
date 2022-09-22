@@ -96,6 +96,7 @@ def plot_textgrid_lines(ax, textgrid, stimulus_onset=0, draw_text=True):
         segments = textgrid['Segments']
     else:
         _plot_logger.critical("Could not guess the name of the segment tier. Exiting.")
+        sys.exit()
 
     for segment in segments:
         if segment.text == "":
@@ -165,7 +166,7 @@ def plot_textgrid_lines_3D_ultra(
 
 
 def plot_pd(axis, pd, time, xlim, ylim=None, textgrid=None, stimulus_onset=0,
-            picker=None, color="deepskyblue"):
+            picker=None, color="deepskyblue", alpha=1.0):
     """
     Plot a Recordings PD timeseries.
 
@@ -186,7 +187,10 @@ def plot_pd(axis, pd, time, xlim, ylim=None, textgrid=None, stimulus_onset=0,
     """
 
     # The PD curve and the official fix for it not showing up on the legend.
-    axis.plot(time, pd, color=color, lw=1, picker=picker)
+    if picker:
+        axis.plot(time, pd, color=color, lw=1, picker=picker, alpha=alpha)
+    else:
+        axis.plot(time, pd, color=color, lw=1, alpha=alpha)
     pd_curve = mlines.Line2D([], [], color=color, lw=1)
 
     go_line = axis.axvline(x=0, color="dimgrey", lw=1, linestyle=(0, (5, 10)))
@@ -441,6 +445,48 @@ def plot_pd_norms(
         color="lightgrey", lw=1)
     ax.plot(
         ultra_time, pd['l_inf'] / np.max(pd['l_inf'][1:]),
+        color="k", lw=1, linestyle='--')
+
+    go_line = ax.axvline(x=0, color="dimgrey", lw=1, linestyle=(0, (5, 10)))
+
+    segment_line = None
+    if textgrid:
+        segment_line = plot_textgrid_lines(ax, textgrid, time_offset)
+
+    if draw_legend:
+        pd_curve = mlines.Line2D([], [], color="dimgrey", lw=1)
+    if draw_legend and segment_line:
+        ax.legend((pd_curve, go_line, segment_line),
+                  ('Pixel difference', 'Go-signal onset', 'Acoustic segments'),
+                  loc='upper right')
+    elif draw_legend:
+        ax.legend((pd_curve, go_line),
+                  ('Pixel difference', 'Go-signal onset'),
+                  loc='upper right')
+
+    ax.set_xlim(xlim)
+    ax.set_ylim((0, 1.1))
+    ax.set_ylabel("PD")
+
+
+def plot_pd_norms_intensity(
+        ax, pd, pd_time, xlim, textgrid=None, time_offset=0,
+        picker=None, draw_legend=False):
+    pd = pd.data
+    ax.plot(pd_time, pd['intensity'][1:]/np.max(pd['intensity'][10:]), color="green", lw=1)
+    if picker:
+        ax.plot(pd_time, pd['l1']/np.max(pd['l1'][10:]), color="black", lw=1, picker=picker)
+    else:
+        ax.plot(pd_time, pd['l1']/np.max(pd['l1'][10:]), color="black", lw=1)
+    ax.plot(pd_time, pd['pd']/np.max(pd['pd'][10:]), color="dimgrey", lw=1)
+    ax.plot(pd_time, pd['l3']/np.max(pd['l3'][10:]), color="grey", lw=1)
+    ax.plot(pd_time, pd['l4']/np.max(pd['l4'][10:]), color="darkgrey", lw=1)
+    ax.plot(pd_time, pd['l5']/np.max(pd['l5'][10:]), color="silver", lw=1)
+    ax.plot(
+        pd_time, pd['l10'] / np.max(pd['l10'][1:]),
+        color="lightgrey", lw=1)
+    ax.plot(
+        pd_time, pd['l_inf'] / np.max(pd['l_inf'][1:]),
         color="k", lw=1, linestyle='--')
 
     go_line = ax.axvline(x=0, color="dimgrey", lw=1, linestyle=(0, (5, 10)))
@@ -1153,3 +1199,40 @@ def draw_spaghetti(meta, data):
         pdf.savefig()  # saves the current figure into a pdf page
         plt.close()
         _plot_logger.info("Drew spaghetti plot in " + filename + ".")
+
+
+#
+# Used for verifying test runs at the moment. Wrap later into it's own thing.
+#
+def draw_fp2022_spaghetti(recordings):
+    filename = 'fp2022_spaghetti_plot.pdf'
+    with PdfPages(filename) as pdf:
+        plt.figure(figsize=(14, 7))
+        # ax = plt.subplot2grid((2,1),(1,0))
+        axis = plt.axes()
+        xlim = (-1.0, 1.5)
+
+        for recording in recordings:
+            audio = recording.modalities['MonoAudio']
+            stimulus_onset = audio.meta['stimulus_onset']
+            if not recording.annotations:
+                continue
+            last_gesture = recording.annotations['pdOnset']
+            if last_gesture < 0.0:
+                continue
+            # wav = audio.data
+            # wav_time = (audio.timevector - stimulus_onset)
+
+            pd_metrics = recording.modalities['PD on RawUltrasound']
+            ultra_time = pd_metrics.timevector - stimulus_onset - last_gesture
+
+            plot_pd(axis, pd_metrics.data['pd'], ultra_time, xlim, ylim=(-50, 7050), alpha=.1)
+
+        axis.axvline(x=0, color="r", lw=1)
+        axis.set_xlim(xlim)
+        axis.set_ylabel("Pixel Difference")
+        axis.set_xlabel("Time (s), final peak at 0 s.")
+
+        plt.tight_layout()
+        pdf.savefig()  # saves the current figure into a pdf page
+        plt.close()

@@ -221,6 +221,9 @@ class PD(DerivedModality):
         # this should be square rooted at some point
         slw_pd = np.sum(square_diff, axis=2)
 
+        intensity = np.sum(data, axis=(1,2))
+
+        result['intensity'] = intensity
         result['sbpd'] = slw_pd
         result['pd'] = np.sqrt(np.sum(slw_pd, axis=1))
         result['l1'] = np.sum(abs_diff, axis=(1, 2))

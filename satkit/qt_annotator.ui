@@ -334,7 +334,7 @@
      <x>0</x>
      <y>0</y>
      <width>1087</width>
-     <height>22</height>
+     <height>20</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuFile">
@@ -363,17 +363,20 @@
     <addaction name="actionShow_interpreter"/>
     <addaction name="actionRun_file"/>
    </widget>
-   <widget class="QMenu" name="menuRecordings">
+   <widget class="QMenu" name="menuNavigation">
     <property name="title">
-     <string>Recordings</string>
+     <string>Navigation</string>
     </property>
     <addaction name="actionNext"/>
     <addaction name="actionPrevious"/>
+    <addaction name="separator"/>
+    <addaction name="actionNext_Frame"/>
+    <addaction name="actionPrevious_Frame"/>
    </widget>
    <addaction name="menuFile"/>
    <addaction name="menuImage"/>
    <addaction name="menuScript"/>
-   <addaction name="menuRecordings"/>
+   <addaction name="menuNavigation"/>
   </widget>
   <widget class="QStatusBar" name="statusbar"/>
   <action name="actionNew">
@@ -421,18 +424,18 @@
   </action>
   <action name="actionNext">
    <property name="text">
-    <string>Next</string>
+    <string>Next Recording</string>
    </property>
    <property name="shortcut">
-    <string>Right</string>
+    <string>Down</string>
    </property>
   </action>
   <action name="actionPrevious">
    <property name="text">
-    <string>Previous</string>
+    <string>Previous Recording</string>
    </property>
    <property name="shortcut">
-    <string>Left</string>
+    <string>Up</string>
    </property>
   </action>
   <action name="actionExport_analysis">
@@ -448,7 +451,23 @@
     <string>Quit</string>
    </property>
    <property name="shortcut">
-    <string>Ctrl+W</string>
+    <string>Ctrl+Q</string>
+   </property>
+  </action>
+  <action name="actionNext_Frame">
+   <property name="text">
+    <string>Next Frame</string>
+   </property>
+   <property name="shortcut">
+    <string>Right</string>
+   </property>
+  </action>
+  <action name="actionPrevious_Frame">
+   <property name="text">
+    <string>Previous Frame</string>
+   </property>
+   <property name="shortcut">
+    <string>Left</string>
    </property>
   </action>
  </widget>

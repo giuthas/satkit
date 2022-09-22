@@ -163,8 +163,10 @@ class RawCLI(BaseCLI):
         """
         Setup and run the commandline interface for processing raw ultrasound data.
 
-        Description is what this version will be called if called with -h or --help.
-        processing_functions is a dict of the callables that will be run on each recording.
+        description is what this version will be called if the script is called 
+            with -h or --help arguments.
+        processing_functions is a dict of the callables that will be run on each 
+            recording.
         """
         super().__init__(description)
         self._load_data()
@@ -173,6 +175,7 @@ class RawCLI(BaseCLI):
         for recording in self.recordings:
             for key in processing_functions:
                 (function, modalities) = processing_functions[key]
+                # TODO: Version 1.0: add a mechanism to change the arguments for different modalities.
                 for modality in modalities:
                     function(
                         recording,
@@ -261,9 +264,8 @@ class RawCLI(BaseCLI):
         Having this as a separate method allows subclasses to change 
         arguments and plotting commands.
         """
-        self.logger.info("Drawing ISSP 2020 plot.")
-        pd_annd_plot.ISSP2020_plots(
-            self.recordings, self.args.figure_dir)
+        self.logger.info("Drawing FP 2022 plot.")
+        pd_annd_plot.draw_fp2022_spaghetti(self.recordings)
 
     def _read_data_from_files(self):
         """

@@ -33,7 +33,7 @@
 import abc
 from contextlib import closing
 import logging
-import os.path
+from pathlib import Path
 import sys
 
 # Numerical arrays and more
@@ -68,15 +68,20 @@ class Recording():
     to self.meta['textgrid'] that are necessary.
     """
 
-    def __init__(self, path=None, basename="") -> None:
+    def __init__(self, excluded: bool=False, path: Path=None, basename: str="",
+                textgrid_name: str="") -> None:
         """"""
-        self.excluded = False
-        self.meta = {'path': path,
-                     'basename': basename,
-                     'textgrid': os.path.join(path, basename + ".TextGrid")
-                     }
-        self.modalities = {}
+        self.excluded = excluded
+        self.path = path
+        self.basename = basename
 
+        if textgrid_name:
+            self.textgridpath = self.path.joinpath(textgrid_name)
+        else:
+            self._textgrid_path = self.path.joinpath(basename + ".TextGrid")
+        self._read_textgrid()
+
+        self.modalities = {}
         self.annotations = {}
 
     def _read_textgrid(self) -> None:
@@ -87,23 +92,21 @@ class Recording():
         by logging an error and creating an empty textgrid for this 
         recording.
         """
-        if os.path.isfile(self.meta['textgrid']):
-            self.meta['textgrid_exists'] = True
+        if self.textgrid.isfile():
             try:
-                self.textgrid = textgrids.TextGrid(self.meta['textgrid'])
+                self.textgrid = textgrids.TextGrid(self.textgrid_path)
                 _recording_logger.info("Read textgrid in "
-                                       + self.meta['textgrid'] + ".")
+                                       + self.textgrid_path + ".")
             except Exception as e:
                 _recording_logger.critical("Could not read textgrid in "
-                                           + self.meta['textgrid'] + ".")
+                                           + self.textgrid_path + ".")
                 _recording_logger.critical("Failed with: " + str(e))
                 _recording_logger.critical("Creating an empty textgrid "
                                            + "instead.")
                 self.textgrid = textgrids.TextGrid()
         else:
-            notice = 'Note: ' + self.meta['textgrid'] + " did not exist."
+            notice = 'Note: ' + self.textgrid_path + " did not exist."
             _recording_logger.warning(notice)
-            self.meta['textgrid_exists'] = False
             _recording_logger.warning("Creating an empty textgrid "
                                       + "instead.")
             self.textgrid = textgrids.TextGrid()

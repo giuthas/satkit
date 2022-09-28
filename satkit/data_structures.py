@@ -39,9 +39,6 @@ import sys
 # Numerical arrays and more
 import numpy as np
 
-# median filter
-from scipy.signal import medfilt as scipy_medfilt
-
 # wav file handling
 import scipy.io.wavfile as sio_wavfile
 
@@ -79,12 +76,12 @@ class Recording():
             self.textgridpath = self.path.joinpath(textgrid_name)
         else:
             self._textgrid_path = self.path.joinpath(basename + ".TextGrid")
-        self._read_textgrid()
+        self.textgrid = self._read_textgrid()
 
         self.modalities = {}
         self.annotations = {}
 
-    def _read_textgrid(self) -> None:
+    def _read_textgrid(self) -> textgrids.TextGrid:
         """
         Read the textgrid specified in self.meta.
 
@@ -92,9 +89,10 @@ class Recording():
         by logging an error and creating an empty textgrid for this 
         recording.
         """
+        textgrid = None
         if self.textgrid.isfile():
             try:
-                self.textgrid = textgrids.TextGrid(self.textgrid_path)
+                textgrid = textgrids.TextGrid(self.textgrid_path)
                 _recording_logger.info("Read textgrid in "
                                        + self.textgrid_path + ".")
             except Exception as e:
@@ -103,13 +101,14 @@ class Recording():
                 _recording_logger.critical("Failed with: " + str(e))
                 _recording_logger.critical("Creating an empty textgrid "
                                            + "instead.")
-                self.textgrid = textgrids.TextGrid()
+                textgrid = textgrids.TextGrid()
         else:
             notice = 'Note: ' + self.textgrid_path + " did not exist."
             _recording_logger.warning(notice)
             _recording_logger.warning("Creating an empty textgrid "
                                       + "instead.")
-            self.textgrid = textgrids.TextGrid()
+            textgrid = textgrids.TextGrid()
+        return textgrid
 
     def exclude(self) -> None:
         """
@@ -121,7 +120,7 @@ class Recording():
         """
         self.excluded = True
 
-    def write_textgrid(self, filepath=None) -> None:
+    def write_textgrid(self, filepath: Path=None) -> None:
         """
         Save this recording's textgrid to file.
 
@@ -137,16 +136,18 @@ class Recording():
         """
         try:
             if filepath:
+                self.textgridpath = filepath
                 self.textgrid.write(filepath)
-                self.meta['textgrid'] = filepath
             else:
-                self.textgrid.write(self.meta['textgrid'])
-        except:
+                self.textgrid.write(self.textgridpath)
+        except Exception as e:
             _recording_logger.critical("Could not write textgrid to "
-                                       + self.meta['textgrid'] + ".")
+                                        + str(self.textgridpath) + ".")
+            _recording_logger.critical("TextGrid save failed with error: " 
+                                        + str(e))
 
     # should the modalities dict be accessed as a property?
-    def addModality(self, name, modality, replace=False) -> None:
+    def addModality(self, modality: 'Modality', replace: bool=False) -> None:
         """
         This method adds a new Modality object to the Recording.
 
@@ -155,9 +156,6 @@ class Recording():
         and the replace argument is not True, an Error is raised. 
 
         Arguments:
-        name -- string giving the name of the Modality being added.
-            The name has to be unique in this Recording otherwise an
-            AttributeError will be raised.
         modality -- object of type Modality to be added to 
             this Recording.
 
@@ -165,6 +163,7 @@ class Recording():
         replace -- a boolean indicating if an existing Modality should
             be replaced.
         """
+        name = modality.name
         if name in self.modalities.keys() and not replace:
             raise AttributeError(
                 "A modality named " + name +
@@ -182,8 +181,8 @@ class Modality(abc.ABC):
     Abstract superclass for all data Modality classes.
     """
 
-    def __init__(self, name=None, parent=None,
-                 preload=False, timeOffset=0) -> None:
+    def __init__(self, name: str=None, parent: Recording=None,
+                 preload: bool=False, timeOffset: float=0) -> None:
         """
         Modality constructor.
 

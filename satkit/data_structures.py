@@ -52,7 +52,7 @@ import textgrids
 import satkit.audio_processing as satkit_audio
 from satkit.interpolate_raw_uti import to_fan_2d
 
-_recording_logger = logging.getLogger('satkit.recording')
+_recording_logger = logging.getLogger('satkit.data_structures')
 
 
 class Recording():

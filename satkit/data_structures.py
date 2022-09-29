@@ -49,7 +49,7 @@ import textgrids
 import satkit.audio_processing as satkit_audio
 from satkit.interpolate_raw_uti import to_fan_2d
 
-_recording_logger = logging.getLogger('satkit.data_structures')
+_datastructures_logger = logging.getLogger('satkit.data_structures')
 
 
 class Recording():
@@ -93,19 +93,19 @@ class Recording():
         if self.textgrid.isfile():
             try:
                 textgrid = textgrids.TextGrid(self.textgrid_path)
-                _recording_logger.info("Read textgrid in "
+                _datastructures_logger.info("Read textgrid in "
                                        + self.textgrid_path + ".")
             except Exception as e:
-                _recording_logger.critical("Could not read textgrid in "
+                _datastructures_logger.critical("Could not read textgrid in "
                                            + self.textgrid_path + ".")
-                _recording_logger.critical("Failed with: " + str(e))
-                _recording_logger.critical("Creating an empty textgrid "
+                _datastructures_logger.critical("Failed with: " + str(e))
+                _datastructures_logger.critical("Creating an empty textgrid "
                                            + "instead.")
                 textgrid = textgrids.TextGrid()
         else:
             notice = 'Note: ' + self.textgrid_path + " did not exist."
-            _recording_logger.warning(notice)
-            _recording_logger.warning("Creating an empty textgrid "
+            _datastructures_logger.warning(notice)
+            _datastructures_logger.warning("Creating an empty textgrid "
                                       + "instead.")
             textgrid = textgrids.TextGrid()
         return textgrid
@@ -141,9 +141,9 @@ class Recording():
             else:
                 self.textgrid.write(self.textgridpath)
         except Exception as e:
-            _recording_logger.critical("Could not write textgrid to "
+            _datastructures_logger.critical("Could not write textgrid to "
                                         + str(self.textgridpath) + ".")
-            _recording_logger.critical("TextGrid save failed with error: " 
+            _datastructures_logger.critical("TextGrid save failed with error: " 
                                         + str(e))
 
     # should the modalities dict be accessed as a property?
@@ -170,10 +170,10 @@ class Recording():
                 " already exists and replace flag was False.")
         elif replace:
             self.modalities[name] = modality
-            _recording_logger.debug("Replaced modality " + name + ".")
+            _datastructures_logger.debug("Replaced modality " + name + ".")
         else:
             self.modalities[name] = modality
-            _recording_logger.debug("Added new modality " + name + ".")
+            _datastructures_logger.debug("Added new modality " + name + ".")
 
 
 class Modality(abc.ABC):
@@ -344,7 +344,7 @@ class DataModality(Modality):
         release the memory, assign None to this Modality's data.
         """
         if self._data is None:
-            _recording_logger.debug(
+            _datastructures_logger.debug(
                 "in DataModality data getter. data was None.")
             self._getData()
         return self._data
@@ -573,12 +573,12 @@ class RawUltrasound(MatrixData):
                 # Missing metadata for one recording may be ok and this could be handled with just
                 # a call to _recording_logger.critical and setting self.excluded = True
                 notFound = set(RawUltrasound.requiredMetaKeys) - set(meta)
-                _recording_logger.critical(
+                _datastructures_logger.critical(
                     "Part of metadata missing when processing " + self.meta
                     ['filename'] + ". ")
-                _recording_logger.critical(
+                _datastructures_logger.critical(
                     "Could not find " + str(notFound) + ".")
-                _recording_logger.critical('Exiting.')
+                _datastructures_logger.critical('Exiting.')
                 sys.exit()
 
             self.meta.update(wanted_meta)

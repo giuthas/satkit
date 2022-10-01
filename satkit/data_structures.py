@@ -268,7 +268,13 @@ class Modality(abc.ABC):
             self.parent.excluded = excluded
 
     @property
-    @abc.abstractmethod
+    def is_derived_modality(self) -> bool:
+        if self.parent:
+            return True
+        else:
+            return False
+
+    @property
     def data(self) -> np.ndarray:
         """
         Abstract property: a NumPy array. 
@@ -284,9 +290,11 @@ class Modality(abc.ABC):
         cause data to be loaded on the fly _and_ saved in memory. To 
         release the memory, assign None to this Modality's data.
         """
-        raise NotImplementedError(
-            "This is an abstract method that " +
-            "should be overridden by inheriting classes.")
+        if self._data is None:
+            _datastructures_logger.debug(
+                "In Modality data getter. self._data was None.")
+            self._set_data(self._load_data())
+        return self._data
 
     @data.setter
     def data(self, data: np.ndarray) -> None:
@@ -381,104 +389,9 @@ class Modality(abc.ABC):
                     "a numpy array that has non-matching dtype, size, or shape.\n" +
                     " timevector.shape = " + str(timevector.shape) + "\n" +
                     " self.timevector.shape = " + str(self._timevector.shape) + ".")
+                    
 
-
-class DataModality(Modality):
-
-    def __init__(self, name=None, parent=None,
-                 preload=False, timeOffset=0):
-        """Same defaults as with the super class"""
-        super().__init__(name=name, recording=parent,
-                         preload=preload, timeOffset=timeOffset)
-        self._data = None
-
-    @property
-    def data(self):
-        """
-        The data of this Modality as a NumPy array. 
-
-        The dimensions of the array are in the 
-        order of [time, others]
-
-        If this modality is not preloaded, accessing this property will
-        cause data to be loaded on the fly _and_ saved in memory. To 
-        release the memory, assign None to this Modality's data.
-        """
-        if self._data is None:
-            _datastructures_logger.debug(
-                "in DataModality data getter. data was None.")
-            self._load_data()
-        return self._data
-
-
-class DerivedModality(Modality):
-    """
-    Modality for data produced from another Modality by calculations.
-    """
-
-    def __init__(self, name, parent=None, preload=True,
-                 timeOffset=0, dataModality=None, releaseDataMemory=True):
-        """
-        Most arguments and default values inherited from super. 
-
-        However, preload defaults to True, because it is assumed that 
-        the results are required immediately.
-
-        It is also worth to note that parent can be left unspecified
-        in which case the parent Recording of dataModality is used as 
-        the parent Recording of this Modality as well.
-
-        New keyword arguments:
-        dataModality -- object which belongs to a subclass of 
-            DataModality. This is the data on which the data of this 
-            Modality is based.
-        releaseDataMemory -- boolean indicating if None should be 
-            assigned to dataModality.data after processing. Set this 
-            true to prevent unwanted data being kept in memory and 
-            possibly causin memory overflow.
-        """
-        super().__init__(name=name, recording=parent,
-                         preload=preload, timeOffset=timeOffset)
-
-        self.dataModality = dataModality
-
-        self._data = None
-        self.releaseDataMemory = releaseDataMemory
-
-    @abc.abstractmethod
-    def _load_data(self):
-        """
-        Run this Modality's algorithm on the data. Abstract method.
-
-        This method should be implemented by subclasses to provide 
-        a unified way of handling preloading (preprocessing) and 
-        on-the-fly processing of data.
-
-        This method is intended to rely on self.dataModality and 
-        self.meta to know what to do.
-        """
-        raise NotImplementedError(
-            "This is an abstract method that " +
-            "should be overridden by inheriting classes.")
-
-    @property
-    def data(self):
-        """
-        The _derived_ data of this Modality as a NumPy array. 
-
-        The dimensions of the array should be in the 
-        order of [time, others]
-
-        If this modality is not preloaded, accessing this property will
-        cause data to be loaded on the fly _and_ saved in memory. To 
-        release the memory, assign None to this Modality's data.
-        """
-        if self._data is None:
-            self._load_data()
-        return self._data
-
-
-class MonoAudio(DataModality):
+class MonoAudio(Modality):
     """
     A mono audio track. 
 
@@ -568,33 +481,7 @@ class MonoAudio(DataModality):
         self._data = data
 
 
-class MatrixData(DataModality):
-    """
-    Superclass of matrix data.
-
-    As a default, matrix data is assumed to be too large for the whole 
-    dataset to be contained in memory.
-
-    This class exists to provide an interface for algorithms and separate that 
-    interface from individual data types/modalities. 
-    """
-
-    def __init__(self, name=None, parent=None, preload=False, timeOffset=0):
-        """
-        New and changed keyword arguments:
-        name -- the name of this Modality. The name should be unique 
-            in this Recording. If there is more then one Modality 
-            of the same type, then give them names to be able 
-            tell them apart.
-        parent -- the parent Recording.
-        preload -- a boolean indicating if this instance should read 
-            the data from disc on construction or only when needed.
-        timeOffset (s) -- the offset against the baseline audio track.
-        """
-        super().__init__(name, parent, preload, timeOffset)
-
-
-class RawUltrasound(MatrixData):
+class RawUltrasound(Modality):
     """
     Ultrasound Recording with raw (probe return) data.
     """

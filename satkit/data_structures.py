@@ -35,6 +35,7 @@ from contextlib import closing
 import logging
 from pathlib import Path
 import sys
+from typing import Tuple
 
 # Numerical arrays and more
 import numpy as np
@@ -147,7 +148,7 @@ class Recording():
                                         + str(e))
 
     # should the modalities dict be accessed as a property?
-    def addModality(self, modality: 'Modality', replace: bool=False) -> None:
+    def add_modality(self, modality: 'Modality', replace: bool=False) -> None:
         """
         This method adds a new Modality object to the Recording.
 
@@ -181,40 +182,55 @@ class Modality(abc.ABC):
     Abstract superclass for all data Modality classes.
     """
 
-    def __init__(self, name: str=None, parent: Recording=None,
-                 preload: bool=False, timeOffset: float=0) -> None:
+    def __init__(self, name: str, recording: Recording, preload: bool, 
+                parent: 'Modality'=None, timeOffset: float=0) -> None:
         """
         Modality constructor.
 
-        Keyword arguments:
+        Positional arguments:
         name -- string specifying the name of this Modality. The name 
-            should be unique in the parent Recording.
-        parent -- the parent Recording.
-        isPreloaded -- a boolean indicating if this instance reads the 
+            should be unique in the containing Recording.
+        recording -- the containing Recording.
+        preload -- a boolean indicating if this instance reads the 
             data from disc on construction or only when needed.
+
+        Keyword arguments:
+        parent -- the Modality this one was derived from. None means this 
+            is an underived data Modality.
         timeOffset (s) -- the offset against the baseline audio track.
         """
-        if parent == None or isinstance(parent, Recording):
-            self.parent = parent
-        else:
-            raise TypeError("Modality given a parent which is not "
-                            + " of type Recording or a decendant. "
-                            + "Instead found: " + type(parent) + ".")
-
+        # Identity and position in the recording hierarchy
         self.name = name
+        self.recording = recording
+        self.parent = parent
 
-        # use self.parent.meta[key] to set parent metadata
-        # certain things should be properties with get/set
+        self.preload = preload
+        # TODO: see if time_offset is being set/used correctly here. 
+        # it might need to be passed to get_data
+        self._time_offset = timeOffset
+        self._sampling_rate = None
+
+        # data
+        if self.preload:
+            self._data, self._timevector, self.sampling_rate = self._load_data()
+            self._time_offset = self._timevector[0]
+        else:
+            self._data = None
+            self._timevector = None
+            self.sampling_rate = None
+
+        # use self.recording.meta[key] to set recording metadata
         self.meta = {}
 
         # This is a property which when set to True will also set parent.excluded to True.
         self.excluded = False
 
-        self.isPreloaded = preload
-        self._timeOffset = timeOffset
+        self.preload = preload
+        self._time_offset = timeOffset
+        self._sampling_rate = None
 
     @abc.abstractmethod
-    def _getData(self) -> None:
+    def _load_data(self) -> Tuple[np.ndarray, np.ndarray, float]:
         """
         Load data from file -- abstract method to be overridden.
 
@@ -226,6 +242,30 @@ class Modality(abc.ABC):
         raise NotImplementedError(
             "This is an abstract method that " +
             "should be overridden by inheriting classes.")
+
+    def _set_data(self, data: np.ndarray, timevector: np.ndarray, sampling_rate: float):
+        self.data = data
+        self.timevector = timevector
+        self.sampling_rate = sampling_rate
+
+    @property
+    def excluded(self) -> None:
+        """
+        Boolen property for excluding this Modality from processing.
+
+        Setting this to True will result in the whole Recording being 
+        excluded by setting self.parent.excluded = True.
+        """
+        # TODO: decide if this actually needs to exist and if so,
+        # should the above doc string actaully be true?
+        return self._excluded
+
+    @excluded.setter
+    def excluded(self, excluded):
+        self._excluded = excluded
+
+        if excluded:
+            self.parent.excluded = excluded
 
     @property
     @abc.abstractmethod
@@ -249,50 +289,53 @@ class Modality(abc.ABC):
             "should be overridden by inheriting classes.")
 
     @data.setter
-    @abc.abstractmethod
-    def data(self, data) -> None:
+    def data(self, data: np.ndarray) -> None:
         """
-        Abstract data setter method.
+        Data setter method.
 
-        Subclasses should check that they are being handed valid data.
+        Arguments:
+        data - either None or a numpy.ndarray with same dtype, size, 
+            and shape as self.data.
+
+        Assigning anything but None or a numpy ndarray with matching
+        dtype, size, and shape will raise a ValueError.
         """
-        raise NotImplementedError(
-            "This is an abstract method that " +
-            "should be overridden by inheriting classes.")
+        if self.data is not None and data is not None:
+            if (data.dtype == self._data.dtype and data.size == self._data.size and 
+                data.shape == self._data.shape):
+                self._data = data
+            else:
+                raise ValueError(
+                    "Trying to write over raw ultrasound data with " +
+                    "a numpy array that has non-matching dtype, size, or shape.\n" +
+                    " data.shape = " + str(data.shape) + "\n" +
+                    " self.data.shape = " + str(self._data.shape) + ".")
+        else:
+            self._data = data
 
     @property
-    def excluded(self) -> None:
-        """
-        Boolen property for excluding this Modality from processing.
+    def sampling_rate(self) -> float:
+        if not self._sampling_rate:
+            self._set_data(self._load_data())
+        return self._sampling_rate
 
-        Setting this to True will result in the whole Recording being 
-        excluded by setting self.parent.excluded = True.
-        """
-        # TODO: decide if this actually needs to exist and if so,
-        # should the above doc string actaully be true?
-        return self._excluded
-
-    @excluded.setter
-    def excluded(self, excluded):
-        self._excluded = excluded
-
-        if excluded:
-            self.parent.excluded = excluded
 
     @property
-    def timeOffset(self):
+    def time_offset(self):
         """
         The time offset of this modality.
 
         Assigning a value to this property is implemented so 
         that self._timevector[0] stays equal to self._timeOffset. 
         """
-        return self._timeOffset
+        if not self._time_offset:
+            self._set_data(self._load_data())
+        return self._time_offset
 
-    @timeOffset.setter
-    def timeOffset(self, timeOffset):
-        self._timeOffset = timeOffset
-        if self.isPreloaded:
+    @time_offset.setter
+    def time_offset(self, timeOffset):
+        self._time_offset = timeOffset
+        if self.timevector:
             self._timevector = (self.timevector +
                                 (timeOffset - self.timevector[0]))
 
@@ -304,7 +347,7 @@ class Modality(abc.ABC):
         If the data has not been previously loaded, accessing this 
         property will cause data to be loaded on the fly _and_ saved 
         in memory. To release the memory, assign None to this 
-        Modality's data. Please, note that if the data has been previously 
+        Modality's data. If the data has been previously 
         loaded and after that released, the timevector still persists and  
         accessing it does not trigger a new loading operation.
 
@@ -312,14 +355,32 @@ class Modality(abc.ABC):
         that self._timevector[0] stays equal to self._timeOffset. 
         """
         if self._timevector is None:
-            self._getData()
+            self._set_data(self._load_data())
         return self._timevector
 
-    # before v1.0: check that the new timevector is same length as the data
     @timevector.setter
     def timevector(self, timevector):
-        self._timevector = timevector
-        self.timeOffset = timevector[0]
+        if self._timevector is None:
+            raise ValueError(
+                "Trying to overwrite the time vector when it has not yet been initialised."
+            )
+        elif timevector is None:
+            raise NotImplementedError(
+                "Trying to set timevector to None.\n" + 
+                "Freeing timevector memory is currently not implemented."
+            )
+        else:
+            if (timevector.dtype == self._timevector.dtype and 
+                timevector.size == self._timevector.size and 
+                timevector.shape == self._timevector.shape):
+                self._timevector = timevector
+                self.time_offset = timevector[0]
+            else:
+                raise ValueError(
+                    "Trying to write over raw ultrasound data with " +
+                    "a numpy array that has non-matching dtype, size, or shape.\n" +
+                    " timevector.shape = " + str(timevector.shape) + "\n" +
+                    " self.timevector.shape = " + str(self._timevector.shape) + ".")
 
 
 class DataModality(Modality):
@@ -327,7 +388,7 @@ class DataModality(Modality):
     def __init__(self, name=None, parent=None,
                  preload=False, timeOffset=0):
         """Same defaults as with the super class"""
-        super().__init__(name=name, parent=parent,
+        super().__init__(name=name, recording=parent,
                          preload=preload, timeOffset=timeOffset)
         self._data = None
 
@@ -346,7 +407,7 @@ class DataModality(Modality):
         if self._data is None:
             _datastructures_logger.debug(
                 "in DataModality data getter. data was None.")
-            self._getData()
+            self._load_data()
         return self._data
 
 
@@ -376,7 +437,7 @@ class DerivedModality(Modality):
             true to prevent unwanted data being kept in memory and 
             possibly causin memory overflow.
         """
-        super().__init__(name=name, parent=parent,
+        super().__init__(name=name, recording=parent,
                          preload=preload, timeOffset=timeOffset)
 
         self.dataModality = dataModality
@@ -385,7 +446,7 @@ class DerivedModality(Modality):
         self.releaseDataMemory = releaseDataMemory
 
     @abc.abstractmethod
-    def _getData(self):
+    def _load_data(self):
         """
         Run this Modality's algorithm on the data. Abstract method.
 
@@ -413,7 +474,7 @@ class DerivedModality(Modality):
         release the memory, assign None to this Modality's data.
         """
         if self._data is None:
-            self._getData()
+            self._load_data()
         return self._data
 
 
@@ -452,12 +513,12 @@ class MonoAudio(DataModality):
         # If we do not have a filename, there is not much to init.
         if filename:
             if preload:
-                self._getData()
+                self._load_data()
             else:
                 self._data = None
                 self._timevector = None
 
-    def _getData(self):
+    def _load_data(self):
         """
         Helper for loading data, detecting beep and generating the timevector.
 
@@ -487,7 +548,7 @@ class MonoAudio(DataModality):
         self._timevector = np.linspace(0, len(wav_frames),
                                        len(wav_frames),
                                        endpoint=False)
-        self._timevector = self._timevector/wav_fs + self.timeOffset
+        self._timevector = self._timevector/wav_fs + self.time_offset
 
     @property
     def data(self):
@@ -584,7 +645,7 @@ class RawUltrasound(MatrixData):
             self.meta.update(wanted_meta)
 
         if filename and preload:
-            self._getData()
+            self._load_data()
         else:
             self._data = None
 
@@ -592,7 +653,7 @@ class RawUltrasound(MatrixData):
         self._stored_index = None
         self._stored_image = None
 
-    def _getData(self):
+    def _load_data(self):
         with closing(open(self.meta['filename'], 'rb')) as ult_file:
             ult_data = ult_file.read()
             ultra = np.fromstring(ult_data, dtype=np.uint8)
@@ -611,7 +672,7 @@ class RawUltrasound(MatrixData):
                 num=self.meta['no_frames'],
                 endpoint=False)
             self.timevector = ultra_time / \
-                self.meta['FramesPerSec'] + self.timeOffset
+                self.meta['FramesPerSec'] + self.time_offset
             # this should be added for PD and similar time vectors: + .5/self.meta['framesPerSec']
             # while at the same time dropping a suitable number of timestamps
 
@@ -628,7 +689,7 @@ class RawUltrasound(MatrixData):
         dtype, size, and shape has not been implemented yet and will
         raise a NotImplementedError.
         """
-        if data is not None:
+        if self.data is not None:
             if (isinstance(data, np.ndarray) and data.dtype == self._data.dtype and 
                 data.size == self._data.size and data.shape == self._data.shape):
                 self._data = data

@@ -233,6 +233,8 @@ class Modality(abc.ABC):
 
     @abc.abstractmethod
     def _get_data(self) -> Tuple[np.ndarray, np.ndarray, float]:
+        # TODO: Provide a way to force the data to be derived. 
+        # used when parent modality has updated in some way
         if self.path:
             return self._load_data()
         elif self.parent:

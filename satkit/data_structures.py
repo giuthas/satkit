@@ -183,7 +183,8 @@ class Modality(abc.ABC):
     """
 
     def __init__(self, name: str, recording: Recording, preload: bool, 
-                parent: 'Modality'=None, timeOffset: float=0) -> None:
+                path: Path=None, parent: 'Modality'=None, 
+                timeOffset: float=0) -> None:
         """
         Modality constructor.
 
@@ -201,6 +202,7 @@ class Modality(abc.ABC):
         """
         # Identity and position in the recording hierarchy
         self.name = name
+        self.path = path
         self.recording = recording
         self.parent = parent
 
@@ -228,6 +230,17 @@ class Modality(abc.ABC):
         self.preload = preload
         self._time_offset = timeOffset
         self._sampling_rate = None
+
+    @abc.abstractmethod
+    def _get_data(self) -> Tuple[np.ndarray, np.ndarray, float]:
+        if self.path:
+            return self._load_data()
+        elif self.parent:
+            return self._derive_data()
+        else:
+            # TODO: change this into a suitable raise Erroro/Exception clause instead.
+            print("Asked to get data but have no path and no parent Modality.\n" + 
+                "Don't know how to solve this.")
 
     @abc.abstractmethod
     def _load_data(self) -> Tuple[np.ndarray, np.ndarray, float]:
@@ -389,7 +402,7 @@ class Modality(abc.ABC):
                     "a numpy array that has non-matching dtype, size, or shape.\n" +
                     " timevector.shape = " + str(timevector.shape) + "\n" +
                     " self.timevector.shape = " + str(self._timevector.shape) + ".")
-                    
+
 
 class MonoAudio(Modality):
     """

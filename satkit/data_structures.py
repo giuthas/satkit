@@ -35,7 +35,7 @@ import logging
 import sys
 from contextlib import closing
 from pathlib import Path
-from typing import Tuple
+from typing import Optional, Tuple, Union
 
 # Numerical arrays and more
 import numpy as np
@@ -64,11 +64,18 @@ class Recording():
     to self.meta['textgrid'] that are necessary.
     """
 
-    def __init__(self, excluded: bool=False, path: Path=None, basename: str="",
-                textgrid_name: str="") -> None:
+    def __init__(self, excluded: bool=False, path: Optional[Union[str, Path]]=None, 
+                basename: str="", textgrid_name: str="") -> None:
         """"""
         self.excluded = excluded
-        self.path = path
+
+        if isinstance(path, Path):
+            self.path = path
+        elif isinstance(path, str):
+            self.path = Path(path)
+        else:
+            self.path = None
+
         self.basename = basename
 
         if textgrid_name:
@@ -181,7 +188,7 @@ class Modality(abc.ABC):
     """
 
     def __init__(self, name: str, recording: Recording, preload: bool, 
-                path: Path=None, parent: 'Modality'=None, 
+                path: Optional[Union[str, Path]]=None, parent: 'Modality'=None, 
                 timeOffset: float=0) -> None:
         """
         Modality constructor.
@@ -200,7 +207,14 @@ class Modality(abc.ABC):
         """
         # Identity and position in the recording hierarchy
         self.name = name
-        self.path = path
+
+        if isinstance(path, Path):
+            self.path = path
+        elif isinstance(path, str):
+            self.path = Path(path)
+        else:
+            self.path = None
+
         self.recording = recording
         self.parent = parent
 

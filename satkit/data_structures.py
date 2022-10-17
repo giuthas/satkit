@@ -79,7 +79,7 @@ class Recording():
         self.basename = basename
 
         if textgrid_name:
-            self.textgridpath = self.path.joinpath(textgrid_name)
+            self._textgrid_path = self.path.joinpath(textgrid_name)
         else:
             self._textgrid_path = self.path.joinpath(basename + ".TextGrid")
         self.textgrid = self._read_textgrid()
@@ -96,20 +96,20 @@ class Recording():
         recording.
         """
         textgrid = None
-        if self.textgrid.isfile():
+        if self._textgrid_path.is_file():
             try:
-                textgrid = textgrids.TextGrid(self.textgrid_path)
-                _datastructures_logger.info("Read textgrid in "
-                                       + self.textgrid_path + ".")
+                textgrid = textgrids.TextGrid(self._textgrid_path)
+                _datastructures_logger.info("Read textgrid in %s.", 
+                                            self._textgrid_path)
             except Exception as e:
-                _datastructures_logger.critical("Could not read textgrid in "
-                                           + self.textgrid_path + ".")
-                _datastructures_logger.critical("Failed with: " + str(e))
+                _datastructures_logger.critical("Could not read textgrid in %s.",
+                                                self._textgrid_path)
+                _datastructures_logger.critical("Failed with: %s.", str(e))
                 _datastructures_logger.critical("Creating an empty textgrid "
                                            + "instead.")
                 textgrid = textgrids.TextGrid()
         else:
-            notice = 'Note: ' + self.textgrid_path + " did not exist."
+            notice = 'Note: ' + str(self._textgrid_path) + " did not exist."
             _datastructures_logger.warning(notice)
             _datastructures_logger.warning("Creating an empty textgrid "
                                       + "instead.")

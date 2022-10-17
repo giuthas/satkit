@@ -31,18 +31,16 @@
 
 # Built in packages
 import abc
-from contextlib import closing
 import logging
-from pathlib import Path
 import sys
+from contextlib import closing
+from pathlib import Path
 from typing import Tuple
 
 # Numerical arrays and more
 import numpy as np
-
 # wav file handling
 import scipy.io.wavfile as sio_wavfile
-
 # Praat textgrids
 import textgrids
 
@@ -322,6 +320,10 @@ class Modality(abc.ABC):
 
         Assigning anything but None or a numpy ndarray with matching
         dtype, size, and shape will raise a ValueError.
+
+        If shape of the data were to change then also shape of the timevector should
+        potentially change. Unlikely that we'd try to deal that in any other way but
+        to create a new Modality or even Recording.
         """
         if self.data is not None and data is not None:
             if (data.dtype == self._data.dtype and data.size == self._data.size and 
@@ -350,6 +352,10 @@ class Modality(abc.ABC):
 
         Assigning a value to this property is implemented so 
         that self._timevector[0] stays equal to self._timeOffset. 
+
+        If shape of the timevector were to change then also shape of the data should
+        change. Unlikely that we'd try to deal that in any other way but
+        to create a new Modality or even Recording.
         """
         if not self._time_offset:
             self._set_data(self._load_data())
@@ -410,7 +416,9 @@ class MonoAudio(Modality):
     """
     A mono audio track. 
 
-    Audio data is assumed to be small enough to fit in working memory.
+    Audio data is assumed to be small enough for the
+    whole session to fit in working memory and therefore
+    this Modality preloads data at construction time.
     """
 
     # Mains electricity frequency and filter coefficients for removing
@@ -482,18 +490,19 @@ class MonoAudio(Modality):
     def data(self):
         return super().data
 
-    # before v1.0: check that the data is actually valid, also call the beep detect etc. routines on it.
-    @data.setter
-    def data(self, data):
-        """
-        The audio data of this Modality.
+    # TODO: before 1.0 this should already be handled by Modality.
+    # # before v1.0: check that the data is actually valid, also call the beep detect etc. routines on it.
+    # @data.setter
+    # def data(self, data):
+    #     """
+    #     The audio data of this Modality.
 
-        Assigning any other value except None is not implemented yet.
-        """
-        if data is not None:
-            raise NotImplementedError(
-                'Writing over mono audio data has not been implemented yet.')
-        self._data = data
+    #     Assigning any other value except None is not implemented yet.
+    #     """
+    #     if data is not None:
+    #         raise NotImplementedError(
+    #             'Writing over mono audio data has not been implemented yet.')
+    #     self._data = data
 
 
 class RawUltrasound(Modality):
@@ -537,10 +546,10 @@ class RawUltrasound(Modality):
                 # a call to _recording_logger.critical and setting self.excluded = True
                 notFound = set(RawUltrasound.requiredMetaKeys) - set(meta)
                 _datastructures_logger.critical(
-                    "Part of metadata missing when processing " + self.meta
-                    ['filename'] + ". ")
+                    "Part of metadata missing when processing %s.",
+                    self.meta['filename'])
                 _datastructures_logger.critical(
-                    "Could not find " + str(notFound) + ".")
+                    "Could not find %s.", str(notFound))
                 _datastructures_logger.critical('Exiting.')
                 sys.exit()
 
@@ -582,26 +591,27 @@ class RawUltrasound(Modality):
     def data(self):
         return super().data
 
-    @data.setter
-    def data(self, data):
-        """
-        Data setter method.
+    # TODO: before 1.0 this should already be handled by Modality.
+    # @data.setter
+    # def data(self, data):
+    #     """
+    #     Data setter method.
 
-        Assigning anything but None or a numpy ndarray with matching
-        dtype, size, and shape has not been implemented yet and will
-        raise a NotImplementedError.
-        """
-        if self.data is not None:
-            if (isinstance(data, np.ndarray) and data.dtype == self._data.dtype and 
-                data.size == self._data.size and data.shape == self._data.shape):
-                self._data = data
-            else:
-                raise NotImplementedError(
-                    "Writing over raw ultrasound data with data that is not a numpy ndarray or " +
-                    "a numpy array that has non-matching dtype, size, or shape has not been " +
-                    "implemented yet.")
-        else:
-            self._data = data
+    #     Assigning anything but None or a numpy ndarray with matching
+    #     dtype, size, and shape has not been implemented yet and will
+    #     raise a NotImplementedError.
+    #     """
+    #     if self.data is not None:
+    #         if (isinstance(data, np.ndarray) and data.dtype == self._data.dtype and 
+    #             data.size == self._data.size and data.shape == self._data.shape):
+    #             self._data = data
+    #         else:
+    #             raise NotImplementedError(
+    #                 "Writing over raw ultrasound data with data that is not a numpy ndarray or " +
+    #                 "a numpy array that has non-matching dtype, size, or shape has not been " +
+    #                 "implemented yet.")
+    #     else:
+    #         self._data = data
 
     def interpolated_image(self, index):
         """

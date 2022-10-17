@@ -29,23 +29,22 @@
 # citations.bib in BibTeX format.
 #
 
-# Built in packages
-from satkit.recording import MatrixData
 import logging
 import sys
 
 # Numpy
 import numpy as np
-
 # scikit-video for io and processing of video data.
 import skvideo.io
+# Built in packages
+from satkit.data_structures import Modality
 
 # Local packages
 
 _AAA_video_logger = logging.getLogger('satkit.AAA_video')
 
 
-class LipVideo(MatrixData):
+class LipVideo(Modality):
     """
     Ultrasound Recording with raw (probe return) data.    
     """

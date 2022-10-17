@@ -29,20 +29,19 @@
 # citations.bib in BibTeX format.
 #
 
-# Built in packages
-from contextlib import closing
-from datetime import datetime
 import glob
 import logging
 import os
 import os.path
+# Built in packages
+from contextlib import closing
+from datetime import datetime
 from pathlib import Path
 
 # Numpy
 import numpy as np
-
 # Local packages
-from satkit.recording import RawUltrasound, Recording, MonoAudio
+from satkit.data_structures import MonoAudio, RawUltrasound, Recording
 from satkit.io.AAA_video import LipVideo
 
 _AAA_logger = logging.getLogger('satkit.AAA')

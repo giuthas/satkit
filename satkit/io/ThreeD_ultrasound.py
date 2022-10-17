@@ -29,26 +29,24 @@
 # citations.bib in BibTeX format.
 #
 
+import csv
+import logging
+import sys
+import warnings
 # Built in packages
 from contextlib import closing
 from copy import deepcopy
-import csv
 from datetime import datetime
-import logging
 from pathlib import Path, PureWindowsPath
-import warnings
-import sys
 
 # Numpy and scipy
 import numpy as np
-#from numpy.matlib import repmat
-import scipy.io
-
 # dicom reading
 import pydicom
-
+#from numpy.matlib import repmat
+import scipy.io
 # Local packages
-from satkit.recording import MatrixData, MonoAudio, Recording
+from satkit.data_structures import Modality, MonoAudio, Recording
 from satkit.io.AAA_video import LipVideo
 
 _3D4D_ultra_logger = logging.getLogger('satkit.ThreeD_ultrasound')
@@ -264,7 +262,7 @@ def generateUltrasoundRecording(dicom_name, sound_name, directories=None):
     return recording
 
 
-class ThreeD_Ultrasound(MatrixData):
+class ThreeD_Ultrasound(Modality):
     """
     Ultrasound Recording with raw 3D/4D (probe return) data.    
     """

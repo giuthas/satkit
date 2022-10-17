@@ -179,6 +179,106 @@ def parse_ultrasound_meta_aaa(filename):
         meta['meta_file'] = filename
     return meta
 
+def add_audio(recording: Recording, wav_preload: bool) -> None:
+
+    ult_wav_file = os.path.join(path, basename + ".wav")
+    if os.path.isfile(ult_wav_file):
+        self.meta['ult_wav_file'] = ult_wav_file
+        self.meta['ult_wav_exists'] = True
+    else:
+        notice = 'Note: ' + ult_wav_file + " does not exist."
+        _AAA_logger.warning(notice)
+        self.meta['ult_wav_exists'] = False
+        self.excluded = True
+
+    waveform = MonoAudio(
+        parent=recording,
+        preload=wav_preload,
+        timeOffset=0,
+        filename=recording.meta['ult_wav_file']
+    )
+    recording.addModality(MonoAudio.name, waveform)
+    _AAA_logger.debug(
+        "Added MonoAudio to Recording representing %s.",
+        recording.meta['basename'])
+
+
+def add_modalities(recording: Recording, wav_preload: bool=True, ult_preload: bool=False,
+                    video_preload: bool=False):
+    """
+    Add audio and raw ultrasound data to the recording.
+
+    Keyword arguments:
+    wavPreload -- boolean indicating if the .wav file is to be read into
+        memory on initialising. Defaults to True.
+    ultPreload -- boolean indicating if the .ult file is to be read into
+        memory on initialising. Defaults to False. Note: these
+        files are, roughly one to two orders of magnitude
+        larger than .wav files.
+    videoPreload -- boolean indicating if the .avi file is to be read into
+        memory on initialising. Defaults to False. Note: these
+        files are, yet again, roughly one to two orders of magnitude
+        larger than .ult files.
+
+    Throws KeyError if TimeInSecsOfFirstFrame is missing from the
+    meta file: [directory]/basename + .txt.
+    """
+    _AAA_logger.info("Adding modalities to recording for %s.",
+        recording.meta['basename'])
+
+    add_audio(recording, wav_preload)
+    add_raw_ultrasound(recording, ult_preload)
+    add_lip_video(recording, video_preload)
+
+    waveform = MonoAudio(
+        parent=recording,
+        preload=wav_preload,
+        timeOffset=0,
+        filename=recording.meta['ult_wav_file']
+    )
+    recording.addModality(MonoAudio.name, waveform)
+    _AAA_logger.debug(
+        "Added MonoAudio to Recording representing %s.",
+        recording.meta['basename'])
+
+    ult_meta = parse_ultrasound_meta_aaa(recording.meta['ult_meta_file'])
+
+    # We pop the timeoffset from the meta dict so that people will not
+    # accidentally rely on setting that to alter the timeoffset of the
+    # ultrasound data in the Recording. This throws KeyError if the meta
+    # file didn't contain TimeInSecsOfFirstFrame.
+    ult_time_offset = ult_meta.pop('TimeInSecsOfFirstFrame')
+
+    ultrasound = RawUltrasound(
+        parent=recording,
+        preload=ult_preload,
+        timeOffset=ult_time_offset,
+        filename=recording.meta['ult_file'],
+        meta=ult_meta
+    )
+    recording.addModality(RawUltrasound.name, ultrasound)
+    _AAA_logger.debug(
+        "Added RawUltrasound to Recording representing %s.",
+        recording.meta['basename'])
+
+    if recording.meta['video_exists']:
+        # This is the correct value for fps for a de-interlaced
+        # video according to Alan, and he should know having
+        # written AAA.
+        video_meta = {
+            'FramesPerSec': 59.94
+        }
+
+        video = LipVideo(
+            parent=recording,
+            preload=video_preload,
+            filename=recording.meta['video_file'],
+            meta=video_meta
+        )
+        recording.addModality(LipVideo.name, video)
+        _AAA_logger.debug(
+            "Added LipVideo to Recording representing %s.",
+            recording.meta['basename'])
 
 def parse_spline_line(line):
     """Parse a single line in an old AAA spline export file."""
@@ -411,7 +511,7 @@ class AaaUltrasoundRecording(Recording):
             timeOffset=0,
             filename=self.meta['ult_wav_file']
         )
-        self.addModality(MonoAudio.__name__, waveform)
+        self.addModality(MonoAudio.name, waveform)
         _AAA_logger.debug(
             "Added MonoAudio to Recording representing %s.",
             self.meta['basename'])
@@ -431,7 +531,7 @@ class AaaUltrasoundRecording(Recording):
             filename=self.meta['ult_file'],
             meta=ult_meta
         )
-        self.addModality(RawUltrasound.__name__, ultrasound)
+        self.addModality(RawUltrasound.name, ultrasound)
         _AAA_logger.debug(
             "Added RawUltrasound to Recording representing %s.",
             self.meta['basename'])
@@ -450,7 +550,7 @@ class AaaUltrasoundRecording(Recording):
                 filename=self.meta['video_file'],
                 meta=video_meta
             )
-            self.addModality(LipVideo.__name__, video)
+            self.addModality(LipVideo.name, video)
             _AAA_logger.debug(
                 "Added LipVideo to Recording representing %s.",
                 self.meta['basename'])

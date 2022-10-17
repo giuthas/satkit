@@ -159,7 +159,7 @@ def parse_ultrasound_meta_aaa(filename):
         ZeroOffset --
         BitsPerPixel -- byte length of a single pixel in the .ult file
         Angle -- angle in radians between two scanlines
-        Kind --
+        Kind -- type of probe used
         PixelsPerMm -- depth resolution of a scanline
         FramesPerSec -- framerate of ultrasound recording
         TimeInSecsOfFirstFrame -- time from recording start to first frame
@@ -181,7 +181,7 @@ def parse_ultrasound_meta_aaa(filename):
 
 
 def parse_spline_line(line):
-    """Parse a single line in a old AAA spline export file."""
+    """Parse a single line in an old AAA spline export file."""
     # This relies on none of the fields being empty and is necessary to be
     # able to process AAA's output which sometimes has extra tabs.
     cells = line.split('\t')

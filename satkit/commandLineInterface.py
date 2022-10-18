@@ -34,15 +34,15 @@ import datetime
 import logging
 import os
 import os.path
-from pathlib import Path
 import sys
 import warnings
+from pathlib import Path
 
-# local modules
-import satkit.pd_annd_plot as pd_annd_plot
+import satkit.io as satkit_io
 import satkit.io.AAA as satkit_AAA
 import satkit.io.ThreeD_ultrasound as ThreeD_ultrasound
-import satkit.io as satkit_io
+# local modules
+import satkit.pd_annd_plot as pd_annd_plot
 
 
 def widen_help_formatter(formatter, total_width=140, syntax_width=35):
@@ -260,7 +260,7 @@ class RawCLI(BaseCLI):
 
         for recording in recordings:
             if not recording.excluded:
-                recording.add_modalities()
+                satkit_AAA.add_modalities(recording)
 
         return recordings
 

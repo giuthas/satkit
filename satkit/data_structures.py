@@ -188,7 +188,7 @@ class Modality(abc.ABC):
     """
 
     def __init__(self, name: str, recording: Recording, preload: bool, 
-                path: Optional[Union[str, Path]]=None, parent: 'Modality'=None, 
+                path: Optional[Union[str, Path]]=None, parent: Optional['Modality']=None, 
                 timeOffset: float=0) -> None:
         """
         Modality constructor.
@@ -440,28 +440,29 @@ class MonoAudio(Modality):
     mainsFrequency = None
     filter = {}
 
-    def __init__(self, name='mono audio', parent=None, preload=True,
-                 timeOffset=0, filename=None, mainsFrequency=50):
+    def __init__(self, name: str, recording: Recording, preload: bool, 
+                path: Optional[Union[str, Path]]=None, parent: Optional['Modality']=None, 
+                timeOffset: float=0) -> None:
         """
         Create a MonoAudio track.
 
-        preload defaults to True because audio data is assumed to be small 
-            enough to fit in working memory.
-        filename should be either None or the name of a wav-file.
-        mainsFrequency (Hz) is the mains frequency of the place of recording. 
-            When detecting the recording onset beep, the audio is high pass 
-            filtered with this frequency as the high end of the stop band.
-            The frequency should be checked locally, if not clear from here
-            https://en.wikipedia.org/wiki/Mains_electricity_by_country .
+        Positional arguments:
+        name -- string specifying the name of this Modality. The name 
+            should be unique in the containing Recording.
+        recording -- the containing Recording.
+        preload -- a boolean indicating if this instance reads the 
+            data from disc on construction or only when needed.
+
+        Keyword arguments:
+        parent -- the Modality this one was derived from. None means this 
+            is an underived data Modality.
+        timeOffset (s) -- the offset against the baseline audio track.
         """
-
-        super().__init__(name, parent, preload, timeOffset)
-
-        self.meta['filename'] = filename
-        self.meta['mainsFrequency'] = mainsFrequency
+        super().__init__(name=name, recording=recording, path=path, 
+                parent=parent, preload=preload, timeOffset=timeOffset)
 
         # If we do not have a filename, there is not much to init.
-        if filename:
+        if self.path:
             if preload:
                 self._load_data()
             else:
@@ -534,21 +535,20 @@ class RawUltrasound(Modality):
         'ZeroOffset'
     ]
 
-    def __init__(
-            self, name="raw ultrasound", parent=None, preload=False,
-            timeOffset=0, filename=None, meta=None):
+    def __init__(self, name: str, recording: Recording, preload: bool, 
+                path: Optional[Union[str, Path]]=None, parent: Optional['Modality']=None, 
+                timeOffset: float=0, meta: Optional[dict]=None) -> None:
         """
+        Create a RawUltrasound Modality.
 
-        New keyword arguments:
-        filename -- the name of a .ult file containing raw ultrasound 
-            data. Default is None.
+
+        New keyword argument:
         meta -- a dict with (at least) the keys listed in 
             RawUltrasound.requiredMetaKeys. Extra keys will be ignored. 
             Default is None.
         """
-        super().__init__(name=name, parent=parent, preload=preload, timeOffset=timeOffset)
-
-        self.meta['filename'] = filename
+        super().__init__(name=name, recording=recording, path=path, 
+                parent=parent, preload=preload, timeOffset=timeOffset)
 
         # Explicitly copy meta data fields to ensure that we have what we expected to get.
         if meta != None:
@@ -569,7 +569,7 @@ class RawUltrasound(Modality):
 
             self.meta.update(wanted_meta)
 
-        if filename and preload:
+        if preload:
             self._load_data()
         else:
             self._data = None

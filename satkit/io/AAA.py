@@ -32,14 +32,15 @@
 import glob
 import logging
 import os
-import os.path
 # Built in packages
 from contextlib import closing
 from datetime import datetime
 from pathlib import Path
+from typing import Optional
 
 # Numpy
 import numpy as np
+from genericpath import isfile
 # Local packages
 from satkit.data_structures import MonoAudio, RawUltrasound, Recording
 from satkit.io.AAA_video import LipVideo
@@ -179,28 +180,104 @@ def parse_ultrasound_meta_aaa(filename):
         meta['meta_file'] = filename
     return meta
 
-def add_audio(recording: Recording, wav_preload: bool) -> None:
+def add_audio(recording: Recording, preload: bool,
+                path: Optional[Path]=None) -> None:
+    """Create a MonoAudio Modality and add it to the Recording."""
+    if not path:
+        ult_wav_file = recording.path.with_suffix(".wav")
+    else:
+        ult_wav_file = path
 
-    ult_wav_file = os.path.join(path, basename + ".wav")
-    if os.path.isfile(ult_wav_file):
-        self.meta['ult_wav_file'] = ult_wav_file
-        self.meta['ult_wav_exists'] = True
+    if ult_wav_file.is_file():
+        waveform = MonoAudio(
+            recording=recording,
+            preload=preload,
+            path= ult_wav_file,
+            parent=None,
+            timeOffset=0
+        )
+        recording.addModality(waveform)
+        _AAA_logger.debug(
+            "Added MonoAudio to Recording representing %s.",
+            recording.path.name)
     else:
         notice = 'Note: ' + ult_wav_file + " does not exist."
         _AAA_logger.warning(notice)
-        self.meta['ult_wav_exists'] = False
-        self.excluded = True
+        recording.exclude()
 
-    waveform = MonoAudio(
-        parent=recording,
-        preload=wav_preload,
-        timeOffset=0,
-        filename=recording.meta['ult_wav_file']
-    )
-    recording.addModality(MonoAudio.name, waveform)
-    _AAA_logger.debug(
-        "Added MonoAudio to Recording representing %s.",
-        recording.meta['basename'])
+
+def add_raw_ultrasound(recording: Recording, preload: bool,
+                        path: Optional[Path]=None) -> None:
+    """Create a RawUltrasound Modality and add it to the Recording."""
+    if not path:
+        ult_file = recording.path.with_suffix(".ult")
+    else:
+        ult_file = path
+
+    meta = parse_ultrasound_meta_aaa(path)
+
+    # We pop the timeoffset from the meta dict so that people will not
+    # accidentally rely on setting that to alter the timeoffset of the
+    # ultrasound data in the Recording. This throws KeyError if the meta
+    # file didn't contain TimeInSecsOfFirstFrame.
+    ult_time_offset = meta.pop('TimeInSecsOfFirstFrame')
+
+    if ult_file.is_file():
+        ultrasound = RawUltrasound(
+            recording=recording,
+            preload=preload,
+            path=ult_file,
+            parent=None,
+            timeOffset=ult_time_offset,
+            meta=meta
+        )
+        recording.addModality(ultrasound)
+        _AAA_logger.debug(
+            "Added RawUltrasound to Recording representing %s.",
+            recording.path.name)
+    else:
+        notice = 'Note: ' + ult_file + " does not exist."
+        _AAA_logger.warning(notice)
+        recording.exclude()
+
+
+def add_lip_video(recording: Recording, preload: bool,
+                    path: Optional[Path]=None) -> None:
+    """Create a RawUltrasound Modality and add it to the Recording."""
+    if not path:
+        video_file = recording.path.with_suffix(".avi")
+    else:
+        video_file = path
+
+    # This is the correct value for fps for a de-interlaced
+    # video according to Alan, and he should know having
+    # written AAA.
+    meta = {
+        'FramesPerSec': 59.94
+    }
+
+    # We pop the timeoffset from the meta dict so that people will not
+    # accidentally rely on setting that to alter the timeoffset of the
+    # ultrasound data in the Recording. This throws KeyError if the meta
+    # file didn't contain TimeInSecsOfFirstFrame.
+    ult_time_offset = meta.pop('TimeInSecsOfFirstFrame')
+
+    if video_file.is_file():
+        ultrasound = LipVideo(
+            recording=recording,
+            preload=preload,
+            path=video_file,
+            parent=None,
+            timeOffset=ult_time_offset,
+            meta=meta
+        )
+        recording.addModality(ultrasound)
+        _AAA_logger.debug(
+            "Added RawUltrasound to Recording representing %s.",
+            recording.path.name)
+    else:
+        notice = 'Note: ' + video_file + " does not exist."
+        _AAA_logger.warning(notice)
 
 
 def add_modalities(recording: Recording, wav_preload: bool=True, ult_preload: bool=False,
@@ -230,55 +307,6 @@ def add_modalities(recording: Recording, wav_preload: bool=True, ult_preload: bo
     add_raw_ultrasound(recording, ult_preload)
     add_lip_video(recording, video_preload)
 
-    waveform = MonoAudio(
-        parent=recording,
-        preload=wav_preload,
-        timeOffset=0,
-        filename=recording.meta['ult_wav_file']
-    )
-    recording.addModality(MonoAudio.name, waveform)
-    _AAA_logger.debug(
-        "Added MonoAudio to Recording representing %s.",
-        recording.meta['basename'])
-
-    ult_meta = parse_ultrasound_meta_aaa(recording.meta['ult_meta_file'])
-
-    # We pop the timeoffset from the meta dict so that people will not
-    # accidentally rely on setting that to alter the timeoffset of the
-    # ultrasound data in the Recording. This throws KeyError if the meta
-    # file didn't contain TimeInSecsOfFirstFrame.
-    ult_time_offset = ult_meta.pop('TimeInSecsOfFirstFrame')
-
-    ultrasound = RawUltrasound(
-        parent=recording,
-        preload=ult_preload,
-        timeOffset=ult_time_offset,
-        filename=recording.meta['ult_file'],
-        meta=ult_meta
-    )
-    recording.addModality(RawUltrasound.name, ultrasound)
-    _AAA_logger.debug(
-        "Added RawUltrasound to Recording representing %s.",
-        recording.meta['basename'])
-
-    if recording.meta['video_exists']:
-        # This is the correct value for fps for a de-interlaced
-        # video according to Alan, and he should know having
-        # written AAA.
-        video_meta = {
-            'FramesPerSec': 59.94
-        }
-
-        video = LipVideo(
-            parent=recording,
-            preload=video_preload,
-            filename=recording.meta['video_file'],
-            meta=video_meta
-        )
-        recording.addModality(LipVideo.name, video)
-        _AAA_logger.debug(
-            "Added LipVideo to Recording representing %s.",
-            recording.meta['basename'])
 
 def parse_spline_line(line):
     """Parse a single line in an old AAA spline export file."""

@@ -31,13 +31,15 @@
 
 import logging
 import sys
+from pathlib import Path
+from typing import Optional
 
 # Numpy
 import numpy as np
 # scikit-video for io and processing of video data.
 import skvideo.io
 # Built in packages
-from satkit.data_structures import Modality
+from satkit.data_structures import Modality, Recording
 
 # Local packages
 
@@ -102,7 +104,7 @@ class LipVideo(Modality):
         # videodata = skvideo.io.vread(self.meta['filename'])
         self._data = skvideo.io.vread(self.meta['filename'])
 
-        # Before 1.0: 'NumVectors' and 'PixPerVector' are bad names here.
+        # TODO: Before 1.0: 'NumVectors' and 'PixPerVector' are bad names here.
         # They come from the AAA ultrasound side of things and should be
         # replaced, but haven't been yet as I'm in a hurry to get PD
         # running on videos.
@@ -124,16 +126,59 @@ class LipVideo(Modality):
     def data(self):
         return super().data
 
-    # before v1.0: check that the data is actually valid, also call the beep detect etc. routines on it.
-    @data.setter
-    def data(self, data):
-        """
-        Data setter method.
+    # Handled by Modality already. May need to call super to make it work though.
+    # # before v1.0: check that the data is actually valid, also call the beep 
+    # # detect etc. routines on it.
+    # @data.setter
+    # def data(self, data):
+    #     """
+    #     Data setter method.
 
-        Assigning anything but None is not implemented yet.
-        """
-        if data is not None:
-            raise NotImplementedError(
-                'Writing over video data has not been implemented yet.')
-        else:
-            self._data = data
+    #     Assigning anything but None is not implemented yet.
+    #     """
+    #     if data is not None:
+    #         raise NotImplementedError(
+    #             'Writing over video data has not been implemented yet.')
+    #     else:
+    #         self._data = data
+
+
+def add_lip_video(recording: Recording, preload: bool,
+                    path: Optional[Path]=None) -> None:
+    """Create a RawUltrasound Modality and add it to the Recording."""
+    if not path:
+        video_file = recording.path.with_suffix(".avi")
+    else:
+        video_file = path
+
+    # This is the correct value for fps for a de-interlaced
+    # video according to Alan, and he should know having
+    # written AAA.
+    meta = {
+        'FramesPerSec': 59.94
+    }
+
+    # We pop the timeoffset from the meta dict so that people will not
+    # accidentally rely on setting that to alter the timeoffset of the
+    # ultrasound data in the Recording. This throws KeyError if the meta
+    # file didn't contain TimeInSecsOfFirstFrame.
+    ult_time_offset = meta.pop('TimeInSecsOfFirstFrame')
+
+    if video_file.is_file():
+        ultrasound = LipVideo(
+            recording=recording,
+            preload=preload,
+            path=video_file,
+            parent=None,
+            timeOffset=ult_time_offset,
+            meta=meta
+        )
+        recording.addModality(ultrasound)
+        _AAA_video_logger.debug(
+            "Added RawUltrasound to Recording representing %s.",
+            recording.path.name)
+    else:
+        notice = 'Note: ' + video_file + " does not exist."
+        _AAA_video_logger.warning(notice)
+
+

@@ -29,121 +29,19 @@
 # citations.bib in BibTeX format.
 #
 
+# Built in packages
 import logging
-import sys
 from pathlib import Path
 from typing import Optional
 
-# Numpy
-import numpy as np
-# scikit-video for io and processing of video data.
-import skvideo.io
-# Built in packages
-from satkit.data_structures import Modality, Recording
-
 # Local packages
+from satkit.data_structures import Recording
+from satkit.modalities import Video
 
 _AAA_video_logger = logging.getLogger('satkit.AAA_video')
 
 
-class LipVideo(Modality):
-    """
-    Ultrasound Recording with raw (probe return) data.    
-    """
-
-    # Before 1.0: Figure out how to move this to MatrixData
-    # and how to extend it when necessary. Practically whole of
-    # __init__ is shared with RawUltrasound and so should be in MatrixData
-    # instead of here. Only _getData and data.setter's message change.
-    requiredMetaKeys = [
-        'FramesPerSec'
-    ]
-
-    def __init__(
-            self, name="lip video", parent=None, preload=False,
-            timeOffset=0, filename=None, meta=None):
-        """
-        New keyword arguments:
-        filename -- the name of a .ult file containing raw ultrasound 
-            data. Default is None.
-        meta -- a dict with (at least) the keys listed in 
-            RawUltrasound.requiredMetaKeys. Extra keys will be ignored. 
-            Default is None.
-        """
-        super().__init__(name=name, parent=parent, preload=preload,
-                         timeOffset=timeOffset)
-
-        self.meta['filename'] = filename
-
-        # Explicitly copy meta data fields to ensure that we have what we expected to get.
-        if meta != None:
-            try:
-                wanted_meta = {key: meta[key]
-                               for key in LipVideo.requiredMetaKeys}
-            except KeyError:
-                # Missing metadata for one recording may be ok and this could be handled with just
-                # a call to _recording_logger.critical and setting self.excluded = True
-                notFound = set(LipVideo.requiredMetaKeys) - set(meta)
-                _AAA_video_logger.critical(
-                    "Part of metadata missing when processing "
-                    + self.meta['filename'] + ". ")
-                _AAA_video_logger.critical(
-                    "Could not find " + str(notFound) + ".")
-                _AAA_video_logger.critical('Exiting.')
-                sys.exit()
-
-            self.meta.update(wanted_meta)
-
-        if filename and preload:
-            self._getData()
-        else:
-            self._data = None
-
-    def _getData(self):
-        # possibly try importing as grey scale
-        # videodata = skvideo.io.vread(self.meta['filename'])
-        self._data = skvideo.io.vread(self.meta['filename'])
-
-        # TODO: Before 1.0: 'NumVectors' and 'PixPerVector' are bad names here.
-        # They come from the AAA ultrasound side of things and should be
-        # replaced, but haven't been yet as I'm in a hurry to get PD
-        # running on videos.
-        self.meta['no_frames'] = self.data.shape[0]
-        self.meta['NumVectors'] = self.data.shape[1]
-        self.meta['PixPerVector'] = self.data.shape[2]
-        video_time = np.linspace(
-            0, self.meta['no_frames'],
-            num=self.meta['no_frames'],
-            endpoint=False)
-        self.timevector = video_time / \
-            self.meta['FramesPerSec'] + self.timeOffset
-        # this should be added for PD and similar time vectors:
-        # + .5/self.meta['framesPerSec']
-        # while at the same time dropping a suitable number
-        # (most likely = timestep) of timestamps
-
-    @property
-    def data(self):
-        return super().data
-
-    # Handled by Modality already. May need to call super to make it work though.
-    # # before v1.0: check that the data is actually valid, also call the beep 
-    # # detect etc. routines on it.
-    # @data.setter
-    # def data(self, data):
-    #     """
-    #     Data setter method.
-
-    #     Assigning anything but None is not implemented yet.
-    #     """
-    #     if data is not None:
-    #         raise NotImplementedError(
-    #             'Writing over video data has not been implemented yet.')
-    #     else:
-    #         self._data = data
-
-
-def add_lip_video(recording: Recording, preload: bool,
+def add_aaa_video(recording: Recording, preload: bool,
                     path: Optional[Path]=None) -> None:
     """Create a RawUltrasound Modality and add it to the Recording."""
     if not path:
@@ -165,7 +63,7 @@ def add_lip_video(recording: Recording, preload: bool,
     ult_time_offset = meta.pop('TimeInSecsOfFirstFrame')
 
     if video_file.is_file():
-        ultrasound = LipVideo(
+        ultrasound = Video(
             recording=recording,
             preload=preload,
             path=video_file,

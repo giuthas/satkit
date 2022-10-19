@@ -35,7 +35,7 @@ import logging
 # local modules
 from satkit.commandLineInterface import RawAndVideoCLI
 from satkit.recording import RawUltrasound
-from satkit.io.AAA_video import LipVideo
+from satkit.io.AAA_video import Video
 from satkit import pd
 
 # how do we tell RawAndVideoCLI or RawCLI to run pd (and others) on all modalities. ie. how do we bind an operation to a modality?
@@ -44,7 +44,7 @@ from satkit import pd
 
 def main():
     # Run the command line interface.
-    function_dict = {'PD': (pd.addPD, [RawUltrasound, LipVideo])}
+    function_dict = {'PD': (pd.addPD, [RawUltrasound, Video])}
     RawAndVideoCLI(
         "PD processing script for raw ultrasound and videos", function_dict)
 

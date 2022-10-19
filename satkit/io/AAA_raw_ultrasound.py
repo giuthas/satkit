@@ -4,7 +4,8 @@ from contextlib import closing
 from pathlib import Path
 from typing import Optional, Union
 
-from data_structures import RawUltrasound, Recording
+from data_structures import Recording
+from modalities import RawUltrasound
 
 _AAA_raw_ultrsound_logger = logging.getLogger('satkit.AAA_raw_ultrasound')
 

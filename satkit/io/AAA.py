@@ -37,9 +37,10 @@ from pathlib import Path
 from typing import Optional
 
 # Local packages
-from satkit.data_structures import Recording, add_audio
+from satkit.data_structures import Recording
 from satkit.io.AAA_raw_ultrasound import add_aaa_raw_ultrasound
-from satkit.io.AAA_video import add_lip_video
+from satkit.io.AAA_video import add_aaa_video
+from satkit.io.generic_io import add_audio
 
 _AAA_logger = logging.getLogger('satkit.AAA')
 
@@ -168,7 +169,7 @@ def add_modalities(recording: Recording, wav_preload: bool=True, ult_preload: bo
 
     add_audio(recording, wav_preload)
     add_aaa_raw_ultrasound(recording, ult_preload)
-    add_lip_video(recording, video_preload)
+    add_aaa_video(recording, video_preload)
 
 
 

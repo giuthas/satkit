@@ -47,7 +47,7 @@ import pydicom
 import scipy.io
 # Local packages
 from satkit.data_structures import Modality, MonoAudio, Recording
-from satkit.io.AAA_video import LipVideo
+from satkit.io.AAA_video import Video
 
 _3D4D_ultra_logger = logging.getLogger('satkit.ThreeD_ultrasound')
 
@@ -641,13 +641,13 @@ class ThreeD_UltrasoundRecording(Recording):
                 "This is the correct value for fps for a de-interlaced video "
                 + " for AAA recordings. Check it for other data.")
 
-            video = LipVideo(
+            video = Video(
                 parent=self,
                 preload=videoPreload,
                 filename=self.meta['video_file'],
                 meta=videoMeta
             )
-            self.addModality(LipVideo.__name__, video)
+            self.addModality(Video.__name__, video)
             _3D4D_ultra_logger.debug(
                 "Added LipVideo to Recording representing"
                 + self.meta['basename'] + ".")

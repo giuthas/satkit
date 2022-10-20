@@ -95,7 +95,7 @@ class MonoAudio(Modality):
         timevector = np.linspace(0, len(wav_frames),
                                        len(wav_frames),
                                        endpoint=False)
-        timevector = timevector/wav_fs + self.time_offset
+        timevector = timevector/wav_fs + self._time_offset
         return wav_frames, timevector, wav_fs
 
     @property
@@ -132,7 +132,7 @@ class RawUltrasound(Modality):
         'ZeroOffset'
     ]
 
-    def __init__(self, name: str, recording: Recording, preload: bool, 
+    def __init__(self, recording: Recording, preload: bool, name: str="raw ultrasound",  
                 path: Optional[Union[str, Path]]=None, parent: Optional['Modality']=None, 
                 timeOffset: float=0, meta: Optional[dict]=None) -> None:
         """

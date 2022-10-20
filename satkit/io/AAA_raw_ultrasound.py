@@ -111,7 +111,7 @@ def add_aaa_raw_ultrasound(recording: Recording, preload: bool,
             timeOffset=ult_time_offset,
             meta=meta
         )
-        recording.addModality(ultrasound)
+        recording.add_modality(ultrasound)
         _AAA_raw_ultrsound_logger.debug(
             "Added RawUltrasound to Recording representing %s.",
             recording.path.name)

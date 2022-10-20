@@ -23,7 +23,7 @@ def add_audio(recording: Recording, preload: bool,
             parent=None,
             timeOffset=0
         )
-        recording.addModality(waveform)
+        recording.add_modality(waveform)
         _generic_io_logger.debug(
             "Added MonoAudio to Recording representing %s.",
             recording.path.name)

@@ -227,16 +227,15 @@ class Modality(abc.ABC):
         # TODO: see if time_offset is being set/used correctly here. 
         # it might need to be passed to get_data
         self._time_offset = timeOffset
-        self._sampling_rate = None
 
         # data
         if self.preload:
-            self._data, self._timevector, self.sampling_rate = self._get_data()
+            self._data, self._timevector, self._sampling_rate = self._get_data()
             self._time_offset = self._timevector[0]
         else:
             self._data = None
             self._timevector = None
-            self.sampling_rate = None
+            self._sampling_rate = None
 
     def _get_data(self) -> Tuple[np.ndarray, np.ndarray, float]:
         # TODO: Provide a way to force the data to be derived. 
@@ -276,9 +275,9 @@ class Modality(abc.ABC):
 
     def _set_data(self, data: np.ndarray, timevector: np.ndarray, sampling_rate: float):
         """Method used to set data from either _get_data, _load_data, and _derive_data."""
-        self.data = data
-        self.timevector = timevector
-        self.sampling_rate = sampling_rate
+        self._data = data
+        self._timevector = timevector
+        self._sampling_rate = sampling_rate
 
     @property
     def excluded(self) -> None:

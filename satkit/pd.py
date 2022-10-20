@@ -38,7 +38,6 @@ import numpy as np
 # local modules
 from satkit.recording import DerivedModality
 
-
 _pd_logger = logging.getLogger('satkit.pd')
 
 

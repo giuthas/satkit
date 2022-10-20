@@ -11,7 +11,7 @@ def add_audio(recording: Recording, preload: bool,
                 path: Optional[Path]=None) -> None:
     """Create a MonoAudio Modality and add it to the Recording."""
     if not path:
-        ult_wav_file = recording.path.with_suffix(".wav")
+        ult_wav_file = (recording.path/recording.basename).with_suffix(".wav")
     else:
         ult_wav_file = path
 
@@ -28,7 +28,7 @@ def add_audio(recording: Recording, preload: bool,
             "Added MonoAudio to Recording representing %s.",
             recording.path.name)
     else:
-        notice = 'Note: ' + ult_wav_file + " does not exist."
+        notice = 'Note: ' + str(ult_wav_file) + " does not exist. Excluding."
         _generic_io_logger.warning(notice)
         recording.exclude()
 

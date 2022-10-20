@@ -1,6 +1,7 @@
-import datetime
 import logging
 from contextlib import closing
+from datetime import datetime
+from math import inf
 from pathlib import Path
 from typing import Optional, Union
 
@@ -81,17 +82,25 @@ def add_aaa_raw_ultrasound(recording: Recording, preload: bool,
                             path: Optional[Path]=None) -> None:
     """Create a RawUltrasound Modality and add it to the Recording."""
     if not path:
-        ult_file = recording.path.with_suffix(".ult")
+        ult_file = (recording.path/recording.basename).with_suffix(".ult")
+        meta_file = (recording.path/(recording.basename+"US.txt"))
     else:
         ult_file = path
+        meta_file = path.with_suffix("US.txt")
 
-    meta = parse_ultrasound_meta_aaa(path)
+    ult_time_offset = -inf
+    if meta_file.is_file():
+        meta = parse_ultrasound_meta_aaa(meta_file)
+        ult_time_offset = meta.pop('TimeInSecsOfFirstFrame')
+    else:
+        notice = 'Note: ' + str(meta_file) + " does not exist. Excluding."
+        _AAA_raw_ultrsound_logger.warning(notice)
+        recording.exclude()
 
     # We pop the timeoffset from the meta dict so that people will not
     # accidentally rely on setting that to alter the timeoffset of the
     # ultrasound data in the Recording. This throws KeyError if the meta
     # file didn't contain TimeInSecsOfFirstFrame.
-    ult_time_offset = meta.pop('TimeInSecsOfFirstFrame')
 
     if ult_file.is_file():
         ultrasound = RawUltrasound(
@@ -107,7 +116,7 @@ def add_aaa_raw_ultrasound(recording: Recording, preload: bool,
             "Added RawUltrasound to Recording representing %s.",
             recording.path.name)
     else:
-        notice = 'Note: ' + ult_file + " does not exist."
+        notice = 'Note: ' + str(ult_file) + " does not exist. Excluding."
         _AAA_raw_ultrsound_logger.warning(notice)
         recording.exclude()
 

@@ -32,6 +32,7 @@
 # Built in packages
 import abc
 import logging
+from datetime import datetime
 from pathlib import Path
 from typing import Optional, Tuple, Union
 
@@ -56,7 +57,8 @@ class Recording():
     """
 
     def __init__(self, excluded: bool=False, path: Optional[Union[str, Path]]=None, 
-                basename: str="", textgrid_name: str="") -> None:
+                basename: str="", textgrid_path: Union[str, Path]="", 
+                time_of_recording: Optional[Union[datetime, str]]=None) -> None:
         """"""
         self.excluded = excluded
 
@@ -69,11 +71,17 @@ class Recording():
 
         self.basename = basename
 
-        if textgrid_name:
-            self._textgrid_path = self.path.joinpath(textgrid_name)
+        if textgrid_path:
+            self._textgrid_path = self.path.joinpath(textgrid_path)
         else:
             self._textgrid_path = self.path.joinpath(basename + ".TextGrid")
         self.textgrid = self._read_textgrid()
+
+        if isinstance(time_of_recording, str):
+            time_of_recording = datetime.strptime(time_of_recording, '%d/%m/%Y %H:%M:%S')
+        elif time_of_recording is None:
+            time_of_recording = datetime.strptime('01/01/1970 00:00:00', '%d/%m/%Y %H:%M:%S')
+        self.time_of_recording = time_of_recording
 
         self.modalities = {}
         self.annotations = {}
@@ -199,6 +207,9 @@ class Modality(abc.ABC):
         # Identity and position in the recording hierarchy
         self.name = name
 
+        # use self.recording.meta[key] to set recording metadata
+        self.meta = {}
+
         if isinstance(path, Path):
             self.path = path
         elif isinstance(path, str):
@@ -209,6 +220,9 @@ class Modality(abc.ABC):
         self.recording = recording
         self.parent = parent
 
+        # This is a property which when set to True will also set parent.excluded to True.
+        self.excluded = False
+
         self.preload = preload
         # TODO: see if time_offset is being set/used correctly here. 
         # it might need to be passed to get_data
@@ -217,40 +231,28 @@ class Modality(abc.ABC):
 
         # data
         if self.preload:
-            self._data, self._timevector, self.sampling_rate = self._load_data()
+            self._data, self._timevector, self.sampling_rate = self._get_data()
             self._time_offset = self._timevector[0]
         else:
             self._data = None
             self._timevector = None
             self.sampling_rate = None
 
-        # use self.recording.meta[key] to set recording metadata
-        self.meta = {}
-
-        # This is a property which when set to True will also set parent.excluded to True.
-        self.excluded = False
-
-        self.preload = preload
-        self._time_offset = timeOffset
-        self._sampling_rate = None
-
-    @abc.abstractmethod
     def _get_data(self) -> Tuple[np.ndarray, np.ndarray, float]:
         # TODO: Provide a way to force the data to be derived. 
-        # used when parent modality has updated in some way
+        # this would be used when parent modality has updated in some way
         if self.path:
             return self._load_data()
         elif self.parent:
             return self._derive_data()
         else:
-            # TODO: change this into a suitable raise Erroro/Exception clause instead.
+            # TODO: change this into a suitable raise Error/Exception clause instead.
             print("Asked to get data but have no path and no parent Modality.\n" + 
                 "Don't know how to solve this.")
 
-    @abc.abstractmethod
     def _load_data(self) -> Tuple[np.ndarray, np.ndarray, float]:
         """
-        Load data from file -- abstract method to be overridden.
+        Load data from file -- to be overridden by inheriting classes.
 
         This method should be implemented by subclasses to provide a unified 
         way of handling preloading and on-the-fly loading of data.
@@ -258,10 +260,22 @@ class Modality(abc.ABC):
         This method is intended to rely on self.meta to know what to read.
         """
         raise NotImplementedError(
-            "This is an abstract method that " +
-            "should be overridden by inheriting classes.")
+            "This method should be overridden by inheriting classes.")
+
+    def _derive_data(self) -> Tuple[np.ndarray, np.ndarray, float]:
+        """
+        Derive data from another modality -- to be overridden by inheriting classes.
+
+        This method should be implemented by subclasses to provide a unified 
+        way of handling preloading and on-the-fly loading of data.
+
+        This method is intended to rely on self.meta to know what to read.
+        """
+        raise NotImplementedError(
+            "This method should be overridden by inheriting classes.")
 
     def _set_data(self, data: np.ndarray, timevector: np.ndarray, sampling_rate: float):
+        """Method used to set data from either _get_data, _load_data, and _derive_data."""
         self.data = data
         self.timevector = timevector
         self.sampling_rate = sampling_rate
@@ -311,7 +325,7 @@ class Modality(abc.ABC):
         if self._data is None:
             _datastructures_logger.debug(
                 "In Modality data getter. self._data was None.")
-            self._set_data(self._load_data())
+            self._set_data(self._get_data())
         return self._data
 
     @data.setter
@@ -346,7 +360,7 @@ class Modality(abc.ABC):
     @property
     def sampling_rate(self) -> float:
         if not self._sampling_rate:
-            self._set_data(self._load_data())
+            self._set_data(self._get_data())
         return self._sampling_rate
 
 
@@ -363,7 +377,7 @@ class Modality(abc.ABC):
         to create a new Modality or even Recording.
         """
         if not self._time_offset:
-            self._set_data(self._load_data())
+            self._set_data(self._get_data())
         return self._time_offset
 
     @time_offset.setter
@@ -389,7 +403,7 @@ class Modality(abc.ABC):
         that self._timevector[0] stays equal to self._timeOffset. 
         """
         if self._timevector is None:
-            self._set_data(self._load_data())
+            self._set_data(self._get_data())
         return self._timevector
 
     @timevector.setter

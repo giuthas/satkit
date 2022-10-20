@@ -104,10 +104,10 @@ def generate_recording_list(directory: Path):
                   for prompt_file in ult_prompt_files]
     basenames = [Path(path).name for path in base_paths]
     recordings = [
-        generate_ultrasound_recording(basename, directory)
+        generate_ultrasound_recording(basename, Path(directory))
         for basename in basenames
     ]
-    return sorted(recordings, key=lambda token: token.meta['date'])
+    return sorted(recordings, key=lambda token: token.time_of_recording)
 
 
 def generate_ultrasound_recording(basename: str, directory: Optional[Path]):
@@ -133,7 +133,8 @@ def generate_ultrasound_recording(basename: str, directory: Optional[Path]):
         recording = Recording(
             path=directory,
             basename=basename,
-            textgrid=textgrid
+            textgrid_path=textgrid,
+
         )
     else:
         recording = Recording(
@@ -165,7 +166,7 @@ def add_modalities(recording: Recording, wav_preload: bool=True, ult_preload: bo
     meta file: [directory]/basename + .txt.
     """
     _AAA_logger.info("Adding modalities to recording for %s.",
-        recording.meta['basename'])
+        recording.basename)
 
     add_audio(recording, wav_preload)
     add_aaa_raw_ultrasound(recording, ult_preload)

@@ -45,7 +45,7 @@ def add_aaa_video(recording: Recording, preload: bool,
                     path: Optional[Path]=None) -> None:
     """Create a RawUltrasound Modality and add it to the Recording."""
     if not path:
-        video_file = recording.path.with_suffix(".avi")
+        video_file = (recording.path/recording.basename).with_suffix(".avi")
     else:
         video_file = path
 
@@ -56,19 +56,12 @@ def add_aaa_video(recording: Recording, preload: bool,
         'FramesPerSec': 59.94
     }
 
-    # We pop the timeoffset from the meta dict so that people will not
-    # accidentally rely on setting that to alter the timeoffset of the
-    # ultrasound data in the Recording. This throws KeyError if the meta
-    # file didn't contain TimeInSecsOfFirstFrame.
-    ult_time_offset = meta.pop('TimeInSecsOfFirstFrame')
-
     if video_file.is_file():
         ultrasound = Video(
             recording=recording,
             preload=preload,
             path=video_file,
             parent=None,
-            timeOffset=ult_time_offset,
             meta=meta
         )
         recording.addModality(ultrasound)
@@ -76,7 +69,7 @@ def add_aaa_video(recording: Recording, preload: bool,
             "Added RawUltrasound to Recording representing %s.",
             recording.path.name)
     else:
-        notice = 'Note: ' + video_file + " does not exist."
+        notice = 'Note: ' + str(video_file) + " does not exist."
         _AAA_video_logger.warning(notice)
 
 

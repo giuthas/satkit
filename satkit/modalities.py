@@ -30,12 +30,12 @@ class MonoAudio(Modality):
 
     # Mains electricity frequency and filter coefficients for removing
     # it from audio with a highpass filter.
-    mainsFrequency = None
+    mains_frequency = None
     filter = {}
 
-    def __init__(self, name: str, recording: Recording, preload: bool, 
+    def __init__(self, recording: Recording, preload: bool, name: str="mono audio",  
                 path: Optional[Union[str, Path]]=None, parent: Optional['Modality']=None, 
-                timeOffset: float=0) -> None:
+                timeOffset: float=0, mains_frequency: float=50) -> None:
         """
         Create a MonoAudio track.
 
@@ -51,16 +51,18 @@ class MonoAudio(Modality):
             is an underived data Modality.
         timeOffset (s) -- the offset against the baseline audio track.
         """
+        self.mains_frequency = mains_frequency
         super().__init__(name=name, recording=recording, path=path, 
                 parent=parent, preload=preload, timeOffset=timeOffset)
 
         # If we do not have a filename, there is not much to init.
         if self.path:
             if preload:
-                self._load_data()
+                self._get_data()
             else:
                 self._data = None
                 self._timevector = None
+
 
     def _load_data(self):
         """
@@ -68,31 +70,33 @@ class MonoAudio(Modality):
 
         Setting self.isPreloaded = True results in a call to this method.
         """
-        (wav_fs, wav_frames) = sio_wavfile.read(self.meta['filename'])
-        self.meta['wav_fs'] = wav_fs
-        self._data = wav_frames
+        (wav_fs, wav_frames) = sio_wavfile.read(self.path)
+        # self.sampling_rate = wav_fs
+        # self._data = wav_frames
 
         # setup the high-pass filter for removing the mains frequency (and anything below it)
         # from the recorded sound.
-        if MonoAudio.mainsFrequency != self.meta['mainsFrequency']:
-            MonoAudio.mainsFrequency = self.meta['mainsFrequency']
+        if not MonoAudio.filter:
+            MonoAudio.mains_frequency = self.mains_frequency
             MonoAudio.filter = satkit_audio.high_pass(
-                wav_fs, self.meta['mainsFrequency'])
+                wav_fs, self.mains_frequency)
+            print(str(MonoAudio.mains_frequency)+" yes")
 
         beep, has_speech = satkit_audio.detect_beep_and_speech(
             wav_frames, wav_fs, MonoAudio.filter['b'],
             MonoAudio.filter['a'],
-            self.meta['filename'])
+            self.path)
 
         # before v1.0: this is a bad name for the beep: 1) this is an AAA thing,
         # 2) the recording might not be UTI
-        self.meta['stimulus_onset'] = beep
-        self.meta['has_speech'] = has_speech
+        self.stimulus_onset = beep
+        self.has_speech = has_speech
 
-        self._timevector = np.linspace(0, len(wav_frames),
+        timevector = np.linspace(0, len(wav_frames),
                                        len(wav_frames),
                                        endpoint=False)
-        self._timevector = self._timevector/wav_fs + self.time_offset
+        timevector = timevector/wav_fs + self.time_offset
+        return wav_frames, timevector, wav_fs
 
     @property
     def data(self):
@@ -163,7 +167,7 @@ class RawUltrasound(Modality):
             self.meta.update(wanted_meta)
 
         if preload:
-            self._load_data()
+            self._get_data()
         else:
             self._data = None
 
@@ -171,7 +175,7 @@ class RawUltrasound(Modality):
         self._stored_index = None
         self._stored_image = None
 
-    def _load_data(self):
+    def _get_data(self):
         with closing(open(self.meta['filename'], 'rb')) as ult_file:
             ult_data = ult_file.read()
             ultra = np.fromstring(ult_data, dtype=np.uint8)

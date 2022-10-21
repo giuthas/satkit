@@ -5,7 +5,7 @@ from math import inf
 from pathlib import Path
 from typing import Optional, Union
 
-from data_structures import Recording
+from data_structures import Recording, RecordingMetaData
 from modalities import RawUltrasound
 
 _AAA_raw_ultrsound_logger = logging.getLogger('satkit.AAA_raw_ultrasound')
@@ -19,25 +19,23 @@ def parse_aaa_promptfile(filepath: Union[str, Path]) -> dict:
     if isinstance(filepath, str):
         filepath = Path(filepath)
 
-    meta = {}
     with closing(open(filepath, 'r', encoding="utf8")) as promptfile:
         lines = promptfile.read().splitlines()
-        meta['prompt'] = lines[0]
+        prompt = lines[0]
 
         # The date used to be just a string, but needs to be more sturctured since
         # the spline export files have a different date format.
-        meta['date_and_time'] = datetime.strptime(
+        time_of_recording = datetime.strptime(
             lines[1], '%d/%m/%Y %H:%M:%S')
-        # TODO: hunt and remove uses of either date or date_and_time and use only one in the future.
-        meta['date'] = meta['date_and_time']
 
         if len(lines) > 2 and lines[2].strip():
-            meta['participant'] = lines[2].split(',')[0]
+            participant_id = lines[2].split(',')[0]
         else:
             _AAA_raw_ultrsound_logger.info(
                 "Participant does not have an id in file %s.", filepath)
-            meta['participant'] = ""
+            participant_id = ""
 
+        meta = RecordingMetaData(prompt, time_of_recording, participant_id)
         _AAA_raw_ultrsound_logger.debug("Read prompt file %s.", filepath)
     return meta
 

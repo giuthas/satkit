@@ -36,7 +36,7 @@ import logging
 import numpy as np
 
 # local modules
-from satkit.recording import DerivedModality
+from satkit.data_structures import Modality
 
 _pd_logger = logging.getLogger('satkit.pd')
 
@@ -66,16 +66,16 @@ def addPD(recording,
     name = PD.__name__ + ' on ' + modality.__name__
     if recording.excluded:
         _pd_logger.info(
-            "Recording " + recording.meta['basename']
+            "Recording " + recording.basename
             + " excluded from processing.")
     elif name in recording.modalities:
         _pd_logger.info(
             "Modality '" + name +
-            "' already exists in recording: " + recording.meta['basename'] + '.')
+            "' already exists in recording: " + recording.basename + '.')
     elif not modality.__name__ in recording.modalities:
         _pd_logger.info(
             "Data modality '" + modality.__name__ +
-            "' not found in recording: " + recording.meta['basename'] + '.')
+            "' not found in recording: " + recording.basename + '.')
     else:
         dataModality = recording.modalities[modality.__name__]
 
@@ -84,12 +84,13 @@ def addPD(recording,
         recording.addModality(name, pd)
         _pd_logger.info(
             "Added '" + name +
-            "' to recording: " + recording.meta['basename'] + '.')
+            "' to recording: " + recording.basename + '.')
+    print("added pd")
 
 
-class PD(DerivedModality):
+class PD(Modality):
     """
-    Calculate PD and represent it as a DerivedModality. 
+    Calculate PD and represent it as a Modality. 
 
     PD maybe calculated using several different norms and therefore the
     result may be non-singular. For this reason self.data is a dict
@@ -221,6 +222,8 @@ class PD(DerivedModality):
         slw_pd = np.sum(square_diff, axis=2)
 
         intensity = np.sum(data, axis=(1,2))
+
+        # TODO: write a mapper here to generate a Modality for each metric and return the whol bunch
 
         result['intensity'] = intensity
         result['sbpd'] = slw_pd

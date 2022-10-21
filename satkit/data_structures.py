@@ -32,6 +32,7 @@
 # Built in packages
 import abc
 import logging
+from dataclasses import dataclass
 from datetime import datetime
 from pathlib import Path
 from typing import Optional, Tuple, Union
@@ -43,7 +44,16 @@ import textgrids
 
 _datastructures_logger = logging.getLogger('satkit.data_structures')
 
-class Recording():
+@dataclass
+class RecordingMetaData:
+    """Basic metadata that any Recording should reasonably have."""
+    prompt: str
+    time_of_recording: datetime
+    participant_id: str
+    # should this include basename, textgrid_path, path?
+
+
+class Recording:
     """
     A Recording contains 0-n synchronised Modalities.
 
@@ -56,9 +66,8 @@ class Recording():
     to self.meta['textgrid'] that are necessary.
     """
 
-    def __init__(self, excluded: bool=False, path: Optional[Union[str, Path]]=None, 
-                basename: str="", textgrid_path: Union[str, Path]="", 
-                time_of_recording: Optional[Union[datetime, str]]=None) -> None:
+    def __init__(self, meta_data: RecordingMetaData, excluded: bool=False, path: Optional[Union[str, Path]]=None, 
+                basename: str="", textgrid_path: Union[str, Path]="") -> None:
         """"""
         self.excluded = excluded
 
@@ -70,18 +79,13 @@ class Recording():
             self.path = None
 
         self.basename = basename
+        self.meta_data = meta_data
 
         if textgrid_path:
             self._textgrid_path = self.path.joinpath(textgrid_path)
         else:
             self._textgrid_path = self.path.joinpath(basename + ".TextGrid")
         self.textgrid = self._read_textgrid()
-
-        if isinstance(time_of_recording, str):
-            time_of_recording = datetime.strptime(time_of_recording, '%d/%m/%Y %H:%M:%S')
-        elif time_of_recording is None:
-            time_of_recording = datetime.strptime('01/01/1970 00:00:00', '%d/%m/%Y %H:%M:%S')
-        self.time_of_recording = time_of_recording
 
         self.modalities = {}
         self.annotations = {}
@@ -169,6 +173,7 @@ class Recording():
             be replaced.
         """
         name = modality.name
+        print(name)
         if name in self.modalities.keys() and not replace:
             raise AttributeError(
                 "A modality named " + name +

@@ -34,11 +34,11 @@ import glob
 import logging
 import os
 from pathlib import Path
-from typing import Optional
 
 # Local packages
 from satkit.data_structures import Recording
-from satkit.io.AAA_raw_ultrasound import add_aaa_raw_ultrasound
+from satkit.io.AAA_raw_ultrasound import (add_aaa_raw_ultrasound,
+                                          parse_aaa_promptfile)
 from satkit.io.AAA_video import add_aaa_video
 from satkit.io.generic_io import add_audio
 
@@ -107,10 +107,10 @@ def generate_recording_list(directory: Path):
         generate_ultrasound_recording(basename, Path(directory))
         for basename in basenames
     ]
-    return sorted(recordings, key=lambda token: token.time_of_recording)
+    return sorted(recordings, key=lambda token: token.meta_data.time_of_recording)
 
 
-def generate_ultrasound_recording(basename: str, directory: Optional[Path]):
+def generate_ultrasound_recording(basename: str, directory: Path):
     """
     Generate an UltrasoundRecording without Modalities.
 
@@ -127,17 +127,21 @@ def generate_ultrasound_recording(basename: str, directory: Optional[Path]):
     _AAA_logger.info(
         "Building Recording object for %s in %s.", basename, directory)
 
+    meta = parse_aaa_promptfile((directory/basename).with_suffix('.txt'))
+
     textgrid = directory/basename
     textgrid = textgrid.with_suffix('.TextGrid')
+
     if textgrid.is_file():
         recording = Recording(
+            meta_data=meta,
             path=directory,
             basename=basename,
-            textgrid_path=textgrid,
-
+            textgrid_path=textgrid
         )
     else:
         recording = Recording(
+            meta_data=meta,
             path=directory,
             basename=basename
         )

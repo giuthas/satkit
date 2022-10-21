@@ -29,31 +29,31 @@
 # citations.bib in BibTeX format.
 #
 
+import csv
+import logging
 # Built in packages
 from contextlib import closing
 from copy import deepcopy
-import csv
-import logging
 
 # Numpy
 import numpy as np
-
-# GUI functionality
-from PyQt5.QtCore import QCoreApplication
-from PyQt5.QtWidgets import QFileDialog
-from PyQt5.QtGui import QIntValidator
-from PyQt5.uic import loadUiType
-
+from matplotlib.backends.backend_qt5agg import \
+    FigureCanvasQTAgg as FigureCanvas
+from matplotlib.backends.backend_qt5agg import \
+    NavigationToolbar2QT as NavigationToolbar
 # Plotting functions and hooks for GUI
 from matplotlib.figure import Figure
-from matplotlib.backends.backend_qt5agg import (
-    FigureCanvasQTAgg as FigureCanvas,
-    NavigationToolbar2QT as NavigationToolbar)
+# GUI functionality
+from PyQt5.QtCore import QCoreApplication
+from PyQt5.QtGui import QIntValidator
+from PyQt5.QtWidgets import QFileDialog
+from PyQt5.uic import loadUiType
 
+import satkit.io as satkit_io
 # Local modules
 #from satkit.annotator import CurveAnnotator, PD_Annotator
-from satkit.pd_annd_plot import plot_pd, plot_pd_3d, plot_wav, plot_wav_3D_ultra, plot_pd_norms_intensity
-import satkit.io as satkit_io
+from satkit.pd_annd_plot import (plot_pd, plot_pd_3d, plot_pd_norms_intensity,
+                                 plot_wav, plot_wav_3D_ultra)
 
 # Load the GUI layout generated with QtDesigner.
 Ui_MainWindow, QMainWindow = loadUiType('satkit/qt_annotator.ui')
@@ -214,7 +214,7 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
         Private helper function for generating the title.
         """
         text = 'SATKIT Annotator'
-        text += ', prompt: ' + self.current.meta['prompt']
+        text += ', prompt: ' + self.current.meta_data.prompt
         text += ', token: ' + str(self.index+1) + '/' + str(self.max_index)
         return text
 
@@ -291,8 +291,9 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
         self.ax1.set_title(self._get_title())
         self.ax1.axes.xaxis.set_ticklabels([])
 
-        audio = self.current.modalities['MonoAudio']
-        stimulus_onset = audio.meta['stimulus_onset']
+        print(self.current.modalities)
+        audio = self.current.modalities['mono audio']
+        stimulus_onset = audio.stimulus_onset
         wav = audio.data
         wav_time = (audio.timevector - stimulus_onset)
 

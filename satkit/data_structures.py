@@ -173,7 +173,6 @@ class Recording:
             be replaced.
         """
         name = modality.name
-        print(name)
         if name in self.modalities.keys() and not replace:
             raise AttributeError(
                 "A modality named " + name +
@@ -191,9 +190,9 @@ class Modality(abc.ABC):
     Abstract superclass for all data Modality classes.
     """
 
-    def __init__(self, name: str, recording: Recording, preload: bool, 
+    def __init__(self, recording: Recording, preload: bool, 
                 path: Optional[Union[str, Path]]=None, parent: Optional['Modality']=None, 
-                timeOffset: float=0) -> None:
+                time_offset: float=0) -> None:
         """
         Modality constructor.
 
@@ -209,8 +208,6 @@ class Modality(abc.ABC):
             is an underived data Modality.
         timeOffset (s) -- the offset against the baseline audio track.
         """
-        # Identity and position in the recording hierarchy
-        self.name = name
 
         # use self.recording.meta[key] to set recording metadata
         self.meta = {}
@@ -231,10 +228,10 @@ class Modality(abc.ABC):
         self.preload = preload
         # TODO: see if time_offset is being set/used correctly here. 
         # it might need to be passed to get_data
-        self._time_offset = timeOffset
+        self._time_offset = time_offset
 
         # data
-        if self.preload:
+        if self.preload and not self.recording.excluded:
             self._data, self._timevector, self._sampling_rate = self._get_data()
             self._time_offset = self._timevector[0]
         else:
@@ -279,7 +276,7 @@ class Modality(abc.ABC):
             "This method should be overridden by inheriting classes.")
 
     def _set_data(self, data: np.ndarray, timevector: np.ndarray, sampling_rate: float):
-        """Method used to set data from either _get_data, _load_data, and _derive_data."""
+        """Method used to set data from _get_data, _load_data, and _derive_data."""
         self._data = data
         self._timevector = timevector
         self._sampling_rate = sampling_rate
@@ -329,7 +326,7 @@ class Modality(abc.ABC):
         if self._data is None:
             _datastructures_logger.debug(
                 "In Modality data getter. self._data was None.")
-            self._set_data(self._get_data())
+            self._set_data(*self._get_data())
         return self._data
 
     @data.setter
@@ -348,6 +345,10 @@ class Modality(abc.ABC):
         potentially change. Unlikely that we'd try to deal that in any other way but
         to create a new Modality or even Recording.
         """
+        self._data_setter(data)
+
+    def _data_setter(self, data: np.ndarray) -> None:
+        """Set the data property from this class and subclasses."""
         if self.data is not None and data is not None:
             if (data.dtype == self._data.dtype and data.size == self._data.size and 
                 data.shape == self._data.shape):
@@ -360,6 +361,20 @@ class Modality(abc.ABC):
                     " self.data.shape = " + str(self._data.shape) + ".")
         else:
             self._data = data
+
+    @property
+    def name(self) -> str:
+        """
+        Identity and possible parent data class.
+        
+        This will be just the class name if this is a data Modality instance.
+        For derived Modalities the name will be of the form
+        '[own class name] on [data modality class name]'.
+        """
+        name = self.__class__.__name__
+        if self.parent:
+            name = name + " on " + self.parent.__class__.__name__
+        return name
 
     @property
     def sampling_rate(self) -> float:

@@ -66,7 +66,7 @@ def generate_recording_list(directory: Path):
     Each recording meta file (.txt, not US.txt) will
     be represented by a Recording object regardless of whether a complete
     set of files was found for the recording. Exclusion is marked with
-    recordingObjet.excluded rather than not listing the recording. Log
+    recording.excluded rather than not listing the recording. Log
     file will show reasons of exclusion.
 
     The processed files are

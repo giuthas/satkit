@@ -21,7 +21,7 @@ def add_audio(recording: Recording, preload: bool,
             preload=preload,
             path= ult_wav_file,
             parent=None,
-            timeOffset=0
+            time_offset=0
         )
         recording.add_modality(waveform)
         _generic_io_logger.debug(

@@ -37,11 +37,11 @@ import time
 # For running a Qt GUI
 from PyQt5 import QtWidgets
 
+from satkit import pd
 # local modules
 from satkit.commandLineInterface import RawCLI
+from satkit.modalities import RawUltrasound
 from satkit.qt_annotator import PdQtAnnotator
-from satkit.recording import RawUltrasound
-from satkit import pd
 
 
 def main():

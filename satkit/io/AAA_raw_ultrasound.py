@@ -106,7 +106,7 @@ def add_aaa_raw_ultrasound(recording: Recording, preload: bool,
             preload=preload,
             path=ult_file,
             parent=None,
-            timeOffset=ult_time_offset,
+            time_offset=ult_time_offset,
             meta=meta
         )
         recording.add_modality(ultrasound)

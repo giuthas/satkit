@@ -31,12 +31,14 @@
 
 # Built in packages
 import logging
+from pathlib import Path
+from typing import List, Optional, Union
 
 # Numpy and scipy
 import numpy as np
 
 # local modules
-from satkit.data_structures import Modality
+from satkit.data_structures import Modality, Recording
 
 _pd_logger = logging.getLogger('satkit.pd')
 
@@ -63,14 +65,14 @@ def addPD(recording,
     """
     # Name of the new modality is constructed from the type names of
     # PD and the data modality.
-    name = PD.__name__ + ' on ' + modality.__name__
+    pd_name = PD.__name__ + ' on ' + modality.__name__
     if recording.excluded:
         _pd_logger.info(
             "Recording " + recording.basename
             + " excluded from processing.")
-    elif name in recording.modalities:
+    elif pd_name in recording.modalities:
         _pd_logger.info(
-            "Modality '" + name +
+            "Modality '" + pd_name +
             "' already exists in recording: " + recording.basename + '.')
     elif not modality.__name__ in recording.modalities:
         _pd_logger.info(
@@ -79,13 +81,12 @@ def addPD(recording,
     else:
         dataModality = recording.modalities[modality.__name__]
 
-        pd = PD(name=name, parent=recording, preload=preload,
-                dataModality=dataModality, releaseDataMemory=releaseDataMemory)
-        recording.addModality(name, pd)
+        pd = PD(recording=recording, preload=preload,
+                parent=dataModality, release_data_memory=releaseDataMemory)
+        recording.addModality(pd_name, pd)
         _pd_logger.info(
-            "Added '" + name +
+            "Added '" + pd_name +
             "' to recording: " + recording.basename + '.')
-    print("added pd")
 
 
 class PD(Modality):
@@ -111,10 +112,11 @@ class PD(Modality):
         'inf',
     ]
 
-    def __init__(
-            self, name="PD", parent=None, preload=True, timeOffset=0,
-            dataModality=None, releaseDataMemory=True, norms=['l2'],
-            timesteps=[1]):
+    def __init__(self, recording: Recording, preload: bool, 
+                path: Optional[Union[str, Path]]=None, parent: Optional['Modality']=None, 
+                time_offset: float=0, meta=None, 
+                release_data_memory: bool=True, norms: List[str]=['l2'],
+                timesteps: List[int]=[1]) -> None:
         """
         Build a Pixel Difference (PD) Modality       
 
@@ -129,15 +131,8 @@ class PD(Modality):
         timestep of 1 is used always.
         """
         # This allows the caller to be lazy.
-        if not timeOffset:
-            timeOffset = dataModality.timeOffset
-
-        super().__init__(name, parent=parent, preload=preload, timeOffset=timeOffset,
-                         dataModality=dataModality, releaseDataMemory=releaseDataMemory)
-
-        # This allows the caller to be lazy.
-        if not parent and dataModality:
-            self.parent = dataModality.parent
+        if not time_offset:
+            time_offset = parent.time_offset
 
         if all(norm in PD.acceptedNorms for norm in norms):
             self._norms = norms
@@ -151,24 +146,28 @@ class PD(Modality):
         else:
             ValueError("Negative or non-integer timestep in " + str(timesteps))
 
-        self._loggingBaseNotice = (self.parent.meta['basename']
-                                   + " " + self.parent.meta['prompt'])
+        self.release_data_memory = release_data_memory
 
-        if preload:
-            self._getData()
+        super().__init__(recording=recording, path=path, 
+                parent=parent, preload=preload, time_offset=time_offset)
 
-    def _getData(self):
+
+    def _derive_data(self) -> None:
         """
-        Calculate Pixel Difference (PD) on the DataModality.       
+        Calculate Pixel Difference (PD) on the data Modality parent.       
 
         If self._timesteps is a vector of positive integers, then calculate
         pd for each of those. NOTE! Changing timestep is not yet implemented.
         """
-        _pd_logger.info(self._loggingBaseNotice
-                        + ': Calculating PD on '
-                        + type(self.dataModality).__name__ + '.')
+        if self.recording.excluded:
+            print("trying to run pd on excluded recording: " + self.recording.path)
+            return
 
-        data = self.dataModality.data
+        _pd_logger.info(str(self.parent.path)
+                        + ': Calculating PD on '
+                        + type(self.parent).__name__ + '.')
+
+        data = self.parent.data
         result = {}
 
         # Hacky hack to recognise LipVideo data and change the timestep for it.
@@ -195,19 +194,19 @@ class PD(Modality):
 
             if timestep % 2 == 1:
                 self.timevector = (
-                    self.dataModality.timevector
+                    self.parent.timevector
                     [timestep // 2: -(timestep // 2 + 1)])
                 self.timevector = (
                     self.timevector
-                    + .5/self.dataModality.meta['FramesPerSec'])
+                    + .5/self.parent.sampling_rate)
             else:
                 self.timevector = (
-                    self.dataModality.timevector
+                    self.parent.timevector
                     [timestep//2:-timestep//2])
         else:
             raw_diff = np.diff(data, axis=0)
-            self.timevector = (self.dataModality.timevector[:-1]
-                               + .5/self.dataModality.meta['FramesPerSec'])
+            self._timevector = (self.parent.timevector[:-1]
+                               + .5/self.parent.sampling_rate)
 
         # Use this if we want to collapse e.g. rgb data without producing a
         # PD contour for each colour or channel.
@@ -239,13 +238,13 @@ class PD(Modality):
             np.sum(np.power(abs_diff, 10), axis=(1, 2)), .1)
         result['l_inf'] = np.max(abs_diff, axis=(1, 2))
 
-        _pd_logger.debug(self._loggingBaseNotice
+        _pd_logger.debug(str(self.recording.path)
                          + ': PD calculated.')
 
         self._data = result
 
-        if self.releaseDataMemory:
+        if self.release_data_memory:
             # Accessing the data modality's data causes it to be
             # loaded into memory. Keeping it there may cause memory
             # overflow. This releases the memory.
-            self.dataModality.data = None
+            self.parent.data = None

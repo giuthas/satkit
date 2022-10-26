@@ -280,7 +280,7 @@ class ThreeD_Ultrasound(Modality):
             Default is None.
         """
         super().__init__(name=name, parent=parent, preload=preload,
-                         timeOffset=timeOffset)
+                         time_offset=timeOffset)
 
         self.meta['filename'] = filename
 
@@ -611,7 +611,7 @@ class ThreeD_UltrasoundRecording(Recording):
         waveform = MonoAudio(
             parent=self,
             preload=wavPreload,
-            timeOffset=0,
+            time_offset=0,
             filename=self.meta['ult_wav_file']
         )
         self.addModality(MonoAudio.__name__, waveform)
@@ -645,7 +645,7 @@ class ThreeD_UltrasoundRecording(Recording):
             video = Video(
                 parent=self,
                 preload=videoPreload,
-                filename=self.meta['video_file'],
+                path=self.meta['video_file'],
                 meta=videoMeta
             )
             self.addModality(Video.__name__, video)

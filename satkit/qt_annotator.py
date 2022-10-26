@@ -297,7 +297,7 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
         wav = audio.data
         wav_time = (audio.timevector - stimulus_onset)
 
-        pd_metrics = self.current.modalities['PD on RawUltrasound']
+        pd_metrics = self.current.modalities['PD on raw ultrasound']
         ultra_time = pd_metrics.timevector - stimulus_onset
 
         #self.xlim = [ultra_time[0] - 0.05, ultra_time[-1]+0.05]

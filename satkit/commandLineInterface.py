@@ -160,6 +160,9 @@ class RawCLI(BaseCLI):
 
         # calculate the metrics
         for recording in self.recordings:
+            if recording.excluded:
+                continue
+
             for key in processing_functions:
                 (function, modalities) = processing_functions[key]
                 # TODO: Version 1.0: add a mechanism to change the arguments for different modalities.

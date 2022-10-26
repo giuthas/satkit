@@ -3,7 +3,7 @@ import logging
 import sys
 from contextlib import closing
 from pathlib import Path
-from typing import Optional, Union
+from typing import Optional, Tuple, Union
 
 # Numpy
 import numpy as np
@@ -33,9 +33,10 @@ class MonoAudio(Modality):
     mains_frequency = None
     filter = {}
 
-    def __init__(self, recording: Recording, preload: bool, name: str="mono audio",  
+
+    def __init__(self, recording: Recording, preload: bool,   
                 path: Optional[Union[str, Path]]=None, parent: Optional['Modality']=None, 
-                timeOffset: float=0, mains_frequency: float=50) -> None:
+                time_offset: float=0, mains_frequency: float=50) -> None:
         """
         Create a MonoAudio track.
 
@@ -52,16 +53,16 @@ class MonoAudio(Modality):
         timeOffset (s) -- the offset against the baseline audio track.
         """
         self.mains_frequency = mains_frequency
-        super().__init__(name=name, recording=recording, path=path, 
-                parent=parent, preload=preload, timeOffset=timeOffset)
+        super().__init__(recording=recording, path=path, 
+                parent=parent, preload=preload, time_offset=time_offset)
 
-        # If we do not have a filename, there is not much to init.
-        if self.path:
-            if preload:
-                self._get_data()
-            else:
-                self._data = None
-                self._timevector = None
+        # # If we do not have a filename, there is not much to init.
+        # if self.path:
+        #     if preload:
+        #         self._get_data()
+        #     else:
+        #         self._data = None
+        #         self._timevector = None
 
 
     def _load_data(self):
@@ -80,7 +81,6 @@ class MonoAudio(Modality):
             MonoAudio.mains_frequency = self.mains_frequency
             MonoAudio.filter = satkit_audio.high_pass(
                 wav_fs, self.mains_frequency)
-            print(str(MonoAudio.mains_frequency)+" yes")
 
         beep, has_speech = satkit_audio.detect_beep_and_speech(
             wav_frames, wav_fs, MonoAudio.filter['b'],
@@ -132,21 +132,17 @@ class RawUltrasound(Modality):
         'ZeroOffset'
     ]
 
-    def __init__(self, recording: Recording, preload: bool, name: str="raw ultrasound",  
+    def __init__(self, recording: Recording, preload: bool, 
                 path: Optional[Union[str, Path]]=None, parent: Optional['Modality']=None, 
-                timeOffset: float=0, meta: Optional[dict]=None) -> None:
+                time_offset: float=0, meta: Optional[dict]=None) -> None:
         """
         Create a RawUltrasound Modality.
-
 
         New keyword argument:
         meta -- a dict with (at least) the keys listed in 
             RawUltrasound.requiredMetaKeys. Extra keys will be ignored. 
             Default is None.
         """
-        super().__init__(name=name, recording=recording, path=path, 
-                parent=parent, preload=preload, timeOffset=timeOffset)
-
         # Explicitly copy meta data fields to ensure that we have what we expected to get.
         if meta != None:
             try:
@@ -164,19 +160,23 @@ class RawUltrasound(Modality):
                 _modalities_logger.critical('Exiting.')
                 sys.exit()
 
-            self.meta.update(wanted_meta)
+            print(wanted_meta)
+            self.meta = wanted_meta
 
-        if preload:
-            self._get_data()
-        else:
-            self._data = None
+        super().__init__(recording=recording, path=path, 
+                parent=parent, preload=preload, time_offset=time_offset)
+
+        # if preload:
+        #     self._get_data()
+        # else:
+        #     self._data = None
 
         # State variables for fast retrieval of previously tagged ultrasound frames.
         self._stored_index = None
         self._stored_image = None
 
-    def _get_data(self):
-        with closing(open(self.meta['filename'], 'rb')) as ult_file:
+    def _load_data(self) -> Tuple[np.ndarray, np.ndarray, float]:
+        with closing(open(self.path, 'rb')) as ult_file:
             ult_data = ult_file.read()
             ultra = np.fromstring(ult_data, dtype=np.uint8)
             ultra = ultra.astype("float32")
@@ -184,7 +184,7 @@ class RawUltrasound(Modality):
             self.meta['no_frames'] = int(
                 len(ultra) /
                 (self.meta['NumVectors'] * self.meta['PixPerVector']))
-            self._data = ultra.reshape(
+            data = ultra.reshape(
                 (self.meta['no_frames'],
                  self.meta['NumVectors'],
                  self.meta['PixPerVector']))
@@ -193,36 +193,20 @@ class RawUltrasound(Modality):
                 0, self.meta['no_frames'],
                 num=self.meta['no_frames'],
                 endpoint=False)
-            self.timevector = ultra_time / \
+            timevector = ultra_time / \
                 self.meta['FramesPerSec'] + self.time_offset
             # this should be added for PD and similar time vectors: + .5/self.meta['framesPerSec']
             # while at the same time dropping a suitable number of timestamps
 
+        return (data, timevector, self.meta['FramesPerSec'])
+
     @property
-    def data(self):
+    def data(self) -> np.ndarray:
         return super().data
 
-    # TODO: before 1.0 this should already be handled by Modality.
-    # @data.setter
-    # def data(self, data):
-    #     """
-    #     Data setter method.
-
-    #     Assigning anything but None or a numpy ndarray with matching
-    #     dtype, size, and shape has not been implemented yet and will
-    #     raise a NotImplementedError.
-    #     """
-    #     if self.data is not None:
-    #         if (isinstance(data, np.ndarray) and data.dtype == self._data.dtype and 
-    #             data.size == self._data.size and data.shape == self._data.shape):
-    #             self._data = data
-    #         else:
-    #             raise NotImplementedError(
-    #                 "Writing over raw ultrasound data with data that is not a numpy ndarray or " +
-    #                 "a numpy array that has non-matching dtype, size, or shape has not been " +
-    #                 "implemented yet.")
-    #     else:
-    #         self._data = data
+    @data.setter
+    def data(self, data) -> None:
+        super()._data_setter(data)
 
     def interpolated_image(self, index):
         """
@@ -264,21 +248,19 @@ class Video(Modality):
         'FramesPerSec'
     ]
 
-    def __init__(
-            self, name="lip video", parent=None, preload=False,
-            timeOffset=0, filename=None, meta=None):
+    def __init__(self, recording: Recording, preload: bool, 
+                path: Optional[Union[str, Path]]=None, parent: Optional['Modality']=None, 
+                time_offset: float=0, meta=None) -> None: 
         """
         New keyword arguments:
-        filename -- the name of a .ult file containing raw ultrasound 
-            data. Default is None.
         meta -- a dict with (at least) the keys listed in 
             RawUltrasound.requiredMetaKeys. Extra keys will be ignored. 
             Default is None.
         """
-        super().__init__(name=name, parent=parent, preload=preload,
-                         timeOffset=timeOffset)
+        super().__init__(recording=recording, path=path, 
+                parent=parent, preload=preload, time_offset=time_offset)
 
-        self.meta['filename'] = filename
+        self.meta['filename'] = path
 
         # Explicitly copy meta data fields to ensure that we have what we expected to get.
         if meta != None:
@@ -299,7 +281,7 @@ class Video(Modality):
 
             self.meta.update(wanted_meta)
 
-        if filename and preload:
+        if path and preload:
             self._getData()
         else:
             self._data = None

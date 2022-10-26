@@ -99,7 +99,8 @@ def add_aaa_raw_ultrasound(recording: Recording, preload: bool,
     # accidentally rely on setting that to alter the timeoffset of the
     # ultrasound data in the Recording. This throws KeyError if the meta
     # file didn't contain TimeInSecsOfFirstFrame.
-
+    print(recording.basename)
+    print(meta)
     if ult_file.is_file():
         ultrasound = RawUltrasound(
             recording=recording,
@@ -110,6 +111,7 @@ def add_aaa_raw_ultrasound(recording: Recording, preload: bool,
             meta=meta
         )
         recording.add_modality(ultrasound)
+        print(recording.modalities['RawUltrasound'].meta)
         _AAA_raw_ultrsound_logger.debug(
             "Added RawUltrasound to Recording representing %s.",
             recording.path.name)

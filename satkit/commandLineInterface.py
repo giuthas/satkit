@@ -171,7 +171,7 @@ class RawCLI(BaseCLI):
                         recording,
                         modality,
                         preload=True,
-                        releaseDataMemory=True)
+                        release_data_memory=True)
 
         # save before plotting just in case.
         if self.args.output_filename:

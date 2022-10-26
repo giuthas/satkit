@@ -173,6 +173,7 @@ class Recording:
             be replaced.
         """
         name = modality.name
+
         if name in self.modalities.keys() and not replace:
             raise AttributeError(
                 "A modality named " + name +
@@ -208,9 +209,6 @@ class Modality(abc.ABC):
             is an underived data Modality.
         timeOffset (s) -- the offset against the baseline audio track.
         """
-
-        # use self.recording.meta[key] to set recording metadata
-        self.meta = {}
 
         if isinstance(path, Path):
             self.path = path

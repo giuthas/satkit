@@ -292,12 +292,12 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
         self.ax1.axes.xaxis.set_ticklabels([])
 
         print(self.current.modalities)
-        audio = self.current.modalities['mono audio']
+        audio = self.current.modalities['MonoAudio']
         stimulus_onset = audio.stimulus_onset
         wav = audio.data
         wav_time = (audio.timevector - stimulus_onset)
 
-        pd_metrics = self.current.modalities['PD on raw ultrasound']
+        pd_metrics = self.current.modalities['PD on RawUltrasound']
         ultra_time = pd_metrics.timevector - stimulus_onset
 
         #self.xlim = [ultra_time[0] - 0.05, ultra_time[-1]+0.05]

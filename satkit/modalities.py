@@ -2,6 +2,7 @@
 import logging
 import sys
 from contextlib import closing
+from copy import deepcopy
 from pathlib import Path
 from typing import Optional, Tuple, Union
 
@@ -148,6 +149,7 @@ class RawUltrasound(Modality):
             try:
                 wanted_meta = {key: meta[key]
                                for key in RawUltrasound.requiredMetaKeys}
+                self.meta = deepcopy(wanted_meta)
             except KeyError:
                 # Missing metadata for one recording may be ok and this could be handled with just
                 # a call to _recording_logger.critical and setting self.excluded = True
@@ -159,9 +161,6 @@ class RawUltrasound(Modality):
                     "Could not find %s.", str(notFound))
                 _modalities_logger.critical('Exiting.')
                 sys.exit()
-
-            print(wanted_meta)
-            self.meta = wanted_meta
 
         super().__init__(recording=recording, path=path, 
                 parent=parent, preload=preload, time_offset=time_offset)

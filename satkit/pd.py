@@ -32,7 +32,7 @@
 # Built in packages
 import logging
 from pathlib import Path
-from typing import List, Optional, Union
+from typing import List, Optional, Tuple, Union
 
 # Numpy and scipy
 import numpy as np
@@ -43,10 +43,10 @@ from satkit.data_structures import Modality, Recording
 _pd_logger = logging.getLogger('satkit.pd')
 
 
-def addPD(recording,
+def addPD(recording: Recording,
           modality,
-          preload=True,
-          releaseDataMemory=True):
+          preload: bool=True,
+          release_data_memory: bool=True):
     """
     Calculate PD on dataModality and add it to recording.
 
@@ -63,9 +63,10 @@ def addPD(recording,
         to False, if you know that you have enough memory to hold all 
         of the data in RAM.
     """
+    #modality = recording.modalities[modality_name]
     # Name of the new modality is constructed from the type names of
     # PD and the data modality.
-    pd_name = PD.__name__ + ' on ' + modality.__name__
+    pd_name = 'PD on ' + modality.__name__
     if recording.excluded:
         _pd_logger.info(
             "Recording " + recording.basename
@@ -80,10 +81,10 @@ def addPD(recording,
             "' not found in recording: " + recording.basename + '.')
     else:
         dataModality = recording.modalities[modality.__name__]
-
+        print(dataModality.data)
         pd = PD(recording=recording, preload=preload,
-                parent=dataModality, release_data_memory=releaseDataMemory)
-        recording.addModality(pd_name, pd)
+                parent=dataModality, release_data_memory=release_data_memory)
+        recording.addModality(pd, name=pd_name)
         _pd_logger.info(
             "Added '" + pd_name +
             "' to recording: " + recording.basename + '.')
@@ -152,7 +153,7 @@ class PD(Modality):
                 parent=parent, preload=preload, time_offset=time_offset)
 
 
-    def _derive_data(self) -> None:
+    def _derive_data(self) -> Tuple[np.ndarray, np.ndarray, float]:
         """
         Calculate Pixel Difference (PD) on the data Modality parent.       
 

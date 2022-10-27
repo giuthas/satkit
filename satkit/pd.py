@@ -249,3 +249,19 @@ class PD(Modality):
             # loaded into memory. Keeping it there may cause memory
             # overflow. This releases the memory.
             self.parent.data = None
+
+    @property
+    def name(self) -> str:
+        """
+        Identity, metric, and parent data class.
+        
+        The name will be of the form
+        'PD [metric name] on [data modality class name]'.
+
+        This overrides the default behaviour of Modality.name.
+        """
+        name = self.__class__.__name__ + " " + self.metric
+        if self.parent:
+            name = name + " on " + self.parent.__class__.__name__
+        return name
+

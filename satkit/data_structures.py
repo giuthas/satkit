@@ -35,7 +35,7 @@ import logging
 from dataclasses import dataclass
 from datetime import datetime
 from pathlib import Path
-from typing import Optional, Tuple, Union
+from typing import Callable, Optional, Tuple, Union
 
 # Numerical arrays and more
 import numpy as np
@@ -52,6 +52,15 @@ class RecordingMetaData:
     participant_id: str
     # should this include basename, textgrid_path, path?
 
+@dataclass
+class ModalityData:
+    """Data passed from ModalityGenerator to Modality."""
+    preload: bool
+    path: Path
+    data: Optional[np.ndarray]
+    sampling_rate: Optional[int]
+    timevector: Optional[np.ndarray]
+    time_offset: Optional[int]=0
 
 class Recording:
     """
@@ -66,8 +75,12 @@ class Recording:
     to self.meta['textgrid'] that are necessary.
     """
 
-    def __init__(self, meta_data: RecordingMetaData, excluded: bool=False, path: Optional[Union[str, Path]]=None, 
-                basename: str="", textgrid_path: Union[str, Path]="") -> None:
+    def __init__(self, 
+                meta_data: RecordingMetaData, 
+                excluded: bool=False, 
+                path: Optional[Union[str, Path]]=None, 
+                basename: str="", 
+                textgrid_path: Union[str, Path]="") -> None:
         """"""
         self.excluded = excluded
 
@@ -191,59 +204,51 @@ class Modality(abc.ABC):
     Abstract superclass for all data Modality classes.
     """
 
-    def __init__(self, recording: Recording, preload: bool, 
-                path: Optional[Union[str, Path]]=None, parent: Optional['Modality']=None, 
-                time_offset: float=0) -> None:
+    def __init__(self, 
+                recording: Recording, 
+                parsed_data: ModalityData,
+                dataloader: Optional[Callable],
+                parent: Optional['Modality']=None) -> None:
         """
         Modality constructor.
 
         Positional arguments:
-        name -- string specifying the name of this Modality. The name 
-            should be unique in the containing Recording.
         recording -- the containing Recording.
-        preload -- a boolean indicating if this instance reads the 
-            data from disc on construction or only when needed.
+        parsed_data -- a ModalityData object containing parsed data 
+            that's been either read from file, loaded from file 
+            (previously saved by SATKIT), or calculated from another modality.
 
         Keyword arguments:
         parent -- the Modality this one was derived from. None means this 
             is an underived data Modality.
-        timeOffset (s) -- the offset against the baseline audio track.
         """
-
-        if isinstance(path, Path):
-            self.path = path
-        elif isinstance(path, str):
-            self.path = Path(path)
-        else:
-            self.path = None
-
         self.recording = recording
+
+        if isinstance(parsed_data, ModalityData):
+            self.preload = parsed_data.preload
+            self._data = parsed_data.data
+            self._sampling_rate = parsed_data.sampling_rate
+            self._timevector = parsed_data.timevector
+            if self._timevector:
+                self._time_offset = self._timevector[0]
+            else:
+                self._time_offset = parsed_data.time_offset
+            self.path = parsed_data.path
+
         self.parent = parent
+        self._load_data = dataloader
 
-        # This is a property which when set to True will also set parent.excluded to True.
+        # This is a property which when set to True will also set 
+        # parent.excluded to True.
         self.excluded = False
-
-        self.preload = preload
-        # TODO: see if time_offset is being set/used correctly here. 
-        # it might need to be passed to get_data
-        self._time_offset = time_offset
-
-        # data
-        if self.preload and not self.recording.excluded:
-            self._data, self._timevector, self._sampling_rate = self._get_data()
-            self._time_offset = self._timevector[0]
-        else:
-            self._data = None
-            self._timevector = None
-            self._sampling_rate = None
 
     def _get_data(self) -> Tuple[np.ndarray, np.ndarray, float]:
         # TODO: Provide a way to force the data to be derived. 
         # this would be used when parent modality has updated in some way
         if self.path:
-            return self._load_data()
+            return self._load_data(self)
         elif self.parent:
-            return self._derive_data()
+            return self._derive_data(self)
         else:
             # TODO: change this into a suitable raise Error/Exception clause instead.
             print("Asked to get data but have no path and no parent Modality.\n" + 
@@ -368,6 +373,9 @@ class Modality(abc.ABC):
         This will be just the class name if this is a data Modality instance.
         For derived Modalities the name will be of the form
         '[own class name] on [data modality class name]'.
+
+        Subclasses may override this behaviour to, for example, include
+        the metric used in the name.
         """
         name = self.__class__.__name__
         if self.parent:

@@ -242,10 +242,10 @@ class Modality(abc.ABC):
             self._data = parsed_data.data
             self._sampling_rate = parsed_data.sampling_rate
             self._timevector = parsed_data.timevector
-            if self._timevector:
-                self._time_offset = self._timevector[0]
-            else:
+            if self._timevector is None:
                 self._time_offset = parsed_data.time_offset
+            else:
+                self._time_offset = self._timevector[0]
         else:
             self._data = None
             self._sampling_rate = None

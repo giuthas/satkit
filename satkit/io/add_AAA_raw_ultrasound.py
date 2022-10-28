@@ -5,7 +5,7 @@ from math import inf
 from pathlib import Path
 from typing import Optional, Union
 
-from data_structures import Recording, RecordingMetaData
+from data_structures import ModalityData, Recording, RecordingMetaData
 from modalities import RawUltrasound
 
 _AAA_raw_ultrsound_logger = logging.getLogger('satkit.AAA_raw_ultrasound')
@@ -89,32 +89,35 @@ def add_aaa_raw_ultrasound(recording: Recording, preload: bool,
     ult_time_offset = -inf
     if meta_file.is_file():
         meta = parse_ultrasound_meta_aaa(meta_file)
+        # We pop the timeoffset from the meta dict so that people will not
+        # accidentally rely on setting that to alter the timeoffset of the
+        # ultrasound data in the Recording. This throws KeyError if the meta
+        # file didn't contain TimeInSecsOfFirstFrame.
         ult_time_offset = meta.pop('TimeInSecsOfFirstFrame')
     else:
         notice = 'Note: ' + str(meta_file) + " does not exist. Excluding."
         _AAA_raw_ultrsound_logger.warning(notice)
         recording.exclude()
 
-    # We pop the timeoffset from the meta dict so that people will not
-    # accidentally rely on setting that to alter the timeoffset of the
-    # ultrasound data in the Recording. This throws KeyError if the meta
-    # file didn't contain TimeInSecsOfFirstFrame.
-    print(recording.basename)
-    print(meta)
+    _AAA_raw_ultrsound_logger.debug(
+            "Trying to read RawUltrasound for Recording representing %s.",
+            recording.basename)
+    _AAA_raw_ultrsound_logger.debug("Current ultrasound meta looks like this: \n %s", 
+            meta)
+
     if ult_file.is_file():
+        data = ModalityData(time_offset=ult_time_offset)
         ultrasound = RawUltrasound(
             recording=recording,
-            preload=preload,
-            path=ult_file,
-            parent=None,
-            time_offset=ult_time_offset,
+            data_path=ult_file,
+            parsed_data=data,
             meta=meta
         )
         recording.add_modality(ultrasound)
         print(recording.modalities['RawUltrasound'].meta)
         _AAA_raw_ultrsound_logger.debug(
             "Added RawUltrasound to Recording representing %s.",
-            recording.path.name)
+            recording.basename)
     else:
         notice = 'Note: ' + str(ult_file) + " does not exist. Excluding."
         _AAA_raw_ultrsound_logger.warning(notice)

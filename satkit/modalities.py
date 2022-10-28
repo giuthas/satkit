@@ -8,13 +8,11 @@ from typing import Optional, Tuple, Union
 
 # Numpy
 import numpy as np
-# wav file handling
-import scipy.io.wavfile as sio_wavfile
 # scikit-video for io and processing of video data.
 import skvideo.io
 
 # local modules
-import satkit.audio_processing as satkit_audio
+import satkit.formats as formats
 from data_structures import Modality, ModalityData, Recording
 from satkit.interpolate_raw_uti import to_fan_2d
 
@@ -41,7 +39,6 @@ class MonoAudio(Modality):
                 load_path: Optional[Path]=None,
                 parent: Optional[Modality]=None,
                 parsed_data: Optional[ModalityData]=None,
-                mains_frequency: float=50
                 ) -> None:
         """
         Create a MonoAudio track.
@@ -58,7 +55,6 @@ class MonoAudio(Modality):
             is an underived data Modality.
         timeOffset (s) -- the offset against the baseline audio track.
         """
-        self.mains_frequency = mains_frequency
         super().__init__(
                 recording, 
                 data_path,
@@ -81,32 +77,10 @@ class MonoAudio(Modality):
 
         Setting self.isPreloaded = True results in a call to this method.
         """
-        (wav_fs, wav_frames) = sio_wavfile.read(self.data_path)
-        # self.sampling_rate = wav_fs
-        # self._data = wav_frames
-
-        # setup the high-pass filter for removing the mains frequency (and anything below it)
-        # from the recorded sound.
-        if not MonoAudio.filter:
-            MonoAudio.mains_frequency = self.mains_frequency
-            MonoAudio.filter = satkit_audio.high_pass(
-                wav_fs, self.mains_frequency)
-
-        beep, has_speech = satkit_audio.detect_beep_and_speech(
-            wav_frames, wav_fs, MonoAudio.filter['b'],
-            MonoAudio.filter['a'],
-            self.data_path)
-
-        # before v1.0: this is a bad name for the beep: 1) this is an AAA thing,
-        # 2) the recording might not be UTI
-        self.stimulus_onset = beep
+        parsed_data, go_signal, has_speech = formats.read_wav(self.data_path)
+        self.go_signal = go_signal
         self.has_speech = has_speech
-
-        timevector = np.linspace(0, len(wav_frames),
-                                       len(wav_frames),
-                                       endpoint=False)
-        timevector = timevector/wav_fs + self._time_offset
-        return wav_frames, timevector, wav_fs
+        return parsed_data
 
     @property
     def data(self):

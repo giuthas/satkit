@@ -39,10 +39,10 @@ from typing import Optional
 from modalities import MonoAudio
 # Local packages
 from satkit.data_structures import Recording
-from satkit.io.AAA_raw_ultrasound import (add_aaa_raw_ultrasound,
-                                          parse_aaa_promptfile)
-from satkit.io.AAA_video import add_aaa_video
-from satkit.io.generic_io import add_audio
+from satkit.io.add_AAA_raw_ultrasound import (add_aaa_raw_ultrasound,
+                                              parse_aaa_promptfile)
+from satkit.io.add_AAA_video import add_aaa_video
+from satkit.io.add_audio import add_audio
 
 _AAA_logger = logging.getLogger('satkit.AAA')
 

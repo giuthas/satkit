@@ -22,7 +22,9 @@ def add_audio(recording: Recording, preload: bool,
             waveform = MonoAudio(
                 recording=recording,
                 data_path=ult_wav_file,
-                parsed_data = data
+                parsed_data = data, 
+                go_signal=go_signal, 
+                has_speech=has_speech
             )
             recording.add_modality(waveform)
         else:

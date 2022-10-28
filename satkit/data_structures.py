@@ -54,7 +54,12 @@ class RecordingMetaData:
 
 @dataclass
 class ModalityData:
-    """Data passed from Modality generation into Modality."""
+    """
+    Data passed from Modality generation into Modality.
+    
+    None of the fields are optional. This class represents already
+    loaded data.
+    """
     data: np.ndarray
     sampling_rate: int
     timevector: np.ndarray

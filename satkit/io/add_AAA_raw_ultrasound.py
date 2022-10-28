@@ -106,15 +106,19 @@ def add_aaa_raw_ultrasound(recording: Recording, preload: bool,
             meta)
 
     if ult_file.is_file():
-        data = ModalityData(time_offset=ult_time_offset)
-        ultrasound = RawUltrasound(
-            recording=recording,
-            data_path=ult_file,
-            parsed_data=data,
-            meta=meta
-        )
-        recording.add_modality(ultrasound)
-        print(recording.modalities['RawUltrasound'].meta)
+        if preload:
+            raise NotImplementedError("It looks like SATKIT is trying " 
+                + "to preload ultrasound data. This may lead to Python's " 
+                + "memory running out or the whole computer crashing.")
+        else:
+            ultrasound = RawUltrasound(
+                recording=recording,
+                data_path=ult_file,
+                time_offset=ult_time_offset,
+                meta=meta
+            )
+            recording.add_modality(ultrasound)
+
         _AAA_raw_ultrsound_logger.debug(
             "Added RawUltrasound to Recording representing %s.",
             recording.basename)

@@ -15,7 +15,7 @@ import skvideo.io
 
 # local modules
 import satkit.audio_processing as satkit_audio
-from data_structures import Modality, Recording
+from data_structures import Modality, ModalityData, Recording
 from satkit.interpolate_raw_uti import to_fan_2d
 
 _modalities_logger = logging.getLogger('satkit.modalities')
@@ -35,9 +35,14 @@ class MonoAudio(Modality):
     filter = {}
 
 
-    def __init__(self, recording: Recording, preload: bool,   
-                path: Optional[Union[str, Path]]=None, parent: Optional['Modality']=None, 
-                time_offset: float=0, mains_frequency: float=50) -> None:
+    def __init__(self, 
+                recording: Recording, 
+                data_path: Optional[Path]=None,
+                load_path: Optional[Path]=None,
+                parent: Optional[Modality]=None,
+                parsed_data: Optional[ModalityData]=None,
+                mains_frequency: float=50
+                ) -> None:
         """
         Create a MonoAudio track.
 
@@ -54,8 +59,12 @@ class MonoAudio(Modality):
         timeOffset (s) -- the offset against the baseline audio track.
         """
         self.mains_frequency = mains_frequency
-        super().__init__(recording=recording, path=path, 
-                parent=parent, preload=preload, time_offset=time_offset)
+        super().__init__(
+                recording, 
+                data_path,
+                load_path,
+                parent,
+                parsed_data)
 
         # # If we do not have a filename, there is not much to init.
         # if self.path:

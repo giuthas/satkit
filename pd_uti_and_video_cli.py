@@ -44,7 +44,7 @@ from satkit import pd
 
 def main():
     # Run the command line interface.
-    function_dict = {'PD': (pd.addPD, [RawUltrasound, Video])}
+    function_dict = {'PD': (pd.add_pd, [RawUltrasound, Video])}
     RawAndVideoCLI(
         "PD processing script for raw ultrasound and videos", function_dict)
 

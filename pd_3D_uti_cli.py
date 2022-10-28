@@ -43,7 +43,7 @@ from satkit import pd
 
 def main():
     # Run the command line interface.
-    function_dict = {'PD': (pd.addPD, [ThreeD_Ultrasound])}
+    function_dict = {'PD': (pd.add_pd, [ThreeD_Ultrasound])}
     Raw3D_CLI(
         "PD processing script for raw 3D4D ultrasound", function_dict)
 

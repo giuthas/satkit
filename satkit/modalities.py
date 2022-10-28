@@ -1,7 +1,6 @@
 
 import logging
 import sys
-from contextlib import closing
 from copy import deepcopy
 from pathlib import Path
 from typing import Optional, Tuple, Union
@@ -12,8 +11,8 @@ import numpy as np
 import skvideo.io
 
 # local modules
-import satkit.formats as formats
 from data_structures import Modality, ModalityData, Recording
+from satkit.formats import read_avi, read_ult, read_wav
 from satkit.interpolate_raw_uti import to_fan_2d
 
 _modalities_logger = logging.getLogger('satkit.modalities')
@@ -29,8 +28,8 @@ class MonoAudio(Modality):
 
     # Mains electricity frequency and filter coefficients for removing
     # it from audio with a highpass filter.
-    mains_frequency = None
-    filter = {}
+    # mains_frequency = None
+    # filter = {}
 
 
     def __init__(self, 
@@ -39,21 +38,27 @@ class MonoAudio(Modality):
                 load_path: Optional[Path]=None,
                 parent: Optional[Modality]=None,
                 parsed_data: Optional[ModalityData]=None,
-                ) -> None:
+                go_signal: Optional[float] = None, 
+                has_speech: Optional[bool] = None) -> None:
         """
         Create a MonoAudio track.
 
         Positional arguments:
-        name -- string specifying the name of this Modality. The name 
-            should be unique in the containing Recording.
-        recording -- the containing Recording.
-        preload -- a boolean indicating if this instance reads the 
-            data from disc on construction or only when needed.
+        recording -- the containing Recording.        
 
         Keyword arguments:
+        data_path -- path of the wav file
+        load_path -- path of the saved data - both wav and metadata
         parent -- the Modality this one was derived from. None means this 
             is an underived data Modality.
-        timeOffset (s) -- the offset against the baseline audio track.
+        parsed_data -- ModalityData object containing waveform, sampling rate,
+            and either timevector and/or time_offset. Providing a timevector 
+            overrides any time_offset value given, but in absence of a 
+            timevector the time_offset will be applied on reading the data 
+            from file. 
+        go_signal -- time of the go_signal in seconds from start of recording.
+        has_speech -- True if the heuristic algorithm thinks there is speech 
+            audio in the sample.
         """
         super().__init__(
                 recording, 
@@ -62,31 +67,33 @@ class MonoAudio(Modality):
                 parent,
                 parsed_data)
 
-        # # If we do not have a filename, there is not much to init.
-        # if self.path:
-        #     if preload:
-        #         self._get_data()
-        #     else:
-        #         self._data = None
-        #         self._timevector = None
-
+        self.go_signal = go_signal
+        self.has_speech = has_speech
 
     def _read_data(self):
         """
-        Helper for loading data, detecting beep and generating the timevector.
-
-        Setting self.isPreloaded = True results in a call to this method.
+        Call io functions to read wav data, and detecting go-signal & speech.
         """
-        parsed_data, go_signal, has_speech = formats.read_wav(self.data_path)
+        parsed_data, go_signal, has_speech = read_wav(self.data_path)
         self.go_signal = go_signal
         self.has_speech = has_speech
         return parsed_data
 
-    @property
-    def data(self):
-        return super().data
+    # TODO: uncomment and implement when implementing the save features.
+    # def _load_data(self):
+        # """
+        # Call io functions to load wav data, and any wav related meta saved with it.
+
+        # The wav data itself is just the original file, but along that a metadata
+        # save file will be read as well to recover any go-signal or speech detection
+        # results.
+        # """
 
     # TODO: before 1.0 this should already be handled by Modality.
+    # @property
+    # def data(self):
+    #     return super().data
+
     # # before v1.0: check that the data is actually valid, also call the beep detect etc. routines on it.
     # @data.setter
     # def data(self, data):
@@ -116,13 +123,30 @@ class RawUltrasound(Modality):
         'ZeroOffset'
     ]
 
-    def __init__(self, recording: Recording, preload: bool, 
-                path: Optional[Union[str, Path]]=None, parent: Optional['Modality']=None, 
-                time_offset: float=0, meta: Optional[dict]=None) -> None:
+    def __init__(self, 
+                recording: Recording, 
+                data_path: Optional[Path]=None,
+                load_path: Optional[Path]=None,
+                parent: Optional[Modality]=None,
+                parsed_data: Optional[ModalityData]=None,
+                meta: Optional[dict]=None 
+                ) -> None:
         """
         Create a RawUltrasound Modality.
 
-        New keyword argument:
+        Positional arguments:
+        recording -- the containing Recording.        
+
+        Keyword arguments:
+        data_path -- path of the ultrasound file
+        load_path -- path of the saved data - both ultrasound and metadata
+        parent -- the Modality this one was derived from. None means this 
+            is an underived data Modality.
+        parsed_data -- ModalityData object containing raw ultrasound, sampling rate,
+            and either timevector and/or time_offset. Providing a timevector 
+            overrides any time_offset value given, but in absence of a 
+            timevector the time_offset will be applied on reading the data 
+            from file. 
         meta -- a dict with (at least) the keys listed in 
             RawUltrasound.requiredMetaKeys. Extra keys will be ignored. 
             Default is None.
@@ -145,42 +169,22 @@ class RawUltrasound(Modality):
                 _modalities_logger.critical('Exiting.')
                 sys.exit()
 
-        super().__init__(recording=recording, path=path, 
-                parent=parent, preload=preload, time_offset=time_offset)
+        # Initialise super only after ensuring meta is correct,
+        # because latter may already end the run.
+        super().__init__(
+                recording, 
+                data_path,
+                load_path,
+                parent,
+                parsed_data)
 
-        # if preload:
-        #     self._get_data()
-        # else:
-        #     self._data = None
-
+        # TODO: these are related to GUI and should really be in a decorator class and not here.
         # State variables for fast retrieval of previously tagged ultrasound frames.
         self._stored_index = None
         self._stored_image = None
 
     def _read_data(self) -> Tuple[np.ndarray, np.ndarray, float]:
-        with closing(open(self.data_path, 'rb')) as ult_file:
-            ult_data = ult_file.read()
-            ultra = np.fromstring(ult_data, dtype=np.uint8)
-            ultra = ultra.astype("float32")
-
-            self.meta['no_frames'] = int(
-                len(ultra) /
-                (self.meta['NumVectors'] * self.meta['PixPerVector']))
-            data = ultra.reshape(
-                (self.meta['no_frames'],
-                 self.meta['NumVectors'],
-                 self.meta['PixPerVector']))
-
-            ultra_time = np.linspace(
-                0, self.meta['no_frames'],
-                num=self.meta['no_frames'],
-                endpoint=False)
-            timevector = ultra_time / \
-                self.meta['FramesPerSec'] + self.time_offset
-            # this should be added for PD and similar time vectors: + .5/self.meta['framesPerSec']
-            # while at the same time dropping a suitable number of timestamps
-
-        return (data, timevector, self.meta['FramesPerSec'])
+        return read_ult(self.data_path, self.meta, self._time_offset)
 
     @property
     def data(self) -> np.ndarray:
@@ -222,28 +226,38 @@ class Video(Modality):
     Ultrasound Recording with raw (probe return) data.    
     """
 
-    # Before 1.0: Figure out how to move this to MatrixData
-    # and how to extend it when necessary. Practically whole of
-    # __init__ is shared with RawUltrasound and so should be in MatrixData
-    # instead of here. Only _getData and data.setter's message change.
     requiredMetaKeys = [
         'FramesPerSec'
     ]
 
-    def __init__(self, recording: Recording, preload: bool, 
-                path: Optional[Union[str, Path]]=None, parent: Optional['Modality']=None, 
-                time_offset: float=0, meta=None) -> None: 
+    def __init__(self, 
+                recording: Recording, 
+                data_path: Optional[Path]=None,
+                load_path: Optional[Path]=None,
+                parent: Optional[Modality]=None,
+                parsed_data: Optional[ModalityData]=None,
+                meta: Optional[dict]=None 
+                ) -> None:
         """
-        New keyword arguments:
+        Create a RawUltrasound Modality.
+
+        Positional arguments:
+        recording -- the containing Recording.        
+
+        Keyword arguments:
+        data_path -- path of the ultrasound file
+        load_path -- path of the saved data - both ultrasound and metadata
+        parent -- the Modality this one was derived from. None means this 
+            is an underived data Modality.
+        parsed_data -- ModalityData object containing raw ultrasound, sampling rate,
+            and either timevector and/or time_offset. Providing a timevector 
+            overrides any time_offset value given, but in absence of a 
+            timevector the time_offset will be applied on reading the data 
+            from file. 
         meta -- a dict with (at least) the keys listed in 
             RawUltrasound.requiredMetaKeys. Extra keys will be ignored. 
             Default is None.
         """
-        super().__init__(recording=recording, path=path, 
-                parent=parent, preload=preload, time_offset=time_offset)
-
-        self.meta['filename'] = path
-
         # Explicitly copy meta data fields to ensure that we have what we expected to get.
         if meta != None:
             try:
@@ -263,39 +277,22 @@ class Video(Modality):
 
             self.meta.update(wanted_meta)
 
-        if path and preload:
-            self._getData()
-        else:
-            self._data = None
+        super().__init__(
+                recording, 
+                data_path,
+                load_path,
+                parent,
+                parsed_data)
 
     def _getData(self):
-        # possibly try importing as grey scale
-        # videodata = skvideo.io.vread(self.meta['filename'])
-        self._data = skvideo.io.vread(self.meta['filename'])
+        return read_avi(self.data_path, self.meta, self._time_offset)
 
-        # TODO: Before 1.0: 'NumVectors' and 'PixPerVector' are bad names here.
-        # They come from the AAA ultrasound side of things and should be
-        # replaced, but haven't been yet as I'm in a hurry to get PD
-        # running on videos.
-        self.meta['no_frames'] = self.data.shape[0]
-        self.meta['NumVectors'] = self.data.shape[1]
-        self.meta['PixPerVector'] = self.data.shape[2]
-        video_time = np.linspace(
-            0, self.meta['no_frames'],
-            num=self.meta['no_frames'],
-            endpoint=False)
-        self.timevector = video_time / \
-            self.meta['FramesPerSec'] + self.timeOffset
-        # this should be added for PD and similar time vectors:
-        # + .5/self.meta['framesPerSec']
-        # while at the same time dropping a suitable number
-        # (most likely = timestep) of timestamps
 
-    @property
-    def data(self):
-        return super().data
+    # TODO: Handled by Modality already. May need to call super to make it work though.
+    # @property
+    # def data(self):
+    #     return super().data
 
-    # Handled by Modality already. May need to call super to make it work though.
     # # before v1.0: check that the data is actually valid, also call the beep 
     # # detect etc. routines on it.
     # @data.setter

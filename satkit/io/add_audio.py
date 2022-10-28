@@ -2,8 +2,8 @@ import logging
 from pathlib import Path
 from typing import Optional
 
-import formats
 from data_structures import Recording
+from formats import read_wav
 from modalities import MonoAudio
 
 _generic_io_logger = logging.getLogger('satkit.data_structures')
@@ -18,7 +18,7 @@ def add_audio(recording: Recording, preload: bool,
 
     if ult_wav_file.is_file():
         if preload:
-            data, go_signal, has_speech = formats.wavread(ult_wav_file, detect_beep=True)
+            data, go_signal, has_speech = read_wav(ult_wav_file, detect_beep=True)
             waveform = MonoAudio(
                 recording=recording,
                 data_path=ult_wav_file,

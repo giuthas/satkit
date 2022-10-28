@@ -70,9 +70,9 @@ class MainsFilter():
     mains_frequency = None
     mains_filter = None
 
-    def generate_mains_filter(mains_frequency: float):
+    def generate_mains_filter(sampling_frequency: float, mains_frequency: float):
         MainsFilter.mains_frequency = mains_frequency
-        MainsFilter.mains_filter = high_pass(mains_frequency)
+        MainsFilter.mains_filter = high_pass(sampling_frequency, mains_frequency)
             
 def detect_beep_and_speech(frames, sampling_frequency, b, a, name):
     """

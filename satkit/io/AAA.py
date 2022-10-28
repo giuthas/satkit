@@ -86,17 +86,18 @@ def generate_recording_list(directory: Path, config: Optional[dict]=None):
     Returns an array of Recording objects sorted by date and time
         of recording.
     """
-    if config and config['mains frequency']:
-        MainsFilter.generate_mains_filter(config['mains frequency'])
-    else:
-        MainsFilter.generate_mains_filter(50)
-    
 
     # this is equivalent with the following:
     # sorted(glob.glob(directory + '/.' +  '/*US.txt'))
     ult_meta_files = sorted(glob.glob(directory + '/*US.txt'))
     if len(ult_meta_files) == 0:
         ult_meta_files = sorted(glob.glob(directory + '/*.param'))
+
+    if config and config['mains frequency']:
+        MainsFilter.generate_mains_filter(44100, config['mains frequency'])
+    else:
+        MainsFilter.generate_mains_filter(44100, 50)
+    
 
     # this takes care of *.txt and *US.txt overlapping. Goal
     # here is to include also failed recordings with missing

@@ -36,8 +36,8 @@ import os
 from pathlib import Path
 from typing import Optional
 
-from modalities import MonoAudio
 # Local packages
+from satkit.audio_processing import MainsFilter
 from satkit.data_structures import Recording
 from satkit.io.add_AAA_raw_ultrasound import (add_aaa_raw_ultrasound,
                                               parse_aaa_promptfile)
@@ -56,7 +56,7 @@ _AAA_logger = logging.getLogger('satkit.AAA')
 # like the exclusion list and splines.
 #
 
-def generate_recording_list(directory: Path, config: Optional[dict]):
+def generate_recording_list(directory: Path, config: Optional[dict]=None):
     """
     Produce an array of Recordings from an AAA export directory.
 
@@ -87,9 +87,9 @@ def generate_recording_list(directory: Path, config: Optional[dict]):
         of recording.
     """
     if config and config['mains frequency']:
-        MonoAudio.generate_mains_filter(config['mains frequency'])
+        MainsFilter.generate_mains_filter(config['mains frequency'])
     else:
-        MonoAudio.generate_mains_filter(50)
+        MainsFilter.generate_mains_filter(50)
     
 
     # this is equivalent with the following:

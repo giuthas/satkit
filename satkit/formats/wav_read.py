@@ -1,5 +1,6 @@
 
 from pathlib import Path
+from typing import Optional, Tuple
 
 import numpy as np
 import satkit.audio_processing as satkit_audio
@@ -8,6 +9,7 @@ import scipy.io.wavfile as sio_wavfile
 from satkit.data_structures import ModalityData
 
 
+# TODO: break into two different functions: one that runs beep detection and one that doesn't.
 def read_wav(path: Path, detect_beep: bool=False):
     """
     Read wavfile from path.

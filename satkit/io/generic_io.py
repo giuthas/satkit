@@ -2,6 +2,7 @@ import logging
 from pathlib import Path
 from typing import Optional
 
+import formats
 from data_structures import Recording
 from modalities import MonoAudio
 
@@ -16,14 +17,20 @@ def add_audio(recording: Recording, preload: bool,
         ult_wav_file = path
 
     if ult_wav_file.is_file():
-        waveform = MonoAudio(
-            recording=recording,
-            preload=preload,
-            path= ult_wav_file,
-            parent=None,
-            time_offset=0
-        )
-        recording.add_modality(waveform)
+        if preload:
+            data, go_signal, has_speech = formats.wavread(ult_wav_file, detect_beep=True)
+            waveform = MonoAudio(
+                recording=recording,
+                data_path=ult_wav_file,
+                parsed_data = data
+            )
+            recording.add_modality(waveform)
+        else:
+            waveform = MonoAudio(
+                recording=recording,
+                data_path=ult_wav_file
+            )
+            recording.add_modality(waveform)
         _generic_io_logger.debug(
             "Added MonoAudio to Recording representing %s.",
             recording.path.name)

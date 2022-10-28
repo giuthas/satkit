@@ -273,7 +273,7 @@ class Video(Modality):
                 _modalities_logger.critical('Exiting.')
                 sys.exit()
 
-            self.meta.update(wanted_meta)
+            self.meta.deepcopy(wanted_meta)
 
         super().__init__(
                 recording, 

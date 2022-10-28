@@ -55,10 +55,9 @@ class RecordingMetaData:
 @dataclass
 class ModalityData:
     """Data passed from Modality generation into Modality."""
-    data: Optional[np.ndarray]=None
-    sampling_rate: Optional[int]=None
-    timevector: Optional[np.ndarray]=None
-    time_offset: Optional[int]=None
+    data: np.ndarray
+    sampling_rate: int
+    timevector: np.ndarray
 
 class MissingDataError(Exception):
     pass

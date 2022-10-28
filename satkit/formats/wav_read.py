@@ -40,8 +40,8 @@ def read_wav(path: Path, detect_beep: bool=False):
         go_signal, has_speech = satkit_audio.detect_beep_and_speech(
             wav_frames, 
             wav_fs, 
-            satkit_audio.MainsFilter.filter['b'],
-            satkit_audio.MainsFilter.filter['a'],
+            satkit_audio.MainsFilter.mains_filter['b'],
+            satkit_audio.MainsFilter.mains_filter['a'],
             path
         )
 

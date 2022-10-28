@@ -3,15 +3,13 @@ import logging
 import sys
 from copy import deepcopy
 from pathlib import Path
-from typing import Optional, Tuple, Union
+from typing import Optional, Tuple
 
 # Numpy
 import numpy as np
-# scikit-video for io and processing of video data.
-import skvideo.io
 
 # local modules
-from data_structures import Modality, ModalityData, Recording
+from satkit.data_structures import Modality, ModalityData, Recording
 from satkit.formats import read_avi, read_ult, read_wav
 from satkit.interpolate_raw_uti import to_fan_2d
 

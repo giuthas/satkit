@@ -36,6 +36,7 @@ class MonoAudio(Modality):
                 load_path: Optional[Path]=None,
                 parent: Optional[Modality]=None,
                 parsed_data: Optional[ModalityData]=None,
+                time_offset: Optional[float]=None,
                 go_signal: Optional[float] = None, 
                 has_speech: Optional[bool] = None) -> None:
         """
@@ -63,7 +64,8 @@ class MonoAudio(Modality):
                 data_path,
                 load_path,
                 parent,
-                parsed_data)
+                parsed_data,
+                time_offset)
 
         self.go_signal = go_signal
         self.has_speech = has_speech
@@ -127,6 +129,7 @@ class RawUltrasound(Modality):
                 load_path: Optional[Path]=None,
                 parent: Optional[Modality]=None,
                 parsed_data: Optional[ModalityData]=None,
+                time_offset: Optional[float]=None,
                 meta: Optional[dict]=None 
                 ) -> None:
         """
@@ -174,7 +177,8 @@ class RawUltrasound(Modality):
                 data_path,
                 load_path,
                 parent,
-                parsed_data)
+                parsed_data,
+                time_offset)
 
         # TODO: these are related to GUI and should really be in a decorator class and not here.
         # State variables for fast retrieval of previously tagged ultrasound frames.
@@ -234,6 +238,7 @@ class Video(Modality):
                 load_path: Optional[Path]=None,
                 parent: Optional[Modality]=None,
                 parsed_data: Optional[ModalityData]=None,
+                time_offset: Optional[float]=None,
                 meta: Optional[dict]=None 
                 ) -> None:
         """
@@ -280,7 +285,8 @@ class Video(Modality):
                 data_path,
                 load_path,
                 parent,
-                parsed_data)
+                parsed_data,
+                time_offset)
 
     def _getData(self):
         return read_avi(self.data_path, self.meta, self._time_offset)

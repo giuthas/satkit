@@ -54,11 +54,11 @@ class RecordingMetaData:
 
 @dataclass
 class ModalityData:
-    """Data passed from ModalityGenerator into Modality."""
-    data: np.ndarray
-    sampling_rate: int
-    timevector: np.ndarray
-    time_offset: int=0
+    """Data passed from Modality generation into Modality."""
+    data: Optional[np.ndarray]=None
+    sampling_rate: Optional[int]=None
+    timevector: Optional[np.ndarray]=None
+    time_offset: Optional[int]=None
 
 class MissingDataError(Exception):
     pass
@@ -82,7 +82,11 @@ class Recording:
                 path: Optional[Union[str, Path]]=None, 
                 basename: str="", 
                 textgrid_path: Union[str, Path]="") -> None:
-        """"""
+        """
+        Construct a recording.
+
+
+        """
         self.excluded = excluded
 
         if isinstance(path, Path):
@@ -210,7 +214,8 @@ class Modality(abc.ABC):
                 data_path: Optional[Path]=None,
                 load_path: Optional[Path]=None,
                 parent: Optional['Modality']=None,
-                parsed_data: Optional[ModalityData]=None
+                parsed_data: Optional[ModalityData]=None,
+                time_offset: Optional[float]=None
                 ) -> None:
         """
         Modality constructor.
@@ -232,6 +237,10 @@ class Modality(abc.ABC):
             overrides any time_offset value given, but in absence of a 
             timevector the time_offset will be applied on reading the data 
             from file. 
+        time_offset -- offset of this modality in relation to the Recordings
+            baseline - usually the audio track. This will be ignored if 
+            parsed_data exists and effectively overridden by 
+            parsed_data.timevector.
         """
         self.recording = recording
         self.data_path = data_path
@@ -243,7 +252,7 @@ class Modality(abc.ABC):
             self._sampling_rate = parsed_data.sampling_rate
             self._timevector = parsed_data.timevector
             if self._timevector is None:
-                self._time_offset = parsed_data.time_offset
+                self._time_offset = time_offset
             else:
                 self._time_offset = self._timevector[0]
         else:

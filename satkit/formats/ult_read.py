@@ -4,13 +4,9 @@ from pathlib import Path
 from typing import Tuple
 
 import numpy as np
-import satkit.audio_processing as satkit_audio
-# wav file handling
-import scipy.io.wavfile as sio_wavfile
-from satkit.data_structures import ModalityData
 
 
-def read_ult(path, meta, time_offset) -> Tuple[np.ndarray, np.ndarray, float]:
+def read_ult(path: Path, meta: dict, time_offset: float) -> Tuple[np.ndarray, np.ndarray, float]:
     """
     Read wavfile from path.
 

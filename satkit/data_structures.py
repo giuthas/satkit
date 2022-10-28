@@ -217,13 +217,21 @@ class Modality(abc.ABC):
 
         Positional arguments:
         recording -- the containing Recording.
+
+        Keyword arguments:
+        data_path -- path of the data file
+        load_path -- path of data when saved by SATKIT - both data and metadata
+        parent -- the Modality this one was derived from. None means this 
+            is an underived data Modality.
+        parsed_data -- ModalityData object containing waveform, sampling rate,
+            and either timevector and/or time_offset. 
         parsed_data -- a ModalityData object containing parsed data 
             that's been either read from file, loaded from file 
             (previously saved by SATKIT), or calculated from another modality.
-
-        Keyword arguments:
-        parent -- the Modality this one was derived from. None means this 
-            is an underived data Modality.
+            Providing a timevector 
+            overrides any time_offset value given, but in absence of a 
+            timevector the time_offset will be applied on reading the data 
+            from file. 
         """
         self.recording = recording
         self.data_path = data_path

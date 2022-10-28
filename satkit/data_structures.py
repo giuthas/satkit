@@ -35,7 +35,7 @@ import logging
 from dataclasses import dataclass
 from datetime import datetime
 from pathlib import Path
-from typing import Callable, Optional, Tuple, Union
+from typing import Optional, Tuple, Union
 
 # Numerical arrays and more
 import numpy as np
@@ -54,13 +54,14 @@ class RecordingMetaData:
 
 @dataclass
 class ModalityData:
-    """Data passed from ModalityGenerator to Modality."""
-    preload: bool
-    path: Path
-    data: Optional[np.ndarray]
-    sampling_rate: Optional[int]
-    timevector: Optional[np.ndarray]
-    time_offset: Optional[int]=0
+    """Data passed from ModalityGenerator into Modality."""
+    data: np.ndarray
+    sampling_rate: int
+    timevector: np.ndarray
+    time_offset: int=0
+
+class MissingDataError(Exception):
+    pass
 
 class Recording:
     """
@@ -206,9 +207,11 @@ class Modality(abc.ABC):
 
     def __init__(self, 
                 recording: Recording, 
-                parsed_data: ModalityData,
-                dataloader: Optional[Callable],
-                parent: Optional['Modality']=None) -> None:
+                data_path: Optional[Path]=None,
+                load_path: Optional[Path]=None,
+                parent: Optional['Modality']=None,
+                parsed_data: Optional[ModalityData]=None
+                ) -> None:
         """
         Modality constructor.
 
@@ -223,9 +226,11 @@ class Modality(abc.ABC):
             is an underived data Modality.
         """
         self.recording = recording
+        self.data_path = data_path
+        self.load_path = load_path
+        self.parent = parent
 
-        if isinstance(parsed_data, ModalityData):
-            self.preload = parsed_data.preload
+        if parsed_data:
             self._data = parsed_data.data
             self._sampling_rate = parsed_data.sampling_rate
             self._timevector = parsed_data.timevector
@@ -233,10 +238,11 @@ class Modality(abc.ABC):
                 self._time_offset = self._timevector[0]
             else:
                 self._time_offset = parsed_data.time_offset
-            self.path = parsed_data.path
-
-        self.parent = parent
-        self._load_data = dataloader
+        else:
+            self._data = None
+            self._sampling_rate = None
+            self._timevector = None
+            self._time_offset = None
 
         # This is a property which when set to True will also set 
         # parent.excluded to True.
@@ -245,35 +251,52 @@ class Modality(abc.ABC):
     def _get_data(self) -> Tuple[np.ndarray, np.ndarray, float]:
         # TODO: Provide a way to force the data to be derived. 
         # this would be used when parent modality has updated in some way
-        if self.path:
-            return self._load_data(self)
+        if self.data_path:
+            return self._read_data()
+        elif self.load_path:
+            return self._load_data()
         elif self.parent:
-            return self._derive_data(self)
+            return self._derive_data()
         else:
-            # TODO: change this into a suitable raise Error/Exception clause instead.
-            print("Asked to get data but have no path and no parent Modality.\n" + 
+            raise MissingDataError("Asked to get data but have no path and no parent Modality.\n" + 
                 "Don't know how to solve this.")
 
-    def _load_data(self) -> Tuple[np.ndarray, np.ndarray, float]:
-        """
-        Load data from file -- to be overridden by inheriting classes.
-
-        This method should be implemented by subclasses to provide a unified 
-        way of handling preloading and on-the-fly loading of data.
-
-        This method is intended to rely on self.meta to know what to read.
-        """
-        raise NotImplementedError(
-            "This method should be overridden by inheriting classes.")
-
+    # TODO: should these really return a value rather than 
+    # just write the fields? And if return a value, why not 
+    # ModalityData? 
     def _derive_data(self) -> Tuple[np.ndarray, np.ndarray, float]:
         """
         Derive data from another modality -- to be overridden by inheriting classes.
 
-        This method should be implemented by subclasses to provide a unified 
-        way of handling preloading and on-the-fly loading of data.
+        This method should be implemented by subclasses by calling 
+        a suitable deriving function to provide on-the-fly loading of data.
 
-        This method is intended to rely on self.meta to know what to read.
+        This method is intended to rely on self.parent to provide the data
+        to be processed.
+        """
+        raise NotImplementedError(
+            "This method should be overridden by inheriting classes.")
+
+    def _load_data(self) -> Tuple[np.ndarray, np.ndarray, float]:
+        """
+        Load data from a saved file -- to be overridden by inheriting classes.
+
+        This method should be implemented by subclasses by calling 
+        a suitable loading function to provide on-the-fly loading of data.
+
+        This method is intended to rely on self.load_path to know what to read.
+        """
+        raise NotImplementedError(
+            "This method should be overridden by inheriting classes.")
+
+    def _read_data(self) -> Tuple[np.ndarray, np.ndarray, float]:
+        """
+        Load data from file -- to be overridden by inheriting classes.
+
+        This method should be implemented by subclasses by calling 
+        a suitable reading function to provide on-the-fly loading of data.
+
+        This method is intended to rely on self.data_path to know what to read.
         """
         raise NotImplementedError(
             "This method should be overridden by inheriting classes.")

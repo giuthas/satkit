@@ -66,13 +66,13 @@ class MonoAudio(Modality):
         #         self._timevector = None
 
 
-    def _load_data(self):
+    def _read_data(self):
         """
         Helper for loading data, detecting beep and generating the timevector.
 
         Setting self.isPreloaded = True results in a call to this method.
         """
-        (wav_fs, wav_frames) = sio_wavfile.read(self.path)
+        (wav_fs, wav_frames) = sio_wavfile.read(self.data_path)
         # self.sampling_rate = wav_fs
         # self._data = wav_frames
 
@@ -86,7 +86,7 @@ class MonoAudio(Modality):
         beep, has_speech = satkit_audio.detect_beep_and_speech(
             wav_frames, wav_fs, MonoAudio.filter['b'],
             MonoAudio.filter['a'],
-            self.path)
+            self.data_path)
 
         # before v1.0: this is a bad name for the beep: 1) this is an AAA thing,
         # 2) the recording might not be UTI
@@ -174,8 +174,8 @@ class RawUltrasound(Modality):
         self._stored_index = None
         self._stored_image = None
 
-    def _load_data(self) -> Tuple[np.ndarray, np.ndarray, float]:
-        with closing(open(self.path, 'rb')) as ult_file:
+    def _read_data(self) -> Tuple[np.ndarray, np.ndarray, float]:
+        with closing(open(self.data_path, 'rb')) as ult_file:
             ult_data = ult_file.read()
             ultra = np.fromstring(ult_data, dtype=np.uint8)
             ultra = ultra.astype("float32")

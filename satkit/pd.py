@@ -164,7 +164,7 @@ class PD(Modality):
             print("trying to run pd on excluded recording: " + self.recording.path)
             return
 
-        _pd_logger.info(str(self.parent.path)
+        _pd_logger.info(str(self.parent.data_path)
                         + ': Calculating PD on '
                         + type(self.parent).__name__ + '.')
 

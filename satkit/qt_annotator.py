@@ -29,31 +29,31 @@
 # citations.bib in BibTeX format.
 #
 
+import csv
+import logging
 # Built in packages
 from contextlib import closing
 from copy import deepcopy
-import csv
-import logging
 
 # Numpy
 import numpy as np
-
-# GUI functionality
-from PyQt5.QtCore import QCoreApplication
-from PyQt5.QtWidgets import QFileDialog
-from PyQt5.QtGui import QIntValidator
-from PyQt5.uic import loadUiType
-
+from matplotlib.backends.backend_qt5agg import \
+    FigureCanvasQTAgg as FigureCanvas
+from matplotlib.backends.backend_qt5agg import \
+    NavigationToolbar2QT as NavigationToolbar
 # Plotting functions and hooks for GUI
 from matplotlib.figure import Figure
-from matplotlib.backends.backend_qt5agg import (
-    FigureCanvasQTAgg as FigureCanvas,
-    NavigationToolbar2QT as NavigationToolbar)
+# GUI functionality
+from PyQt5.QtCore import QCoreApplication
+from PyQt5.QtGui import QIntValidator
+from PyQt5.QtWidgets import QFileDialog
+from PyQt5.uic import loadUiType
 
+import satkit.io as satkit_io
 # Local modules
 #from satkit.annotator import CurveAnnotator, PD_Annotator
-from satkit.pd_annd_plot import plot_pd, plot_pd_3d, plot_wav, plot_wav_3D_ultra, plot_pd_norms_intensity
-import satkit.io as satkit_io
+from satkit.pd_annd_plot import (plot_pd, plot_pd_3d, plot_pd_norms_intensity,
+                                 plot_wav, plot_wav_3D_ultra)
 
 # Load the GUI layout generated with QtDesigner.
 Ui_MainWindow, QMainWindow = loadUiType('satkit/qt_annotator.ui')
@@ -634,8 +634,8 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
         self.xlim = xlim
         max_pds = np.zeros(len(self.recordings))
         for i, recording in enumerate(self.recordings):
-            if 'PD on RawUltrasound' in recording.modalities:
-                max_pds[i] = np.max(recording.modalities['PD on RawUltrasound'].data['pd'])
+            if 'PD l2 on RawUltrasound' in recording.modalities:
+                max_pds[i] = np.max(recording.modalities['PD l2 on RawUltrasound'].data)
         self.ylim = (-50, np.max(max_pds)+50)
 
         #
@@ -690,7 +690,7 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
         Private helper function for generating the title.
         """
         text = 'SATKIT Annotator'
-        text += ', prompt: ' + self.current.meta['prompt']
+        text += ', prompt: ' + self.current.meta_data.prompt
         text += ', token: ' + str(self.index+1) + '/' + str(self.max_index)
         return text
 
@@ -768,12 +768,12 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
         self.ax1.axes.xaxis.set_ticklabels([])
 
         audio = self.current.modalities['MonoAudio']
-        stimulus_onset = audio.meta['stimulus_onset']
+        stimulus_onset = audio.go_signal
         wav = audio.data
         wav_time = (audio.timevector - stimulus_onset)
 
-        pd_metrics = self.current.modalities['PD on RawUltrasound']
-        ultra_time = pd_metrics.timevector - stimulus_onset
+        l2 = self.current.modalities['PD l2 on RawUltrasound']
+        ultra_time = l2.timevector - stimulus_onset
 
         #self.xlim = [ultra_time[0] - 0.05, ultra_time[-1]+0.05]
 
@@ -783,7 +783,7 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
         #     textgrid=textgrid, time_offset=stimulus_onset, 
         #     picker=PdQtAnnotator.line_xdirection_picker)
         plot_pd(
-            self.ax1, pd_metrics.data['pd'],
+            self.ax1, l2.data,
             ultra_time, self.xlim, self.ylim, textgrid, stimulus_onset,
             picker=PdQtAnnotator.line_xdirection_picker)
         plot_wav(self.ax3, wav, wav_time, self.xlim,

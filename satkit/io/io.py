@@ -29,13 +29,12 @@
 # citations.bib in BibTeX format.
 #
 
-# Built in packages
-from contextlib import closing
 import csv
 import json
 import logging
 import pickle
-
+# Built in packages
+from contextlib import closing
 
 _io_logger = logging.getLogger('satkit.io')
 
@@ -155,7 +154,7 @@ def set_exclusions_from_file(filename, recordings):
 
     # mark as excluded
     [recording.exclude() for recording in recordings
-     if recording.meta['basename'] in exclusion_list]
+     if recording.basename in exclusion_list]
 
 
 def read_file_exclusion_list(filename):

@@ -34,15 +34,15 @@ import datetime
 import logging
 import os
 import os.path
-from pathlib import Path
 import sys
 import warnings
+from pathlib import Path
 
-# local modules
-import satkit.pd_annd_plot as pd_annd_plot
+import satkit.io as satkit_io
 import satkit.io.AAA as satkit_AAA
 import satkit.io.ThreeD_ultrasound as ThreeD_ultrasound
-import satkit.io as satkit_io
+# local modules
+import satkit.pd_annd_plot as pd_annd_plot
 
 
 def widen_help_formatter(formatter, total_width=140, syntax_width=35):
@@ -100,12 +100,8 @@ class BaseCLI():
         # mutually exclusive with reading previous results from a file
         helptext = (
             'Path containing the data to be read.'
-<<<<<<< HEAD
-            'Supported types are .pickle files, and directories containing files exported from AAA.'
-=======
             'Supported types are .pickle files, and directories '
             'containing files exported from AAA. '
->>>>>>> devel
             'Loading from .m, .json, and .csv are in the works.')
         self.parser.add_argument("load_path", help=helptext)
 
@@ -140,20 +136,11 @@ class BaseCLI():
         elif self.args.verbose >= 3:
             console_handler.setLevel('DEBUG')
         else:
-<<<<<<< HEAD
-            log_message = "Unexplained negative argument "
-            log_message += str(self.args.verbose) + " to verbose!"
-            logging.critical(log_message)
-        self.logger.addHandler(console_handler)
-
-        self.logger.info("Data run started at {time}.", time = str(datetime.datetime.now()))
-=======
             logging.critical("Unexplained negative argument %s to verbose!",
                 str(self.args.verbose))
         self.logger.addHandler(console_handler)
 
         self.logger.info('Data run started at %s.', str(datetime.datetime.now()))
->>>>>>> devel
 
 
 class RawCLI(BaseCLI):
@@ -173,6 +160,9 @@ class RawCLI(BaseCLI):
 
         # calculate the metrics
         for recording in self.recordings:
+            if recording.excluded:
+                continue
+
             for key in processing_functions:
                 (function, modalities) = processing_functions[key]
                 # TODO: Version 1.0: add a mechanism to change the arguments for different modalities.
@@ -181,7 +171,7 @@ class RawCLI(BaseCLI):
                         recording,
                         modality,
                         preload=True,
-                        releaseDataMemory=True)
+                        release_data_memory=True)
 
         # save before plotting just in case.
         if self.args.output_filename:
@@ -191,11 +181,7 @@ class RawCLI(BaseCLI):
         if plot:
             self._plot()
 
-<<<<<<< HEAD
-        self.logger.info('Data run ended at {time}', time = str(datetime.datetime.now()))
-=======
         self.logger.info('Data run ended at %s.', str(datetime.datetime.now()))
->>>>>>> devel
 
     def _add_optional_arguments(self):
         """ Adds optional commandline arguments."""
@@ -234,11 +220,7 @@ class RawCLI(BaseCLI):
         """Handle loading data from individual files or a previously saved session."""
         if not os.path.exists(self.args.load_path):
             self.logger.critical(
-<<<<<<< HEAD
-                'File or directory does not exist: {path}.', path = self.args.load_path)
-=======
                 'File or directory does not exist: %s.', self.args.load_path)
->>>>>>> devel
             self.logger.critical('Exiting.')
             sys.exit()
         elif os.path.isdir(self.args.load_path):
@@ -251,11 +233,7 @@ class RawCLI(BaseCLI):
             self.recordings = satkit_io.load_json_data(self.args.load_path)
         else:
             self.logger.error(
-<<<<<<< HEAD
-                "Unsupported filetype: {file}.", file = self.args.load_path)
-=======
-                'Unsupported filetype: %s.', self.args.load_path + '.')
->>>>>>> devel
+                'Unsupported filetype: %s.', self.args.load_path)
 
     def _plot(self):
         """
@@ -283,15 +261,9 @@ class RawCLI(BaseCLI):
         satkit_io.set_exclusions_from_file(
             self.args.exclusion_filename, recordings)
 
-<<<<<<< HEAD
         for recording in recordings: 
             if not recording.excluded:
-                recording.addModalities()
-=======
-        for recording in recordings:
-            if not recording.excluded:
-                recording.add_modalities()
->>>>>>> devel
+                satkit_AAA.add_modalities(recording)
 
         return recordings
 
@@ -304,17 +276,10 @@ class RawCLI(BaseCLI):
                 "Wrote data to file %s/%s.", os.getcwd(), self.args.output_filename)
         elif os.path.splitext(self.args.output_filename)[1] == '.json':
             self.logger.error(
-<<<<<<< HEAD
-                'Unsupported filetype: {file}.', file = self.args.output_filename)
-        else:
-            self.logger.error(
-                'Unsupported filetype: {file}.', file = self.args.output_filename)
-=======
                 'Unsupported filetype: %s.', self.args.output_filename)
         else:
             self.logger.error(
                 'Unsupported filetype: %s.', self.args.output_filename)
->>>>>>> devel
 
 
 class RawAndSplineCLI(RawCLI):

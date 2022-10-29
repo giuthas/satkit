@@ -37,11 +37,11 @@ import time
 # For running a Qt GUI
 from PyQt5 import QtWidgets
 
+from satkit import pd
 # local modules
 from satkit.commandLineInterface import RawCLI
+from satkit.modalities import RawUltrasound
 from satkit.qt_annotator import PdQtAnnotator
-from satkit.recording import RawUltrasound
-from satkit import pd
 
 
 def main():
@@ -50,7 +50,7 @@ def main():
 
     # Run the command line interface.
     #function_dict = {'pd':pd.pd, 'annd':annd.annd}
-    function_dict = {'PD': (pd.addPD, [RawUltrasound])}
+    function_dict = {'PD': (pd.add_pd, [RawUltrasound])}
     cli = RawCLI("PD annotator", function_dict, plot=True)
 
     elapsed_time = time.time() - start_time

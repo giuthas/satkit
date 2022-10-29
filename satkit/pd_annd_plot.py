@@ -31,21 +31,18 @@
 
 # Built in packages
 import logging
-from pathlib import Path
 import sys
 import warnings
-
-# Efficient array operations
-import numpy as np
+from pathlib import Path
 
 # Scientific plotting
 import matplotlib.lines as mlines
 import matplotlib.pyplot as plt
-from matplotlib.backends.backend_pdf import PdfPages
-
+# Efficient array operations
+import numpy as np
 # Praat textgrids
 import textgrids
-
+from matplotlib.backends.backend_pdf import PdfPages
 
 _plot_logger = logging.getLogger('satkit.pd.plot')
 
@@ -1213,8 +1210,10 @@ def draw_fp2022_spaghetti(recordings):
         xlim = (-1.0, 1.5)
 
         for recording in recordings:
+            if recording.excluded:
+                continue
             audio = recording.modalities['MonoAudio']
-            stimulus_onset = audio.meta['stimulus_onset']
+            stimulus_onset = audio.go_signal
             if not recording.annotations:
                 continue
             last_gesture = recording.annotations['pdOnset']

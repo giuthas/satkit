@@ -140,13 +140,13 @@ def set_exclusions_from_file(filename, recordings):
     """
     if filename is not None:
         _io_logger.debug(
-            "Setting exclusions from file {filename}.", filename)
+            "Setting exclusions from file %s.", filename)
         with closing(open(filename, 'r', encoding='utf-8')) as csvfile:
             reader = csv.reader(csvfile, delimiter='\t')
             # Throw away the second field - it is a comment for human readers.
             exclusion_list = [row[0] for row in reader if row]
-            _io_logger.info('Read exclusion list {filename} with {length} names.', 
-                            filename = filename, length = str(len(exclusion_list)))
+            _io_logger.info('Read exclusion list %s with %s names.', 
+                            filename, str(len(exclusion_list)))
     else:
         _io_logger.debug(
             "No exclusion file. Using an empty list.")

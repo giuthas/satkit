@@ -102,9 +102,7 @@ def add_aaa_raw_ultrasound(recording: Recording, preload: bool,
     _AAA_raw_ultrsound_logger.debug(
             "Trying to read RawUltrasound for Recording representing %s.",
             recording.basename)
-    _AAA_raw_ultrsound_logger.debug("Current ultrasound meta looks like this: \n %s", 
-            meta)
-
+    
     if ult_file.is_file():
         if preload:
             raise NotImplementedError("It looks like SATKIT is trying " 

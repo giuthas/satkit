@@ -87,14 +87,14 @@ class AnnotationBoundary:
         self.line.figure.canvas.mpl_disconnect(self.cidrelease)
         self.line.figure.canvas.mpl_disconnect(self.cidmotion)
 
-fig, ax = plt.subplots()
-rects = []
-for value in 20*np.random.rand(10):
-    rects.append(ax.axvline(value))
-drs = []
-for rect in rects:
-    dr = AnnotationBoundary(rect)
-    dr.connect()
-    drs.append(dr)
+# fig, ax = plt.subplots()
+# lines = []
+# drs = []
+# for value in 20*np.random.rand(10):
+#     line = ax.axvline(value)
+#     lines.append(line)
+#     dr = AnnotationBoundary(line)
+#     dr.connect()
+#     drs.append(dr)
 
-plt.show()
+# plt.show()

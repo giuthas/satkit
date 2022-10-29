@@ -258,11 +258,14 @@ class QtAnnotatorWindow(QMainWindow, Ui_MainWindow):
 
         textgrid = self.current.textgrid
 
-        plot_pd(
+        # self.pd_boundaries = plot_pd(
+            # self.ax1, pd.data['pd'],
+            # ultra_time, self.xlim, textgrid, stimulus_onset,
+            # picker=PdQtAnnotator.line_xdirection_picker)
+        self.pd_boundaries = plot_pd(
             self.ax1, pd.data['pd'],
-            ultra_time, self.xlim, textgrid, stimulus_onset,
-            picker=PdQtAnnotator.line_xdirection_picker)
-        plot_wav(self.ax3, wav, wav_time, self.xlim,
+            ultra_time, self.xlim, textgrid, stimulus_onset)
+        self.wav_boundaries = plot_wav(self.ax3, wav, wav_time, self.xlim,
                  textgrid, stimulus_onset)
 
         if self.current.annotations['pdOnset'] > -1:
@@ -783,16 +786,18 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
 
         textgrid = self.current.textgrid
 
-        # plot_pd_norms_intensity(self.ax1, pd_metrics, ultra_time, self.xlim, 
-        #     textgrid=textgrid, time_offset=stimulus_onset, 
-        #     picker=PdQtAnnotator.line_xdirection_picker)
-        plot_pd(
+         # self.pd_boundaries = plot_pd(
+            # self.ax1, pd.data['pd'],
+            # ultra_time, self.xlim, textgrid, stimulus_onset,
+            # picker=PdQtAnnotator.line_xdirection_picker)
+        # plot_wav(self.ax3, wav, wav_time, self.xlim,
+        #          textgrid, stimulus_onset, 
+        #          picker=PdQtAnnotator.line_xdirection_picker)
+        self.pd_boundaries = plot_pd(
             self.ax1, l2.data,
-            ultra_time, self.xlim, self.ylim, textgrid, stimulus_onset,
-            picker=PdQtAnnotator.line_xdirection_picker)
-        plot_wav(self.ax3, wav, wav_time, self.xlim,
-                 textgrid, stimulus_onset, 
-                 picker=PdQtAnnotator.line_xdirection_picker)
+            ultra_time, self.xlim, textgrid, stimulus_onset)
+        self.wav_boundaries = plot_wav(self.ax3, wav, wav_time, self.xlim,
+                 textgrid, stimulus_onset)       
 
         if self.current.annotations['pdOnset'] > -1:
             self.ax1.axvline(x=self.current.annotations['pdOnset'],

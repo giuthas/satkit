@@ -44,6 +44,8 @@ import numpy as np
 import textgrids
 from matplotlib.backends.backend_pdf import PdfPages
 
+from satkit.gui.annotation_boundary import AnnotationBoundary
+
 _plot_logger = logging.getLogger('satkit.pd.plot')
 
 
@@ -61,7 +63,7 @@ def moving_average(a, n=3):
 # Subplot functions
 #####
 
-def plot_textgrid_lines(ax, textgrid, stimulus_onset=0, draw_text=True):
+def plot_textgrid_lines(ax, textgrid, stimulus_onset=0, draw_text=True, draggable=True):
     """
     Plot vertical lines for the segments in the textgrid.
 
@@ -95,6 +97,7 @@ def plot_textgrid_lines(ax, textgrid, stimulus_onset=0, draw_text=True):
         _plot_logger.critical("Could not guess the name of the segment tier. Exiting.")
         sys.exit()
 
+    boundaries = []
     for segment in segments:
         if segment.text == "":
             continue
@@ -106,10 +109,14 @@ def plot_textgrid_lines(ax, textgrid, stimulus_onset=0, draw_text=True):
                 linestyle='--')
             ax.axvline(x=segment.xmax - stimulus_onset,
                        color="dimgrey", lw=1, linestyle='--')
+            if draggable:
+                boundary = AnnotationBoundary(segment_line)
+                boundary.connect()
+                boundaries.append(boundary)
             if draw_text:
                 ax.text(segment.mid - stimulus_onset, 500, segment.text,
                         text_settings, color="dimgrey")
-    return segment_line
+    return segment_line, boundaries
 
 
 def plot_textgrid_lines_3D_ultra(
@@ -193,8 +200,9 @@ def plot_pd(axis, pd, time, xlim, ylim=None, textgrid=None, stimulus_onset=0,
     go_line = axis.axvline(x=0, color="dimgrey", lw=1, linestyle=(0, (5, 10)))
 
     segment_line = None
+    boundaries = None
     if textgrid:
-        segment_line = plot_textgrid_lines(axis, textgrid, stimulus_onset)
+        segment_line, boundaries = plot_textgrid_lines(axis, textgrid, stimulus_onset)
 
     axis.set_xlim(xlim)
     if not ylim:
@@ -211,6 +219,8 @@ def plot_pd(axis, pd, time, xlim, ylim=None, textgrid=None, stimulus_onset=0,
                   ('Pixel difference', 'Go-signal onset'),
                   loc='upper right')
     axis.set_ylabel("PD on ultrasound")
+
+    return boundaries
 
 
 def plot_pd_3d(ax, pd, time, xlim, textgrid=None, stimulus_onset=0,

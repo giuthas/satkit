@@ -291,14 +291,13 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
         self.ax1.set_title(self._get_title())
         self.ax1.axes.xaxis.set_ticklabels([])
 
-        print(self.current.modalities)
         audio = self.current.modalities['MonoAudio']
-        stimulus_onset = audio.stimulus_onset
+        stimulus_onset = audio.go_signal
         wav = audio.data
         wav_time = (audio.timevector - stimulus_onset)
 
-        pd_metrics = self.current.modalities['PD on RawUltrasound']
-        ultra_time = pd_metrics.timevector - stimulus_onset
+        l2 = self.current.modalities['PD l2 on RawUltrasound']
+        ultra_time = l2.timevector - stimulus_onset
 
         #self.xlim = [ultra_time[0] - 0.05, ultra_time[-1]+0.05]
 
@@ -308,7 +307,7 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
         #     textgrid=textgrid, time_offset=stimulus_onset, 
         #     picker=PdQtAnnotator.line_xdirection_picker)
         plot_pd(
-            self.ax1, pd_metrics.data['pd'],
+            self.ax1, l2.data,
             ultra_time, self.xlim, self.ylim, textgrid, stimulus_onset,
             picker=PdQtAnnotator.line_xdirection_picker)
         plot_wav(self.ax3, wav, wav_time, self.xlim,

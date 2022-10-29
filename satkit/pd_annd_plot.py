@@ -1213,7 +1213,7 @@ def draw_fp2022_spaghetti(recordings):
             if recording.excluded:
                 continue
             audio = recording.modalities['MonoAudio']
-            stimulus_onset = audio.stimulus_onset
+            stimulus_onset = audio.go_signal
             if not recording.annotations:
                 continue
             last_gesture = recording.annotations['pdOnset']

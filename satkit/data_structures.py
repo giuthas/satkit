@@ -421,10 +421,10 @@ class Modality(abc.ABC):
         Subclasses may override this behaviour to, for example, include
         the metric used in the name.
         """
-        name = self.__class__.__name__
+        name_string = self.__class__.__name__
         if self.parent:
-            name = name + " on " + self.parent.__class__.__name__
-        return name
+            name_string = name_string + " on " + self.parent.__class__.__name__
+        return name_string
 
     @property
     def sampling_rate(self) -> float:

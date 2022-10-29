@@ -43,11 +43,15 @@ from satkit.data_structures import Modality, ModalityData, Recording
 _pd_logger = logging.getLogger('satkit.pd')
 
 def calculate_timevector(original_timevector, timestep):
-    if timestep % 2 == 1:
-        half_step_early = (original_timevector
-            [timestep // 2: -(timestep // 2 + 1)])
-        half_step_late = (original_timevector
-            [timestep // 2 + 1: -(timestep // 2)])
+    if timestep == 1:
+        half_step_early = (original_timevector[0:-1])
+        half_step_late = (original_timevector[1:])
+        timevector = (half_step_early+half_step_late)/2
+    elif timestep % 2 == 1:
+        begin = timestep // 2
+        end = -(timestep // 2 + 1)
+        half_step_early = (original_timevector[begin:end])
+        half_step_late = (original_timevector[begin+1:end+1])
         timevector = (half_step_early+half_step_late)/2
     else:
         timevector = original_timevector[timestep//2:-timestep//2]
@@ -70,12 +74,10 @@ def calculate_slwpd(raw_diff):
 
     return slw_pd
 
-
-
 def calculate_pd(
-        norms: List[str], 
-        timesteps: List[int], 
         parent_modality: Modality,
+        norms: List[str]=['l2'], 
+        timesteps: List[int]=[1], 
         release_data_memory: bool=True) -> List['PD']:
     """
     Calculate Pixel Difference (PD) on the data Modality parent.       
@@ -182,9 +184,12 @@ def add_pd(recording: Recording,
             "' not found in recording: " + recording.basename + '.')
     else:
         dataModality = recording.modalities[modality.__name__]
-        pd = PD(recording=recording, preload=preload,
-                parent=dataModality, release_data_memory=release_data_memory)
-        recording.addModality(pd, name=pd_name)
+        pds = calculate_pd(dataModality,
+                norms=['l2'], 
+                timesteps=[1], 
+                release_data_memory=True) 
+        for pd in pds:
+            recording.add_modality(pd)
         _pd_logger.info(
             "Added '" + pd_name +
             "' to recording: " + recording.basename + '.')
@@ -192,7 +197,7 @@ def add_pd(recording: Recording,
 
 class PD(Modality):
     """
-    Calculate PD and represent it as a Modality. 
+    Represent Pixel Difference (PD) as a Modality. 
 
     PD maybe calculated using several different norms and therefore the
     result may be non-singular. For this reason self.data is a dict
@@ -215,34 +220,6 @@ class PD(Modality):
 
     def __init__(self, 
                 recording: Recording, 
-                data_path: Optional[Path]=None,
-                load_path: Optional[Path]=None,
-                parent: Optional[Modality]=None,
-                parsed_data: Optional[ModalityData]=None,
-                time_offset: Optional[float]=None,
-                meta: Optional[dict]=None 
-                ) -> None:
-        """
-        Build a Pixel Difference (PD) Modality       
-
-        Positional arguments:
-        recording -- the containing Recording.        
-
-        Keyword arguments:
-        load_path -- path of the saved data - both ultrasound and metadata
-        parent -- the Modality this one was derived from. None means this 
-            is an underived data Modality.
-        parsed_data -- ModalityData object containing raw ultrasound, sampling rate,
-            and either timevector and/or time_offset. Providing a timevector 
-            overrides any time_offset value given, but in absence of a 
-            timevector the time_offset will be applied on reading the data 
-            from file. 
-        meta -- a dict with (at least) the keys listed in 
-            RawUltrasound.requiredMetaKeys. Extra keys will be ignored. 
-            Default is None.
-        """
-    def __init__(self, 
-                recording: Recording, 
                 load_path: Optional[Path]=None,
                 parent: Optional[Modality]=None,
                 parsed_data: Optional[ModalityData]=None,
@@ -253,15 +230,27 @@ class PD(Modality):
         """
         Build a Pixel Difference (PD) Modality       
 
-        If timestep is given as a vector of positive integers, then calculate
-        and return pd for each of those.
+        Positional arguments:
+        recording -- the containing Recording.        
 
-        If parent is None, it will be copied from dataModality.
-        If not specified or 0, timeOffset will be copied from dataModality.
-
-        Note: Currently neither the norms nor the timesteps paremeter 
-        is respected. Instead, all the norms get calculated and a 
-        timestep of 1 is used always.
+        Keyword arguments:
+        load_path -- path of the saved data - both ultrasound and metadata
+        parent -- the Modality this one was derived from. None means this 
+            is an underived data Modality.
+            If parent is None, it will be copied from dataModality.
+        parsed_data -- ModalityData object containing raw ultrasound, sampling rate,
+            and either timevector and/or time_offset. Providing a timevector 
+            overrides any time_offset value given, but in absence of a 
+            timevector the time_offset will be applied on reading the data 
+            from file. 
+        timeoffset -- timeoffset in seconds against the Recordings baseline.
+            If not specified or 0, timeOffset will be copied from dataModality.
+        release_data_memory -- wether to assing None to parent.data after 
+            deriving this Modality from the data. Currently has no effect 
+            as deriving PD at runtime is not supported.
+        norm -- a string specifying this Modality's norm.
+        timestep -- a  positive integer used as the timestep in calculating 
+            this Modality's data.
         """
         # This allows the caller to be lazy.
         if not time_offset:
@@ -282,111 +271,8 @@ class PD(Modality):
     def _derive_data(self) -> Tuple[np.ndarray, np.ndarray, float]:
         """
         Calculate Pixel Difference (PD) on the data Modality parent.       
-
-        If self._timesteps is a vector of positive integers, then calculate
-        pd for each of those. NOTE! Changing timestep is not yet implemented.
         """
-        if all(norm in PD.acceptedNorms for norm in norms):
-            self._norms = norms
-        else:
-            ValueError("Unexpected norm requested in " + str(norms))
-
-        if all((isinstance(timestep, int) and timestep > 0)
-                for timestep in timesteps):
-            # Since all timesteps are valid, we are ok.
-            self._timesteps = timesteps
-        else:
-            ValueError("Negative or non-integer timestep in " + str(timesteps))
-
-        if self.recording.excluded:
-            print("trying to run pd on excluded recording: " + self.recording.path)
-            return
-
-        _pd_logger.info(str(self.parent.data_path)
-                        + ': Calculating PD on '
-                        + type(self.parent).__name__ + '.')
-
-        data = self.parent.data
-        result = {}
-
-        # Hacky hack to recognise LipVideo data and change the timestep for it.
-        if len(data.shape) != 3:
-            self._timesteps[0] = 2
-
-        if self._timesteps[0] != 1:
-            # Before 1.0: We are only dealing with the one timestep currently. For 1.0, come up with a way of dealing with multiple timesteps in parallel.
-            timestep = self._timesteps[0]
-
-            # Flatten the data into a vector at each timestamp.
-            #old_shape = data.shape
-            #new_shape = (old_shape[0], np.prod(old_shape[1:]))
-            #data.shape = new_shape
-
-            # Calculate differences and reshape the result to matrices.
-            raw_diff = np.subtract(data[: -timestep], data[timestep:])
-            # diff_shape = list(raw_diff.shape)
-            # diff_shape[0] = [diff_shape[0]-timestep]
-            # raw_diff.shape = tuple(diff_shape)
-
-            # After using data, restore the shape.
-            #data.shape = old_shape
-
-            if timestep % 2 == 1:
-                self.timevector = (
-                    self.parent.timevector
-                    [timestep // 2: -(timestep // 2 + 1)])
-                self.timevector = (
-                    self.timevector
-                    + .5/self.parent.sampling_rate)
-            else:
-                self.timevector = (
-                    self.parent.timevector
-                    [timestep//2:-timestep//2])
-        else:
-            raw_diff = np.diff(data, axis=0)
-            self._timevector = (self.parent.timevector[:-1]
-                               + .5/self.parent.sampling_rate)
-
-        # Use this if we want to collapse e.g. rgb data without producing a
-        # PD contour for each colour or channel.
-        if raw_diff.ndim > 2:
-            old_shape = raw_diff.shape
-            new_shape = (old_shape[0], old_shape[1], np.prod(old_shape[2:]))
-            raw_diff = raw_diff.reshape(new_shape)
-
-        abs_diff = np.abs(raw_diff)
-        square_diff = np.square(raw_diff)
-        # this should be square rooted at some point
-        slw_pd = np.sum(square_diff, axis=2)
-
-        intensity = np.sum(data, axis=(1,2))
-
-        # TODO: write a mapper here to generate a Modality for each metric and return the whol bunch
-
-        result['intensity'] = intensity
-        result['sbpd'] = slw_pd
-        result['pd'] = np.sqrt(np.sum(slw_pd, axis=1))
-        result['l1'] = np.sum(abs_diff, axis=(1, 2))
-        result['l3'] = np.power(
-            np.sum(np.power(abs_diff, 3), axis=(1, 2)), 1.0/3.0)
-        result['l4'] = np.power(
-            np.sum(np.power(abs_diff, 4), axis=(1, 2)), 1.0/4.0)
-        result['l5'] = np.power(
-            np.sum(np.power(abs_diff, 5), axis=(1, 2)), 1.0/5.0)
-        result['l10'] = np.power(
-            np.sum(np.power(abs_diff, 10), axis=(1, 2)), .1)
-        result['l_inf'] = np.max(abs_diff, axis=(1, 2))
-
-        _pd_logger.debug(str(self.recording.path)
-                         + ': PD calculated.')
-
-        self._data = result
-
-        if self.release_data_memory:
-            # Accessing the data modality's data causes it to be
-            # loaded into memory. Keeping it there may cause memory
-            # overflow. This releases the memory.
-            self.parent.data = None
+        raise NotImplementedError("Currently PD Modalities have to be calculated at instantiation time.")
 
     @property
     def name(self) -> str:
@@ -398,8 +284,8 @@ class PD(Modality):
 
         This overrides the default behaviour of Modality.name.
         """
-        name = self.__class__.__name__ + " " + self.metric
+        name_string = self.__class__.__name__ + " " + self.norm
         if self.parent:
-            name = name + " on " + self.parent.__class__.__name__
-        return name
+            name_string = name_string + " on " + self.parent.__class__.__name__
+        return name_string
 

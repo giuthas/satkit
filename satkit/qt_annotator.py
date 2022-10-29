@@ -219,9 +219,9 @@ class QtAnnotatorWindow(QMainWindow, Ui_MainWindow):
         self.canvas = FigureCanvas(self.fig)
         self.mplWindowVerticalLayout.addWidget(self.canvas)
         self.canvas.draw()
-        self.toolbar = NavigationToolbar(self.canvas,
-                                         self, coordinates=True)
-        self.addToolBar(self.toolbar)
+        # self.toolbar = NavigationToolbar(self.canvas,
+        #                                  self, coordinates=True)
+        # self.addToolBar(self.toolbar)
 
         self.ultra_canvas = FigureCanvas(self.ultra_fig)
         self.verticalLayout_6.addWidget(self.ultra_canvas)
@@ -232,8 +232,8 @@ class QtAnnotatorWindow(QMainWindow, Ui_MainWindow):
         self.mplWindowVerticalLayout.removeWidget(self.canvas)
         self.canvas.close()
 
-        self.mplWindowVerticalLayout.removeWidget(self.toolbar)
-        self.toolbar.close()
+        # self.mplWindowVerticalLayout.removeWidget(self.toolbar)
+        # self.toolbar.close()
 
         self.verticalLayout_6.removeWidget(self.ultra_canvas)
         self.ultra_canvas.close()
@@ -745,9 +745,9 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
         self.canvas = FigureCanvas(self.fig)
         self.mplWindowVerticalLayout.addWidget(self.canvas)
         self.canvas.draw()
-        self.toolbar = NavigationToolbar(self.canvas,
-                                         self, coordinates=True)
-        self.addToolBar(self.toolbar)
+        # self.toolbar = NavigationToolbar(self.canvas,
+        #                                  self, coordinates=True)
+        # self.addToolBar(self.toolbar)
 
         self.ultra_canvas = FigureCanvas(self.ultra_fig)
         self.verticalLayout_6.addWidget(self.ultra_canvas)
@@ -758,8 +758,8 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
         self.mplWindowVerticalLayout.removeWidget(self.canvas)
         self.canvas.close()
 
-        self.mplWindowVerticalLayout.removeWidget(self.toolbar)
-        self.toolbar.close()
+        # self.mplWindowVerticalLayout.removeWidget(self.toolbar)
+        # self.toolbar.close()
 
         self.verticalLayout_6.removeWidget(self.ultra_canvas)
         self.ultra_canvas.close()

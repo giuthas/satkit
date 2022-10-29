@@ -651,7 +651,8 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
         self.ultra_fig = Figure()
         self.ultra_axes = self.ultra_fig.add_axes([0, 0, 1, 1])
 
-        self.draw_plots()
+        if not self.current.excluded:
+            self.draw_plots()
 
         self.fig.align_ylabels()
         self.fig.canvas.mpl_connect('pick_event', self.onpick)
@@ -705,7 +706,10 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
         """
         self.clear_axis()
         self.remove_mpl_elements()
-        self.draw_plots()
+        if self.current.excluded:
+            pass
+        else:
+            self.draw_plots()
         self.add_mpl_elements()
         self.fig.canvas.draw()
         if self.display_tongue:
@@ -803,11 +807,13 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
         Display an already interpolated ultrasound frame.
         """
         index = 1
-        if self.current.annotations['pdOnsetIndex']:
+        if self.current.excluded:
+            self.ultra_axes.clear()
+        elif self.current.annotations['pdOnsetIndex']:
             index = self.current.annotations['pdOnsetIndex']
-        image = self.current.modalities['RawUltrasound'].interpolated_image(
-            index)
-        self.ultra_axes.imshow(image, interpolation='nearest', cmap='gray')
+            image = self.current.modalities['RawUltrasound'].interpolated_image(
+                index)
+            self.ultra_axes.imshow(image, interpolation='nearest', cmap='gray')
 
     def draw_raw_ultra_frame(self):
         """
@@ -830,16 +836,17 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
         """
         if self.index < self.max_index-1:
             # TODO: wrap in a data modalities accessor
-            self.current.modalities['RawUltrasound'].data = None
+            if 'RawUltrasound' in self.current.modalities:
+                self.current.modalities['RawUltrasound'].data = None
             self.index += 1
             self.update()
             self.update_ui()
 
     def _update_pd_onset(self):
         audio = self.current.modalities['MonoAudio']
-        stimulus_onset = audio.meta['stimulus_onset']
+        stimulus_onset = audio.go_signal
 
-        pd_metrics = self.current.modalities['PD on RawUltrasound']
+        pd_metrics = self.current.modalities['PD l2 on RawUltrasound']
         ultra_time = pd_metrics.timevector - stimulus_onset
         self.current.annotations['pdOnset'] = ultra_time[self.current.annotations['pdOnsetIndex']]
 
@@ -1018,9 +1025,9 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
         self.current.annotations['pdOnset'] = event.pickx
 
         audio = self.current.modalities['MonoAudio']
-        stimulus_onset = audio.meta['stimulus_onset']
+        stimulus_onset = audio.go_signal
 
-        pd_metrics = self.current.modalities['PD on RawUltrasound']
+        pd_metrics = self.current.modalities['PD l2 on RawUltrasound']
         ultra_time = pd_metrics.timevector - stimulus_onset
         self.current.annotations['pdOnsetIndex'] = np.nonzero(
             ultra_time >= event.pickx)[0][0]

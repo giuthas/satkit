@@ -158,8 +158,8 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
         self.xlim = xlim
         max_pds = np.zeros(len(self.recordings))
         for i, recording in enumerate(self.recordings):
-            if 'PD on RawUltrasound' in recording.modalities:
-                max_pds[i] = np.max(recording.modalities['PD on RawUltrasound'].data['pd'])
+            if 'PD l2 on RawUltrasound' in recording.modalities:
+                max_pds[i] = np.max(recording.modalities['PD l2 on RawUltrasound'].data)
         self.ylim = (-50, np.max(max_pds)+50)
 
         #

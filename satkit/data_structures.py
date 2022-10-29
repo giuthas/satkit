@@ -104,7 +104,7 @@ class Recording:
         self.meta_data = meta_data
 
         if textgrid_path:
-            self._textgrid_path = self.path.joinpath(textgrid_path)
+            self._textgrid_path = textgrid_path
         else:
             self._textgrid_path = self.path.joinpath(basename + ".TextGrid")
         self.textgrid = self._read_textgrid()

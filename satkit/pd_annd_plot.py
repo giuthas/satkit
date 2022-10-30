@@ -109,6 +109,9 @@ def plot_textgrid_lines(ax, textgrid, stimulus_onset=0, draw_text=True, draggabl
             linestyle='--')
         lines.append(line)
         last_segment = segment
+        if draw_text:
+            ax.text(segment.mid - stimulus_onset, 500, segment.text,
+                    text_settings, color="dimgrey")
     if last_segment:
         last_line = ax.axvline(x=last_segment.xmax - stimulus_onset,
                         color="dimgrey", lw=1, linestyle='--')
@@ -120,9 +123,6 @@ def plot_textgrid_lines(ax, textgrid, stimulus_onset=0, draw_text=True, draggabl
             boundary = AnnotationBoundary(line)
             boundary.connect()
             boundaries.append(boundary)
-        if draw_text:
-            ax.text(segment.mid - stimulus_onset, 500, segment.text,
-                    text_settings, color="dimgrey")
     return last_line, boundaries
 
 
@@ -732,9 +732,6 @@ def plot_wav(
     if textgrid:
         segment_line, boundaries = plot_textgrid_lines(
             ax, textgrid, time_offset, draw_text=False)
-    else:
-        print('here')
-        print(textgrid)
 
     if draw_legend:
         wave_curve = mlines.Line2D([], [], color="k", lw=1)

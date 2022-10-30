@@ -53,7 +53,8 @@ import satkit.io as satkit_io
 # Local modules
 #from satkit.annotator import CurveAnnotator, PD_Annotator
 from satkit.pd_annd_plot import (plot_pd, plot_pd_3d, plot_pd_norms_intensity,
-                                 plot_wav, plot_wav_3D_ultra)
+                                 plot_textgrid_lines, plot_wav,
+                                 plot_wav_3D_ultra)
 
 # Load the GUI layout generated with QtDesigner.
 Ui_MainWindow, QMainWindow = loadUiType('satkit/qt_annotator.ui')
@@ -647,9 +648,10 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
         # gs = self.fig.add_gridspec(4, 7)
         # self.ax1 = self.fig.add_subplot(gs[0:0+3, 0:0+7])
         # self.ax3 = self.fig.add_subplot(gs[3:3+1, 0:0+7])
-        grid_specification = self.fig.add_gridspec(5)
+        grid_specification = self.fig.add_gridspec(6)
         self.ax1 = self.fig.add_subplot(grid_specification[0:0+4])
         self.ax3 = self.fig.add_subplot(grid_specification[4:4+1])
+        self.ax4 = self.fig.add_subplot(grid_specification[5:5+1])
 
         self.ultra_fig = Figure()
         self.ultra_axes = self.ultra_fig.add_axes([0, 0, 1, 1])
@@ -793,11 +795,15 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
         # plot_wav(self.ax3, wav, wav_time, self.xlim,
         #          textgrid, stimulus_onset, 
         #          picker=PdQtAnnotator.line_xdirection_picker)
-        self.pd_boundaries = plot_pd(
-            self.ax1, l2.data,
+        self.pd_boundaries = plot_pd(self.ax1, l2.data,
             ultra_time, self.xlim, self.ylim, textgrid, stimulus_onset)
         self.wav_boundaries = plot_wav(self.ax3, wav, wav_time, self.xlim,
-                 textgrid, stimulus_onset)       
+                 textgrid, stimulus_onset)
+        if textgrid:
+            self.tier_boundaries = plot_textgrid_lines(self.ax4, 
+                    textgrid, stimulus_onset)
+            self.ax4.set_xlim(self.xlim)
+
 
         if self.current.annotations['pdOnset'] > -1:
             self.ax1.axvline(x=self.current.annotations['pdOnset'],

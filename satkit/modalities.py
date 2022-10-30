@@ -34,7 +34,6 @@ class MonoAudio(Modality):
                 recording: Recording, 
                 data_path: Optional[Path]=None,
                 load_path: Optional[Path]=None,
-                parent: Optional[Modality]=None,
                 parsed_data: Optional[ModalityData]=None,
                 time_offset: Optional[float]=None,
                 go_signal: Optional[float] = None, 
@@ -60,12 +59,12 @@ class MonoAudio(Modality):
             audio in the sample.
         """
         super().__init__(
-                recording, 
-                data_path,
-                load_path,
-                parent,
-                parsed_data,
-                time_offset)
+                recording=recording, 
+                data_path=data_path,
+                load_path=load_path,
+                parent=None,
+                parsed_data=parsed_data,
+                time_offset=time_offset)
 
         self.go_signal = go_signal
         self.has_speech = has_speech
@@ -127,7 +126,6 @@ class RawUltrasound(Modality):
                 recording: Recording, 
                 data_path: Optional[Path]=None,
                 load_path: Optional[Path]=None,
-                parent: Optional[Modality]=None,
                 parsed_data: Optional[ModalityData]=None,
                 time_offset: Optional[float]=None,
                 meta: Optional[dict]=None 
@@ -141,8 +139,6 @@ class RawUltrasound(Modality):
         Keyword arguments:
         data_path -- path of the ultrasound file
         load_path -- path of the saved data - both ultrasound and metadata
-        parent -- the Modality this one was derived from. None means this 
-            is an underived data Modality.
         parsed_data -- ModalityData object containing raw ultrasound, sampling rate,
             and either timevector and/or time_offset. Providing a timevector 
             overrides any time_offset value given, but in absence of a 
@@ -173,12 +169,12 @@ class RawUltrasound(Modality):
         # Initialise super only after ensuring meta is correct,
         # because latter may already end the run.
         super().__init__(
-                recording, 
-                data_path,
-                load_path,
-                parent,
-                parsed_data,
-                time_offset)
+                recording=recording, 
+                data_path=data_path,
+                load_path=load_path,
+                parent=None,
+                parsed_data=parsed_data,
+                time_offset=time_offset)
 
         # TODO: these are related to GUI and should really be in a decorator class and not here.
         # State variables for fast retrieval of previously tagged ultrasound frames.
@@ -236,7 +232,6 @@ class Video(Modality):
                 recording: Recording, 
                 data_path: Optional[Path]=None,
                 load_path: Optional[Path]=None,
-                parent: Optional[Modality]=None,
                 parsed_data: Optional[ModalityData]=None,
                 time_offset: Optional[float]=None,
                 meta: Optional[dict]=None 
@@ -250,8 +245,8 @@ class Video(Modality):
         Keyword arguments:
         data_path -- path of the ultrasound file
         load_path -- path of the saved data - both ultrasound and metadata
-        parent -- the Modality this one was derived from. None means this 
-            is an underived data Modality.
+        parent -- the Modality this one was derived from. Should be None 
+            which means this is an underived data Modality.
         parsed_data -- ModalityData object containing raw ultrasound, sampling rate,
             and either timevector and/or time_offset. Providing a timevector 
             overrides any time_offset value given, but in absence of a 
@@ -281,12 +276,12 @@ class Video(Modality):
             self.meta.deepcopy(wanted_meta)
 
         super().__init__(
-                recording, 
-                data_path,
-                load_path,
-                parent,
-                parsed_data,
-                time_offset)
+                recording=recording, 
+                data_path=data_path,
+                load_path=load_path,
+                parent=None,
+                parsed_data=parsed_data,
+                time_offset=time_offset)
 
     def _readData(self):
         return read_avi(self.data_path, self.meta, self._time_offset)

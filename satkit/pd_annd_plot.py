@@ -86,7 +86,6 @@ def plot_textgrid_lines(ax, textgrid, stimulus_onset=0, draw_text=True, draggabl
     """
     text_settings = {'horizontalalignment': 'center',
                      'verticalalignment': 'center'}
-    segment_line = None
     if 'segment' in textgrid:
         segments = textgrid['segment']
     elif 'segments' in textgrid:
@@ -97,26 +96,34 @@ def plot_textgrid_lines(ax, textgrid, stimulus_onset=0, draw_text=True, draggabl
         _plot_logger.critical("Could not guess the name of the segment tier. Exiting.")
         sys.exit()
 
-    boundaries = []
+    # TODO: convert this to draw boundaries and text in two separate passes so that 
+    # all boundaries can be made editable
+
+    last_segment = None
+    lines = []
     for segment in segments:
-        if segment.text == "":
-            continue
-        elif segment.text == "beep":
-            continue
-        else:
-            segment_line = ax.axvline(
-                x=segment.xmin - stimulus_onset, color="dimgrey", lw=1,
-                linestyle='--')
-            ax.axvline(x=segment.xmax - stimulus_onset,
-                       color="dimgrey", lw=1, linestyle='--')
-            if draggable:
-                boundary = AnnotationBoundary(segment_line)
-                boundary.connect()
-                boundaries.append(boundary)
-            if draw_text:
-                ax.text(segment.mid - stimulus_onset, 500, segment.text,
-                        text_settings, color="dimgrey")
-    return segment_line, boundaries
+        line = ax.axvline(
+            x=segment.xmin - stimulus_onset, 
+            color="dimgrey", 
+            lw=1,
+            linestyle='--')
+        lines.append(line)
+        last_segment = segment
+    if last_segment:
+        last_line = ax.axvline(x=last_segment.xmax - stimulus_onset,
+                        color="dimgrey", lw=1, linestyle='--')
+        lines.append(last_line)
+
+    boundaries = []
+    for line in lines:
+        if draggable:
+            boundary = AnnotationBoundary(line)
+            boundary.connect()
+            boundaries.append(boundary)
+        if draw_text:
+            ax.text(segment.mid - stimulus_onset, 500, segment.text,
+                    text_settings, color="dimgrey")
+    return last_line, boundaries
 
 
 def plot_textgrid_lines_3D_ultra(
@@ -721,9 +728,13 @@ def plot_wav(
     ax.axvline(x=0, color="dimgrey", lw=1, linestyle=(0, (5, 10)))
 
     segment_line = None
+    boundaries = None
     if textgrid:
-        segment_line = plot_textgrid_lines(
+        segment_line, boundaries = plot_textgrid_lines(
             ax, textgrid, time_offset, draw_text=False)
+    else:
+        print('here')
+        print(textgrid)
 
     if draw_legend:
         wave_curve = mlines.Line2D([], [], color="k", lw=1)
@@ -740,6 +751,8 @@ def plot_wav(
     ax.set_ylim((-1.05, 1.05))
     ax.set_ylabel("Wave")
     ax.set_xlabel("Time (s), go-signal at 0 s.")
+
+    return boundaries
 
 
 def plot_wav_3D_ultra(

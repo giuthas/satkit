@@ -225,7 +225,7 @@ class RawUltrasound(Modality):
 
 class Video(Modality):
     """
-    Ultrasound Recording with raw (probe return) data.    
+    Video recording.    
     """
 
     requiredMetaKeys = [
@@ -242,7 +242,7 @@ class Video(Modality):
                 meta: Optional[dict]=None 
                 ) -> None:
         """
-        Create a RawUltrasound Modality.
+        Create a Video Modality.
 
         Positional arguments:
         recording -- the containing Recording.        
@@ -258,7 +258,7 @@ class Video(Modality):
             timevector the time_offset will be applied on reading the data 
             from file. 
         meta -- a dict with (at least) the keys listed in 
-            RawUltrasound.requiredMetaKeys. Extra keys will be ignored. 
+            Video.requiredMetaKeys. Extra keys will be ignored. 
             Default is None.
         """
         # Explicitly copy meta data fields to ensure that we have what we expected to get.
@@ -288,7 +288,7 @@ class Video(Modality):
                 parsed_data,
                 time_offset)
 
-    def _getData(self):
+    def _readData(self):
         return read_avi(self.data_path, self.meta, self._time_offset)
 
 

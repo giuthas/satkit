@@ -795,7 +795,7 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
         #          picker=PdQtAnnotator.line_xdirection_picker)
         self.pd_boundaries = plot_pd(
             self.ax1, l2.data,
-            ultra_time, self.xlim, textgrid, stimulus_onset)
+            ultra_time, self.xlim, self.ylim, textgrid, stimulus_onset)
         self.wav_boundaries = plot_wav(self.ax3, wav, wav_time, self.xlim,
                  textgrid, stimulus_onset)       
 

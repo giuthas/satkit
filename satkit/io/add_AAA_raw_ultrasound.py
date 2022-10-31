@@ -95,6 +95,19 @@ def add_aaa_raw_ultrasound(recording: Recording, preload: bool,
         # file didn't contain TimeInSecsOfFirstFrame.
         ult_time_offset = meta.pop('TimeInSecsOfFirstFrame')
     else:
+        if not path:
+            meta_file = (recording.path/(recording.basename+".param"))
+        else:
+            meta_file = path.with_suffix(".param")
+
+    if meta_file.is_file():
+        meta = parse_ultrasound_meta_aaa(meta_file)
+        # We pop the timeoffset from the meta dict so that people will not
+        # accidentally rely on setting that to alter the timeoffset of the
+        # ultrasound data in the Recording. This throws KeyError if the meta
+        # file didn't contain TimeInSecsOfFirstFrame.
+        ult_time_offset = meta.pop('TimeInSecsOfFirstFrame')
+    else:
         notice = 'Note: ' + str(meta_file) + " does not exist. Excluding."
         _AAA_raw_ultrsound_logger.warning(notice)
         recording.exclude()

@@ -52,8 +52,7 @@ from PyQt5.uic import loadUiType
 import satkit.io as satkit_io
 # Local modules
 #from satkit.annotator import CurveAnnotator, PD_Annotator
-from satkit.pd_annd_plot import (plot_pd_3d,
-                                 plot_wav_3D_ultra)
+from satkit.pd_annd_plot import plot_pd_3d, plot_wav_3D_ultra
 
 # Load the GUI layout generated with QtDesigner.
 Ui_MainWindow, QMainWindow = loadUiType('satkit/qt_annotator.ui')

@@ -798,11 +798,13 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
         self.pd_boundaries = plot_pd(self.ax1, l2.data,
             ultra_time, self.xlim, self.ylim, textgrid, stimulus_onset=stimulus_onset)
         self.wav_boundaries = plot_wav(self.ax3, wav, wav_time, self.xlim,
-                 textgrid, stimulus_onset=stimulus_onset)
+                 textgrid, time_offset=stimulus_onset)
         if textgrid:
             self.tier_boundaries = plot_textgrid_lines(self.ax4, 
-                    textgrid, stimulus_onset)
+                    textgrid, stimulus_onset, text_y=.5)
             self.ax4.set_xlim(self.xlim)
+            self.ax4.set_ylabel("Segment")
+            self.ax4.set_xlabel("Time (s), go-signal at 0 s.")
 
 
         if self.current.annotations['pdOnset'] > -1:

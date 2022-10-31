@@ -37,9 +37,7 @@ import sys
 import matplotlib.lines as mlines
 # Efficient array operations
 import numpy as np
-# Praat textgrids
-import textgrids
-
+# Local packages
 from satkit.gui.annotation_boundary import AnnotationBoundary
 
 _plot_logger = logging.getLogger('satkit.plot')
@@ -99,7 +97,7 @@ def plot_pd(axis, pd, time, xlim, ylim=None, textgrid=None, stimulus_onset=0,
 
     return boundaries
 
-def plot_textgrid_lines(ax, textgrid, stimulus_onset=0, draw_text=True, draggable=True):
+def plot_textgrid_lines(ax, textgrid, stimulus_onset=0, draw_text=True, draggable=True, text_y=500):
     """
     Plot vertical lines for the segments in the textgrid.
 
@@ -146,7 +144,7 @@ def plot_textgrid_lines(ax, textgrid, stimulus_onset=0, draw_text=True, draggabl
         lines.append(line)
         last_segment = segment
         if draw_text:
-            ax.text(segment.mid - stimulus_onset, 500, segment.text,
+            ax.text(segment.mid - stimulus_onset, text_y, segment.text,
                     text_settings, color="dimgrey")
     if last_segment:
         last_line = ax.axvline(x=last_segment.xmax - stimulus_onset,

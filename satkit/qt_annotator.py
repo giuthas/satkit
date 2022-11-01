@@ -604,7 +604,7 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
 
         self.fig_dict = {}
 
-        self.fig = Figure()
+        self.fig = Figure(constrained_layout=True)
 
         self.actionNext.triggered.connect(self.next)
         self.actionPrevious.triggered.connect(self.prev)

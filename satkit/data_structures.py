@@ -42,6 +42,8 @@ import numpy as np
 # Praat textgrids
 import textgrids
 
+from satkit.gui.annotation_boundary import SatGrid
+
 _datastructures_logger = logging.getLogger('satkit.data_structures')
 
 @dataclass
@@ -108,6 +110,7 @@ class Recording:
         else:
             self._textgrid_path = self.path.joinpath(basename + ".TextGrid")
         self.textgrid = self._read_textgrid()
+        self.satgrid = SatGrid(self.textgrid)
 
         self.modalities = {}
         self.annotations = {}

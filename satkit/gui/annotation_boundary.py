@@ -32,7 +32,7 @@ class SatInterval:
     def from_textgrid_interval(cls, 
         interval: Interval, 
         prev: Union[None, Self], 
-        next: Union[None, Self]) -> Self:
+        next: Union[None, Self]=None) -> Self:
         return cls(
             begin=interval.xmin,
             label=interval.text,
@@ -49,6 +49,7 @@ class SatTier(list):
             current = SatInterval.from_textgrid_interval(interval, prev)
             self.append(current)
             prev = current 
+            last_interval = interval
         self.append(SatInterval(last_interval.xmax, None, prev))
 
     @property
@@ -71,8 +72,8 @@ class SatGrid(OrderedDict):
     """TextGrid representation to enable editing with GUI."""
 
     def __init__(self, textgrid: TextGrid) -> None:
-        for tier, name in textgrid:
-            self[name] = SatTier(tier)
+        for tier_name in textgrid:
+            self[tier_name] = SatTier(textgrid[tier_name])
     
     def as_textgrid(self):
         pass

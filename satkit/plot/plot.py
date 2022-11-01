@@ -191,6 +191,6 @@ def plot_wav(
     ax.set_xlim(xlim)
     ax.set_ylim((-1.05, 1.05))
     ax.set_ylabel("Wave")
-    ax.set_xlabel("Time (s), go-signal at 0 s.")
+    # ax.set_xlabel("Time (s), go-signal at 0 s.")
 
     return boundaries

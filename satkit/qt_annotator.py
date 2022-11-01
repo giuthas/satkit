@@ -604,7 +604,7 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
 
         self.fig_dict = {}
 
-        self.fig = Figure(constrained_layout=True)
+        self.fig = Figure(tight_layout=True)
 
         self.actionNext.triggered.connect(self.next)
         self.actionPrevious.triggered.connect(self.prev)
@@ -646,10 +646,10 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
         # gs = self.fig.add_gridspec(4, 7)
         # self.ax1 = self.fig.add_subplot(gs[0:0+3, 0:0+7])
         # self.ax3 = self.fig.add_subplot(gs[3:3+1, 0:0+7])
-        grid_specification = self.fig.add_gridspec(6)
+        grid_specification = self.fig.add_gridspec(6, 1, hspace=0, wspace=0)
         self.ax1 = self.fig.add_subplot(grid_specification[0:0+4])
-        self.ax3 = self.fig.add_subplot(grid_specification[4:4+1])
-        self.ax4 = self.fig.add_subplot(grid_specification[5:5+1])
+        self.ax3 = self.fig.add_subplot(grid_specification[4:4+1], sharex=self.ax1)
+        self.ax4 = self.fig.add_subplot(grid_specification[5:5+1], sharex=self.ax1)
 
         self.ultra_fig = Figure()
         self.ultra_axes = self.ultra_fig.add_axes([0, 0, 1, 1])

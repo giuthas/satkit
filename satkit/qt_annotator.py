@@ -702,6 +702,7 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
         """Clear all plotting axis of this annotator."""
         self.ax1.cla()
         self.ax3.cla()
+        self.ax4.cla()
 
     def update(self):
         """

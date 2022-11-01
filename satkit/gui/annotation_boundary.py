@@ -1,14 +1,142 @@
 
-# Draggable boundary with blitting.
-import matplotlib.pyplot as plt
-import numpy as np
+from collections import OrderedDict
+from dataclasses import dataclass
+from typing import Union
 
+from textgrids import Interval, TextGrid, Tier, Transcript
+from textgrids.templates import (long_header, long_interval, long_point,
+                                 long_tier)
+from typing_extensions import Self
+
+
+class SatInterval:
+    """TextGrid Interval represantation to enable editing with GUI."""
+
+    def __init__(self, 
+            begin: float, 
+            label: Union[None, Transcript], 
+            prev: Union[None, Self]=None,
+            next: Union[None, Self]=None) -> None:
+        self.begin = begin
+        self.label = label
+
+        self.prev = prev
+        if self.prev:
+            self.prev.next = self
+
+        self.next = next
+        if self.next:
+            self.next.prev = self
+
+    @classmethod
+    def from_textgrid_interval(cls, 
+        interval: Interval, 
+        prev: Union[None, Self], 
+        next: Union[None, Self]) -> Self:
+        return cls(
+            begin=interval.xmin,
+            label=interval.text,
+            prev=prev,
+            next=next)
+
+class SatTier(list):
+    """TextGrid Tier represantation to enable editing with GUI."""
+
+    def __init__(self, tier: Tier) -> None:
+        last_interval = None
+        prev = current = None
+        for interval in tier:
+            current = SatInterval.from_textgrid_interval(interval, prev)
+            self.append(current)
+            prev = current 
+        self.append(SatInterval(last_interval.xmax, None, prev))
+
+    @property
+    def begin(self) -> float:
+        return self[0].begin
+
+    @property
+    def end(self) -> float:
+        # This is slightly counter intuitive, but the last interval is infact
+        # empty and only represents the final boundary. So its begin is 
+        # the final boundary.
+        return self[-1].begin
+
+    @property
+    def is_point_tier(self) -> bool:
+        return False
+
+
+class SatGrid(OrderedDict):
+    """TextGrid representation to enable editing with GUI."""
+
+    def __init__(self, textgrid: TextGrid) -> None:
+        for tier, name in textgrid:
+            self[name] = SatTier(tier)
+    
+    def as_textgrid(self):
+        pass
+
+    @property
+    def begin(self) -> float:
+        key = self.keys()[0]
+        return self[key].begin
+
+    @property
+    def end(self) -> float:
+        key = self.keys()[0]
+        return self[key].end
+        
+    def format_long(self) -> str:
+        '''Format self as long format TextGrid.'''
+        global long_header, long_tier, long_point, long_interval
+        out = long_header.format(self.xmin, self.xmax, len(self))
+        tier_count = 1
+        for name, tier in self.items():
+            if tier.is_point_tier:
+                tier_type = 'PointTier'
+                elem_type = 'points'
+            else:
+                tier_type = 'IntervalTier'
+                elem_type = 'intervals'
+            out += long_tier.format(tier_count,
+                                    tier_type,
+                                    name,
+                                    self.begin,
+                                    self.end,
+                                    elem_type,
+                                    len(tier))
+            for elem_count, elem in enumerate(tier, 1):
+                if tier.is_point_tier:
+                    out += long_point.format(elem_count,
+                                             elem.xpos,
+                                             elem.text)
+                elif elem.next:
+                    out += long_interval.format(elem_count,
+                                                elem.begin,
+                                                elem.next.begin,
+                                                elem.text)
+                else:
+                    # The last interval does not contain anything.
+                    # It only marks the end of the file and final 
+                    # interval's end. That info got already used by
+                    # elem.next.begin above.
+                    pass
+        return out
 
 class AnnotationBoundary:
+    """
+    Draggable boundary with blitting.
+    
+    This class copies its core functionality from the
+    matplotlib draggable rectangles example.
+    """
+
     lock = None  # only one can be animated at a time
 
-    def __init__(self, line):
+    def __init__(self, line, annotation=None):
         self.line = line
+        self.annotation = annotation
         self.press = None
         self.background = None
 
@@ -29,18 +157,17 @@ class AnnotationBoundary:
         contains, attrd = self.line.contains(event)
         if not contains:
             return
-        print('event contains', self.line.get_data())
         self.press = self.line.get_data(), (event.xdata, event.ydata)
         AnnotationBoundary.lock = self
 
-        # draw everything but the selected rectangle and store the pixel buffer
+        # draw everything but the selected line and store the pixel buffer
         canvas = self.line.figure.canvas
         axes = self.line.axes
         self.line.set_animated(True)
         canvas.draw()
         self.background = canvas.copy_from_bbox(self.line.axes.bbox)
 
-        # now redraw just the rectangle
+        # now redraw just the line
         axes.draw_artist(self.line)
 
         # and blit just the redrawn area

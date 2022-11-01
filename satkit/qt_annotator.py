@@ -802,9 +802,9 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
         if textgrid:
             self.tier_boundaries = plot_textgrid_lines(self.ax4, 
                     textgrid, stimulus_onset, text_y=.5)
-            self.ax4.set_xlim(self.xlim)
-            self.ax4.set_ylabel("Segment")
-            self.ax4.set_xlabel("Time (s), go-signal at 0 s.")
+        self.ax4.set_xlim(self.xlim)
+        self.ax4.set_ylabel("Segment")
+        self.ax4.set_xlabel("Time (s), go-signal at 0 s.")
 
 
         if self.current.annotations['pdOnset'] > -1:

@@ -789,6 +789,18 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
 
         #self.xlim = [ultra_time[0] - 0.05, ultra_time[-1]+0.05]
 
+         # self.pd_boundaries = plot_pd(
+            # self.ax1, pd.data['pd'],
+            # ultra_time, self.xlim, textgrid, stimulus_onset,
+            # picker=PdQtAnnotator.line_xdirection_picker)
+        # plot_wav(self.ax3, wav, wav_time, self.xlim,
+        #          textgrid, stimulus_onset, 
+        #          picker=PdQtAnnotator.line_xdirection_picker)
+        self.pd_boundaries = plot_pd(self.ax1, l2.data,
+            ultra_time, self.xlim, self.ylim, tier=None, stimulus_onset=stimulus_onset)
+        self.wav_boundaries = plot_wav(self.ax3, wav, wav_time, self.xlim,
+                 tier=None, time_offset=stimulus_onset)
+
         satgrid = self.current.satgrid
         segment_tier = None
         if 'segment' in satgrid:
@@ -798,21 +810,9 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
         elif 'Segments' in satgrid:
             segment_tier = satgrid['Segments']
 
-         # self.pd_boundaries = plot_pd(
-            # self.ax1, pd.data['pd'],
-            # ultra_time, self.xlim, textgrid, stimulus_onset,
-            # picker=PdQtAnnotator.line_xdirection_picker)
-        # plot_wav(self.ax3, wav, wav_time, self.xlim,
-        #          textgrid, stimulus_onset, 
-        #          picker=PdQtAnnotator.line_xdirection_picker)
-        self.pd_boundaries = plot_pd(self.ax1, l2.data,
-            ultra_time, self.xlim, self.ylim, tier=segment_tier, stimulus_onset=stimulus_onset)
-        self.wav_boundaries = plot_wav(self.ax3, wav, wav_time, self.xlim,
-                 segment_tier, time_offset=stimulus_onset)
-
         if segment_tier:
-            self.tier_boundaries = plot_satgrid_tier(self.ax4, 
-                    segment_tier, stimulus_onset, text_y=.5)
+            self.tier_boundaries = plot_satgrid_tier(self.ax4, segment_tier, 
+                    other_axis=[self.ax1, self.ax3], stimulus_onset=stimulus_onset, text_y=.5)
         self.ax4.set_xlim(self.xlim)
         self.ax4.set_ylabel("Segment")
         self.ax4.set_xlabel("Time (s), go-signal at 0 s.")

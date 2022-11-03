@@ -14,11 +14,11 @@ class SatInterval:
 
     def __init__(self, 
             begin: float, 
-            label: Union[None, Transcript], 
+            text: Union[None, Transcript], 
             prev: Union[None, Self]=None,
             next: Union[None, Self]=None) -> None:
         self.begin = begin
-        self.label = label
+        self.text = text
 
         self.prev = prev
         if self.prev:
@@ -28,6 +28,13 @@ class SatInterval:
         if self.next:
             self.next.prev = self
 
+    @property
+    def mid(self) -> Union[float, None]:
+        if self.text:
+            return (self.begin+self.next.begin)/2
+        else:
+            return None
+
     @classmethod
     def from_textgrid_interval(cls, 
         interval: Interval, 
@@ -35,7 +42,7 @@ class SatInterval:
         next: Union[None, Self]=None) -> Self:
         return cls(
             begin=interval.xmin,
-            label=interval.text,
+            text=interval.text,
             prev=prev,
             next=next)
 

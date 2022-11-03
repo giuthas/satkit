@@ -44,7 +44,7 @@ _plot_logger = logging.getLogger('satkit.plot')
 
 
 
-def plot_pd(axis, pd, time, xlim, ylim=None, textgrid=None, stimulus_onset=0,
+def plot_pd(axis, pd, time, xlim, ylim=None, tier=None, stimulus_onset=0,
             picker=None, color="deepskyblue", alpha=1.0):
     """
     Plot a Recordings PD timeseries.
@@ -76,8 +76,9 @@ def plot_pd(axis, pd, time, xlim, ylim=None, textgrid=None, stimulus_onset=0,
 
     segment_line = None
     boundaries = None
-    if textgrid:
-        segment_line, boundaries = plot_textgrid_lines(axis, textgrid, stimulus_onset)
+    if tier:
+        segment_line, boundaries = plot_satgrid_tier(axis, tier, 
+                                                    stimulus_onset, draw_text=False)
 
     axis.set_xlim(xlim)
     if not ylim:
@@ -97,6 +98,52 @@ def plot_pd(axis, pd, time, xlim, ylim=None, textgrid=None, stimulus_onset=0,
 
     return boundaries
 
+def plot_satgrid_tier(ax, tier, stimulus_onset=0, draw_text=True, draggable=True, text_y=500):
+    """
+    Plot vertical lines for the segments in the textgrid.
+
+    Arguments:
+    ax -- matplotlib axes to plot on.
+    textgrid -- a textgrids module textgrid object containing a tier
+        called 'segment'.
+
+    Keyword arguments:
+    stimulus_onset -- onset time of the stimulus in the recording in
+        seconds. Default is 0s.
+    draw_text -- boolean value indicating if each segment's text should
+        be drawn on the plot. Default is True.
+
+    Returns a line object for the segment line, so that it
+    can be included in the legend.
+
+    Throws a KeyError if a tier called 'segment' is not present in the
+    textgrid.
+    """
+    text_settings = {'horizontalalignment': 'center',
+                     'verticalalignment': 'center'}
+
+    # TODO: convert this to draw boundaries and text in two separate passes so that 
+    # all boundaries can be made editable
+
+    line = None
+    lines = []
+    boundaries = []
+    for segment in tier:
+        line = ax.axvline(
+            x=segment.begin - stimulus_onset, 
+            color="dimgrey", 
+            lw=1,
+            linestyle='--')
+        lines.append(line)
+        if draw_text and segment.text:
+            ax.text(segment.mid - stimulus_onset, text_y, segment.text,
+                    text_settings, color="dimgrey")
+        if draggable:
+            boundary = AnnotationBoundary(line)
+            boundary.connect()
+            boundaries.append(boundary)
+    return line, boundaries
+    
 def plot_textgrid_lines(ax, textgrid, stimulus_onset=0, draw_text=True, draggable=True, text_y=500):
     """
     Plot vertical lines for the segments in the textgrid.
@@ -121,11 +168,11 @@ def plot_textgrid_lines(ax, textgrid, stimulus_onset=0, draw_text=True, draggabl
     text_settings = {'horizontalalignment': 'center',
                      'verticalalignment': 'center'}
     if 'segment' in textgrid:
-        segments = textgrid['segment']
+        tier = textgrid['segment']
     elif 'segments' in textgrid:
-        segments = textgrid['segments']
+        tier = textgrid['segments']
     elif 'Segments' in textgrid:
-        segments = textgrid['Segments']
+        tier = textgrid['Segments']
     else:
         _plot_logger.critical("Could not guess the name of the segment tier. Exiting.")
         sys.exit()
@@ -135,7 +182,7 @@ def plot_textgrid_lines(ax, textgrid, stimulus_onset=0, draw_text=True, draggabl
 
     last_segment = None
     lines = []
-    for segment in segments:
+    for segment in tier:
         line = ax.axvline(
             x=segment.xmin - stimulus_onset, 
             color="dimgrey", 
@@ -160,7 +207,7 @@ def plot_textgrid_lines(ax, textgrid, stimulus_onset=0, draw_text=True, draggabl
     return last_line, boundaries
 
 def plot_wav(
-        ax, waveform, wav_time, xlim, textgrid=None, time_offset=0,
+        ax, waveform, wav_time, xlim, tier=None, time_offset=0,
         picker=None, draw_legend=False):
     normalised_wav = waveform / \
         np.amax(np.abs(waveform))
@@ -173,9 +220,9 @@ def plot_wav(
 
     segment_line = None
     boundaries = None
-    if textgrid:
-        segment_line, boundaries = plot_textgrid_lines(
-            ax, textgrid, time_offset, draw_text=False)
+    if tier:
+        segment_line, boundaries = plot_satgrid_tier(
+            ax, tier, time_offset, draw_text=False)
 
     if draw_legend:
         wave_curve = mlines.Line2D([], [], color="k", lw=1)
@@ -194,3 +241,4 @@ def plot_wav(
     # ax.set_xlabel("Time (s), go-signal at 0 s.")
 
     return boundaries
+

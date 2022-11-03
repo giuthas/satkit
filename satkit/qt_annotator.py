@@ -31,6 +31,7 @@
 
 import csv
 import logging
+import sys
 # Built in packages
 from contextlib import closing
 from copy import deepcopy
@@ -53,6 +54,7 @@ import satkit.io as satkit_io
 # Local modules
 #from satkit.annotator import CurveAnnotator, PD_Annotator
 from satkit.plot import plot_pd, plot_textgrid_lines, plot_wav
+from satkit.plot.plot import plot_satgrid_tier
 
 # Load the GUI layout generated with QtDesigner.
 Ui_MainWindow, QMainWindow = loadUiType('satkit/qt_annotator.ui')
@@ -787,7 +789,14 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
 
         #self.xlim = [ultra_time[0] - 0.05, ultra_time[-1]+0.05]
 
-        textgrid = self.current.textgrid
+        satgrid = self.current.satgrid
+        segment_tier = None
+        if 'segment' in satgrid:
+            segment_tier = satgrid['segment']
+        elif 'segments' in satgrid:
+            segment_tier = satgrid['segments']
+        elif 'Segments' in satgrid:
+            segment_tier = satgrid['Segments']
 
          # self.pd_boundaries = plot_pd(
             # self.ax1, pd.data['pd'],
@@ -797,16 +806,16 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
         #          textgrid, stimulus_onset, 
         #          picker=PdQtAnnotator.line_xdirection_picker)
         self.pd_boundaries = plot_pd(self.ax1, l2.data,
-            ultra_time, self.xlim, self.ylim, textgrid, stimulus_onset=stimulus_onset)
+            ultra_time, self.xlim, self.ylim, tier=segment_tier, stimulus_onset=stimulus_onset)
         self.wav_boundaries = plot_wav(self.ax3, wav, wav_time, self.xlim,
-                 textgrid, time_offset=stimulus_onset)
-        if textgrid:
-            self.tier_boundaries = plot_textgrid_lines(self.ax4, 
-                    textgrid, stimulus_onset, text_y=.5)
+                 segment_tier, time_offset=stimulus_onset)
+
+        if segment_tier:
+            self.tier_boundaries = plot_satgrid_tier(self.ax4, 
+                    segment_tier, stimulus_onset, text_y=.5)
         self.ax4.set_xlim(self.xlim)
         self.ax4.set_ylabel("Segment")
         self.ax4.set_xlabel("Time (s), go-signal at 0 s.")
-
 
         if self.current.annotations['pdOnset'] > -1:
             self.ax1.axvline(x=self.current.annotations['pdOnset'],

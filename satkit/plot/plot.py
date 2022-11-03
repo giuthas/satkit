@@ -98,7 +98,8 @@ def plot_pd(axis, pd, time, xlim, ylim=None, tier=None, stimulus_onset=0,
 
     return boundaries
 
-def plot_satgrid_tier(ax, tier, stimulus_onset=0, draw_text=True, draggable=True, text_y=500):
+def plot_satgrid_tier(main_axis, tier, other_axis=None, stimulus_onset=0, draw_text=True, 
+                    draggable=True, text_y=500):
     """
     Plot vertical lines for the segments in the textgrid.
 
@@ -119,27 +120,32 @@ def plot_satgrid_tier(ax, tier, stimulus_onset=0, draw_text=True, draggable=True
     Throws a KeyError if a tier called 'segment' is not present in the
     textgrid.
     """
+    axis = []
+    if not other_axis:
+        axis = [main_axis]
+    else:
+        axis = [main_axis]
+        axis.extend(other_axis)
+
     text_settings = {'horizontalalignment': 'center',
                      'verticalalignment': 'center'}
 
-    # TODO: convert this to draw boundaries and text in two separate passes so that 
-    # all boundaries can be made editable
-
     line = None
-    lines = []
     boundaries = []
     for segment in tier:
-        line = ax.axvline(
-            x=segment.begin - stimulus_onset, 
-            color="dimgrey", 
-            lw=1,
-            linestyle='--')
-        lines.append(line)
         if draw_text and segment.text:
-            ax.text(segment.mid - stimulus_onset, text_y, segment.text,
+            main_axis.text(segment.mid - stimulus_onset, text_y, segment.text,
                     text_settings, color="dimgrey")
+        lines = []
+        for ax in axis:
+            line = ax.axvline(
+                x=segment.begin - stimulus_onset, 
+                color="dimgrey", 
+                lw=1,
+                linestyle='--')
+            lines.append(line)
         if draggable:
-            boundary = AnnotationBoundary(line)
+            boundary = AnnotationBoundary(lines, segment)
             boundary.connect()
             boundaries.append(boundary)
     return line, boundaries

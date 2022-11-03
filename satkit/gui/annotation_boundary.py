@@ -142,8 +142,8 @@ class AnnotationBoundary:
 
     lock = None  # only one can be animated at a time
 
-    def __init__(self, line, annotation=None):
-        self.line = line
+    def __init__(self, lines, annotation=None):
+        self.line = lines[0]
         self.annotation = annotation
         self.press = None
         self.background = None

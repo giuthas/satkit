@@ -809,6 +809,8 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
             segment_tier = satgrid['segments']
         elif 'Segments' in satgrid:
             segment_tier = satgrid['Segments']
+        elif 'Phoneme' in satgrid:
+            segment_tier = satgrid['Phoneme']
 
         if segment_tier:
             self.tier_boundaries = plot_satgrid_tier(self.ax4, segment_tier, 

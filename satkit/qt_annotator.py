@@ -170,7 +170,7 @@ class QtAnnotatorWindow(QMainWindow, Ui_MainWindow):
         """
         text = 'SATKIT Annotator'
         text += ', prompt: ' + self.current.meta['prompt']
-        text += ', token: ' + str(self.index+1) + '/' + str(self.max_index)
+        text += ', recording: ' + str(self.index+1) + '/' + str(self.max_index)
         return text
 
     def clear_axis(self):
@@ -697,7 +697,7 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
         """
         text = 'SATKIT Annotator'
         text += ', prompt: ' + self.current.meta_data.prompt
-        text += ', token: ' + str(self.index+1) + '/' + str(self.max_index)
+        text += ', recording: ' + str(self.index+1) + '/' + str(self.max_index)
         return text
 
     def clear_axis(self):

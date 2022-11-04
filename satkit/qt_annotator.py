@@ -244,7 +244,7 @@ class QtAnnotatorWindow(QMainWindow, Ui_MainWindow):
         Updates title and graphs. Called by self.update().
         """
         self.ax1.set_title(self._get_title())
-        self.ax1.axes.xaxis.set_ticklabels([])
+        # self.ax1.axes.xaxis.set_ticklabels([])
 
         audio = self.current.modalities['MonoAudio']
         stimulus_onset = audio.meta['stimulus_onset']
@@ -775,9 +775,9 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
         Updates title and graphs. Called by self.update().
         """
         self.ax1.set_title(self._get_title())
-        self.ax1.axes.xaxis.set_ticklabels([])
-        self.ax3.axes.xaxis.set_ticklabels([])
-        self.ax4.axes.yaxis.set_ticklabels([])
+        # self.ax1.axes.xaxis.set_ticklabels([])
+        # self.ax3.axes.xaxis.set_ticklabels([])
+        # self.ax4.axes.yaxis.set_ticklabels([])
 
         audio = self.current.modalities['MonoAudio']
         stimulus_onset = audio.go_signal

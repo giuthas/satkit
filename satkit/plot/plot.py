@@ -145,7 +145,7 @@ def plot_satgrid_tier(main_axis, tier, other_axis=None, stimulus_onset=0, draw_t
                 linestyle='--')
             lines.append(line)
         if draggable:
-            boundary = AnnotationBoundary(lines, segment)
+            boundary = AnnotationBoundary(lines, segment, stimulus_onset)
             boundary.connect()
             boundaries.append(boundary)
     return line, boundaries
@@ -215,8 +215,7 @@ def plot_textgrid_lines(ax, textgrid, stimulus_onset=0, draw_text=True, draggabl
 def plot_wav(
         ax, waveform, wav_time, xlim, tier=None, time_offset=0,
         picker=None, draw_legend=False):
-    normalised_wav = waveform / \
-        np.amax(np.abs(waveform))
+    normalised_wav = waveform / np.amax(np.abs(waveform))
     if picker:
         ax.plot(wav_time, normalised_wav, color="k", lw=1, picker=picker)
     else:

@@ -142,9 +142,10 @@ class AnnotationBoundary:
 
     lock = None  # only one can be animated at a time
 
-    def __init__(self, lines, annotation=None):
+    def __init__(self, lines, annotation :Union[None, SatInterval]=None, time_offset=0):
         self.lines = lines
         self.annotation = annotation
+        self.time_offset = time_offset
         self.press = None
         self.backgrounds = []
 
@@ -212,6 +213,8 @@ class AnnotationBoundary:
         dx = event.xdata - xpress
         for i, line in enumerate(self.lines):
             line.set(xdata=x0+dx)
+            self.annotation.begin = x0[0] + dx + self.time_offset
+            print(self.annotation.begin)
 
             canvas = line.figure.canvas
             axes = line.axes

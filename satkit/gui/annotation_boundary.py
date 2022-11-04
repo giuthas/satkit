@@ -113,7 +113,7 @@ class SatGrid(OrderedDict):
                                     self.begin,
                                     self.end,
                                     elem_type,
-                                    len(tier))
+                                    len(tier)-1)
             for elem_count, elem in enumerate(tier, 1):
                 if tier.is_point_tier:
                     out += long_point.format(elem_count,

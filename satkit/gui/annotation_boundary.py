@@ -87,18 +87,18 @@ class SatGrid(OrderedDict):
 
     @property
     def begin(self) -> float:
-        key = self.keys()[0]
+        key = list(self.keys())[0]
         return self[key].begin
 
     @property
     def end(self) -> float:
-        key = self.keys()[0]
+        key = list(self.keys())[0]
         return self[key].end
         
     def format_long(self) -> str:
         '''Format self as long format TextGrid.'''
         global long_header, long_tier, long_point, long_interval
-        out = long_header.format(self.xmin, self.xmax, len(self))
+        out = long_header.format(self.begin, self.end, len(self))
         tier_count = 1
         for name, tier in self.items():
             if tier.is_point_tier:
@@ -214,7 +214,6 @@ class AnnotationBoundary:
         for i, line in enumerate(self.lines):
             line.set(xdata=x0+dx)
             self.annotation.begin = x0[0] + dx + self.time_offset
-            print(self.annotation.begin)
 
             canvas = line.figure.canvas
             axes = line.axes

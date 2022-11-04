@@ -619,7 +619,7 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
         self.nextButton.clicked.connect(self.next)
         self.prevButton.clicked.connect(self.prev)
         self.saveButton.clicked.connect(self.save)
-        self.exportButton.clicked.connect(self.export)
+        self.exportButton.clicked.connect(self.save_textgrid)
 
         go_validator = QIntValidator(1, self.max_index + 1, self)
         self.goLineEdit.setValidator(go_validator)
@@ -935,6 +935,19 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
                 self.pickle_filename)
             _qt_annotator_logger.info(
                 "Wrote data to file {file}.", file = self.pickle_filename)
+
+    def save_textgrid(self):
+        """
+        Save the recordings.
+        """
+        if not self.current._textgrid_path:
+            (self.current._textgrid_path, _) = QFileDialog.getSaveFileName(
+                self, 'Save file', directory='.', filter="TextGrid files (*.TextGrid)")
+        if self.current._textgrid_path and self.current.satgrid:
+            with open(self.current._textgrid_path, 'w') as outfile:
+                outfile.write(self.current.satgrid.format_long())
+            _qt_annotator_logger.info(
+                "Wrote TextGrid to file %s.", str(self.current._textgrid_path))
 
     def export(self):
         """

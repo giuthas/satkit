@@ -17,6 +17,12 @@ thesis](https://eresearch.qmu.ac.uk/handle/20.500.12289/10163). The
 next stage is a automated reaction time measure, followed possibly by
 spline distance measures and optic flow.
 
+## Major update coming up
+
+After Ultrafest 2022 there is going to be a major update to the codebase. While
+this notice is here in the main branch, that update has not yet happened. If you
+wish to try SATKIT in the meanwhile, please contact Pertti for instructions.
+
 ## Getting Started
 
 Download the repository to either a subdirectory of the project you

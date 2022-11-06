@@ -12,6 +12,29 @@ from typing_extensions import Self
 class SatInterval:
     """TextGrid Interval represantation to enable editing with GUI."""
 
+    @classmethod
+    def from_textgrid_interval(cls, 
+        interval: Interval, 
+        prev: Union[None, Self], 
+        next: Union[None, Self]=None) -> Self:
+        """
+        Copy the info of a Python TextGrids Interval into a new SatInterval.
+        
+        Only xmin and text are copied from the original Interval. xmax is
+        assumed to be handled by either the next SatInterval or the constructing
+        method if this is the last Interval. 
+
+        Since SatIntervals are doubly linked, an attempt will be made to link
+        prev and next to this interval. 
+        
+        Returns the newly created SatInterval.
+        """
+        return cls(
+            begin=interval.xmin,
+            text=interval.text,
+            prev=prev,
+            next=next)
+
     def __init__(self, 
             begin: float, 
             text: Union[None, Transcript], 
@@ -30,21 +53,17 @@ class SatInterval:
 
     @property
     def mid(self) -> Union[float, None]:
+        """
+        Middle time point of the interval.
+        
+        This is a property that will return None
+        if this Interval is the one that marks
+        the last boundary.
+        """
         if self.text:
             return (self.begin+self.next.begin)/2
         else:
             return None
-
-    @classmethod
-    def from_textgrid_interval(cls, 
-        interval: Interval, 
-        prev: Union[None, Self], 
-        next: Union[None, Self]=None) -> Self:
-        return cls(
-            begin=interval.xmin,
-            text=interval.text,
-            prev=prev,
-            next=next)
 
 class SatTier(list):
     """TextGrid Tier represantation to enable editing with GUI."""
@@ -61,10 +80,26 @@ class SatTier(list):
 
     @property
     def begin(self) -> float:
+        """
+        Begin timestamp.
+        
+        Corresponds to a TextGrid Interval's xmin.
+
+        This is a property and the actual value is generated from the first
+        SatInterval of this SatTier.
+        """
         return self[0].begin
 
     @property
     def end(self) -> float:
+        """
+        End timestamp.
+        
+        Corresponds to a TextGrid Interval's xmin.
+
+        This is a property and the actual value is generated from the last
+        SatInterval of this SatTier.
+        """
         # This is slightly counter intuitive, but the last interval is infact
         # empty and only represents the final boundary. So its begin is 
         # the final boundary.
@@ -72,6 +107,7 @@ class SatTier(list):
 
     @property
     def is_point_tier(self) -> bool:
+        """Is this Tier a PointTier."""
         return False
 
 
@@ -87,12 +123,30 @@ class SatGrid(OrderedDict):
 
     @property
     def begin(self) -> float:
+        """
+        Begin timestamp.
+        
+        Corresponds to a TextGrids xmin.
+
+        This is a property and the actual value is generated from the first
+        SatTier of this SatGrid.
+        """
         key = list(self.keys())[0]
         return self[key].begin
 
     @property
     def end(self) -> float:
+        """
+        End timestamp.
+        
+        Corresponds to a TextGrids xmax.
+
+        This is a property and the actual value is generated from the first
+        SatTier of this SatGrid.
+        """
+        # First Tier
         key = list(self.keys())[0]
+        # Return the end of the first Tier.
         return self[key].end
         
     def format_long(self) -> str:
@@ -249,14 +303,3 @@ class AnnotationBoundary:
             line.figure.canvas.mpl_disconnect(self.cidrelease)
             line.figure.canvas.mpl_disconnect(self.cidmotion)
 
-# fig, ax = plt.subplots()
-# lines = []
-# drs = []
-# for value in 20*np.random.rand(10):
-#     line = ax.axvline(value)
-#     lines.append(line)
-#     dr = AnnotationBoundary(line)
-#     dr.connect()
-#     drs.append(dr)
-
-# plt.show()

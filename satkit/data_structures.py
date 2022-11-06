@@ -42,6 +42,7 @@ import numpy as np
 # Praat textgrids
 import textgrids
 
+from satkit.errors import MissingDataError
 from satkit.gui.annotation_boundary import SatGrid
 
 _datastructures_logger = logging.getLogger('satkit.data_structures')
@@ -65,9 +66,6 @@ class ModalityData:
     data: np.ndarray
     sampling_rate: int
     timevector: np.ndarray
-
-class MissingDataError(Exception):
-    pass
 
 class Recording:
     """

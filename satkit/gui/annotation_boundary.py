@@ -68,6 +68,15 @@ class SatInterval:
 class SatTier(list):
     """TextGrid Tier represantation to enable editing with GUI."""
 
+    @classmethod 
+    def from_textgrid_tier(cls, tier:Tier) -> Self:
+        """
+        Copy a Python TextGrids Tier as a SatTier.
+        
+        Returns the newly created SatTier.
+        """
+        return cls(tier)
+
     def __init__(self, tier: Tier) -> None:
         last_interval = None
         prev = current = None
@@ -116,7 +125,7 @@ class SatGrid(OrderedDict):
 
     def __init__(self, textgrid: TextGrid) -> None:
         for tier_name in textgrid:
-            self[tier_name] = SatTier(textgrid[tier_name])
+            self[tier_name] = SatTier.from_textgrid_tier(textgrid[tier_name])
     
     def as_textgrid(self):
         pass

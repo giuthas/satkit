@@ -31,13 +31,13 @@
 #
 
 import math
-from tqdm import tqdm
-
-
-import numpy as np
-from scipy import ndimage
 
 import cv2
+import numpy as np
+from scipy import ndimage
+from tqdm import tqdm
+
+from satkit.errors import UltrasoundInterpolationError
 
 
 def to_fan(scanline_data, angle=None, zero_offset=None, pix_per_mm=None,
@@ -116,8 +116,8 @@ def to_fan_2d(img, angle=None, zero_offset=None, pix_per_mm=None,
     elif dimnum == 3 and img.shape[-1] == 3:
         grayscale = False
     else:
-        raise ValueError(
-            'Dimensions are not 2. And it does not look like a RGB format, either.')
+        raise UltrasoundInterpolationError(
+            'Dimensions is not 2. And it does not look like a RGB format, either.')
 
     if grayscale:
         output_shape = (

@@ -24,3 +24,7 @@ class OverWriteError(SatkitError):
     Trying to replace the data or timevector in a Modality with non-matching dtype, size, or shape.
     """
     pass
+
+class UltrasoundInterpolationError(SatkitError):
+    """Interpolatated ultrasound image could not be produced."""
+    pass

@@ -42,7 +42,7 @@ import numpy as np
 # Praat textgrids
 import textgrids
 
-from satkit.errors import MissingDataError
+from satkit.errors import MissingDataError, ModalityError, OverWriteError
 from satkit.gui.annotation_boundary import SatGrid
 
 _datastructures_logger = logging.getLogger('satkit.data_structures')
@@ -198,7 +198,7 @@ class Recording:
         name = modality.name
 
         if name in self.modalities.keys() and not replace:
-            raise AttributeError(
+            raise ModalityError(
                 "A modality named " + name +
                 " already exists and replace flag was False.")
         elif replace:
@@ -387,7 +387,7 @@ class Modality(abc.ABC):
             and shape as self.data.
 
         Assigning anything but None or a numpy ndarray with matching
-        dtype, size, and shape will raise a ValueError.
+        dtype, size, and shape will raise a OverWriteError.
 
         If shape of the data were to change then also shape of the timevector should
         potentially change. Unlikely that we'd try to deal that in any other way but
@@ -402,7 +402,7 @@ class Modality(abc.ABC):
                 data.shape == self._data.shape):
                 self._data = data
             else:
-                raise ValueError(
+                raise OverWriteError(
                     "Trying to write over raw ultrasound data with " +
                     "a numpy array that has non-matching dtype, size, or shape.\n" +
                     " data.shape = " + str(data.shape) + "\n" +
@@ -479,7 +479,7 @@ class Modality(abc.ABC):
     @timevector.setter
     def timevector(self, timevector):
         if self._timevector is None:
-            raise ValueError(
+            raise OverWriteError(
                 "Trying to overwrite the time vector when it has not yet been initialised."
             )
         elif timevector is None:
@@ -494,7 +494,7 @@ class Modality(abc.ABC):
                 self._timevector = timevector
                 self.time_offset = timevector[0]
             else:
-                raise ValueError(
+                raise OverWriteError(
                     "Trying to write over raw ultrasound data with " +
                     "a numpy array that has non-matching dtype, size, or shape.\n" +
                     " timevector.shape = " + str(timevector.shape) + "\n" +

@@ -10,7 +10,7 @@ from typing_extensions import Self
 
 
 class SatInterval:
-    """TextGrid Interval represantation to enable editing with GUI."""
+    """TextGrid Interval representation to enable editing with GUI."""
 
     @classmethod
     def from_textgrid_interval(cls, 
@@ -65,8 +65,21 @@ class SatInterval:
         else:
             return None
 
+    def is_legal_value(self, time:float) -> bool:
+        """
+        Check if the given time is between the previous and next boundary.
+        
+        Usual caveats about float testing apply. Tests used do not include
+        equality with either bounding boundary, but that may or may not be
+        trusted to be the actual case.
+
+        Returns True, if time is  between the previous and next boundary.
+        """
+        return time < self.next.begin and time > self.prev.begin
+
+
 class SatTier(list):
-    """TextGrid Tier represantation to enable editing with GUI."""
+    """TextGrid Tier representation to enable editing with GUI."""
 
     @classmethod 
     def from_textgrid_tier(cls, tier:Tier) -> Self:
@@ -197,10 +210,15 @@ class SatGrid(OrderedDict):
 
 class AnnotationBoundary:
     """
-    Draggable boundary with blitting.
+    Draggable annotation boundary with blitting.
+
+    The class allows only one boundary to be moved at a time. If another
+    boundary is crossed the this boundary will return to its original position
+    on mouse release. Otherwise, the boundary will stay where it is at mouse
+    release and  the underlying Interval gets updated with the new position.
     
-    This class copies its core functionality from the
-    matplotlib draggable rectangles example.
+    This class copies its core functionality from the matplotlib draggable
+    rectangles example.
     """
 
     lock = None  # only one can be animated at a time
@@ -261,7 +279,7 @@ class AnnotationBoundary:
             canvas.blit(axes.bbox)
 
     def on_motion(self, event):
-        """Move the rectangle if the mouse is over us."""
+        """Move the boundary if the mouse is over us."""
         if AnnotationBoundary.lock is not self:
             return
 
@@ -274,20 +292,21 @@ class AnnotationBoundary:
 
         (x0, y0), (xpress, ypress) = self.press
         dx = event.xdata - xpress
-        for i, line in enumerate(self.lines):
-            line.set(xdata=x0+dx)
-            self.annotation.begin = x0[0] + dx + self.time_offset
+        if self.annotation.is_legal_value(x0[0]+dx+self.time_offset):
+            for i, line in enumerate(self.lines):
+                line.set(xdata=x0+dx)
+                self.annotation.begin = x0[0] + dx + self.time_offset
 
-            canvas = line.figure.canvas
-            axes = line.axes
-            # restore the background region
-            canvas.restore_region(self.backgrounds[i])
+                canvas = line.figure.canvas
+                axes = line.axes
+                # restore the background region
+                canvas.restore_region(self.backgrounds[i])
 
-            # redraw just the current rectangle
-            axes.draw_artist(line)
+                # redraw just the current rectangle
+                axes.draw_artist(line)
 
-            # blit just the redrawn area
-            canvas.blit(axes.bbox)
+                # blit just the redrawn area
+                canvas.blit(axes.bbox)
 
     def on_release(self, event):
         """Clear button press information."""

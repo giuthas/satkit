@@ -711,12 +711,10 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
         Updates the graphs but not the buttons.
         """
         self.clear_axis()
-        #self.remove_mpl_elements()
         if self.current.excluded:
             pass
         else:
             self.draw_plots()
-        #self.add_mpl_elements()
         self.fig.canvas.draw()
         if self.display_tongue:
             self.draw_ultra_frame()

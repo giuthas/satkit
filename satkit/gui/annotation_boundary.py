@@ -220,12 +220,9 @@ class AnnotationBoundary:
     Draggable annotation boundary with blitting.
 
     The class allows only one boundary to be moved at a time. If another
-    boundary is crossed the this boundary will return to its original position
+    boundary is crossed then this boundary will return to its original position
     on mouse release. Otherwise, the boundary will stay where it is at mouse
     release and  the underlying Interval gets updated with the new position.
-    
-    This class copies its core functionality from the matplotlib draggable
-    rectangles example.
     """
 
     lock = None  # only one can be animated at a time

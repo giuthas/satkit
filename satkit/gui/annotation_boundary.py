@@ -1,8 +1,9 @@
 
 from collections import OrderedDict
 from dataclasses import dataclass
-from typing import Union
+from typing import Optional, Union
 
+import matplotlib as mpl
 from textgrids import Interval, TextGrid, Tier, Transcript
 from textgrids.templates import (long_header, long_interval, long_point,
                                  long_tier)
@@ -208,6 +209,12 @@ class SatGrid(OrderedDict):
                     pass
         return out
 
+@dataclass
+class Annotation:
+    line: mpl.lines.Line2D
+    prev_text: Optional[mpl.text.Text] = None
+    next_text: Optional[mpl.text.Text] = None
+
 class AnnotationBoundary:
     """
     Draggable annotation boundary with blitting.
@@ -265,15 +272,28 @@ class AnnotationBoundary:
         AnnotationBoundary.lock = self
 
         # draw everything but the selected line and store the pixel buffer
-        for line in self.lines:
+        for annotation in self.lines:
+            line = annotation.line
+            prev_text = annotation.prev_text
+            next_text = annotation.next_text
             canvas = line.figure.canvas
             axes = line.axes
+
             line.set_animated(True)
+            if prev_text:
+                prev_text.set_animated(True)
+            if next_text:
+                next_text.set_animated(True)
+
             canvas.draw()
             self.backgrounds.append(canvas.copy_from_bbox(line.axes.bbox))
 
             # now redraw just the line
             axes.draw_artist(line)
+            if prev_text:
+                axes.draw_artist(prev_text)
+            if next_text:
+                axes.draw_artist(next_text)
 
             # and blit just the redrawn area
             canvas.blit(axes.bbox)

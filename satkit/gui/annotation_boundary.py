@@ -3,7 +3,8 @@ from collections import OrderedDict
 from dataclasses import dataclass
 from typing import Optional, Union
 
-import matplotlib as mpl
+from matplotlib.lines import Line2D as mpl_line_2d
+from matplotlib.text import Text as mpl_text
 from textgrids import Interval, TextGrid, Tier, Transcript
 from textgrids.templates import (long_header, long_interval, long_point,
                                  long_tier)
@@ -210,10 +211,10 @@ class SatGrid(OrderedDict):
         return out
 
 @dataclass
-class Annotation:
-    line: mpl.lines.Line2D
-    prev_text: Optional[mpl.text.Text] = None
-    next_text: Optional[mpl.text.Text] = None
+class AnimatableAnnotation:
+    line: mpl_line_2d
+    prev_text: Optional[mpl_text] = None
+    next_text: Optional[mpl_text] = None
 
 class AnnotationBoundary:
     """

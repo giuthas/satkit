@@ -38,7 +38,8 @@ import matplotlib.lines as mlines
 # Efficient array operations
 import numpy as np
 # Local packages
-from satkit.gui.annotation_boundary import AnnotationBoundary
+from satkit.gui.annotation_boundary import (AnimatableAnnotation,
+                                            AnnotationBoundary)
 
 _plot_logger = logging.getLogger('satkit.plot')
 
@@ -131,11 +132,10 @@ def plot_satgrid_tier(main_axis, tier, other_axis=None, stimulus_onset=0, draw_t
                      'verticalalignment': 'center'}
 
     line = None
+    prev_text = None
+    text = None
     boundaries = []
     for segment in tier:
-        if draw_text and segment.text:
-            main_axis.text(segment.mid - stimulus_onset, text_y, segment.text,
-                    text_settings, color="dimgrey")
         lines = []
         for ax in axis:
             line = ax.axvline(
@@ -144,8 +144,13 @@ def plot_satgrid_tier(main_axis, tier, other_axis=None, stimulus_onset=0, draw_t
                 lw=1,
                 linestyle='--')
             lines.append(line)
+        if draw_text and segment.text:
+            prev_text = text
+            text = main_axis.text(segment.mid - stimulus_onset, text_y, segment.text,
+                    text_settings, color="dimgrey")
         if draggable:
-            boundary = AnnotationBoundary(lines, segment, stimulus_onset)
+            annotation = AnimatableAnnotation(lines, prev_text, text)
+            boundary = AnnotationBoundary(annotation, segment, stimulus_onset)
             boundary.connect()
             boundaries.append(boundary)
     return line, boundaries

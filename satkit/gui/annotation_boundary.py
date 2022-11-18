@@ -1,7 +1,7 @@
 
 from collections import OrderedDict
 from dataclasses import dataclass
-from typing import Optional, Union
+from typing import List, Optional, Union
 
 from matplotlib.lines import Line2D as mpl_line_2d
 from matplotlib.text import Text as mpl_text
@@ -212,7 +212,7 @@ class SatGrid(OrderedDict):
 
 @dataclass
 class AnimatableAnnotation:
-    line: mpl_line_2d
+    lines: mpl_line_2d
     prev_text: Optional[mpl_text] = None
     next_text: Optional[mpl_text] = None
 
@@ -228,16 +228,16 @@ class AnnotationBoundary:
 
     lock = None  # only one can be animated at a time
 
-    def __init__(self, lines, annotation :Union[None, SatInterval]=None, time_offset=0):
-        self.lines = lines
-        self.annotation = annotation
+    def __init__(self, annotations, segment :Union[None, SatInterval]=None, time_offset=0):
+        self.annotations = annotations
+        self.segment = segment
         self.time_offset = time_offset
         self.press = None
         self.backgrounds = []
 
     def connect(self):
         """Connect to all the events we need."""
-        for line in self.lines:
+        for line in self.annotation:
             self.cidpress = line.figure.canvas.mpl_connect(
                 'button_press_event', self.on_press)
             self.cidrelease = line.figure.canvas.mpl_connect(
@@ -251,15 +251,15 @@ class AnnotationBoundary:
             return
 
         is_inaxes = False
-        for line in self.lines:
-            if (event.inaxes == line.axes):
+        for annotation in self.annotations:
+            if (event.inaxes == annotation.line.axes):
                 is_inaxes = True
         if not is_inaxes:
             return
 
         some_line_contains = False
-        for line in self.lines:
-            contains, attrd = line.contains(event)
+        for annotation in self.annotations:
+            contains, attrd = annotation.line.contains(event)
             if contains:
                 some_line_contains = True
                 break
@@ -270,7 +270,7 @@ class AnnotationBoundary:
         AnnotationBoundary.lock = self
 
         # draw everything but the selected line and store the pixel buffer
-        for annotation in self.lines:
+        for annotation in self.annotation:
             line = annotation.line
             prev_text = annotation.prev_text
             next_text = annotation.next_text
@@ -302,7 +302,7 @@ class AnnotationBoundary:
             return
 
         is_inaxes = False
-        for line in self.lines:
+        for line in self.annotation:
             if (event.inaxes == line.axes):
                 is_inaxes = True
         if not is_inaxes:
@@ -310,10 +310,10 @@ class AnnotationBoundary:
 
         (x0, y0), (xpress, ypress) = self.press
         dx = event.xdata - xpress
-        if self.annotation.is_legal_value(x0[0]+dx+self.time_offset):
-            for i, line in enumerate(self.lines):
+        if self.segment.is_legal_value(x0[0]+dx+self.time_offset):
+            for i, line in enumerate(self.annotation):
                 line.set(xdata=x0+dx)
-                self.annotation.begin = x0[0] + dx + self.time_offset
+                self.segment.begin = x0[0] + dx + self.time_offset
 
                 canvas = line.figure.canvas
                 axes = line.axes
@@ -335,7 +335,7 @@ class AnnotationBoundary:
         AnnotationBoundary.lock = None
 
         # turn off the rect animation property and reset the background
-        for line in self.lines:
+        for line in self.annotation:
             line.set_animated(False)
             # redraw the full figure
             line.figure.canvas.draw()
@@ -344,7 +344,7 @@ class AnnotationBoundary:
 
     def disconnect(self):
         """Disconnect all callbacks."""
-        for line in self.lines:
+        for line in self.annotation:
             line.figure.canvas.mpl_disconnect(self.cidpress)
             line.figure.canvas.mpl_disconnect(self.cidrelease)
             line.figure.canvas.mpl_disconnect(self.cidmotion)

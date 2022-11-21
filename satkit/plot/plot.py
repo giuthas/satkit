@@ -38,8 +38,7 @@ import matplotlib.lines as mlines
 # Efficient array operations
 import numpy as np
 # Local packages
-from satkit.gui.annotation_boundary import (AnimatableBoundary,
-                                            BoundaryAnimator)
+from satkit.gui.boundary_animation import AnimatableBoundary, BoundaryAnimator
 
 _plot_logger = logging.getLogger('satkit.plot')
 

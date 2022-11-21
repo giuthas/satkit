@@ -43,8 +43,7 @@ import numpy as np
 # Praat textgrids
 import textgrids
 from matplotlib.backends.backend_pdf import PdfPages
-
-from satkit.gui.annotation_boundary import BoundaryAnimator
+from satkit.gui.boundary_animation import BoundaryAnimator
 
 _plot_logger = logging.getLogger('satkit.pd.plot')
 

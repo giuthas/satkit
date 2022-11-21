@@ -46,9 +46,9 @@ import pydicom
 #from numpy.matlib import repmat
 import scipy.io
 # Local packages
-from satkit.data_structures import Modality, Recording
+from satkit.datastructures.data_structures import Modality, Recording
 from satkit.io.add_AAA_video import Video
-from satkit.modalities import MonoAudio
+from satkit.datastructures.modalities import MonoAudio
 
 _3D4D_ultra_logger = logging.getLogger('satkit.ThreeD_ultrasound')
 

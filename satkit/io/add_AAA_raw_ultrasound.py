@@ -5,8 +5,8 @@ from math import inf
 from pathlib import Path
 from typing import Optional, Union
 
-from satkit.data_structures import ModalityData, Recording, RecordingMetaData
-from satkit.modalities import RawUltrasound
+from satkit.datastructures.data_structures import ModalityData, Recording, RecordingMetaData
+from satkit.datastructures.modalities import RawUltrasound
 
 _AAA_raw_ultrsound_logger = logging.getLogger('satkit.AAA_raw_ultrasound')
 

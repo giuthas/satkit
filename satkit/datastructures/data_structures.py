@@ -43,7 +43,7 @@ import numpy as np
 import textgrids
 
 from satkit.errors import MissingDataError, ModalityError, OverWriteError
-from satkit.gui.satgrid import SatGrid
+from satkit.datastructures.satgrid import SatGrid
 
 _datastructures_logger = logging.getLogger('satkit.data_structures')
 

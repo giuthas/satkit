@@ -31,7 +31,6 @@
 
 import csv
 import logging
-import sys
 # Built in packages
 from contextlib import closing
 from copy import deepcopy
@@ -57,7 +56,7 @@ from satkit.plot import plot_pd, plot_textgrid_lines, plot_wav
 from satkit.plot.plot import plot_satgrid_tier
 
 # Load the GUI layout generated with QtDesigner.
-Ui_MainWindow, QMainWindow = loadUiType('satkit/qt_annotator.ui')
+Ui_MainWindow, QMainWindow = loadUiType('satkit/gui/qt_annotator.ui')
 
 _qt_annotator_logger = logging.getLogger('satkit.qt_annotator')
 

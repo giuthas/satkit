@@ -1,1 +1,1 @@
-from data_structures import Recording, Modality, RecordingMetaData, ModalityData
+from .data_structures import Recording, Modality, RecordingMetaData, ModalityData

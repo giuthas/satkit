@@ -2,9 +2,9 @@ import logging
 from pathlib import Path
 from typing import Optional
 
-from satkit.datastructures.data_structures import Recording
+from satkit.data_structures.data_structures import Recording
 from satkit.formats import read_wav
-from satkit.datastructures.modalities import MonoAudio
+from satkit.data_structures.modalities import MonoAudio
 
 _generic_io_logger = logging.getLogger('satkit.data_structures')
 

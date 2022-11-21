@@ -38,7 +38,7 @@ from typing import List, Optional, Tuple, Union
 import numpy as np
 
 # local modules
-from satkit.datastructures.data_structures import (Modality, ModalityData,
+from satkit.data_structures.data_structures import (Modality, ModalityData,
                                                    Recording)
 
 _pd_logger = logging.getLogger('satkit.pd')

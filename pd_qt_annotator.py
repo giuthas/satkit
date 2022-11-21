@@ -40,7 +40,7 @@ from PyQt5 import QtWidgets
 from satkit import pd
 # local modules
 from satkit.commandLineInterface import RawCLI
-from satkit.datastructures.modalities import RawUltrasound
+from satkit.data_structures.modalities import RawUltrasound
 from satkit.qt_annotator import PdQtAnnotator
 
 

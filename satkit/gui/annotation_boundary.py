@@ -4,7 +4,7 @@ from typing import Optional, Union
 
 from matplotlib.lines import Line2D as mpl_line_2d
 from matplotlib.text import Text as mpl_text
-from satkit.datastructures.satgrid import SatInterval
+from satkit.data_structures.satgrid import SatInterval
 
 
 @dataclass

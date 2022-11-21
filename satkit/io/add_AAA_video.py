@@ -35,8 +35,8 @@ from pathlib import Path
 from typing import Optional
 
 # Local packages
-from satkit.datastructures.data_structures import Recording
-from satkit.datastructures.modalities import Video
+from satkit.data_structures.data_structures import Recording
+from satkit.data_structures.modalities import Video
 
 _AAA_video_logger = logging.getLogger('satkit.AAA_video')
 

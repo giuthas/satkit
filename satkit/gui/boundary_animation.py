@@ -1,6 +1,6 @@
 
 from dataclasses import dataclass
-from typing import Optional, Union
+from typing import Optional
 
 from matplotlib.lines import Line2D as mpl_line_2d
 from matplotlib.text import Text as mpl_text
@@ -25,7 +25,7 @@ class BoundaryAnimator:
 
     lock = None  # only one can be animated at a time
 
-    def __init__(self, annotations, segment :Union[None, SatInterval]=None, time_offset=0):
+    def __init__(self, annotations, segment :Optional[SatInterval]=None, time_offset=0):
         self.annotations = annotations
         self.segment = segment
         self.time_offset = time_offset

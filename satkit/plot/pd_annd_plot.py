@@ -44,7 +44,7 @@ import numpy as np
 import textgrids
 from matplotlib.backends.backend_pdf import PdfPages
 
-from satkit.gui.annotation_boundary import AnnotationBoundary
+from satkit.gui.annotation_boundary import BoundaryAnimator
 
 _plot_logger = logging.getLogger('satkit.pd.plot')
 
@@ -120,7 +120,7 @@ def plot_textgrid_lines(ax, textgrid, stimulus_onset=0, draw_text=True, draggabl
     boundaries = []
     for line in lines:
         if draggable:
-            boundary = AnnotationBoundary(line)
+            boundary = BoundaryAnimator(line)
             boundary.connect()
             boundaries.append(boundary)
     return last_line, boundaries

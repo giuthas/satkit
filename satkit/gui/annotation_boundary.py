@@ -211,12 +211,12 @@ class SatGrid(OrderedDict):
         return out
 
 @dataclass
-class AnimatableAnnotation:
+class AnimatableBoundary:
     lines: mpl_line_2d
     prev_text: Optional[mpl_text] = None
     next_text: Optional[mpl_text] = None
 
-class AnnotationBoundary:
+class BoundaryAnimator:
     """
     Draggable annotation boundary with blitting.
 
@@ -247,7 +247,7 @@ class AnnotationBoundary:
 
     def on_press(self, event):
         """Check whether mouse is over us; if so, store some data."""
-        if AnnotationBoundary.lock is not None:
+        if BoundaryAnimator.lock is not None:
             return
 
         is_inaxes = False
@@ -267,7 +267,7 @@ class AnnotationBoundary:
             return
 
         self.press = line.get_data(), (event.xdata, event.ydata)
-        AnnotationBoundary.lock = self
+        BoundaryAnimator.lock = self
 
         # draw everything but the selected line and store the pixel buffer
         for annotation in self.annotation:
@@ -298,7 +298,7 @@ class AnnotationBoundary:
 
     def on_motion(self, event):
         """Move the boundary if the mouse is over us."""
-        if AnnotationBoundary.lock is not self:
+        if BoundaryAnimator.lock is not self:
             return
 
         is_inaxes = False
@@ -328,11 +328,11 @@ class AnnotationBoundary:
 
     def on_release(self, event):
         """Clear button press information."""
-        if AnnotationBoundary.lock is not self:
+        if BoundaryAnimator.lock is not self:
             return
 
         self.press = None
-        AnnotationBoundary.lock = None
+        BoundaryAnimator.lock = None
 
         # turn off the rect animation property and reset the background
         for line in self.annotation:

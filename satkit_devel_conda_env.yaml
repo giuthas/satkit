@@ -17,3 +17,4 @@ dependencies:
   - pip:
     - opencv-python >= 4.5
     - praat-textgrids >= 1.3
+    - licenseheaders

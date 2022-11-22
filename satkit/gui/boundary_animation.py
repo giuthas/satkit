@@ -25,8 +25,8 @@ class BoundaryAnimator:
 
     lock = None  # only one can be animated at a time
 
-    def __init__(self, annotations, segment :Optional[SatInterval]=None, time_offset=0):
-        self.annotations = annotations
+    def __init__(self, boundary, segment :Optional[SatInterval]=None, time_offset=0):
+        self.boundary = boundary
         self.segment = segment
         self.time_offset = time_offset
         self.press = None
@@ -34,7 +34,7 @@ class BoundaryAnimator:
 
     def connect(self):
         """Connect to all the events we need."""
-        for line in self.annotation:
+        for line in self.boundary.lines:
             self.cidpress = line.figure.canvas.mpl_connect(
                 'button_press_event', self.on_press)
             self.cidrelease = line.figure.canvas.mpl_connect(
@@ -48,15 +48,15 @@ class BoundaryAnimator:
             return
 
         is_inaxes = False
-        for annotation in self.annotations:
-            if (event.inaxes == annotation.line.axes):
+        for line in self.boundary.lines:
+            if (event.inaxes == line.axes):
                 is_inaxes = True
         if not is_inaxes:
             return
 
         some_line_contains = False
-        for annotation in self.annotations:
-            contains, attrd = annotation.line.contains(event)
+        for line in self.boundary.lines:
+            contains, attrd = line.contains(event)
             if contains:
                 some_line_contains = True
                 break
@@ -67,8 +67,7 @@ class BoundaryAnimator:
         BoundaryAnimator.lock = self
 
         # draw everything but the selected line and store the pixel buffer
-        for annotation in self.annotation:
-            line = annotation.line
+        for line in self.boundary.lines:
             prev_text = annotation.prev_text
             next_text = annotation.next_text
             canvas = line.figure.canvas

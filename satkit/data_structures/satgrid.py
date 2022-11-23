@@ -31,6 +31,7 @@
 from collections import OrderedDict
 from typing import Union
 
+from satkit.configuration import config
 from textgrids import Interval, TextGrid, Tier, Transcript
 from textgrids.templates import (long_header, long_interval, long_point,
                                  long_tier)
@@ -104,6 +105,16 @@ class SatInterval:
         Returns True, if time is  between the previous and next boundary.
         """
         return time < self.next.begin and time > self.prev.begin
+
+    def __eq__(self, obj):
+        """
+
+        """
+        if (isinstance(obj, SatInterval) and 
+            abs(self.begin - obj.begin) < config.epsilon):
+            return True
+        else:
+            return False
 
 
 class SatTier(list):

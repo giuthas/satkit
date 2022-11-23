@@ -40,11 +40,12 @@ dependencies:
   - sk-video >= 1.1
   - matplotlib >= 3.5
   - pylint >= 2.9
+  - strictyaml >= 1.6.1
   - setuptools >= 58
   - build 
   - virtualenv
   - pip >= 22
   - pip:
     - opencv-python >= 4.5
-    - praat-textgrids >= 1.3
+    - praat-textgrids >= 1.4
     - licenseheaders

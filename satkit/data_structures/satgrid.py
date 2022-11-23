@@ -108,10 +108,12 @@ class SatInterval:
 
     def __eq__(self, obj):
         """
-
+        Intervals are considered equivalent if the difference between their
+        begin values is < epsilon. Epsilon is a constant defined in SATKIT's
+        configuration.
         """
         if (isinstance(obj, SatInterval) and 
-            abs(self.begin - obj.begin) < config.epsilon):
+            abs(self.begin - obj.begin) < config['epsilon']):
             return True
         else:
             return False

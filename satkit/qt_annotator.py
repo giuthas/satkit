@@ -631,7 +631,9 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
         self.positionRB_3.toggled.connect(self.tongue_position_cb)
 
         self.fig = Figure()
-
+        self.data_axes = []
+        self.tier_axes = []
+ 
         self.xlim = xlim
         max_pds = np.zeros(len(self.recordings))
         for i, recording in enumerate(self.recordings):
@@ -645,10 +647,14 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
         # gs = self.fig.add_gridspec(4, 7)
         # self.ax1 = self.fig.add_subplot(gs[0:0+3, 0:0+7])
         # self.ax3 = self.fig.add_subplot(gs[3:3+1, 0:0+7])
-        grid_specification = self.fig.add_gridspec(6, 1, hspace=0, wspace=0)
-        self.ax1 = self.fig.add_subplot(grid_specification[0:0+4])
-        self.ax3 = self.fig.add_subplot(grid_specification[4:4+1], sharex=self.ax1)
-        self.ax4 = self.fig.add_subplot(grid_specification[5:5+1], sharex=self.ax1)
+        main_grid_spec = self.fig.add_gridspec(2,1, hspace=0, wspace=0, height_ratios=[3,1])
+
+        data_grid_spec = main_grid_spec[0].subgridspec(4, 1, hspace=0, wspace=0)
+        self.data_axes.append(self.fig.add_subplot(data_grid_spec[0:0+2]))
+        self.data_axes.append(self.fig.add_subplot(data_grid_spec[2:2+2], sharex=self.data_axes[0]))
+
+        tier_grid_spec = main_grid_spec[1].subgridspec(1, 1, hspace=0, wspace=0)
+        self.tier_axes.append(self.fig.add_subplot(tier_grid_spec[0:0+1], sharex=self.data_axes[0]))
 
         self.fig.tight_layout()
 
@@ -701,9 +707,10 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
 
     def clear_axis(self):
         """Clear all plotting axis of this annotator."""
-        self.ax1.cla()
-        self.ax3.cla()
-        self.ax4.cla()
+        for axis in self.data_axes:
+            axis.cla()
+        for axis in self.tier_axes:
+            axis.cla()
 
     def update(self):
         """
@@ -771,7 +778,7 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
         """
         Updates title and graphs. Called by self.update().
         """
-        self.ax1.set_title(self._get_title())
+        self.data_axes[0].set_title(self._get_title())
         # self.ax1.axes.xaxis.set_ticklabels([])
         # self.ax3.axes.xaxis.set_ticklabels([])
         # self.ax4.axes.yaxis.set_ticklabels([])
@@ -793,9 +800,9 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
         # plot_wav(self.ax3, wav, wav_time, self.xlim,
         #          textgrid, stimulus_onset, 
         #          picker=PdQtAnnotator.line_xdirection_picker)
-        self.pd_boundaries = plot_pd(self.ax1, l2.data,
+        self.pd_boundaries = plot_pd(self.data_axes[0], l2.data,
             ultra_time, self.xlim, self.ylim, tier=None, stimulus_onset=stimulus_onset)
-        self.wav_boundaries = plot_wav(self.ax3, wav, wav_time, self.xlim,
+        self.wav_boundaries = plot_wav(self.data_axes[1], wav, wav_time, self.xlim,
                  tier=None, time_offset=stimulus_onset)
 
         satgrid = self.current.satgrid
@@ -810,16 +817,16 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
             segment_tier = satgrid['Phoneme']
 
         if segment_tier:
-            self.tier_boundaries = plot_satgrid_tier(self.ax4, segment_tier, 
-                    other_axes=[self.ax1, self.ax3], stimulus_onset=stimulus_onset, text_y=.5)
-        self.ax4.set_xlim(self.xlim)
-        self.ax4.set_ylabel("Segment")
-        self.ax4.set_xlabel("Time (s), go-signal at 0 s.")
+            self.tier_boundaries = plot_satgrid_tier(self.data_axes[0], segment_tier, 
+                    other_axes=self.data_axes[:-1], stimulus_onset=stimulus_onset, text_y=.5)
+        self.tier_axes[0].set_xlim(self.xlim)
+        self.tier_axes[0].set_ylabel("Segment")
+        self.tier_axes[0].set_xlabel("Time (s), go-signal at 0 s.")
 
         if self.current.annotations['pdOnset'] > -1:
-            self.ax1.axvline(x=self.current.annotations['pdOnset'],
+            self.data_axes[0].axvline(x=self.current.annotations['pdOnset'],
                              linestyle=':', color="deepskyblue", lw=1)
-            self.ax3.axvline(x=self.current.annotations['pdOnset'],
+            self.data_axes[1].axvline(x=self.current.annotations['pdOnset'],
                              linestyle=':', color="deepskyblue", lw=1)
         if self.display_tongue:
             self.draw_ultra_frame()

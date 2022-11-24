@@ -49,9 +49,9 @@ from PyQt5.QtGui import QIntValidator
 from PyQt5.QtWidgets import QFileDialog
 from PyQt5.uic import loadUiType
 
-import satkit.io as satkit_io
 # Local modules
-#from satkit.annotator import CurveAnnotator, PD_Annotator
+import satkit.io as satkit_io
+from satkit.configuration import config
 from satkit.plot import plot_pd, plot_textgrid_lines, plot_wav
 from satkit.plot.plot import plot_satgrid_tier
 
@@ -647,14 +647,22 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
         # gs = self.fig.add_gridspec(4, 7)
         # self.ax1 = self.fig.add_subplot(gs[0:0+3, 0:0+7])
         # self.ax3 = self.fig.add_subplot(gs[3:3+1, 0:0+7])
-        main_grid_spec = self.fig.add_gridspec(2,1, hspace=0, wspace=0, height_ratios=[3,1])
+        height_ratios = [config["satkit constants"]['data/tier height ratios']["data"], 
+                        config["satkit constants"]['data/tier height ratios']["tier"]]
+        main_grid_spec = self.fig.add_gridspec(
+                                nrows=2,
+                                ncols=1, 
+                                hspace=0, 
+                                wspace=0, 
+                                height_ratios=height_ratios)
 
         data_grid_spec = main_grid_spec[0].subgridspec(4, 1, hspace=0, wspace=0)
         self.data_axes.append(self.fig.add_subplot(data_grid_spec[0:0+2]))
         self.data_axes.append(self.fig.add_subplot(data_grid_spec[2:2+2], sharex=self.data_axes[0]))
 
         tier_grid_spec = main_grid_spec[1].subgridspec(1, 1, hspace=0, wspace=0)
-        self.tier_axes.append(self.fig.add_subplot(tier_grid_spec[0:0+1], sharex=self.data_axes[0]))
+        for i, tier in enumerate(self.current.textgrid):
+            self.tier_axes.append(self.fig.add_subplot(tier_grid_spec[i:i+1], sharex=self.data_axes[0]))
 
         self.fig.tight_layout()
 
@@ -819,9 +827,10 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
         if segment_tier:
             self.tier_boundaries = plot_satgrid_tier(self.data_axes[0], segment_tier, 
                     other_axes=self.data_axes[:-1], stimulus_onset=stimulus_onset, text_y=.5)
-        self.tier_axes[0].set_xlim(self.xlim)
-        self.tier_axes[0].set_ylabel("Segment")
-        self.tier_axes[0].set_xlabel("Time (s), go-signal at 0 s.")
+        if self.tier_axes:
+            self.tier_axes[0].set_xlim(self.xlim)
+            self.tier_axes[0].set_ylabel("Segment")
+            self.tier_axes[0].set_xlabel("Time (s), go-signal at 0 s.")
 
         if self.current.annotations['pdOnset'] > -1:
             self.data_axes[0].axvline(x=self.current.annotations['pdOnset'],

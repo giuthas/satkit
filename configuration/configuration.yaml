@@ -2,6 +2,13 @@
 satkit constants:
   # What precision is treated as equal when comparing annotation boundaries.
   epsilon: 0.00001
+  # Height ratio of data display vs textgrid tier display. This does not control
+  # directly the height of individual data displays nor individiual tier
+  # displays, but instead controls the ratio between the sum of data displays vs
+  # sum of tier displays.
+  data/tier height ratios: 
+    data: 3
+    tier: 1
 
 data properties:
   # This tells SATKIT which metadata importer to use.

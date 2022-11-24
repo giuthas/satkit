@@ -37,6 +37,7 @@ import time
 # For running a Qt GUI
 from PyQt5 import QtWidgets
 
+import satkit.configuration as configuration
 from satkit import pd
 # local modules
 from satkit.commandLineInterface import RawCLI
@@ -47,6 +48,8 @@ from satkit.qt_annotator import PdQtAnnotator
 def main():
     """Simple main to run the CLI back end and start the QT front end."""
     start_time = time.time()
+
+    configuration.load_config()
 
     # Run the command line interface.
     #function_dict = {'pd':pd.pd, 'annd':annd.annd}

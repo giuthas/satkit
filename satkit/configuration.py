@@ -3,7 +3,7 @@ from contextlib import closing
 from pathlib import Path
 from typing import Union
 
-from strictyaml import Bool, Float, Map, Str, YAMLError, load
+from strictyaml import Bool, Float, Int, Map, Str, YAMLError, load
 
 config = {}
 
@@ -24,7 +24,11 @@ def load_config(filepath: Union[Path, str, None]=None) -> None:
         with closing(open(filepath, 'r')) as yaml_file:
             schema = Map({
                 "satkit constants": Map({
-                    "epsilon": Float()
+                    "epsilon": Float(),
+                    "data/tier height ratios": Map({
+                        "data": Int(), 
+                        "tier": Int()
+                        })
                     }),
                 "data properties": Map({
                     "data source": Str(), 
@@ -52,3 +56,4 @@ def load_config(filepath: Union[Path, str, None]=None) -> None:
         print(f"Didn't find {filepath}. Exiting.".format(str(filepath)))
         sys.exit()
     config.update(config_dict.data)
+    print(config)

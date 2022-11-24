@@ -39,6 +39,11 @@ from satkit.data_structures.satgrid import SatInterval
 
 @dataclass
 class AnimatableBoundary:
+    """
+    GUI/matplotlib elements of a rendered boundary.
+    
+    These are: one line and the previous and following label.
+    """
     line: mpl_line_2d
     prev_text: Optional[mpl_text] = None
     next_text: Optional[mpl_text] = None
@@ -53,10 +58,15 @@ class BoundaryAnimator:
     release and  the underlying Interval gets updated with the new position.
     """
 
-    lock = None  # only one can be animated at a time
+    lock = None  # only one boundary can be animated at a time
 
-    def __init__(self, boundary, segment :Optional[SatInterval]=None, time_offset=0):
+    def __init__(self, 
+            boundary: AnimatableBoundary, 
+            data_axes, 
+            segment :Optional[SatInterval]=None, 
+            time_offset=0):
         self.boundary = boundary
+        self.data_axes = data_axes
         self.segment = segment
         self.time_offset = time_offset
         self.press = None

@@ -98,25 +98,23 @@ class SatInterval:
         """
         Check if the given time is between the previous and next boundary.
         
-        Usual caveats about float testing apply. Tests used do not include
-        equality with either bounding boundary, but that may or may not be
-        trusted to be the actual case.
+        Usual caveats about float testing don't apply, because each boundary is
+        padded with SATKIT epsilon. Tests used do not include equality with
+        either bounding boundary, and that may or may not be trusted to be the
+        actual case depending on how small the epsilon is.
 
         Returns True, if time is  between the previous and next boundary.
         """
-        return time < self.next.begin and time > self.prev.begin
+        return (time + config['epsilon'] < self.next.begin and 
+                time > config['epsilon'] + self.prev.begin)
 
-    def __eq__(self, obj):
+    def is_at_time(self, time):
         """
         Intervals are considered equivalent if the difference between their
         begin values is < epsilon. Epsilon is a constant defined in SATKIT's
         configuration.
         """
-        if (isinstance(obj, SatInterval) and 
-            abs(self.begin - obj.begin) < config['epsilon']):
-            return True
-        else:
-            return False
+        return abs(self.begin - time) < config['epsilon']
 
 
 class SatTier(list):
@@ -172,6 +170,20 @@ class SatTier(list):
     def is_point_tier(self) -> bool:
         """Is this Tier a PointTier."""
         return False
+
+    def boundary_at_time(self, time) -> Union[SatInterval, None]:
+        """
+        If there is a boundary at time, return it.
+        
+        Returns None, if there is no boundary at time. 
+        
+        'Being at time' is defined as being within SATKIT epsilon of the given
+        timestamp.
+        """
+        for interval in self:
+            if interval.is_at_time(time):
+                return interval
+        return None 
 
 
 class SatGrid(OrderedDict):

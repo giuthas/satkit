@@ -62,11 +62,11 @@ class BoundaryAnimator:
 
     def __init__(self, 
             boundary: AnimatableBoundary, 
-            data_axes, 
+#            data_axes, 
             segment :Optional[SatInterval]=None, 
             time_offset=0):
         self.boundary = boundary
-        self.data_axes = data_axes
+#        self.data_axes = data_axes
         self.segment = segment
         self.time_offset = time_offset
         self.press = None
@@ -106,30 +106,30 @@ class BoundaryAnimator:
         BoundaryAnimator.lock = self
 
         # draw everything but the selected line and store the pixel buffer
-        for line in self.boundary.lines:
-            prev_text = annotation.prev_text
-            next_text = annotation.next_text
-            canvas = line.figure.canvas
-            axes = line.axes
+        line = self.boundary.line
+        prev_text = self.boundary.prev_text
+        next_text = self.boundary.next_text
+        canvas = line.figure.canvas
+        axes = line.axes
 
-            line.set_animated(True)
-            if prev_text:
-                prev_text.set_animated(True)
-            if next_text:
-                next_text.set_animated(True)
+        line.set_animated(True)
+        if prev_text:
+            prev_text.set_animated(True)
+        if next_text:
+            next_text.set_animated(True)
 
-            canvas.draw()
-            self.backgrounds.append(canvas.copy_from_bbox(line.axes.bbox))
+        canvas.draw()
+        self.backgrounds.append(canvas.copy_from_bbox(line.axes.bbox))
 
-            # now redraw just the line
-            axes.draw_artist(line)
-            if prev_text:
-                axes.draw_artist(prev_text)
-            if next_text:
-                axes.draw_artist(next_text)
+        # now redraw just the line
+        axes.draw_artist(line)
+        if prev_text:
+            axes.draw_artist(prev_text)
+        if next_text:
+            axes.draw_artist(next_text)
 
-            # and blit just the redrawn area
-            canvas.blit(axes.bbox)
+        # and blit just the redrawn area
+        canvas.blit(axes.bbox)
 
     def on_motion(self, event):
         """Move the boundary if the mouse is over us."""

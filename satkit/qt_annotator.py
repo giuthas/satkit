@@ -811,7 +811,7 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
 
         if segment_tier:
             self.tier_boundaries = plot_satgrid_tier(self.ax4, segment_tier, 
-                    other_axis=[self.ax1, self.ax3], stimulus_onset=stimulus_onset, text_y=.5)
+                    other_axes=[self.ax1, self.ax3], stimulus_onset=stimulus_onset, text_y=.5)
         self.ax4.set_xlim(self.xlim)
         self.ax4.set_ylabel("Segment")
         self.ax4.set_xlabel("Time (s), go-signal at 0 s.")

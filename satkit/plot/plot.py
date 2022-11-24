@@ -98,7 +98,7 @@ def plot_pd(axis, pd, time, xlim, ylim=None, tier=None, stimulus_onset=0,
 
     return boundaries
 
-def plot_satgrid_tier(main_axis, tier, other_axis=None, stimulus_onset=0, draw_text=True, 
+def plot_satgrid_tier(main_axis, tier, other_axes=None, stimulus_onset=0, draw_text=True, 
                     draggable=True, text_y=500):
     """
     Plot vertical lines for the segments in the textgrid.
@@ -116,16 +116,13 @@ def plot_satgrid_tier(main_axis, tier, other_axis=None, stimulus_onset=0, draw_t
 
     Returns a line object for the segment line, so that it
     can be included in the legend.
-
-    Throws a KeyError if a tier called 'segment' is not present in the
-    textgrid.
     """
-    axis = []
-    if not other_axis:
-        axis = [main_axis]
+    axes = []
+    if not other_axes:
+        axes = [main_axis]
     else:
-        axis = [main_axis]
-        axis.extend(other_axis)
+        axes = [main_axis]
+        axes.extend(other_axes)
 
     text_settings = {'horizontalalignment': 'center',
                      'verticalalignment': 'center'}
@@ -133,10 +130,10 @@ def plot_satgrid_tier(main_axis, tier, other_axis=None, stimulus_onset=0, draw_t
     line = None
     prev_text = None
     text = None
-    boundaries = []
+    animators = []
     for segment in tier:
         lines = []
-        for ax in axis:
+        for ax in axes:
             line = ax.axvline(
                 x=segment.begin - stimulus_onset, 
                 color="dimgrey", 
@@ -148,11 +145,11 @@ def plot_satgrid_tier(main_axis, tier, other_axis=None, stimulus_onset=0, draw_t
             text = main_axis.text(segment.mid - stimulus_onset, text_y, segment.text,
                     text_settings, color="dimgrey")
         if draggable:
-            annotation = AnimatableBoundary(lines, prev_text, text)
-            boundary = BoundaryAnimator(annotation, segment, stimulus_onset)
-            boundary.connect()
-            boundaries.append(boundary)
-    return line, boundaries
+            boundary = AnimatableBoundary(lines, prev_text, text)
+            animator = BoundaryAnimator(boundary, segment, stimulus_onset)
+            animator.connect()
+            animators.append(animator)
+    return line, animators
     
 def plot_textgrid_lines(ax, textgrid, stimulus_onset=0, draw_text=True, draggable=True, text_y=500):
     """

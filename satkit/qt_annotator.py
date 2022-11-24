@@ -603,10 +603,6 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
 
         self.pickle_filename = pickle_filename
 
-        self.fig_dict = {}
-
-        self.fig = Figure(tight_layout=True)
-
         self.actionNext.triggered.connect(self.next)
         self.actionPrevious.triggered.connect(self.prev)
 
@@ -634,6 +630,8 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
         self.positionRB_2.toggled.connect(self.tongue_position_cb)
         self.positionRB_3.toggled.connect(self.tongue_position_cb)
 
+        self.fig = Figure()
+
         self.xlim = xlim
         max_pds = np.zeros(len(self.recordings))
         for i, recording in enumerate(self.recordings):
@@ -651,6 +649,8 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
         self.ax1 = self.fig.add_subplot(grid_specification[0:0+4])
         self.ax3 = self.fig.add_subplot(grid_specification[4:4+1], sharex=self.ax1)
         self.ax4 = self.fig.add_subplot(grid_specification[5:5+1], sharex=self.ax1)
+
+        self.fig.tight_layout()
 
         self.ultra_fig = Figure()
         self.ultra_axes = self.ultra_fig.add_axes([0, 0, 1, 1])

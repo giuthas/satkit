@@ -3,13 +3,20 @@ from contextlib import closing
 from pathlib import Path
 from typing import Union
 
-from strictyaml import Bool, Float, Int, Map, Str, YAMLError, load
+from strictyaml import (Bool, Float, Int, Map, ScalarValidator, Str, YAMLError,
+                        load)
 
 config = {}
 
 # This is where we store the metadata needed to write out the configuration and
 # possibly not mess up the comments in it.
 _raw_config_dict = {}
+
+
+class PathValidator(ScalarValidator):
+    """Validate yaml representing a Path."""
+    def validate_scalar(self, chunk):
+        return Path(chunk.contents)
 
 def load_config(filepath: Union[Path, str, None]=None) -> None:
     """
@@ -36,15 +43,15 @@ def load_config(filepath: Union[Path, str, None]=None) -> None:
                         "data": Int(), 
                         "tier": Int()
                         }),
-                    "data run parameters": Str()
+                    "data run parameter file": PathValidator()
                     }),
                 "data properties": Map({
                     "data source": Str(), 
                     "speaker id": Str(), 
-                    "data directory": Str(), 
-                    "outputfilename": Str(),
-                    "exclusion list": Str(), 
-                    "pronunciation dictionary": Str()
+                    "data directory": PathValidator(), 
+                    "outputfilename": PathValidator(),
+                    "exclusion list": PathValidator(), 
+                    "pronunciation dictionary": PathValidator()
                     }), 
                 "flags": Map({
                     "detect beep": Bool(),

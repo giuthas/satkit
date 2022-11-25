@@ -7,6 +7,10 @@ from strictyaml import Bool, Float, Int, Map, Str, YAMLError, load
 
 config = {}
 
+# This is where we store the metadata needed to write out the configuration and
+# possibly not mess up the comments in it.
+_raw_config_dict = {}
+
 def load_config(filepath: Union[Path, str, None]=None) -> None:
     """
     Read the config file from filepath.
@@ -20,6 +24,9 @@ def load_config(filepath: Union[Path, str, None]=None) -> None:
     elif isinstance(filepath, str):
         filepath = Path(filepath)
 
+    global config
+    global _raw_config_dict
+
     if filepath.is_file():
         with closing(open(filepath, 'r')) as yaml_file:
             schema = Map({
@@ -28,7 +35,8 @@ def load_config(filepath: Union[Path, str, None]=None) -> None:
                     "data/tier height ratios": Map({
                         "data": Int(), 
                         "tier": Int()
-                        })
+                        }),
+                    "data run parameters": Str()
                     }),
                 "data properties": Map({
                     "data source": Str(), 
@@ -47,7 +55,7 @@ def load_config(filepath: Union[Path, str, None]=None) -> None:
                     })
                 })
             try:
-                config_dict = load(yaml_file.read(), schema)
+                _raw_config_dict = load(yaml_file.read(), schema)
             except YAMLError as error:
                 print(f"Fatal error in reading {filepath}:")
                 print(error)
@@ -55,5 +63,4 @@ def load_config(filepath: Union[Path, str, None]=None) -> None:
     else:
         print(f"Didn't find {filepath}. Exiting.".format(str(filepath)))
         sys.exit()
-    config.update(config_dict.data)
-    print(config)
+    config.update(_raw_config_dict.data)

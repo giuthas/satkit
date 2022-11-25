@@ -52,7 +52,7 @@ from PyQt5.QtWidgets import QFileDialog
 from PyQt5.uic import loadUiType
 from satkit.configuration import config, data_run_params
 from satkit.gui.qt_annotator_window import QtAnnotatorWindow
-from satkit.plot import plot_pd, plot_wav
+from satkit.plot import plot_timeseries, plot_wav
 from satkit.plot.plot import plot_satgrid_tier
 
 # Load the GUI layout generated with QtDesigner.

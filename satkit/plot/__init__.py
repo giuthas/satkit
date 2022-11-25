@@ -28,4 +28,4 @@
 # articles listed in README.markdown. They can also be found in
 # citations.bib in BibTeX format.
 #
-from satkit.plot.plot import plot_pd, plot_textgrid_lines, plot_wav
+from satkit.plot.plot import plot_timeseries, plot_wav

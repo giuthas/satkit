@@ -42,7 +42,7 @@ from matplotlib.figure import Figure
 from PyQt5.QtGui import QIntValidator
 from PyQt5.uic import loadUiType
 # Local modules
-from satkit.plot import plot_pd, plot_wav
+from satkit.plot import plot_timeseries, plot_wav
 
 # Load the GUI layout generated with QtDesigner.
 Ui_MainWindow, QMainWindow = loadUiType('satkit/gui/qt_annotator.ui')
@@ -253,7 +253,7 @@ class QtAnnotatorWindow(QMainWindow, Ui_MainWindow):
             # self.ax1, pd.data['pd'],
             # ultra_time, self.xlim, textgrid, stimulus_onset,
             # picker=PdQtAnnotator.line_xdirection_picker)
-        self.pd_boundaries = plot_pd(
+        self.pd_boundaries = plot_timeseries(
             self.ax1, pd.data['pd'],
             ultra_time, self.xlim, textgrid, stimulus_onset)
         self.wav_boundaries = plot_wav(self.ax3, wav, wav_time, self.xlim,

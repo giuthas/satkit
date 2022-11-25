@@ -52,7 +52,7 @@ from PyQt5.uic import loadUiType
 # Local modules
 import satkit.io as satkit_io
 from satkit.configuration import config, data_run_params
-from satkit.plot import plot_pd, plot_wav
+from satkit.plot import plot_timeseries, plot_wav
 from satkit.plot.plot import plot_satgrid_tier
 
 # Load the GUI layout generated with QtDesigner.
@@ -319,7 +319,7 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
         # plot_wav(self.ax3, wav, wav_time, self.xlim,
         #          textgrid, stimulus_onset, 
         #          picker=PdQtAnnotator.line_xdirection_picker)
-        self.pd_boundaries = plot_pd(self.data_axes[0], l2.data,
+        self.pd_boundaries = plot_timeseries(self.data_axes[0], l2.data,
             ultra_time, self.xlim, self.ylim, tier=None, stimulus_onset=stimulus_onset)
         self.wav_boundaries = plot_wav(self.data_axes[1], wav, wav_time, self.xlim,
                  tier=None, time_offset=stimulus_onset)

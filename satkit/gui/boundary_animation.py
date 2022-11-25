@@ -62,11 +62,11 @@ class BoundaryAnimator:
 
     def __init__(self, 
             boundary: AnimatableBoundary, 
-#            data_axes, 
+            data_axes, 
             segment :Optional[SatInterval]=None, 
             time_offset=0):
         self.boundary = boundary
-#        self.data_axes = data_axes
+        self.data_axes = data_axes
         self.segment = segment
         self.time_offset = time_offset
         self.press = None

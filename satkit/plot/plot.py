@@ -32,11 +32,13 @@
 # Built in packages
 import logging
 import sys
+from typing import List, Optional, Tuple, Union
 
-# Scientific plotting
-import matplotlib.lines as mlines
 # Efficient array operations
 import numpy as np
+# Scientific plotting
+from matplotlib.lines import Line2D
+from satkit.data_structures.satgrid import SatTier
 # Local packages
 from satkit.gui.boundary_animation import AnimatableBoundary, BoundaryAnimator
 
@@ -44,13 +46,30 @@ _plot_logger = logging.getLogger('satkit.plot')
 
 
 
-def plot_pd(axis, pd, time, xlim, ylim=None, tier=None, stimulus_onset=0,
-            picker=None, color="deepskyblue", alpha=1.0):
+def plot_timeseries(axis, 
+            data: np.ndarray, 
+            time: np.ndarray, 
+            label: Optional[str],
+            xlim: Tuple[float, float], 
+            ylim: Optional[Tuple[float, float]]=None, 
+            tier: Optional[SatTier]=None, 
+            other_axis=None,
+            stimulus_onset: float=0,
+            picker=None, 
+            color: str="deepskyblue", 
+            alpha: float=1.0):
     """
-    Plot a Recordings PD timeseries.
+    Plot a timeseries.
+
+    The timeseries most likely comes from a Modality, but 
+    that is left up to the caller. 
+    
+    If tier is specified, will call 
+    plot_satgrid_tier to decorate the current axis with boundaries 
+    of that tier. No annotation lables are currently drawn.
 
     Arguments:
-    ax -- matplotlib axes to plot on.
+    axis -- matplotlib axes to plot on.
     pd -- the timeseries - NOT the PD data object.
     time -- timestamps for the timeseries.
     xlim -- limits for the x-axis in seconds.
@@ -67,18 +86,18 @@ def plot_pd(axis, pd, time, xlim, ylim=None, tier=None, stimulus_onset=0,
 
     # The PD curve and the official fix for it not showing up on the legend.
     if picker:
-        axis.plot(time, pd, color=color, lw=1, picker=picker, alpha=alpha)
+        axis.plot(time, data, color=color, lw=1, picker=picker, alpha=alpha)
     else:
-        axis.plot(time, pd, color=color, lw=1, alpha=alpha)
-    pd_curve = mlines.Line2D([], [], color=color, lw=1)
+        axis.plot(time, data, color=color, lw=1, alpha=alpha)
+    pd_curve = Line2D([], [], color=color, lw=1)
 
     go_line = axis.axvline(x=0, color="dimgrey", lw=1, linestyle=(0, (5, 10)))
 
     segment_line = None
     boundaries = None
     if tier:
-        segment_line, boundaries = plot_satgrid_tier(axis, tier, 
-                                                    stimulus_onset, draw_text=False)
+        segment_line, boundaries = plot_satgrid_tier(
+            axis, tier, other_axes=other_axis, stimulus_onset=stimulus_onset, draw_text=False)
 
     axis.set_xlim(xlim)
     if not ylim:
@@ -98,24 +117,37 @@ def plot_pd(axis, pd, time, xlim, ylim=None, tier=None, stimulus_onset=0,
 
     return boundaries
 
-def plot_satgrid_tier(main_axis, tier, other_axes=None, stimulus_onset=0, draw_text=True, 
-                    draggable=True, text_y=500):
+def plot_satgrid_tier(main_axis, 
+                    tier: SatTier, 
+                    other_axes=None, 
+                    stimulus_onset: float=0, 
+                    draw_text: bool=True, 
+                    draggable: bool=True, 
+                    text_y: float=500
+                    ) -> Union[Line2D, List[BoundaryAnimator]]:
     """
-    Plot vertical lines for the segments in the textgrid.
+    Plot a textgrid tier on the axis and return animator objects.
+
+    This is used both for displaying tiers as part of the tier display 
+    and for decorating other plots with either just the boundary lines 
+    or both boundaries and the annotation text.
 
     Arguments:
     ax -- matplotlib axes to plot on.
-    textgrid -- a textgrids module textgrid object containing a tier
-        called 'segment'.
+    tier -- TextGrid Tier represented as a SatTier.
 
     Keyword arguments:
+    data_axes -- 
     stimulus_onset -- onset time of the stimulus in the recording in
         seconds. Default is 0s.
     draw_text -- boolean value indicating if each segment's text should
         be drawn on the plot. Default is True.
+    draggable --
+    text_y -- 
 
     Returns a line object for the segment line, so that it
     can be included in the legend.
+    Also returns a list of BoundaryAnimators that 
     """
     axes = []
     if not other_axes:
@@ -132,86 +164,25 @@ def plot_satgrid_tier(main_axis, tier, other_axes=None, stimulus_onset=0, draw_t
     text = None
     animators = []
     for segment in tier:
-        lines = []
         for ax in axes:
             line = ax.axvline(
                 x=segment.begin - stimulus_onset, 
                 color="dimgrey", 
                 lw=1,
                 linestyle='--')
-            lines.append(line)
         if draw_text and segment.text:
             prev_text = text
-            text = main_axis.text(segment.mid - stimulus_onset, text_y, segment.text,
-                    text_settings, color="dimgrey")
+            text = main_axis.text(segment.mid - stimulus_onset, 
+                            text_y, segment.text,
+                            text_settings, color="dimgrey")
         if draggable:
-            boundary = AnimatableBoundary(lines, prev_text, text)
-            animator = BoundaryAnimator(boundary, segment, stimulus_onset)
+            boundary = AnimatableBoundary(line, prev_text, text)
+            animator = BoundaryAnimator(boundary, other_axes, 
+                                        segment, stimulus_onset)
             animator.connect()
             animators.append(animator)
     return line, animators
     
-def plot_textgrid_lines(ax, textgrid, stimulus_onset=0, draw_text=True, draggable=True, text_y=500):
-    """
-    Plot vertical lines for the segments in the textgrid.
-
-    Arguments:
-    ax -- matplotlib axes to plot on.
-    textgrid -- a textgrids module textgrid object containing a tier
-        called 'segment'.
-
-    Keyword arguments:
-    stimulus_onset -- onset time of the stimulus in the recording in
-        seconds. Default is 0s.
-    draw_text -- boolean value indicating if each segment's text should
-        be drawn on the plot. Default is True.
-
-    Returns a line object for the segment line, so that it
-    can be included in the legend.
-
-    Throws a KeyError if a tier called 'segment' is not present in the
-    textgrid.
-    """
-    text_settings = {'horizontalalignment': 'center',
-                     'verticalalignment': 'center'}
-    if 'segment' in textgrid:
-        tier = textgrid['segment']
-    elif 'segments' in textgrid:
-        tier = textgrid['segments']
-    elif 'Segments' in textgrid:
-        tier = textgrid['Segments']
-    else:
-        _plot_logger.critical("Could not guess the name of the segment tier. Exiting.")
-        sys.exit()
-
-    # TODO: convert this to draw boundaries and text in two separate passes so that 
-    # all boundaries can be made editable
-
-    last_segment = None
-    lines = []
-    for segment in tier:
-        line = ax.axvline(
-            x=segment.xmin - stimulus_onset, 
-            color="dimgrey", 
-            lw=1,
-            linestyle='--')
-        lines.append(line)
-        last_segment = segment
-        if draw_text:
-            ax.text(segment.mid - stimulus_onset, text_y, segment.text,
-                    text_settings, color="dimgrey")
-    if last_segment:
-        last_line = ax.axvline(x=last_segment.xmax - stimulus_onset,
-                        color="dimgrey", lw=1, linestyle='--')
-        lines.append(last_line)
-
-    boundaries = []
-    for line in lines:
-        if draggable:
-            boundary = BoundaryAnimator(line)
-            boundary.connect()
-            boundaries.append(boundary)
-    return last_line, boundaries
 
 def plot_wav(
         ax, waveform, wav_time, xlim, tier=None, time_offset=0,
@@ -231,7 +202,7 @@ def plot_wav(
             ax, tier, time_offset, draw_text=False)
 
     if draw_legend:
-        wave_curve = mlines.Line2D([], [], color="k", lw=1)
+        wave_curve = Line2D([], [], color="k", lw=1)
     if draw_legend and segment_line:
         ax.legend((wave_curve, segment_line),
                   ('Waveform', 'Acoustic segments'),

@@ -658,11 +658,13 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
 
         data_grid_spec = main_grid_spec[0].subgridspec(4, 1, hspace=0, wspace=0)
         self.data_axes.append(self.fig.add_subplot(data_grid_spec[0:0+2]))
-        self.data_axes.append(self.fig.add_subplot(data_grid_spec[2:2+2], sharex=self.data_axes[0]))
+        self.data_axes.append(self.fig.add_subplot(data_grid_spec[2:2+2], 
+                                                    sharex=self.data_axes[0]))
 
         tier_grid_spec = main_grid_spec[1].subgridspec(1, 1, hspace=0, wspace=0)
         for i, tier in enumerate(self.current.textgrid):
-            self.tier_axes.append(self.fig.add_subplot(tier_grid_spec[i:i+1], sharex=self.data_axes[0]))
+            self.tier_axes.append(self.fig.add_subplot(tier_grid_spec[i:i+1],
+                                                    sharex=self.data_axes[0]))
 
         self.fig.tight_layout()
 

@@ -26,3 +26,7 @@ data properties:
   # Consists of words followed by their segments in arbitrary transcription.  
   pronunciation dictionary: local_data/gam_mono_and_disyllables_for_automatic_segmentation.csv
 
+gui defaults:
+  data axes:
+    - PD
+    - wav

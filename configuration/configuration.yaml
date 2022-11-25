@@ -15,7 +15,7 @@ data/tier height ratios:
 # Default parameters for a data run. Unless you happen to be me, you should
 # probably change these, but do it by copying the file and giving a
 # commandline argument. -Pertti     
-data run parameter file: satkit_default_parameters.yaml
+data run parameter file: configuration/satkit_default_parameters.yaml
 
 
 

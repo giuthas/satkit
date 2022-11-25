@@ -647,8 +647,8 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
         # gs = self.fig.add_gridspec(4, 7)
         # self.ax1 = self.fig.add_subplot(gs[0:0+3, 0:0+7])
         # self.ax3 = self.fig.add_subplot(gs[3:3+1, 0:0+7])
-        height_ratios = [config["satkit constants"]['data/tier height ratios']["data"], 
-                        config["satkit constants"]['data/tier height ratios']["tier"]]
+        height_ratios = [config['data/tier height ratios']["data"], 
+                        config['data/tier height ratios']["tier"]]
         main_grid_spec = self.fig.add_gridspec(
                                 nrows=2,
                                 ncols=1, 

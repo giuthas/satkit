@@ -1,7 +1,6 @@
 import sys
 from contextlib import closing
 from pathlib import Path
-from pprint import pprint
 from typing import Union
 
 from strictyaml import (Bool, Float, Int, Map, ScalarValidator, Seq, Str,
@@ -86,7 +85,6 @@ def load_config(filepath: Union[Path, str, None]=None) -> None:
         print(f"Didn't find {filepath}. Exiting.".format(str(filepath)))
         sys.exit()
     config.update(_raw_config_dict.data)
-    pprint(config)
 
 def load_run_params(filepath: Union[Path, str, None]=None) -> None:
     """
@@ -138,4 +136,3 @@ def load_run_params(filepath: Union[Path, str, None]=None) -> None:
         print(f"Didn't find {filepath}. Exiting.".format(str(filepath)))
         sys.exit()
     data_run_params.update(_raw_config_dict.data)
-    pprint(data_run_params)

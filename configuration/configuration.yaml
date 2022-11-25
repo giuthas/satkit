@@ -12,7 +12,7 @@ satkit constants:
   # Default parameters for a data run. Unless you happen to be me, you should
   # probably change these, but do it by copying the file and giving a
   # commandline argument. -Pertti
-  data run parameters: satkit_parameters.yaml
+  data run parameters: satkit_default_parameters.yaml
 
 data properties:
   # This tells SATKIT which metadata importer to use.

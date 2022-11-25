@@ -7,12 +7,32 @@ from typing import Union
 from strictyaml import (Bool, Float, Int, Map, ScalarValidator, Str, YAMLError,
                         load)
 
+from satkit.io.datasource import Datasource
+
 config = {}
 
 # This is where we store the metadata needed to write out the configuration and
 # possibly not mess up the comments in it.
 _raw_config_dict = {}
 
+class DatasourceValidator(ScalarValidator):
+    """
+    Validate yaml representing a Path.
+    
+    Please note that empty fields are interpeted as not available and
+    represented by None. If you want to specify current working directory, use
+    '.'
+    """
+    def validate_scalar(self, chunk):
+        if chunk.contents:
+            try:
+                return Datasource(chunk.contents)
+            except ValueError:
+                values = [ds.value for ds in Datasource]
+                print(f"Error. Only following values for data source are recognised: {str(values)}")
+                raise
+        else:
+            return None
 
 class PathValidator(ScalarValidator):
     """
@@ -56,7 +76,7 @@ def load_config(filepath: Union[Path, str, None]=None) -> None:
                     "data run parameter file": PathValidator()
                     }),
                 "data properties": Map({
-                    "data source": Str(), 
+                    "data source": DatasourceValidator(), 
                     "speaker id": Str(), 
                     "data directory": PathValidator(), 
                     "outputfilename": PathValidator(),

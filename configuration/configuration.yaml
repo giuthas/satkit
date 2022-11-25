@@ -1,4 +1,7 @@
 
+# Please note that empty file or directory fields are
+# interpeted as not available and represented by None. If you want to specify
+# current working directory, use '.'
 satkit constants:
   # What precision is treated as equal when comparing annotation boundaries.
   epsilon: 0.00001
@@ -11,7 +14,7 @@ satkit constants:
     tier: 1
   # Default parameters for a data run. Unless you happen to be me, you should
   # probably change these, but do it by copying the file and giving a
-  # commandline argument. -Pertti
+  # commandline argument. -Pertti     
   data run parameter file: satkit_default_parameters.yaml
 
 data properties:

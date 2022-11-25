@@ -1,6 +1,7 @@
 import sys
 from contextlib import closing
 from pathlib import Path
+from pprint import pprint
 from typing import Union
 
 from strictyaml import (Bool, Float, Int, Map, ScalarValidator, Str, YAMLError,
@@ -14,9 +15,18 @@ _raw_config_dict = {}
 
 
 class PathValidator(ScalarValidator):
-    """Validate yaml representing a Path."""
+    """
+    Validate yaml representing a Path.
+    
+    Please note that empty fields are interpeted as not available and
+    represented by None. If you want to specify current working directory, use
+    '.'
+    """
     def validate_scalar(self, chunk):
-        return Path(chunk.contents)
+        if chunk.contents:
+            return Path(chunk.contents)
+        else:
+            return None
 
 def load_config(filepath: Union[Path, str, None]=None) -> None:
     """
@@ -71,3 +81,4 @@ def load_config(filepath: Union[Path, str, None]=None) -> None:
         print(f"Didn't find {filepath}. Exiting.".format(str(filepath)))
         sys.exit()
     config.update(_raw_config_dict.data)
+    pprint(config)

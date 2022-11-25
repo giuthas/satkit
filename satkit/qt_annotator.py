@@ -162,12 +162,6 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
                 max_pds[i] = np.max(recording.modalities['PD l2 on RawUltrasound'].data)
         self.ylim = (-50, np.max(max_pds)+50)
 
-        #
-        # Graphs to be annotated and the waveform for reference.
-        #
-        # gs = self.fig.add_gridspec(4, 7)
-        # self.ax1 = self.fig.add_subplot(gs[0:0+3, 0:0+7])
-        # self.ax3 = self.fig.add_subplot(gs[3:3+1, 0:0+7])
         height_ratios = [config['data/tier height ratios']["data"], 
                         config['data/tier height ratios']["tier"]]
         main_grid_spec = self.fig.add_gridspec(
@@ -289,9 +283,6 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
         self.canvas = FigureCanvas(self.fig)
         self.mplWindowVerticalLayout.addWidget(self.canvas)
         self.canvas.draw()
-        # self.toolbar = NavigationToolbar(self.canvas,
-        #                                  self, coordinates=True)
-        # self.addToolBar(self.toolbar)
 
         self.ultra_canvas = FigureCanvas(self.ultra_fig)
         self.verticalLayout_6.addWidget(self.ultra_canvas)
@@ -302,9 +293,6 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
         self.mplWindowVerticalLayout.removeWidget(self.canvas)
         self.canvas.close()
 
-        # self.mplWindowVerticalLayout.removeWidget(self.toolbar)
-        # self.toolbar.close()
-
         self.verticalLayout_6.removeWidget(self.ultra_canvas)
         self.ultra_canvas.close()
 
@@ -313,9 +301,6 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
         Updates title and graphs. Called by self.update().
         """
         self.data_axes[0].set_title(self._get_title())
-        # self.ax1.axes.xaxis.set_ticklabels([])
-        # self.ax3.axes.xaxis.set_ticklabels([])
-        # self.ax4.axes.yaxis.set_ticklabels([])
 
         audio = self.current.modalities['MonoAudio']
         stimulus_onset = audio.go_signal

@@ -135,4 +135,4 @@ def load_run_params(filepath: Union[Path, str, None]=None) -> None:
     else:
         print(f"Didn't find {filepath}. Exiting.".format(str(filepath)))
         sys.exit()
-    data_run_params.update(_raw_config_dict.data)
+    data_run_params.update(_raw_data_run_params_dict.data)

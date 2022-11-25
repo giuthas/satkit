@@ -50,8 +50,8 @@ from PyQt5.QtWidgets import QFileDialog
 from PyQt5.uic import loadUiType
 
 # Local modules
-import satkit.data_import as satkit_io
-from satkit.configuration import config
+import satkit.io as satkit_io
+from satkit.configuration import config, data_run_params
 from satkit.plot import plot_pd, plot_textgrid_lines, plot_wav
 from satkit.plot.plot import plot_satgrid_tier
 
@@ -656,9 +656,12 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
                                 wspace=0, 
                                 height_ratios=height_ratios)
 
-        data_grid_spec = main_grid_spec[0].subgridspec(4, 1, hspace=0, wspace=0)
-        self.data_axes.append(self.fig.add_subplot(data_grid_spec[0:0+2]))
-        self.data_axes.append(self.fig.add_subplot(data_grid_spec[2:2+2], 
+        nro_data_modalities = len(data_run_params['gui defaults']['data axes'])
+        data_grid_spec = main_grid_spec[0].subgridspec(nro_data_modalities, 
+                                                    1, hspace=0, wspace=0)
+        self.data_axes.append(self.fig.add_subplot(data_grid_spec[0]))
+        for i in range(1, nro_data_modalities):
+            self.data_axes.append(self.fig.add_subplot(data_grid_spec[i],
                                                     sharex=self.data_axes[0]))
 
         tier_grid_spec = main_grid_spec[1].subgridspec(1, 1, hspace=0, wspace=0)

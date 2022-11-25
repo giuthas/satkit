@@ -38,7 +38,7 @@ from PyQt5 import QtWidgets
 # local modules
 from satkit.commandLineInterface import Raw3D_CLI
 from satkit.qt_annotator import Pd3dQtAnnotator
-from satkit.io.ThreeD_ultrasound import ThreeD_Ultrasound
+from satkit.data_import.ThreeD_ultrasound import ThreeD_Ultrasound
 from satkit import pd
 
 

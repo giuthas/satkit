@@ -29,11 +29,11 @@
 # citations.bib in BibTeX format.
 #
 
+# Built in packages
 import csv
 import json
 import logging
 import pickle
-# Built in packages
 from contextlib import closing
 
 _io_logger = logging.getLogger('satkit.io')

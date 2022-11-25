@@ -58,7 +58,7 @@ from matplotlib import animation
 from matplotlib.backends.backend_pdf import PdfPages
 
 # local modules
-import satkit.io.AAA as satkit_AAA
+import satkit.data_import.AAA as satkit_AAA
 
 
 # create module logger

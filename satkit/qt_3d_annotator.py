@@ -49,7 +49,7 @@ from PyQt5.QtGui import QIntValidator
 from PyQt5.QtWidgets import QFileDialog
 from PyQt5.uic import loadUiType
 
-import satkit.io as satkit_io
+import satkit.data_import as satkit_io
 # Local modules
 #from satkit.annotator import CurveAnnotator, PD_Annotator
 from satkit.pd_annd_plot import plot_pd_3d, plot_wav_3D_ultra

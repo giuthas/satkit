@@ -7,7 +7,7 @@ from typing import Union
 from strictyaml import (Bool, Float, Int, Map, ScalarValidator, Str, YAMLError,
                         load)
 
-from satkit.io.datasource import Datasource
+from satkit.data_import.datasource import Datasource
 
 config = {}
 

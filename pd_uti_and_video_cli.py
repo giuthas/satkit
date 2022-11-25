@@ -35,7 +35,7 @@ import logging
 # local modules
 from satkit.commandLineInterface import RawAndVideoCLI
 from satkit.recording import RawUltrasound
-from satkit.io.AAA_video import Video
+from satkit.data_import.AAA_video import Video
 from satkit import pd
 
 # how do we tell RawAndVideoCLI or RawCLI to run pd (and others) on all modalities. ie. how do we bind an operation to a modality?

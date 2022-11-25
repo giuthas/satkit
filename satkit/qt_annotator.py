@@ -50,7 +50,7 @@ from PyQt5.QtWidgets import QFileDialog
 from PyQt5.uic import loadUiType
 
 # Local modules
-import satkit.io as satkit_io
+import satkit.data_import as satkit_io
 from satkit.configuration import config
 from satkit.plot import plot_pd, plot_textgrid_lines, plot_wav
 from satkit.plot.plot import plot_satgrid_tier

@@ -192,9 +192,9 @@ def plot_spectrogram(
         waveform: np.ndarray,
         sampling_frequency: float, 
         xtent_on_x: Tuple[float, float],
-        NFFT: int=512,
-        noverlap: int=480,
-        cmap: str='gist_gray',
+        NFFT: int=220,
+        noverlap: int=215,
+        cmap: str='Greys',
         ylim: Tuple[float, float]=(0, 10000),
         ylabel: str="Spectrogram"):
     normalised_wav = waveform / np.amax(np.abs(waveform))

@@ -45,8 +45,8 @@ from matplotlib.backends.backend_qt5agg import \
 from matplotlib.figure import Figure
 # GUI functionality
 from PyQt5.QtCore import QCoreApplication
-from PyQt5.QtGui import QIntValidator
-from PyQt5.QtWidgets import QFileDialog
+from PyQt5.QtGui import QIntValidator, QKeySequence
+from PyQt5.QtWidgets import QFileDialog, QShortcut
 from PyQt5.uic import loadUiType
 
 # Local modules
@@ -124,6 +124,10 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
         self._add_annotations()
 
         self.pickle_filename = pickle_filename
+
+        self.close_window = QShortcut(QKeySequence(self.tr("Ctrl+W", "File|Quit")),
+                     self)
+        self.close_window.activated.connect(self.quit)
 
         self.actionNext.triggered.connect(self.next)
         self.actionPrevious.triggered.connect(self.prev)

@@ -52,6 +52,7 @@ from PyQt5.uic import loadUiType
 # Local modules
 import satkit.io as satkit_io
 from satkit.configuration import config, data_run_params
+from satkit.gui.boundary_animation import BoundaryAnimator
 from satkit.plot import plot_timeseries, plot_wav
 from satkit.plot.plot import plot_satgrid_tier
 
@@ -171,7 +172,7 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
                                 wspace=0, 
                                 height_ratios=height_ratios)
 
-        nro_data_modalities = len(data_run_params['gui defaults']['data axes'])
+        nro_data_modalities = len(data_run_params['gui params']['data axes'])
         data_grid_spec = main_grid_spec[0].subgridspec(nro_data_modalities, 
                                                     1, hspace=0, wspace=0)
         self.data_axes.append(self.fig.add_subplot(data_grid_spec[0]))
@@ -319,29 +320,36 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
         # plot_wav(self.ax3, wav, wav_time, self.xlim,
         #          textgrid, stimulus_onset, 
         #          picker=PdQtAnnotator.line_xdirection_picker)
-        self.pd_boundaries = plot_timeseries(self.data_axes[0], l2.data,
-            ultra_time, self.xlim, self.ylim, tier=None, stimulus_onset=stimulus_onset)
-        self.wav_boundaries = plot_wav(self.data_axes[1], wav, wav_time, self.xlim,
-                 tier=None, time_offset=stimulus_onset)
+        plot_timeseries(self.data_axes[0], l2.data,
+            ultra_time, self.xlim, self.ylim)
+        plot_wav(self.data_axes[1], wav, wav_time, self.xlim)
 
-        satgrid = self.current.satgrid
-        segment_tier = None
-        if 'segment' in satgrid:
-            segment_tier = satgrid['segment']
-        elif 'segments' in satgrid:
-            segment_tier = satgrid['segments']
-        elif 'Segments' in satgrid:
-            segment_tier = satgrid['Segments']
-        elif 'Phoneme' in satgrid:
-            segment_tier = satgrid['Phoneme']
+        segment_line = None
+        boundaries_by_axis = []
+        for (name, tier), axis in zip(self.current.satgrid.items(), self.tier_axes):
+            boundary_set, segment_line = plot_satgrid_tier(axis, tier, 
+                        time_offset=stimulus_onset, text_y=.5)
+            boundaries_by_axis.append(boundary_set)
+            axis.set_ylabel(name)
+            axis.set_xlim(self.xlim)
+            if name in data_run_params["gui params"]["pervasive tiers"]:
+                for axis in self.data_axes:
+                    boundary_set = plot_satgrid_tier(axis, tier, 
+                        time_offset=stimulus_onset, draw_text=False)
+                    boundaries_by_axis.append(boundary_set)
 
-        if segment_tier:
-            self.tier_boundaries = plot_satgrid_tier(self.data_axes[0], segment_tier, 
-                    other_axes=self.data_axes[:-1], stimulus_onset=stimulus_onset, text_y=.5)
+        # Change rows to be individual boundaries instead of axis. This
+        # makes it possible to create animatores for each boundary as
+        # represented by multiple lines on different axes.
+        boundaries_by_boundary = list(map(list, zip(*boundaries_by_axis)))
+
+        self.animators = []
+        for boundaries, interval in zip(boundaries_by_boundary, self.current.satgrid):
+            animator = BoundaryAnimator(boundaries, interval, stimulus_onset) 
+            animator.connect()
+            self.animators.append(animator)
         if self.tier_axes:
-            self.tier_axes[0].set_xlim(self.xlim)
-            self.tier_axes[0].set_ylabel("Segment")
-            self.tier_axes[0].set_xlabel("Time (s), go-signal at 0 s.")
+            self.tier_axes[-1].set_xlabel("Time (s), go-signal at 0 s.")
 
         if self.current.annotations['pdOnset'] > -1:
             self.data_axes[0].axvline(x=self.current.annotations['pdOnset'],

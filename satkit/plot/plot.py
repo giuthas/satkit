@@ -37,6 +37,7 @@ from typing import List, Optional, Tuple, Union
 # Efficient array operations
 import numpy as np
 # Scientific plotting
+from matplotlib.axes import Axes
 from matplotlib.lines import Line2D
 from satkit.data_structures.satgrid import SatTier
 # Local packages
@@ -46,15 +47,12 @@ _plot_logger = logging.getLogger('satkit.plot')
 
 
 
-def plot_timeseries(axis, 
+def plot_timeseries(axes: Axes, 
             data: np.ndarray, 
             time: np.ndarray, 
-            label: Optional[str],
             xlim: Tuple[float, float], 
             ylim: Optional[Tuple[float, float]]=None, 
-            tier: Optional[SatTier]=None, 
-            other_axis=None,
-            stimulus_onset: float=0,
+            label: str="PD on ultrasound",
             picker=None, 
             color: str="deepskyblue", 
             alpha: float=1.0):
@@ -63,10 +61,6 @@ def plot_timeseries(axis,
 
     The timeseries most likely comes from a Modality, but 
     that is left up to the caller. 
-    
-    If tier is specified, will call 
-    plot_satgrid_tier to decorate the current axis with boundaries 
-    of that tier. No annotation lables are currently drawn.
 
     Arguments:
     axis -- matplotlib axes to plot on.
@@ -83,44 +77,42 @@ def plot_timeseries(axis,
 
     Returns None.
     """
-
-    # The PD curve and the official fix for it not showing up on the legend.
     if picker:
-        axis.plot(time, data, color=color, lw=1, picker=picker, alpha=alpha)
+        axes.plot(time, data, color=color, lw=1, picker=picker, alpha=alpha)
     else:
-        axis.plot(time, data, color=color, lw=1, alpha=alpha)
-    pd_curve = Line2D([], [], color=color, lw=1)
+        axes.plot(time, data, color=color, lw=1, alpha=alpha)
+    # The official fix for the above curve not showing up on the legend.
+    timeseries = Line2D([], [], color=color, lw=1)
 
-    go_line = axis.axvline(x=0, color="dimgrey", lw=1, linestyle=(0, (5, 10)))
+    go_line = axes.axvline(x=0, color="dimgrey", lw=1, linestyle=(0, (5, 10)))
 
-    segment_line = None
-    boundaries = None
-    if tier:
-        segment_line, boundaries = plot_satgrid_tier(
-            axis, tier, other_axes=other_axis, stimulus_onset=stimulus_onset, draw_text=False)
-
-    axis.set_xlim(xlim)
+    axes.set_xlim(xlim)
     if not ylim:
-        axis.set_ylim((-50, 3050))
+        axes.set_ylim((-50, 3050))
     else:
-        axis.set_ylim(ylim)
+        axes.set_ylim(ylim)
 
+    axes.set_ylabel(label)
+
+    lines = [timeseries, go_line]
+
+    return lines
+
+# TODO: move this to the annotator as a one-liner
+def legend(axis, timeseries, go_line=None, segment_line=None, location='upper_right'):
     if segment_line:
-        axis.legend((pd_curve, go_line, segment_line),
+        axis.legend((timeseries, go_line, segment_line),
                   ('Pixel difference', 'Go-signal onset', 'Acoustic segments'),
-                  loc='upper right')
+                  loc=location)
     else:
-        axis.legend((pd_curve, go_line),
+        axis.legend((timeseries, go_line),
                   ('Pixel difference', 'Go-signal onset'),
-                  loc='upper right')
-    axis.set_ylabel("PD on ultrasound")
+                  loc=location)
 
-    return boundaries
 
-def plot_satgrid_tier(main_axis, 
+def plot_satgrid_tier(axes: Axes, 
                     tier: SatTier, 
-                    other_axes=None, 
-                    stimulus_onset: float=0, 
+                    time_offset: float=0, 
                     draw_text: bool=True, 
                     draggable: bool=True, 
                     text_y: float=500
@@ -137,7 +129,6 @@ def plot_satgrid_tier(main_axis,
     tier -- TextGrid Tier represented as a SatTier.
 
     Keyword arguments:
-    data_axes -- 
     stimulus_onset -- onset time of the stimulus in the recording in
         seconds. Default is 0s.
     draw_text -- boolean value indicating if each segment's text should
@@ -149,73 +140,48 @@ def plot_satgrid_tier(main_axis,
     can be included in the legend.
     Also returns a list of BoundaryAnimators that 
     """
-    axes = []
-    if not other_axes:
-        axes = [main_axis]
-    else:
-        axes = [main_axis]
-        axes.extend(other_axes)
-
     text_settings = {'horizontalalignment': 'center',
                      'verticalalignment': 'center'}
 
     line = None
     prev_text = None
     text = None
-    animators = []
+    boundaries = []
     for segment in tier:
-        for ax in axes:
-            line = ax.axvline(
-                x=segment.begin - stimulus_onset, 
-                color="dimgrey", 
-                lw=1,
-                linestyle='--')
+        line = axes.axvline(
+            x=segment.begin - time_offset, 
+            color="dimgrey", 
+            lw=1,
+            linestyle='--')
         if draw_text and segment.text:
             prev_text = text
-            text = main_axis.text(segment.mid - stimulus_onset, 
+            text = axes.text(segment.mid - time_offset, 
                             text_y, segment.text,
                             text_settings, color="dimgrey")
         if draggable:
-            boundary = AnimatableBoundary(line, prev_text, text)
-            animator = BoundaryAnimator(boundary, other_axes, 
-                                        segment, stimulus_onset)
-            animator.connect()
-            animators.append(animator)
-    return line, animators
+            boundaries.append(AnimatableBoundary(axes, line, prev_text, text))
+    return line, boundaries
     
 
 def plot_wav(
-        ax, waveform, wav_time, xlim, tier=None, time_offset=0,
-        picker=None, draw_legend=False):
+        ax: Axes, 
+        waveform: np.ndarray, 
+        wav_time: np.ndarray, 
+        xlim: Tuple[float, float], 
+        picker=None):
     normalised_wav = waveform / np.amax(np.abs(waveform))
+
+    line = None
     if picker:
-        ax.plot(wav_time, normalised_wav, color="k", lw=1, picker=picker)
+        line = ax.plot(wav_time, normalised_wav, color="k", lw=1, picker=picker)
     else:
-        ax.plot(wav_time, normalised_wav, color="k", lw=1)
+        line = ax.plot(wav_time, normalised_wav, color="k", lw=1)
 
     ax.axvline(x=0, color="dimgrey", lw=1, linestyle=(0, (5, 10)))
-
-    segment_line = None
-    boundaries = None
-    if tier:
-        segment_line, boundaries = plot_satgrid_tier(
-            ax, tier, time_offset, draw_text=False)
-
-    if draw_legend:
-        wave_curve = Line2D([], [], color="k", lw=1)
-    if draw_legend and segment_line:
-        ax.legend((wave_curve, segment_line),
-                  ('Waveform', 'Acoustic segments'),
-                  loc='upper right')
-    elif draw_legend:
-        ax.legend((wave_curve,),
-                  ('Waveform',),
-                  loc='upper right')
 
     ax.set_xlim(xlim)
     ax.set_ylim((-1.05, 1.05))
     ax.set_ylabel("Wave")
-    # ax.set_xlabel("Time (s), go-signal at 0 s.")
 
-    return boundaries
+    return line
 

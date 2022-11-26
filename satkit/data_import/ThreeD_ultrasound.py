@@ -29,27 +29,26 @@
 # citations.bib in BibTeX format.
 #
 
+import csv
+import logging
+import sys
+import warnings
 # Built in packages
 from contextlib import closing
 from copy import deepcopy
-import csv
 from datetime import datetime
-import logging
 from pathlib import Path, PureWindowsPath
-import warnings
-import sys
 
 # Numpy and scipy
 import numpy as np
-#from numpy.matlib import repmat
-import scipy.io
-
 # dicom reading
 import pydicom
-
+#from numpy.matlib import repmat
+import scipy.io
 # Local packages
-from satkit.recording import MatrixData, MonoAudio, Recording
-from satkit.io.AAA_video import LipVideo
+from satkit.data_structures.data_structures import Modality, Recording
+from satkit.data_import.add_AAA_video import Video
+from satkit.data_structures.modalities import MonoAudio
 
 _3D4D_ultra_logger = logging.getLogger('satkit.ThreeD_ultrasound')
 
@@ -264,7 +263,7 @@ def generateUltrasoundRecording(dicom_name, sound_name, directories=None):
     return recording
 
 
-class ThreeD_Ultrasound(MatrixData):
+class ThreeD_Ultrasound(Modality):
     """
     Ultrasound Recording with raw 3D/4D (probe return) data.    
     """
@@ -281,7 +280,7 @@ class ThreeD_Ultrasound(MatrixData):
             Default is None.
         """
         super().__init__(name=name, parent=parent, preload=preload,
-                         timeOffset=timeOffset)
+                         time_offset=timeOffset)
 
         self.meta['filename'] = filename
 
@@ -612,7 +611,7 @@ class ThreeD_UltrasoundRecording(Recording):
         waveform = MonoAudio(
             parent=self,
             preload=wavPreload,
-            timeOffset=0,
+            time_offset=0,
             filename=self.meta['ult_wav_file']
         )
         self.addModality(MonoAudio.__name__, waveform)
@@ -643,13 +642,13 @@ class ThreeD_UltrasoundRecording(Recording):
                 "This is the correct value for fps for a de-interlaced video "
                 + " for AAA recordings. Check it for other data.")
 
-            video = LipVideo(
+            video = Video(
                 parent=self,
                 preload=videoPreload,
-                filename=self.meta['video_file'],
+                path=self.meta['video_file'],
                 meta=videoMeta
             )
-            self.addModality(LipVideo.__name__, video)
+            self.addModality(Video.__name__, video)
             _3D4D_ultra_logger.debug(
                 "Added LipVideo to Recording representing"
                 + self.meta['basename'] + ".")

@@ -29,31 +29,32 @@
 # citations.bib in BibTeX format.
 #
 
-import time
-import logging
+class SatkitError(Exception):
+    """Base class of SATKIT Errors."""
+    pass
 
-# local modules
-from satkit.commandLineInterface import RawCLI
-from satkit.annotator import PD_UTI_video_Annotator
-from satkit.recording import RawUltrasound
-from satkit.data_import.AAA_video import Video
-from satkit import pd
+class MissingDataError(SatkitError):
+    """
+    Data requested from Modality but is unavailable.
+    
+    This Error signifies that a Modality was created without providing either a
+    path to files to load or an algorithm for deriving the Modality from another
+    Modality.
+    """
+    pass
 
+class ModalityError(SatkitError):
+    """
+    Modality already exists in Recording.
+    """
+    pass
 
-def main():
-    t = time.time()
+class OverWriteError(SatkitError):
+    """
+    Trying to replace the data or timevector in a Modality with non-matching dtype, size, or shape.
+    """
+    pass
 
-    # Run the command line interface.
-    #function_dict = {'pd':pd.pd, 'annd':annd.annd}
-    function_dict = {'PD': (pd.add_pd, [RawUltrasound, Video])}
-    cli = RawCLI("PD UTI and video annotator", function_dict, plot=False)
-
-    elapsed_time = time.time() - t
-    logging.info('Elapsed time ' + str(elapsed_time))
-
-    # Get the GUI running.
-    ca = PD_UTI_video_Annotator(cli.recordings, cli.args)
-
-
-if (__name__ == '__main__'):
-    main()
+class UltrasoundInterpolationError(SatkitError):
+    """Interpolatated ultrasound image could not be produced."""
+    pass

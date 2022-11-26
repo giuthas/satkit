@@ -1,8 +1,7 @@
 #
-# Copyright (c) 2019-2021 Pertti Palo, Scott Moisik, Matthew Faytak,
-# and Motoki Saito.
+# Copyright (c) 2019-2022 Pertti Palo, Scott Moisik, Matthew Faytak, and Motoki Saito.
 #
-# This file is part of Speech Articulation ToolKIT
+# This file is part of Speech Articulation ToolKIT 
 # (see https://github.com/giuthas/satkit/).
 #
 # This program is free software: you can redistribute it and/or modify
@@ -31,13 +30,13 @@
 #
 
 import math
-from tqdm import tqdm
-
-
-import numpy as np
-from scipy import ndimage
 
 import cv2
+import numpy as np
+from scipy import ndimage
+from tqdm import tqdm
+
+from satkit.errors import UltrasoundInterpolationError
 
 
 def to_fan(scanline_data, angle=None, zero_offset=None, pix_per_mm=None,
@@ -48,6 +47,8 @@ def to_fan(scanline_data, angle=None, zero_offset=None, pix_per_mm=None,
     Positional argument:
     scanline_data - numpy array containing each frame as a vector,
         but in case of RGB data, each color as its own vector.
+
+    Keyword arguments:
     angle - angle between scanlines in radians
     zero_offset - distance between probe center and first pixel of a scanline
     pix_per_mm - pixels per mm in the depth direction of a scanline
@@ -92,13 +93,11 @@ def to_fan(scanline_data, angle=None, zero_offset=None, pix_per_mm=None,
 def to_fan_2d(img, angle=None, zero_offset=None, pix_per_mm=None,
               num_vectors=None, magnify=1, reserve=1800):
     """
-    Transform a gray scale image to a fanshaped image.
+    Transform a raw ultrasound image to a fanshaped image.
     """
 
-    use_genpar = any([i is None
-                      for i in [angle, zero_offset, pix_per_mm, num_vectors]])
-    if use_genpar:
-        warning = 'WARNING: Not all the necessary information are provided. '
+    if None in [angle, zero_offset, pix_per_mm, num_vectors]:
+        warning = 'WARNING: Not all the necessary information was provided. '
         warning += 'General parameters are used instead.'
         print(warning)
         img = cv2.resize(img, (500, 500))
@@ -116,8 +115,8 @@ def to_fan_2d(img, angle=None, zero_offset=None, pix_per_mm=None,
     elif dimnum == 3 and img.shape[-1] == 3:
         grayscale = False
     else:
-        raise ValueError(
-            'Dimensions are not 2. And it does not look like a RGB format, either.')
+        raise UltrasoundInterpolationError(
+            'Dimensions is not 2. And it does not look like a RGB format, either.')
 
     if grayscale:
         output_shape = (
@@ -158,23 +157,23 @@ def ult_cart2pol(
     """
     def cart2pol(x, y):
         r = math.sqrt(x**2 + y**2)
-        th = math.atan2(y, x)
-        return r, th
-    (r, th) = cart2pol(output_coordinates[0] - origin[0],
+        theta = math.atan2(y, x)
+        return r, theta
+    (r, theta) = cart2pol(output_coordinates[0] - origin[0],
                        output_coordinates[1] - origin[1])
     r *= pix_per_mm
     cl = num_of_vectors // 2
     if grayscale:
-        res = cl - ((th - np.pi / 2) / angle), r - zero_offset
+        res = cl - ((theta - np.pi / 2) / angle), r - zero_offset
     else:
-        res = cl - ((th - np.pi / 2) / angle), r - \
+        res = cl - ((theta - np.pi / 2) / angle), r - \
             zero_offset, output_coordinates[2]
     return res
 
 
 def trim_picture(img):
     """
-    Place holder docstring.
+    TODO: docstring.
     """
     def unique_element_number(vec):
         try:

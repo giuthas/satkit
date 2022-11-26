@@ -30,12 +30,11 @@
 #
 
 # Built in packages
-from contextlib import closing
 import csv
 import json
 import logging
 import pickle
-
+from contextlib import closing
 
 _io_logger = logging.getLogger('satkit.io')
 
@@ -125,13 +124,13 @@ def save_prompt_freq(filename, prompt_freqs):
     NOT IN USE YET.
     Save frequency count of each prompt in a .csv file. 
     """
-    with closing(open('prompt_freqs.csv', 'w')) as csvfile:
+    with closing(open('prompt_freqs.csv', 'w', encoding='utf-8')) as csvfile:
         writer = csv.writer(csvfile)
         writer.writerow(['prompt', 'frequency'])
         for prompt in sorted(prompt_freqs.keys()):
             writer.writerow([prompt, prompt_freqs[prompt]])
         _io_logger.debug(
-            'Wrote prompt frequency counts to file ' + filename + '.')
+            'Wrote prompt frequency counts to file {filename}.', filename)
 
 
 def set_exclusions_from_file(filename, recordings):
@@ -141,13 +140,13 @@ def set_exclusions_from_file(filename, recordings):
     """
     if filename is not None:
         _io_logger.debug(
-            "Setting exclusions from file " + filename + ".")
-        with closing(open(filename, 'r')) as csvfile:
+            "Setting exclusions from file %s.", filename)
+        with closing(open(filename, 'r', encoding='utf-8')) as csvfile:
             reader = csv.reader(csvfile, delimiter='\t')
             # Throw away the second field - it is a comment for human readers.
             exclusion_list = [row[0] for row in reader if row]
-            _io_logger.info('Read exclusion list ' + filename + ' with ' +
-                            str(len(exclusion_list)) + ' names.')
+            _io_logger.info('Read exclusion list %s with %s names.', 
+                            filename, str(len(exclusion_list)))
     else:
         _io_logger.debug(
             "No exclusion file. Using an empty list.")
@@ -155,7 +154,7 @@ def set_exclusions_from_file(filename, recordings):
 
     # mark as excluded
     [recording.exclude() for recording in recordings
-     if recording.meta['basename'] in exclusion_list]
+     if recording.basename in exclusion_list]
 
 
 def read_file_exclusion_list(filename):
@@ -163,12 +162,12 @@ def read_file_exclusion_list(filename):
     Read list of files (that is, recordings) to be excluded from processing.
     """
     if filename is not None:
-        with closing(open(filename, 'r')) as csvfile:
+        with closing(open(filename, 'r', encoding = 'utf-8')) as csvfile:
             reader = csv.reader(csvfile, delimiter='\t')
             # Throw away the second field - it is a comment for human readers.
             exclusion_list = [row[0] for row in reader]
-            _io_logger.info('Read exclusion list ' + filename + ' with ' +
-                            str(len(exclusion_list)) + ' names.')
+            _io_logger.info('Read exclusion list {filename} with {length} names.', 
+                        filename = filename, length = str(len(exclusion_list)))
     else:
         exclusion_list = []
 

@@ -1,7 +1,7 @@
 #
-# Copyright (c) 2019-2021 Pertti Palo, Scott Moisik, and Matthew Faytak.
+# Copyright (c) 2019-2022 Pertti Palo, Scott Moisik, Matthew Faytak, and Motoki Saito.
 #
-# This file is part of Speech Articulation ToolKIT
+# This file is part of Speech Articulation ToolKIT 
 # (see https://github.com/giuthas/satkit/).
 #
 # This program is free software: you can redistribute it and/or modify
@@ -38,7 +38,7 @@ from PyQt5 import QtWidgets
 # local modules
 from satkit.commandLineInterface import Old_Style_3D_CLI
 from satkit.qt_annotator import Pd3dQtAnnotator
-from satkit.io.ThreeD_ultrasound import ThreeD_Ultrasound
+from satkit.data_import.ThreeD_ultrasound import ThreeD_Ultrasound
 from satkit import pd
 
 
@@ -47,7 +47,7 @@ def main():
 
     # Run the command line interface.
     #function_dict = {'pd':pd.pd, 'annd':annd.annd}
-    function_dict = {'PD': (pd.addPD, [ThreeD_Ultrasound])}
+    function_dict = {'PD': (pd.add_pd, [ThreeD_Ultrasound])}
     cli = Old_Style_3D_CLI("PD 3D annotator", function_dict, plot=False)
 
     elapsed_time = time.time() - t

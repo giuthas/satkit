@@ -28,32 +28,4 @@
 # articles listed in README.markdown. They can also be found in
 # citations.bib in BibTeX format.
 #
-
-import time
-import logging
-
-# local modules
-from satkit.commandLineInterface import RawCLI
-from satkit.annotator import PD_UTI_video_Annotator
-from satkit.recording import RawUltrasound
-from satkit.data_import.AAA_video import Video
-from satkit import pd
-
-
-def main():
-    t = time.time()
-
-    # Run the command line interface.
-    #function_dict = {'pd':pd.pd, 'annd':annd.annd}
-    function_dict = {'PD': (pd.add_pd, [RawUltrasound, Video])}
-    cli = RawCLI("PD UTI and video annotator", function_dict, plot=False)
-
-    elapsed_time = time.time() - t
-    logging.info('Elapsed time ' + str(elapsed_time))
-
-    # Get the GUI running.
-    ca = PD_UTI_video_Annotator(cli.recordings, cli.args)
-
-
-if (__name__ == '__main__'):
-    main()
+from satkit.plot.plot import plot_timeseries, plot_wav

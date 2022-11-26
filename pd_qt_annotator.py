@@ -1,7 +1,7 @@
 #
 # Copyright (c) 2019-2022 Pertti Palo, Scott Moisik, Matthew Faytak, and Motoki Saito.
 #
-# This file is part of Speech Articulation ToolKIT
+# This file is part of Speech Articulation ToolKIT 
 # (see https://github.com/giuthas/satkit/).
 #
 # This program is free software: you can redistribute it and/or modify
@@ -37,21 +37,25 @@ import time
 # For running a Qt GUI
 from PyQt5 import QtWidgets
 
+import satkit.configuration as configuration
+from satkit import pd
 # local modules
 from satkit.commandLineInterface import RawCLI
+from satkit.data_structures.modalities import RawUltrasound
 from satkit.qt_annotator import PdQtAnnotator
-from satkit.recording import RawUltrasound
-from satkit import pd
 
 
 def main():
     """Simple main to run the CLI back end and start the QT front end."""
     start_time = time.time()
 
+    configuration.load_config()
+    configuration.load_run_params(configuration.config['data run parameter file'])
+
     # Run the command line interface.
     #function_dict = {'pd':pd.pd, 'annd':annd.annd}
-    function_dict = {'PD': (pd.addPD, [RawUltrasound])}
-    cli = RawCLI("PD annotator", function_dict, plot=True)
+    function_dict = {'PD': (pd.add_pd, [RawUltrasound])}
+    cli = RawCLI("PD annotator", function_dict, plot=False)
 
     elapsed_time = time.time() - start_time
     log_text = 'Elapsed time ' + str(elapsed_time)

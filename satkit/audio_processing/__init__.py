@@ -29,4 +29,5 @@
 # citations.bib in BibTeX format.
 #
 
-from .audio_processing import band_pass, detect_beep_and_speech, high_pass, high_pass_50
+from .audio_processing import (MainsFilter, band_pass, detect_beep_and_speech,
+                               high_pass, high_pass_50)

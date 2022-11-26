@@ -29,5 +29,40 @@
 # citations.bib in BibTeX format.
 #
 
-from .io import *
+# built-in modules
+import logging
+import sys
+import time
 
+# For running a Qt GUI
+from PyQt5 import QtWidgets
+
+# local modules
+from satkit.commandLineInterface import RawCLI
+from satkit.qt_annotator import PdQtAnnotator
+from satkit.recording import RawUltrasound
+from satkit import pd
+
+
+def main():
+    """Simple main to run the CLI back end and start the QT front end."""
+    t = time.time()
+
+    # Run the command line interface.
+    #function_dict = {'pd':pd.pd, 'annd':annd.annd}
+    function_dict = {'PD': (pd.addPD, [RawUltrasound])}
+    cli = RawCLI("PD annotator", function_dict, plot=False)
+
+    elapsed_time = time.time() - t
+    log_text = 'Elapsed time ' + str(elapsed_time)
+    logging.info(log_text)
+
+    # Get the GUI running.
+    app = QtWidgets.QApplication(sys.argv)
+    # Apparently the assigment to an unused variable is needed to avoid a segfault.
+    annotator = PdQtAnnotator(cli.recordings, cli.args)
+    sys.exit(app.exec_())
+
+
+if __name__ == '__main__':
+    main()

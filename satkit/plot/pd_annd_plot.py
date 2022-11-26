@@ -31,21 +31,19 @@
 
 # Built in packages
 import logging
-from pathlib import Path
 import sys
 import warnings
-
-# Efficient array operations
-import numpy as np
+from pathlib import Path
 
 # Scientific plotting
 import matplotlib.lines as mlines
 import matplotlib.pyplot as plt
-from matplotlib.backends.backend_pdf import PdfPages
-
+# Efficient array operations
+import numpy as np
 # Praat textgrids
 import textgrids
-
+from matplotlib.backends.backend_pdf import PdfPages
+from satkit.gui.boundary_animation import BoundaryAnimator
 
 _plot_logger = logging.getLogger('satkit.pd.plot')
 
@@ -64,7 +62,7 @@ def moving_average(a, n=3):
 # Subplot functions
 #####
 
-def plot_textgrid_lines(ax, textgrid, stimulus_onset=0, draw_text=True):
+def plot_textgrid_lines(ax, textgrid, stimulus_onset=0, draw_text=True, draggable=True):
     """
     Plot vertical lines for the segments in the textgrid.
 
@@ -87,7 +85,6 @@ def plot_textgrid_lines(ax, textgrid, stimulus_onset=0, draw_text=True):
     """
     text_settings = {'horizontalalignment': 'center',
                      'verticalalignment': 'center'}
-    segment_line = None
     if 'segment' in textgrid:
         segments = textgrid['segment']
     elif 'segments' in textgrid:
@@ -98,21 +95,34 @@ def plot_textgrid_lines(ax, textgrid, stimulus_onset=0, draw_text=True):
         _plot_logger.critical("Could not guess the name of the segment tier. Exiting.")
         sys.exit()
 
+    # TODO: convert this to draw boundaries and text in two separate passes so that 
+    # all boundaries can be made editable
+
+    last_segment = None
+    lines = []
     for segment in segments:
-        if segment.text == "":
-            continue
-        elif segment.text == "beep":
-            continue
-        else:
-            segment_line = ax.axvline(
-                x=segment.xmin - stimulus_onset, color="dimgrey", lw=1,
-                linestyle='--')
-            ax.axvline(x=segment.xmax - stimulus_onset,
-                       color="dimgrey", lw=1, linestyle='--')
-            if draw_text:
-                ax.text(segment.mid - stimulus_onset, 500, segment.text,
-                        text_settings, color="dimgrey")
-    return segment_line
+        line = ax.axvline(
+            x=segment.xmin - stimulus_onset, 
+            color="dimgrey", 
+            lw=1,
+            linestyle='--')
+        lines.append(line)
+        last_segment = segment
+        if draw_text:
+            ax.text(segment.mid - stimulus_onset, 500, segment.text,
+                    text_settings, color="dimgrey")
+    if last_segment:
+        last_line = ax.axvline(x=last_segment.xmax - stimulus_onset,
+                        color="dimgrey", lw=1, linestyle='--')
+        lines.append(last_line)
+
+    boundaries = []
+    for line in lines:
+        if draggable:
+            boundary = BoundaryAnimator(line)
+            boundary.connect()
+            boundaries.append(boundary)
+    return last_line, boundaries
 
 
 def plot_textgrid_lines_3D_ultra(
@@ -196,8 +206,9 @@ def plot_pd(axis, pd, time, xlim, ylim=None, textgrid=None, stimulus_onset=0,
     go_line = axis.axvline(x=0, color="dimgrey", lw=1, linestyle=(0, (5, 10)))
 
     segment_line = None
+    boundaries = None
     if textgrid:
-        segment_line = plot_textgrid_lines(axis, textgrid, stimulus_onset)
+        segment_line, boundaries = plot_textgrid_lines(axis, textgrid, stimulus_onset)
 
     axis.set_xlim(xlim)
     if not ylim:
@@ -214,6 +225,8 @@ def plot_pd(axis, pd, time, xlim, ylim=None, textgrid=None, stimulus_onset=0,
                   ('Pixel difference', 'Go-signal onset'),
                   loc='upper right')
     axis.set_ylabel("PD on ultrasound")
+
+    return boundaries
 
 
 def plot_pd_3d(ax, pd, time, xlim, textgrid=None, stimulus_onset=0,
@@ -714,8 +727,9 @@ def plot_wav(
     ax.axvline(x=0, color="dimgrey", lw=1, linestyle=(0, (5, 10)))
 
     segment_line = None
+    boundaries = None
     if textgrid:
-        segment_line = plot_textgrid_lines(
+        segment_line, boundaries = plot_textgrid_lines(
             ax, textgrid, time_offset, draw_text=False)
 
     if draw_legend:
@@ -733,6 +747,8 @@ def plot_wav(
     ax.set_ylim((-1.05, 1.05))
     ax.set_ylabel("Wave")
     ax.set_xlabel("Time (s), go-signal at 0 s.")
+
+    return boundaries
 
 
 def plot_wav_3D_ultra(
@@ -1213,8 +1229,10 @@ def draw_fp2022_spaghetti(recordings):
         xlim = (-1.0, 1.5)
 
         for recording in recordings:
+            if recording.excluded:
+                continue
             audio = recording.modalities['MonoAudio']
-            stimulus_onset = audio.meta['stimulus_onset']
+            stimulus_onset = audio.go_signal
             if not recording.annotations:
                 continue
             last_gesture = recording.annotations['pdOnset']

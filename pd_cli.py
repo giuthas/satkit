@@ -40,7 +40,7 @@ from satkit.recording import RawUltrasound
 
 def main():
     # Run the command line interface.
-    function_dict = {'PD': (pd.addPD, [RawUltrasound])}
+    function_dict = {'PD': (pd.add_pd, [RawUltrasound])}
     RawCLI("PD processing script", function_dict)
 
 

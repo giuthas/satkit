@@ -1,0 +1,38 @@
+# Please note that empty file or directory fields are
+# interpeted as not available and represented by None. If you want to specify
+# current working directory, use '.'
+
+flags:
+  detect beep: True # Should onset beep detection be run?
+  only words: False # Add only Utterance and Word Tiers.
+  utterance: True # Add Utterance Tier.
+  file: False # Add File Tier.
+  test: False # Run on only the first 10 recordings.
+
+data properties:
+  # This tells SATKIT which metadata importer to use.
+  data source: AAA
+
+  # Speaker id is used in the output csv file.
+  speaker id: gam-1-2
+  # This is where we read the wavs and metadata from.
+  data directory: local_data/single_file
+  # This will be used as the name of the output wav and TextGrid.
+  outputfilename: local_data/File004
+
+  # Strict YAML file specifying recordings to be excluded based 
+  # on both prompts and file names.
+  exclusion list: 
+  # Consists of words followed by their segments in arbitrary transcription.  
+  pronunciation dictionary: local_data/gam_mono_and_disyllables_for_automatic_segmentation.csv
+
+gui params:
+  data axes:
+    - PD
+    - wav
+    - spectrogram
+  pervasive tiers:
+    - Segment
+    - Segments
+    - segment
+    - segments

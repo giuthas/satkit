@@ -1,7 +1,7 @@
 #
 # Copyright (c) 2019-2022 Pertti Palo, Scott Moisik, Matthew Faytak, and Motoki Saito.
 #
-# This file is part of Speech Articulation ToolKIT
+# This file is part of Speech Articulation ToolKIT 
 # (see https://github.com/giuthas/satkit/).
 #
 # This program is free software: you can redistribute it and/or modify
@@ -34,15 +34,15 @@ import datetime
 import logging
 import os
 import os.path
-from pathlib import Path
 import sys
 import warnings
+from pathlib import Path
 
-# local modules
-import satkit.pd_annd_plot as pd_annd_plot
-import satkit.io.AAA as satkit_AAA
-import satkit.io.ThreeD_ultrasound as ThreeD_ultrasound
+import satkit.data_import.AAA as satkit_AAA
+import satkit.data_import.ThreeD_ultrasound as ThreeD_ultrasound
 import satkit.io as satkit_io
+# local modules
+import satkit.plot.pd_annd_plot as pd_annd_plot
 
 
 def widen_help_formatter(formatter, total_width=140, syntax_width=35):
@@ -160,6 +160,9 @@ class RawCLI(BaseCLI):
 
         # calculate the metrics
         for recording in self.recordings:
+            if recording.excluded:
+                continue
+
             for key in processing_functions:
                 (function, modalities) = processing_functions[key]
                 # TODO: Version 1.0: add a mechanism to change the arguments for different modalities.
@@ -168,7 +171,7 @@ class RawCLI(BaseCLI):
                         recording,
                         modality,
                         preload=True,
-                        releaseDataMemory=True)
+                        release_data_memory=True)
 
         # save before plotting just in case.
         if self.args.output_filename:
@@ -230,7 +233,7 @@ class RawCLI(BaseCLI):
             self.recordings = satkit_io.load_json_data(self.args.load_path)
         else:
             self.logger.error(
-                'Unsupported filetype: %s.', self.args.load_path + '.')
+                'Unsupported filetype: %s.', self.args.load_path)
 
     def _plot(self):
         """
@@ -258,9 +261,9 @@ class RawCLI(BaseCLI):
         satkit_io.set_exclusions_from_file(
             self.args.exclusion_filename, recordings)
 
-        for recording in recordings:
+        for recording in recordings: 
             if not recording.excluded:
-                recording.add_modalities()
+                satkit_AAA.add_modalities(recording)
 
         return recordings
 

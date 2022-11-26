@@ -38,7 +38,7 @@ from PyQt5 import QtWidgets
 # local modules
 from satkit.commandLineInterface import Raw3D_CLI
 from satkit.qt_annotator import Pd3dQtAnnotator
-from satkit.io.ThreeD_ultrasound import ThreeD_Ultrasound
+from satkit.data_import.ThreeD_ultrasound import ThreeD_Ultrasound
 from satkit import pd
 
 
@@ -47,7 +47,7 @@ def main():
 
     # Run the command line interface.
     #function_dict = {'pd':pd.pd, 'annd':annd.annd}
-    function_dict = {'PD': (pd.addPD, [ThreeD_Ultrasound])}
+    function_dict = {'PD': (pd.add_pd, [ThreeD_Ultrasound])}
     cli = Raw3D_CLI("PD 3D annotator", function_dict, plot=False)
 
     elapsed_time = time.time() - t

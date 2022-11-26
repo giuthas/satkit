@@ -29,31 +29,47 @@
 # citations.bib in BibTeX format.
 #
 
-import time
+# Built in packages
 import logging
+from pathlib import Path
+from typing import Optional
 
-# local modules
-from satkit.commandLineInterface import RawCLI
-from satkit.annotator import PD_UTI_video_Annotator
-from satkit.recording import RawUltrasound
-from satkit.data_import.AAA_video import Video
-from satkit import pd
+# Local packages
+from satkit.data_structures.data_structures import Recording
+from satkit.data_structures.modalities import Video
 
-
-def main():
-    t = time.time()
-
-    # Run the command line interface.
-    #function_dict = {'pd':pd.pd, 'annd':annd.annd}
-    function_dict = {'PD': (pd.add_pd, [RawUltrasound, Video])}
-    cli = RawCLI("PD UTI and video annotator", function_dict, plot=False)
-
-    elapsed_time = time.time() - t
-    logging.info('Elapsed time ' + str(elapsed_time))
-
-    # Get the GUI running.
-    ca = PD_UTI_video_Annotator(cli.recordings, cli.args)
+_AAA_video_logger = logging.getLogger('satkit.AAA_video')
 
 
-if (__name__ == '__main__'):
-    main()
+def add_aaa_video(recording: Recording, preload: bool,
+                    path: Optional[Path]=None) -> None:
+    """Create a RawUltrasound Modality and add it to the Recording."""
+    if not path:
+        video_file = (recording.path/recording.basename).with_suffix(".avi")
+    else:
+        video_file = path
+
+    # This is the correct value for fps for a de-interlaced
+    # video according to Alan, and he should know having
+    # written AAA.
+    meta = {
+        'FramesPerSec': 59.94
+    }
+
+    if video_file.is_file():
+        ultrasound = Video(
+            recording=recording,
+            preload=preload,
+            path=video_file,
+            parent=None,
+            meta=meta
+        )
+        recording.addModality(ultrasound)
+        _AAA_video_logger.debug(
+            "Added RawUltrasound to Recording representing %s.",
+            recording.path.name)
+    else:
+        notice = 'Note: ' + str(video_file) + " does not exist."
+        _AAA_video_logger.warning(notice)
+
+

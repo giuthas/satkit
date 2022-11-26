@@ -1,7 +1,7 @@
 #
 # Copyright (c) 2019-2022 Pertti Palo, Scott Moisik, Matthew Faytak, and Motoki Saito.
 #
-# This file is part of Speech Articulation ToolKIT
+# This file is part of Speech Articulation ToolKIT 
 # (see https://github.com/giuthas/satkit/).
 #
 # This program is free software: you can redistribute it and/or modify
@@ -36,7 +36,6 @@ import logging
 import numpy as np
 from scipy.signal import butter, filtfilt, kaiser, sosfilt
 
-
 _audio_logger = logging.getLogger('satkit.audio')
 
 
@@ -67,7 +66,14 @@ def band_pass(sampling_frequency):
     sos = butter(1, [low, high], btype='band', output='sos')
     return(sos)
 
+class MainsFilter():
+    mains_frequency = None
+    mains_filter = None
 
+    def generate_mains_filter(sampling_frequency: float, mains_frequency: float):
+        MainsFilter.mains_frequency = mains_frequency
+        MainsFilter.mains_filter = high_pass(sampling_frequency, mains_frequency)
+            
 def detect_beep_and_speech(frames, sampling_frequency, b, a, name):
     """
     Find a 1kHz 50ms beep at the beginning of a sound sample.
@@ -171,3 +177,5 @@ def detect_beep_and_speech(frames, sampling_frequency, b, a, name):
         has_speech = False
 
     return (beep, has_speech)
+
+

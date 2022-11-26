@@ -285,6 +285,12 @@ good-names=i,
            k,
            r,
 <<<<<<< HEAD
+           x, y, z,
+           pd, 
+           ex,
+           go
+=======
+<<<<<<< HEAD
            ex,
            go,
            Run,
@@ -295,6 +301,7 @@ good-names=i,
            ex,
            go
 >>>>>>> main
+>>>>>>> devel
 
 # Good variable names regexes, separated by a comma. If names match any regex,
 # they will always be accepted

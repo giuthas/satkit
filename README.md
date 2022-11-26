@@ -50,8 +50,10 @@ spline distance measures and optic flow.
 ## Major update coming up
 
 After Ultrafest 2022 there is going to be a major update to the codebase. While
-this notice is here in the main branch, that update has not yet happened. If you
+this notice is here in the main branch, that update is not yet complete. If you
 wish to try SATKIT in the meanwhile, please contact Pertti for instructions.
+
+![SATKIT GUI](SATKIT_UI.png)
 
 ## Getting Started
 

@@ -114,7 +114,6 @@ def plot_satgrid_tier(axes: Axes,
                     tier: SatTier, 
                     time_offset: float=0, 
                     draw_text: bool=True, 
-                    draggable: bool=True, 
                     text_y: float=500
                     ) -> Union[Line2D, List[BoundaryAnimator]]:
     """
@@ -158,7 +157,10 @@ def plot_satgrid_tier(axes: Axes,
             text = axes.text(segment.mid - time_offset, 
                             text_y, segment.text,
                             text_settings, color="dimgrey")
-        if draggable:
+            boundaries.append(AnimatableBoundary(axes, line, prev_text, text))
+        else:
+            prev_text = text
+            text = None
             boundaries.append(AnimatableBoundary(axes, line, prev_text, text))
     return boundaries, line
     

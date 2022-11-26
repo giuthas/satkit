@@ -300,6 +300,7 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
         if self.current.satgrid:
             nro_tiers = len(self.current.satgrid)
             self.tier_grid_spec = self.main_grid_spec[1].subgridspec(nro_tiers, 1, hspace=0, wspace=0)
+            self.tier_axes = []
             for i, tier in enumerate(self.current.textgrid):
                 self.tier_axes.append(self.fig.add_subplot(self.tier_grid_spec[i],
                                                         sharex=self.data_axes[0]))

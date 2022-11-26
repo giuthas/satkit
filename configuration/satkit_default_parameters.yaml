@@ -30,6 +30,7 @@ gui params:
   data axes:
     - PD
     - wav
+    - spectrogram
   pervasive tiers:
     - Segment
     - Segments

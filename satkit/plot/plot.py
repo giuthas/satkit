@@ -187,3 +187,25 @@ def plot_wav(
 
     return line
 
+def plot_spectrogram(
+        ax: Axes, 
+        waveform: np.ndarray,
+        sampling_frequency: float, 
+        xtent_on_x: Tuple[float, float],
+        NFFT: int=1024,
+        noverlap: int=900,
+        cmap: str='gist_gray',
+        ylim: Tuple[float, float]=(0, 10000),
+        ylabel: str="Spectrogram"):
+    normalised_wav = waveform / np.amax(np.abs(waveform))
+
+    #xlim = [xlim[0]+time_offset, xlim[1]+time_offset]
+      # the length of the windowing segments
+    Pxx, freqs, bins, im = ax.specgram(normalised_wav, NFFT=NFFT, 
+                                Fs=sampling_frequency, noverlap=noverlap,
+                                cmap=cmap, xextent=xtent_on_x)
+
+    ax.set_ylim(ylim)
+    ax.set_ylabel(ylabel)
+
+    return Pxx, freqs, bins, im

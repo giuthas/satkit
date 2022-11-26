@@ -54,7 +54,7 @@ import satkit.io as satkit_io
 from satkit.configuration import config, data_run_params
 from satkit.gui.boundary_animation import BoundaryAnimator
 from satkit.plot import plot_timeseries, plot_wav
-from satkit.plot.plot import plot_satgrid_tier
+from satkit.plot.plot import plot_satgrid_tier, plot_spectrogram
 
 # Load the GUI layout generated with QtDesigner.
 Ui_MainWindow, QMainWindow = loadUiType('satkit/gui/qt_annotator.ui')
@@ -327,6 +327,10 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
         plot_timeseries(self.data_axes[0], l2.data,
             ultra_time, self.xlim, self.ylim)
         plot_wav(self.data_axes[1], wav, wav_time, self.xlim)
+        plot_spectrogram(self.data_axes[2], 
+                        waveform=wav, 
+                        sampling_frequency=audio.sampling_rate, 
+                        xtent_on_x=[wav_time[0], wav_time[-1]])
 
         segment_line = None
         self.animators = []

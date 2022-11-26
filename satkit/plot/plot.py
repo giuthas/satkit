@@ -160,7 +160,7 @@ def plot_satgrid_tier(axes: Axes,
                             text_settings, color="dimgrey")
         if draggable:
             boundaries.append(AnimatableBoundary(axes, line, prev_text, text))
-    return line, boundaries
+    return boundaries, line
     
 
 def plot_wav(

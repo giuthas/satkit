@@ -165,7 +165,7 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
 
         height_ratios = [config['data/tier height ratios']["data"], 
                         config['data/tier height ratios']["tier"]]
-        main_grid_spec = self.fig.add_gridspec(
+        self.main_grid_spec = self.fig.add_gridspec(
                                 nrows=2,
                                 ncols=1, 
                                 hspace=0, 
@@ -173,19 +173,13 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
                                 height_ratios=height_ratios)
 
         nro_data_modalities = len(data_run_params['gui params']['data axes'])
-        data_grid_spec = main_grid_spec[0].subgridspec(nro_data_modalities, 
+        self.data_grid_spec = self.main_grid_spec[0].subgridspec(nro_data_modalities, 
                                                     1, hspace=0, wspace=0)
-        self.data_axes.append(self.fig.add_subplot(data_grid_spec[0]))
+        self.data_axes.append(self.fig.add_subplot(self.data_grid_spec[0]))
         for i in range(1, nro_data_modalities):
-            self.data_axes.append(self.fig.add_subplot(data_grid_spec[i],
+            self.data_axes.append(self.fig.add_subplot(self.data_grid_spec[i],
                                                     sharex=self.data_axes[0]))
 
-        tier_grid_spec = main_grid_spec[1].subgridspec(1, 1, hspace=0, wspace=0)
-        for i, tier in enumerate(self.current.textgrid):
-            self.tier_axes.append(self.fig.add_subplot(tier_grid_spec[i:i+1],
-                                                    sharex=self.data_axes[0]))
-
-        self.fig.tight_layout()
 
         self.ultra_fig = Figure()
         self.ultra_axes = self.ultra_fig.add_axes([0, 0, 1, 1])
@@ -303,6 +297,15 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
         """
         self.data_axes[0].set_title(self._get_title())
 
+        if self.current.satgrid:
+            nro_tiers = len(self.current.satgrid)
+            self.tier_grid_spec = self.main_grid_spec[1].subgridspec(nro_tiers, 1, hspace=0, wspace=0)
+            for i, tier in enumerate(self.current.textgrid):
+                self.tier_axes.append(self.fig.add_subplot(self.tier_grid_spec[i],
+                                                        sharex=self.data_axes[0]))
+
+        self.fig.tight_layout()
+
         audio = self.current.modalities['MonoAudio']
         stimulus_onset = audio.go_signal
         wav = audio.data
@@ -335,7 +338,7 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
             if name in data_run_params["gui params"]["pervasive tiers"]:
                 for axis in self.data_axes:
                     boundary_set = plot_satgrid_tier(axis, tier, 
-                        time_offset=stimulus_onset, draw_text=False)
+                        time_offset=stimulus_onset, draw_text=False)[0]
                     boundaries_by_axis.append(boundary_set)
 
         # Change rows to be individual boundaries instead of axis. This

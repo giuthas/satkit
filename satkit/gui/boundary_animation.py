@@ -153,10 +153,8 @@ class BoundaryAnimator:
                 boundary.line.set(xdata=x0+dx)
 
                 if boundary.prev_text:
-                    print(boundary.prev_text)
                     boundary.prev_text.set(x=self.segment.prev.mid - self.time_offset)
                 if boundary.next_text:
-                    print(boundary.next_text)
                     boundary.next_text.set(x=self.segment.mid - self.time_offset)
 
                 canvas = boundary.line.figure.canvas

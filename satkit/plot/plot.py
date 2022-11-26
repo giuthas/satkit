@@ -192,8 +192,8 @@ def plot_spectrogram(
         waveform: np.ndarray,
         sampling_frequency: float, 
         xtent_on_x: Tuple[float, float],
-        NFFT: int=1024,
-        noverlap: int=900,
+        NFFT: int=512,
+        noverlap: int=480,
         cmap: str='gist_gray',
         ylim: Tuple[float, float]=(0, 10000),
         ylabel: str="Spectrogram"):
@@ -204,6 +204,8 @@ def plot_spectrogram(
     Pxx, freqs, bins, im = ax.specgram(normalised_wav, NFFT=NFFT, 
                                 Fs=sampling_frequency, noverlap=noverlap,
                                 cmap=cmap, xextent=xtent_on_x)
+    (bottom, top) = im.get_extent()[2:]
+    im.set_extent((xtent_on_x[0]+bins[0], xtent_on_x[0]+bins[-1], bottom, top))
 
     ax.set_ylim(ylim)
     ax.set_ylabel(ylabel)

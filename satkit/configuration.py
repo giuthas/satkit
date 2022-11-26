@@ -122,8 +122,9 @@ def load_run_params(filepath: Union[Path, str, None]=None) -> None:
                     "file": Bool(),
                     "utterance": Bool()
                     }),
-                "gui defaults": Map({
-                    "data axes": Seq(Str())
+                "gui params": Map({
+                    "data axes": Seq(Str()),
+                    "tiers to draw on data axes": Seq(Str())
                     })
                 })
             try:

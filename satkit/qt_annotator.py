@@ -611,5 +611,6 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
         self.update()
 
     def resizeEvent(self, event):
-        QMainWindow.resizeEvent(self, event)
+        """Handle window being resized."""
         self.update()
+        QMainWindow.resizeEvent(self, event)

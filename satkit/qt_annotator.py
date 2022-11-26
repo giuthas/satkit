@@ -228,18 +228,16 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
         text += ', recording: ' + str(self.index+1) + '/' + str(self.max_index)
         return text
 
-    def clear_axis(self):
-        """Clear all plotting axis of this annotator."""
-        for axis in self.data_axes:
-            axis.cla()
-        for axis in self.tier_axes:
-            axis.cla()
+    def clear_axes(self):
+        """Clear data axes of this annotator."""
+        for axes in self.data_axes:
+            axes.cla()
 
     def update(self):
         """
         Updates the graphs but not the buttons.
         """
-        self.clear_axis()
+        self.clear_axes()
         if self.current.excluded:
             pass
         else:
@@ -297,15 +295,17 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
         """
         self.data_axes[0].set_title(self._get_title())
 
+        for axes in self.tier_axes:
+            axes.remove()
+        self.tier_axes = []
         if self.current.satgrid:
             nro_tiers = len(self.current.satgrid)
             self.tier_grid_spec = self.main_grid_spec[1].subgridspec(nro_tiers, 1, hspace=0, wspace=0)
-            self.tier_axes = []
             for i, tier in enumerate(self.current.textgrid):
-                self.tier_axes.append(self.fig.add_subplot(self.tier_grid_spec[i],
-                                                        sharex=self.data_axes[0]))
-
-        self.fig.tight_layout()
+                axes = self.fig.add_subplot(self.tier_grid_spec[i],
+                                                        sharex=self.data_axes[0])
+                axes.set_yticks([])
+                self.tier_axes.append(axes)
 
         audio = self.current.modalities['MonoAudio']
         stimulus_onset = audio.go_signal
@@ -335,8 +335,8 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
             boundary_set, segment_line = plot_satgrid_tier(axis, tier, 
                         time_offset=stimulus_onset, text_y=.5)
             boundaries_by_axis.append(boundary_set)
-            axis.set_yticks([])
-            axis.set_ylabel(name, rotation=0, horizontalalignment="right")
+            axis.set_ylabel(name, rotation=0, 
+                        horizontalalignment="right", verticalalignment="center")
             axis.set_xlim(self.xlim)
             if name in data_run_params["gui params"]["pervasive tiers"]:
                 for axis in self.data_axes:
@@ -355,6 +355,8 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
                 self.animators.append(animator)
         if self.tier_axes:
             self.tier_axes[-1].set_xlabel("Time (s), go-signal at 0 s.")
+
+        self.fig.tight_layout()
 
         if self.current.annotations['pdOnset'] > -1:
             self.data_axes[0].axvline(x=self.current.annotations['pdOnset'],
@@ -608,4 +610,6 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
             ultra_time >= event.pickx)[0][0]
         self.update()
 
-
+    def resizeEvent(self, event):
+        QMainWindow.resizeEvent(self, event)
+        self.update()

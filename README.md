@@ -30,6 +30,8 @@ citations.bib in BibTeX format.
 -->
 # Speech Articulation ToolKIT - SATKIT
 
+![SATKIT GUI](SATKIT_UI.png)
+
 Tools for processing ultrasound speech data. While currently these tools
 mainly work on tongue and larynx ultrasound. In future, the toolkit will
 include facilities for processing other kinds of articulatory
@@ -52,8 +54,6 @@ spline distance measures and optic flow.
 After Ultrafest 2022 there is going to be a major update to the codebase. While
 this notice is here in the main branch, that update is not yet complete. If you
 wish to try SATKIT in the meanwhile, please contact Pertti for instructions.
-
-![SATKIT GUI](SATKIT_UI.png)
 
 ## Getting Started
 

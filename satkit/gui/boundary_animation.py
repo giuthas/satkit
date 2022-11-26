@@ -148,8 +148,14 @@ class BoundaryAnimator:
         dx = event.xdata - xpress
         if self.segment.is_legal_value(x0[0]+dx+self.time_offset):
             for i, boundary in enumerate(self.boundaries):
-                boundary.line.set(xdata=x0+dx)
                 self.segment.begin = x0[0] + dx + self.time_offset
+
+                boundary.line.set(xdata=x0+dx)
+
+                if boundary.prev_text:
+                    boundary.prev_text.set(x=self.segment.prev.mid - self.time_offset)
+                if boundary.next_text:
+                    boundary.next_text.set(x=self.segment.mid - self.time_offset)
 
                 canvas = boundary.line.figure.canvas
                 axes = boundary.axes
@@ -158,6 +164,10 @@ class BoundaryAnimator:
 
                 # redraw just the current rectangle
                 axes.draw_artist(boundary.line)
+                if boundary.prev_text:
+                    axes.draw_artist(boundary.prev_text)
+                if boundary.next_text:
+                    axes.draw_artist(boundary.next_text)
 
                 # blit just the redrawn area
                 canvas.blit(axes.bbox)

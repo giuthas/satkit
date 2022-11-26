@@ -32,11 +32,10 @@ citations.bib in BibTeX format.
 
 ![SATKIT GUI](SATKIT_UI.png)
 
-Tools for processing ultrasound speech data. While currently these tools
-mainly work on tongue and larynx ultrasound. In future, the toolkit will
-include facilities for processing other kinds of articulatory
-data. The first two tools to be implemented are Optical Flow and Pixel
-Difference.
+Tools for processing speech data. While currently these tools mainly work on
+tongue and larynx ultrasound as well as audio, in future, the toolkit will
+include facilities for processing other kinds of articulatory data. The first
+two tools to be implemented are Optical Flow and Pixel Difference.
 
 Optical Flow tracks local changes in ultrasound frames and estimates
 the flow field based on these.

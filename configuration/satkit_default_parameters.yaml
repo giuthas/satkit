@@ -30,7 +30,7 @@ gui params:
   data axes:
     - PD
     - wav
-  tiers to draw on data axes:
+  pervasive tiers:
     - Segment
     - Segments
     - segment

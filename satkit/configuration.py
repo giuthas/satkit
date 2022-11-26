@@ -124,7 +124,7 @@ def load_run_params(filepath: Union[Path, str, None]=None) -> None:
                     }),
                 "gui params": Map({
                     "data axes": Seq(Str()),
-                    "tiers to draw on data axes": Seq(Str())
+                    "pervasive tiers": Seq(Str())
                     })
                 })
             try:

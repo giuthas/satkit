@@ -329,12 +329,14 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
         plot_wav(self.data_axes[1], wav, wav_time, self.xlim)
 
         segment_line = None
-        boundaries_by_axis = []
-        for (name, tier), axis in zip(self.current.satgrid.items(), self.tier_axes):
+        self.animators = []
+        for (name, tier), axis in zip(self.current.satgrid.items(), self.tier_axes, strict=True):
+            boundaries_by_axis = []
             boundary_set, segment_line = plot_satgrid_tier(axis, tier, 
                         time_offset=stimulus_onset, text_y=.5)
             boundaries_by_axis.append(boundary_set)
-            axis.set_ylabel(name)
+            axis.set_yticks([])
+            axis.set_ylabel(name, rotation=0, horizontalalignment="right")
             axis.set_xlim(self.xlim)
             if name in data_run_params["gui params"]["pervasive tiers"]:
                 for axis in self.data_axes:
@@ -342,16 +344,15 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
                         time_offset=stimulus_onset, draw_text=False)[0]
                     boundaries_by_axis.append(boundary_set)
 
-        # Change rows to be individual boundaries instead of axis. This
-        # makes it possible to create animatores for each boundary as
-        # represented by multiple lines on different axes.
-        boundaries_by_boundary = list(map(list, zip(*boundaries_by_axis)))
+            # Change rows to be individual boundaries instead of axis. This
+            # makes it possible to create animatores for each boundary as
+            # represented by multiple lines on different axes.
+            boundaries_by_boundary = list(map(list, zip(*boundaries_by_axis)))
 
-        self.animators = []
-        for boundaries, interval in zip(boundaries_by_boundary, self.current.satgrid):
-            animator = BoundaryAnimator(boundaries, interval, stimulus_onset) 
-            animator.connect()
-            self.animators.append(animator)
+            for boundaries, interval in zip(boundaries_by_boundary, tier, strict=True):
+                animator = BoundaryAnimator(boundaries, interval, stimulus_onset) 
+                animator.connect()
+                self.animators.append(animator)
         if self.tier_axes:
             self.tier_axes[-1].set_xlabel("Time (s), go-signal at 0 s.")
 

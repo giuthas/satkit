@@ -16,6 +16,3 @@ data/tier height ratios:
 # probably change these, but do it by copying the file and giving a
 # commandline argument. -Pertti     
 data run parameter file: configuration/satkit_default_parameters.yaml
-
-
-

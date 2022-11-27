@@ -227,9 +227,8 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
         """
         Private helper function for generating the title.
         """
-        text = 'SATKIT Annotator'
+        text = 'Recording: ' + str(self.index+1) + '/' + str(self.max_index)
         text += ', prompt: ' + self.current.meta_data.prompt
-        text += ', recording: ' + str(self.index+1) + '/' + str(self.max_index)
         return text
 
     def clear_axes(self):

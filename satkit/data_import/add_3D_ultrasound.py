@@ -1,43 +1,13 @@
-#
-# Copyright (c) 2019-2022 Pertti Palo, Scott Moisik, Matthew Faytak, and Motoki Saito.
-#
-# This file is part of Speech Articulation ToolKIT 
-# (see https://github.com/giuthas/satkit/).
-#
-# This program is free software: you can redistribute it and/or modify
-# it under the terms of the GNU General Public License as published by
-# the Free Software Foundation, either version 3 of the License, or
-# (at your option) any later version.
-#
-# This program is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-# GNU General Public License for more details.
-#
-# You should have received a copy of the GNU General Public License
-# along with this program. If not, see <http://www.gnu.org/licenses/>.
-#
-# The example data packaged with this program is licensed under the
-# Creative Commons Attribution-NonCommercial-ShareAlike 4.0
-# International (CC BY-NC-SA 4.0) License. You should have received a
-# copy of the Creative Commons Attribution-NonCommercial-ShareAlike 4.0
-# International (CC BY-NC-SA 4.0) License along with the data. If not,
-# see <https://creativecommons.org/licenses/by-nc-sa/4.0/> for details.
-#
-# When using the toolkit for scientific publications, please cite the
-# articles listed in README.markdown. They can also be found in
-# citations.bib in BibTeX format.
-#
 
-import csv
+# Built in packages
 import logging
 import sys
 import warnings
-# Built in packages
 from contextlib import closing
 from copy import deepcopy
 from datetime import datetime
-from pathlib import Path, PureWindowsPath
+from pathlib import PureWindowsPath
+from typing import List
 
 # Numpy and scipy
 import numpy as np
@@ -45,222 +15,89 @@ import numpy as np
 import pydicom
 #from numpy.matlib import repmat
 import scipy.io
+from satkit.data_import.add_AAA_video import Video
 # Local packages
 from satkit.data_structures.data_structures import Modality, Recording
-from satkit.data_import.add_AAA_video import Video
 from satkit.data_structures.modalities import MonoAudio
 
 _3D4D_ultra_logger = logging.getLogger('satkit.ThreeD_ultrasound')
 
-
-def generate_recording_list(directory):
+def read_3D_meta_from_mat_file(mat_file):
     """
-    Produce an array of Recordings from a 3D4D ultrasound directory.
-
-    Prepare a list of Recording objects from the files exported by AAA
-    into the named directory. File existence is tested for,
-    and if crucial files are missing from a given recording it will be
-    excluded.
-
-    If problems are found with a recording, exclusion is marked with
-    recordingObjet.excluded rather than not listing the recording. Log
-    file will show reasons of exclusion.
-
-    The processed files are
-    ultrasound and corresponding meta: .DCM, and
-    audio waveform: .dat or .wav.
-
-    Additionally this will be added, but missing files are considered
-    non-fatal:
-    TextGrid: .textgrid.
+    Read a WASL .mat file and return relevant contents as a dict.
 
     Positional argument:
-    directory -- the path to the directory to be processed.
-    Returns an array of Recording objects sorted by date and time
-        of recording.
+    mat_file -- either a pathlib Path object representing the .mat 
+        file or a string of the same.
+
+    Returns -- an array of dicts that contain the following fields:
+        'trial_number': number of the recording within this session,
+        'prompt': prompt displayed to the participant,
+        'date_and_time': a datetime object of the time recording 
+            started, and
+        'dat_filename': string representing the name of the .dat 
+            sound file.
     """
+    mat = scipy.io.loadmat(str(mat_file), squeeze_me=True)
+    meta = []
+    for element in mat['officialNotes']:
+        # Apparently squeeze_me=True is a bit too strident and
+        # somehow looses the shape of the most interesting level
+        # in the loadmat call. Not using it is not a good idea
+        # though so we do this:
+        element = element.item()
+        if len(element) > 5:
+            # We try this two ways, because at least once filename
+            # and date fields were in reversed order inside the
+            # .mat file.
+            try:
+                date_and_time = datetime.strptime(
+                    element[4], "%d-%b-%Y %H:%M:%S")
+                file_path = element[5]
+            except ValueError:
+                date_and_time = datetime.strptime(
+                    element[5], "%d-%b-%Y %H:%M:%S")
+                file_path = element[4]
 
-    dicom_dir = directory / "DICOM"
-    note_dir = directory / "NOTES"
-    directories = {
-        'root_dir': directory,
-        'dicom_dir': dicom_dir,
-        'note_dir': note_dir,
-    }
+            meta_token = {
+                'trial_number': element[0],
+                'prompt': element[1],
+                'date_and_time': date_and_time,
+                'dat_filename': PureWindowsPath(file_path).name
+            }
+            meta.append(meta_token)
+    return meta
 
-    dicom_files = sorted(dicom_dir.glob('*.DCM'))
-    mat_file = list(note_dir.glob('officialNotes*.mat'))[0]
-
-    # strip file extensions off of filepaths to get the base names
-    dicom_basenames = [filepath.name for filepath in dicom_files]
-    meta = ThreeD_UltrasoundRecording.readMetaFromMat(mat_file)
-
-    # Create a lookup table for matching sound and dicom.
-    # First file names with their ordinal numbers.
-    dicom_names_numbers = [[name, name.split('_')[1]]
-                           for name in dicom_basenames]
-    # Then a dict mapping number strings to filenames.
-    dicom_dict = {
-        name_number[1].split('.')[0]: name_number[0]
-        for name_number in dicom_names_numbers
-    }
-
-    recordings = []
-    for token in meta:
-        if token['trial_number'] in dicom_dict:
-            print(dicom_dict[token['trial_number']])
-            recording = generateUltrasoundRecording(
-                dicom_dict[token['trial_number']],
-                token['dat_filename'],
-                directories)
-            recording.addMeta(token)
-            recordings.append(recording)
-        else:
-            _3D4D_ultra_logger.info(
-                'No DICOM file corresponding to number ' +
-                token['trial_number'] + ' found in ' + str(directory) + '.')
-
-    return sorted(recordings, key=lambda token: token.meta['date_and_time'])
-
-
-def generate_recording_list_old_style(directory):
+def generateMeta(rows):
     """
-    Produce an array of Recordings from a 3D4D ultrasound directory without .mat notes file.
-
-    Prepare a list of Recording objects from the files exported by AAA
-    into the named directory. File existence is tested for,
-    and if crucial files are missing from a given recording it will be
-    excluded.
-
-    If problems are found with a recording, exclusion is marked with
-    recordingObjet.excluded rather than not listing the recording. Log
-    file will show reasons of exclusion.
-
-    The processed files are
-    ultrasound and corresponding meta: .DCM, and
-    audio waveform: .dat or .wav.
-
-    Additionally this will be added, but missing files are considered
-    non-fatal:
-    TextGrid: .textgrid.
+    Read a WASL .mat file and return relevant contents as a dict.
 
     Positional argument:
-    directory -- the path to the directory to be processed.
-    Returns an array of Recording objects sorted by date and time
-        of recording.
+    mat_file -- either a pathlib Path object representing the .mat
+        file or a string of the same.
+
+    Returns -- an array of dicts that contain the following fields:
+        'trial_number': number of the recording within this session,
+        'prompt': prompt displayed to the participant,
+        'date_and_time': a datetime object of the time recording
+            started, and
+        'dat_filename': string representing the name of the .dat
+            sound file.
     """
+    meta = []
+    for row in rows:
+        date_and_time = datetime.strptime(
+            row['US File Name'], "%Y%m%d%H%M%S")
 
-    path = Path(directory)
-    wav_dir = path / "WAV"
-
-    dicom_dir = directory / "DICOM"
-    note_dir = directory / "NOTES"
-    directories = {
-        'root_dir': directory,
-        'dicom_dir': dicom_dir,
-        'note_dir': note_dir,
-    }
-
-    with closing(open(path/"notes.csv", 'r', encoding="utf8")) as csvfile:
-        reader = csv.DictReader(csvfile, delimiter='\t',)
-
-        rows = [row for row in reader if row]
-
-        for row in rows:
-            row['DCM'] = "DICOM/{name}_{number:0>3}.DCM".format(
-                name=row['US File Name'],
-                number=row['US File Number'])
-            row['number_portion'] = "{number:0>3}".format(
-                number=row['US File Number'])
-
-            # print(row['Stimulus'])
-            # print(row['DCM'])
-
-            textgrid = list(wav_dir.glob(
-                "*" + row['DAT File Time Stamp'] + "*.TextGrid"))[0]
-            wav = deepcopy(textgrid)
-            wav = wav.with_suffix('.wav')
-
-            # print(textgrid)
-            # print(wav)
-
-            row['TextGrid'] = str(textgrid)
-            row['sound_filename'] = wav.stem
-
-    dicom_files = sorted(dicom_dir.glob('*.DCM'))
-    # dicom_files = [Path(row['DCM']) for row in rows if row]
-
-    # strip file extensions off of filepaths to get the base names
-    dicom_basenames = [filepath.name for filepath in dicom_files]
-    meta = ThreeD_UltrasoundRecording.generateMeta(rows)
-
-    # Create a lookup table for matching sound and dicom.
-    # First file names with their ordinal numbers.
-    dicom_names_numbers = [[name, name.split('_')[1]]
-                           for name in dicom_basenames]
-    # Then a dict mapping number strings to filenames.
-    dicom_dict = {
-        name_number[1].split('.')[0]: name_number[0]
-        for name_number in dicom_names_numbers
-    }
-
-    for token in meta:
-        if token['trial_number'] in dicom_dict:
-            token['filename'] = dicom_dict[token['trial_number']]
-        else:
-            meta.remove(token)
-
-    recordings = []
-    for token in meta:
-        if token['trial_number'] in dicom_dict:
-            print(dicom_dict[token['trial_number']])
-            recording = generateUltrasoundRecording(
-                dicom_dict[token['trial_number']],
-                token['sound_filename'],
-                directories)
-            recording.addMeta(token)
-            recordings.append(recording)
-        else:
-            _3D4D_ultra_logger.info(
-                'No DICOM file corresponding to number ' +
-                token['trial_number'] + ' found in ' + str(directory) + '.')
-
-    return sorted(recordings, key=lambda token: token.meta['date_and_time'])
-
-
-def generateUltrasoundRecording(dicom_name, sound_name, directories=None):
-    """
-    Generate an UltrasoundRecording without Modalities.
-
-    Arguments:
-    dicom_name -- name of the DICOM files to be read without type 
-        extensions but with path.
-    sound_name -- name of the sound files (.dat and .wav) to be read 
-        without type extensions but with path.
-
-    KeywordArguments:
-    directory -- path to files
-
-    Returns an ThreeD_UltrasoundRecording without any modalities.
-    """
-
-    _3D4D_ultra_logger.info(
-        "Building Recording object for " + str(dicom_name) + " in " +
-        str(directories['root_dir']) + ".")
-
-    recording = ThreeD_UltrasoundRecording(
-        paths=directories,
-        basename=dicom_name,
-        sound_name=sound_name
-    )
-
-    # If we aren't going to process this recording,
-    # don't bother with the rest.
-    if recording.excluded:
-        _3D4D_ultra_logger.info(
-            "Recording " + str(dicom_name) + " automatically excluded.")
-
-    return recording
+        meta_token = {
+            'trial_number': row['number_portion'],
+            'prompt': row['Stimulus'],
+            'date_and_time': date_and_time,
+            'dat_filename': row['sound_filename'],
+            'sound_filename': row['sound_filename']
+        }
+        meta.append(meta_token)
+    return meta
 
 
 class ThreeD_Ultrasound(Modality):
@@ -399,84 +236,6 @@ class ThreeD_UltrasoundRecording(Recording):
         'dat_filename'
     ]
 
-    @staticmethod
-    def readMetaFromMat(mat_file):
-        """
-        Read a WASL .mat file and return relevant contents as a dict.
-
-        Positional argument:
-        mat_file -- either a pathlib Path object representing the .mat 
-            file or a string of the same.
-
-        Returns -- an array of dicts that contain the following fields:
-            'trial_number': number of the recording within this session,
-            'prompt': prompt displayed to the participant,
-            'date_and_time': a datetime object of the time recording 
-                started, and
-            'dat_filename': string representing the name of the .dat 
-                sound file.
-        """
-        mat = scipy.io.loadmat(str(mat_file), squeeze_me=True)
-        meta = []
-        for element in mat['officialNotes']:
-            # Apparently squeeze_me=True is a bit too strident and
-            # somehow looses the shape of the most interesting level
-            # in the loadmat call. Not using it is not a good idea
-            # though so we do this:
-            element = element.item()
-            if len(element) > 5:
-                # We try this two ways, because at least once filename
-                # and date fields were in reversed order inside the
-                # .mat file.
-                try:
-                    date_and_time = datetime.strptime(
-                        element[4], "%d-%b-%Y %H:%M:%S")
-                    file_path = element[5]
-                except ValueError:
-                    date_and_time = datetime.strptime(
-                        element[5], "%d-%b-%Y %H:%M:%S")
-                    file_path = element[4]
-
-                meta_token = {
-                    'trial_number': element[0],
-                    'prompt': element[1],
-                    'date_and_time': date_and_time,
-                    'dat_filename': PureWindowsPath(file_path).name
-                }
-                meta.append(meta_token)
-        return meta
-
-    @staticmethod
-    def generateMeta(rows):
-        """
-        Read a WASL .mat file and return relevant contents as a dict.
-
-        Positional argument:
-        mat_file -- either a pathlib Path object representing the .mat
-            file or a string of the same.
-
-        Returns -- an array of dicts that contain the following fields:
-            'trial_number': number of the recording within this session,
-            'prompt': prompt displayed to the participant,
-            'date_and_time': a datetime object of the time recording
-                started, and
-            'dat_filename': string representing the name of the .dat
-                sound file.
-        """
-        meta = []
-        for row in rows:
-            date_and_time = datetime.strptime(
-                row['US File Name'], "%Y%m%d%H%M%S")
-
-            meta_token = {
-                'trial_number': row['number_portion'],
-                'prompt': row['Stimulus'],
-                'date_and_time': date_and_time,
-                'dat_filename': row['sound_filename'],
-                'sound_filename': row['sound_filename']
-            }
-            meta.append(meta_token)
-        return meta
 
     def __init__(self, paths=None, basename="", sound_name="",
                  requireVideo=False):

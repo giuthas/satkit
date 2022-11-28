@@ -1,0 +1,13 @@
+
+# Which data axes to display. Currently used only to decide the number to create.
+data axes:
+  - PD
+  - wav
+  - spectrogram
+
+# Tiers drawn on the data axes. If not found, nothing happens.  
+pervasive tiers:
+  - Segment
+  - Segments
+  - segment
+  - segments

@@ -34,13 +34,15 @@ import logging
 from pathlib import Path
 from typing import Optional
 
+from satkit.configuration import data_run_params
+from satkit.data_import import Datasource
 # Local packages
 from satkit.data_structures import Recording, Video
 
 _AAA_video_logger = logging.getLogger('satkit.AAA_video')
 
 
-def add_aaa_video(recording: Recording, preload: bool,
+def add_video(recording: Recording, preload: bool,
                     path: Optional[Path]=None) -> None:
     """Create a RawUltrasound Modality and add it to the Recording."""
     if not path:
@@ -51,19 +53,24 @@ def add_aaa_video(recording: Recording, preload: bool,
     # This is the correct value for fps for a de-interlaced
     # video according to Alan, and he should know having
     # written AAA.
-    meta = {
-        'FramesPerSec': 59.94
-    }
+    if data_run_params['datasource'] is Datasource.aaa:
+        meta = {
+            'FramesPerSec': 59.94
+        }
+    else:
+        message = "Trying to create a video Modality, "
+        message += "but don't know what to set as frame rate for non-AAA videos."
+        raise NotImplementedError(message)
 
     if video_file.is_file():
-        ultrasound = Video(
+        video = Video(
             recording=recording,
             preload=preload,
             path=video_file,
             parent=None,
             meta=meta
         )
-        recording.addModality(ultrasound)
+        recording.addModality(video)
         _AAA_video_logger.debug(
             "Added RawUltrasound to Recording representing %s.",
             recording.path.name)

@@ -40,7 +40,7 @@ from typing import Optional
 from satkit.audio_processing import MainsFilter
 from satkit.data_import.add_AAA_raw_ultrasound import (add_aaa_raw_ultrasound,
                                                        parse_aaa_promptfile)
-from satkit.data_import.add_AAA_video import add_aaa_video
+from satkit.data_import.add_video import add_video
 from satkit.data_import.add_audio import add_audio
 from satkit.data_structures import Recording
 
@@ -183,7 +183,7 @@ def add_modalities(recording: Recording, wav_preload: bool=True, ult_preload: bo
 
     add_audio(recording, wav_preload)
     add_aaa_raw_ultrasound(recording, ult_preload)
-    add_aaa_video(recording, video_preload)
+    add_video(recording, video_preload)
 
 
 

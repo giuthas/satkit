@@ -1,5 +1,7 @@
 
-# Which data axes to display. Currently used only to decide the number to create.
+# Which data axes to display. Currently used only to decide the number to
+# create. Number of lines gives the number of axis, modalities on the same line
+# will be drawn on the same axes.
 data axes:
   - PD
   - wav

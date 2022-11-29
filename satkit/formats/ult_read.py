@@ -34,12 +34,13 @@ from pathlib import Path
 from typing import Tuple
 
 import numpy as np
+from satkit.data_structures import ModalityData
 
 
 def read_ult(
     path: Path, 
     meta: dict, 
-    time_offset: float) -> Tuple[np.ndarray, np.ndarray, float]:
+    time_offset: float) -> ModalityData:
     """
     Read wavfile from path.
 
@@ -79,4 +80,4 @@ def read_ult(
         # this should be added for PD and similar time vectors: + .5/self.meta['framesPerSec']
         # while at the same time dropping a suitable number of timestamps
 
-    return (data, timevector, meta['FramesPerSec'])
+    return ModalityData(data, meta['FramesPerSec'], timevector)

@@ -53,8 +53,8 @@ from PyQt5.uic import loadUiType
 import satkit.io as satkit_io
 from satkit.configuration import config, data_run_params
 from satkit.gui.boundary_animation import BoundaryAnimator
-from satkit.plot import plot_timeseries, plot_wav
-from satkit.plot.plot import plot_satgrid_tier, plot_spectrogram
+from satkit.plot import (plot_satgrid_tier, plot_spectrogram, plot_timeseries,
+                         plot_wav)
 
 # Load the GUI layout generated with QtDesigner.
 Ui_MainWindow, QMainWindow = loadUiType('satkit/gui/qt_annotator.ui')

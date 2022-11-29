@@ -38,11 +38,11 @@ from typing import Optional
 
 # Local packages
 from satkit.audio_processing import MainsFilter
-from satkit.data_structures.data_structures import Recording
 from satkit.data_import.add_AAA_raw_ultrasound import (add_aaa_raw_ultrasound,
-                                              parse_aaa_promptfile)
+                                                       parse_aaa_promptfile)
 from satkit.data_import.add_AAA_video import add_aaa_video
 from satkit.data_import.add_audio import add_audio
+from satkit.data_structures import Recording
 
 _AAA_logger = logging.getLogger('satkit.AAA')
 

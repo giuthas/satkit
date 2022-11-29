@@ -36,7 +36,10 @@ from typing import Tuple
 import numpy as np
 
 
-def read_ult(path: Path, meta: dict, time_offset: float) -> Tuple[np.ndarray, np.ndarray, float]:
+def read_ult(
+    path: Path, 
+    meta: dict, 
+    time_offset: float) -> Tuple[np.ndarray, np.ndarray, float]:
     """
     Read wavfile from path.
 

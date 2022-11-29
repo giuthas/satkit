@@ -40,7 +40,7 @@ from typing import Dict, List, Optional
 from satkit.data_import.add_3D_ultrasound import (generateMeta,
                                                   read_3D_meta_from_mat_file)
 # Local packages
-from satkit.data_structures.data_structures import Recording
+from satkit.data_structures import Recording
 
 _3D4D_ultra_logger = logging.getLogger('satkit.ThreeD_ultrasound')
 

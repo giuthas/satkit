@@ -17,8 +17,7 @@ import pydicom
 import scipy.io
 from satkit.data_import.add_AAA_video import Video
 # Local packages
-from satkit.data_structures.data_structures import Modality, Recording
-from satkit.data_structures.modalities import MonoAudio
+from satkit.data_structures import Modality, MonoAudio, Recording
 
 _3D4D_ultra_logger = logging.getLogger('satkit.ThreeD_ultrasound')
 

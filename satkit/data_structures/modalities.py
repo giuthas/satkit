@@ -39,7 +39,7 @@ from typing import Optional, Tuple
 import numpy as np
 # local modules
 from satkit.data_structures.data_structures import (Modality, ModalityData,
-                                                   Recording)
+                                                    Recording)
 from satkit.formats import read_avi, read_ult, read_wav
 from satkit.interpolate_raw_uti import to_fan_2d
 

@@ -36,7 +36,7 @@ import numpy as np
 import satkit.audio_processing as satkit_audio
 # wav file handling
 import scipy.io.wavfile as sio_wavfile
-from satkit.data_structures.data_structures import ModalityData
+from satkit.data_structures import ModalityData
 
 
 # TODO: break into two different functions: one that runs beep detection and one that doesn't.

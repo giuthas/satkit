@@ -37,7 +37,7 @@ import numpy as np
 # scikit-video for io and processing of video data.
 import skvideo.io
 # wav file handling
-from satkit.data_structures.data_structures import ModalityData
+from satkit.data_structures import ModalityData
 
 
 def read_avi(path: Path, meta: dict, time_offset: float) -> Tuple[np.ndarray, np.ndarray, float]:

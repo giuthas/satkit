@@ -28,4 +28,7 @@
 # articles listed in README.markdown. They can also be found in
 # citations.bib in BibTeX format.
 #
-from .data_structures import Recording, Modality, RecordingMetaData, ModalityData
+from .data_structures import (Modality, ModalityData, Recording,
+                              RecordingMetaData)
+from .modalities import MonoAudio, RawUltrasound, Video
+from .satgrid import SatGrid, SatInterval, SatTier

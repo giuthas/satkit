@@ -38,8 +38,8 @@ import sys
 import warnings
 from pathlib import Path
 
-import satkit.data_import.AAA_recordings as satkit_AAA
-import satkit.data_import.RASL_3D_ultrasound_recordings as ThreeD_ultrasound
+import satkit.data_import.AAA_recordings as satkit_import_AAA
+import satkit.data_import.RASL_3D_ultrasound_recordings as satkit_import_RASL
 import satkit.io as satkit_io
 # local modules
 import satkit.plot.pd_annd_plot as pd_annd_plot
@@ -256,14 +256,15 @@ class RawCLI(BaseCLI):
         this method just returns the data and saving it in a
         instance variable is left for the caller to handle.
         """
-        recordings = satkit_AAA.generate_aaa_recording_list(self.args.load_path)
+        recordings = satkit_import_AAA.generate_aaa_recording_list(
+            self.args.load_path)
 
         satkit_io.set_exclusions_from_file(
             self.args.exclusion_filename, recordings)
 
         for recording in recordings: 
             if not recording.excluded:
-                satkit_AAA.add_modalities(recording)
+                satkit_import_AAA.add_modalities(recording)
 
         return recordings
 
@@ -302,7 +303,7 @@ class RawAndSplineCLI(RawCLI):
         instance variable is left for the caller to handle. 
         """
         recordings = super()._read_data_from_files()
-        satkit_AAA.add_splines_from_file(recordings, self.args.spline_file)
+        satkit_import_AAA.add_splines_from_file(recordings, self.args.spline_file)
         return recordings
 
     def _parse_args(self):
@@ -379,7 +380,7 @@ class Raw3D_CLI(RawCLI):
         this method just returns the data and saving it in a
         instance variable is left for the caller to handle.
         """
-        recordings = ThreeD_ultrasound.generate_rasl_recording_list(
+        recordings = satkit_import_RASL.generate_rasl_recording_list(
             Path(self.args.load_path))
 
         satkit_io.set_exclusions_from_file(
@@ -422,7 +423,7 @@ class Old_Style_3D_CLI(RawCLI):
         this method just returns the data and saving it in a
         instance variable is left for the caller to handle.
         """
-        recordings = ThreeD_ultrasound.generate_recording_list_old_style(
+        recordings = satkit_import_RASL.generate_recording_list_old_style(
             Path(self.args.load_path))
 
         satkit_io.set_exclusions_from_file(

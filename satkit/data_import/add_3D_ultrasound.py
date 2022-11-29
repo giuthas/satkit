@@ -7,12 +7,10 @@ from contextlib import closing
 from copy import deepcopy
 from datetime import datetime
 from pathlib import PureWindowsPath
-from typing import List
+from typing import Tuple
 
 # Numpy and scipy
 import numpy as np
-# dicom reading
-import pydicom
 #from numpy.matlib import repmat
 import scipy.io
 from satkit.data_import.add_AAA_video import Video
@@ -125,82 +123,9 @@ class ThreeD_Ultrasound(Modality):
         else:
             self._data = None
 
-    def _getData(self):
-        ds = pydicom.dcmread(self.meta['filename'])
-
-        # There are other options, but we don't deal with them just yet.
-        # Before 1.0: fix the above. see loadPhillipsDCM.m on how.
-        if len(ds.SequenceOfUltrasoundRegions) == 3:
-            type = ds[0x200d, 0x3016][1][0x200d, 0x300d].value
-            if type == 'UDM_USD_DATATYPE_DIN_3D_ECHO':
-                self._read_3D_ultra(ds)
-            else:
-                _3D4D_ultra_logger.critical(
-                    "Unknown DICOM ultrasound type: " + type + " in "
-                    + self.meta['filename'] + ".")
-                _3D4D_ultra_logger.critical('Exiting.')
-                sys.exit()
-        else:
-            _3D4D_ultra_logger.critical(
-                "Do not know what to do with data with "
-                + str(len(ds.SequenceOfUltrasoundRegions)) + " regions in "
-                + self.meta['filename'] + ".")
-            _3D4D_ultra_logger.critical('Exiting.')
-            sys.exit()
-
-        # Before 1.0: 'NumVectors' and 'PixPerVector' are bad names here.
-        # They come from the AAA ultrasound side of things and should be
-        # replaced, but haven't been yet as I'm in a hurry to get PD
-        # running on 3d4d ultrasound.
-        self.meta['no_frames'] = self.data.shape[0]
-        self.meta['NumVectors'] = self.data.shape[1]
-        self.meta['PixPerVector'] = self.data.shape[2]
-        ultra3D_time = np.linspace(
-            0, self.meta['no_frames'],
-            num=self.meta['no_frames'],
-            endpoint=False)
-        self.timevector = ultra3D_time / \
-            self.meta['FramesPerSec'] + self.timeOffset
-
-    def _read_3D_ultra(self, ds):
-        ultra_sequence = ds[0x200d, 0x3016][1][0x200d, 0x3020][0]
-
-        # data dimensions
-        numberOfFrames = int(ultra_sequence[0x200d, 0x3010].value)
-        shape = [int(token) for token in ds[0x200d, 0x3301].value]
-        frameSize = np.prod(shape)
-        shape.append(numberOfFrames)
-
-        # data scale in real space-time
-        scale = [float(token) for token in ds[0x200d, 0x3303].value]
-        self.meta['FramesPerSec'] = float(ds[0x200d, 0x3207].value)
-
-        # Before 1.0: unify the way scaling works across the data.
-        # here we have an attribute, in AAA ultrasound we have meta
-        # keys.
-        self._scale = scale
-
-        # The starting index for the non-junk data
-        # no junk from pydicom at the beginning. only at end of each frame
-        # s = 32
-
-        # Get the number of junk data points between each frame
-        interval = (
-            len(ultra_sequence[0x200d, 0x300e].value)-frameSize*numberOfFrames)
-        interval = int(interval/numberOfFrames)
-
-        data = np.frombuffer(
-            ultra_sequence[0x200d, 0x300e].value, dtype=np.uint8)
-
-        data.shape = (numberOfFrames, frameSize+interval)
-        data = np.take(data, np.arange(frameSize)+32, axis=1)
-        shape.reverse()
-        data.shape = shape
-
-        self._data = data
-
-        # this should be unnecessary now
-        # self._data = np.transpose(data)
+    ### TODO: there's a initial version in formats/read_ultra_dicom
+    def _get_data(self) -> Tuple[np.ndarray, np.ndarray, float]:
+        return super()._get_data()
 
     @property
     def data(self):

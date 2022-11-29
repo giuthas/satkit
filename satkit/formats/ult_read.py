@@ -42,19 +42,16 @@ def read_ult(
     meta: dict, 
     time_offset: float) -> ModalityData:
     """
-    Read wavfile from path.
+    Read raw ultrasound from path.
 
     Positional arguments:
-    path -- Path of the wav file
+    path -- Path of the ultrasound file
     meta -- a dict containing the following keys:
         NumVectors -- number of scanlines in the data
         PixPerVector -- number of pixels on a scanline
 
-    Keyword argument:
-    detect_beep -- Should 1kHz beep detection be run. Changes return values (see below).
-
-    Returns a ModalityData instance that contains the wav frames, a timevector, and
-    the sampling rate. 
+    Returns a ModalityData instance that contains the ultrasound frames, 
+    a timevector, and the sampling rate. 
 
     Also adds the 'no_frames' key and value to the meta dict.
     """

@@ -70,10 +70,6 @@ def load_config(filepath: Union[Path, str, None]=None) -> None:
         with closing(open(filepath, 'r')) as yaml_file:
             schema = Map({
                 "epsilon": Float(),
-                "data/tier height ratios": Map({
-                    "data": Int(), 
-                    "tier": Int()
-                    }),
                 "data run parameter file": PathValidator(),
                 "gui parameter file": PathValidator()
                 })
@@ -157,6 +153,10 @@ def load_gui_params(filepath: Union[Path, str, None]=None) -> None:
     if filepath.is_file():
         with closing(open(filepath, 'r')) as yaml_file:
             schema = Map({
+                "data/tier height ratios": Map({
+                    "data": Int(), 
+                    "tier": Int()
+                    }),
                 "data axes": Seq(Str()),
                 "pervasive tiers": Seq(Str())
                 })

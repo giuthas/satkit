@@ -373,7 +373,7 @@ class Modality(abc.ABC):
         if self._data is None:
             _datastructures_logger.debug(
                 "In Modality data getter. self._data was None.")
-            self._set_data(*self._get_data())
+            self._set_data(self._get_data())
         return self._data
 
     @data.setter

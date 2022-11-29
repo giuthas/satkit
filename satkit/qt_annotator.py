@@ -51,7 +51,7 @@ from PyQt5.uic import loadUiType
 
 # Local modules
 import satkit.io as satkit_io
-from satkit.configuration import config, data_run_params
+from satkit.configuration import config, data_run_params, gui_params
 from satkit.gui.boundary_animation import BoundaryAnimator
 from satkit.plot import (plot_satgrid_tier, plot_spectrogram, plot_timeseries,
                          plot_wav)
@@ -167,8 +167,8 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
                 max_pds[i] = np.max(recording.modalities['PD l2 on RawUltrasound'].data)
         self.ylim = (-50, np.max(max_pds)+50)
 
-        height_ratios = [config['data/tier height ratios']["data"], 
-                        config['data/tier height ratios']["tier"]]
+        height_ratios = [gui_params['data/tier height ratios']["data"], 
+                        gui_params['data/tier height ratios']["tier"]]
         self.main_grid_spec = self.fig.add_gridspec(
                                 nrows=2,
                                 ncols=1, 
@@ -176,7 +176,7 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
                                 wspace=0, 
                                 height_ratios=height_ratios)
 
-        nro_data_modalities = len(data_run_params['gui params']['data axes'])
+        nro_data_modalities = len(gui_params['data axes'])
         self.data_grid_spec = self.main_grid_spec[0].subgridspec(nro_data_modalities, 
                                                     1, hspace=0, wspace=0)
         self.data_axes.append(self.fig.add_subplot(self.data_grid_spec[0]))
@@ -345,7 +345,7 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
             axis.set_ylabel(name, rotation=0, 
                         horizontalalignment="right", verticalalignment="center")
             axis.set_xlim(self.xlim)
-            if name in data_run_params["gui params"]["pervasive tiers"]:
+            if name in gui_params["pervasive tiers"]:
                 for axis in self.data_axes:
                     boundary_set = plot_satgrid_tier(axis, tier, 
                         time_offset=stimulus_onset, draw_text=False)[0]

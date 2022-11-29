@@ -37,8 +37,7 @@ import numpy as np
 import scipy.io.wavfile as sio_wavfile
 
 # local modules
-import satkit.data_import.AAA as satkit_AAA
-
+import satkit.data_import.AAA_recordings as satkit_AAA
 
 _annd_logger = logging.getLogger('satkit.annd')
 

@@ -30,36 +30,31 @@
 #
 
 
-# built in packages
-from contextlib import closing
-import math
 import logging
+import math
+import multiprocessing as mp
 import os.path
 import pickle
 import warnings
+# built in packages
+from contextlib import closing
 
-import multiprocessing as mp
-
-# diffeomorphic demons algorithm implemented in python in the DIPY package
-from dipy.align.imwarp import SymmetricDiffeomorphicRegistration
-from dipy.align.metrics import SSDMetric, CCMetric, EMMetric
-
+# scientific plotting
+import matplotlib.pyplot as plt
 # numpy and scipy
 import numpy as np
 import scipy.io as sio
 import scipy.io.wavfile as sio_wavfile
-from scipy.signal import butter, filtfilt, kaiser, sosfilt
-
-from scipy import interpolate
-
-# scientific plotting
-import matplotlib.pyplot as plt
+# diffeomorphic demons algorithm implemented in python in the DIPY package
+from dipy.align.imwarp import SymmetricDiffeomorphicRegistration
+from dipy.align.metrics import CCMetric, EMMetric, SSDMetric
 from matplotlib import animation
 from matplotlib.backends.backend_pdf import PdfPages
+from scipy import interpolate
+from scipy.signal import butter, filtfilt, kaiser, sosfilt
 
 # local modules
-import satkit.data_import.AAA as satkit_AAA
-
+import satkit.data_import.AAA_recordings as satkit_AAA
 
 # create module logger
 ofreg_logger = logging.getLogger('satkit.ofreg')

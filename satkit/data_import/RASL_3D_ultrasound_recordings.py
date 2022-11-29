@@ -45,7 +45,7 @@ from satkit.data_structures import Recording
 _3D4D_ultra_logger = logging.getLogger('satkit.ThreeD_ultrasound')
 
 
-def generate_recording_list(directory: Path, config: Optional[dict] = None):
+def generate_rasl_recording_list(directory: Path, config: Optional[dict] = None):
     """
     Produce an array of Recordings from a 3D4D ultrasound directory.
 

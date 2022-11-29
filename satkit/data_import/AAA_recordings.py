@@ -40,8 +40,8 @@ from typing import Optional
 from satkit.audio_processing import MainsFilter
 from satkit.data_import.add_AAA_raw_ultrasound import (add_aaa_raw_ultrasound,
                                                        parse_aaa_promptfile)
-from satkit.data_import.add_video import add_video
 from satkit.data_import.add_audio import add_audio
+from satkit.data_import.add_video import add_video
 from satkit.data_structures import Recording
 
 _AAA_logger = logging.getLogger('satkit.AAA')
@@ -56,7 +56,7 @@ _AAA_logger = logging.getLogger('satkit.AAA')
 # like the exclusion list and splines.
 #
 
-def generate_recording_list(directory: Path, config: Optional[dict]=None):
+def generate_aaa_recording_list(directory: Path, config: Optional[dict]=None):
     """
     Produce an array of Recordings from an AAA export directory.
 

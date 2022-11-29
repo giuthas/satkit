@@ -1,3 +1,10 @@
+# Height ratio of data display vs textgrid tier display. This does not control
+# directly the height of individual data displays nor individiual tier
+# displays, but instead controls the ratio between the sum of data displays vs
+# sum of tier displays.
+data/tier height ratios: 
+  data: 3
+  tier: 1
 
 # Which data axes to display. Currently used only to decide the number to
 # create. Number of lines gives the number of axis, modalities on the same line

@@ -5,13 +5,6 @@
 
 # What precision is treated as equal when comparing annotation boundaries.
 epsilon: 0.00001
-# Height ratio of data display vs textgrid tier display. This does not control
-# directly the height of individual data displays nor individiual tier
-# displays, but instead controls the ratio between the sum of data displays vs
-# sum of tier displays.
-data/tier height ratios: 
-  data: 3
-  tier: 1
 
 # Default parameters for a data run. Unless you happen to be me, you should
 # probably change these, but do it by copying the file and giving a

@@ -50,8 +50,6 @@ def main():
     start_time = time.time()
 
     configuration.load_config()
-    configuration.load_run_params(configuration.config['data run parameter file'])
-    configuration.load_gui_params(configuration.config['gui parameters'])
 
     # Run the command line interface.
     #function_dict = {'pd':pd.pd, 'annd':annd.annd}

@@ -30,5 +30,4 @@
 #
 
 from .AAA_recordings import generate_aaa_recording_list
-from .datasource import Datasource
 from .RASL_3D_ultrasound_recordings import generate_rasl_recording_list

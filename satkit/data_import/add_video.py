@@ -34,8 +34,7 @@ import logging
 from pathlib import Path
 from typing import Optional
 
-from satkit.configuration import data_run_params
-from satkit.data_import import Datasource
+from satkit.configuration import Datasource, data_run_params
 # Local packages
 from satkit.data_structures import Recording, Video
 
@@ -53,7 +52,7 @@ def add_video(recording: Recording, preload: bool,
     # This is the correct value for fps for a de-interlaced
     # video according to Alan, and he should know having
     # written AAA.
-    if data_run_params['datasource'] is Datasource.aaa:
+    if data_run_params['data properties']['data source'] is Datasource.aaa:
         meta = {
             'FramesPerSec': 59.94
         }

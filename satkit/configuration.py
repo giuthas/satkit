@@ -1,12 +1,11 @@
 import sys
 from contextlib import closing
+from enum import Enum
 from pathlib import Path
 from typing import Union
 
-from strictyaml import (Bool, Float, Int, Map, ScalarValidator, Seq, Str,
-                        YAMLError, load)
-
-from satkit.data_import.datasource import Datasource
+from strictyaml import (Bool, Float, Int, Map, Optional, ScalarValidator, Seq,
+                        Str, YAMLError, load)
 
 config = {}
 data_run_params = {}
@@ -17,6 +16,10 @@ gui_params = {}
 _raw_config_dict = {}
 _raw_data_run_params_dict = {}
 _raw_gui_params_dict = {}
+
+class Datasource(Enum):
+    aaa = 'AAA'
+    rasl = 'RASL'
 
 class DatasourceValidator(ScalarValidator):
     """
@@ -52,6 +55,19 @@ class PathValidator(ScalarValidator):
             return None
 
 def load_config(filepath: Union[Path, str, None]=None) -> None:
+    """
+    Read the config file from filepath and recursively the other config files.
+    
+    If filepath is None, read from the default file
+    'configuration/configuration.yaml'. In both cases if the file does not
+    exist, report this and exit.
+    """
+    load_main_config(filepath)
+    load_run_params(config['data run parameter file'])
+    load_gui_params(config['gui parameter file'])
+
+
+def load_main_config(filepath: Union[Path, str, None]=None) -> None:
     """
     Read the config file from filepath.
     
@@ -112,10 +128,10 @@ def load_run_params(filepath: Union[Path, str, None]=None) -> None:
                     "pronunciation dictionary": PathValidator(),
                     "speaker id": Str(), 
                     "data directory": PathValidator(), 
-                    "wav directory": PathValidator(), 
-                    "textgrid directory": PathValidator(), 
-                    "ultrasound directory": PathValidator(), 
-                    "output directory": PathValidator()
+                    Optional("wav directory"): PathValidator(), 
+                    Optional("textgrid directory"): PathValidator(), 
+                    Optional("ultrasound directory"): PathValidator(), 
+                    Optional("output directory"): PathValidator()
                     }), 
                 "flags": Map({
                     "detect beep": Bool(),

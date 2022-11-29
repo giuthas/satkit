@@ -29,7 +29,7 @@ data properties:
   # directories empty if everything is in one directory.
   data directory: local_data/tongue_data_4
   wav directory:
-  texgrid directory: 
+  textgrid directory: 
   ultrasound directory:
 
   # This is where SATKIT will save results of data processing. Please note that

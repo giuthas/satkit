@@ -29,27 +29,25 @@
 # citations.bib in BibTeX format.
 #
 
+import csv
+import logging
+import time
+from abc import ABC, abstractmethod
 # Built in packages
 from contextlib import closing
 from copy import deepcopy
-import csv
-import logging
 from pathlib import Path
-import time
-
-from abc import ABC, abstractmethod
 
 import matplotlib.pyplot as plt
+import numpy as np
 from matplotlib.text import Text
 from matplotlib.widgets import Button, RadioButtons, TextBox
-
-import numpy as np
 from numpy.random import rand
 
 # local modules
-from satkit import annd
-from satkit import pd
-from satkit.pd_annd_plot import plot_mpbpd, plot_pd, plot_pd_3d, plot_pd_vid, plot_wav, plot_wav_3D_ultra
+from satkit import annd, pd
+from satkit.plot.pd_annd_plot import (plot_mpbpd, plot_pd, plot_pd_3d,
+                                      plot_pd_vid, plot_wav, plot_wav_3D_ultra)
 
 _annotator_logger = logging.getLogger('satkit.curveannotator')
 

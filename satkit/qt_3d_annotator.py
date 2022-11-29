@@ -55,7 +55,7 @@ import satkit.data_import as satkit_io
 from satkit.plot.pd_annd_plot import plot_pd_3d, plot_wav_3D_ultra
 
 # Load the GUI layout generated with QtDesigner.
-Ui_MainWindow, QMainWindow = loadUiType('satkit/qt_annotator.ui')
+Ui_MainWindow, QMainWindow = loadUiType('satkit/gui/qt_annotator.ui')
 
 _qt_annotator_logger = logging.getLogger('satkit.qt_3d_annotator')
 

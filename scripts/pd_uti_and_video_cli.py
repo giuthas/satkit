@@ -29,13 +29,14 @@
 # citations.bib in BibTeX format.
 #
 
-import time
 import logging
+import time
 
 # local modules
-from satkit.commandLineInterface import Raw3D_CLI
-from satkit.data_import.ThreeD_ultrasound import ThreeD_Ultrasound
-from satkit import pd
+from satkit.commandLineInterface import RawAndVideoCLI
+from satkit.data_import.AAA_video import Video
+from satkit.metrics import pd
+from satkit.recording import RawUltrasound
 
 # how do we tell RawAndVideoCLI or RawCLI to run pd (and others) on all modalities. ie. how do we bind an operation to a modality?
 # answer: we hack it for now and document we've hacked it.
@@ -43,9 +44,9 @@ from satkit import pd
 
 def main():
     # Run the command line interface.
-    function_dict = {'PD': (pd.add_pd, [ThreeD_Ultrasound])}
-    Raw3D_CLI(
-        "PD processing script for raw 3D4D ultrasound", function_dict)
+    function_dict = {'PD': (pd.add_pd, [RawUltrasound, Video])}
+    RawAndVideoCLI(
+        "PD processing script for raw ultrasound and videos", function_dict)
 
 
 if (__name__ == '__main__'):

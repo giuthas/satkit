@@ -33,27 +33,31 @@ import logging
 import sys
 import time
 
-import multiprocessing as mp
+from PyQt5 import QtWidgets
 
 # local modules
-from satkit.commandLineInterface import RawCLI
-import satkit.ofreg as of
+from satkit.commandLineInterface import Raw3D_CLI
+from satkit.data_import.ThreeD_ultrasound import ThreeD_Ultrasound
+from satkit.metrics import pd
+from satkit.qt_annotator import Pd3dQtAnnotator
 
 
 def main():
+    t = time.time()
+
     # Run the command line interface.
-    RawCLI("OF processing script", of.of)
+    #function_dict = {'pd':pd.pd, 'annd':annd.annd}
+    function_dict = {'PD': (pd.add_pd, [ThreeD_Ultrasound])}
+    cli = Raw3D_CLI("PD 3D annotator", function_dict, plot=False)
+
+    elapsed_time = time.time() - t
+    logging.info('Elapsed time ' + str(elapsed_time))
+
+    # Get the GUI running.
+    app = QtWidgets.QApplication(sys.argv)
+    annotator = Pd3dQtAnnotator(cli.recordings, cli.args)
+    sys.exit(app.exec_())
 
 
 if __name__ == '__main__':
-    # The old default start method in multiprocessing on MacOS
-    # (i.e. darwin) leads to crashes. Fixing it apparently leads to
-    # different kinds of crashes. Better solution on the todo list.
-    if sys.version_info < (3, 8) and sys.platform == "darwin":
-        logging.warning("Changing multiprocessing to use spawn.")
-        mp.set_start_method('spawn')
-
-    t = time.time()
     main()
-    elapsed_time = time.time() - t
-    logging.info('Elapsed time ' + str(elapsed_time))

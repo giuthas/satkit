@@ -29,14 +29,15 @@
 # citations.bib in BibTeX format.
 #
 
-import time
 import logging
+import time
 
+from satkit.annotator import PD_UTI_video_Annotator
 # local modules
-from satkit.commandLineInterface import Raw3D_CLI
-from satkit.annotator import PD_3D_end_Annotator
-from satkit.data_import.ThreeD_ultrasound import ThreeD_Ultrasound
-from satkit import pd
+from satkit.commandLineInterface import RawCLI
+from satkit.data_import.AAA_video import Video
+from satkit.metrics import pd
+from satkit.recording import RawUltrasound
 
 
 def main():
@@ -44,14 +45,14 @@ def main():
 
     # Run the command line interface.
     #function_dict = {'pd':pd.pd, 'annd':annd.annd}
-    function_dict = {'PD': (pd.add_pd, [ThreeD_Ultrasound])}
-    cli = Raw3D_CLI("PD 3D annotator", function_dict, plot=False)
+    function_dict = {'PD': (pd.add_pd, [RawUltrasound, Video])}
+    cli = RawCLI("PD UTI and video annotator", function_dict, plot=False)
 
     elapsed_time = time.time() - t
     logging.info('Elapsed time ' + str(elapsed_time))
 
     # Get the GUI running.
-    ca = PD_3D_end_Annotator(cli.recordings, cli.args)
+    ca = PD_UTI_video_Annotator(cli.recordings, cli.args)
 
 
 if (__name__ == '__main__'):

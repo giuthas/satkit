@@ -38,10 +38,10 @@ import time
 from PyQt5 import QtWidgets
 
 import satkit.configuration as configuration
-from satkit import pd
 # local modules
 from satkit.commandLineInterface import RawCLI
 from satkit.data_structures.modalities import RawUltrasound
+from satkit.metrics import pd
 from satkit.qt_annotator import PdQtAnnotator
 
 
@@ -51,6 +51,7 @@ def main():
 
     configuration.load_config()
     configuration.load_run_params(configuration.config['data run parameter file'])
+    configuration.load_gui_params(configuration.config['gui parameters'])
 
     # Run the command line interface.
     #function_dict = {'pd':pd.pd, 'annd':annd.annd}

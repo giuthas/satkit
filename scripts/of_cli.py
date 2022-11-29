@@ -29,27 +29,29 @@
 # citations.bib in BibTeX format.
 #
 
-import time
 import logging
+import multiprocessing as mp
+import sys
+import time
 
+import satkit.metrics.ofreg as of
 # local modules
-from satkit.commandLineInterface import RawAndVideoCLI
-from satkit.recording import RawUltrasound
-from satkit.data_import.AAA_video import Video
-from satkit import pd
-
-# how do we tell RawAndVideoCLI or RawCLI to run pd (and others) on all modalities. ie. how do we bind an operation to a modality?
-# answer: we hack it for now and document we've hacked it.
+from satkit.commandLineInterface import RawCLI
 
 
 def main():
     # Run the command line interface.
-    function_dict = {'PD': (pd.add_pd, [RawUltrasound, Video])}
-    RawAndVideoCLI(
-        "PD processing script for raw ultrasound and videos", function_dict)
+    RawCLI("OF processing script", of.of)
 
 
-if (__name__ == '__main__'):
+if __name__ == '__main__':
+    # The old default start method in multiprocessing on MacOS
+    # (i.e. darwin) leads to crashes. Fixing it apparently leads to
+    # different kinds of crashes. Better solution on the todo list.
+    if sys.version_info < (3, 8) and sys.platform == "darwin":
+        logging.warning("Changing multiprocessing to use spawn.")
+        mp.set_start_method('spawn')
+
     t = time.time()
     main()
     elapsed_time = time.time() - t

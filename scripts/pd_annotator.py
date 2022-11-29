@@ -29,27 +29,30 @@
 # citations.bib in BibTeX format.
 #
 
-import time
 import logging
+import time
 
+from satkit.annotator import PD_Annotator
 # local modules
-from satkit.commandLineInterface import RawAndSplineCLI
-from satkit import annd
-from satkit import pd
-from satkit.annotator import PD_MPBPD_Annotator
+from satkit.commandLineInterface import RawCLI
+from satkit.metrics import pd
+from satkit.recording import RawUltrasound
+
 
 def main():
     t = time.time()
 
     # Run the command line interface.
-    function_dict = {'pd':pd.pd, 'annd':annd.annd}
-    cli = RawAndSplineCLI("PD and ANND annotator", function_dict, plot=False)
-    
+    #function_dict = {'pd':pd.pd, 'annd':annd.annd}
+    function_dict = {'PD': (pd.add_pd, [RawUltrasound])}
+    cli = RawCLI("PD annotator", function_dict, plot=False)
+
     elapsed_time = time.time() - t
     logging.info('Elapsed time ' + str(elapsed_time))
 
     # Get the GUI running.
-    ca = PD_MPBPD_Annotator(cli.recordings, cli.args)
+    ca = PD_Annotator(cli.recordings, cli.args)
+
 
 if (__name__ == '__main__'):
     main()

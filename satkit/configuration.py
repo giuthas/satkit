@@ -15,7 +15,8 @@ gui_params = {}
 # This is where we store the metadata needed to write out the configuration and
 # possibly not mess up the comments in it.
 _raw_config_dict = {}
-_raw_data_run_params_dict ={}
+_raw_data_run_params_dict = {}
+_raw_gui_params_dict = {}
 
 class DatasourceValidator(ScalarValidator):
     """
@@ -151,8 +152,8 @@ def load_gui_params(filepath: Union[Path, str, None]=None) -> None:
     elif isinstance(filepath, str):
         filepath = Path(filepath)
 
-    global gui_run_params
-    global _raw_gui_run_params_dict
+    global gui_params
+    global _raw_gui_params_dict
 
     if filepath.is_file():
         with closing(open(filepath, 'r')) as yaml_file:

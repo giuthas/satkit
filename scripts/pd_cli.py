@@ -30,34 +30,22 @@
 #
 
 import logging
-import sys
 import time
 
-from PyQt5 import QtWidgets
-
+from satkit.commandLineInterface import RawCLI
 # local modules
-from satkit.commandLineInterface import Raw3D_CLI
-from satkit.qt_annotator import Pd3dQtAnnotator
-from satkit.data_import.ThreeD_ultrasound import ThreeD_Ultrasound
-from satkit import pd
+from satkit.metrics import pd
+from satkit.recording import RawUltrasound
 
 
 def main():
-    t = time.time()
-
     # Run the command line interface.
-    #function_dict = {'pd':pd.pd, 'annd':annd.annd}
-    function_dict = {'PD': (pd.add_pd, [ThreeD_Ultrasound])}
-    cli = Raw3D_CLI("PD 3D annotator", function_dict, plot=False)
+    function_dict = {'PD': (pd.add_pd, [RawUltrasound])}
+    RawCLI("PD processing script", function_dict)
 
+
+if (__name__ == '__main__'):
+    t = time.time()
+    main()
     elapsed_time = time.time() - t
     logging.info('Elapsed time ' + str(elapsed_time))
-
-    # Get the GUI running.
-    app = QtWidgets.QApplication(sys.argv)
-    annotator = Pd3dQtAnnotator(cli.recordings, cli.args)
-    sys.exit(app.exec_())
-
-
-if __name__ == '__main__':
-    main()

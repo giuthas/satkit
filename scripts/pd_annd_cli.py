@@ -29,13 +29,14 @@
 # citations.bib in BibTeX format.
 #
 
-import time
 import logging
+import time
 
+from satkit import annd
 # local modules
 from satkit.commandLineInterface import RawAndSplineCLI
-from satkit import annd
-from satkit import pd
+from satkit.metrics import pd
+
 
 def main():
     # Run the command line interface.

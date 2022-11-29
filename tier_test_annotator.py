@@ -39,9 +39,9 @@ from PyQt5 import QtWidgets
 
 # local modules
 from satkit.commandLineInterface import RawCLI
+from satkit.metrics import pd
 from satkit.qt_annotator import PdQtAnnotator
 from satkit.recording import RawUltrasound
-from satkit import pd
 
 
 def main():

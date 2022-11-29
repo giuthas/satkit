@@ -29,14 +29,15 @@
 # citations.bib in BibTeX format.
 #
 
-import time
 import logging
+import time
 
-# local modules
-from satkit.commandLineInterface import RawAndSplineCLI 
 from satkit import annd
-from satkit import pd
 from satkit.annotator import l1_MPBPD_Annotator
+# local modules
+from satkit.commandLineInterface import RawAndSplineCLI
+from satkit.metrics import pd
+
 
 def main():
     t = time.time()

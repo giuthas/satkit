@@ -107,18 +107,22 @@ def load_run_params(filepath: Union[Path, str, None]=None) -> None:
             schema = Map({
                 "data properties": Map({
                     "data source": DatasourceValidator(), 
+                    "exclusion list": PathValidator(), 
+                    "pronunciation dictionary": PathValidator(),
                     "speaker id": Str(), 
                     "data directory": PathValidator(), 
-                    "outputfilename": PathValidator(),
-                    "exclusion list": PathValidator(), 
-                    "pronunciation dictionary": PathValidator()
+                    "wav directory": PathValidator(), 
+                    "textgrid directory": PathValidator(), 
+                    "ultrasound directory": PathValidator(), 
+                    "output directory": PathValidator()
                     }), 
                 "flags": Map({
                     "detect beep": Bool(),
-                    "only words": Bool(),
                     "test": Bool(),
-                    "file": Bool(),
-                    "utterance": Bool()
+                    "cast flags": Map({
+                        "only words": Bool(),
+                        "file": Bool(),
+                        "utterance": Bool()})
                     })
                 })
             try:

@@ -39,7 +39,7 @@ import warnings
 from pathlib import Path
 
 import satkit.data_import.AAA_recordings as satkit_AAA
-import satkit.data_import.ThreeD_ultrasound_recordings as ThreeD_ultrasound
+import satkit.data_import.RASL_3D_ultrasound_recordings as ThreeD_ultrasound
 import satkit.io as satkit_io
 # local modules
 import satkit.plot.pd_annd_plot as pd_annd_plot

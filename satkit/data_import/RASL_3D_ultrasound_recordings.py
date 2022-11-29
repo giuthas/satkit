@@ -35,7 +35,7 @@ import logging
 from contextlib import closing
 from copy import deepcopy
 from pathlib import Path
-from typing import List, Optional
+from typing import Dict, List, Optional
 
 from satkit.data_import.add_3D_ultrasound import (generateMeta,
                                                   read_3D_meta_from_mat_file)
@@ -74,10 +74,14 @@ def generate_recording_list(directory: Path, config: Optional[dict] = None):
 
     dicom_dir = directory / "DICOM"
     note_dir = directory / "NOTES"
+    wav_dir = directory / 'WAV'
+    avi_dir = directory / 'AVI'
     directories = {
         'root_dir': directory,
         'dicom_dir': dicom_dir,
         'note_dir': note_dir,
+        'wav_dir': wav_dir,
+        'avi_dir': avi_dir
     }
 
     dicom_files = sorted(dicom_dir.glob('*.DCM'))
@@ -205,12 +209,12 @@ def generate_recording_list_old_style(directory):
     recordings = []
     for token in meta:
         if token['trial_number'] in dicom_dict:
-            print(dicom_dict[token['trial_number']])
+            _3D4D_ultra_logger.debug("Processing %s.", dicom_dict[token['trial_number']])
             recording = generate_3D_ultrasound_recording(
                 dicom_dict[token['trial_number']],
                 token['sound_filename'],
-                directories)
-            recording.addMeta(token)
+                directories,
+                token)
             recordings.append(recording)
         else:
             _3D4D_ultra_logger.info(
@@ -220,7 +224,11 @@ def generate_recording_list_old_style(directory):
     return sorted(recordings, key=lambda token: token.meta['date_and_time'])
 
 
-def generate_3D_ultrasound_recording(dicom_name: str, sound_name: str, directories: Optional[List[Path]]=None):
+def generate_3D_ultrasound_recording(
+        dicom_name: str, 
+        sound_name: str, 
+        meta: dict, 
+        directories: Optional[Dict[str, Path]]=None):
     """
     Generate an UltrasoundRecording without Modalities.
 
@@ -240,33 +248,31 @@ def generate_3D_ultrasound_recording(dicom_name: str, sound_name: str, directori
         "Building Recording object for " + str(dicom_name) + " in " +
         str(directories['root_dir']) + ".")
 
-    recording = Recording(
-        paths=directories,
-        basename=dicom_name,
-        sound_name=sound_name
-    )
-
     # If we aren't going to process this recording,
     # don't bother with the rest.
     if recording.excluded:
         _3D4D_ultra_logger.info(
             "Recording " + str(dicom_name) + " automatically excluded.")
 
-    textgrid = directory/basename
-    textgrid = textgrid.with_suffix('.TextGrid')
+    # Candidates for filenames. Existence tested below.
+    ult_wav_file = directories['wav_dir']/sound_name.with_suffix(".wav")
+    textgrid = directories['wav_dir']/sound_name.with_suffix(".TextGrid")
+    ult_file = directories['dicom_dir']/dicom_name
+    video_file = directories['avi_dir']/dicom_name
+    video_file = video_file.with_suffix(".avi")
 
     if textgrid.is_file():
         recording = Recording(
             meta_data=meta,
-            path=directory,
-            basename=basename,
+            path=directories['root_dir'],
+            basename=dicom_name,
             textgrid_path=textgrid
         )
     else:
         recording = Recording(
             meta_data=meta,
-            path=directory,
-            basename=basename
+            path=directories['root_dir'],
+            basename=dicom_name
         )
 
     return recording

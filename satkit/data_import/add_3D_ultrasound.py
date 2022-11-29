@@ -24,7 +24,7 @@ _3D4D_ultra_logger = logging.getLogger('satkit.ThreeD_ultrasound')
 
 def read_3D_meta_from_mat_file(mat_file):
     """
-    Read a WASL .mat file and return relevant contents as a dict.
+    Read a RASL .mat file and return relevant contents as a dict.
 
     Positional argument:
     mat_file -- either a pathlib Path object representing the .mat 
@@ -70,7 +70,7 @@ def read_3D_meta_from_mat_file(mat_file):
 
 def generateMeta(rows):
     """
-    Read a WASL .mat file and return relevant contents as a dict.
+    Parse a RASL .mat file's rows and return relevant contents as a dict.
 
     Positional argument:
     mat_file -- either a pathlib Path object representing the .mat

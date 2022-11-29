@@ -42,6 +42,7 @@ dependencies:
   - pylint >= 2.9
   - strictyaml >= 1.6.1
   - setuptools >= 58
+  - pdoc
   - build 
   - virtualenv
   - pip >= 22

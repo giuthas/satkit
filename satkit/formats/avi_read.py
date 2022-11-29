@@ -29,18 +29,15 @@
 # citations.bib in BibTeX format.
 #
 
-from contextlib import closing
 from pathlib import Path
-from typing import Tuple
 
 import numpy as np
 # scikit-video for io and processing of video data.
 import skvideo.io
-# wav file handling
 from satkit.data_structures import ModalityData
 
 
-def read_avi(path: Path, meta: dict, time_offset: float) -> Tuple[np.ndarray, np.ndarray, float]:
+def read_avi(path: Path, meta: dict, time_offset: float) -> ModalityData:
     """
     Read wavfile from path.
 
@@ -74,4 +71,4 @@ def read_avi(path: Path, meta: dict, time_offset: float) -> Tuple[np.ndarray, np
     # while at the same time dropping a suitable number
     # (most likely = timestep) of timestamps
 
-    return (data, timevector, meta['FramesPerSec'])
+    return ModalityData(data, timevector, meta['FramesPerSec'])

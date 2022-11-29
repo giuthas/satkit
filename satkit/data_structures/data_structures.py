@@ -41,9 +41,8 @@ from typing import Optional, Tuple, Union
 import numpy as np
 # Praat textgrids
 import textgrids
-
-from satkit.errors import MissingDataError, ModalityError, OverWriteError
 from satkit.data_structures.satgrid import SatGrid
+from satkit.errors import MissingDataError, ModalityError, OverWriteError
 
 _datastructures_logger = logging.getLogger('satkit.data_structures')
 
@@ -270,7 +269,7 @@ class Modality(abc.ABC):
         # parent.excluded to True.
         self.excluded = False
 
-    def _get_data(self) -> Tuple[np.ndarray, np.ndarray, float]:
+    def _get_data(self) -> ModalityData:
         # TODO: Provide a way to force the data to be derived. 
         # this would be used when parent modality has updated in some way
         if self.data_path:
@@ -286,7 +285,7 @@ class Modality(abc.ABC):
     # TODO: should these really return a value rather than 
     # just write the fields? And if return a value, why not 
     # ModalityData? 
-    def _derive_data(self) -> Tuple[np.ndarray, np.ndarray, float]:
+    def _derive_data(self) -> ModalityData:
         """
         Derive data from another modality -- to be overridden by inheriting classes.
 
@@ -299,7 +298,7 @@ class Modality(abc.ABC):
         raise NotImplementedError(
             "This method should be overridden by inheriting classes.")
 
-    def _load_data(self) -> Tuple[np.ndarray, np.ndarray, float]:
+    def _load_data(self) -> ModalityData:
         """
         Load data from a saved file -- to be overridden by inheriting classes.
 
@@ -311,7 +310,7 @@ class Modality(abc.ABC):
         raise NotImplementedError(
             "This method should be overridden by inheriting classes.")
 
-    def _read_data(self) -> Tuple[np.ndarray, np.ndarray, float]:
+    def _read_data(self) -> ModalityData:
         """
         Load data from file -- to be overridden by inheriting classes.
 
@@ -323,11 +322,11 @@ class Modality(abc.ABC):
         raise NotImplementedError(
             "This method should be overridden by inheriting classes.")
 
-    def _set_data(self, data: np.ndarray, timevector: np.ndarray, sampling_rate: float):
+    def _set_data(self, data:ModalityData):
         """Method used to set data from _get_data, _load_data, and _derive_data."""
-        self._data = data
-        self._timevector = timevector
-        self._sampling_rate = sampling_rate
+        self._data = data.data
+        self._timevector = data.timevector
+        self._sampling_rate = data.sampling_rate
 
     @property
     def excluded(self) -> None:

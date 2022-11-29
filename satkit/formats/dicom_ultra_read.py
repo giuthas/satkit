@@ -1,24 +1,30 @@
 # Built in packages
 import logging
 import sys
+from pathlib import Path
+from typing import Tuple
 
 # Numpy and scipy
 import numpy as np
 # dicom reading
 import pydicom
+from satkit.data_structures import ModalityData
 
 # TODO change the logger name
 _3D4D_ultra_logger = logging.getLogger('satkit.ThreeD_ultrasound')
 
-def getData(meta):
-    ds = pydicom.dcmread(meta['filename'])
+def read_3d_ultrasound_dicom(
+    path: Path,
+    meta: dict,
+    time_offset: float) -> Tuple[np.ndarray, np.ndarray, float]:
 
+    ds = pydicom.dcmread(path)
     # There are other options, but we don't deal with them just yet.
-    # Before 1.0: fix the above. see loadPhillipsDCM.m on how.
+    # TODO Before 1.0: fix the above. see loadPhillipsDCM.m on how.
     if len(ds.SequenceOfUltrasoundRegions) == 3:
         type = ds[0x200d, 0x3016][1][0x200d, 0x300d].value
         if type == 'UDM_USD_DATATYPE_DIN_3D_ECHO':
-            read_3D_ultra(ds)
+            data, meta = _parse_3D_ultra(ds, meta)
         else:
             _3D4D_ultra_logger.critical(
                 "Unknown DICOM ultrasound type: " + type + " in "
@@ -49,10 +55,12 @@ def getData(meta):
         0, meta['no_frames'],
         num=meta['no_frames'],
         endpoint=False)
-    timevector = ultra3D_time / \
-        meta['FramesPerSec'] + timeOffset
+    timevector = ultra3D_time / meta['FramesPerSec'] + time_offset
 
-def read_3D_ultra(self, ds, meta):
+    return ModalityData(data, meta['FramesPerSec'], timevector)
+
+
+def _parse_3D_ultra(ds, meta):
     ultra_sequence = ds[0x200d, 0x3016][1][0x200d, 0x3020][0]
 
     # data dimensions

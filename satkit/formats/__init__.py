@@ -29,5 +29,6 @@
 # citations.bib in BibTeX format.
 #
 from .avi_read import read_avi
+from .dicom_ultra_read import read_3d_ultrasound_dicom
 from .ult_read import read_ult
 from .wav_read import read_wav

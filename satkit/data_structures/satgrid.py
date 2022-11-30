@@ -31,7 +31,7 @@
 from collections import OrderedDict
 from typing import Union
 
-from satkit.configuration.configuration import config
+from satkit.configuration import config
 from textgrids import Interval, TextGrid, Tier, Transcript
 from textgrids.templates import (long_header, long_interval, long_point,
                                  long_tier)

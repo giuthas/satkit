@@ -38,13 +38,13 @@ import time
 # For running a Qt GUI
 from PyQt5 import QtWidgets
 
-import satkit.configuration.configuration as configuration
 # local modules
-from satkit.commandline_interface import (SatkitArgumentParser, load_data,
-                                          logger, process_data, save_data)
+import satkit.configuration.configuration as configuration
 from satkit.data_structures.modalities import RawUltrasound
 from satkit.metrics import pd
 from satkit.qt_annotator import PdQtAnnotator
+from satkit.scripting_interface import (SatkitArgumentParser, load_data,
+                                        logger, process_data, save_data)
 
 
 def main():

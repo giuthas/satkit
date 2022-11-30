@@ -38,6 +38,8 @@ from typing import Optional
 
 # Local packages
 from satkit.audio_processing import MainsFilter
+from satkit.configuration.configuration import config, data_run_params
+from satkit.configuration.exclusion_list import set_exclusions_from_file
 from satkit.data_import.add_AAA_raw_ultrasound import (add_aaa_raw_ultrasound,
                                                        parse_aaa_promptfile)
 from satkit.data_import.add_audio import add_audio
@@ -45,8 +47,6 @@ from satkit.data_import.add_video import add_video
 from satkit.data_structures import Recording
 
 _AAA_logger = logging.getLogger('satkit.AAA')
-
-import satkit.configuration.configuration as configuration
 
 #
 # The logic here is to do a as much as we can with minimal arguments.
@@ -57,7 +57,9 @@ import satkit.configuration.configuration as configuration
 # like the exclusion list and splines.
 #
 
-def generate_aaa_recording_list(directory: Path, config: Optional[dict]=None):
+def generate_aaa_recording_list(
+    directory: Path, 
+    config: Optional[dict]=None):
     """
     Produce an array of Recordings from an AAA export directory.
 
@@ -94,10 +96,10 @@ def generate_aaa_recording_list(directory: Path, config: Optional[dict]=None):
     if len(ult_meta_files) == 0:
         ult_meta_files = sorted(glob.glob(directory + '/*.param'))
 
-    if configuration.config['mains frequency']:
+    if config['mains frequency']:
         MainsFilter.generate_mains_filter(
             44100, 
-            configuration.config['mains frequency'])
+            config['mains frequency'])
     else:
         MainsFilter.generate_mains_filter(44100, 50)
     
@@ -119,6 +121,16 @@ def generate_aaa_recording_list(directory: Path, config: Optional[dict]=None):
         generate_ultrasound_recording(basename, Path(directory))
         for basename in basenames
     ]
+
+    set_exclusions_from_file(
+        data_run_params['data properties']['exclusion list'], 
+        recordings)
+
+
+    for recording in recordings: 
+        if not recording.excluded:
+            add_modalities(recording)
+
     return sorted(recordings, key=lambda token: token.meta_data.time_of_recording)
 
 

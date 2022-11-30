@@ -39,7 +39,7 @@ from typing import Optional
 # Local packages
 from satkit.audio_processing import MainsFilter
 from satkit.configuration import (config, data_run_params,
-                                  set_exclusions_from_file)
+                                  set_exclusions_from_csv_file)
 from satkit.data_import.add_AAA_raw_ultrasound import (add_aaa_raw_ultrasound,
                                                        parse_aaa_promptfile)
 from satkit.data_import.add_audio import add_audio
@@ -122,7 +122,7 @@ def generate_aaa_recording_list(
         for basename in basenames
     ]
 
-    set_exclusions_from_file(
+    set_exclusions_from_csv_file(
         data_run_params['data properties']['exclusion list'], 
         recordings)
 

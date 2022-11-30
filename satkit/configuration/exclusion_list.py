@@ -36,7 +36,7 @@ from contextlib import closing
 
 _io_logger = logging.getLogger('satkit.io')
 
-def set_exclusions_from_file(filename, recordings):
+def set_exclusions_from_csv_file(filename, recordings):
     """
     Read list of files (that is, recordings) to be excluded from processing
     and mark them as excluded in the array of recording objects.

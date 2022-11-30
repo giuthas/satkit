@@ -37,7 +37,7 @@ from copy import deepcopy
 from pathlib import Path
 from typing import Dict, Optional
 
-from satkit.configuration import data_run_params, set_exclusions_from_file
+from satkit.configuration import data_run_params, set_exclusions_from_csv_file
 from satkit.data_import.add_3D_ultrasound import (add_rasl_3D_ultrasound,
                                                   generateMeta,
                                                   read_3D_meta_from_mat_file)
@@ -121,7 +121,7 @@ def generate_rasl_recording_list(directory: Path, config: Optional[dict] = None)
                 token['trial_number'] + ' found in ' + str(directory) + '.')
 
 
-    set_exclusions_from_file(
+    set_exclusions_from_csv_file(
         data_run_params['data properties']['exclusion list'], 
         recordings)
 

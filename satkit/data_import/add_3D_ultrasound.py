@@ -3,12 +3,14 @@
 import logging
 from copy import deepcopy
 from datetime import datetime
-from pathlib import PureWindowsPath
+from pathlib import Path, PureWindowsPath
+from typing import Optional
 
 # Numpy and scipy
 import numpy as np
 #from numpy.matlib import repmat
 import scipy.io
+from satkit.data_structures.data_structures import Recording
 
 _3D4D_ultra_logger = logging.getLogger('satkit.ThreeD_ultrasound')
 
@@ -89,5 +91,7 @@ def generateMeta(rows):
         meta.append(meta_token)
     return meta
 
-
+def add_rasl_3D_ultrasound(recording: Recording, preload: bool,
+                            path: Optional[Path]=None) -> None:
+    """Create a RawUltrasound Modality and add it to the Recording."""
 

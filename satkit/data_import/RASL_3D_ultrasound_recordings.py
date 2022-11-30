@@ -35,10 +35,13 @@ import logging
 from contextlib import closing
 from copy import deepcopy
 from pathlib import Path
-from typing import Dict, List, Optional
+from typing import Dict, Optional
 
-from satkit.data_import.add_3D_ultrasound import (generateMeta,
+from satkit.data_import.add_3D_ultrasound import (add_rasl_3D_ultrasound,
+                                                  generateMeta,
                                                   read_3D_meta_from_mat_file)
+from satkit.data_import.add_audio import add_audio
+from satkit.data_import.add_video import add_video
 # Local packages
 from satkit.data_structures import Recording
 
@@ -276,4 +279,33 @@ def generate_3D_ultrasound_recording(
         )
 
     return recording
+
+def add_modalities(recording: Recording, wav_preload: bool=True, ult_preload: bool=False,
+                    video_preload: bool=False):
+    """
+    Add audio and raw ultrasound data to the recording.
+
+    Keyword arguments:
+    wavPreload -- boolean indicating if the .wav file is to be read into
+        memory on initialising. Defaults to True.
+    ultPreload -- boolean indicating if the ultrasound in .dicom files 
+        should be read into memory on initialising. 
+        Defaults to False. Note: these
+        files are roughly one to two orders of magnitude
+        larger than .wav files.
+    videoPreload -- boolean indicating if the .avi file is to be read into
+        memory on initialising. Defaults to False. Note: these
+        files are, yet again, roughly one to two orders of magnitude
+        larger than .dicom files.
+
+    Throws KeyError if TimeInSecsOfFirstFrame is missing from the
+    meta file: [directory]/basename + .txt.
+    """
+    _3D4D_ultra_logger.info("Adding modalities to recording for %s.",
+        recording.basename)
+
+    add_audio(recording, wav_preload)
+    add_rasl_3D_ultrasound(recording, ult_preload)
+    add_video(recording, video_preload)
+
 

@@ -30,5 +30,5 @@
 #
 from .data_structures import (Modality, ModalityData, Recording,
                               RecordingMetaData)
-from .modalities import MonoAudio, RawUltrasound, Video
+from .modalities import MonoAudio, RawUltrasound, ThreeD_Ultrasound, Video
 from .satgrid import SatGrid, SatInterval, SatTier

@@ -33,6 +33,9 @@
 import csv
 import logging
 from contextlib import closing
+from pathlib import Path
+
+from strictyaml import load
 
 _io_logger = logging.getLogger('satkit.io')
 
@@ -60,7 +63,24 @@ def set_exclusions_from_csv_file(filename, recordings):
      if recording.basename in exclusion_list]
 
 
-def read_file_exclusion_list(filename):
+def read_exclusion_list_from_yaml(filepath: Path) -> dict:
+    """
+    Read the exclusion list from filepath.
+    
+    If no exclusion list file is present, return an empty array
+    after warning the user.
+    """
+    if filepath.is_file():
+        with closing(open(filepath, 'r')) as yaml_file:
+            yaml = load(yaml_file.read())
+            exclusion_dict = yaml.data
+    else:
+        exclusion_dict = {}
+        print(f"Did not find the exclusion list at {filepath}. Proceeding anyhow.")
+    return exclusion_dict
+
+
+def read_file_exclusion_list_from_csv(filename):
     """
     Read list of files (that is, recordings) to be excluded from processing.
     """

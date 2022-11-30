@@ -87,6 +87,7 @@ def load_main_config(filepath: Union[Path, str, None]=None) -> None:
         with closing(open(filepath, 'r')) as yaml_file:
             schema = Map({
                 "epsilon": Float(),
+                "mains frequency": Float(),
                 "data run parameter file": PathValidator(),
                 "gui parameter file": PathValidator()
                 })

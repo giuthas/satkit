@@ -46,6 +46,7 @@ from satkit.data_structures import Recording
 
 _AAA_logger = logging.getLogger('satkit.AAA')
 
+import satkit.configuration as configuration
 
 #
 # The logic here is to do a as much as we can with minimal arguments.
@@ -93,8 +94,10 @@ def generate_aaa_recording_list(directory: Path, config: Optional[dict]=None):
     if len(ult_meta_files) == 0:
         ult_meta_files = sorted(glob.glob(directory + '/*.param'))
 
-    if config and config['mains frequency']:
-        MainsFilter.generate_mains_filter(44100, config['mains frequency'])
+    if configuration.config['mains frequency']:
+        MainsFilter.generate_mains_filter(
+            44100, 
+            configuration.config['mains frequency'])
     else:
         MainsFilter.generate_mains_filter(44100, 50)
     

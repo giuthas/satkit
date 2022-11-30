@@ -54,7 +54,7 @@ from scipy import interpolate
 from scipy.signal import butter, filtfilt, kaiser, sosfilt
 
 # local modules
-import satkit.data_import.AAA_recordings as satkit_AAA
+import satkit.data_import.AAA_recordings as satkit_import_AAA
 
 # create module logger
 ofreg_logger = logging.getLogger('satkit.ofreg')
@@ -88,7 +88,7 @@ def of(item):
     
     (ult_wav_fs, ult_wav_frames) = sio_wavfile.read(item['ult_wav_file'])
 
-    meta = satkit_AAA.parse_ult_meta(item['ult_meta_file'])
+    meta = satkit_import_AAA.parse_ult_meta(item['ult_meta_file'])
     ult_fps = meta['FramesPerSec']
     ult_NumVectors = meta['NumVectors']
     ult_PixPerVector = meta['PixPerVector']

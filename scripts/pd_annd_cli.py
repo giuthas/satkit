@@ -32,10 +32,9 @@
 import logging
 import time
 
-from satkit import annd
 # local modules
 from satkit.commandLineInterface import RawAndSplineCLI
-from satkit.metrics import pd
+from satkit.metrics import annd, pd
 
 
 def main():

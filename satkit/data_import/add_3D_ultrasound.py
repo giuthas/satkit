@@ -10,7 +10,7 @@ from typing import Optional
 import numpy as np
 #from numpy.matlib import repmat
 import scipy.io
-from satkit.data_structures.data_structures import Recording
+from satkit.data_structures import Recording
 
 _3D4D_ultra_logger = logging.getLogger('satkit.ThreeD_ultrasound')
 

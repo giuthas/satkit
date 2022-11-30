@@ -34,7 +34,7 @@ import logging
 from pathlib import Path
 from typing import Optional
 
-from satkit.configuration import Datasource, data_run_params
+from satkit.configuration.configuration import Datasource, data_run_params
 # Local packages
 from satkit.data_structures import Recording, Video
 

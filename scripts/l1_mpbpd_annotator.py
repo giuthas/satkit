@@ -32,11 +32,10 @@
 import logging
 import time
 
-from satkit import annd
 from satkit.annotator import l1_MPBPD_Annotator
 # local modules
 from satkit.commandLineInterface import RawAndSplineCLI
-from satkit.metrics import pd
+from satkit.metrics import annd, pd
 
 
 def main():

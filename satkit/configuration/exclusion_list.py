@@ -79,6 +79,29 @@ def read_exclusion_list_from_yaml(filepath: Path) -> dict:
         print(f"Did not find the exclusion list at {filepath}. Proceeding anyhow.")
     return exclusion_dict
 
+def apply_yaml_exclusion_list(table: list[dict], exclusion_path: Path) -> None:
+
+    exclusion_list = read_exclusion_list_from_yaml(exclusion_path)
+
+    if not exclusion_list:
+        return
+
+    for entry in table:
+        filename = entry['filename']
+        if filename in exclusion_list['files']:
+            print(f'Excluding {filename}: File is in exclusion list.')
+            entry['excluded'] = True
+
+        # The first condition sees if the whole prompt is excluded, 
+        # the second condition checks if any parts of the prompt 
+        # match exclucion criteria (for example excluding 'foobar ...' 
+        # based on 'foobar').
+        prompt = entry['prompt']
+        if (prompt in exclusion_list['prompts'] or
+            [element for element in exclusion_list['parts of prompts'] if(element in prompt)]):
+            print(f'Excluding {filename}. Prompt: {prompt} matches exclusion list.')
+            entry['excluded'] = True
+
 
 def read_file_exclusion_list_from_csv(filename):
     """

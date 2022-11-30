@@ -46,7 +46,7 @@ from satkit.data_structures import Recording
 
 _AAA_logger = logging.getLogger('satkit.AAA')
 
-import satkit.configuration as configuration
+import satkit.configuration.configuration as configuration
 
 #
 # The logic here is to do a as much as we can with minimal arguments.

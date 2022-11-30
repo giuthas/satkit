@@ -37,7 +37,7 @@ import time
 # For running a Qt GUI
 from PyQt5 import QtWidgets
 
-import satkit.configuration as configuration
+import satkit.configuration.configuration as configuration
 # local modules
 from satkit.commandLineInterface import RawCLI
 from satkit.data_structures.modalities import RawUltrasound

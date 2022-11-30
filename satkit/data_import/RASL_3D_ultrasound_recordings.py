@@ -37,6 +37,7 @@ from copy import deepcopy
 from pathlib import Path
 from typing import Dict, Optional
 
+from satkit.configuration import data_run_params, set_exclusions_from_file
 from satkit.data_import.add_3D_ultrasound import (add_rasl_3D_ultrasound,
                                                   generateMeta,
                                                   read_3D_meta_from_mat_file)
@@ -118,6 +119,18 @@ def generate_rasl_recording_list(directory: Path, config: Optional[dict] = None)
             _3D4D_ultra_logger.info(
                 'No DICOM file corresponding to number ' +
                 token['trial_number'] + ' found in ' + str(directory) + '.')
+
+
+    set_exclusions_from_file(
+        data_run_params['data properties']['exclusion list'], 
+        recordings)
+
+
+    for recording in recordings: 
+        if not recording.excluded:
+            add_modalities(recording)
+
+    return sorted(recordings, key=lambda token: token.meta_data.time_of_recording)
 
     return sorted(recordings, key=lambda token: token.meta['date_and_time'])
 

@@ -35,36 +35,37 @@ import json
 import logging
 import pickle
 from contextlib import closing
+from pathlib import Path
 
 _io_logger = logging.getLogger('satkit.io')
 
 
-def save2pickle(data, filename):
+def save2pickle(data, path: Path):
     """
     Save data to a .pickle file.
 
     Data can in principle be anything, but should be a list of recordings.
     """
-    with closing(open(filename, 'bw')) as outfile:
+    with closing(open(path, 'bw')) as outfile:
         pickle.dump(data, outfile)
-        _io_logger.debug('Wrote data to pickle file ' + filename + '.')
+        _io_logger.debug('Wrote data to pickle file ' + path.name + '.')
 
 
-def load_pickled_data(filename):
+def load_pickled_data(path: Path):
     """
     Loads a (token_metadata_list, data) tuple from a .pickle file and
     returns the tuple.
 
     """
     data = None
-    with closing(open(filename, 'br')) as infile:
+    with closing(open(path, 'br')) as infile:
         data = pickle.load(infile)
-        _io_logger.debug('Read data from pickle file ' + filename + '.')
+        _io_logger.debug('Read data from pickle file ' + path.name + '.')
 
     return data
 
 
-def save_data_2json(data, filename):
+def save_data_2json(data, path: Path):
     """
     THIS FUNCTION HAS NOT BEEN IMPLEMENTED YET.
     """
@@ -87,11 +88,11 @@ def save_data_2json(data, filename):
 
     _io_logger.critical(
         'The function save_data_2json has not yet been implemented.')
-    with closing(open(filename, 'w')) as outfile:
+    with closing(open(path, 'w')) as outfile:
         json.dump(data, outfile)
 
 
-def load_json_data(filename):
+def load_json_data(path: Path):
     """
     THIS FUNCTION HAS NOT BEEN IMPLEMENTED YET.
     """
@@ -99,27 +100,27 @@ def load_json_data(filename):
     _io_logger.critical(
         'The function load_json_data has not yet been implemented.')
     data = None
-    with closing(open(filename, 'r')) as infile:
+    with closing(open(path, 'r')) as infile:
         data = json.load(infile)
 
     return data
 
 
-def write_metadata_to_csv(meta, filename):
+def write_metadata_to_csv(meta, path: Path):
     """
     Write the metadata dict into a .csv file so that it can easily 
     be read by humans and machines.
     """
     # Finally dump all the metadata into a csv-formated file.
-    with closing(open(filename, 'w')) as csvfile:
+    with closing(open(path, 'w')) as csvfile:
         writer = csv.DictWriter(csvfile, fieldnames=meta[0].keys())
 
         writer.writeheader()
         map(writer.writerow, meta)
-        _io_logger.debug('Wrote metadata to file ' + filename + '.')
+        _io_logger.debug('Wrote metadata to file ' + path.name + '.')
 
 
-def save_prompt_freq(filename, prompt_freqs):
+def save_prompt_freq(path: Path, prompt_freqs):
     """
     NOT IN USE YET.
     Save frequency count of each prompt in a .csv file. 
@@ -130,6 +131,6 @@ def save_prompt_freq(filename, prompt_freqs):
         for prompt in sorted(prompt_freqs.keys()):
             writer.writerow([prompt, prompt_freqs[prompt]])
         _io_logger.debug(
-            'Wrote prompt frequency counts to file {filename}.', filename)
+            'Wrote prompt frequency counts to file {filename}.', path.name)
 
 

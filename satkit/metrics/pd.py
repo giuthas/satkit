@@ -64,15 +64,21 @@ def calculate_timevector(original_timevector, timestep):
     return timevector
 
 def calculate_metric(abs_diff, norm, mask: Optional[ImageMask]=None):
+    data = abs_diff
     if mask:
         if mask == ImageMask.bottom:
-            
+            half = int(abs_diff.shape[2]/2)
+            data = abs_diff[:,:,:half]
+        elif mask == ImageMask.top:
+            half = int(abs_diff.shape[2]/2)
+            data = abs_diff[:,:,half:]
+
     if norm[0] == 'l':
         if norm[1:] == '_inf':
-            return np.max(abs_diff, axis=(1, 2))
+            return np.max(data, axis=(1, 2))
         else:
             order = float(norm[1:])
-            sums = np.sum(np.power(abs_diff, order), axis=(1, 2))
+            sums = np.sum(np.power(data, order), axis=(1, 2))
             return np.power(sums, 1.0/order)
     else:
         raise UnrecognisedNormError("Don't know how to calculate norm for %s.", norm)
@@ -90,7 +96,7 @@ def calculate_pd(
         timesteps: List[int]=[1], 
         release_data_memory: bool=True,
         pd_on_interpolated_data: bool=False,
-        mask_images=False) -> List['PD']:
+        mask_images: bool=False) -> List['PD']:
     """
     Calculate Pixel Difference (PD) on the data Modality parent.       
 
@@ -129,6 +135,9 @@ def calculate_pd(
     #     raw_diff = raw_diff.reshape(new_shape)
 
     if pd_on_interpolated_data:
+        _pd_logger.info(str(parent_modality.data_path)
+                    + ': Interpolating frames of '
+                    + parent_modality.name + '.')
         interpolated_data = parent_modality.interpolated_frames()
 
     pds = []
@@ -279,7 +288,7 @@ class PD(Modality):
                 norm: str='l2',
                 timestep: int=1,
                 interpolated: bool=False,
-                image_mask: ImageMask=ImageMask.whole) -> None:
+                image_mask: Optional[ImageMask]=None) -> None:
         """
         Build a Pixel Difference (PD) Modality       
 
@@ -342,7 +351,7 @@ class PD(Modality):
         name_string = self.__class__.__name__ + " " + self.norm
 
         if self.image_mask:
-            name_string = name_string + self.image_mask.value
+            name_string = name_string + " " + self.image_mask.value
 
         if self.interpolated and self.parent:
             name_string = "Interpolated " + name_string + " on " + self.parent.__class__.__name__

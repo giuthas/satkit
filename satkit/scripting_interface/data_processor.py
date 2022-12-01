@@ -54,6 +54,6 @@ def process_data(
                 function(
                     recording,
                     modality,
-                    *arguments)
+                    **arguments)
 
     logger.info('Data run ended at %s.', str(datetime.datetime.now()))

@@ -310,7 +310,9 @@ class PD(Modality):
         This overrides the default behaviour of Modality.name.
         """
         name_string = self.__class__.__name__ + " " + self.norm
-        if self.parent:
+        if self.interpolated and self.parent:
+            name_string = "Interpolated " + name_string + " on " + self.parent.__class__.__name__
+        elif self.parent:
             name_string = name_string + " on " + self.parent.__class__.__name__
         return name_string
 

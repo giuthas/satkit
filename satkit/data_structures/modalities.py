@@ -42,7 +42,7 @@ from satkit.data_structures.data_structures import (Modality, ModalityData,
                                                     Recording)
 from satkit.formats import (read_3d_ultrasound_dicom, read_avi, read_ult,
                             read_wav)
-from satkit.interpolate_raw_uti import to_fan_2d
+from satkit.interpolate_raw_uti import to_fan, to_fan_2d
 
 _modalities_logger = logging.getLogger('satkit.modalities')
 
@@ -262,8 +262,8 @@ class RawUltrasound(Modality):
         data = self.data.copy()
         data = np.transpose(data)
         data = np.flip(data, 0)
-        vectorised_to_fan = np.vectorize(to_fan_2d)
-        return vectorised_to_fan(
+
+        return to_fan(
             data,
             angle=self.meta['Angle'],
             zero_offset=self.meta['ZeroOffset'],

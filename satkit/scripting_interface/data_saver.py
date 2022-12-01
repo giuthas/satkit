@@ -41,13 +41,13 @@ logger = logging.getLogger('satkit.scripting')
 
 
 def save_data(path: Path, recordings: List[Recording]):
-    if path.suffix is '.pickle':
+    if path.suffix == '.pickle':
         satkit_io.save2pickle(
             recordings,
             path)
         logger.info(
             "Wrote data to file %s.", str(path))
-    elif path.suffix is '.json':
+    elif path.suffix == '.json':
         logger.error(
             'Unsupported filetype: %s.', str(path))
     else:

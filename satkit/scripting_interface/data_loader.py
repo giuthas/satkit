@@ -52,9 +52,9 @@ def load_data(path: Path, exclusion_file: Path) -> List[Recording]:
         # this is the actual list of recordings that gets processed
         # token_list includes meta data contained outwith the ult file
         recordings = read_data_from_files(path, exclusion_file)
-    elif path.suffix is '.pickle':
+    elif path.suffix == '.pickle':
         recordings = satkit_io.load_pickled_data(path)
-    elif path.suffix is '.json':
+    elif path.suffix == '.json':
         recordings = satkit_io.load_json_data(path)
     else:
         logger.error(

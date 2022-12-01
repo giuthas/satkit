@@ -102,7 +102,10 @@ def main():
         recordings = load_data(Path(cli.args.load_path), None)
 
     #function_dict = {'pd':pd.pd, 'annd':annd.annd}
-    function_dict = {'PD': (pd.add_pd, [RawUltrasound])}
+    function_dict = {
+        'PD': (pd.add_pd, 
+        [RawUltrasound], 
+        {'pd_on_interpolated_data': True, 'release_data_memory': True, 'preload': True})}
     process_data(recordings=recordings, processing_functions=function_dict)
 
     logger.info('Data run ended at %s.', str(datetime.datetime.now()))

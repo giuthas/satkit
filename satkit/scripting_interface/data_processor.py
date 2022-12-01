@@ -38,21 +38,22 @@ from satkit.data_structures import Recording
 logger = logging.getLogger('satkit.scripting')
 
 
-
-def process_data(recordings: List[Recording], processing_functions: Dict, arguments: Optional[Dict]=None) -> None:
+def process_data(
+    recordings: List[Recording], 
+    processing_functions: Dict) -> None:
+    
     # calculate the metrics
     for recording in recordings:
         if recording.excluded:
             continue
 
         for key in processing_functions:
-            (function, modalities) = processing_functions[key]
+            (function, modalities, arguments) = processing_functions[key]
             # TODO: Version 1.0: add a mechanism to change the arguments for different modalities.
             for modality in modalities:
                 function(
                     recording,
                     modality,
-                    preload=True,
-                    release_data_memory=True)
+                    *arguments)
 
     logger.info('Data run ended at %s.', str(datetime.datetime.now()))

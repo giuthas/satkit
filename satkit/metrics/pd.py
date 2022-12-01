@@ -170,7 +170,8 @@ def calculate_pd(
 def add_pd(recording: Recording,
           modality: Modality,
           preload: bool=True,
-          release_data_memory: bool=True):
+          release_data_memory: bool=True,
+          pd_on_interpolated_data: bool=False):
     """
     Calculate PD on dataModality and add it to recording.
 
@@ -208,7 +209,8 @@ def add_pd(recording: Recording,
         pds = calculate_pd(dataModality,
                 norms=['l2'], 
                 timesteps=[1], 
-                release_data_memory=True) 
+                release_data_memory=release_data_memory,
+                pd_on_interpolated_data=pd_on_interpolated_data) 
         for pd in pds:
             recording.add_modality(pd)
         _pd_logger.info(

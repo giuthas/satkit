@@ -112,7 +112,7 @@ def main():
 
     # save before plotting just in case.
     if cli.args.output_filename:
-        save_data(cli.args.output_filename)
+        save_data(Path(cli.args.output_filename), recordings)
 
     # Plot the data into files if asked to.
     if cli.args.plot:

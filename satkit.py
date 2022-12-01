@@ -105,7 +105,7 @@ def main():
     function_dict = {
         'PD': (pd.add_pd, 
         [RawUltrasound], 
-        {'mask_images': True, 'pd_on_interpolated_data': False, 'release_data_memory': True, 'preload': True})}
+        {'mask_images': True, 'pd_on_interpolated_data': True, 'release_data_memory': True, 'preload': True})}
     process_data(recordings=recordings, processing_functions=function_dict)
 
     logger.info('Data run ended at %s.', str(datetime.datetime.now()))

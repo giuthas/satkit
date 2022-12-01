@@ -43,7 +43,7 @@ logger = logging.getLogger('satkit.scripting')
 
 
 
-def load_data(path: Path) -> List[Recording]:
+def load_data(path: Path, exclusion_file: Path) -> List[Recording]:
     """Handle loading data from individual files or a previously saved session."""
     if not path.exists():
         logger.critical(
@@ -53,7 +53,7 @@ def load_data(path: Path) -> List[Recording]:
     elif path.is_dir():
         # this is the actual list of recordings that gets processed
         # token_list includes meta data contained outwith the ult file
-        recordings = read_data_from_files()
+        recordings = read_data_from_files(path, exclusion_file)
     elif path.suffix is '.pickle':
         recordings = satkit_io.load_pickled_data(path)
     elif path.suffix is '.json':
@@ -64,7 +64,7 @@ def load_data(path: Path) -> List[Recording]:
     
     return recordings
 
-def read_data_from_files(self):
+def read_data_from_files(path: Path, exclusion_file: Path):
     """
     Wrapper for reading data from a directory full of files.
 
@@ -75,11 +75,9 @@ def read_data_from_files(self):
     this method just returns the data and saving it in a
     instance variable is left for the caller to handle.
     """
-    if self.args.exclusion_filename:
-        data_run_params['data properties']['exclusion list'] = Path(
-            self.args.exclusion_filename)
+    if exclusion_file:
+        data_run_params['data properties']['exclusion list'] = exclusion_file
 
-    recordings = generate_aaa_recording_list(
-        self.args.load_path)
+    recordings = generate_aaa_recording_list(path)
     return recordings
 

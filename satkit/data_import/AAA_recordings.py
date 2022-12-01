@@ -30,9 +30,7 @@
 #
 
 # Built in packages
-import glob
 import logging
-import os
 from pathlib import Path
 from typing import Optional
 
@@ -59,7 +57,7 @@ _AAA_logger = logging.getLogger('satkit.AAA')
 
 def generate_aaa_recording_list(
     directory: Path, 
-    config: Optional[dict]=None):
+    directory_structure: Optional[dict]=None):
     """
     Produce an array of Recordings from an AAA export directory.
 
@@ -92,9 +90,9 @@ def generate_aaa_recording_list(
 
     # this is equivalent with the following:
     # sorted(glob.glob(directory + '/.' +  '/*US.txt'))
-    ult_meta_files = sorted(glob.glob(directory + '/*US.txt'))
+    ult_meta_files = sorted(directory.glob('*US.txt'))
     if len(ult_meta_files) == 0:
-        ult_meta_files = sorted(glob.glob(directory + '/*.param'))
+        ult_meta_files = sorted(directory.glob('*.param'))
 
     if config['mains frequency']:
         MainsFilter.generate_mains_filter(
@@ -108,13 +106,13 @@ def generate_aaa_recording_list(
     # here is to include also failed recordings with missing
     # ultrasound data in the list for completeness.
     ult_prompt_files = [prompt_file
-                        for prompt_file in glob.glob(directory + '/*.txt')
+                        for prompt_file in directory.glob('*.txt')
                         if not prompt_file in ult_meta_files
                         ]
     ult_prompt_files = sorted(ult_prompt_files)
 
     # strip file extensions off of filepaths to get the base names
-    base_paths = [os.path.splitext(prompt_file)[0]
+    base_paths = [prompt_file.with_suffix('')
                   for prompt_file in ult_prompt_files]
     basenames = [Path(path).name for path in base_paths]
     recordings = [

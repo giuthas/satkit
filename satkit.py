@@ -34,6 +34,7 @@ import datetime
 import logging
 import sys
 import time
+from pathlib import Path
 from typing import Optional
 
 # For running a Qt GUI
@@ -95,7 +96,10 @@ def main():
 
     logger = set_up_logging(cli.args.verbose)
 
-    recordings = load_data()
+    if cli.args.exclusion_filename:
+        recordings = load_data(Path(cli.args.load_path), Path(cli.args.exclusion_filename))
+    else:
+        recordings = load_data(Path(cli.args.load_path), None)
 
     #function_dict = {'pd':pd.pd, 'annd':annd.annd}
     function_dict = {'PD': (pd.add_pd, [RawUltrasound])}

@@ -316,6 +316,7 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
         wav_time = (audio.timevector - stimulus_onset)
 
         l2 = self.current.modalities['PD l2 on RawUltrasound']
+        l2_interpolated = self.current.modalities['Interpolated PD l2 on RawUltrasound']
         ultra_time = l2.timevector - stimulus_onset
 
         #self.xlim = [ultra_time[0] - 0.05, ultra_time[-1]+0.05]
@@ -329,6 +330,8 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
         #          picker=PdQtAnnotator.line_xdirection_picker)
         plot_timeseries(self.data_axes[0], l2.data,
             ultra_time, self.xlim, self.ylim)
+        plot_timeseries(self.data_axes[0], l2_interpolated.data,
+            ultra_time, self.xlim, self.ylim, color='green')
         plot_wav(self.data_axes[1], wav, wav_time, self.xlim)
         plot_spectrogram(self.data_axes[2], 
                         waveform=wav, 

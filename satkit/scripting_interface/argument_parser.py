@@ -91,6 +91,13 @@ class SatkitArgumentParser():
                                  help=helptext, metavar="file")
 
         helptext = (
+            'Should we run plotting on the results.'
+        )
+        self.parser.add_argument("-p", "--plot", dest="plot",
+                                default=False, action=argparse.BooleanOptionalAction,
+                                help=helptext)
+
+        helptext = (
             'Destination directory for generated figures.'
         )
         self.parser.add_argument("-f", "--figures", dest="figure_dir",

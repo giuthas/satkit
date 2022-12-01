@@ -453,5 +453,25 @@ class ThreeD_Ultrasound(Modality):
                 num_vectors=self.meta['NumVectors'])
             return self._stored_image
 
+    def interpolated_frames(self) -> np.ndarray:
+        """
+        Return an interpolated version of the ultrasound frame at index.
+        
+        A new interpolated image is calculated, if necessary. To avoid large memory overheads
+        only the current frame's interpolated version maybe stored in memory.
+
+        Arguments:
+        index - the index of the ultrasound frame to be returned
+        """
+        data = self.data.copy()
+        data = np.transpose(data)
+        data = np.flip(data, 0)
+        vectorised_to_fan = np.vectorise(to_fan_2d)
+        return vectorised_to_fan(
+            data,
+            angle=self.meta['Angle'],
+            zero_offset=self.meta['ZeroOffset'],
+            pix_per_mm=self.meta['PixelsPerMm'],
+            num_vectors=self.meta['NumVectors'])
 
 

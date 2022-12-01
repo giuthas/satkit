@@ -36,7 +36,6 @@ from typing import List, Optional, Tuple
 
 # Numpy and scipy
 import numpy as np
-
 # local modules
 from satkit.data_structures import Modality, ModalityData, Recording
 
@@ -78,7 +77,8 @@ def calculate_pd(
         parent_modality: Modality,
         norms: List[str]=['l2'], 
         timesteps: List[int]=[1], 
-        release_data_memory: bool=True) -> List['PD']:
+        release_data_memory: bool=True,
+        pd_on_interpolated_data: bool=False) -> List['PD']:
     """
     Calculate Pixel Difference (PD) on the data Modality parent.       
 
@@ -116,6 +116,9 @@ def calculate_pd(
     #     new_shape = (old_shape[0], old_shape[1], np.prod(old_shape[2:]))
     #     raw_diff = raw_diff.reshape(new_shape)
 
+    if pd_on_interpolated_data:
+        interpolated_data = parent_modality.interpolated_frames()
+
     pds = []
     sampling_rate = parent_modality.sampling_rate
     for timestep in timesteps:
@@ -123,6 +126,10 @@ def calculate_pd(
                                         timestep)
         raw_diff = np.subtract(data[: -timestep], data[timestep:])
         abs_diff = np.abs(raw_diff)
+        if pd_on_interpolated_data:
+            raw_diff_interpolated = np.subtract(interpolated_data[: -timestep], 
+                                                interpolated_data[timestep:])
+            abs_diff_interpolated = np.abs(raw_diff_interpolated)
         for norm in norms:
             norm_data = calculate_metric(abs_diff, norm)
             modality_data = ModalityData(norm_data, sampling_rate, 
@@ -135,8 +142,22 @@ def calculate_pd(
                 norm=norm, 
                 timestep=timestep)
             )
+            if pd_on_interpolated_data:
+                norm_data = calculate_metric(abs_diff_interpolated, norm)
+                modality_data = ModalityData(norm_data, sampling_rate, 
+                                            timevector)
+                pds.append(
+                    PD(
+                    parent_modality.recording,
+                    parent=parent_modality,
+                    parsed_data=modality_data,
+                    norm=norm, 
+                    timestep=timestep,
+                    interpolated=True)
+                )
     _pd_logger.debug(str(parent_modality.data_path)
                         + ': PD calculated.')
+
 
     if release_data_memory:
         # Accessing the data modality's data causes it to be
@@ -226,7 +247,8 @@ class PD(Modality):
                 time_offset: Optional[float]=None,
                 release_data_memory: bool=True, 
                 norm: str='l2',
-                timestep: int=1) -> None:
+                timestep: int=1,
+                interpolated: bool=False) -> None:
         """
         Build a Pixel Difference (PD) Modality       
 
@@ -258,6 +280,7 @@ class PD(Modality):
 
         self.norm = norm
         self.timestep = timestep
+        self.interpolated = interpolated
         self.release_data_memory = release_data_memory
 
         super().__init__(

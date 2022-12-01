@@ -260,8 +260,6 @@ class RawUltrasound(Modality):
         index - the index of the ultrasound frame to be returned
         """
         data = self.data.copy()
-        data = np.transpose(data)
-        data = np.flip(data, 0)
 
         return to_fan(
             data,

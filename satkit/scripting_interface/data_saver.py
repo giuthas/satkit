@@ -29,13 +29,15 @@
 # citations.bib in BibTeX format.
 #
 
+import logging
 from pathlib import Path
 from typing import List
 
 import satkit.io as satkit_io
 from satkit.data_structures import Recording
 
-from .logger import logger
+logger = logging.getLogger('satkit.scripting')
+
 
 
 def save_data(path: Path, recordings: List[Recording]):

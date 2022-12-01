@@ -64,7 +64,6 @@ class SatkitArgumentParser():
         """
         self.description = description
         self._parse_args()
-        self._set_up_logging()
 
     def _add_optional_arguments(self):
         """Adds the optional verbosity argument."""

@@ -30,11 +30,13 @@
 #
 
 import datetime
+import logging
 from typing import Dict, List
 
 from satkit.data_structures import Recording
 
-from . import logger
+logger = logging.getLogger('satkit.scripting')
+
 
 
 def process_data(recordings: List[Recording], processing_functions: Dict, arguments) -> None:

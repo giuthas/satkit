@@ -29,8 +29,9 @@
 # citations.bib in BibTeX format.
 #
 
-# Built in packages
 import logging
+# Built in packages
+from enum import Enum
 from pathlib import Path
 from typing import List, Optional, Tuple
 
@@ -38,8 +39,14 @@ from typing import List, Optional, Tuple
 import numpy as np
 # local modules
 from satkit.data_structures import Modality, ModalityData, Recording
+from satkit.errors import UnrecognisedNormError
 
 _pd_logger = logging.getLogger('satkit.pd')
+
+class ImageMask(Enum):
+    top = "top"
+    bottom = "bottom"
+    whole = "whole"
 
 def calculate_timevector(original_timevector, timestep):
     if timestep == 1:
@@ -56,7 +63,10 @@ def calculate_timevector(original_timevector, timestep):
         timevector = original_timevector[timestep//2:-timestep//2]
     return timevector
 
-def calculate_metric(abs_diff, norm):
+def calculate_metric(abs_diff, norm, mask: Optional[ImageMask]=None):
+    if mask:
+        if mask == ImageMask.bottom:
+            
     if norm[0] == 'l':
         if norm[1:] == '_inf':
             return np.max(abs_diff, axis=(1, 2))
@@ -64,7 +74,8 @@ def calculate_metric(abs_diff, norm):
             order = float(norm[1:])
             sums = np.sum(np.power(abs_diff, order), axis=(1, 2))
             return np.power(sums, 1.0/order)
-            
+    else:
+        raise UnrecognisedNormError("Don't know how to calculate norm for %s.", norm)
 
 def calculate_slwpd(raw_diff):
     square_diff = np.square(raw_diff)
@@ -78,7 +89,8 @@ def calculate_pd(
         norms: List[str]=['l2'], 
         timesteps: List[int]=[1], 
         release_data_memory: bool=True,
-        pd_on_interpolated_data: bool=False) -> List['PD']:
+        pd_on_interpolated_data: bool=False,
+        mask_images=False) -> List['PD']:
     """
     Calculate Pixel Difference (PD) on the data Modality parent.       
 
@@ -155,6 +167,21 @@ def calculate_pd(
                     timestep=timestep,
                     interpolated=True)
                 )
+            if mask_images:
+                for mask in ImageMask:
+                    norm_data = calculate_metric(abs_diff, norm, mask)
+                    modality_data = ModalityData(norm_data, sampling_rate, 
+                                                timevector)
+                    pds.append(
+                        PD(
+                        parent_modality.recording,
+                        parent=parent_modality,
+                        parsed_data=modality_data,
+                        norm=norm, 
+                        timestep=timestep,
+                        image_mask=mask)
+                    )
+
     _pd_logger.debug(str(parent_modality.data_path)
                         + ': PD calculated.')
 
@@ -171,7 +198,8 @@ def add_pd(recording: Recording,
           modality: Modality,
           preload: bool=True,
           release_data_memory: bool=True,
-          pd_on_interpolated_data: bool=False):
+          pd_on_interpolated_data: bool=False,
+          mask_images=False):
     """
     Calculate PD on dataModality and add it to recording.
 
@@ -210,13 +238,13 @@ def add_pd(recording: Recording,
                 norms=['l2'], 
                 timesteps=[1], 
                 release_data_memory=release_data_memory,
-                pd_on_interpolated_data=pd_on_interpolated_data) 
+                pd_on_interpolated_data=pd_on_interpolated_data,
+                mask_images=mask_images) 
         for pd in pds:
             recording.add_modality(pd)
         _pd_logger.info(
             "Added '" + pd_name +
             "' to recording: " + recording.basename + '.')
-
 
 class PD(Modality):
     """
@@ -250,7 +278,8 @@ class PD(Modality):
                 release_data_memory: bool=True, 
                 norm: str='l2',
                 timestep: int=1,
-                interpolated: bool=False) -> None:
+                interpolated: bool=False,
+                image_mask: ImageMask=ImageMask.whole) -> None:
         """
         Build a Pixel Difference (PD) Modality       
 
@@ -284,6 +313,7 @@ class PD(Modality):
         self.timestep = timestep
         self.interpolated = interpolated
         self.release_data_memory = release_data_memory
+        self.image_mask = image_mask
 
         super().__init__(
                 recording, 
@@ -310,9 +340,14 @@ class PD(Modality):
         This overrides the default behaviour of Modality.name.
         """
         name_string = self.__class__.__name__ + " " + self.norm
+
+        if self.image_mask:
+            name_string = name_string + self.image_mask.value
+
         if self.interpolated and self.parent:
             name_string = "Interpolated " + name_string + " on " + self.parent.__class__.__name__
         elif self.parent:
             name_string = name_string + " on " + self.parent.__class__.__name__
+
         return name_string
 

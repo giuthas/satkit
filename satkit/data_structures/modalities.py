@@ -268,7 +268,8 @@ class RawUltrasound(Modality):
             angle=self.meta['Angle'],
             zero_offset=self.meta['ZeroOffset'],
             pix_per_mm=self.meta['PixelsPerMm'],
-            num_vectors=self.meta['NumVectors'])
+            num_vectors=self.meta['NumVectors'],
+            show_progress=True)
 
 
 

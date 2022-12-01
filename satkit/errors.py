@@ -55,6 +55,10 @@ class OverWriteError(SatkitError):
     """
     pass
 
+class UnrecognisedNormError(SatkitError):
+    """Did not have an implementation for requested norm."""
+    pass
+
 class UltrasoundInterpolationError(SatkitError):
     """Interpolatated ultrasound image could not be produced."""
     pass

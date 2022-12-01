@@ -31,7 +31,7 @@
 
 import datetime
 import logging
-from typing import Dict, List
+from typing import Dict, List, Optional
 
 from satkit.data_structures import Recording
 
@@ -39,7 +39,7 @@ logger = logging.getLogger('satkit.scripting')
 
 
 
-def process_data(recordings: List[Recording], processing_functions: Dict, arguments) -> None:
+def process_data(recordings: List[Recording], processing_functions: Dict, arguments: Optional[Dict]=None) -> None:
     # calculate the metrics
     for recording in recordings:
         if recording.excluded:

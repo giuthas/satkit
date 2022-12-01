@@ -28,8 +28,6 @@
 # articles listed in README.markdown. They can also be found in
 # citations.bib in BibTeX format.
 #
-
-
 import logging
 from pathlib import Path
 from typing import List

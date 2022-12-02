@@ -54,7 +54,8 @@ def plot_timeseries(axes: Axes,
             ylim: Optional[Tuple[float, float]]=None, 
             label: str="PD on ultrasound",
             picker=None, 
-            color: str="deepskyblue", 
+            color: str="deepskyblue",
+            linestyle: str="-", 
             alpha: float=1.0):
     """
     Plot a timeseries.
@@ -78,9 +79,9 @@ def plot_timeseries(axes: Axes,
     Returns None.
     """
     if picker:
-        axes.plot(time, data, color=color, lw=1, picker=picker, alpha=alpha)
+        axes.plot(time, data, color=color, lw=1, linestyle=linestyle, picker=picker, alpha=alpha)
     else:
-        axes.plot(time, data, color=color, lw=1, alpha=alpha)
+        axes.plot(time, data, color=color, lw=1, linestyle=linestyle, alpha=alpha)
     # The official fix for the above curve not showing up on the legend.
     timeseries = Line2D([], [], color=color, lw=1)
 

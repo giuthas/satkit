@@ -23,12 +23,10 @@ def main(args):
         dat_to_wav(dat, wav)
 
 if (len(sys.argv) not in [2]):
-    print("\ncast.py")
-    print("\tusage: cast.py [config strict yaml file]")
-    print("\n\tConcatenates wav files and creates a corresponding TextGrid.")
-    print("\tWrites a huge wav-file, a corresponding textgrid, and")
-    print("\ta metafile to assist in extracting shorter textgrid after annotation.")
-    print("\n\tAll options are provided by the config file which defaults to cast_config.yml.")
+    print("\ndat_to_wav.py")
+    print("\tusage: dat_to_wav.py dat_dir")
+    print("\n\tConverts dat files in dat_dir to wav files and creates a directory for them.")
+    print("\tThe wav file directory will be formed by changin 'DAT' to 'WAV' in the dat directory path's end.")
     sys.exit(0) 
 
 

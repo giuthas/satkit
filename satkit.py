@@ -42,8 +42,8 @@ from PyQt5 import QtWidgets
 
 # local modules
 import satkit.configuration.configuration as configuration
-from satkit.data_structures.modalities import RawUltrasound
 from satkit.metrics import pd
+from satkit.modalities import RawUltrasound
 from satkit.qt_annotator import PdQtAnnotator
 from satkit.scripting_interface import (SatkitArgumentParser, load_data,
                                         process_data, save_data)

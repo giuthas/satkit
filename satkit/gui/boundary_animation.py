@@ -35,7 +35,7 @@ from typing import List, Optional
 from matplotlib.axes import Axes
 from matplotlib.lines import Line2D as mpl_line_2d
 from matplotlib.text import Text as mpl_text
-from satkit.data_structures.satgrid import SatInterval
+from satkit.satgrid import SatInterval
 
 
 @dataclass

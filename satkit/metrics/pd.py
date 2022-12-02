@@ -63,15 +63,22 @@ def calculate_timevector(original_timevector, timestep):
         timevector = original_timevector[timestep//2:-timestep//2]
     return timevector
 
-def calculate_metric(abs_diff, norm, mask: Optional[ImageMask]=None):
+def calculate_metric(abs_diff, norm, mask: Optional[ImageMask]=None, interpolated: bool=False):
     data = abs_diff
-    if mask:
+    if mask and not interpolated:
         if mask == ImageMask.bottom:
             half = int(abs_diff.shape[2]/2)
-            data = abs_diff[:,:,:half]
+            data = abs_diff[:,:,half:] # The bottom is on top
         elif mask == ImageMask.top:
             half = int(abs_diff.shape[2]/2)
-            data = abs_diff[:,:,half:]
+            data = abs_diff[:,:,:half] # and top is on bottom.
+    elif mask:
+        if mask == ImageMask.bottom:
+            half = int(abs_diff.shape[2]/2)
+            data = abs_diff[:,:half,:] # These are the right way around
+        elif mask == ImageMask.top:
+            half = int(abs_diff.shape[2]/2)
+            data = abs_diff[:,half:,:] # These are the right way around
 
     if norm[0] == 'l':
         if norm[1:] == '_inf':
@@ -190,6 +197,20 @@ def calculate_pd(
                         timestep=timestep,
                         image_mask=mask)
                     )
+                    if pd_on_interpolated_data:
+                        norm_data = calculate_metric(abs_diff_interpolated, norm, mask, interpolated=True)
+                        modality_data = ModalityData(norm_data, sampling_rate, 
+                                                    timevector)
+                        pds.append(
+                            PD(
+                            parent_modality.recording,
+                            parent=parent_modality,
+                            parsed_data=modality_data,
+                            norm=norm, 
+                            timestep=timestep,
+                            interpolated=True,
+                            image_mask=mask)
+                        )
 
     _pd_logger.debug(str(parent_modality.data_path)
                         + ': PD calculated.')

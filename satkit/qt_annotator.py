@@ -316,9 +316,11 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
         wav_time = (audio.timevector - stimulus_onset)
 
         l2 = self.current.modalities['PD l2 on RawUltrasound']
-        #l2_interpolated = self.current.modalities['Interpolated PD l2 on RawUltrasound']
         l2_top = self.current.modalities['PD l2 top on RawUltrasound']
         l2_bottom = self.current.modalities['PD l2 bottom on RawUltrasound']
+        l2_interpolated = self.current.modalities['Interpolated PD l2 on RawUltrasound']
+        l2_interpolated_top = self.current.modalities['Interpolated PD l2 top on RawUltrasound']
+        l2_interpolated_bottom = self.current.modalities['Interpolated PD l2 bottom on RawUltrasound']
         ultra_time = l2.timevector - stimulus_onset
 
         #self.xlim = [ultra_time[0] - 0.05, ultra_time[-1]+0.05]
@@ -337,6 +339,12 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
             ultra_time, self.xlim, self.ylim, color='green')
         plot_timeseries(self.data_axes[0], l2_bottom.data/np.max(l2_bottom.data[10:]),
             ultra_time, self.xlim, self.ylim, color='red')
+        plot_timeseries(self.data_axes[0], l2_interpolated.data/np.max(l2_interpolated.data[10:]),
+            ultra_time, self.xlim, self.ylim, color='black', linestyle=":")
+        plot_timeseries(self.data_axes[0], l2_interpolated_top.data/np.max(l2_interpolated_top.data[10:]),
+            ultra_time, self.xlim, self.ylim, color='lime', linestyle=":")
+        plot_timeseries(self.data_axes[0], l2_interpolated_bottom.data/np.max(l2_interpolated_bottom.data[10:]),
+            ultra_time, self.xlim, self.ylim, color='orange', linestyle=":")
 
         plot_wav(self.data_axes[1], wav, wav_time, self.xlim)
         plot_spectrogram(self.data_axes[2], 
@@ -386,11 +394,12 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
         """
         Display an already interpolated ultrasound frame.
         """
-        index = 1
+        index = 100
         if self.current.excluded:
             self.ultra_axes.clear()
-        elif self.current.annotations['pdOnsetIndex']:
-            index = self.current.annotations['pdOnsetIndex']
+        else:
+        # elif self.current.annotations['pdOnsetIndex']:
+        #     index = self.current.annotations['pdOnsetIndex']
             image = self.current.modalities['RawUltrasound'].interpolated_image(
                 index)
             self.ultra_axes.imshow(image, interpolation='nearest', cmap='gray')

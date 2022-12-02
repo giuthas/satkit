@@ -31,7 +31,7 @@
 
 import datetime
 import logging
-from typing import Dict, List, Optional
+from typing import Dict, List
 
 from satkit.data_structures import Recording
 

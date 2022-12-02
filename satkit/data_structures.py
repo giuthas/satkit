@@ -41,8 +41,9 @@ from typing import Optional, Union
 import numpy as np
 # Praat textgrids
 import textgrids
-from satkit.data_structures.satgrid import SatGrid
+
 from satkit.errors import MissingDataError, ModalityError, OverWriteError
+from satkit.satgrid import SatGrid
 
 _datastructures_logger = logging.getLogger('satkit.data_structures')
 

@@ -39,9 +39,9 @@ import numpy as np
 # Scientific plotting
 from matplotlib.axes import Axes
 from matplotlib.lines import Line2D
-from satkit.data_structures import SatTier
 # Local packages
 from satkit.gui.boundary_animation import AnimatableBoundary, BoundaryAnimator
+from satkit.satgrid import SatTier
 
 _plot_logger = logging.getLogger('satkit.plot')
 

@@ -33,13 +33,12 @@ import logging
 import sys
 from copy import deepcopy
 from pathlib import Path
-from typing import Optional, Tuple
+from typing import Optional
 
 # Numpy
 import numpy as np
 # local modules
-from satkit.data_structures.data_structures import (Modality, ModalityData,
-                                                    Recording)
+from satkit.data_structures import Modality, ModalityData, Recording
 from satkit.formats import (read_3d_ultrasound_dicom, read_avi, read_ult,
                             read_wav)
 from satkit.interpolate_raw_uti import to_fan, to_fan_2d
@@ -211,6 +210,7 @@ class RawUltrasound(Modality):
         # State variables for fast retrieval of previously tagged ultrasound frames.
         self._stored_index = None
         self._stored_image = None
+        self.video_has_been_stored = False
 
     def _read_data(self) -> ModalityData:
         return read_ult(self.data_path, self.meta, self._time_offset)
@@ -233,12 +233,17 @@ class RawUltrasound(Modality):
         Arguments:
         index - the index of the ultrasound frame to be returned
         """
-        if self._stored_index and self._stored_index == index:
+        if self.video_has_been_stored:
+            half_way = int(self.stored_video.shape[0]/2)
+            return self.stored_video[half_way, :, :].copy()
+        elif self._stored_index and self._stored_index == index:
             return self._stored_image
         else:
             self._stored_index = index
             #frame = scipy_medfilt(self.data[index, :, :].copy(), [1,15])
             frame = self.data[index, :, :].copy()
+            half = int(frame.shape[1]/2)
+            frame[:,half:] = 0
             frame = np.transpose(frame)
             frame = np.flip(frame, 0)
             self._stored_image = to_fan_2d(
@@ -260,15 +265,21 @@ class RawUltrasound(Modality):
         index - the index of the ultrasound frame to be returned
         """
         data = self.data.copy()
+        data = np.transpose(data, (0,2,1))
+        data = np.flip(data, 1)
 
-        return to_fan(
+        self.video_has_been_stored = True
+        video = to_fan(
             data,
             angle=self.meta['Angle'],
             zero_offset=self.meta['ZeroOffset'],
             pix_per_mm=self.meta['PixelsPerMm'],
             num_vectors=self.meta['NumVectors'],
             show_progress=True)
-
+        half = int(video.shape[1]/2)
+        self.stored_video = video.copy()
+        self.stored_video[:,:half,:] = 0
+        return video
 
 
 

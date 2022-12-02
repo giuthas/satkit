@@ -83,21 +83,18 @@ def plot_timeseries(axes: Axes,
     else:
         axes.plot(time, data, color=color, lw=1, linestyle=linestyle, alpha=alpha)
     # The official fix for the above curve not showing up on the legend.
-    timeseries = Line2D([], [], color=color, lw=1)
+    timeseries = Line2D([], [], color=color, lw=1, linestyle=linestyle)
 
-    go_line = axes.axvline(x=0, color="dimgrey", lw=1, linestyle=(0, (5, 10)))
+    #go_line = axes.axvline(x=0, color="dimgrey", lw=1, linestyle=(0, (5, 10)))
 
     axes.set_xlim(xlim)
     if not ylim:
         axes.set_ylim((-50, 3050))
     else:
         axes.set_ylim(ylim)
-
     axes.set_ylabel(label)
 
-    lines = [timeseries, go_line]
-
-    return lines
+    return [timeseries]
 
 # TODO: move this to the annotator as a one-liner
 def legend(axis, timeseries, go_line=None, segment_line=None, location='upper_right'):

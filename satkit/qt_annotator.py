@@ -332,25 +332,43 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
         # plot_wav(self.ax3, wav, wav_time, self.xlim,
         #          textgrid, stimulus_onset, 
         #          picker=PdQtAnnotator.line_xdirection_picker)
-        self.ylim = [0, 1]
-        plot_timeseries(self.data_axes[0], l2.data/np.max(l2.data[10:]),
+        ylim = None
+        plot_timeseries(self.data_axes[0], l2.data,
+            ultra_time, self.xlim, ylim, peak_normalise=True)
+        plot_timeseries(self.data_axes[0], l2_top.data,
+            ultra_time, self.xlim, ylim, color='green', peak_normalise=True)
+        plot_timeseries(self.data_axes[0], l2_bottom.data,
+            ultra_time, self.xlim, ylim, color='red', peak_normalise=True)
+        plot_timeseries(self.data_axes[0], l2_interpolated.data,
+            ultra_time, self.xlim, ylim, color='black', linestyle=":", peak_normalise=True)
+        plot_timeseries(self.data_axes[0], l2_interpolated_top.data,
+            ultra_time, self.xlim, ylim, color='lime', linestyle=":", peak_normalise=True)
+        plot_timeseries(self.data_axes[0], l2_interpolated_bottom.data,
+            ultra_time, self.xlim, ylim, color='orange', linestyle=":", peak_normalise=True)
+        plot_timeseries(self.data_axes[0], np.subtract(l2_interpolated.data, l2_interpolated_bottom.data),
+            ultra_time, self.xlim, ylim, color='orange', linestyle="--", peak_normalise=True)
+
+        plot_timeseries(self.data_axes[1], l2.data,
             ultra_time, self.xlim, self.ylim)
-        plot_timeseries(self.data_axes[0], l2_top.data/np.max(l2_top.data[10:]),
+        plot_timeseries(self.data_axes[1], l2_top.data,
             ultra_time, self.xlim, self.ylim, color='green')
-        plot_timeseries(self.data_axes[0], l2_bottom.data/np.max(l2_bottom.data[10:]),
+        plot_timeseries(self.data_axes[1], l2_bottom.data,
             ultra_time, self.xlim, self.ylim, color='red')
-        plot_timeseries(self.data_axes[0], l2_interpolated.data/np.max(l2_interpolated.data[10:]),
+        plot_timeseries(self.data_axes[1], l2_interpolated.data,
             ultra_time, self.xlim, self.ylim, color='black', linestyle=":")
-        plot_timeseries(self.data_axes[0], l2_interpolated_top.data/np.max(l2_interpolated_top.data[10:]),
+        plot_timeseries(self.data_axes[1], l2_interpolated_top.data,
             ultra_time, self.xlim, self.ylim, color='lime', linestyle=":")
-        plot_timeseries(self.data_axes[0], l2_interpolated_bottom.data/np.max(l2_interpolated_bottom.data[10:]),
+        plot_timeseries(self.data_axes[1], l2_interpolated_bottom.data,
             ultra_time, self.xlim, self.ylim, color='orange', linestyle=":")
 
-        plot_wav(self.data_axes[1], wav, wav_time, self.xlim)
-        plot_spectrogram(self.data_axes[2], 
-                        waveform=wav, 
-                        sampling_frequency=audio.sampling_rate, 
-                        xtent_on_x=[wav_time[0], wav_time[-1]])
+        plot_timeseries(self.data_axes[2], np.subtract(l2_interpolated.data, l2_interpolated_bottom.data),
+            ultra_time, self.xlim, color='orange', linestyle="--")
+
+        #plot_wav(self.data_axes[1], wav, wav_time, self.xlim)
+        # plot_spectrogram(self.data_axes[2], 
+        #                 waveform=wav, 
+        #                 sampling_frequency=audio.sampling_rate, 
+        #                 xtent_on_x=[wav_time[0], wav_time[-1]])
 
         segment_line = None
         self.animators = []

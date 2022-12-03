@@ -53,7 +53,7 @@ def plot_timeseries(axes: Axes,
             xlim: Tuple[float, float], 
             ylim: Optional[Tuple[float, float]]=None, 
             peak_normalise: bool=False,
-            peak_normalisation_offset: int=10,
+            number_of_ignored_frames: int=10,
             ylabel: str="PD on ultrasound",
             picker=None, 
             color: str="deepskyblue",
@@ -84,34 +84,29 @@ def plot_timeseries(axes: Axes,
 
     Returns None.
     """
+    plot_data = data[number_of_ignored_frames:]
+    plot_time = time[number_of_ignored_frames:]
     if picker:
         if peak_normalise:
-            axes.plot(time, data/np.max(data[peak_normalisation_offset:]), 
+            axes.plot(plot_time, plot_data/np.max(plot_data), 
                 color=color, lw=1, linestyle=linestyle, picker=picker, alpha=alpha)
         else:
-            axes.plot(time, data, 
+            axes.plot(plot_time, plot_data, 
                 color=color, lw=1, linestyle=linestyle, picker=picker, alpha=alpha)
     else:
         if peak_normalise:
-            axes.plot(time, data/np.max(data[peak_normalisation_offset:]), 
+            axes.plot(plot_time, plot_data/np.max(plot_data), 
                 color=color, lw=1, linestyle=linestyle, alpha=alpha)
         else:
-            axes.plot(time, data, 
+            axes.plot(plot_time, plot_data, 
                 color=color, lw=1, linestyle=linestyle, alpha=alpha)
     # The official fix for the above curve not showing up on the legend.
     timeseries = Line2D([], [], color=color, lw=1, linestyle=linestyle)
-
-    #go_line = axes.axvline(x=0, color="dimgrey", lw=1, linestyle=(0, (5, 10)))
 
     axes.set_xlim(xlim)
     if ylim:
         axes.set_ylim(ylim)
     axes.set_ylabel(ylabel)
-
-    # if not ylim:
-    #     axes.set_ylim((-50, 3050))
-    # else:
-
 
     return [timeseries]
 

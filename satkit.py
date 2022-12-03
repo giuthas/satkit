@@ -45,7 +45,8 @@ import satkit.configuration.configuration as configuration
 from satkit.metrics import pd
 from satkit.modalities import RawUltrasound
 from satkit.qt_annotator import PdQtAnnotator
-from satkit.scripting_interface import (SatkitArgumentParser, load_data,
+from satkit.scripting_interface import (Operation, SatkitArgumentParser,
+                                        load_data, multi_process_data,
                                         process_data, save_data)
 
 
@@ -107,6 +108,12 @@ def main():
         [RawUltrasound], 
         {'mask_images': True, 'pd_on_interpolated_data': True, 'release_data_memory': True, 'preload': True})}
     process_data(recordings=recordings, processing_functions=function_dict)
+
+    # operation = Operation(
+    #     processing_function = pd.add_pd, 
+    #     modality = RawUltrasound, 
+    #     arguments= {'mask_images': True, 'pd_on_interpolated_data': True, 'release_data_memory': True, 'preload': True})
+    # multi_process_data(recordings, operation)
 
     logger.info('Data run ended at %s.', str(datetime.datetime.now()))
 

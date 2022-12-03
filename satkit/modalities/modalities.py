@@ -242,10 +242,8 @@ class RawUltrasound(Modality):
             self._stored_index = index
             #frame = scipy_medfilt(self.data[index, :, :].copy(), [1,15])
             frame = self.data[index, :, :].copy()
-            half = int(frame.shape[1]/2)
-            frame[:,half:] = 0
-            frame = np.transpose(frame)
-            frame = np.flip(frame, 0)
+            half = int(frame.shape[0]/2)
+            frame[half:,:] = 0
             self._stored_image = to_fan_2d(
                 frame,
                 angle=self.meta['Angle'],
@@ -265,10 +263,8 @@ class RawUltrasound(Modality):
         index - the index of the ultrasound frame to be returned
         """
         data = self.data.copy()
-        data = np.transpose(data, (0,2,1))
-        data = np.flip(data, 1)
 
-        self.video_has_been_stored = True
+        self.video_has_been_stored = False
         video = to_fan(
             data,
             angle=self.meta['Angle'],
@@ -278,7 +274,7 @@ class RawUltrasound(Modality):
             show_progress=True)
         half = int(video.shape[1]/2)
         self.stored_video = video.copy()
-        self.stored_video[:,:half,:] = 0
+        # self.stored_video[:,:half,:] = 0
         return video
 
 

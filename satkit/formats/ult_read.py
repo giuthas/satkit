@@ -67,6 +67,15 @@ def read_ult(
                 meta['NumVectors'],
                 meta['PixPerVector']))
 
+        # TODO The following transpose and flip are done to match
+        # interpolate_raw_uti.py expectations. Need to check if those
+        # expectations could be altered.
+
+        # Re-order indeces to time, height (along scanline), width
+        data = np.transpose(data, (0,2,1))
+        # Flip height dimension
+        data = np.flip(data, 1)
+
         ultra_time = np.linspace(
             0, meta['no_frames'],
             num=meta['no_frames'],

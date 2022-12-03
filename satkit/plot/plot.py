@@ -31,7 +31,6 @@
 
 # Built in packages
 import logging
-import sys
 from typing import List, Optional, Tuple, Union
 
 # Efficient array operations
@@ -108,18 +107,7 @@ def plot_timeseries(axes: Axes,
         axes.set_ylim(ylim)
     axes.set_ylabel(ylabel)
 
-    return [timeseries]
-
-# TODO: move this to the annotator as a one-liner
-def legend(axis, timeseries, go_line=None, segment_line=None, location='upper_right'):
-    if segment_line:
-        axis.legend((timeseries, go_line, segment_line),
-                  ('Pixel difference', 'Go-signal onset', 'Acoustic segments'),
-                  loc=location)
-    else:
-        axis.legend((timeseries, go_line),
-                  ('Pixel difference', 'Go-signal onset'),
-                  loc=location)
+    return timeseries
 
 
 def plot_satgrid_tier(axes: Axes, 

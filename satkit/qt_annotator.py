@@ -337,20 +337,25 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
         #          textgrid, stimulus_onset, 
         #          picker=PdQtAnnotator.line_xdirection_picker)
         ylim = None
-        plot_timeseries(self.data_axes[0], l2.data,
+        raw = plot_timeseries(self.data_axes[0], l2.data,
             ultra_time, self.xlim, ylim, peak_normalise=True)
-        plot_timeseries(self.data_axes[0], l2_top.data,
+        raw_top = plot_timeseries(self.data_axes[0], l2_top.data,
             ultra_time, self.xlim, ylim, color='green', peak_normalise=True)
-        plot_timeseries(self.data_axes[0], l2_bottom.data,
+        raw_bottom = plot_timeseries(self.data_axes[0], l2_bottom.data,
             ultra_time, self.xlim, ylim, color='red', peak_normalise=True)
-        plot_timeseries(self.data_axes[0], l2_interpolated.data,
+        interp = plot_timeseries(self.data_axes[0], l2_interpolated.data,
             ultra_time, self.xlim, ylim, color='black', linestyle=":", peak_normalise=True)
-        plot_timeseries(self.data_axes[0], l2_interpolated_top.data,
+        interp_top = plot_timeseries(self.data_axes[0], l2_interpolated_top.data,
             ultra_time, self.xlim, ylim, color='lime', linestyle=":", peak_normalise=True)
-        plot_timeseries(self.data_axes[0], l2_interpolated_bottom.data,
+        interp_bottom = plot_timeseries(self.data_axes[0], l2_interpolated_bottom.data,
             ultra_time, self.xlim, ylim, color='orange', linestyle=":", peak_normalise=True)
         plot_timeseries(self.data_axes[0], np.subtract(l2_interpolated.data, l2_interpolated_bottom.data),
             ultra_time, self.xlim, ylim, color='orange', linestyle="--", peak_normalise=True)
+
+        self.data_axes[0].legend(
+            (raw, raw_top, raw_bottom, interp, interp_top, interp_bottom),
+            ('Raw', 'Raw top', 'Raw bottom', 'Interpolated', 'Interpolated top', 'Interpolated bottom'),
+            loc='upper right')
 
         self.ylim = None
         plot_timeseries(self.data_axes[1], l2.data,

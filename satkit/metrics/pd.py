@@ -67,18 +67,18 @@ def calculate_metric(abs_diff, norm, mask: Optional[ImageMask]=None, interpolate
     data = abs_diff
     if mask and not interpolated:
         if mask == ImageMask.bottom:
-            half = int(abs_diff.shape[2]/2)
-            data = abs_diff[:,:,half:] # The bottom is on top
+            half = int(abs_diff.shape[1]/2)
+            data = abs_diff[:,half:,:] # The bottom is on top in raw.
         elif mask == ImageMask.top:
-            half = int(abs_diff.shape[2]/2)
-            data = abs_diff[:,:,:half] # and top is on bottom.
+            half = int(abs_diff.shape[1]/2)
+            data = abs_diff[:,:half,:] # and top is on bottom in raw.
     elif mask:
         if mask == ImageMask.bottom:
-            half = int(abs_diff.shape[2]/2)
-            data = abs_diff[:,:half,:] # These are the right way around
+            half = int(abs_diff.shape[1]/2)
+            data = abs_diff[:,half:,:] # These are also upside down.
         elif mask == ImageMask.top:
-            half = int(abs_diff.shape[2]/2)
-            data = abs_diff[:,half:,:] # These are the right way around
+            half = int(abs_diff.shape[1]/2)
+            data = abs_diff[:,:half,:] # These are also upside down.
 
     if norm[0] == 'l':
         if norm[1:] == '_inf':

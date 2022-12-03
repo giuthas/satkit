@@ -30,5 +30,5 @@
 #
 from .argument_parser import SatkitArgumentParser
 from .data_loader import load_data
-from .data_processor import process_data
+from .data_processor import Operation, multi_process_data, process_data
 from .data_saver import save_data

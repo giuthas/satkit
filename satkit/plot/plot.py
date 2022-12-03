@@ -49,10 +49,12 @@ _plot_logger = logging.getLogger('satkit.plot')
 
 def plot_timeseries(axes: Axes, 
             data: np.ndarray, 
-            time: np.ndarray, 
+            time: np.ndarray,
             xlim: Tuple[float, float], 
             ylim: Optional[Tuple[float, float]]=None, 
-            label: str="PD on ultrasound",
+            peak_normalise: bool=False,
+            peak_normalisation_offset: int=10,
+            ylabel: str="PD on ultrasound",
             picker=None, 
             color: str="deepskyblue",
             linestyle: str="-", 
@@ -70,29 +72,46 @@ def plot_timeseries(axes: Axes,
     xlim -- limits for the x-axis in seconds.
 
     Keyword arguments:
-    textgrid -- a textgrids module textgrid object.
-    stimulus_onset -- onset time of the stimulus in the recording in
-        seconds.
+    peak_normalise -- if True, scale the data maximum to equal 1.
+    peak_normalisation_offset -- how many values to ignore from 
+        the beginning of data when calculating maximum. 
+    ylabel -- label for this axes. 
     picker -- a picker tied to the plotted PD curve to facilitate
         annotation.
+    color -- matplotlib color for the line.
+    linestyle -- matplotlib linestyle.
+    alpha -- alpha value for the line.
 
     Returns None.
     """
     if picker:
-        axes.plot(time, data, color=color, lw=1, linestyle=linestyle, picker=picker, alpha=alpha)
+        if peak_normalise:
+            axes.plot(time, data/np.max(data[peak_normalisation_offset:]), 
+                color=color, lw=1, linestyle=linestyle, picker=picker, alpha=alpha)
+        else:
+            axes.plot(time, data, 
+                color=color, lw=1, linestyle=linestyle, picker=picker, alpha=alpha)
     else:
-        axes.plot(time, data, color=color, lw=1, linestyle=linestyle, alpha=alpha)
+        if peak_normalise:
+            axes.plot(time, data/np.max(data[peak_normalisation_offset:]), 
+                color=color, lw=1, linestyle=linestyle, alpha=alpha)
+        else:
+            axes.plot(time, data, 
+                color=color, lw=1, linestyle=linestyle, alpha=alpha)
     # The official fix for the above curve not showing up on the legend.
     timeseries = Line2D([], [], color=color, lw=1, linestyle=linestyle)
 
     #go_line = axes.axvline(x=0, color="dimgrey", lw=1, linestyle=(0, (5, 10)))
 
     axes.set_xlim(xlim)
-    if not ylim:
-        axes.set_ylim((-50, 3050))
-    else:
+    if ylim:
         axes.set_ylim(ylim)
-    axes.set_ylabel(label)
+    axes.set_ylabel(ylabel)
+
+    # if not ylim:
+    #     axes.set_ylim((-50, 3050))
+    # else:
+
 
     return [timeseries]
 

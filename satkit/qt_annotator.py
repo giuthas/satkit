@@ -161,11 +161,15 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
         self.tier_axes = []
  
         self.xlim = xlim
+
+        # TODO this should be based on the plotted modalities, not on a random
+        # choice from depths of time. It is a good idea though: Setting ylim
+        # over the whole data rather than on recording.
         max_pds = np.zeros(len(self.recordings))
         for i, recording in enumerate(self.recordings):
             if 'PD l2 on RawUltrasound' in recording.modalities:
-                max_pds[i] = np.max(recording.modalities['PD l2 on RawUltrasound'].data)
-        self.ylim = (-50, np.max(max_pds)+50)
+                max_pds[i] = np.max(recording.modalities['PD l2 on RawUltrasound'].data[10:])
+        self.ylim = (-50, np.max(max_pds)*1.05)
 
         height_ratios = [gui_params['data/tier height ratios']["data"], 
                         gui_params['data/tier height ratios']["tier"]]
@@ -348,6 +352,7 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
         plot_timeseries(self.data_axes[0], np.subtract(l2_interpolated.data, l2_interpolated_bottom.data),
             ultra_time, self.xlim, ylim, color='orange', linestyle="--", peak_normalise=True)
 
+        self.ylim = None
         plot_timeseries(self.data_axes[1], l2.data,
             ultra_time, self.xlim, self.ylim)
         plot_timeseries(self.data_axes[1], l2_top.data,

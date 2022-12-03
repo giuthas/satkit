@@ -242,8 +242,8 @@ class RawUltrasound(Modality):
             self._stored_index = index
             #frame = scipy_medfilt(self.data[index, :, :].copy(), [1,15])
             frame = self.data[index, :, :].copy()
-            half = int(frame.shape[0]/2)
-            frame[half:,:] = 0
+            # half = int(frame.shape[0]/2)
+            # frame[:half,:] = 0
             self._stored_image = to_fan_2d(
                 frame,
                 angle=self.meta['Angle'],
@@ -264,7 +264,7 @@ class RawUltrasound(Modality):
         """
         data = self.data.copy()
 
-        self.video_has_been_stored = False
+        self.video_has_been_stored = True
         video = to_fan(
             data,
             angle=self.meta['Angle'],
@@ -272,9 +272,9 @@ class RawUltrasound(Modality):
             pix_per_mm=self.meta['PixelsPerMm'],
             num_vectors=self.meta['NumVectors'],
             show_progress=True)
-        half = int(video.shape[1]/2)
         self.stored_video = video.copy()
-        # self.stored_video[:,:half,:] = 0
+        half = int(video.shape[1]/2)
+        # self.stored_video[:,half:,:] = 0
         return video
 
 

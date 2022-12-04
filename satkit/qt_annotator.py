@@ -335,14 +335,11 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
         image = self.current.modalities['RawUltrasound'].interpolated_image(100)
         nonzero = np.nonzero(image==255)
         l2_interp_size = image.size-len(nonzero[0])
-        # print(l2_interp_size)
         half = int(image.shape[0]/2)
         nonzero_top = np.nonzero(image[:half,:]==255)
         l2_interp_size_top = image[:half,:].size -len(nonzero_top[0])
-        # print(l2_interp_size_top)
         nonzero_bottom = np.nonzero(image[half:,:]==255)
         l2_interp_size_bottom = image[half:,:].size-len(nonzero_bottom[0])
-        # print(l2_interp_size_bottom)
 
         #self.xlim = [ultra_time[0] - 0.05, ultra_time[-1]+0.05]
 

@@ -327,6 +327,23 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
         l2_interpolated_bottom = self.current.modalities['Interpolated PD l2 bottom on RawUltrasound']
         ultra_time = l2.timevector - stimulus_onset
 
+        l2_size = len(self.current.modalities['RawUltrasound'].data[0,:,:])
+        half = int(self.current.modalities['RawUltrasound'].data.shape[1]/2)
+        l2_top_size = len(self.current.modalities['RawUltrasound'].data[0,:half,:])
+        l2_bottom_size = len(self.current.modalities['RawUltrasound'].data[0,half:,:])
+
+        image = self.current.modalities['RawUltrasound'].interpolated_image(100)
+        nonzero = np.nonzero(image==255)
+        l2_interp_size = image.size-len(nonzero[0])
+        # print(l2_interp_size)
+        half = int(image.shape[0]/2)
+        nonzero_top = np.nonzero(image[:half,:]==255)
+        l2_interp_size_top = image[:half,:].size -len(nonzero_top[0])
+        # print(l2_interp_size_top)
+        nonzero_bottom = np.nonzero(image[half:,:]==255)
+        l2_interp_size_bottom = image[half:,:].size-len(nonzero_bottom[0])
+        # print(l2_interp_size_bottom)
+
         #self.xlim = [ultra_time[0] - 0.05, ultra_time[-1]+0.05]
 
          # self.pd_boundaries = plot_pd(
@@ -344,37 +361,36 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
         raw_bottom = plot_timeseries(self.data_axes[0], l2_bottom.data,
             ultra_time, self.xlim, ylim, color='red', peak_normalise=True)
         interp = plot_timeseries(self.data_axes[0], l2_interpolated.data,
-            ultra_time, self.xlim, ylim, color='black', linestyle=":", peak_normalise=True)
+            ultra_time, self.xlim, ylim, color='black', linestyle="--", peak_normalise=True)
         interp_top = plot_timeseries(self.data_axes[0], l2_interpolated_top.data,
-            ultra_time, self.xlim, ylim, color='lime', linestyle=":", peak_normalise=True)
+            ultra_time, self.xlim, ylim, color='lime', linestyle="--", peak_normalise=True)
         interp_bottom = plot_timeseries(self.data_axes[0], l2_interpolated_bottom.data,
-            ultra_time, self.xlim, ylim, color='orange', linestyle=":", peak_normalise=True)
-        plot_timeseries(self.data_axes[0], np.subtract(l2_interpolated.data, l2_interpolated_bottom.data),
             ultra_time, self.xlim, ylim, color='orange', linestyle="--", peak_normalise=True)
 
+        self.data_axes[0].set_ylabel("Peak normalised PD")
         self.data_axes[0].legend(
             (raw, raw_top, raw_bottom, interp, interp_top, interp_bottom),
             ('Raw', 'Raw top', 'Raw bottom', 'Interpolated', 'Interpolated top', 'Interpolated bottom'),
             loc='upper right')
 
         self.ylim = None
-        plot_timeseries(self.data_axes[1], l2.data,
+        plot_timeseries(self.data_axes[1], l2.data/l2_size,
             ultra_time, self.xlim, self.ylim)
-        plot_timeseries(self.data_axes[1], l2_top.data,
+        plot_timeseries(self.data_axes[1], l2_top.data/l2_top_size,
             ultra_time, self.xlim, self.ylim, color='green')
-        plot_timeseries(self.data_axes[1], l2_bottom.data,
+        plot_timeseries(self.data_axes[1], l2_bottom.data/l2_bottom_size,
             ultra_time, self.xlim, self.ylim, color='red')
-        plot_timeseries(self.data_axes[1], l2_interpolated.data,
-            ultra_time, self.xlim, self.ylim, color='black', linestyle=":")
-        plot_timeseries(self.data_axes[1], l2_interpolated_top.data,
-            ultra_time, self.xlim, self.ylim, color='lime', linestyle=":")
-        plot_timeseries(self.data_axes[1], l2_interpolated_bottom.data,
-            ultra_time, self.xlim, self.ylim, color='orange', linestyle=":")
+        self.data_axes[1].set_ylabel("Pixel normalised PD")
 
-        plot_timeseries(self.data_axes[2], np.subtract(l2_interpolated.data, l2_interpolated_bottom.data),
-            ultra_time, self.xlim, color='orange', linestyle="--")
+        plot_timeseries(self.data_axes[2], l2_interpolated.data/l2_interp_size,
+            ultra_time, self.xlim, self.ylim, color='black', linestyle="--")
+        plot_timeseries(self.data_axes[2], l2_interpolated_top.data/l2_interp_size_top,
+            ultra_time, self.xlim, self.ylim, color='lime', linestyle="--")
+        plot_timeseries(self.data_axes[2], l2_interpolated_bottom.data/l2_interp_size_bottom,
+            ultra_time, self.xlim, self.ylim, color='orange', linestyle="--")
+        self.data_axes[2].set_ylabel("Pixel normalised PD")
 
-        #plot_wav(self.data_axes[1], wav, wav_time, self.xlim)
+        # plot_wav(self.data_axes[1], wav, wav_time, self.xlim)
         # plot_spectrogram(self.data_axes[2], 
         #                 waveform=wav, 
         #                 sampling_frequency=audio.sampling_rate, 

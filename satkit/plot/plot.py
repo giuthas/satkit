@@ -58,7 +58,7 @@ def plot_timeseries(axes: Axes,
             color: str="deepskyblue",
             linestyle: str="-", 
             alpha: float=1.0,
-            sampling_step=5):
+            sampling_step=1):
     """
     Plot a timeseries.
 

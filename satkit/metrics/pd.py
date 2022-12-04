@@ -227,9 +227,11 @@ def calculate_pd(
 def add_pd(recording: Recording,
           modality: Modality,
           preload: bool=True,
+          norms: List[str]=['l2'],
+          timesteps: List[int]=[1],
           release_data_memory: bool=True,
           pd_on_interpolated_data: bool=False,
-          mask_images=False):
+          mask_images: bool=False):
     """
     Calculate PD on dataModality and add it to recording.
 
@@ -265,8 +267,8 @@ def add_pd(recording: Recording,
     else:
         dataModality = recording.modalities[modality.__name__]
         pds = calculate_pd(dataModality,
-                norms=['l2'], 
-                timesteps=[1], 
+                norms=norms, 
+                timesteps=timesteps, 
                 release_data_memory=release_data_memory,
                 pd_on_interpolated_data=pd_on_interpolated_data,
                 mask_images=mask_images) 

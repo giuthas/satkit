@@ -30,14 +30,16 @@ SATKIT's class structure aims for efficiency without sacrificing clarity. Clarit
 
 ## SATKIT Files
 
-- Global configuration
-  - General parameters
-  - GUI parameters
-  - Data processign parameters
-- Local configuration
-- Importing
-- Loading
-- Saving
+- Data files
+  - [Data Directory Structure](DirectoryStructure.markdown)
+  - Importing
+  - Saving and Loading
+- Configuration
+  - Global configuration
+    - General parameters
+    - GUI parameters
+    - Data processign parameters
+  - Local configuration
 
 ## Examples
 

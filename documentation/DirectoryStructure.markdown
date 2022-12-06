@@ -1,4 +1,4 @@
-# Data Directory Structure
+# Guidelines for Data Directory Structure
 
 Please note that not all of the Python classes supporting the structure describe below, will necessarily be part of the 1.0 release of SATKIT.
 

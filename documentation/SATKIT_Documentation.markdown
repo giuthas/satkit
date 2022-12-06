@@ -31,7 +31,7 @@ SATKIT's class structure aims for efficiency without sacrificing clarity. Clarit
 ## SATKIT Files
 
 - Data files
-  - [Data Directory Structure](DirectoryStructure.markdown)
+  - [Guidelines for Data Directory Structure](DirectoryStructure.markdown)
   - Importing
   - Saving and Loading
 - Configuration

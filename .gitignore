@@ -5,6 +5,10 @@ venv/
 ####
 # Groups of files 
 ####
+# pyreverse byproducts
+*.dot
+*.vcg
+
 # Emacs autosaves
 *~
 

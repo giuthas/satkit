@@ -41,6 +41,3 @@ SATKIT's class structure aims for efficiency without sacrificing clarity. Clarit
     - Data processign parameters
   - Local configuration
 
-## Examples
-
-[To be written.]

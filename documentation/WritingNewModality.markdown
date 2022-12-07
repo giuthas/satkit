@@ -21,3 +21,5 @@ The ModalityData part of the Modality should be written into its own file with t
 Other parts of the Modality should be saved to a [NestedText file](https://nestedtext.org/en/stable/). Implement a schema for doing so and for reading the saved data back.
 
 Specifically we use a different save format for configuration and for (meta)data. With configuration, having a format that at least attempts to retain comments when read, edited, and written out again, is very desirable. For data this is less important but having an easier API is nice.
+
+## An Example of a New Modality: MultiChannelAudio

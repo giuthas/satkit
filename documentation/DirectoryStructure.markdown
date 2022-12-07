@@ -8,36 +8,57 @@ Following this kind of structure when saving the data in the first place, theref
 
 ## Directories
 
-The directory tree organisation follows the hierarchy of the [Database classes](DatabaseClasses.markdown). Depending on if a Trial level is needed -- if there is more than one datasource -- there are two possible directory structures. Here is the one with only one datasource:
+The directory tree organisation follows the hierarchy of the [Database classes](DatabaseClasses.markdown). Depending on if a Trial level is needed -- if there is more than one datasource -- there are two directory structures used by SATKIT. Here is the one with only one datasource (which may have produced more than one kind of data):
 
-```
-dataset
-    participant
-        session
-            [file types]
+```bash
+└── dataset
+    └── participant
+        └── session
+            └── [file types]
 ```
 
 With two or more datasources (systems with their own internal syncronisation) it is easy to go with structure like the one below:
 
-```
-dataset
-    datasource
-        participant
-            session
-                [file types]
+```bash
+└── dataset
+    └── datasource
+        └── participant
+            └── session
+                └── [file types]
 ```
 
 However, since we want to cross synchronise the datasources, it is a better idea to do this to keep files that correspond to each other close together in the directory tree:
 
-```
-dataset
-    participant
-        session
-            datasource
-                [file types]
+```bash
+└── dataset
+    └── participant
+        └── session
+            └── datasource
+                └── [file types]
 ```
 
-Specifically the extra level for datasource after session will help keep shared file types (most systems will have one or more wav-files in the saved data) from clashing.
+Specifically the extra level for datasource after session will help keep shared file types (most systems will have one or more `wav` files in the saved data) from clashing. Below is a more detailed example in which the different file types have been sorted to subdirectories.
+
+```bash
+└── dataset
+    ├── participant 1
+    │   ├── session 1
+    │   │   ├── AAA
+    │   │   │   ├── wav # including TextGrids
+    │   │   │   ├── ultrasound # including .param files  
+    │   │   │   ├── prompts # .txt files
+    │   │   │   └── video # .avi files
+    │   │   └── EVA
+    │   │       ├── wav # including TextGrids, if needed 
+    │   │       │       # given they are already in AAA
+    │   │       └── oral_airflow # .oaf files]  
+    │   └── session 2
+    │       └── [etc]
+    └── participant 2
+        └── [etc]
+```
+
+Some sources like RASL  will produce this sort of directory structure by default, others like AAA by default put all saved files in the same directory leaving out the final level in this example.
 
 ### Separate directories for file types?
 

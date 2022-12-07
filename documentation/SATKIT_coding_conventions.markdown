@@ -1,4 +1,4 @@
-# SATKIT coding conventions
+# SATKIT Code Conventions
 
 This document is a guideline, not a ruleset, and really a thing Pertti wrote for
 himself to be able to remember these things.
@@ -18,6 +18,7 @@ First things first: write in good pythonic style.
 Also follow the [Zen of Python](https://www.python.org/dev/peps/pep-0020/) with
 the following additions:
 
-- Getting it done is better than making it perfect (because getting it perfect won't happen).
-- A module is the unit of reuse. A module should do something that gets used
-    time and time again.
+- Getting it done is better than making it perfect (because getting it perfect
+  won't happen).
+- A module is the unit of reuse. Ideally, a module should do something that gets
+  used time and time again, but it is good enough if it does something which has a clear and self contained purpose. Prefer splitting to smaller modules over piles of unrelated code.

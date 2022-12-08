@@ -31,7 +31,7 @@ SATKIT's class structure aims for efficiency without sacrificing clarity. Clarit
 
 ## SATKIT API
 
-[API Documentation](docs/index.html)
+[API Documentation](api/index.html)
 
 ## SATKIT Files
 

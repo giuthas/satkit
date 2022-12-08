@@ -1,5 +1,7 @@
 # SATKIT Documentation
 
+Until the 1.0 release none of the documentation is necessarily final and correct.
+
 ## Setup
 
 - Setup for analysis

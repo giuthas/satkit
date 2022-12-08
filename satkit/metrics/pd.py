@@ -108,7 +108,7 @@ def calculate_pd(
     Calculate Pixel Difference (PD) on the data Modality parent.       
 
     If self._timesteps is a vector of positive integers, then calculate
-    pd for each of those. NOTE! Changing timestep is not yet implemented.
+    pd for each of those. 
     """
     if not all(norm in PD.acceptedNorms for norm in norms):
         ValueError("Unexpected norm requested in " + str(norms))

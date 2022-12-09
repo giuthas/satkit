@@ -55,7 +55,7 @@ this notice is here in the main branch, that update is not yet complete. If you
 wish to try SATKIT in the meanwhile, please contact Pertti for instructions.
 
 With version 1.0 getting closer a lot of the instructions below are outdated.
-More up-to-date information can be found in the [Documentation](docs/index.md).
+More up-to-date information can be found in the [Documentation](https://giuthas.github.io/satkit/).
 
 ## Getting Started
 

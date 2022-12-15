@@ -90,9 +90,9 @@ def retrieve_splines(filename):
     return table
 
 
-def add_splines_from_file(recording_list, spline_file):
+def add_splines_from_file(recording_list, spline_file) -> None:
     """
-    Add a Spline data object to each recording.
+    Add a Spline Modality to each recording.
 
     The splines are read from a single AAA export file and added to
     the correct Recording by identifying the Recordings based on the date
@@ -109,16 +109,14 @@ def add_splines_from_file(recording_list, spline_file):
     # splines = retrieve_splines(token['spline_file'], token['prompt'])
     # splines = retrieve_splines('annd_sample/File003_splines.csv',
     #                            token['prompt'])
-    raise NotImplementedError(
-        "Adding splines nor the Spline modality have not yet been implemented.")
-    # if spline_file:
-    #     splines = retrieve_splines(spline_file)
-    #     for token in recording_list:
-    #         table = [
-    #             row for row in splines
-    #             if row['date_and_time'] == token['date_and_time']]
-    #         token['splines'] = table
-    #         _AAA_logger.debug(
-    #             token['prompt'] + ' has ' + str(len(table)) + 'splines.')
-    #
+    if spline_file:
+        splines = retrieve_splines(spline_file)
+        for token in recording_list:
+            table = [
+                row for row in splines
+                if row['date_and_time'] == token['date_and_time']]
+            token['splines'] = table
+            _AAA_spline_logger.debug(
+                token['prompt'] + ' has ' + str(len(table)) + 'splines.')
+    
     # return recording_list

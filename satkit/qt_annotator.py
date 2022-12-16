@@ -321,25 +321,25 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
 
         l2 = self.current.modalities['PD l2 on RawUltrasound']
         # l2_top = self.current.modalities['PD l2 top on RawUltrasound']
-        # l2_bottom = self.current.modalities['PD l2 bottom on RawUltrasound']
+        l2_bottom = self.current.modalities['PD l2 bottom on RawUltrasound']
         # l2_interpolated = self.current.modalities['Interpolated PD l2 on RawUltrasound']
         # l2_interpolated_top = self.current.modalities['Interpolated PD l2 top on RawUltrasound']
         # l2_interpolated_bottom = self.current.modalities['Interpolated PD l2 bottom on RawUltrasound']
         ultra_time = l2.timevector - stimulus_onset
 
-        l2_size = len(self.current.modalities['RawUltrasound'].data[0,:,:])
-        half = int(self.current.modalities['RawUltrasound'].data.shape[1]/2)
-        l2_top_size = len(self.current.modalities['RawUltrasound'].data[0,:half,:])
-        l2_bottom_size = len(self.current.modalities['RawUltrasound'].data[0,half:,:])
+        # l2_size = len(self.current.modalities['RawUltrasound'].data[0,:,:])
+        # half = int(self.current.modalities['RawUltrasound'].data.shape[1]/2)
+        # l2_top_size = len(self.current.modalities['RawUltrasound'].data[0,:half,:])
+        # l2_bottom_size = len(self.current.modalities['RawUltrasound'].data[0,half:,:])
 
-        image = self.current.modalities['RawUltrasound'].interpolated_image(100)
-        nonzero = np.nonzero(image==255)
-        l2_interp_size = image.size-len(nonzero[0])
-        half = int(image.shape[0]/2)
-        nonzero_top = np.nonzero(image[:half,:]==255)
-        l2_interp_size_top = image[:half,:].size -len(nonzero_top[0])
-        nonzero_bottom = np.nonzero(image[half:,:]==255)
-        l2_interp_size_bottom = image[half:,:].size-len(nonzero_bottom[0])
+        # image = self.current.modalities['RawUltrasound'].interpolated_image(100)
+        # nonzero = np.nonzero(image==255)
+        # l2_interp_size = image.size-len(nonzero[0])
+        # half = int(image.shape[0]/2)
+        # nonzero_top = np.nonzero(image[:half,:]==255)
+        # l2_interp_size_top = image[:half,:].size -len(nonzero_top[0])
+        # nonzero_bottom = np.nonzero(image[half:,:]==255)
+        # l2_interp_size_bottom = image[half:,:].size-len(nonzero_bottom[0])
 
         #self.xlim = [ultra_time[0] - 0.05, ultra_time[-1]+0.05]
 
@@ -355,8 +355,8 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
             ultra_time, self.xlim, ylim, peak_normalise=True)
         # raw_top = plot_timeseries(self.data_axes[0], l2_top.data,
         #     ultra_time, self.xlim, ylim, color='green', peak_normalise=True)
-        # raw_bottom = plot_timeseries(self.data_axes[0], l2_bottom.data,
-        #     ultra_time, self.xlim, ylim, color='red', peak_normalise=True)
+        raw_bottom = plot_timeseries(self.data_axes[0], l2_bottom.data,
+            ultra_time, self.xlim, ylim, color='gold', peak_normalise=True)
         self.data_axes[0].set_ylabel("Peak normalised PD")
 
         # interp = plot_timeseries(self.data_axes[1], l2_interpolated.data,
@@ -367,10 +367,16 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
         #     ultra_time, self.xlim, ylim, color='orange', linestyle="--", peak_normalise=True)
         # self.data_axes[1].set_ylabel("Peak normalised PD")
 
-        # self.data_axes[0].legend(
-        #     (raw, raw_top, raw_bottom, interp, interp_top, interp_bottom),
-        #     ('Raw', 'Raw top', 'Raw bottom', 'Interpolated', 'Interpolated top', 'Interpolated bottom'),
-        #     loc='upper right')
+        self.data_axes[0].legend(
+            (raw, 
+            # raw_top, 
+            raw_bottom),
+            # , interp, interp_top, interp_bottom),
+            ('Whole', 
+            # 'Raw top', 
+            'Bottom'),
+            #, 'Interpolated', 'Interpolated top', 'Interpolated bottom'),
+            loc='upper right')
         # self.data_axes[0].legend(
         #     (raw, raw_top, raw_bottom),
         #     ('Raw', 'Raw upper', 'Raw lower'),

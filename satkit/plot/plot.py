@@ -88,9 +88,7 @@ def plot_timeseries(axes: Axes,
     #go_line = axes.axvline(x=0, color="dimgrey", lw=1, linestyle=(0, (5, 10)))
 
     axes.set_xlim(xlim)
-    if not ylim:
-        axes.set_ylim((-50, 3050))
-    else:
+    if ylim:
         axes.set_ylim(ylim)
     axes.set_ylabel(label)
 

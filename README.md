@@ -48,11 +48,14 @@ thesis](https://eresearch.qmu.ac.uk/handle/20.500.12289/10163). The
 next stage is a automated reaction time measure, followed possibly by
 spline distance measures and optic flow.
 
-## Major update coming up
+## Major update -- version 1.0 -- coming up
 
 After Ultrafest 2022 there is going to be a major update to the codebase. While
 this notice is here in the main branch, that update is not yet complete. If you
 wish to try SATKIT in the meanwhile, please contact Pertti for instructions.
+
+With version 1.0 getting closer a lot of the instructions below are outdated.
+More up-to-date information can be found in the [Documentation](https://giuthas.github.io/satkit/).
 
 ## Getting Started
 
@@ -141,11 +144,7 @@ following work and produce a new spaghetti_plot.pdf and a transcript
 in `[method_name].log`.
 
 ``` shell
-python of_cli.py larynx_data
-python pd_cli.py tongue_data_1_1
-python pd_cli.py tongue_data_1_1 exclusion_list.csv
-python pd_cli_.py tongue_data_1_2
-python pd_cli.py tongue_data_1_2 exclusion_list.csv
+python satkit.py tongue_data_1_1
 ```
 
 The first example directory contains recordings with all files present

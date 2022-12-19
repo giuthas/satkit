@@ -2,7 +2,7 @@
 
 ## Fork and clone the repository
 
-First, fork the repository from (https://github.com/giuthas/satkit).
+First, fork the repository from [https://github.com/giuthas/satkit](https://github.com/giuthas/satkit).
 
 Second, clone the repository to your local system.
 
@@ -14,7 +14,7 @@ git fetch upstream
 git merge upstream/main main
 ```
 
-Here's what this does in practice: 
+Here's what this does in practice:
 
 ![forking SATKIT](forking_satkit.drawio.png)
 

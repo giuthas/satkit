@@ -5,7 +5,7 @@ Until the 1.0 release none of the documentation is necessarily final nor correct
 ## Setup
 
 - Setup for analysis
-- Setup for development (and analysis)
+- [Setup for development](SetupForDevelopment.markdown)
 
 ## GUI Userguide
 

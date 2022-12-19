@@ -2,15 +2,29 @@
 
 The most important steps for getting SATKIT installed in development mode are:
 
-- Get a copy of the source code:
-  - Either [fork and clone the repository](#fork-and-clone-the-repository) it to the local system
-  - or if you do not intend to publish your changes, just [clone directly from the SATKIT main](#clone-directly-from-the-satkit-main).
-- [Create the conda environments](#create-the-conda-environments).
-- [Install SATKIT in development mode](#install-satkit-in-development-mode).
+- [Setting SATKIT up for Development](#setting-satkit-up-for-development)
+  - [Preliminaries](#preliminaries)
+  - [Fork and clone the repository](#fork-and-clone-the-repository)
+  - [Clone directly from the SATKIT main](#clone-directly-from-the-satkit-main)
+  - [Create the conda environments](#create-the-conda-environments)
+  - [Install SATKIT in development mode](#install-satkit-in-development-mode)
+  - [Other topics](#other-topics)
+    - [Rebuild and activate a conda environment after updating the environment](#rebuild-and-activate-a-conda-environment-after-updating-the-environment)
 
-Other topics covered by this guide:
+## Preliminaries
 
-- [Rebuild and activate conda environment after updating the environment](#rebuild-and-activate-conda-environment-after-updating-the-environment).
+Install the following:
+
+- [Mamba](https://mamba.readthedocs.io/en/latest/installation.html)
+  - Mamba is used for building the conda environments that SATKIT runs in.
+  - If you already have Conda installed, you will still need Mamba, since Conda has been shown to not be able to deal with the rather complex dependencies, and in any case Mamba is much faster.
+  - If Mamba is not available, it is possible to try to install all the dependencies with using just pypi. If you manage to do that, please document how you did it and let us know, so that those instructions can be added here. (We have not tried to do this.)
+- [VSCode](https://code.visualstudio.com/), [PyCharm](https://www.jetbrains.com/pycharm/), [Emacs](https://www.gnu.org/software/emacs/), or some other IDE that you would like to use.
+- [Git](https://git-scm.com/book/en/v2/Getting-Started-Installing-Git) in some form.
+  - The basic version is a command line tool, but there are many GUIs available.
+  - For using GitHub from the command line (see below), [gh](https://cli.github.com/) maybe worth a look.
+
+If planning to fork the GitHub repository, you will also need a [GitHub account](https://github.com/join).
 
 ## Fork and clone the repository
 
@@ -62,7 +76,11 @@ This will enable use of SATKIT as a library as if it were a regularly installed 
 
 ## Other topics
 
-### Rebuild and activate conda environment after updating the environment
+Other topics covered by this guide:
+
+- [Rebuild and activate a conda environment after updating the environment](#rebuild-and-activate-a-conda-environment-after-updating-the-environment).
+
+### Rebuild and activate a conda environment after updating the environment
 
 After either downloading a newer version or making local changes, run these commands on the command line:
 

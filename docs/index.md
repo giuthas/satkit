@@ -4,8 +4,8 @@ Until the 1.0 release none of the documentation is necessarily final nor correct
 
 ## Setup
 
-- Setup for analysis
-- [Setup for development](SetupForDevelopment.markdown)
+- Seting SATKIT up for analysis is currently covered by setting up for development:
+- [Set SATKIT up for development](SetupForDevelopment.markdown)
 
 ## GUI Userguide
 

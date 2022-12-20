@@ -200,14 +200,15 @@ def plot_spectrogram(
         noverlap: int=215,
         cmap: str='Greys',
         ylim: Tuple[float, float]=(0, 10000),
-        ylabel: str="Spectrogram"):
+        ylabel: str="Spectrogram", 
+        picker=None):
     normalised_wav = waveform / np.amax(np.abs(waveform))
 
     #xlim = [xlim[0]+time_offset, xlim[1]+time_offset]
       # the length of the windowing segments
     Pxx, freqs, bins, im = ax.specgram(normalised_wav, NFFT=NFFT, 
                                 Fs=sampling_frequency, noverlap=noverlap,
-                                cmap=cmap, xextent=xtent_on_x)
+                                cmap=cmap, xextent=xtent_on_x, picker=picker)
     (bottom, top) = im.get_extent()[2:]
     im.set_extent((xtent_on_x[0]+bins[0], xtent_on_x[0]+bins[-1], bottom, top))
 

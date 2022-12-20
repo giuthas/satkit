@@ -352,11 +352,13 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
         #          picker=PdQtAnnotator.line_xdirection_picker)
         ylim = None
         raw = plot_timeseries(self.data_axes[0], l2.data,
-            ultra_time, self.xlim, ylim, peak_normalise=True)
+            ultra_time, self.xlim, ylim, peak_normalise=True, 
+            picker=PdQtAnnotator.line_xdirection_picker)
         # raw_top = plot_timeseries(self.data_axes[0], l2_top.data,
         #     ultra_time, self.xlim, ylim, color='green', peak_normalise=True)
         raw_bottom = plot_timeseries(self.data_axes[0], l2_bottom.data,
-            ultra_time, self.xlim, ylim, color='gold', peak_normalise=True)
+            ultra_time, self.xlim, ylim, color='gold', peak_normalise=True, 
+            picker=PdQtAnnotator.line_xdirection_picker)
         self.data_axes[0].set_ylabel("Peak normalised PD")
 
         # interp = plot_timeseries(self.data_axes[1], l2_interpolated.data,
@@ -403,12 +405,14 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
         #     ultra_time, self.xlim, self.ylim, color='orange', linestyle="--")
         # self.data_axes[2].set_ylabel("Pixel normalised PD")
 
-        plot_wav(self.data_axes[1], wav, wav_time, self.xlim)
+        plot_wav(self.data_axes[1], wav, wav_time, self.xlim, 
+            picker=PdQtAnnotator.line_xdirection_picker)
         plot_spectrogram(self.data_axes[2], 
                         waveform=wav,
                         ylim=(0,10500), 
                         sampling_frequency=audio.sampling_rate, 
-                        xtent_on_x=[wav_time[0], wav_time[-1]])
+                        xtent_on_x=[wav_time[0], wav_time[-1]], 
+            picker=PdQtAnnotator.line_xdirection_picker)
 
         segment_line = None
         self.animators = []
@@ -441,10 +445,15 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
         self.fig.tight_layout()
 
         if self.current.annotations['pdOnset'] > -1:
-            self.data_axes[0].axvline(x=self.current.annotations['pdOnset'],
-                             linestyle=':', color="deepskyblue", lw=1)
-            self.data_axes[1].axvline(x=self.current.annotations['pdOnset'],
-                             linestyle=':', color="deepskyblue", lw=1)
+            for axes in self.data_axes[:-1]:
+                axes.axvline(x=self.current.annotations['pdOnset'],
+                                    linestyle=':', color="deepskyblue", lw=1)
+            self.data_axes[-1].axvline(x=self.current.annotations['pdOnset'],
+                             linestyle=':', color="white", lw=1)
+            for axes in self.tier_axes:
+                axes.axvline(x=self.current.annotations['pdOnset'],
+                                    linestyle=':', color="deepskyblue", lw=1)
+
         if self.display_tongue:
             self.draw_ultra_frame()
 

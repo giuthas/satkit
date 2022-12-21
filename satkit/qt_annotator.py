@@ -525,7 +525,7 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
         Move the data cursor to the next frame.
         """
         if (self.current.annotations['pdOnsetIndex'] > -1 and 
-            self.current.annotations['pdOnsetIndex'] < self.current.modalities['RawUltrasound'].data.size-1):
+            self.current.annotations['pdOnsetIndex'] < self.current.modalities['PD l2 on RawUltrasound'].data.size):
 
             self.current.annotations['pdOnsetIndex'] += 1
             _qt_annotator_logger.debug(
@@ -721,7 +721,7 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
         audio = self.current.modalities['MonoAudio']
         stimulus_onset = audio.go_signal
 
-        timevector = self.current.modalities['RawUltrasound'].timevector 
+        timevector = self.current.modalities['PD l2 on RawUltrasound'].timevector 
         distances = np.abs(timevector - stimulus_onset - event.xdata)
         self.current.annotations['pdOnsetIndex'] = np.argmin(distances)
         self.current.annotations['pdOnset'] = event.xdata

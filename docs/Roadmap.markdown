@@ -9,7 +9,7 @@ Items will only be marked as done, once clean up is also done.
       - [ ] including interval selection and adding from that maybe
     - [ ] deleting boundaries
     - [ ] Viewing and selecting
-      - [ ] frame and time point  selection
+      - [x] frame and time point  selection
       - [ ] zooming
       - [ ] with interval selection and Praat's shortcuts or something close
       - [ ] toggle for displaying acoustic boundaries

@@ -45,7 +45,8 @@ import satkit.configuration.configuration as configuration
 from satkit.metrics import pd
 from satkit.modalities import RawUltrasound
 from satkit.qt_annotator import PdQtAnnotator
-from satkit.scripting_interface import (SatkitArgumentParser, load_data,
+from satkit.scripting_interface import (Operation, SatkitArgumentParser,
+                                        load_data, multi_process_data,
                                         process_data, save_data)
 
 
@@ -56,7 +57,7 @@ def set_up_logging(verbosity: Optional[int]):
         verbosity argument.
         """
         logger = logging.getLogger('satkit')
-        logger.setLevel(logging.INFO)
+        logger.setLevel(logging.DEBUG)
 
         # also log to the console at a level determined by the --verbose flag
         console_handler = logging.StreamHandler()  # sys.stderr
@@ -74,7 +75,7 @@ def set_up_logging(verbosity: Optional[int]):
         elif verbosity >= 3:
             console_handler.setLevel('DEBUG')
         else:
-            logging.critical("Unexplained negative argument %s to verbose!",
+            logging.critical("Negative argument %s to verbose!",
                 str(verbosity))
         logger.addHandler(console_handler)
 
@@ -105,8 +106,14 @@ def main():
     function_dict = {
         'PD': (pd.add_pd, 
         [RawUltrasound], 
-        {'mask_images': True, 'pd_on_interpolated_data': True, 'release_data_memory': True, 'preload': True})}
+        {'mask_images': True, 'pd_on_interpolated_data': False, 'release_data_memory': True, 'preload': True})}
     process_data(recordings=recordings, processing_functions=function_dict)
+
+    # operation = Operation(
+    #     processing_function = pd.add_pd, 
+    #     modality = RawUltrasound, 
+    #     arguments= {'mask_images': True, 'pd_on_interpolated_data': True, 'release_data_memory': True, 'preload': True})
+    # multi_process_data(recordings, operation)
 
     logger.info('Data run ended at %s.', str(datetime.datetime.now()))
 

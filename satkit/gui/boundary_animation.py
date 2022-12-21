@@ -62,7 +62,8 @@ class BoundaryAnimator:
 
     lock = None  # only one boundary can be animated at a time
 
-    def __init__(self, 
+    def __init__(self,
+            release_handler,
             boundaries: List[AnimatableBoundary], 
             segment: SatInterval, 
             time_offset=0):
@@ -71,6 +72,7 @@ class BoundaryAnimator:
         self.time_offset = time_offset
         self.press = None
         self.backgrounds = []
+        self.release_handler = release_handler
 
     def connect(self):
         """Connect to all the events we need."""
@@ -175,6 +177,7 @@ class BoundaryAnimator:
     def on_release(self, event):
         """Clear button press information."""
         if BoundaryAnimator.lock is not self:
+            self.release_handler.onpick(event)
             return
 
         self.press = None

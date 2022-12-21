@@ -1,0 +1,38 @@
+# SATKIT 1.0 Roadmap
+
+Items will only be marked as done, once clean up is also done.
+
+- [ ] GUI
+  - [ ] Boundaries and labels
+    - [ ] label editing
+    - [ ] adding boundaries
+      - [ ] including interval selection and adding from that maybe
+    - [ ] deleting boundaries
+    - [ ] Viewing and selecting
+      - [x] frame and time point  selection
+      - [ ] zooming
+      - [ ] with interval selection and Praat's shortcuts or something close
+      - [ ] toggle for displaying acoustic boundaries
+      - [ ] toggles or similar for displaying different data modalities
+      - [ ] note function for annotating individual tokens with free text
+- [ ] Algorithms
+  - [x] Spectrogram
+  - [ ] Pixel Difference
+  - [ ] Optic flow
+  - [ ] Principal component analysis (PCA) / dimensionality reduction
+  - [ ] Average Nearest Neighbour Distance and Median Point-by-point Distance
+  - [ ] Some or all of the metrics by [Kathtrine M. Dawson](https://github.com/kdawson2/tshape_analysis)
+- [ ] Saving and loading
+  - [x] loading textgrids
+  - [ ] loading data from AAA
+  - [ ] loading data from 3D/4D ultrasound
+  - [ ] saving results in
+    - [ ] implementation free, human readable if possible, formats
+    - [ ] textgrids
+- [ ] Documentation
+  - [ ] update README and other relevant files
+  - [ ] update both references to tools SATKIT provides and tools it uses
+  - [ ] generate and publish automatic docs
+    - [ ] update docstrings of at least the most important classes, methods and functions
+    - [ ] include also graphs of how the central classes work and are used
+- [ ] Code refactoring and quality control

@@ -39,6 +39,7 @@ dependencies:
   - dipy >= 1.4
   - sk-video >= 1.1
   - matplotlib >= 3.5
+  - pyqt >= 5.9
   - pylint >= 2.9
   - strictyaml >= 1.6.1
   - setuptools >= 58

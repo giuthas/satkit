@@ -31,12 +31,19 @@
 
 import datetime
 import logging
-from typing import Dict, List
+from dataclasses import dataclass
+from multiprocessing import Pool
+from typing import Callable, Dict, List
 
-from satkit.data_structures import Recording
+from satkit.data_structures import Modality, Recording
 
 logger = logging.getLogger('satkit.scripting')
 
+@dataclass
+class Operation:
+    processing_function: Callable
+    modality: Modality
+    arguments: Dict
 
 def process_data(
     recordings: List[Recording], 
@@ -55,5 +62,20 @@ def process_data(
                     recording,
                     modality,
                     **arguments)
+
+    logger.info('Data run ended at %s.', str(datetime.datetime.now()))
+
+def multi_process_data(
+    recordings: List[Recording], 
+    operation: Operation) -> None:
+
+    arguments = [
+        {'recording':recording, 
+        'modality':operation.modality, 
+        **operation.arguments} for recording in recordings]
+
+    logger.info('Starting data run at %s.', str(datetime.datetime.now()))
+    with Pool() as pool:
+        pool.map(operation.processing_function, arguments)
 
     logger.info('Data run ended at %s.', str(datetime.datetime.now()))

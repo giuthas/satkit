@@ -31,7 +31,6 @@
 
 # Built in packages
 import logging
-import sys
 from typing import List, Optional, Tuple, Union
 
 # Efficient array operations
@@ -49,14 +48,17 @@ _plot_logger = logging.getLogger('satkit.plot')
 
 def plot_timeseries(axes: Axes, 
             data: np.ndarray, 
-            time: np.ndarray, 
+            time: np.ndarray,
             xlim: Tuple[float, float], 
             ylim: Optional[Tuple[float, float]]=None, 
-            label: str="PD on ultrasound",
+            peak_normalise: bool=False,
+            number_of_ignored_frames: int=10,
+            ylabel: Optional[str]=None,
             picker=None, 
             color: str="deepskyblue",
             linestyle: str="-", 
-            alpha: float=1.0):
+            alpha: float=1.0,
+            sampling_step=1):
     """
     Plot a timeseries.
 
@@ -70,42 +72,46 @@ def plot_timeseries(axes: Axes,
     xlim -- limits for the x-axis in seconds.
 
     Keyword arguments:
-    textgrid -- a textgrids module textgrid object.
-    stimulus_onset -- onset time of the stimulus in the recording in
-        seconds.
+    peak_normalise -- if True, scale the data maximum to equal 1.
+    peak_normalisation_offset -- how many values to ignore from 
+        the beginning of data when calculating maximum. 
+    ylabel -- label for this axes. 
     picker -- a picker tied to the plotted PD curve to facilitate
         annotation.
+    color -- matplotlib color for the line.
+    linestyle -- matplotlib linestyle.
+    alpha -- alpha value for the line.
 
     Returns None.
     """
+    plot_data = data[number_of_ignored_frames:]
+    plot_time = time[number_of_ignored_frames:]
     if picker:
-        axes.plot(time, data, color=color, lw=1, linestyle=linestyle, picker=picker, alpha=alpha)
+        if peak_normalise:
+            axes.plot(plot_time[::sampling_step], plot_data[::sampling_step]/np.max(plot_data), 
+                color=color, lw=1, linestyle=linestyle, picker=picker, alpha=alpha)
+        else:
+            axes.plot(plot_time[::sampling_step], plot_data[::sampling_step], 
+                color=color, lw=1, linestyle=linestyle, picker=picker, alpha=alpha)
     else:
-        axes.plot(time, data, color=color, lw=1, linestyle=linestyle, alpha=alpha)
+        if peak_normalise:
+            axes.plot(plot_time[::sampling_step], plot_data[::sampling_step]/np.max(plot_data), 
+                color=color, lw=1, linestyle=linestyle, alpha=alpha)
+        else:
+            axes.plot(plot_time[::sampling_step], plot_data[::sampling_step], 
+                color=color, lw=1, linestyle=linestyle, alpha=alpha)
     # The official fix for the above curve not showing up on the legend.
     timeseries = Line2D([], [], color=color, lw=1, linestyle=linestyle)
 
-    #go_line = axes.axvline(x=0, color="dimgrey", lw=1, linestyle=(0, (5, 10)))
-
     axes.set_xlim(xlim)
-    if not ylim:
-        axes.set_ylim((-50, 3050))
-    else:
+    if ylim:
         axes.set_ylim(ylim)
-    axes.set_ylabel(label)
+    elif peak_normalise:
+        axes.set_ylim([-0.05, 1.05])
+    if ylabel:
+        axes.set_ylabel(ylabel)
 
-    return [timeseries]
-
-# TODO: move this to the annotator as a one-liner
-def legend(axis, timeseries, go_line=None, segment_line=None, location='upper_right'):
-    if segment_line:
-        axis.legend((timeseries, go_line, segment_line),
-                  ('Pixel difference', 'Go-signal onset', 'Acoustic segments'),
-                  loc=location)
-    else:
-        axis.legend((timeseries, go_line),
-                  ('Pixel difference', 'Go-signal onset'),
-                  loc=location)
+    return timeseries
 
 
 def plot_satgrid_tier(axes: Axes, 
@@ -194,14 +200,15 @@ def plot_spectrogram(
         noverlap: int=215,
         cmap: str='Greys',
         ylim: Tuple[float, float]=(0, 10000),
-        ylabel: str="Spectrogram"):
+        ylabel: str="Spectrogram", 
+        picker=None):
     normalised_wav = waveform / np.amax(np.abs(waveform))
 
     #xlim = [xlim[0]+time_offset, xlim[1]+time_offset]
       # the length of the windowing segments
     Pxx, freqs, bins, im = ax.specgram(normalised_wav, NFFT=NFFT, 
                                 Fs=sampling_frequency, noverlap=noverlap,
-                                cmap=cmap, xextent=xtent_on_x)
+                                cmap=cmap, xextent=xtent_on_x, picker=picker)
     (bottom, top) = im.get_extent()[2:]
     im.set_extent((xtent_on_x[0]+bins[0], xtent_on_x[0]+bins[-1], bottom, top))
 

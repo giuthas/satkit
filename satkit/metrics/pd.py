@@ -67,18 +67,18 @@ def calculate_metric(abs_diff, norm, mask: Optional[ImageMask]=None, interpolate
     data = abs_diff
     if mask and not interpolated:
         if mask == ImageMask.bottom:
-            half = int(abs_diff.shape[2]/2)
-            data = abs_diff[:,:,half:] # The bottom is on top
+            half = int(abs_diff.shape[1]/2)
+            data = abs_diff[:,half:,:] # The bottom is on top in raw.
         elif mask == ImageMask.top:
-            half = int(abs_diff.shape[2]/2)
-            data = abs_diff[:,:,:half] # and top is on bottom.
+            half = int(abs_diff.shape[1]/2)
+            data = abs_diff[:,:half,:] # and top is on bottom in raw.
     elif mask:
         if mask == ImageMask.bottom:
-            half = int(abs_diff.shape[2]/2)
-            data = abs_diff[:,:half,:] # These are the right way around
+            half = int(abs_diff.shape[1]/2)
+            data = abs_diff[:,half:,:] # These are also upside down.
         elif mask == ImageMask.top:
-            half = int(abs_diff.shape[2]/2)
-            data = abs_diff[:,half:,:] # These are the right way around
+            half = int(abs_diff.shape[1]/2)
+            data = abs_diff[:,:half,:] # These are also upside down.
 
     if norm[0] == 'l':
         if norm[1:] == '_inf':
@@ -227,9 +227,11 @@ def calculate_pd(
 def add_pd(recording: Recording,
           modality: Modality,
           preload: bool=True,
+          norms: List[str]=['l2'],
+          timesteps: List[int]=[1],
           release_data_memory: bool=True,
           pd_on_interpolated_data: bool=False,
-          mask_images=False):
+          mask_images: bool=False):
     """
     Calculate PD on dataModality and add it to recording.
 
@@ -265,8 +267,8 @@ def add_pd(recording: Recording,
     else:
         dataModality = recording.modalities[modality.__name__]
         pds = calculate_pd(dataModality,
-                norms=['l2'], 
-                timesteps=[1], 
+                norms=norms, 
+                timesteps=timesteps, 
                 release_data_memory=release_data_memory,
                 pd_on_interpolated_data=pd_on_interpolated_data,
                 mask_images=mask_images) 

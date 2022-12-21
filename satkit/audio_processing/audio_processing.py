@@ -96,8 +96,7 @@ def detect_beep_and_speech(frames, sampling_frequency, b, a, name):
 1    """
 
     _audio_logger.debug(
-        "Detecting beep onset and presence of speech in {name}.",
-        name = name)
+        "Detecting beep onset and presence of speech in %s."%(name))
     hp_signal = filtfilt(b, a, frames)
     sos = band_pass(sampling_frequency)
     bp_signal = sosfilt(sos, frames)

@@ -233,12 +233,17 @@ class RawUltrasound(Modality):
         Arguments:
         index - the index of the ultrasound frame to be returned
         """
+        _modalities_logger.debug(
+            "Getting interpolated image from ultrasound. index=%d"%(index))
         if self.video_has_been_stored:
+            _modalities_logger.debug("Returning interpolated image from stored video.")
             half_way = int(self.stored_video.shape[0]/2)
             return self.stored_video[half_way, :, :].copy()
         elif self._stored_index and self._stored_index == index:
+            _modalities_logger.debug("Returning previously stored interpolated image.")
             return self._stored_image
         else:
+            _modalities_logger.debug("Calculating interpolated image from scratch.")
             self._stored_index = index
             #frame = scipy_medfilt(self.data[index, :, :].copy(), [1,15])
             frame = self.data[index, :, :].copy()

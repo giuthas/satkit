@@ -528,7 +528,8 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
             self.current.annotations['pdOnsetIndex'] < self.current.modalities['RawUltrasound'].data.size-1):
 
             self.current.annotations['pdOnsetIndex'] += 1
-            print(f"next frame: {self.current.annotations['pdOnsetIndex']}")
+            _qt_annotator_logger.debug(
+                "next frame: %d"%(self.current.annotations['pdOnsetIndex']))
             self._update_pd_onset()
             self.update()
             self.update_ui()
@@ -539,7 +540,8 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
         """
         if self.current.annotations['pdOnsetIndex'] > 0:
             self.current.annotations['pdOnsetIndex'] -= 1
-            print(f"previous frame: {self.current.annotations['pdOnsetIndex']}")
+            _qt_annotator_logger.debug(
+                "previous frame: %d"%(self.current.annotations['pdOnsetIndex']))
             self._update_pd_onset()
             self.update()
             self.update_ui()
@@ -724,7 +726,7 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
         self.current.annotations['pdOnsetIndex'] = np.argmin(distances)
         self.current.annotations['pdOnset'] = event.xdata
 
-        print("onpick - subplot: %d, index=%d, x=%f"%(
+        _qt_annotator_logger.debug("onpick - subplot: %d, index=%d, x=%f"%(
             subplot, 
             self.current.annotations['pdOnsetIndex'],
             self.current.annotations['pdOnset']))

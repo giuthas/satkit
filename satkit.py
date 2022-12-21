@@ -57,7 +57,7 @@ def set_up_logging(verbosity: Optional[int]):
         verbosity argument.
         """
         logger = logging.getLogger('satkit')
-        logger.setLevel(logging.INFO)
+        logger.setLevel(logging.DEBUG)
 
         # also log to the console at a level determined by the --verbose flag
         console_handler = logging.StreamHandler()  # sys.stderr
@@ -75,7 +75,7 @@ def set_up_logging(verbosity: Optional[int]):
         elif verbosity >= 3:
             console_handler.setLevel('DEBUG')
         else:
-            logging.critical("Unexplained negative argument %s to verbose!",
+            logging.critical("Negative argument %s to verbose!",
                 str(verbosity))
         logger.addHandler(console_handler)
 

@@ -22,3 +22,12 @@ the following additions:
   won't happen).
 - A module is the unit of reuse. Ideally, a module should do something that gets
   used time and time again, but it is good enough if it does something which has a clear and self contained purpose. Prefer splitting to smaller modules over piles of unrelated code.
+
+## Packages and modules
+
+In Python a module is -- [roughly
+speaking](https://docs.python.org/3/reference/import.html#packages) -- any .py
+file and a regular package is a directory that contains a `__init__.py` file and
+possibly some other `.py` files. In SATKIT `__init__.py` files are used for two
+purposes: Defineing the public API of the module and running any initialisation
+that is needed. For an example have a look at `satkit/__init__.py`.

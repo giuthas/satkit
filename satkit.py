@@ -41,7 +41,6 @@ from typing import Optional
 from PyQt5 import QtWidgets
 
 # local modules
-import satkit.configuration.configuration as configuration
 from satkit.metrics import pd
 from satkit.modalities import RawUltrasound
 from satkit.qt_annotator import PdQtAnnotator
@@ -86,10 +85,6 @@ def set_up_logging(verbosity: Optional[int]):
 def main():
     """Simple main to run the CLI back end and start the QT front end."""
     start_time = time.time()
-
-    # Config needs to be loaded before parsing arguments, because it may affect
-    # how arguments are parsed, and parsed arguments may change config variables.
-    configuration.load_config()
 
     # Arguments need to be parsed before setting up logging so that we have
     # access to the verbosity argument.

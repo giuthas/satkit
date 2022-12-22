@@ -1,7 +1,6 @@
 # SATKIT Code Conventions
 
-This document is a guideline, not a ruleset, and really a thing Pertti wrote for
-himself to be able to remember these things.
+This document is a guideline, not a ruleset.
 
 First things first: write in good pythonic style.
 

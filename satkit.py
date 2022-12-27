@@ -30,10 +30,8 @@
 #
 
 # built-in modules
-import datetime
 import logging
 import sys
-import time
 from pathlib import Path
 from typing import Optional
 
@@ -41,7 +39,7 @@ from typing import Optional
 from PyQt5 import QtWidgets
 
 # local modules
-from satkit import log_elapsed_time, start_time
+from satkit import log_elapsed_time
 from satkit.metrics import pd
 from satkit.modalities import RawUltrasound
 from satkit.qt_annotator import PdQtAnnotator
@@ -79,7 +77,7 @@ def set_up_logging(verbosity: Optional[int]):
                 str(verbosity))
         logger.addHandler(console_handler)
 
-        logger.info('Data run started at %s.', str(datetime.datetime.now()))
+        logger.info('Data run started.')
         
         return logger
 
@@ -112,7 +110,7 @@ def main():
     #     arguments= {'mask_images': True, 'pd_on_interpolated_data': True, 'release_data_memory': True, 'preload': True})
     # multi_process_data(recordings, operation)
 
-    logger.info('Data run ended at %s.', str(datetime.datetime.now()))
+    logger.info('Data run ended.')
 
     # save before plotting just in case.
     if cli.args.output_filename:

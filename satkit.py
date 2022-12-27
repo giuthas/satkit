@@ -41,6 +41,7 @@ from typing import Optional
 from PyQt5 import QtWidgets
 
 # local modules
+from satkit import log_elapsed_time, start_time
 from satkit.metrics import pd
 from satkit.modalities import RawUltrasound
 from satkit.qt_annotator import PdQtAnnotator
@@ -84,7 +85,6 @@ def set_up_logging(verbosity: Optional[int]):
 
 def main():
     """Simple main to run the CLI back end and start the QT front end."""
-    start_time = time.time()
 
     # Arguments need to be parsed before setting up logging so that we have
     # access to the verbosity argument.
@@ -96,6 +96,8 @@ def main():
         recordings = load_data(Path(cli.args.load_path), Path(cli.args.exclusion_filename))
     else:
         recordings = load_data(Path(cli.args.load_path), None)
+
+    log_elapsed_time()
 
     #function_dict = {'pd':pd.pd, 'annd':annd.annd}
     function_dict = {
@@ -120,10 +122,7 @@ def main():
     if cli.args.plot:
         print("implement plotting to get results")
 
-
-    elapsed_time = time.time() - start_time
-    log_text = 'Elapsed time ' + str(elapsed_time)
-    logger.info(log_text)
+    log_elapsed_time()
 
     # Get the GUI running.
     app = QtWidgets.QApplication(sys.argv)

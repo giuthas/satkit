@@ -47,8 +47,12 @@ graphical annotation tools derive from Annotator.
 import json
 import logging
 import logging.config
+import time
 
 import satkit.configuration.configuration as configuration
+
+start_time = time.time()
+last_log_time = time.time()
 
 # Load config from json file.
 with open("satkit_logging_configuration.json", 'r') as configuration_file:
@@ -64,4 +68,14 @@ _satkit_logger.info('Completed configuring logger.')
 # Config should be loaded before parsing arguments, because it may affect
 # how arguments are parsed, and parsed arguments may change config variables.
 configuration.load_config()
+
+def log_elapsed_time():
+    current_time = time.time()
+    elapsed_time = current_time - start_time
+    since_last_log = current_time - last_log_time
+    log_text = 'Elapsed time from start: %f, from last logged time: %f'%(
+        elapsed_time, since_last_log)
+    _satkit_logger.info(log_text)
+    last_log_time = current_time
+
 

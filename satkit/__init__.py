@@ -70,6 +70,7 @@ _satkit_logger.info('Completed configuring logger.')
 configuration.load_config()
 
 def log_elapsed_time():
+    global start_time, last_log_time
     current_time = time.time()
     elapsed_time = current_time - start_time
     since_last_log = current_time - last_log_time

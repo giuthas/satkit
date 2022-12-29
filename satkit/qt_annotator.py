@@ -228,7 +228,7 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
 
         self.draw_plots()
         self.multicursor = MultiCursor(
-            None, 
+            self.canvas, 
             axes=self.data_axes+self.tier_axes, 
             color='deepskyblue', linestyle="--", lw=1)
         self.fig.canvas.draw()

@@ -52,8 +52,8 @@ from PyQt5.uic import loadUiType
 import satkit.io as satkit_io
 from satkit.configuration import gui_params
 from satkit.gui.boundary_animation import BoundaryAnimator
-from satkit.plot import (plot_satgrid_tier, plot_spectrogram, plot_timeseries,
-                         plot_wav)
+from satkit.plot import (Normalisation, plot_satgrid_tier, plot_spectrogram,
+                         plot_timeseries, plot_wav)
 
 # Load the GUI layout generated with QtDesigner.
 Ui_MainWindow, QMainWindow = loadUiType('satkit/gui/qt_annotator.ui')
@@ -318,10 +318,12 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
         #          picker=PdQtAnnotator.line_xdirection_picker)
         ylim = None
         raw = plot_timeseries(self.data_axes[0], l2.data,
-            ultra_time, self.xlim, ylim, peak_normalise=True) #, 
+            ultra_time, self.xlim, ylim, 
+            normalise=Normalisation('PEAK AND BOTTOM')) #, 
             # picker=PdQtAnnotator.line_xdirection_picker)
         raw_bottom = plot_timeseries(self.data_axes[0], l2_bottom.data,
-            ultra_time, self.xlim, ylim, color='gold', peak_normalise=True) #, 
+            ultra_time, self.xlim, ylim, color='gold', 
+            normalise=Normalisation('PEAK AND BOTTOM')) #, 
             # picker=PdQtAnnotator.line_xdirection_picker)
         self.data_axes[0].set_ylabel("Peak normalised PD")
 

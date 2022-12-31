@@ -19,20 +19,20 @@ def save_modality_data(modality: Modality) -> str:
 
     return filename
 
-def save_modality_meta(modality: Modality) -> str:
-    """
-    Save meta data and annotations for a Modality.
+# def save_modality_meta(modality: Modality) -> str:
+#     """
+#     Save meta data and annotations for a Modality.
 
-    Saved data includes sampling frequency and any processing metadata that is
-    needed to reconstruct the Modality. 
-    """
-    _modality_saver_logger.debug("Saving meta for %s."%modality.name)
-    suffix = modality.name.replace(" ", "_")
-    filename = f"{modality.recording.basename}.{suffix}"
-    filename += "meta"
-    _modality_saver_logger.debug("Wrote file %s."%(filename))
+#     Saved data includes sampling frequency and any processing metadata that is
+#     needed to reconstruct the Modality. 
+#     """
+#     _modality_saver_logger.debug("Saving meta for %s."%modality.name)
+#     suffix = modality.name.replace(" ", "_")
+#     filename = f"{modality.recording.basename}.{suffix}"
+#     filename += "meta"
+#     _modality_saver_logger.debug("Wrote file %s."%(filename))
 
-    return filename
+#     return filename
     
 
 def save_recording_meta(recording: Recording, meta: dict) -> str:
@@ -63,16 +63,10 @@ def save_derived_modalities(recording: Recording):
         modality = recording.modalities[modality_name]
         if modality.is_derived_modality:
             modality_meta['data_path'] = save_modality_data(modality)
-            modality_meta['meta_path'] = save_modality_meta(modality)
         else:
             modality_meta['data_path'] = str(modality.data_path)
-            modality_meta['meta'] = {
-                'sampling_rate': modality.sampling_rate
-                }
-            if hasattr(modality, 'meta'):
-                modality_meta['meta_path'] = str(modality.meta['meta_file'])   
-                modality_meta['meta'].update(modality.meta)
-                del modality_meta['meta']['meta_file']
+        modality_meta['meta_path'] = str(modality.meta_path)
+        modality_meta['meta'] = modality.get_meta()
         recording_meta[modality_name] = modality_meta
     save_recording_meta(recording, recording_meta)
 
@@ -83,3 +77,10 @@ def save_derived_data(recordings: List[Recording], save_excluded: bool=True):
     for recording in recordings:
         if save_excluded or not recording.excluded:
             save_derived_modalities(recording)
+
+
+# def foobar():
+#     if hasattr(modality, 'meta'):
+#         modality_meta['meta_path'] = str(modality.meta['meta_file'])   
+#         modality_meta['meta'].update(modality.meta)
+#         del modality_meta['meta']['meta_file']

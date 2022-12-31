@@ -60,7 +60,7 @@ def save_derived_modalities(recording: Recording):
     recording_meta = {}
     for modality_name in recording.modalities:
         modality_meta = {}
-        modality = modality
+        modality = recording.modalities[modality_name]
         if modality.is_derived_modality:
             modality_meta['data_path'] = save_modality_data(modality)
             modality_meta['meta_path'] = save_modality_meta(modality)

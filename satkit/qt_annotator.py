@@ -54,6 +54,7 @@ from satkit.configuration import gui_params
 from satkit.gui.boundary_animation import BoundaryAnimator
 from satkit.plot import (Normalisation, plot_satgrid_tier, plot_spectrogram,
                          plot_timeseries, plot_wav)
+from satkit.save_and_load import save_derived_data
 
 # Load the GUI layout generated with QtDesigner.
 Ui_MainWindow, QMainWindow = loadUiType('satkit/gui/qt_annotator.ui')
@@ -103,6 +104,9 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
                      self)
         self.close_window.activated.connect(self.quit)
 
+        self.actionSaveAll.triggered.connect(self.save_all)
+        self.actionSaveToPickle.triggered.connect(self.save_to_pickle)
+
         self.actionNext.triggered.connect(self.next)
         self.actionPrevious.triggered.connect(self.prev)
 
@@ -113,7 +117,7 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
 
         self.nextButton.clicked.connect(self.next)
         self.prevButton.clicked.connect(self.prev)
-        self.saveButton.clicked.connect(self.save)
+        self.saveButton.clicked.connect(self.save_all)
         self.exportButton.clicked.connect(self.export)
 
         go_validator = QIntValidator(1, self.max_index + 1, self)
@@ -523,9 +527,15 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
         """
         QCoreApplication.quit()
 
-    def save(self):
+    def save_all(self):
         """
-        Save the recordings.
+        Save derived modalities and annotations.
+        """
+        save_derived_data(self.recordings)
+
+    def save_to_pickle(self):
+        """
+        Save the recordings into a pickle file.
         """
         if not self.pickle_filename:
             (self.pickle_filename, _) = QFileDialog.getSaveFileName(

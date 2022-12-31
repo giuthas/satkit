@@ -62,16 +62,17 @@ def save_derived_modalities(recording: Recording):
         modality_meta = {}
         modality = modality
         if modality.is_derived_modality:
-            modality_meta['data'] = save_modality_data(modality)
-            modality_meta['meta'] = save_modality_meta(modality)
+            modality_meta['data_path'] = save_modality_data(modality)
+            modality_meta['meta_path'] = save_modality_meta(modality)
         else:
-            modality_meta['data'] = str(modality.data_path)
+            modality_meta['data_path'] = str(modality.data_path)
             modality_meta['meta'] = {
                 'sampling_rate': modality.sampling_rate
                 }
             if hasattr(modality, 'meta'):
                 modality_meta['meta'].update(modality.meta)
                 modality_meta['meta']['meta_file'] = str(modality_meta['meta']['meta_file']) 
+                modality_meta['meta_path'] = str(modality_meta['meta']['meta_file'])   
         recording_meta[modality_name] = modality_meta
     save_recording_meta(recording, recording_meta)
 

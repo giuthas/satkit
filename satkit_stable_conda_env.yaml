@@ -41,6 +41,7 @@ dependencies:
   - matplotlib >= 3.5
   - pylint >= 2.9
   - strictyaml >= 1.6.1
+  - nestedtext >= 3.5
   - pip >= 22
   - pip:
     - opencv >= 4.5

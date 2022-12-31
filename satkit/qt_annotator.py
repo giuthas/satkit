@@ -114,7 +114,7 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
         self.nextButton.clicked.connect(self.next)
         self.prevButton.clicked.connect(self.prev)
         self.saveButton.clicked.connect(self.save)
-        self.exportButton.clicked.connect(self.save_textgrid)
+        self.exportButton.clicked.connect(self.export)
 
         go_validator = QIntValidator(1, self.max_index + 1, self)
         self.goLineEdit.setValidator(go_validator)
@@ -191,8 +191,8 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
         return {
             'pdCategory': self.categories[-1],
             'tonguePosition': self.tongue_positions[-1],
-            'pdOnset': -1.0,
-            'pdOnsetIndex': 1,
+            'selected_time': -1.0,
+            'selection_index': 1,
         }
 
     def _add_annotations(self):
@@ -404,14 +404,14 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
 
         self.fig.tight_layout()
 
-        if self.current.annotations['pdOnset'] > -1:
+        if self.current.annotations['selected_time'] > -1:
             for axes in self.data_axes[:-1]:
-                axes.axvline(x=self.current.annotations['pdOnset'],
+                axes.axvline(x=self.current.annotations['selected_time'],
                                     linestyle=':', color="deepskyblue", lw=1)
-            self.data_axes[-1].axvline(x=self.current.annotations['pdOnset'],
+            self.data_axes[-1].axvline(x=self.current.annotations['selected_time'],
                              linestyle=':', color="white", lw=1)
             for axes in self.tier_axes:
-                axes.axvline(x=self.current.annotations['pdOnset'],
+                axes.axvline(x=self.current.annotations['selected_time'],
                                     linestyle=':', color="deepskyblue", lw=1)
 
         # if self.display_tongue:
@@ -423,10 +423,10 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
         Display an already interpolated ultrasound frame.
         """
         if (self.current.excluded or 
-            self.current.annotations['pdOnsetIndex'] == -1):
+            self.current.annotations['selection_index'] == -1):
             self.ultra_axes.clear()
-        elif self.current.annotations['pdOnsetIndex']:
-            index = self.current.annotations['pdOnsetIndex']
+        elif self.current.annotations['selection_index']:
+            index = self.current.annotations['selection_index']
             image = self.current.modalities['RawUltrasound'].interpolated_image(
                 index)
             self.ultra_axes.imshow(image, interpolation='nearest', cmap='gray')
@@ -436,8 +436,8 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
         """
         Interpolate and display a raw ultrasound frame.
         """
-        if self.current.annotations['pdOnsetIndex']:
-            ind = self.current.annotations['pdOnsetIndex']
+        if self.current.annotations['selection_index']:
+            ind = self.current.annotations['selection_index']
             array = self.current.modalities['RawUltrasound'].data[ind, :, :]
         else:
             array = self.current.modalities['RawUltrasound'].data[1, :, :]
@@ -466,18 +466,18 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
 
         pd_metrics = self.current.modalities['PD l2 on RawUltrasound']
         ultra_time = pd_metrics.timevector - stimulus_onset
-        self.current.annotations['pdOnset'] = ultra_time[self.current.annotations['pdOnsetIndex']]
+        self.current.annotations['selected_time'] = ultra_time[self.current.annotations['selection_index']]
 
     def next_frame(self):
         """
         Move the data cursor to the next frame.
         """
-        if (self.current.annotations['pdOnsetIndex'] > -1 and 
-            self.current.annotations['pdOnsetIndex'] < self.current.modalities['PD l2 on RawUltrasound'].data.size):
+        if (self.current.annotations['selection_index'] > -1 and 
+            self.current.annotations['selection_index'] < self.current.modalities['PD l2 on RawUltrasound'].data.size):
 
-            self.current.annotations['pdOnsetIndex'] += 1
+            self.current.annotations['selection_index'] += 1
             _qt_annotator_logger.debug(
-                "next frame: %d"%(self.current.annotations['pdOnsetIndex']))
+                "next frame: %d"%(self.current.annotations['selection_index']))
             self._update_pd_onset()
             self.update()
             self.update_ui()
@@ -486,10 +486,10 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
         """
         Move the data cursor to the previous frame.
         """
-        if self.current.annotations['pdOnsetIndex'] > 0:
-            self.current.annotations['pdOnsetIndex'] -= 1
+        if self.current.annotations['selection_index'] > 0:
+            self.current.annotations['selection_index'] -= 1
             _qt_annotator_logger.debug(
-                "previous frame: %d"%(self.current.annotations['pdOnsetIndex']))
+                "previous frame: %d"%(self.current.annotations['selection_index']))
             self._update_pd_onset()
             self.update()
             self.update_ui()
@@ -574,10 +574,10 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
             writer.writeheader()
             for recording in self.recordings:
                 annotations = recording.annotations.copy()
-                annotations['basename'] = recording.meta['basename']
-                annotations['date_and_time'] = recording.meta['date_and_time']
-                annotations['prompt'] = recording.meta['prompt']
-                annotations['word'] = recording.meta['prompt'].split()[0]
+                annotations['basename'] = recording.basename
+                annotations['date_and_time'] = recording.meta_data.time_of_recording
+                annotations['prompt'] = recording.meta_data.prompt
+                annotations['word'] = recording.meta_data.prompt.split()[0]
 
                 word_dur = -1.0
                 acoustic_onset = -1.0
@@ -593,17 +593,17 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
                         # more intelligent by selecting purposefully the last non-empty first and
                         # taking the duration?
                         word_dur = interval.dur
-                        stimulus_onset = recording.modalities['MonoAudio'].meta['stimulus_onset']
+                        stimulus_onset = recording.modalities['MonoAudio'].go_signal
                         acoustic_onset = interval.xmin - stimulus_onset
                         break
                     annotations['word_dur'] = word_dur
                 else:
                     annotations['word_dur'] = -1.0
 
-                if acoustic_onset < 0 or annotations['pdOnset'] < 0:
+                if acoustic_onset < 0 or annotations['selected_time'] < 0:
                     aai = -1.0
                 else:
-                    aai = acoustic_onset - annotations['pdOnset']
+                    aai = acoustic_onset - annotations['selected_time']
                 annotations['AAI'] = aai
 
                 first_sound_dur = -1.0
@@ -621,10 +621,10 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
                 else:
                     annotations['first_sound_type'] = 'C'
 
-                annotations['C1'] = recording.meta['prompt'][0]
+                annotations['C1'] = recording.meta_data.prompt[0]
                 writer.writerow(annotations)
             _qt_annotator_logger.info(
-                'Wrote onset data in file {file}.', file = filename)
+                'Wrote onset data in file %s.'%(filename))
 
     def pd_category_cb(self):
         """
@@ -649,8 +649,8 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
         Callback for handling time selection on events.
         """
         if not event.xdata:
-            self.current.annotations['pdOnset'] = -1
-            self.current.annotations['pdOnsetIndex'] = -1
+            self.current.annotations['selected_time'] = -1
+            self.current.annotations['selection_index'] = -1
             self.update()
             return
 
@@ -664,20 +664,20 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
             subplot, event.xdata))
 
         # if subplot == 1:
-        #     self.current.annotations['pdOnset'] = event.pickx
+        #     self.current.annotations['selected_time'] = event.pickx
 
         audio = self.current.modalities['MonoAudio']
         stimulus_onset = audio.go_signal
 
         timevector = self.current.modalities['PD l2 on RawUltrasound'].timevector 
         distances = np.abs(timevector - stimulus_onset - event.xdata)
-        self.current.annotations['pdOnsetIndex'] = np.argmin(distances)
-        self.current.annotations['pdOnset'] = event.xdata
+        self.current.annotations['selection_index'] = np.argmin(distances)
+        self.current.annotations['selected_time'] = event.xdata
 
         _qt_annotator_logger.debug("Inside onpick - subplot: %d, index=%d, x=%f"%(
             subplot, 
-            self.current.annotations['pdOnsetIndex'],
-            self.current.annotations['pdOnset']))
+            self.current.annotations['selection_index'],
+            self.current.annotations['selected_time']))
 
         self.update()
 

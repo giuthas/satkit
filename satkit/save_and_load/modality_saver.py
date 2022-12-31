@@ -70,9 +70,9 @@ def save_derived_modalities(recording: Recording):
                 'sampling_rate': modality.sampling_rate
                 }
             if hasattr(modality, 'meta'):
+                modality_meta['meta_path'] = str(modality.meta['meta_file'])   
                 modality_meta['meta'].update(modality.meta)
-                modality_meta['meta']['meta_file'] = str(modality_meta['meta']['meta_file']) 
-                modality_meta['meta_path'] = str(modality_meta['meta']['meta_file'])   
+                del modality_meta['meta']['meta_file']
         recording_meta[modality_name] = modality_meta
     save_recording_meta(recording, recording_meta)
 

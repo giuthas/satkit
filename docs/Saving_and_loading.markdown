@@ -20,3 +20,7 @@ The file names are made up of two or three parts separated by dots:
 > **Example:**
 >
 > `File005.PD_l2_on_RawUltrasound.satkit`. This is the data for PD calculated with the l2 metric on raw ultrasound data for Recording File005. The metadata for the same Modality will be `File005.PD_l2_on_RawUltrasound.satkit_meta`, while the enclosing Recording's metadata will be stored in `File005.satkit_meta`.
+
+## File name suffixes
+
+SATKIT defines an Enum for valid suffixes in satkit.constants.

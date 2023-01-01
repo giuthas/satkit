@@ -2,6 +2,8 @@ import logging
 from typing import List
 
 import nestedtext
+import numpy as np
+from satkit.constants import Suffix
 from satkit.data_structures import Modality, Recording
 
 _modality_saver_logger = logging.getLogger('satkit.modality_saver')
@@ -11,29 +13,36 @@ def save_modality_data(modality: Modality) -> str:
     Save the data of a Modality.
 
     This saves only ModalityData.data and ModalityData.timevector.
+
+    Returns the filename of the 
     """
     _modality_saver_logger.debug("Saving data for %s."%modality.name)
     suffix = modality.name.replace(" ", "_")
+    filename = f"{modality.recording.basename}.{suffix}{Suffix.DATA}"
+    filepath = modality.recording.path/filename
+
+    np.savez(filepath, data=modality.data, timevector=modality.timevector)
+
+    _modality_saver_logger.debug("Wrote file %s."%(filename))
+    return filename
+
+def save_modality_meta(modality: Modality) -> str:
+    """
+    Save meta data and annotations for a Modality.
+
+    Saved data includes sampling frequency and any processing metadata that is
+    needed to reconstruct the Modality. 
+    """
+    _modality_saver_logger.debug("Saving meta for %s."%modality.name)
+    suffix = modality.name.replace(" ", "_")
     filename = f"{modality.recording.basename}.{suffix}"
+    filename += Suffix.META
+    filepath = modality.recording.path/filename
+
+    nestedtext.dump(modality.get_meta(), filepath)
     _modality_saver_logger.debug("Wrote file %s."%(filename))
 
     return filename
-
-# def save_modality_meta(modality: Modality) -> str:
-#     """
-#     Save meta data and annotations for a Modality.
-
-#     Saved data includes sampling frequency and any processing metadata that is
-#     needed to reconstruct the Modality. 
-#     """
-#     _modality_saver_logger.debug("Saving meta for %s."%modality.name)
-#     suffix = modality.name.replace(" ", "_")
-#     filename = f"{modality.recording.basename}.{suffix}"
-#     filename += "meta"
-#     _modality_saver_logger.debug("Wrote file %s."%(filename))
-
-#     return filename
-    
 
 def save_recording_meta(recording: Recording, meta: dict) -> str:
     """
@@ -43,19 +52,19 @@ def save_recording_meta(recording: Recording, meta: dict) -> str:
     has and their saving locations.
     """
     _modality_saver_logger.debug("Saving meta for recording %s."%recording.basename)
-    filename = f"{recording.basename}.satkit_meta"
+    filename = f"{recording.basename}{Suffix.META}"
     filepath = recording.path/filename
-    try:
-        nestedtext.dump(meta, filepath)
-    except nestedtext.NestedTextError as error:
-        error.terminate()
+
+    nestedtext.dump(meta, filepath)
     _modality_saver_logger.debug("Wrote file %s."%(filename))
 
     return filename
 
-def save_derived_modalities(recording: Recording):
+def save_modalities(recording: Recording) -> str:
     """
     Save derived data modalities for a single Recording.
+
+    Returns a dictionary of the data and meta paths of the recordings.
     """
     recording_meta = {}
     for modality_name in recording.modalities:
@@ -63,20 +72,21 @@ def save_derived_modalities(recording: Recording):
         modality = recording.modalities[modality_name]
         if modality.is_derived_modality:
             modality_meta['data_path'] = save_modality_data(modality)
+            modality_meta['meta_path'] = save_modality_meta(modality)
         else:
             modality_meta['data_path'] = str(modality.data_path)
-        modality_meta['meta_path'] = str(modality.meta_path)
-        modality_meta['meta'] = modality.get_meta()
+            modality_meta['meta_path'] = str(modality.meta_path)
         recording_meta[modality_name] = modality_meta
-    save_recording_meta(recording, recording_meta)
+    return recording_meta
 
-def save_derived_data(recordings: List[Recording], save_excluded: bool=True):
+def save_recordings(recordings: List[Recording], save_excluded: bool=True):
     """
     Save derived data modalities for each Recording.
     """
     for recording in recordings:
         if save_excluded or not recording.excluded:
-            save_derived_modalities(recording)
+            recording_meta = save_modalities(recording)
+            save_recording_meta(recording, recording_meta)
 
 
 # def foobar():

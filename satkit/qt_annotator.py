@@ -54,7 +54,7 @@ from satkit.configuration import gui_params
 from satkit.gui.boundary_animation import BoundaryAnimator
 from satkit.plot import (Normalisation, plot_satgrid_tier, plot_spectrogram,
                          plot_timeseries, plot_wav)
-from satkit.save_and_load import save_derived_data
+from satkit.save_and_load import save_recordings
 
 # Load the GUI layout generated with QtDesigner.
 Ui_MainWindow, QMainWindow = loadUiType('satkit/gui/qt_annotator.ui')
@@ -531,7 +531,7 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
         """
         Save derived modalities and annotations.
         """
-        save_derived_data(self.recordings)
+        save_recordings(self.recordings)
 
     def save_to_pickle(self):
         """

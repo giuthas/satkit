@@ -42,6 +42,7 @@ import numpy as np
 # Praat textgrids
 import textgrids
 
+from constants import Suffix
 from satkit.errors import MissingDataError, ModalityError, OverWriteError
 from satkit.satgrid import SatGrid
 
@@ -520,6 +521,8 @@ class Modality(abc.ABC):
         Only external data might have per Modality meta files before being first
         saved by SATKIT.
         """
-        path = Path(self.recording.basename).with_suffix(
-            "." + self.name.replace(" ", "_"))
-        return path.with_suffix('.satkit_meta')
+        if not self._meta_path:
+            path = Path(self.recording.basename).with_suffix(
+                "." + self.name.replace(" ", "_"))
+            path.with_suffix(Suffix.META)
+        return self._meta_path

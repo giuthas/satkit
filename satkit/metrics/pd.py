@@ -48,6 +48,9 @@ class ImageMask(Enum):
     bottom = "bottom"
     whole = "whole"
 
+    def __str__(self):
+        return self.value
+
 def calculate_timevector(original_timevector, timestep):
     if timestep == 1:
         half_step_early = (original_timevector[0:-1])
@@ -110,7 +113,7 @@ def calculate_pd(
     If self._timesteps is a vector of positive integers, then calculate
     pd for each of those. 
     """
-    if not all(norm in PD.acceptedNorms for norm in norms):
+    if not all(norm in PD.accepted_metrics for norm in norms):
         ValueError("Unexpected norm requested in " + str(norms))
 
     if not all((isinstance(timestep, int) and timestep > 0)
@@ -167,7 +170,7 @@ def calculate_pd(
                 parent_modality.recording,
                 parent=parent_modality,
                 parsed_data=modality_data,
-                norm=norm, 
+                metric=norm, 
                 timestep=timestep)
             )
             if pd_on_interpolated_data:
@@ -179,7 +182,7 @@ def calculate_pd(
                     parent_modality.recording,
                     parent=parent_modality,
                     parsed_data=modality_data,
-                    norm=norm, 
+                    metric=norm, 
                     timestep=timestep,
                     interpolated=True)
                 )
@@ -193,7 +196,7 @@ def calculate_pd(
                         parent_modality.recording,
                         parent=parent_modality,
                         parsed_data=modality_data,
-                        norm=norm, 
+                        metric=norm, 
                         timestep=timestep,
                         image_mask=mask)
                     )
@@ -206,7 +209,7 @@ def calculate_pd(
                             parent_modality.recording,
                             parent=parent_modality,
                             parsed_data=modality_data,
-                            norm=norm, 
+                            metric=norm, 
                             timestep=timestep,
                             interpolated=True,
                             image_mask=mask)
@@ -287,7 +290,7 @@ class PD(Modality):
     containing a PD curve for each key.
     """
 
-    acceptedNorms = [
+    accepted_metrics = [
         'l1',
         'l2',
         'l3',
@@ -308,7 +311,7 @@ class PD(Modality):
                 parsed_data: Optional[ModalityData]=None,
                 time_offset: Optional[float]=None,
                 release_data_memory: bool=True, 
-                norm: str='l2',
+                metric: str='l2',
                 timestep: int=1,
                 interpolated: bool=False,
                 image_mask: Optional[ImageMask]=None) -> None:
@@ -333,7 +336,7 @@ class PD(Modality):
         release_data_memory -- wether to assing None to parent.data after 
             deriving this Modality from the data. Currently has no effect 
             as deriving PD at runtime is not supported.
-        norm -- a string specifying this Modality's norm.
+        metric -- a string specifying this Modality's metric.
         timestep -- a  positive integer used as the timestep in calculating 
             this Modality's data.
         """
@@ -341,7 +344,7 @@ class PD(Modality):
         if not time_offset:
             time_offset = parent.time_offset
 
-        self.norm = norm
+        self.metric = metric
         self.timestep = timestep
         self.interpolated = interpolated
         self.release_data_memory = release_data_memory
@@ -361,6 +364,14 @@ class PD(Modality):
         """
         raise NotImplementedError("Currently PD Modalities have to be calculated at instantiation time.")
 
+    def get_meta(self) -> dict:
+        return {
+            'metric': self.metric,
+            'timestep': self.timestep,
+            'interpolated': self.interpolated,
+            'image_mask': str(self.image_mask)
+        }
+
     @property
     def name(self) -> str:
         """
@@ -371,7 +382,7 @@ class PD(Modality):
 
         This overrides the default behaviour of Modality.name.
         """
-        name_string = self.__class__.__name__ + " " + self.norm
+        name_string = self.__class__.__name__ + " " + self.metric
 
         if self.image_mask:
             name_string = name_string + " " + self.image_mask.value

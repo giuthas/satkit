@@ -118,23 +118,8 @@ class MonoAudio(Modality):
         # results.
         # """
 
-    # TODO: before 1.0 this should already be handled by Modality.
-    # @property
-    # def data(self):
-    #     return super().data
-
-    # # before v1.0: check that the data is actually valid, also call the beep detect etc. routines on it.
-    # @data.setter
-    # def data(self, data):
-    #     """
-    #     The audio data of this Modality.
-
-    #     Assigning any other value except None is not implemented yet.
-    #     """
-    #     if data is not None:
-    #         raise NotImplementedError(
-    #             'Writing over mono audio data has not been implemented yet.')
-    #     self._data = data
+    def get_meta(self) -> dict:
+        return {'sampling_rate': self.sampling_rate}
 
 
 class RawUltrasound(Modality):
@@ -214,6 +199,9 @@ class RawUltrasound(Modality):
 
     def _read_data(self) -> ModalityData:
         return read_ult(self.data_path, self.meta, self._time_offset)
+
+    def get_meta(self) -> dict:
+        return self.meta
 
     @property
     def data(self) -> np.ndarray:
@@ -351,27 +339,8 @@ class Video(Modality):
     def _readData(self) -> ModalityData:
         return read_avi(self.data_path, self.meta, self._time_offset)
 
-
-    # TODO: Handled by Modality already. May need to call super to make it work though.
-    # @property
-    # def data(self):
-    #     return super().data
-
-    # # before v1.0: check that the data is actually valid, also call the beep 
-    # # detect etc. routines on it.
-    # @data.setter
-    # def data(self, data):
-    #     """
-    #     Data setter method.
-
-    #     Assigning anything but None is not implemented yet.
-    #     """
-    #     if data is not None:
-    #         raise NotImplementedError(
-    #             'Writing over video data has not been implemented yet.')
-    #     else:
-    #         self._data = data
-
+    def get_meta(self) -> dict:
+        return {'sampling_rate': self.sampling_rate}
 
 class ThreeD_Ultrasound(Modality):
     """
@@ -461,3 +430,5 @@ class ThreeD_Ultrasound(Modality):
     def data(self, data) -> None:
         super()._data_setter(data)
 
+    def get_meta(self) -> dict:
+        return self.meta

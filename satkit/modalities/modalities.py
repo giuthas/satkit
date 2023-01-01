@@ -140,6 +140,7 @@ class RawUltrasound(Modality):
     def __init__(self, 
                 recording: Recording, 
                 data_path: Optional[Path]=None,
+                meta_path: Optional[Path]=None,
                 load_path: Optional[Path]=None,
                 parsed_data: Optional[ModalityData]=None,
                 time_offset: Optional[float]=None,
@@ -186,6 +187,7 @@ class RawUltrasound(Modality):
         super().__init__(
                 recording=recording, 
                 data_path=data_path,
+                meta_path=meta_path,
                 load_path=load_path,
                 parent=None,
                 parsed_data=parsed_data,
@@ -361,6 +363,7 @@ class ThreeD_Ultrasound(Modality):
                 recording: Recording, 
                 data_path: Optional[Path]=None,
                 load_path: Optional[Path]=None,
+                meta_path: Optional[Path]=None,
                 parsed_data: Optional[ModalityData]=None,
                 time_offset: Optional[float]=None,
                 meta: Optional[dict]=None 
@@ -406,6 +409,7 @@ class ThreeD_Ultrasound(Modality):
         super().__init__(
                 recording=recording, 
                 data_path=data_path,
+                meta_path=meta_path,
                 load_path=load_path,
                 parent=None,
                 parsed_data=parsed_data,

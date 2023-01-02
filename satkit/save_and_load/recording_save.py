@@ -6,7 +6,7 @@ import numpy as np
 from satkit.constants import Suffix
 from satkit.data_structures import Modality, Recording
 
-_modality_saver_logger = logging.getLogger('satkit.modality_saver')
+_recording_saver_logger = logging.getLogger('satkit.modality_saver')
 
 def save_modality_data(modality: Modality) -> str:
     """
@@ -16,14 +16,14 @@ def save_modality_data(modality: Modality) -> str:
 
     Returns the filename of the 
     """
-    _modality_saver_logger.debug("Saving data for %s."%modality.name)
+    _recording_saver_logger.debug("Saving data for %s."%modality.name)
     suffix = modality.name.replace(" ", "_")
     filename = f"{modality.recording.basename}.{suffix}{Suffix.DATA}"
     filepath = modality.recording.path/filename
 
     np.savez(filepath, data=modality.data, timevector=modality.timevector)
 
-    _modality_saver_logger.debug("Wrote file %s."%(filename))
+    _recording_saver_logger.debug("Wrote file %s."%(filename))
     return filename
 
 def save_modality_meta(modality: Modality) -> str:
@@ -33,14 +33,14 @@ def save_modality_meta(modality: Modality) -> str:
     Saved data includes sampling frequency and any processing metadata that is
     needed to reconstruct the Modality. 
     """
-    _modality_saver_logger.debug("Saving meta for %s."%modality.name)
+    _recording_saver_logger.debug("Saving meta for %s."%modality.name)
     suffix = modality.name.replace(" ", "_")
     filename = f"{modality.recording.basename}.{suffix}"
     filename += Suffix.META
     filepath = modality.recording.path/filename
 
     nestedtext.dump(modality.get_meta(), filepath)
-    _modality_saver_logger.debug("Wrote file %s."%(filename))
+    _recording_saver_logger.debug("Wrote file %s."%(filename))
 
     return filename
 
@@ -51,12 +51,12 @@ def save_recording_meta(recording: Recording, meta: dict) -> str:
     The meta dict should contain at least a list of the modalities this recording
     has and their saving locations.
     """
-    _modality_saver_logger.debug("Saving meta for recording %s."%recording.basename)
-    filename = f"{recording.basename}{Suffix.META}"
+    _recording_saver_logger.debug("Saving meta for recording %s."%recording.basename)
+    filename = f"{recording.basename}{'.Recording'}{Suffix.META}"
     filepath = recording.path/filename
 
     nestedtext.dump(meta, filepath)
-    _modality_saver_logger.debug("Wrote file %s."%(filename))
+    _recording_saver_logger.debug("Wrote file %s."%(filename))
 
     return filename
 
@@ -87,10 +87,3 @@ def save_recordings(recordings: List[Recording], save_excluded: bool=True):
         if save_excluded or not recording.excluded:
             recording_meta = save_modalities(recording)
             save_recording_meta(recording, recording_meta)
-
-
-# def foobar():
-#     if hasattr(modality, 'meta'):
-#         modality_meta['meta_path'] = str(modality.meta['meta_file'])   
-#         modality_meta['meta'].update(modality.meta)
-#         del modality_meta['meta']['meta_file']

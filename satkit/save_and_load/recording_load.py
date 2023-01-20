@@ -6,6 +6,7 @@ from typing import List
 import nestedtext
 import numpy as np
 from pydantic import BaseModel
+from satkit.configuration import config
 from satkit.constants import Suffix
 from satkit.data_import import generate_ultrasound_recording
 from satkit.data_import.add_AAA_raw_ultrasound import add_aaa_raw_ultrasound
@@ -28,6 +29,14 @@ def read_recording_meta(filepath) -> dict:
     return meta
 
 def load_recording(filepath: Path) -> Recording:
+
+    # decide which loader we will be using based on either filepath.satkit_meta
+    # or config[''] in that order an document this behaviour. this way if the
+    # data has previosly been loaded satkit can decide itself what to do with it
+    # and there is an easy place where to add processing
+    # session/participant/whatever specific config. could also add guessing
+    # based on what is present as the final fall back or as the option tried if
+    # no meta and config has the wrong guess.
 
     meta = read_recording_meta(filepath)
     recording = generate_ultrasound_recording(meta['basename'], Path(meta['path']))

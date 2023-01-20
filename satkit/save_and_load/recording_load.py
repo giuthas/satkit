@@ -5,8 +5,12 @@ from typing import List
 
 import nestedtext
 import numpy as np
-from pydantic import BaseModel, EmailStr
+from pydantic import BaseModel
 from satkit.constants import Suffix
+from satkit.data_import import generate_ultrasound_recording
+from satkit.data_import.add_AAA_raw_ultrasound import add_aaa_raw_ultrasound
+from satkit.data_import.add_audio import add_audio
+from satkit.data_import.add_video import add_video
 from satkit.data_structures import Modality, Recording
 
 _recording_loader_logger = logging.getLogger('satkit.modality_saver')
@@ -24,7 +28,14 @@ def read_recording_meta(filepath) -> dict:
     return meta
 
 def load_recording(filepath: Path) -> Recording:
+
     meta = read_recording_meta(filepath)
+    recording = generate_ultrasound_recording(meta['basename'], Path(meta['path']))
+    add_audio(recording, meta['wav_preload'])
+    add_aaa_raw_ultrasound(recording, meta['ult_preload'])
+    add_video(recording, meta['video_preload'])
+    
+    
 
 def load_recordings(directory: Path) -> List[Recording]:
     """
@@ -33,4 +44,5 @@ def load_recordings(directory: Path) -> List[Recording]:
     recording_metafiles = directory.glob("*.Recording"+str(Suffix.META))
 
     recordings = [load_recording(file) for file in recording_metafiles]
+    return recordings
         

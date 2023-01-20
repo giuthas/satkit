@@ -323,12 +323,10 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
         ylim = None
         raw = plot_timeseries(self.data_axes[0], l2.data,
             ultra_time, self.xlim, ylim, 
-            normalise=Normalisation('PEAK AND BOTTOM')) #, 
-            # picker=PdQtAnnotator.line_xdirection_picker)
+            normalise=Normalisation('PEAK AND BOTTOM'))
         raw_bottom = plot_timeseries(self.data_axes[0], l2_bottom.data,
             ultra_time, self.xlim, ylim, color='gold', 
-            normalise=Normalisation('PEAK AND BOTTOM')) #, 
-            # picker=PdQtAnnotator.line_xdirection_picker)
+            normalise=Normalisation('PEAK AND BOTTOM'))
         self.data_axes[0].set_ylabel("Peak normalised PD")
 
         # interp = plot_timeseries(self.data_axes[1], l2_interpolated.data,
@@ -371,14 +369,20 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
         #     ultra_time, self.xlim, self.ylim, color='orange', linestyle="--")
         # self.data_axes[2].set_ylabel("Pixel normalised PD")
 
-        plot_wav(self.data_axes[1], wav, wav_time, self.xlim) #,
-            # picker=PdQtAnnotator.line_xdirection_picker)
+        plot_wav(self.data_axes[1], wav, wav_time, self.xlim)
         plot_spectrogram(self.data_axes[2], 
                         waveform=wav,
                         ylim=(0,10500), 
                         sampling_frequency=audio.sampling_rate, 
-                        xtent_on_x=[wav_time[0], wav_time[-1]]) #, 
-            # picker=PdQtAnnotator.image_picker)
+                        xtent_on_x=[wav_time[0], wav_time[-1]])
+
+        # TODO: the sync is out with this one, but plotting a pd spectrum is still a good idea.
+        # plot_spectrogram(self.data_axes[2], 
+        #                 waveform=l2.data,
+        #                 ylim=(0,40), 
+        #                 sampling_frequency=l2.sampling_rate, 
+        #                 xtent_on_x=[-1.5812581, 1]) #, 
+        #                 # xtent_on_x=[ultra_time[0], ultra_time[-1]]) #, 
 
         segment_line = None
         self.animators = []

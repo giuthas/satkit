@@ -38,7 +38,11 @@ def load_recording(filepath: Path) -> Recording:
     # based on what is present as the final fall back or as the option tried if
     # no meta and config has the wrong guess.
 
-    meta = read_recording_meta(filepath)
+    metapath = filepath.with_suffix() # TODO: dig the suffix from where they are stored
+    if metapath.is_file():
+        meta = read_recording_meta(filepath)
+    
+    # TODO: the following needs to be adapted to the fact that meta may not exist
     recording = generate_ultrasound_recording(meta['basename'], Path(meta['path']))
     add_audio(recording, meta['wav_preload'])
     add_aaa_raw_ultrasound(recording, meta['ult_preload'])

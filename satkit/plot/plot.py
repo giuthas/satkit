@@ -29,8 +29,9 @@
 # citations.bib in BibTeX format.
 #
 
-# Built in packages
 import logging
+# Built in packages
+from enum import Enum
 from typing import List, Optional, Tuple, Union
 
 # Efficient array operations
@@ -44,14 +45,18 @@ from satkit.satgrid import SatTier
 
 _plot_logger = logging.getLogger('satkit.plot')
 
-
+class Normalisation(Enum):
+    none = 'NONE'
+    peak = 'PEAK'
+    bottom = 'BOTTOM'
+    both = 'PEAK AND BOTTOM'
 
 def plot_timeseries(axes: Axes, 
             data: np.ndarray, 
             time: np.ndarray,
             xlim: Tuple[float, float], 
             ylim: Optional[Tuple[float, float]]=None, 
-            peak_normalise: bool=False,
+            normalise: Normalisation='NONE',
             number_of_ignored_frames: int=10,
             ylabel: Optional[str]=None,
             picker=None, 
@@ -86,28 +91,30 @@ def plot_timeseries(axes: Axes,
     """
     plot_data = data[number_of_ignored_frames:]
     plot_time = time[number_of_ignored_frames:]
+
+    _plot_logger.debug("Normalisation is %s."%(normalise))
+    if normalise in (Normalisation.both, Normalisation.bottom):
+        plot_data = plot_data - np.min(plot_data)
+    if normalise in (Normalisation.both, Normalisation.peak):
+        plot_data = plot_data/np.max(plot_data)
+
     if picker:
-        if peak_normalise:
-            axes.plot(plot_time[::sampling_step], plot_data[::sampling_step]/np.max(plot_data), 
-                color=color, lw=1, linestyle=linestyle, picker=picker, alpha=alpha)
-        else:
-            axes.plot(plot_time[::sampling_step], plot_data[::sampling_step], 
-                color=color, lw=1, linestyle=linestyle, picker=picker, alpha=alpha)
+        axes.plot(plot_time[::sampling_step], plot_data[::sampling_step], 
+            color=color, lw=1, linestyle=linestyle, picker=picker, alpha=alpha)
     else:
-        if peak_normalise:
-            axes.plot(plot_time[::sampling_step], plot_data[::sampling_step]/np.max(plot_data), 
-                color=color, lw=1, linestyle=linestyle, alpha=alpha)
-        else:
-            axes.plot(plot_time[::sampling_step], plot_data[::sampling_step], 
-                color=color, lw=1, linestyle=linestyle, alpha=alpha)
+        axes.plot(plot_time[::sampling_step], plot_data[::sampling_step], 
+            color=color, lw=1, linestyle=linestyle, alpha=alpha)
+
     # The official fix for the above curve not showing up on the legend.
     timeseries = Line2D([], [], color=color, lw=1, linestyle=linestyle)
 
     axes.set_xlim(xlim)
+
     if ylim:
         axes.set_ylim(ylim)
-    elif peak_normalise:
+    elif normalise in (Normalisation.both, Normalisation.peak):
         axes.set_ylim([-0.05, 1.05])
+
     if ylabel:
         axes.set_ylabel(ylabel)
 

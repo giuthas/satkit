@@ -38,7 +38,7 @@ from typing import Optional, Union
 from satkit.data_structures import ModalityData, Recording, RecordingMetaData
 from satkit.modalities import RawUltrasound
 
-_AAA_raw_ultrsound_logger = logging.getLogger('satkit.AAA_raw_ultrasound')
+_AAA_raw_ultrasound_logger = logging.getLogger('satkit.AAA_raw_ultrasound')
 
 
 def parse_aaa_promptfile(filepath: Union[str, Path]) -> dict:
@@ -61,12 +61,12 @@ def parse_aaa_promptfile(filepath: Union[str, Path]) -> dict:
         if len(lines) > 2 and lines[2].strip():
             participant_id = lines[2].split(',')[0]
         else:
-            _AAA_raw_ultrsound_logger.info(
+            _AAA_raw_ultrasound_logger.info(
                 "Participant does not have an id in file %s.", filepath)
             participant_id = ""
 
         meta = RecordingMetaData(prompt, time_of_recording, participant_id)
-        _AAA_raw_ultrsound_logger.debug("Read prompt file %s.", filepath)
+        _AAA_raw_ultrasound_logger.debug("Read prompt file %s.", filepath)
     return meta
 
 def parse_ultrasound_meta_aaa(filename):
@@ -100,7 +100,7 @@ def parse_ultrasound_meta_aaa(filename):
                 value = float(value_str)
             meta[key] = value
 
-        _AAA_raw_ultrsound_logger.debug(
+        _AAA_raw_ultrasound_logger.debug(
             "Read and parsed ultrasound metafile %s.", filename)
         meta['meta_file'] = filename
     return meta
@@ -110,15 +110,15 @@ def add_aaa_raw_ultrasound(recording: Recording, preload: bool,
                             path: Optional[Path]=None) -> None:
     """Create a RawUltrasound Modality and add it to the Recording."""
     if not path:
-        ult_file = (recording.path/recording.basename).with_suffix(".ult")
-        meta_file = (recording.path/(recording.basename+"US.txt"))
+        ult_path = (recording.path/recording.basename).with_suffix(".ult")
+        meta_path = (recording.path/(recording.basename+"US.txt"))
     else:
-        ult_file = path
-        meta_file = path.with_suffix("US.txt")
+        ult_path = path
+        meta_path = path.with_suffix("US.txt")
 
     ult_time_offset = -inf
-    if meta_file.is_file():
-        meta = parse_ultrasound_meta_aaa(meta_file)
+    if meta_path.is_file():
+        meta = parse_ultrasound_meta_aaa(meta_path)
         # We pop the timeoffset from the meta dict so that people will not
         # accidentally rely on setting that to alter the timeoffset of the
         # ultrasound data in the Recording. This throws KeyError if the meta
@@ -126,27 +126,27 @@ def add_aaa_raw_ultrasound(recording: Recording, preload: bool,
         ult_time_offset = meta.pop('TimeInSecsOfFirstFrame')
     else:
         if not path:
-            meta_file = (recording.path/(recording.basename+".param"))
+            meta_path = (recording.path/(recording.basename+".param"))
         else:
-            meta_file = path.with_suffix(".param")
+            meta_path = path.with_suffix(".param")
 
-    if meta_file.is_file():
-        meta = parse_ultrasound_meta_aaa(meta_file)
+    if meta_path.is_file():
+        meta = parse_ultrasound_meta_aaa(meta_path)
         # We pop the timeoffset from the meta dict so that people will not
         # accidentally rely on setting that to alter the timeoffset of the
         # ultrasound data in the Recording. This throws KeyError if the meta
         # file didn't contain TimeInSecsOfFirstFrame.
         ult_time_offset = meta.pop('TimeInSecsOfFirstFrame')
     else:
-        notice = 'Note: ' + str(meta_file) + " does not exist. Excluding."
-        _AAA_raw_ultrsound_logger.warning(notice)
+        notice = 'Note: ' + str(meta_path) + " does not exist. Excluding."
+        _AAA_raw_ultrasound_logger.warning(notice)
         recording.exclude()
 
-    _AAA_raw_ultrsound_logger.debug(
+    _AAA_raw_ultrasound_logger.debug(
             "Trying to read RawUltrasound for Recording representing %s.",
             recording.basename)
     
-    if ult_file.is_file():
+    if ult_path.is_file():
         if preload:
             raise NotImplementedError("It looks like SATKIT is trying " 
                 + "to preload ultrasound data. This may lead to Python's " 
@@ -154,17 +154,18 @@ def add_aaa_raw_ultrasound(recording: Recording, preload: bool,
         else:
             ultrasound = RawUltrasound(
                 recording=recording,
-                data_path=ult_file,
+                data_path=ult_path,
+                meta_path=meta_path,
                 time_offset=ult_time_offset,
                 meta=meta
             )
             recording.add_modality(ultrasound)
 
-        _AAA_raw_ultrsound_logger.debug(
+        _AAA_raw_ultrasound_logger.debug(
             "Added RawUltrasound to Recording representing %s.",
             recording.basename)
     else:
-        notice = 'Note: ' + str(ult_file) + " does not exist. Excluding."
-        _AAA_raw_ultrsound_logger.warning(notice)
+        notice = 'Note: ' + str(ult_path) + " does not exist. Excluding."
+        _AAA_raw_ultrasound_logger.warning(notice)
         recording.exclude()
 

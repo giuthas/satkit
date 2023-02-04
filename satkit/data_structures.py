@@ -42,6 +42,7 @@ import numpy as np
 # Praat textgrids
 import textgrids
 
+from constants import Suffix
 from satkit.errors import MissingDataError, ModalityError, OverWriteError
 from satkit.satgrid import SatGrid
 
@@ -217,6 +218,7 @@ class Modality(abc.ABC):
     def __init__(self, 
                 recording: Recording, 
                 data_path: Optional[Path]=None,
+                meta_path: Optional[Path]=None,
                 load_path: Optional[Path]=None,
                 parent: Optional['Modality']=None,
                 parsed_data: Optional[ModalityData]=None,
@@ -249,8 +251,10 @@ class Modality(abc.ABC):
         """
         self.recording = recording
         self.data_path = data_path
+        self._meta_path = meta_path # self.meta_path is a property
         self.load_path = load_path
         self.parent = parent
+
 
         if parsed_data:
             self._data = parsed_data.data
@@ -330,30 +334,21 @@ class Modality(abc.ABC):
         self._sampling_rate = data.sampling_rate
 
     @property
-    def excluded(self) -> None:
+    def name(self) -> str:
         """
-        Boolen property for excluding this Modality from processing.
+        Identity and possible parent data class.
+        
+        This will be just the class name if this is a data Modality instance.
+        For derived Modalities the name will be of the form
+        '[own class name] on [data modality class name]'.
 
-        Setting this to True will result in the whole Recording being 
-        excluded by setting self.parent.excluded = True.
+        Subclasses may override this behaviour to, for example, include
+        the metric used in the name.
         """
-        # TODO: decide if this actually needs to exist and if so,
-        # should the above doc string actaully be true?
-        return self._excluded
-
-    @excluded.setter
-    def excluded(self, excluded):
-        self._excluded = excluded
-
-        if excluded:
-            self.parent.excluded = excluded
-
-    @property
-    def is_derived_modality(self) -> bool:
+        name_string = self.__class__.__name__
         if self.parent:
-            return True
-        else:
-            return False
+            name_string = name_string + " on " + self.parent.__class__.__name__
+        return name_string
 
     @property
     def data(self) -> np.ndarray:
@@ -410,23 +405,10 @@ class Modality(abc.ABC):
         else:
             self._data = data
 
-    @property
-    def name(self) -> str:
-        """
-        Identity and possible parent data class.
+    @abc.abstractmethod
+    def get_meta(self) -> dict:
+        """Return this Modality's metadata as a dictionary."""
         
-        This will be just the class name if this is a data Modality instance.
-        For derived Modalities the name will be of the form
-        '[own class name] on [data modality class name]'.
-
-        Subclasses may override this behaviour to, for example, include
-        the metric used in the name.
-        """
-        name_string = self.__class__.__name__
-        if self.parent:
-            name_string = name_string + " on " + self.parent.__class__.__name__
-        return name_string
-
     @property
     def sampling_rate(self) -> float:
         if not self._sampling_rate:
@@ -500,4 +482,47 @@ class Modality(abc.ABC):
                     " timevector.shape = " + str(timevector.shape) + "\n" +
                     " self.timevector.shape = " + str(self._timevector.shape) + ".")
 
+    @property
+    def excluded(self) -> None:
+        """
+        Boolean property for excluding this Modality from processing.
 
+        Setting this to True will result in the whole Recording being 
+        excluded by setting self.parent.excluded = True.
+        """
+        # TODO: decide if this actually needs to exist and if so,
+        # should the above doc string actaully be true?
+        return self._excluded
+
+    @excluded.setter
+    def excluded(self, excluded):
+        self._excluded = excluded
+
+        if excluded:
+            self.parent.excluded = excluded
+
+    @property
+    def is_derived_modality(self) -> bool:
+        """
+        Boolean property telling if this Modality is a result of processing another.
+
+        This cannot be set from the outside.
+        """
+        if self.parent:
+            return True
+        else:
+            return False
+
+    @property
+    def meta_path(self) -> Path:
+        """
+        Path to meta data file if any, None otherwise.
+
+        Only external data might have per Modality meta files before being first
+        saved by SATKIT.
+        """
+        if not self._meta_path:
+            path = Path(self.recording.basename).with_suffix(
+                "." + self.name.replace(" ", "_"))
+            path.with_suffix(Suffix.META)
+        return self._meta_path

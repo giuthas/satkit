@@ -65,10 +65,16 @@ def main():
     log_elapsed_time()
 
     #function_dict = {'pd':pd.pd, 'annd':annd.annd}
+    arguments = {
+        'norms': ['l0', 'l0.01', 'l0.1', 'l0.5', 'l1', 'l2', 'l4', 'l10', 'l_inf'],
+        'mask_images': True, 
+        'pd_on_interpolated_data': False, 
+        'release_data_memory': True, 
+        'preload': True}
     function_dict = {
         'PD': (pd.add_pd, 
         [RawUltrasound], 
-        {'mask_images': True, 'pd_on_interpolated_data': False, 'release_data_memory': True, 'preload': True})}
+        arguments)}
     process_data(recordings=recordings, processing_functions=function_dict)
 
     # operation = Operation(

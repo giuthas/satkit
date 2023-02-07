@@ -67,7 +67,7 @@ def calculate_timevector(original_timevector, timestep):
     return timevector
 
 def calculate_metric(abs_diff, norm, mask: Optional[ImageMask]=None, interpolated: bool=False):
-    data = abs_diff
+    data = np.copy(abs_diff)
     if mask and not interpolated:
         if mask == ImageMask.bottom:
             half = int(abs_diff.shape[1]/2)
@@ -86,10 +86,20 @@ def calculate_metric(abs_diff, norm, mask: Optional[ImageMask]=None, interpolate
     if norm[0] == 'l':
         if norm[1:] == '_inf':
             return np.max(data, axis=(1, 2))
+        elif norm[1:] == '0':
+            elements = np.divide(data, np.add(data, 1))
+            return np.multiply(pow(2,len(data)),np.sum(elements, axis=(1, 2)))
         else:
             order = float(norm[1:])
-            sums = np.sum(np.power(data, order), axis=(1, 2))
-            return np.power(sums, 1.0/order)
+            # if order < 0.09:
+            #     sums = np.sum(np.float_power(data, order, dtype='float128'), axis=(1, 2))
+            # else:
+            sums = np.sum(np.float_power(data, order), axis=(1, 2))
+
+            if order < 1:
+                return sums
+            else:
+                return np.float_power(sums, 1.0/order)
     else:
         raise UnrecognisedNormError("Don't know how to calculate norm for %s.", norm)
 

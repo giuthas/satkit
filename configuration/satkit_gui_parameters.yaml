@@ -29,8 +29,8 @@
 ## citations.bib in BibTeX format.
 ##
 
-# Height ratio of data display vs textgrid tier display. This does not control
-# directly the height of individual data displays nor individiual tier
+# Height ratio of data display area vs textgrid tier display area. This does not
+# control directly the height of individual data displays nor individiual tier
 # displays, but instead controls the ratio between the sum of data displays vs
 # sum of tier displays.
 data/tier height ratios: 
@@ -42,6 +42,8 @@ data/tier height ratios:
 # will be drawn on the same axes.
 data axes:
   - PD
+    - l2 whole
+    - l2 bottom
   - wav
   - spectrogram
 

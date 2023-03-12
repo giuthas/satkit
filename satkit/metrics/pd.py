@@ -87,8 +87,12 @@ def calculate_metric(abs_diff, norm, mask: Optional[ImageMask]=None, interpolate
         if norm[1:] == '_inf':
             return np.max(data, axis=(1, 2))
         elif norm[1:] == '0':
+            # The infinite series definition has also a multiplier term of 2 to
+            # the power of k where k is the index of the series. We forgo it
+            # because it is only needed to guarantee that the sum over the
+            # series converges. 
             elements = np.divide(data, np.add(data, 1))
-            return np.multiply(pow(2,len(data)),np.sum(elements, axis=(1, 2)))
+            return np.sum(elements, axis=(1, 2))
         else:
             order = float(norm[1:])
             # if order < 0.09:

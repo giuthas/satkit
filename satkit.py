@@ -66,7 +66,7 @@ def main():
 
     #function_dict = {'pd':pd.pd, 'annd':annd.annd}
     arguments = {
-        'norms': ['l0', 'l0.01', 'l0.1', 'l0.5', 'l1', 'l2', 'l4', 'l10', 'l_inf'],
+        'norms': ['l0', 'l0.01', 'l0.1', 'l0.5', 'l1', 'l2', 'l4', 'l10', 'l_inf', 'd'],
         'mask_images': True, 
         'pd_on_interpolated_data': False, 
         'release_data_memory': True, 

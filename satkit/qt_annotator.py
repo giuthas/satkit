@@ -50,6 +50,7 @@ from PyQt5.uic import loadUiType
 
 # Local modules
 import satkit.io as satkit_io
+from plot.plot import plot_density
 from satkit.configuration import gui_params
 from satkit.gui.boundary_animation import BoundaryAnimator
 from satkit.plot import (Normalisation, plot_satgrid_tier, plot_spectrogram,
@@ -306,6 +307,8 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
         l10 = self.current.modalities['PD l10 on RawUltrasound']
         linf = self.current.modalities['PD l_inf on RawUltrasound']
 
+        frequencies = self.current.modalities['PD d on RawUltrasound']
+
         # l2_interpolated = self.current.modalities['Interpolated PD l2 on RawUltrasound']
         # l2_interpolated_top = self.current.modalities['Interpolated PD l2 top on RawUltrasound']
         # l2_interpolated_bottom = self.current.modalities['Interpolated PD l2 bottom on RawUltrasound']
@@ -336,6 +339,8 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
         #          picker=PdQtAnnotator.line_xdirection_picker)
         ylim = None
         self.xlim=(-1.5,3)
+
+        # plot_density(self.data_axes[0], frequencies.data)
 
         raw_l0 = plot_timeseries(self.data_axes[0], l0.data,
             ultra_time, self.xlim, ylim, color='black', linestyle='--', 

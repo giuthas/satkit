@@ -34,8 +34,8 @@ from enum import Enum
 from pathlib import Path
 from typing import Union
 
-from strictyaml import (Bool, Float, Int, Map, Optional, ScalarValidator, Seq,
-                        Str, YAMLError, load)
+from strictyaml import (Bool, Float, Int, Map, MapPattern, Optional,
+                        ScalarValidator, Seq, Str, YAMLError, load)
 
 config = {}
 data_run_params = {}
@@ -209,7 +209,10 @@ def load_gui_params(filepath: Union[Path, str, None]=None) -> None:
                     "data": Int(), 
                     "tier": Int()
                     }),
-                "data axes": Seq(Str()),
+                "data axes": MapPattern(
+                    Str(), MapPattern(
+                        Str(), Bool()
+                    )),
                 "pervasive tiers": Seq(Str())
                 })
             try:

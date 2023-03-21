@@ -259,3 +259,27 @@ def plot_spectrogram(
     ax.set_ylabel(ylabel)
 
     return Pxx, freqs, bins, im
+
+def plot_density(
+        ax: Axes, 
+        frequencies: np.ndarray,
+        x_values: Optional[np.ndarray]=None, 
+        ylim: Optional[Tuple[float, float]]=None,
+        ylabel: str="Densities)", 
+        picker=None):
+
+    densities = frequencies/np.amax(frequencies)
+    if not x_values:
+        x_values = np.arange(len(densities))
+
+    line = None
+    if picker:
+        line = ax.plot(x_values, densities, color="k", lw=1, picker=picker)
+    else:
+        line = ax.plot(x_values, densities, color="k", lw=1)
+
+    if ylim:
+        ax.set_ylim(ylim)
+    ax.set_ylabel(ylabel)
+
+    return line

@@ -41,9 +41,16 @@ data/tier height ratios:
 # create. Number of lines gives the number of axis, modalities on the same line
 # will be drawn on the same axes.
 data axes:
-  - PD
-  - wav
-  - spectrogram
+  global:
+    sharex: True
+  PD:
+    sharex: True
+  wav:
+    sharex: True
+  spectrogram:
+    sharex: True
+  # density:
+  #   sharex: False
 
 # Tiers drawn on the data axes. If not found, nothing happens.  
 pervasive tiers:

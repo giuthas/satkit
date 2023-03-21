@@ -91,6 +91,7 @@ def calculate_metric(abs_diff, norm, mask: Optional[ImageMask]=None, interpolate
             # the power of k where k is the index of the series. We forgo it
             # because it is only needed to guarantee that the sum over the
             # series converges. 
+            print(np.amin(data))
             elements = np.divide(data, np.add(data, 1))
             return np.sum(elements, axis=(1, 2))
         else:
@@ -104,6 +105,8 @@ def calculate_metric(abs_diff, norm, mask: Optional[ImageMask]=None, interpolate
                 return sums
             else:
                 return np.float_power(sums, 1.0/order)
+    elif norm[0] == 'd':
+        return np.bincount(data.flatten())
     else:
         raise UnrecognisedNormError("Don't know how to calculate norm for %s.", norm)
 

@@ -91,8 +91,9 @@ def calculate_metric(abs_diff, norm, mask: Optional[ImageMask]=None, interpolate
             # the power of k where k is the index of the series. We forgo it
             # because it is only needed to guarantee that the sum over the
             # series converges. 
-            print(np.amin(data))
-            elements = np.divide(data, np.add(data, 1))
+            data = data.astype(np.int32)
+            added = data + 1
+            elements = np.divide(data, added)
             return np.sum(elements, axis=(1, 2))
         else:
             order = float(norm[1:])

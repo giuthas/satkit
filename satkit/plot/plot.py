@@ -229,7 +229,7 @@ def plot_wav(
     ax.axvline(x=0, color="dimgrey", lw=1, linestyle=(0, (5, 10)))
 
     ax.set_xlim(xlim)
-    ax.set_ylim((-1.05, 1.05))
+    ax.set_ylim((-1.1, 1.1))
     ax.set_ylabel("Wave")
 
     return line

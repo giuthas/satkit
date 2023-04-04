@@ -368,7 +368,7 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
         # raw_top = plot_timeseries(self.data_axes[0], l2_top.data,
         #     ultra_time, self.xlim, ylim, color='black', 
         #     normalise=Normalisation('PEAK'))
-        self.data_axes[0].set_ylabel("Peak normalised PD")
+        self.data_axes[0].set_ylabel("Peak normalised\nand zeroed PD")
         self.data_axes[0].legend(
             (raw_l0, raw_l0_01, 
             raw_l0_1, raw_l0_5, raw_l1),
@@ -393,7 +393,7 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
         raw_linf = plot_timeseries(self.data_axes[1], linf.data,
             ultra_time, self.xlim, ylim, color='saddlebrown', linestyle=':',
             normalise=Normalisation('PEAK AND BOTTOM'))
-        self.data_axes[1].set_ylabel("Peak normalised, zeroed PD")
+        self.data_axes[1].set_ylabel("Peak normalised\nand zeroed PD")
 
         # interp = plot_timeseries(self.data_axes[1], l2_interpolated.data,
         #     ultra_time, self.xlim, ylim, color='black', linestyle="--", peak_normalise=True)
@@ -430,8 +430,8 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
         #     ultra_time, self.xlim, self.ylim, color='orange', linestyle="--")
         # self.data_axes[2].set_ylabel("Pixel normalised PD")
 
-        # plot_wav(self.data_axes[1], wav, wav_time, self.xlim)
-        plot_spectrogram(self.data_axes[2], 
+        plot_wav(self.data_axes[2], wav, wav_time, self.xlim)
+        plot_spectrogram(self.data_axes[3], 
                         waveform=wav,
                         ylim=(0,10500), 
                         sampling_frequency=audio.sampling_rate, 

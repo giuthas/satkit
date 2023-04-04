@@ -169,7 +169,6 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
             self.data_axes.append(self.fig.add_subplot(self.data_grid_spec[i],
                                                     sharex=self.data_axes[0]))
 
-
         self.ultra_fig = Figure()
         self.ultra_canvas = FigureCanvas(self.ultra_fig)
         self.verticalLayout_6.addWidget(self.ultra_canvas)
@@ -284,6 +283,15 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
                                                         sharex=self.data_axes[0])
                 axes.set_yticks([])
                 self.tier_axes.append(axes)
+
+        for axes in self.data_axes:
+            axes.xaxis.set_tick_params(bottom=False, labelbottom=False)
+
+        for axes in self.tier_axes[:-1]:
+            axes.xaxis.set_tick_params(bottom=False, labelbottom=False)
+
+        # self.tier_axes[-1].xaxis.set_tick_params(labelbottom=True)
+        # ticks = self.tier_axes[-1].xaxis.set_tick_params(bottom=True, labelbottom=True)
 
         audio = self.current.modalities['MonoAudio']
         stimulus_onset = audio.go_signal

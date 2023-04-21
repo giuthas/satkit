@@ -159,9 +159,7 @@ def load_run_params(filepath: Union[Path, str, None]=None) -> None:
                 "data properties": Map({
                     "data source": DatasourceValidator(), 
                     "exclusion list": PathValidator(), 
-                    "pronunciation dictionary": PathValidator(),
-                    "speaker id": Str(), 
-                    "data directory": PathValidator(), 
+                    "data path": PathValidator(), 
                     Optional("wav directory"): PathValidator(), 
                     Optional("textgrid directory"): PathValidator(), 
                     Optional("ultrasound directory"): PathValidator(), 
@@ -169,11 +167,16 @@ def load_run_params(filepath: Union[Path, str, None]=None) -> None:
                     }), 
                 "flags": Map({
                     "detect beep": Bool(),
-                    "test": Bool(),
+                    "test": Bool()
+                    }),
+                "cast": Map({
+                    "pronunciation dictionary": PathValidator(),
+                    "speaker id": Str(), 
                     "cast flags": Map({
                         "only words": Bool(),
                         "file": Bool(),
-                        "utterance": Bool()})
+                        "utterance": Bool()
+                        })
                     })
                 })
             try:

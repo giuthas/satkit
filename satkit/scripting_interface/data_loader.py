@@ -32,7 +32,6 @@ import logging
 from pathlib import Path
 from typing import List
 
-import satkit.io as satkit_io
 from satkit.configuration import data_run_params
 from satkit.data_import import generate_aaa_recording_list
 from satkit.data_structures import Recording
@@ -52,10 +51,6 @@ def load_data(path: Path, exclusion_file: Path) -> List[Recording]:
         recordings = read_data_from_files(path, exclusion_file)
     elif path.suffix == '.satkit_meta':
         recordings = satkit_io.load_satkit_data(path)
-    elif path.suffix == '.pickle':
-        recordings = satkit_io.load_pickled_data(path)
-    elif path.suffix == '.json':
-        recordings = satkit_io.load_json_data(path)
     else:
         logger.error(
             'Unsupported filetype: %s.', path)

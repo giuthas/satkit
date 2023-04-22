@@ -38,7 +38,8 @@ from satkit.data_structures import Recording
 
 logger = logging.getLogger('satkit.scripting')
 
-
+# TODO: change the name of this file to data_importer and move it to a more
+# appropriete submodule.
 
 def load_data(path: Path, exclusion_file: Path) -> List[Recording]:
     """Handle loading data from individual files or a previously saved session."""

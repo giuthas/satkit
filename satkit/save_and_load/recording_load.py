@@ -14,7 +14,7 @@ from satkit.data_import.add_audio import add_audio
 from satkit.data_import.add_video import add_video
 from satkit.data_structures import Modality, Recording
 
-_recording_loader_logger = logging.getLogger('satkit.modality_saver')
+_recording_loader_logger = logging.getLogger('satkit.recording_loader')
 
 class ModalityPaths(BaseModel):
     data_path: str

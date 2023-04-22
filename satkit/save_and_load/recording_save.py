@@ -6,7 +6,7 @@ import numpy as np
 from satkit.constants import Suffix
 from satkit.data_structures import Modality, Recording
 
-_recording_saver_logger = logging.getLogger('satkit.modality_saver')
+_recording_saver_logger = logging.getLogger('satkit.recording_saver')
 
 def save_modality_data(modality: Modality) -> str:
     """

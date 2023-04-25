@@ -21,6 +21,10 @@ def save_recording_session_meta(session: Session, meta: dict) -> str:
     filename = f"{session.basename}{'.Recording'}{Suffix.META}"
     filepath = session.path/filename
 
+    meta['object type'] = "Session"
+    meta['name'] = session.name
+    meta['path'] = str(session.path)
+
     nestedtext.dump(meta, filepath)
     _session_saver_logger.debug("Wrote file %s."%(filename))
 

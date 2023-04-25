@@ -35,7 +35,7 @@ import logging
 from dataclasses import dataclass
 from datetime import datetime
 from pathlib import Path
-from typing import Optional, Union
+from typing import List, Optional, Union
 
 # Numerical arrays and more
 import numpy as np
@@ -67,6 +67,12 @@ class ModalityData:
     data: np.ndarray
     sampling_rate: int
     timevector: np.ndarray
+
+@dataclass
+class Session:
+    recordings: List['Recording']
+    name: str
+    path: Path
 
 class Recording:
     """
@@ -208,7 +214,6 @@ class Recording:
         else:
             self.modalities[name] = modality
             _datastructures_logger.debug("Added new modality " + name + ".")
-
 
 class Modality(abc.ABC):
     """

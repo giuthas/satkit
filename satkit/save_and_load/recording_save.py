@@ -26,6 +26,7 @@ def save_modality_data(modality: Modality) -> str:
     _recording_saver_logger.debug("Wrote file %s."%(filename))
     return filename
 
+
 def save_modality_meta(modality: Modality) -> str:
     """
     Save meta data and annotations for a Modality.
@@ -39,10 +40,15 @@ def save_modality_meta(modality: Modality) -> str:
     filename += Suffix.META
     filepath = modality.recording.path/filename
 
-    nestedtext.dump(modality.get_meta(), filepath)
+    meta = modality.get_meta().copy()
+    meta['object type'] = "Recording"
+    meta['name'] = modality.name
+
+    nestedtext.dump(meta, filepath)
     _recording_saver_logger.debug("Wrote file %s."%(filename))
 
     return filename
+
 
 def save_recording_meta(recording: Recording, meta: dict) -> str:
     """
@@ -55,10 +61,14 @@ def save_recording_meta(recording: Recording, meta: dict) -> str:
     filename = f"{recording.basename}{'.Recording'}{Suffix.META}"
     filepath = recording.path/filename
 
+    meta['object type'] = "Recording"
+    meta['name'] = recording.basename
+
     nestedtext.dump(meta, filepath)
     _recording_saver_logger.debug("Wrote file %s."%(filename))
 
     return filename
+
 
 def save_modalities(recording: Recording) -> str:
     """
@@ -78,6 +88,7 @@ def save_modalities(recording: Recording) -> str:
             modality_meta['meta_path'] = str(modality.meta_path)
         recording_meta[modality_name] = modality_meta
     return recording_meta
+
 
 def save_recordings(
     recordings: List[Recording], 

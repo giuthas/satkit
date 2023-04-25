@@ -79,11 +79,17 @@ def save_modalities(recording: Recording) -> str:
         recording_meta[modality_name] = modality_meta
     return recording_meta
 
-def save_recordings(recordings: List[Recording], save_excluded: bool=True):
+def save_recordings(
+    recordings: List[Recording], 
+    save_excluded: bool=True) -> List[str]:
     """
     Save derived data modalities for each Recording.
     """
+    metafiles = []
     for recording in recordings:
         if save_excluded or not recording.excluded:
             recording_meta = save_modalities(recording)
-            save_recording_meta(recording, recording_meta)
+            metafile = save_recording_meta(recording, recording_meta)
+            metafiles.append(metafile)
+
+    return metafiles

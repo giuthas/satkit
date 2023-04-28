@@ -124,11 +124,14 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
         self.goLineEdit.setValidator(go_validator)
         self.goButton.clicked.connect(self.go_to_recording)
 
-        self.categoryRB_1.toggled.connect(self.pd_category_cb)
-        self.categoryRB_2.toggled.connect(self.pd_category_cb)
-        self.categoryRB_3.toggled.connect(self.pd_category_cb)
-        self.categoryRB_4.toggled.connect(self.pd_category_cb)
-        self.categoryRB_5.toggled.connect(self.pd_category_cb)
+        # TODO: add recording list to the display and highlight current
+        # recording
+
+        # self.categoryRB_1.toggled.connect(self.pd_category_cb)
+        # self.categoryRB_2.toggled.connect(self.pd_category_cb)
+        # self.categoryRB_3.toggled.connect(self.pd_category_cb)
+        # self.categoryRB_4.toggled.connect(self.pd_category_cb)
+        # self.categoryRB_5.toggled.connect(self.pd_category_cb)
 
         self.positionRB_1.toggled.connect(self.tongue_position_cb)
         self.positionRB_2.toggled.connect(self.tongue_position_cb)
@@ -246,16 +249,18 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
         Updates parts of the UI outwith the graphs.
         """
         # self.pdCategoryRB.set_active(self.current.annotations['pdCategory'])
-        if self.categoryRB_1.text() == self.current.annotations['pdCategory']:
-            self.categoryRB_1.setChecked(True)
-        if self.categoryRB_2.text() == self.current.annotations['pdCategory']:
-            self.categoryRB_2.setChecked(True)
-        if self.categoryRB_3.text() == self.current.annotations['pdCategory']:
-            self.categoryRB_3.setChecked(True)
-        if self.categoryRB_4.text() == self.current.annotations['pdCategory']:
-            self.categoryRB_4.setChecked(True)
-        if self.categoryRB_5.text() == self.current.annotations['pdCategory']:
-            self.categoryRB_5.setChecked(True)
+        # if self.categoryRB_1.text() == self.current.annotations['pdCategory']:
+        #     self.categoryRB_1.setChecked(True)
+        # if self.categoryRB_2.text() == self.current.annotations['pdCategory']:
+        #     self.categoryRB_2.setChecked(True)
+        # if self.categoryRB_3.text() == self.current.annotations['pdCategory']:
+        #     self.categoryRB_3.setChecked(True)
+        # if self.categoryRB_4.text() == self.current.annotations['pdCategory']:
+        #     self.categoryRB_4.setChecked(True)
+        # if self.categoryRB_5.text() == self.current.annotations['pdCategory']:
+        #     self.categoryRB_5.setChecked(True)
+
+        # TODO: highlight current recording
 
         if self.positionRB_1.text() == self.current.annotations['tonguePosition']:
             self.positionRB_1.setChecked(True)

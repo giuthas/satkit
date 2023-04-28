@@ -49,7 +49,7 @@ from PyQt5.QtWidgets import QFileDialog, QShortcut
 from PyQt5.uic import loadUiType
 
 # Local modules
-import satkit.io as satkit_io
+# import satkit.io as satkit_io
 from satkit.configuration import gui_params
 from satkit.gui.boundary_animation import BoundaryAnimator
 from satkit.plot import (Normalisation, plot_satgrid_tier, plot_spectrogram,
@@ -105,7 +105,7 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
         self.close_window.activated.connect(self.quit)
 
         self.actionSaveAll.triggered.connect(self.save_all)
-        self.actionSaveToPickle.triggered.connect(self.save_to_pickle)
+        # self.actionSaveToPickle.triggered.connect(self.save_to_pickle)
 
         self.actionNext.triggered.connect(self.next)
         self.actionPrevious.triggered.connect(self.prev)
@@ -545,11 +545,13 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
             (self.pickle_filename, _) = QFileDialog.getSaveFileName(
                 self, 'Save file', directory='.', filter="Pickle files (*.pickle)")
         if self.pickle_filename:
-            satkit_io.save2pickle(
-                self.recordings,
-                self.pickle_filename)
             _qt_annotator_logger.info(
-                "Wrote data to file {file}.", file = self.pickle_filename)
+                "Pickling is currently disabled. Did NOT write file {file}.", file = self.pickle_filename)
+            # satkit_io.save2pickle(
+            #     self.recordings,
+            #     self.pickle_filename)
+            # _qt_annotator_logger.info(
+            #     "Wrote data to file {file}.", file = self.pickle_filename)
 
     def save_textgrid(self):
         """

@@ -41,6 +41,7 @@ logger = logging.getLogger('satkit.scripting')
 # TODO: change the name of this file to data_importer and move it to a more
 # appropriete submodule.
 
+# TODO: create and return a session rather than a list of recordings?
 def load_data(path: Path, exclusion_file: Path) -> List[Recording]:
     """Handle loading data from individual files or a previously saved session."""
     if not path.exists():
@@ -51,12 +52,15 @@ def load_data(path: Path, exclusion_file: Path) -> List[Recording]:
     elif path.is_dir():
         recordings = read_data_from_files(path, exclusion_file)
     elif path.suffix == '.satkit_meta':
-        recordings = satkit_io.load_satkit_data(path)
+        recordings = load_satkit_data(path)
     else:
         logger.error(
             'Unsupported filetype: %s.', path)
     
     return recordings
+
+def load_satkit_data(path: Path, exclusion_file: Path) -> List[Recording]:
+    pass
 
 def read_data_from_files(path: Path, exclusion_file: Path):
     """

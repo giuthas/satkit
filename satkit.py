@@ -40,7 +40,7 @@ from PyQt5 import QtWidgets
 
 # local modules
 from satkit import log_elapsed_time, set_logging_level
-from satkit.metrics import pd
+from satkit.metrics import pd, peaks
 from satkit.modalities import RawUltrasound
 from satkit.qt_annotator import PdQtAnnotator
 from satkit.scripting_interface import (Operation, SatkitArgumentParser,
@@ -65,16 +65,22 @@ def main():
     log_elapsed_time()
 
     #function_dict = {'pd':pd.pd, 'annd':annd.annd}
-    arguments = {
-        'norms': ['l0', 'l0.01', 'l0.1', 'l0.5', 'l1', 'l2', 'l4', 'l10', 'l_inf', 'd'],
+    pd_arguments = {
+        # 'norms': ['l0', 'l0.01', 'l0.1', 'l0.5', 'l1', 'l2', 'l4', 'l10', 'l_inf', 'd'],
+        'norms': ['l1'],
         'mask_images': True, 
         'pd_on_interpolated_data': False, 
         'release_data_memory': True, 
         'preload': True}
+
     function_dict = {
         'PD': (pd.add_pd, 
         [RawUltrasound], 
-        arguments)}
+        pd_arguments)#,
+        # 'peaks': (peaks.time_series_peaks,
+        # [RawUltrasound], # TODO: figure out if this will actually work because this should be 'PD l1 on RawUltrasound' or something like that
+        # peak_arguments)
+    }
     process_data(recordings=recordings, processing_functions=function_dict)
 
     # operation = Operation(

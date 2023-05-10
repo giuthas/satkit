@@ -298,29 +298,29 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
         wav = audio.data
         wav_time = (audio.timevector - stimulus_onset)
 
-        l0 = self.current.modalities['PD l0 on RawUltrasound']
-        l0_01 = self.current.modalities['PD l0.01 on RawUltrasound']
-        l0_1 = self.current.modalities['PD l0.1 on RawUltrasound']
-        l0_5 = self.current.modalities['PD l0.5 on RawUltrasound']
+        # l0 = self.current.modalities['PD l0 on RawUltrasound']
+        # l0_01 = self.current.modalities['PD l0.01 on RawUltrasound']
+        # l0_1 = self.current.modalities['PD l0.1 on RawUltrasound']
+        # l0_5 = self.current.modalities['PD l0.5 on RawUltrasound']
 
         l1 = self.current.modalities['PD l1 on RawUltrasound']
         # l1_top = self.current.modalities['PD l1 top on RawUltrasound']
-        # l1_bottom = self.current.modalities['PD l1 bottom on RawUltrasound']
+        l1_bottom = self.current.modalities['PD l1 bottom on RawUltrasound']
 
-        l2 = self.current.modalities['PD l2 on RawUltrasound']
-        l4 = self.current.modalities['PD l4 on RawUltrasound']
+        # l2 = self.current.modalities['PD l2 on RawUltrasound']
+        # l4 = self.current.modalities['PD l4 on RawUltrasound']
         # l2_top = self.current.modalities['PD l2 top on RawUltrasound']
         # l2_bottom = self.current.modalities['PD l2 bottom on RawUltrasound']
 
-        l10 = self.current.modalities['PD l10 on RawUltrasound']
-        linf = self.current.modalities['PD l_inf on RawUltrasound']
+        # l10 = self.current.modalities['PD l10 on RawUltrasound']
+        # linf = self.current.modalities['PD l_inf on RawUltrasound']
 
-        frequencies = self.current.modalities['PD d on RawUltrasound']
+        # frequencies = self.current.modalities['PD d on RawUltrasound']
 
         # l2_interpolated = self.current.modalities['Interpolated PD l2 on RawUltrasound']
         # l2_interpolated_top = self.current.modalities['Interpolated PD l2 top on RawUltrasound']
         # l2_interpolated_bottom = self.current.modalities['Interpolated PD l2 bottom on RawUltrasound']
-        ultra_time = l2.timevector - stimulus_onset
+        ultra_time = l1.timevector - stimulus_onset
 
         # l2_size = len(self.current.modalities['RawUltrasound'].data[0,:,:])
         # half = int(self.current.modalities['RawUltrasound'].data.shape[1]/2)
@@ -350,50 +350,62 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
 
         # plot_density(self.data_axes[0], frequencies.data)
 
-        raw_l0 = plot_timeseries(self.data_axes[0], l0.data,
-            ultra_time, self.xlim, ylim, color='black', linestyle='--', 
-            normalise=Normalisation('PEAK AND BOTTOM'))
-        raw_l0_01 = plot_timeseries(self.data_axes[0], l0_01.data,
-            ultra_time, self.xlim, ylim, color='black', 
-            normalise=Normalisation('PEAK AND BOTTOM'))
-        raw_l0_1 = plot_timeseries(self.data_axes[0], l0_1.data,
-            ultra_time, self.xlim, ylim, color='dimgrey', 
-            normalise=Normalisation('PEAK AND BOTTOM'))
-        raw_l0_5 = plot_timeseries(self.data_axes[0], l0_5.data,
-            ultra_time, self.xlim, ylim, color='grey', 
-            normalise=Normalisation('PEAK AND BOTTOM'))
+        # raw_l0 = plot_timeseries(self.data_axes[0], l0.data,
+        #     ultra_time, self.xlim, ylim, color='black', linestyle='--', 
+        #     normalise=Normalisation('PEAK AND BOTTOM'))
+        # raw_l0_01 = plot_timeseries(self.data_axes[0], l0_01.data,
+        #     ultra_time, self.xlim, ylim, color='black', 
+        #     normalise=Normalisation('PEAK AND BOTTOM'))
+        # raw_l0_1 = plot_timeseries(self.data_axes[0], l0_1.data,
+        #     ultra_time, self.xlim, ylim, color='dimgrey', 
+        #     normalise=Normalisation('PEAK AND BOTTOM'))
+        # raw_l0_5 = plot_timeseries(self.data_axes[0], l0_5.data,
+        #     ultra_time, self.xlim, ylim, color='grey', 
+        #     normalise=Normalisation('PEAK AND BOTTOM'))
         raw_l1 = plot_timeseries(self.data_axes[0], l1.data,
-            ultra_time, self.xlim, ylim, color='lightgreen', 
+            ultra_time, self.xlim, ylim, color='black',
             normalise=Normalisation('PEAK AND BOTTOM'), find_peaks=True)
+        raw_l1_bottom = plot_timeseries(self.data_axes[0], l1_bottom.data,
+            ultra_time, self.xlim, ylim, color='gray', linestyle=':',
+            normalise=Normalisation('PEAK AND BOTTOM'))
         # raw_top = plot_timeseries(self.data_axes[0], l2_top.data,
         #     ultra_time, self.xlim, ylim, color='black', 
         #     normalise=Normalisation('PEAK'))
-        self.data_axes[0].set_ylabel("Peak normalised\nand zeroed PD")
+        self.data_axes[0].set_ylabel("Peaks from\nwhole image")
         self.data_axes[0].legend(
-            (raw_l0, raw_l0_01, 
-            raw_l0_1, raw_l0_5, raw_l1),
+            (
+                #raw_l0, raw_l0_01, 
+                # raw_l0_1, raw_l0_5, 
+                raw_l1, raw_l1_bottom
+            ),
             # , interp, interp_top, interp_bottom),
-            ('l0', 'l0.01', 
-            'l0.1', 'l0.5', 'l1'),
+            (
+                # 'l0', 'l0.01', 
+                # 'l0.1', 'l0.5', 
+                'l1 whole', 'l1 bottom'
+            ),
             #, 'Interpolated', 'Interpolated top', 'Interpolated bottom'),
             loc='upper right')
 
         raw_l1 = plot_timeseries(self.data_axes[1], l1.data,
-            ultra_time, self.xlim, ylim, color='lightgreen', 
+            ultra_time, self.xlim, ylim, color='gray', linestyle=':',
+            normalise=Normalisation('PEAK AND BOTTOM'))
+        raw_l1_bottom = plot_timeseries(self.data_axes[1], l1_bottom.data,
+            ultra_time, self.xlim, ylim, color='black',
             normalise=Normalisation('PEAK AND BOTTOM'), find_peaks=True)
-        raw_l2 = plot_timeseries(self.data_axes[1], l2.data,
-            ultra_time, self.xlim, ylim, color='yellowgreen',
-            normalise=Normalisation('PEAK AND BOTTOM'))
-        raw_l4 = plot_timeseries(self.data_axes[1], l4.data,
-            ultra_time, self.xlim, ylim, color='saddlebrown',
-            normalise=Normalisation('PEAK AND BOTTOM'))
-        raw_l10 = plot_timeseries(self.data_axes[1], l10.data,
-            ultra_time, self.xlim, ylim, color='saddlebrown', linestyle='--',
-            normalise=Normalisation('PEAK AND BOTTOM'))
-        raw_linf = plot_timeseries(self.data_axes[1], linf.data,
-            ultra_time, self.xlim, ylim, color='saddlebrown', linestyle=':',
-            normalise=Normalisation('PEAK AND BOTTOM'))
-        self.data_axes[1].set_ylabel("Peak normalised\nand zeroed PD")
+        # raw_l2 = plot_timeseries(self.data_axes[1], l2.data,
+        #     ultra_time, self.xlim, ylim, color='yellowgreen',
+        #     normalise=Normalisation('PEAK AND BOTTOM'))
+        # raw_l4 = plot_timeseries(self.data_axes[1], l4.data,
+        #     ultra_time, self.xlim, ylim, color='saddlebrown',
+        #     normalise=Normalisation('PEAK AND BOTTOM'))
+        # raw_l10 = plot_timeseries(self.data_axes[1], l10.data,
+        #     ultra_time, self.xlim, ylim, color='saddlebrown', linestyle='--',
+        #     normalise=Normalisation('PEAK AND BOTTOM'))
+        # raw_linf = plot_timeseries(self.data_axes[1], linf.data,
+        #     ultra_time, self.xlim, ylim, color='saddlebrown', linestyle=':',
+        #     normalise=Normalisation('PEAK AND BOTTOM'))
+        self.data_axes[1].set_ylabel("Peaks from\nbottom of image")
 
         # interp = plot_timeseries(self.data_axes[1], l2_interpolated.data,
         #     ultra_time, self.xlim, ylim, color='black', linestyle="--", peak_normalise=True)
@@ -408,9 +420,18 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
         #     ('Raw', 'Raw upper', 'Raw lower'),
         #     loc='upper right')
         self.data_axes[1].legend(
-            (raw_l1, raw_l2, raw_l4, raw_l10, raw_linf),
+            (
+                #raw_l0, raw_l0_01, 
+                # raw_l0_1, raw_l0_5, 
+                raw_l1, raw_l1_bottom
+            ),
             # , interp, interp_top, interp_bottom),
-            ('l1', 'l2', 'l4', 'l10', 'linf'),
+            (
+                # 'l0', 'l0.01', 
+                # 'l0.1', 'l0.5', 
+                'l1 whole', 'l1 bottom'
+            ),
+            #, 'Interpolated', 'Interpolated top', 'Interpolated bottom'),
             loc='upper right')
 
         # self.ylim = None

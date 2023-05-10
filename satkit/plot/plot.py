@@ -29,8 +29,8 @@
 # citations.bib in BibTeX format.
 #
 
-import logging
 # Built in packages
+import logging
 from enum import Enum
 from typing import List, Optional, Tuple, Union
 
@@ -113,7 +113,7 @@ def plot_timeseries(axes: Axes,
 
     if find_peaks:
         mark_gesture_peaks(axes, plot_data, plot_time)
-        mark_gesture_boundaries(axes, plot_data, plot_time)
+        # mark_gesture_boundaries(axes, plot_data, plot_time)
         
     axes.set_xlim(xlim)
 
@@ -154,7 +154,7 @@ def find_gesture_peaks(data: np.ndarray):
     search_data = data - np.min(data)
     search_data = search_data/np.max(search_data)
 
-    peaks, properties = scipy_signal.find_peaks(search_data, prominence=.05)
+    peaks, properties = scipy_signal.find_peaks(search_data)#, distance=10, prominence=.05)
     return peaks, properties
 
 def plot_satgrid_tier(axes: Axes, 

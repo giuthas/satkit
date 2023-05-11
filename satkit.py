@@ -83,6 +83,8 @@ def main():
     }
     process_data(recordings=recordings, processing_functions=function_dict)
 
+    peaks.save_peaks('pd_l1', recordings)
+
     # operation = Operation(
     #     processing_function = pd.add_pd, 
     #     modality = RawUltrasound, 

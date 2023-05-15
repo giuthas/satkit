@@ -74,6 +74,8 @@ def save_peaks(
     whole_to_bottom_thresholded = None
     bottom_to_whole_thresholded = None
     for i, recording in enumerate(recordings):
+        if 'utterance' not in recording.satgrid:
+            continue
         id = recording.basename
         prompt = recording.meta_data.prompt
 

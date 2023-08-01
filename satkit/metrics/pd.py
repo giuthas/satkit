@@ -112,6 +112,19 @@ def calculate_metric(abs_diff, norm, mask: Optional[ImageMask]=None, interpolate
         raise UnrecognisedNormError("Don't know how to calculate norm for %s.", norm)
 
 def calculate_slwpd(raw_diff):
+    """
+    _summary_
+
+    Parameters
+    ----------
+    raw_diff : _type_
+        _description_
+
+    Returns
+    -------
+    _type_
+        _description_
+    """
     square_diff = np.square(raw_diff)
     # this should be square rooted at some point
     slw_pd = np.sum(square_diff, axis=2)

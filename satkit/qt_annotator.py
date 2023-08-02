@@ -35,6 +35,7 @@ import logging
 from contextlib import closing
 from copy import deepcopy
 
+import matplotlib
 # Numpy
 import numpy as np
 from matplotlib.backends.backend_qt5agg import \
@@ -146,6 +147,8 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
         self.data_axes = []
         self.tier_axes = []
  
+        matplotlib.rcParams.update({'font.size': gui_params['default font size']})
+
         self.xlim = xlim
 
         # TODO this should be based on the plotted modalities, not on a random
@@ -678,7 +681,7 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
         """
         (filename, _) = QFileDialog.getSaveFileName(
                 self, 'Export figure', directory='.')
-        self.fig.savefig(filename, bbox_inches='tight', pad_inches=0.01)
+        self.fig.savefig(filename, bbox_inches='tight', pad_inches=0.05)
 
 
     def export(self):

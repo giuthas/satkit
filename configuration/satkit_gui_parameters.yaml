@@ -64,3 +64,6 @@ pervasive tiers:
 xlim: 
   - -.25
   - 1.5
+
+# Font parameters
+default font size: 12

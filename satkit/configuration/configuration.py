@@ -214,7 +214,8 @@ def load_gui_params(filepath: Union[Path, str, None]=None) -> None:
                         Str(), Bool()
                     )),
                 "pervasive tiers": Seq(Str()),
-                Optional("xlim"): FixedSeq([Float(), Float()]) 
+                Optional("xlim"): FixedSeq([Float(), Float()]),
+                "default font size": Int(),
                 })
             try:
                 _raw_gui_params_dict = load(yaml_file.read(), schema)

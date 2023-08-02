@@ -107,7 +107,7 @@ def calculate_metric(abs_diff, norm, mask: Optional[ImageMask]=None, interpolate
             else:
                 return np.float_power(sums, 1.0/order)
     elif norm[0] == 'd':
-        return np.bincount(data.flatten())
+        return np.bincount(data.flatten().astype('uint8'))
     else:
         raise UnrecognisedNormError("Don't know how to calculate norm for %s.", norm)
 

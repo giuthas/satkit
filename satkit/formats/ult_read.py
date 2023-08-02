@@ -57,7 +57,7 @@ def read_ult(
     with closing(open(path, 'rb')) as ult_file:
         ult_data = ult_file.read()
         ultra = np.fromstring(ult_data, dtype=np.uint8)
-        # ultra = ultra.astype("float32")
+        ultra = ultra.astype("float32")
 
         meta['no_frames'] = int(
             len(ultra) /

@@ -34,7 +34,7 @@ from enum import Enum
 from pathlib import Path
 from typing import Union
 
-from strictyaml import (Bool, Float, Int, Map, MapPattern, Optional,
+from strictyaml import (Bool, FixedSeq, Float, Int, Map, MapPattern, Optional,
                         ScalarValidator, Seq, Str, YAMLError, load)
 
 config = {}
@@ -213,7 +213,8 @@ def load_gui_params(filepath: Union[Path, str, None]=None) -> None:
                     Str(), MapPattern(
                         Str(), Bool()
                     )),
-                "pervasive tiers": Seq(Str())
+                "pervasive tiers": Seq(Str()),
+                Optional("xlim"): FixedSeq([Float(), Float()]) 
                 })
             try:
                 _raw_gui_params_dict = load(yaml_file.read(), schema)
@@ -224,4 +225,13 @@ def load_gui_params(filepath: Union[Path, str, None]=None) -> None:
     else:
         print(f"Didn't find {filepath}. Exiting.".format(str(filepath)))
         sys.exit()
+
     gui_params.update(_raw_gui_params_dict.data)
+
+    number_of_data_axes = 0
+    if 'data axes' in gui_params:
+        if 'global' in gui_params['data axes']:
+            number_of_data_axes = len(gui_params['data axes']) - 1
+        else:
+            number_of_data_axes = len(gui_params['data axes'])
+    gui_params.update({'number of data axes': number_of_data_axes})

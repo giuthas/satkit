@@ -34,7 +34,7 @@
 # displays, but instead controls the ratio between the sum of data displays vs
 # sum of tier displays.
 data/tier height ratios: 
-  data: 3
+  data: 2
   tier: 1
 
 # Which data axes to display. Currently used only to decide the number to
@@ -45,17 +45,22 @@ data axes:
     sharex: True
   PD:
     sharex: True
-  wav:
-    sharex: True
+  # wav:
+  #   sharex: True
   spectrogram:
     sharex: True
   # density:
   #   sharex: False
 
-# Tiers drawn on the data axes. If not found, nothing happens.  
+# Tiers drawn on the data axes. Ignored if not found.  
 pervasive tiers:
   - Segment
   - Segments
   - segment
   - segments
   - phoneme
+
+# Initial limits for x-axis
+xlim: 
+  - -.25
+  - 1.5

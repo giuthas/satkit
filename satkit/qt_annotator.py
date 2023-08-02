@@ -161,7 +161,7 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
                                 wspace=0, 
                                 height_ratios=height_ratios)
 
-        nro_data_modalities = len(gui_params['data axes'])
+        nro_data_modalities = gui_params['number of data axes']
         self.data_grid_spec = self.main_grid_spec[0].subgridspec(nro_data_modalities, 
                                                     1, hspace=0, wspace=0)
         self.data_axes.append(self.fig.add_subplot(self.data_grid_spec[0]))
@@ -346,7 +346,10 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
         #          textgrid, stimulus_onset, 
         #          picker=PdQtAnnotator.line_xdirection_picker)
         ylim = None
-        self.xlim=(-1.5,3)
+        if 'xlim' in gui_params:
+            self.xlim = gui_params['xlim']
+        else:
+            self.xlim = (-.25, 1.5)
 
         # plot_density(self.data_axes[0], frequencies.data)
 
@@ -363,36 +366,36 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
         #     ultra_time, self.xlim, ylim, color='grey', 
         #     normalise=Normalisation('PEAK AND BOTTOM'))
         raw_l1 = plot_timeseries(self.data_axes[0], l1.data,
-            ultra_time, self.xlim, ylim, color='black',
-            normalise=Normalisation('PEAK AND BOTTOM'), find_peaks=True)
-        raw_l1_bottom = plot_timeseries(self.data_axes[0], l1_bottom.data,
-            ultra_time, self.xlim, ylim, color='gray', linestyle=':',
-            normalise=Normalisation('PEAK AND BOTTOM'))
+            ultra_time, self.xlim, ylim, color='yellowgreen',
+            normalise=Normalisation('PEAK AND BOTTOM'), find_peaks=False)
+        # raw_l1_bottom = plot_timeseries(self.data_axes[0], l1_bottom.data,
+        #     ultra_time, self.xlim, ylim, color='gray', linestyle=':',
+        #     normalise=Normalisation('PEAK AND BOTTOM'))
         # raw_top = plot_timeseries(self.data_axes[0], l2_top.data,
         #     ultra_time, self.xlim, ylim, color='black', 
         #     normalise=Normalisation('PEAK'))
-        self.data_axes[0].set_ylabel("Peaks from\nwhole image")
-        self.data_axes[0].legend(
-            (
-                #raw_l0, raw_l0_01, 
-                # raw_l0_1, raw_l0_5, 
-                raw_l1, raw_l1_bottom
-            ),
-            # , interp, interp_top, interp_bottom),
-            (
-                # 'l0', 'l0.01', 
-                # 'l0.1', 'l0.5', 
-                'l1 whole', 'l1 bottom'
-            ),
-            #, 'Interpolated', 'Interpolated top', 'Interpolated bottom'),
-            loc='upper right')
+        self.data_axes[0].set_ylabel("Pixel difference l1 (PD)")
+        # self.data_axes[0].legend(
+        #     (
+        #         #raw_l0, raw_l0_01, 
+        #         # raw_l0_1, raw_l0_5, 
+        #         raw_l1, raw_l1_bottom
+        #     ),
+        #     # , interp, interp_top, interp_bottom),
+        #     (
+        #         # 'l0', 'l0.01', 
+        #         # 'l0.1', 'l0.5', 
+        #         'l1 whole', 'l1 bottom'
+        #     ),
+        #     #, 'Interpolated', 'Interpolated top', 'Interpolated bottom'),
+        #     loc='upper right')
 
-        raw_l1 = plot_timeseries(self.data_axes[1], l1.data,
-            ultra_time, self.xlim, ylim, color='gray', linestyle=':',
-            normalise=Normalisation('PEAK AND BOTTOM'))
-        raw_l1_bottom = plot_timeseries(self.data_axes[1], l1_bottom.data,
-            ultra_time, self.xlim, ylim, color='black',
-            normalise=Normalisation('PEAK AND BOTTOM'), find_peaks=True)
+        # raw_l1 = plot_timeseries(self.data_axes[1], l1.data,
+        #     ultra_time, self.xlim, ylim, color='gray', linestyle=':',
+        #     normalise=Normalisation('PEAK AND BOTTOM'))
+        # raw_l1_bottom = plot_timeseries(self.data_axes[1], l1_bottom.data,
+        #     ultra_time, self.xlim, ylim, color='black',
+        #     normalise=Normalisation('PEAK AND BOTTOM'), find_peaks=True)
         # raw_l2 = plot_timeseries(self.data_axes[1], l2.data,
         #     ultra_time, self.xlim, ylim, color='yellowgreen',
         #     normalise=Normalisation('PEAK AND BOTTOM'))
@@ -405,7 +408,7 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
         # raw_linf = plot_timeseries(self.data_axes[1], linf.data,
         #     ultra_time, self.xlim, ylim, color='saddlebrown', linestyle=':',
         #     normalise=Normalisation('PEAK AND BOTTOM'))
-        self.data_axes[1].set_ylabel("Peaks from\nbottom of image")
+        # self.data_axes[1].set_ylabel("Peaks from\nbottom of image")
 
         # interp = plot_timeseries(self.data_axes[1], l2_interpolated.data,
         #     ultra_time, self.xlim, ylim, color='black', linestyle="--", peak_normalise=True)
@@ -419,20 +422,20 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
         #     (raw, raw_top, raw_bottom),
         #     ('Raw', 'Raw upper', 'Raw lower'),
         #     loc='upper right')
-        self.data_axes[1].legend(
-            (
-                #raw_l0, raw_l0_01, 
-                # raw_l0_1, raw_l0_5, 
-                raw_l1, raw_l1_bottom
-            ),
-            # , interp, interp_top, interp_bottom),
-            (
-                # 'l0', 'l0.01', 
-                # 'l0.1', 'l0.5', 
-                'l1 whole', 'l1 bottom'
-            ),
-            #, 'Interpolated', 'Interpolated top', 'Interpolated bottom'),
-            loc='upper right')
+        # self.data_axes[1].legend(
+        #     (
+        #         #raw_l0, raw_l0_01, 
+        #         # raw_l0_1, raw_l0_5, 
+        #         raw_l1, raw_l1_bottom
+        #     ),
+        #     # , interp, interp_top, interp_bottom),
+        #     (
+        #         # 'l0', 'l0.01', 
+        #         # 'l0.1', 'l0.5', 
+        #         'l1 whole', 'l1 bottom'
+        #     ),
+        #     #, 'Interpolated', 'Interpolated top', 'Interpolated bottom'),
+        #     loc='upper right')
 
         # self.ylim = None
         # plot_timeseries(self.data_axes[1], l2.data/l2_size,
@@ -451,8 +454,8 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
         #     ultra_time, self.xlim, self.ylim, color='orange', linestyle="--")
         # self.data_axes[2].set_ylabel("Pixel normalised PD")
 
-        plot_wav(self.data_axes[2], wav, wav_time, self.xlim)
-        plot_spectrogram(self.data_axes[3], 
+        # plot_wav(self.data_axes[2], wav, wav_time, self.xlim)
+        plot_spectrogram(self.data_axes[1], 
                         waveform=wav,
                         ylim=(0,10500), 
                         sampling_frequency=audio.sampling_rate, 

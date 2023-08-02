@@ -101,12 +101,17 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
 
         self.pickle_filename = pickle_filename
 
-        self.close_window = QShortcut(QKeySequence(self.tr("Ctrl+W", "File|Quit")),
+        self.close_window_shortcut = QShortcut(QKeySequence(self.tr("Ctrl+W", "File|Quit")),
                      self)
-        self.close_window.activated.connect(self.quit)
+        self.close_window_shortcut.activated.connect(self.quit)
+
+        self.export_figure_shortcut = QShortcut(QKeySequence(self.tr("Ctrl+E", "File|Export figure...")),
+                     self)
+        self.export_figure_shortcut.activated.connect(self.export_figure)
 
         self.actionSaveAll.triggered.connect(self.save_all)
         self.actionSaveToPickle.triggered.connect(self.save_to_pickle)
+        self.action_export_figure.triggered.connect(self.export_figure)
 
         self.actionNext.triggered.connect(self.next)
         self.actionPrevious.triggered.connect(self.prev)
@@ -648,6 +653,18 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
                 outfile.write(self.current.satgrid.format_long())
             _qt_annotator_logger.info(
                 "Wrote TextGrid to file %s.", str(self.current._textgrid_path))
+
+    def export_figure(self):
+        """
+        Callback method to export the current figure in any supported format.
+
+        Opens a filedialog to ask for the filename. Save format is determined by
+        file extension.
+        """
+        (filename, _) = QFileDialog.getSaveFileName(
+                self, 'Export figure', directory='.')
+        self.fig.savefig(filename)
+
 
     def export(self):
         """

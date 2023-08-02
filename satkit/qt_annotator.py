@@ -222,6 +222,15 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
         text += ', prompt: ' + self.current.meta_data.prompt
         return text
 
+    def _get_long_title(self):
+        """
+        Private helper function for generating a longer title for a figure.
+        """
+        text = 'Recording: ' + str(self.index+1) + '/' + str(self.max_index)
+        text += ', Speaker: ' + str(self.current.meta_data.participant_id)
+        text += ', prompt: ' + self.current.meta_data.prompt
+        return text
+
     def clear_axes(self):
         """Clear data axes of this annotator."""
         for axes in self.data_axes:
@@ -276,6 +285,7 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
         Updates title and graphs. Called by self.update().
         """
         self.data_axes[0].set_title(self._get_title())
+        self.data_axes[0].set_title(self._get_long_title())
 
         for axes in self.tier_axes:
             axes.remove()
@@ -309,7 +319,7 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
         # l0_5 = self.current.modalities['PD l0.5 on RawUltrasound']
 
         l1 = self.current.modalities['PD l1 on RawUltrasound']
-        # l1_top = self.current.modalities['PD l1 top on RawUltrasound']
+        l1_top = self.current.modalities['PD l1 top on RawUltrasound']
         l1_bottom = self.current.modalities['PD l1 bottom on RawUltrasound']
 
         # l2 = self.current.modalities['PD l2 on RawUltrasound']
@@ -373,27 +383,30 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
         raw_l1 = plot_timeseries(self.data_axes[0], l1.data,
             ultra_time, self.xlim, ylim, color='yellowgreen',
             normalise=Normalisation('PEAK AND BOTTOM'), find_peaks=False)
-        # raw_l1_bottom = plot_timeseries(self.data_axes[0], l1_bottom.data,
-        #     ultra_time, self.xlim, ylim, color='gray', linestyle=':',
-        #     normalise=Normalisation('PEAK AND BOTTOM'))
+        raw_l1_bottom = plot_timeseries(self.data_axes[0], l1_bottom.data,
+            ultra_time, self.xlim, ylim, color='gray', linestyle=':',
+            normalise=Normalisation('PEAK AND BOTTOM'))
+        raw_l1_top = plot_timeseries(self.data_axes[0], l1_top.data,
+            ultra_time, self.xlim, ylim, color='blue', linestyle=':',
+            normalise=Normalisation('PEAK AND BOTTOM'))
         # raw_top = plot_timeseries(self.data_axes[0], l2_top.data,
         #     ultra_time, self.xlim, ylim, color='black', 
         #     normalise=Normalisation('PEAK'))
         self.data_axes[0].set_ylabel("Pixel difference l1 (PD)")
-        # self.data_axes[0].legend(
-        #     (
-        #         #raw_l0, raw_l0_01, 
-        #         # raw_l0_1, raw_l0_5, 
-        #         raw_l1, raw_l1_bottom
-        #     ),
-        #     # , interp, interp_top, interp_bottom),
-        #     (
-        #         # 'l0', 'l0.01', 
-        #         # 'l0.1', 'l0.5', 
-        #         'l1 whole', 'l1 bottom'
-        #     ),
-        #     #, 'Interpolated', 'Interpolated top', 'Interpolated bottom'),
-        #     loc='upper right')
+        self.data_axes[0].legend(
+            (
+                #raw_l0, raw_l0_01, 
+                # raw_l0_1, raw_l0_5, 
+                raw_l1, raw_l1_bottom, raw_l1_top
+            ),
+            # , interp, interp_top, interp_bottom),
+            (
+                # 'l0', 'l0.01', 
+                # 'l0.1', 'l0.5', 
+                'l1 whole', 'l1 bottom', 'l1 top'
+            ),
+            #, 'Interpolated', 'Interpolated top', 'Interpolated bottom'),
+            loc='upper right')
 
         # raw_l1 = plot_timeseries(self.data_axes[1], l1.data,
         #     ultra_time, self.xlim, ylim, color='gray', linestyle=':',
@@ -663,7 +676,7 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
         """
         (filename, _) = QFileDialog.getSaveFileName(
                 self, 'Export figure', directory='.')
-        self.fig.savefig(filename)
+        self.fig.savefig(filename, bbox_inches='tight', pad_inches=0)
 
 
     def export(self):

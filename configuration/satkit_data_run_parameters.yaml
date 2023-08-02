@@ -58,7 +58,7 @@ data properties:
 
   # This is where we read the data and metadata from. Leave the data type specific
   # directories empty if everything is in one directory.
-  data directory: local_data/tongue_data_4
+  data directory: local_data/icphs-2023-giulia
   wav directory:
   textgrid directory: 
   ultrasound directory:
@@ -66,6 +66,6 @@ data properties:
   # This is where SATKIT will save results of data processing. Please note that
   # once exclusion list or similar things can be edited in SATKIT, they will by
   # default be saved at their original locations.
-  output directory : local_data/tongue_data_4/satkit/
+  output directory : local_data/icphs-2023-giulia/satkit/
 
 

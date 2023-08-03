@@ -45,12 +45,9 @@ data properties:
   # on both prompts and file names.
   exclusion list: 
 
-  # This is where we read the data and metadata from. Leave the data type
-  # specific directories empty if everything is in one directory otherwise give
-  # them as relative to data path or absolute if they aren't contained in data
-  # path. If data path points to a .satkit file, then the data directories are
-  # taken as relative to the directory containing the .satkit file.
-  data path: local_data/tongue_data_single
+  # This is where we read the data and metadata from. Leave the data type specific
+  # directories empty if everything is in one directory.
+  data path: local_data/icphs-2023-giulia
   wav directory:
   textgrid directory: 
   ultrasound directory:
@@ -58,7 +55,7 @@ data properties:
   # This is where SATKIT will save results of data processing. Please note that
   # once exclusion list or similar things can be edited in SATKIT, they will by
   # default be saved at their original locations.
-  output directory : local_data/tongue_data_4/satkit/
+  output directory : local_data/icphs-2023-giulia/satkit/
 
 # Config for the yet-to-happen submodule CAST that is still a separate entity. 
 cast:

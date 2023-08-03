@@ -290,6 +290,7 @@
     <addaction name="actionSaveAll"/>
     <addaction name="separator"/>
     <addaction name="actionExport_analysis"/>
+    <addaction name="action_export_figure"/>
     <addaction name="separator"/>
     <addaction name="actionQuit"/>
    </widget>
@@ -389,9 +390,6 @@
    <property name="text">
     <string>Export analysis...</string>
    </property>
-   <property name="shortcut">
-    <string>Ctrl+E</string>
-   </property>
   </action>
   <action name="actionQuit">
    <property name="text">
@@ -415,6 +413,14 @@
    </property>
    <property name="shortcut">
     <string>Left</string>
+   </property>
+  </action>
+  <action name="action_export_figure">
+   <property name="text">
+    <string>Export figure...</string>
+   </property>
+   <property name="shortcut">
+    <string/>
    </property>
   </action>
  </widget>

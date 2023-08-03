@@ -34,8 +34,9 @@ from enum import Enum
 from pathlib import Path
 from typing import Union
 
-from strictyaml import (Bool, Float, Int, Map, Optional, ScalarValidator, Seq,
-                        Str, YAMLError, load)
+from strictyaml import (Any, Bool, FixedSeq, Float, Int, Map, MapCombined,
+                        MapPattern, Optional, ScalarValidator, Seq, Str,
+                        YAMLError, load)
 
 config = {}
 data_run_params = {}
@@ -158,7 +159,7 @@ def load_run_params(filepath: Union[Path, str, None]=None) -> None:
             schema = Map({
                 "data properties": Map({
                     "data source": DatasourceValidator(), 
-                    "exclusion list": PathValidator(), 
+                    Optional("exclusion list"): PathValidator(), 
                     "data path": PathValidator(), 
                     Optional("wav directory"): PathValidator(), 
                     Optional("textgrid directory"): PathValidator(), 
@@ -215,8 +216,17 @@ def load_gui_params(filepath: Union[Path, str, None]=None) -> None:
                     "data": Int(), 
                     "tier": Int()
                     }),
-                "data axes": Seq(Str()),
-                "pervasive tiers": Seq(Str())
+                "data axes": MapPattern( 
+                    Str(), MapCombined(
+                        {
+                            Optional("sharex"): Bool(),
+                            Optional("modalities"): Seq(Str())
+                        },
+                        Str(), Any()
+                    )),
+                "pervasive tiers": Seq(Str()),
+                Optional("xlim"): FixedSeq([Float(), Float()]),
+                "default font size": Int(),
                 })
             try:
                 _raw_gui_params_dict = load(yaml_file.read(), schema)
@@ -227,13 +237,27 @@ def load_gui_params(filepath: Union[Path, str, None]=None) -> None:
     else:
         print(f"Didn't find {filepath}. Exiting.".format(str(filepath)))
         sys.exit()
+
     gui_params.update(_raw_gui_params_dict.data)
+
+    number_of_data_axes = 0
+    if 'data axes' in gui_params:
+        if 'global' in gui_params['data axes']:
+            number_of_data_axes = len(gui_params['data axes']) - 1
+        else:
+            number_of_data_axes = len(gui_params['data axes'])
+    gui_params.update({'number of data axes': number_of_data_axes})
 
 
 def load_plot_params(filepath: Union[Path, str, None]=None) -> None:
     """
     Read the plot file from filepath.
+    
+    Not yet implemented. Will raise a NotImplementedError.
     """
+
+    raise NotImplementedError
+
     if filepath is None:
         print(f"Fatal error in reading {filepath}:")
         print(error)

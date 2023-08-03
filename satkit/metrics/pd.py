@@ -67,7 +67,7 @@ def calculate_timevector(original_timevector, timestep):
     return timevector
 
 def calculate_metric(abs_diff, norm, mask: Optional[ImageMask]=None, interpolated: bool=False):
-    data = abs_diff
+    data = np.copy(abs_diff)
     if mask and not interpolated:
         if mask == ImageMask.bottom:
             half = int(abs_diff.shape[1]/2)
@@ -86,14 +86,45 @@ def calculate_metric(abs_diff, norm, mask: Optional[ImageMask]=None, interpolate
     if norm[0] == 'l':
         if norm[1:] == '_inf':
             return np.max(data, axis=(1, 2))
+        elif norm[1:] == '0':
+            # The infinite series definition has also a multiplier term of 2 to
+            # the power of k where k is the index of the series. We forgo it
+            # because it is only needed to guarantee that the sum over the
+            # series converges. 
+            data = data.astype(np.int32)
+            added = data + 1
+            elements = np.divide(data, added)
+            return np.sum(elements, axis=(1, 2))
         else:
             order = float(norm[1:])
-            sums = np.sum(np.power(data, order), axis=(1, 2))
-            return np.power(sums, 1.0/order)
+            # if order < 0.09:
+            #     sums = np.sum(np.float_power(data, order, dtype='float128'), axis=(1, 2))
+            # else:
+            sums = np.sum(np.float_power(data, order), axis=(1, 2))
+
+            if order < 1:
+                return sums
+            else:
+                return np.float_power(sums, 1.0/order)
+    elif norm[0] == 'd':
+        return np.bincount(data.flatten().astype('uint8'))
     else:
         raise UnrecognisedNormError("Don't know how to calculate norm for %s.", norm)
 
 def calculate_slwpd(raw_diff):
+    """
+    _summary_
+
+    Parameters
+    ----------
+    raw_diff : _type_
+        _description_
+
+    Returns
+    -------
+    _type_
+        _description_
+    """
     square_diff = np.square(raw_diff)
     # this should be square rooted at some point
     slw_pd = np.sum(square_diff, axis=2)

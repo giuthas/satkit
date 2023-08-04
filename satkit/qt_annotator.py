@@ -159,8 +159,8 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
         # over the whole data rather than on recording.
         max_pds = np.zeros(len(self.recordings))
         for i, recording in enumerate(self.recordings):
-            if 'PD l2 on RawUltrasound' in recording.modalities:
-                max_pds[i] = np.max(recording.modalities['PD l2 on RawUltrasound'].data[10:])
+            if 'PD l1 on RawUltrasound' in recording.modalities:
+                max_pds[i] = np.max(recording.modalities['PD l1 on RawUltrasound'].data[10:])
         self.ylim = (-50, np.max(max_pds)*1.05)
 
         height_ratios = [gui_params['data/tier height ratios']["data"], 
@@ -585,8 +585,8 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
         audio = self.current.modalities['MonoAudio']
         stimulus_onset = audio.go_signal
 
-        if 'PD l2 on RawUltrasound' in self.current.modalities:
-            pd_metrics = self.current.modalities['PD l2 on RawUltrasound']
+        if 'PD l1 on RawUltrasound' in self.current.modalities:
+            pd_metrics = self.current.modalities['PD l1 on RawUltrasound']
             ultra_time = pd_metrics.timevector - stimulus_onset
             self.current.annotations['selected_time'] = ultra_time[self.current.annotations['selection_index']]
 
@@ -595,8 +595,8 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
         Move the data cursor to the next frame.
         """
         if (self.current.annotations['selection_index'] > -1 and 
-            'PD l2 on RawUltrasound' in self.current.modalities and
-            self.current.annotations['selection_index'] < self.current.modalities['PD l2 on RawUltrasound'].data.size):
+            'PD l1 on RawUltrasound' in self.current.modalities and
+            self.current.annotations['selection_index'] < self.current.modalities['PD l1 on RawUltrasound'].data.size):
 
             self.current.annotations['selection_index'] += 1
             _qt_annotator_logger.debug(
@@ -812,7 +812,7 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
         audio = self.current.modalities['MonoAudio']
         stimulus_onset = audio.go_signal
 
-        timevector = self.current.modalities['PD l2 on RawUltrasound'].timevector 
+        timevector = self.current.modalities['PD l1 on RawUltrasound'].timevector 
         distances = np.abs(timevector - stimulus_onset - event.xdata)
         self.current.annotations['selection_index'] = np.argmin(distances)
         self.current.annotations['selected_time'] = event.xdata

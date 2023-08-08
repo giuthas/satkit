@@ -32,15 +32,16 @@ import logging
 from pathlib import Path
 from typing import List
 
-import satkit.io as satkit_io
 from satkit.configuration import data_run_params
 from satkit.data_import import generate_aaa_recording_list
 from satkit.data_structures import Recording
 
 logger = logging.getLogger('satkit.scripting')
 
+# TODO: change the name of this file to data_importer and move it to a more
+# appropriete submodule.
 
-
+# TODO: create and return a session rather than a list of recordings?
 def load_data(path: Path, exclusion_file: Path) -> List[Recording]:
     """Handle loading data from individual files or a previously saved session."""
     if not path.exists():
@@ -49,18 +50,17 @@ def load_data(path: Path, exclusion_file: Path) -> List[Recording]:
         logger.critical('Exiting.')
         quit()
     elif path.is_dir():
-        # this is the actual list of recordings that gets processed
-        # token_list includes meta data contained outwith the ult file
         recordings = read_data_from_files(path, exclusion_file)
-    elif path.suffix == '.pickle':
-        recordings = satkit_io.load_pickled_data(path)
-    elif path.suffix == '.json':
-        recordings = satkit_io.load_json_data(path)
+    elif path.suffix == '.satkit_meta':
+        recordings = load_satkit_data(path)
     else:
         logger.error(
             'Unsupported filetype: %s.', path)
     
     return recordings
+
+def load_satkit_data(path: Path, exclusion_file: Path) -> List[Recording]:
+    pass
 
 def read_data_from_files(path: Path, exclusion_file: Path):
     """

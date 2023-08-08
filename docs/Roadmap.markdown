@@ -17,7 +17,7 @@ Items will only be marked as done, once clean up is also done.
       - [ ] note function for annotating individual tokens with free text
 - [ ] Algorithms
   - [x] Spectrogram
-  - [ ] Pixel Difference
+  - [x] Pixel Difference
   - [ ] Optic flow
   - [ ] Principal component analysis (PCA) / dimensionality reduction
   - [ ] Average Nearest Neighbour Distance and Median Point-by-point Distance

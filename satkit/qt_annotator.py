@@ -35,6 +35,7 @@ import logging
 from contextlib import closing
 from copy import deepcopy
 
+import matplotlib
 # Numpy
 import numpy as np
 from matplotlib.backends.backend_qt5agg import \
@@ -49,11 +50,13 @@ from PyQt5.QtWidgets import QFileDialog, QShortcut
 from PyQt5.uic import loadUiType
 
 # Local modules
-import satkit.io as satkit_io
+# import satkit.io as satkit_io
+from plot.plot import plot_density
 from satkit.configuration import gui_params
 from satkit.gui.boundary_animation import BoundaryAnimator
-from satkit.plot import (plot_satgrid_tier, plot_spectrogram, plot_timeseries,
-                         plot_wav)
+from satkit.plot import (Normalisation, plot_satgrid_tier, plot_spectrogram,
+                         plot_timeseries, plot_wav)
+from satkit.save_and_load import save_recordings
 
 # Load the GUI layout generated with QtDesigner.
 Ui_MainWindow, QMainWindow = loadUiType('satkit/gui/qt_annotator.ui')
@@ -99,9 +102,17 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
 
         self.pickle_filename = pickle_filename
 
-        self.close_window = QShortcut(QKeySequence(self.tr("Ctrl+W", "File|Quit")),
+        self.close_window_shortcut = QShortcut(QKeySequence(self.tr("Ctrl+W", "File|Quit")),
                      self)
-        self.close_window.activated.connect(self.quit)
+        self.close_window_shortcut.activated.connect(self.quit)
+
+        self.export_figure_shortcut = QShortcut(QKeySequence(self.tr("Ctrl+E", "File|Export figure...")),
+                     self)
+        self.export_figure_shortcut.activated.connect(self.export_figure)
+
+        self.actionSaveAll.triggered.connect(self.save_all)
+        # self.actionSaveToPickle.triggered.connect(self.save_to_pickle)
+        self.action_export_figure.triggered.connect(self.export_figure)
 
         self.actionNext.triggered.connect(self.next)
         self.actionPrevious.triggered.connect(self.prev)
@@ -113,18 +124,21 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
 
         self.nextButton.clicked.connect(self.next)
         self.prevButton.clicked.connect(self.prev)
-        self.saveButton.clicked.connect(self.save)
-        self.exportButton.clicked.connect(self.save_textgrid)
+        self.saveButton.clicked.connect(self.save_all)
+        self.exportButton.clicked.connect(self.export)
 
         go_validator = QIntValidator(1, self.max_index + 1, self)
         self.goLineEdit.setValidator(go_validator)
         self.goButton.clicked.connect(self.go_to_recording)
 
-        self.categoryRB_1.toggled.connect(self.pd_category_cb)
-        self.categoryRB_2.toggled.connect(self.pd_category_cb)
-        self.categoryRB_3.toggled.connect(self.pd_category_cb)
-        self.categoryRB_4.toggled.connect(self.pd_category_cb)
-        self.categoryRB_5.toggled.connect(self.pd_category_cb)
+        # TODO: add recording list to the display and highlight current
+        # recording
+
+        # self.categoryRB_1.toggled.connect(self.pd_category_cb)
+        # self.categoryRB_2.toggled.connect(self.pd_category_cb)
+        # self.categoryRB_3.toggled.connect(self.pd_category_cb)
+        # self.categoryRB_4.toggled.connect(self.pd_category_cb)
+        # self.categoryRB_5.toggled.connect(self.pd_category_cb)
 
         self.positionRB_1.toggled.connect(self.tongue_position_cb)
         self.positionRB_2.toggled.connect(self.tongue_position_cb)
@@ -136,6 +150,8 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
         self.data_axes = []
         self.tier_axes = []
  
+        matplotlib.rcParams.update({'font.size': gui_params['default font size']})
+
         self.xlim = xlim
 
         # TODO this should be based on the plotted modalities, not on a random
@@ -143,8 +159,8 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
         # over the whole data rather than on recording.
         max_pds = np.zeros(len(self.recordings))
         for i, recording in enumerate(self.recordings):
-            if 'PD l2 on RawUltrasound' in recording.modalities:
-                max_pds[i] = np.max(recording.modalities['PD l2 on RawUltrasound'].data[10:])
+            if 'PD l1 on RawUltrasound' in recording.modalities:
+                max_pds[i] = np.max(recording.modalities['PD l1 on RawUltrasound'].data[10:])
         self.ylim = (-50, np.max(max_pds)*1.05)
 
         height_ratios = [gui_params['data/tier height ratios']["data"], 
@@ -156,14 +172,13 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
                                 wspace=0, 
                                 height_ratios=height_ratios)
 
-        nro_data_modalities = len(gui_params['data axes'])
+        nro_data_modalities = gui_params['number of data axes']
         self.data_grid_spec = self.main_grid_spec[0].subgridspec(nro_data_modalities, 
                                                     1, hspace=0, wspace=0)
         self.data_axes.append(self.fig.add_subplot(self.data_grid_spec[0]))
         for i in range(1, nro_data_modalities):
             self.data_axes.append(self.fig.add_subplot(self.data_grid_spec[i],
                                                     sharex=self.data_axes[0]))
-
 
         self.ultra_fig = Figure()
         self.ultra_canvas = FigureCanvas(self.ultra_fig)
@@ -191,8 +206,8 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
         return {
             'pdCategory': self.categories[-1],
             'tonguePosition': self.tongue_positions[-1],
-            'pdOnset': -1.0,
-            'pdOnsetIndex': 1,
+            'selected_time': -1.0,
+            'selection_index': 1,
         }
 
     def _add_annotations(self):
@@ -213,6 +228,15 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
         text += ', prompt: ' + self.current.meta_data.prompt
         return text
 
+    def _get_long_title(self):
+        """
+        Private helper function for generating a longer title for a figure.
+        """
+        text = 'Recording: ' + str(self.index+1) + '/' + str(self.max_index)
+        text += ', Speaker: ' + str(self.current.meta_data.participant_id)
+        text += ', prompt: ' + self.current.meta_data.prompt
+        return text
+
     def clear_axes(self):
         """Clear data axes of this annotator."""
         for axes in self.data_axes:
@@ -228,7 +252,7 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
 
         self.draw_plots()
         self.multicursor = MultiCursor(
-            self.canvas, 
+            self.canvas,
             axes=self.data_axes+self.tier_axes, 
             color='deepskyblue', linestyle="--", lw=1)
         self.fig.canvas.draw()
@@ -242,16 +266,18 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
         Updates parts of the UI outwith the graphs.
         """
         # self.pdCategoryRB.set_active(self.current.annotations['pdCategory'])
-        if self.categoryRB_1.text() == self.current.annotations['pdCategory']:
-            self.categoryRB_1.setChecked(True)
-        if self.categoryRB_2.text() == self.current.annotations['pdCategory']:
-            self.categoryRB_2.setChecked(True)
-        if self.categoryRB_3.text() == self.current.annotations['pdCategory']:
-            self.categoryRB_3.setChecked(True)
-        if self.categoryRB_4.text() == self.current.annotations['pdCategory']:
-            self.categoryRB_4.setChecked(True)
-        if self.categoryRB_5.text() == self.current.annotations['pdCategory']:
-            self.categoryRB_5.setChecked(True)
+        # if self.categoryRB_1.text() == self.current.annotations['pdCategory']:
+        #     self.categoryRB_1.setChecked(True)
+        # if self.categoryRB_2.text() == self.current.annotations['pdCategory']:
+        #     self.categoryRB_2.setChecked(True)
+        # if self.categoryRB_3.text() == self.current.annotations['pdCategory']:
+        #     self.categoryRB_3.setChecked(True)
+        # if self.categoryRB_4.text() == self.current.annotations['pdCategory']:
+        #     self.categoryRB_4.setChecked(True)
+        # if self.categoryRB_5.text() == self.current.annotations['pdCategory']:
+        #     self.categoryRB_5.setChecked(True)
+
+        # TODO: highlight current recording
 
         if self.positionRB_1.text() == self.current.annotations['tonguePosition']:
             self.positionRB_1.setChecked(True)
@@ -267,6 +293,7 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
         Updates title and graphs. Called by self.update().
         """
         self.data_axes[0].set_title(self._get_title())
+        self.data_axes[0].set_title(self._get_long_title())
 
         for axes in self.tier_axes:
             axes.remove()
@@ -280,18 +307,43 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
                 axes.set_yticks([])
                 self.tier_axes.append(axes)
 
+        for axes in self.data_axes:
+            axes.xaxis.set_tick_params(bottom=False, labelbottom=False)
+
+        for axes in self.tier_axes[:-1]:
+            axes.xaxis.set_tick_params(bottom=False, labelbottom=False)
+
+        # self.tier_axes[-1].xaxis.set_tick_params(labelbottom=True)
+        # ticks = self.tier_axes[-1].xaxis.set_tick_params(bottom=True, labelbottom=True)
+
         audio = self.current.modalities['MonoAudio']
         stimulus_onset = audio.go_signal
         wav = audio.data
         wav_time = (audio.timevector - stimulus_onset)
 
-        l2 = self.current.modalities['PD l2 on RawUltrasound']
+        # l0 = self.current.modalities['PD l0 on RawUltrasound']
+        # l0_01 = self.current.modalities['PD l0.01 on RawUltrasound']
+        # l0_1 = self.current.modalities['PD l0.1 on RawUltrasound']
+        # l0_5 = self.current.modalities['PD l0.5 on RawUltrasound']
+
+        l1 = self.current.modalities['PD l1 on RawUltrasound']
+        # l1_top = self.current.modalities['PD l1 top on RawUltrasound']
+        # l1_bottom = self.current.modalities['PD l1 bottom on RawUltrasound']
+
+        # l2 = self.current.modalities['PD l2 on RawUltrasound']
+        # l4 = self.current.modalities['PD l4 on RawUltrasound']
         # l2_top = self.current.modalities['PD l2 top on RawUltrasound']
-        l2_bottom = self.current.modalities['PD l2 bottom on RawUltrasound']
+        # l2_bottom = self.current.modalities['PD l2 bottom on RawUltrasound']
+
+        # l10 = self.current.modalities['PD l10 on RawUltrasound']
+        # linf = self.current.modalities['PD l_inf on RawUltrasound']
+
+        # frequencies = self.current.modalities['PD d on RawUltrasound']
+
         # l2_interpolated = self.current.modalities['Interpolated PD l2 on RawUltrasound']
         # l2_interpolated_top = self.current.modalities['Interpolated PD l2 top on RawUltrasound']
         # l2_interpolated_bottom = self.current.modalities['Interpolated PD l2 bottom on RawUltrasound']
-        ultra_time = l2.timevector - stimulus_onset
+        ultra_time = l1.timevector - stimulus_onset
 
         # l2_size = len(self.current.modalities['RawUltrasound'].data[0,:,:])
         # half = int(self.current.modalities['RawUltrasound'].data.shape[1]/2)
@@ -317,13 +369,72 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
         #          textgrid, stimulus_onset, 
         #          picker=PdQtAnnotator.line_xdirection_picker)
         ylim = None
-        raw = plot_timeseries(self.data_axes[0], l2.data,
-            ultra_time, self.xlim, ylim, peak_normalise=True) #, 
-            # picker=PdQtAnnotator.line_xdirection_picker)
-        raw_bottom = plot_timeseries(self.data_axes[0], l2_bottom.data,
-            ultra_time, self.xlim, ylim, color='gold', peak_normalise=True) #, 
-            # picker=PdQtAnnotator.line_xdirection_picker)
-        self.data_axes[0].set_ylabel("Peak normalised PD")
+        if 'xlim' in gui_params:
+            self.xlim = gui_params['xlim']
+        else:
+            self.xlim = (-.25, 1.5)
+
+        # plot_density(self.data_axes[0], frequencies.data)
+
+        # raw_l0 = plot_timeseries(self.data_axes[0], l0.data,
+        #     ultra_time, self.xlim, ylim, color='black', linestyle='--', 
+        #     normalise=Normalisation('PEAK AND BOTTOM'))
+        # raw_l0_01 = plot_timeseries(self.data_axes[0], l0_01.data,
+        #     ultra_time, self.xlim, ylim, color='black', 
+        #     normalise=Normalisation('PEAK AND BOTTOM'))
+        # raw_l0_1 = plot_timeseries(self.data_axes[0], l0_1.data,
+        #     ultra_time, self.xlim, ylim, color='dimgrey', 
+        #     normalise=Normalisation('PEAK AND BOTTOM'))
+        # raw_l0_5 = plot_timeseries(self.data_axes[0], l0_5.data,
+        #     ultra_time, self.xlim, ylim, color='grey', 
+        #     normalise=Normalisation('PEAK AND BOTTOM'))
+        raw_l1 = plot_timeseries(self.data_axes[0], l1.data,
+            ultra_time, self.xlim, ylim, color='yellowgreen',
+            normalise=Normalisation('PEAK AND BOTTOM'), find_peaks=False)
+        # raw_l1_bottom = plot_timeseries(self.data_axes[0], l1_bottom.data,
+        #     ultra_time, self.xlim, ylim, color='gray', linestyle=':',
+        #     normalise=Normalisation('PEAK AND BOTTOM'))
+        # raw_l1_top = plot_timeseries(self.data_axes[0], l1_top.data,
+        #     ultra_time, self.xlim, ylim, color='blue', linestyle=':',
+        #     normalise=Normalisation('PEAK AND BOTTOM'))
+        # raw_top = plot_timeseries(self.data_axes[0], l2_top.data,
+        #     ultra_time, self.xlim, ylim, color='black', 
+        #     normalise=Normalisation('PEAK'))
+        self.data_axes[0].set_ylabel("Pixel difference (PD)")
+        # self.data_axes[0].legend(
+        #     (
+        #         #raw_l0, raw_l0_01, 
+        #         # raw_l0_1, raw_l0_5, 
+        #         raw_l1, raw_l1_bottom, raw_l1_top
+        #     ),
+        #     # , interp, interp_top, interp_bottom),
+        #     (
+        #         # 'l0', 'l0.01', 
+        #         # 'l0.1', 'l0.5', 
+        #         'l1 whole', 'l1 bottom', 'l1 top'
+        #     ),
+        #     #, 'Interpolated', 'Interpolated top', 'Interpolated bottom'),
+        #     loc='upper right')
+
+        # raw_l1 = plot_timeseries(self.data_axes[1], l1.data,
+        #     ultra_time, self.xlim, ylim, color='gray', linestyle=':',
+        #     normalise=Normalisation('PEAK AND BOTTOM'))
+        # raw_l1_bottom = plot_timeseries(self.data_axes[1], l1_bottom.data,
+        #     ultra_time, self.xlim, ylim, color='black',
+        #     normalise=Normalisation('PEAK AND BOTTOM'), find_peaks=True)
+        # raw_l2 = plot_timeseries(self.data_axes[1], l2.data,
+        #     ultra_time, self.xlim, ylim, color='yellowgreen',
+        #     normalise=Normalisation('PEAK AND BOTTOM'))
+        # raw_l4 = plot_timeseries(self.data_axes[1], l4.data,
+        #     ultra_time, self.xlim, ylim, color='saddlebrown',
+        #     normalise=Normalisation('PEAK AND BOTTOM'))
+        # raw_l10 = plot_timeseries(self.data_axes[1], l10.data,
+        #     ultra_time, self.xlim, ylim, color='saddlebrown', linestyle='--',
+        #     normalise=Normalisation('PEAK AND BOTTOM'))
+        # raw_linf = plot_timeseries(self.data_axes[1], linf.data,
+        #     ultra_time, self.xlim, ylim, color='saddlebrown', linestyle=':',
+        #     normalise=Normalisation('PEAK AND BOTTOM'))
+        # self.data_axes[1].set_ylabel("Peaks from\nbottom of image")
 
         # interp = plot_timeseries(self.data_axes[1], l2_interpolated.data,
         #     ultra_time, self.xlim, ylim, color='black', linestyle="--", peak_normalise=True)
@@ -333,19 +444,23 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
         #     ultra_time, self.xlim, ylim, color='orange', linestyle="--", peak_normalise=True)
         # self.data_axes[1].set_ylabel("Peak normalised PD")
 
-        self.data_axes[0].legend(
-            (raw, raw_bottom),
-            # , interp, interp_top, interp_bottom),
-            ('Whole', 'Bottom'),
-            #, 'Interpolated', 'Interpolated top', 'Interpolated bottom'),
-            loc='upper right')
         # self.data_axes[0].legend(
         #     (raw, raw_top, raw_bottom),
         #     ('Raw', 'Raw upper', 'Raw lower'),
         #     loc='upper right')
         # self.data_axes[1].legend(
-        #     (interp, interp_top, interp_bottom),
-        #     ('Interpolated', 'Interpolated upper', 'Interpolated lower'),
+        #     (
+        #         #raw_l0, raw_l0_01, 
+        #         # raw_l0_1, raw_l0_5, 
+        #         raw_l1, raw_l1_bottom
+        #     ),
+        #     # , interp, interp_top, interp_bottom),
+        #     (
+        #         # 'l0', 'l0.01', 
+        #         # 'l0.1', 'l0.5', 
+        #         'l1 whole', 'l1 bottom'
+        #     ),
+        #     #, 'Interpolated', 'Interpolated top', 'Interpolated bottom'),
         #     loc='upper right')
 
         # self.ylim = None
@@ -365,14 +480,20 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
         #     ultra_time, self.xlim, self.ylim, color='orange', linestyle="--")
         # self.data_axes[2].set_ylabel("Pixel normalised PD")
 
-        plot_wav(self.data_axes[1], wav, wav_time, self.xlim) #,
-            # picker=PdQtAnnotator.line_xdirection_picker)
-        plot_spectrogram(self.data_axes[2], 
+        plot_wav(self.data_axes[2], wav, wav_time, self.xlim)
+        plot_spectrogram(self.data_axes[1], 
                         waveform=wav,
                         ylim=(0,10500), 
                         sampling_frequency=audio.sampling_rate, 
-                        xtent_on_x=[wav_time[0], wav_time[-1]]) #, 
-            # picker=PdQtAnnotator.image_picker)
+                        xtent_on_x=[wav_time[0], wav_time[-1]])
+
+        # TODO: the sync is out with this one, but plotting a pd spectrum is still a good idea.
+        # plot_spectrogram(self.data_axes[2], 
+        #                 waveform=l2.data,
+        #                 ylim=(0,40), 
+        #                 sampling_frequency=l2.sampling_rate, 
+        #                 xtent_on_x=[-1.5812581, 1]) #, 
+        #                 # xtent_on_x=[ultra_time[0], ultra_time[-1]]) #, 
 
         segment_line = None
         self.animators = []
@@ -404,14 +525,14 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
 
         self.fig.tight_layout()
 
-        if self.current.annotations['pdOnset'] > -1:
+        if self.current.annotations['selected_time'] > -1:
             for axes in self.data_axes[:-1]:
-                axes.axvline(x=self.current.annotations['pdOnset'],
+                axes.axvline(x=self.current.annotations['selected_time'],
                                     linestyle=':', color="deepskyblue", lw=1)
-            self.data_axes[-1].axvline(x=self.current.annotations['pdOnset'],
+            self.data_axes[-1].axvline(x=self.current.annotations['selected_time'],
                              linestyle=':', color="white", lw=1)
             for axes in self.tier_axes:
-                axes.axvline(x=self.current.annotations['pdOnset'],
+                axes.axvline(x=self.current.annotations['selected_time'],
                                     linestyle=':', color="deepskyblue", lw=1)
 
         # if self.display_tongue:
@@ -423,10 +544,10 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
         Display an already interpolated ultrasound frame.
         """
         if (self.current.excluded or 
-            self.current.annotations['pdOnsetIndex'] == -1):
+            self.current.annotations['selection_index'] == -1):
             self.ultra_axes.clear()
-        elif self.current.annotations['pdOnsetIndex']:
-            index = self.current.annotations['pdOnsetIndex']
+        elif self.current.annotations['selection_index']:
+            index = self.current.annotations['selection_index']
             image = self.current.modalities['RawUltrasound'].interpolated_image(
                 index)
             self.ultra_axes.imshow(image, interpolation='nearest', cmap='gray')
@@ -436,8 +557,8 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
         """
         Interpolate and display a raw ultrasound frame.
         """
-        if self.current.annotations['pdOnsetIndex']:
-            ind = self.current.annotations['pdOnsetIndex']
+        if self.current.annotations['selection_index']:
+            ind = self.current.annotations['selection_index']
             array = self.current.modalities['RawUltrasound'].data[ind, :, :]
         else:
             array = self.current.modalities['RawUltrasound'].data[1, :, :]
@@ -464,20 +585,22 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
         audio = self.current.modalities['MonoAudio']
         stimulus_onset = audio.go_signal
 
-        pd_metrics = self.current.modalities['PD l2 on RawUltrasound']
-        ultra_time = pd_metrics.timevector - stimulus_onset
-        self.current.annotations['pdOnset'] = ultra_time[self.current.annotations['pdOnsetIndex']]
+        if 'PD l1 on RawUltrasound' in self.current.modalities:
+            pd_metrics = self.current.modalities['PD l1 on RawUltrasound']
+            ultra_time = pd_metrics.timevector - stimulus_onset
+            self.current.annotations['selected_time'] = ultra_time[self.current.annotations['selection_index']]
 
     def next_frame(self):
         """
         Move the data cursor to the next frame.
         """
-        if (self.current.annotations['pdOnsetIndex'] > -1 and 
-            self.current.annotations['pdOnsetIndex'] < self.current.modalities['PD l2 on RawUltrasound'].data.size):
+        if (self.current.annotations['selection_index'] > -1 and 
+            'PD l1 on RawUltrasound' in self.current.modalities and
+            self.current.annotations['selection_index'] < self.current.modalities['PD l1 on RawUltrasound'].data.size):
 
-            self.current.annotations['pdOnsetIndex'] += 1
+            self.current.annotations['selection_index'] += 1
             _qt_annotator_logger.debug(
-                "next frame: %d"%(self.current.annotations['pdOnsetIndex']))
+                "next frame: %d"%(self.current.annotations['selection_index']))
             self._update_pd_onset()
             self.update()
             self.update_ui()
@@ -486,10 +609,10 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
         """
         Move the data cursor to the previous frame.
         """
-        if self.current.annotations['pdOnsetIndex'] > 0:
-            self.current.annotations['pdOnsetIndex'] -= 1
+        if self.current.annotations['selection_index'] > 0:
+            self.current.annotations['selection_index'] -= 1
             _qt_annotator_logger.debug(
-                "previous frame: %d"%(self.current.annotations['pdOnsetIndex']))
+                "previous frame: %d"%(self.current.annotations['selection_index']))
             self._update_pd_onset()
             self.update()
             self.update_ui()
@@ -521,19 +644,27 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
         """
         QCoreApplication.quit()
 
-    def save(self):
+    def save_all(self):
         """
-        Save the recordings.
+        Save derived modalities and annotations.
+        """
+        save_recordings(self.recordings)
+
+    def save_to_pickle(self):
+        """
+        Save the recordings into a pickle file.
         """
         if not self.pickle_filename:
             (self.pickle_filename, _) = QFileDialog.getSaveFileName(
                 self, 'Save file', directory='.', filter="Pickle files (*.pickle)")
         if self.pickle_filename:
-            satkit_io.save2pickle(
-                self.recordings,
-                self.pickle_filename)
             _qt_annotator_logger.info(
-                "Wrote data to file {file}.", file = self.pickle_filename)
+                "Pickling is currently disabled. Did NOT write file {file}.", file = self.pickle_filename)
+            # satkit_io.save2pickle(
+            #     self.recordings,
+            #     self.pickle_filename)
+            # _qt_annotator_logger.info(
+            #     "Wrote data to file {file}.", file = self.pickle_filename)
 
     def save_textgrid(self):
         """
@@ -547,6 +678,18 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
                 outfile.write(self.current.satgrid.format_long())
             _qt_annotator_logger.info(
                 "Wrote TextGrid to file %s.", str(self.current._textgrid_path))
+
+    def export_figure(self):
+        """
+        Callback method to export the current figure in any supported format.
+
+        Opens a filedialog to ask for the filename. Save format is determined by
+        file extension.
+        """
+        (filename, _) = QFileDialog.getSaveFileName(
+                self, 'Export figure', directory='.')
+        self.fig.savefig(filename, bbox_inches='tight', pad_inches=0.05)
+
 
     def export(self):
         """
@@ -574,10 +717,10 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
             writer.writeheader()
             for recording in self.recordings:
                 annotations = recording.annotations.copy()
-                annotations['basename'] = recording.meta['basename']
-                annotations['date_and_time'] = recording.meta['date_and_time']
-                annotations['prompt'] = recording.meta['prompt']
-                annotations['word'] = recording.meta['prompt'].split()[0]
+                annotations['basename'] = recording.basename
+                annotations['date_and_time'] = recording.meta_data.time_of_recording
+                annotations['prompt'] = recording.meta_data.prompt
+                annotations['word'] = recording.meta_data.prompt.split()[0]
 
                 word_dur = -1.0
                 acoustic_onset = -1.0
@@ -593,17 +736,17 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
                         # more intelligent by selecting purposefully the last non-empty first and
                         # taking the duration?
                         word_dur = interval.dur
-                        stimulus_onset = recording.modalities['MonoAudio'].meta['stimulus_onset']
+                        stimulus_onset = recording.modalities['MonoAudio'].go_signal
                         acoustic_onset = interval.xmin - stimulus_onset
                         break
                     annotations['word_dur'] = word_dur
                 else:
                     annotations['word_dur'] = -1.0
 
-                if acoustic_onset < 0 or annotations['pdOnset'] < 0:
+                if acoustic_onset < 0 or annotations['selected_time'] < 0:
                     aai = -1.0
                 else:
-                    aai = acoustic_onset - annotations['pdOnset']
+                    aai = acoustic_onset - annotations['selected_time']
                 annotations['AAI'] = aai
 
                 first_sound_dur = -1.0
@@ -621,10 +764,10 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
                 else:
                     annotations['first_sound_type'] = 'C'
 
-                annotations['C1'] = recording.meta['prompt'][0]
+                annotations['C1'] = recording.meta_data.prompt[0]
                 writer.writerow(annotations)
             _qt_annotator_logger.info(
-                'Wrote onset data in file {file}.', file = filename)
+                'Wrote onset data in file %s.'%(filename))
 
     def pd_category_cb(self):
         """
@@ -649,8 +792,8 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
         Callback for handling time selection on events.
         """
         if not event.xdata:
-            self.current.annotations['pdOnset'] = -1
-            self.current.annotations['pdOnsetIndex'] = -1
+            self.current.annotations['selected_time'] = -1
+            self.current.annotations['selection_index'] = -1
             self.update()
             return
 
@@ -664,20 +807,20 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
             subplot, event.xdata))
 
         # if subplot == 1:
-        #     self.current.annotations['pdOnset'] = event.pickx
+        #     self.current.annotations['selected_time'] = event.pickx
 
         audio = self.current.modalities['MonoAudio']
         stimulus_onset = audio.go_signal
 
-        timevector = self.current.modalities['PD l2 on RawUltrasound'].timevector 
+        timevector = self.current.modalities['PD l1 on RawUltrasound'].timevector 
         distances = np.abs(timevector - stimulus_onset - event.xdata)
-        self.current.annotations['pdOnsetIndex'] = np.argmin(distances)
-        self.current.annotations['pdOnset'] = event.xdata
+        self.current.annotations['selection_index'] = np.argmin(distances)
+        self.current.annotations['selected_time'] = event.xdata
 
         _qt_annotator_logger.debug("Inside onpick - subplot: %d, index=%d, x=%f"%(
             subplot, 
-            self.current.annotations['pdOnsetIndex'],
-            self.current.annotations['pdOnset']))
+            self.current.annotations['selection_index'],
+            self.current.annotations['selected_time']))
 
         self.update()
 

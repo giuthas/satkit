@@ -42,6 +42,8 @@ dependencies:
   - pyqt >= 5.9
   - pylint >= 2.9
   - strictyaml >= 1.6.1
+  - nestedtext >= 3.5
+  - pydantic >= 1.10
   - setuptools >= 58
   - pdoc
   - build 

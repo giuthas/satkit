@@ -34,18 +34,21 @@ from enum import Enum
 from pathlib import Path
 from typing import Union
 
-from strictyaml import (Bool, Float, Int, Map, Optional, ScalarValidator, Seq,
-                        Str, YAMLError, load)
+from strictyaml import (Any, Bool, FixedSeq, Float, Int, Map, MapCombined,
+                        MapPattern, Optional, ScalarValidator, Seq, Str,
+                        YAMLError, load)
 
 config = {}
 data_run_params = {}
 gui_params = {}
+plot_params = {}
 
 # This is where we store the metadata needed to write out the configuration and
 # possibly not mess up the comments in it.
 _raw_config_dict = {}
 _raw_data_run_params_dict = {}
 _raw_gui_params_dict = {}
+_raw_plot_params_dict = {}
 
 class Datasource(Enum):
     aaa = 'AAA'
@@ -95,6 +98,7 @@ def load_config(filepath: Union[Path, str, None]=None) -> None:
     load_main_config(filepath)
     load_run_params(config['data run parameter file'])
     load_gui_params(config['gui parameter file'])
+    # load_plot_params(config['plotting parameter file'])
 
 
 def load_main_config(filepath: Union[Path, str, None]=None) -> None:
@@ -155,10 +159,8 @@ def load_run_params(filepath: Union[Path, str, None]=None) -> None:
             schema = Map({
                 "data properties": Map({
                     "data source": DatasourceValidator(), 
-                    "exclusion list": PathValidator(), 
-                    "pronunciation dictionary": PathValidator(),
-                    "speaker id": Str(), 
-                    "data directory": PathValidator(), 
+                    Optional("exclusion list"): PathValidator(), 
+                    "data path": PathValidator(), 
                     Optional("wav directory"): PathValidator(), 
                     Optional("textgrid directory"): PathValidator(), 
                     Optional("ultrasound directory"): PathValidator(), 
@@ -166,11 +168,16 @@ def load_run_params(filepath: Union[Path, str, None]=None) -> None:
                     }), 
                 "flags": Map({
                     "detect beep": Bool(),
-                    "test": Bool(),
+                    "test": Bool()
+                    }),
+                "cast": Map({
+                    "pronunciation dictionary": PathValidator(),
+                    "speaker id": Str(), 
                     "cast flags": Map({
                         "only words": Bool(),
                         "file": Bool(),
-                        "utterance": Bool()})
+                        "utterance": Bool()
+                        })
                     })
                 })
             try:
@@ -209,8 +216,17 @@ def load_gui_params(filepath: Union[Path, str, None]=None) -> None:
                     "data": Int(), 
                     "tier": Int()
                     }),
-                "data axes": Seq(Str()),
-                "pervasive tiers": Seq(Str())
+                "data axes": MapPattern( 
+                    Str(), MapCombined(
+                        {
+                            Optional("sharex"): Bool(),
+                            Optional("modalities"): Seq(Str())
+                        },
+                        Str(), Any()
+                    )),
+                "pervasive tiers": Seq(Str()),
+                Optional("xlim"): FixedSeq([Float(), Float()]),
+                "default font size": Int(),
                 })
             try:
                 _raw_gui_params_dict = load(yaml_file.read(), schema)
@@ -221,4 +237,54 @@ def load_gui_params(filepath: Union[Path, str, None]=None) -> None:
     else:
         print(f"Didn't find {filepath}. Exiting.".format(str(filepath)))
         sys.exit()
+
     gui_params.update(_raw_gui_params_dict.data)
+
+    number_of_data_axes = 0
+    if 'data axes' in gui_params:
+        if 'global' in gui_params['data axes']:
+            number_of_data_axes = len(gui_params['data axes']) - 1
+        else:
+            number_of_data_axes = len(gui_params['data axes'])
+    gui_params.update({'number of data axes': number_of_data_axes})
+
+
+def load_plot_params(filepath: Union[Path, str, None]=None) -> None:
+    """
+    Read the plot file from filepath.
+    
+    Not yet implemented. Will raise a NotImplementedError.
+    """
+
+    raise NotImplementedError
+
+    if filepath is None:
+        print(f"Fatal error in reading {filepath}:")
+        print(error)
+        sys.exit()
+    elif isinstance(filepath, str):
+        filepath = Path(filepath)
+
+    global plot_params
+    global _raw_plot_params_dict
+
+    if filepath.is_file():
+        with closing(open(filepath, 'r')) as yaml_file:
+            schema = Map({
+                "data/tier height ratios": Map({
+                    "data": Int(), 
+                    "tier": Int()
+                    }),
+                "data axes": Seq(Str()),
+                "pervasive tiers": Seq(Str())
+                })
+            try:
+                _raw_plot_params_dict = load(yaml_file.read(), schema)
+            except YAMLError as error:
+                print(f"Fatal error in reading {filepath}:")
+                print(error)
+                sys.exit()
+    else:
+        print(f"Didn't find {filepath}. Exiting.".format(str(filepath)))
+        sys.exit()
+    plot_params.update(_raw_plot_params_dict.data)

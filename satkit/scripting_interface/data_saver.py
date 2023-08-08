@@ -33,7 +33,7 @@ import logging
 from pathlib import Path
 from typing import List
 
-import satkit.io as satkit_io
+# import satkit.io as satkit_io
 from satkit.data_structures import Recording
 
 logger = logging.getLogger('satkit.scripting')
@@ -42,11 +42,13 @@ logger = logging.getLogger('satkit.scripting')
 
 def save_data(path: Path, recordings: List[Recording]):
     if path.suffix == '.pickle':
-        satkit_io.save2pickle(
-            recordings,
-            path)
         logger.info(
-            "Wrote data to file %s.", str(path))
+            "Pickling is currently disabled. Did NOT write file %s.", str(path))
+        # satkit_io.save2pickle(
+        #     recordings,
+        #     path)
+        # logger.info(
+        #     "Wrote data to file %s.", str(path))
     elif path.suffix == '.json':
         logger.error(
             'Unsupported filetype: %s.', str(path))

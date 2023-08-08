@@ -480,7 +480,7 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
         #     ultra_time, self.xlim, self.ylim, color='orange', linestyle="--")
         # self.data_axes[2].set_ylabel("Pixel normalised PD")
 
-        # plot_wav(self.data_axes[2], wav, wav_time, self.xlim)
+        plot_wav(self.data_axes[2], wav, wav_time, self.xlim)
         plot_spectrogram(self.data_axes[1], 
                         waveform=wav,
                         ylim=(0,10500), 

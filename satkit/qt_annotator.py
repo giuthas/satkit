@@ -512,7 +512,7 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
                     boundaries_by_axis.append(boundary_set)
 
             # Change rows to be individual boundaries instead of axis. This
-            # makes it possible to create animatores for each boundary as
+            # makes it possible to create animators for each boundary as
             # represented by multiple lines on different axes.
             boundaries_by_boundary = list(map(list, zip(*boundaries_by_axis)))
 

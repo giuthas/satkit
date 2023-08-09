@@ -50,6 +50,17 @@ class AnimatableBoundary:
     prev_text: Optional[mpl_text] = None
     next_text: Optional[mpl_text] = None
 
+class ShiftListener:
+    shift_is_held = False
+
+    def on_key_press(event):
+       if event.key == 'shift':
+           ShiftListener.shift_is_held = True
+
+    def on_key_release(event):
+        if event.key == 'shift':
+            ShiftListener.shift_is_held = False
+
 class BoundaryAnimator:
     """
     Draggable annotation boundary with blitting.

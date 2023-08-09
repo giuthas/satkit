@@ -4,6 +4,9 @@ Items will only be marked as done, once clean up is also done.
 
 - [ ] GUI
   - [ ] Boundaries and labels
+    - [x] movable single boundaries
+    - [ ] shift+drag moving of all boundaries at the same time point
+    - [x] selection of tier that will be displayed over the graphs
     - [ ] label editing
     - [ ] adding boundaries
       - [ ] including interval selection and adding from that maybe

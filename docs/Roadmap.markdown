@@ -28,6 +28,8 @@ Items will only be marked as done, once clean up is also done.
 - [ ] Saving and loading
   - [x] loading textgrids
   - [ ] loading data from AAA
+    - [x] old style
+    - [ ] new style
   - [ ] loading data from 3D/4D ultrasound
   - [ ] saving results in
     - [ ] implementation free, human readable if possible, formats

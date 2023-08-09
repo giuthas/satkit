@@ -44,7 +44,7 @@ from matplotlib.backends.backend_qt5agg import \
 from matplotlib.figure import Figure
 from matplotlib.widgets import MultiCursor
 # GUI functionality
-from PyQt5.QtCore import QCoreApplication
+from PyQt5.QtCore import QCoreApplication, Qt
 from PyQt5.QtGui import QIntValidator, QKeySequence
 from PyQt5.QtWidgets import QFileDialog, QShortcut
 from PyQt5.uic import loadUiType
@@ -83,7 +83,6 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
     def __init__(self, recordings, args, xlim=(-0.25, 1.5),
                  categories=None, pickle_filename=None):
         super().__init__()
-
         self.setupUi(self)
 
         self.index = 0
@@ -144,12 +143,16 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
         self.positionRB_2.toggled.connect(self.tongue_position_cb)
         self.positionRB_3.toggled.connect(self.tongue_position_cb)
 
-        self.fig = Figure()
-        self.canvas = FigureCanvas(self.fig)
+        self.figure = Figure()
+        self.canvas = FigureCanvas(self.figure)
         self.mplWindowVerticalLayout.addWidget(self.canvas)
         self.data_axes = []
         self.tier_axes = []
- 
+
+        self.shift_is_held = False
+        # self.cid_key_press = self.figure.canvas.mpl_connect('key_press_event', self.on_key_press)
+        # self.cid_key_release = self.figure.canvas.mpl_connect('key_release_event', self.on_key_release)
+
         matplotlib.rcParams.update({'font.size': gui_params['default font size']})
 
         self.xlim = xlim
@@ -165,7 +168,7 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
 
         height_ratios = [gui_params['data/tier height ratios']["data"], 
                         gui_params['data/tier height ratios']["tier"]]
-        self.main_grid_spec = self.fig.add_gridspec(
+        self.main_grid_spec = self.figure.add_gridspec(
                                 nrows=2,
                                 ncols=1, 
                                 hspace=0, 
@@ -175,9 +178,9 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
         nro_data_modalities = gui_params['number of data axes']
         self.data_grid_spec = self.main_grid_spec[0].subgridspec(nro_data_modalities, 
                                                     1, hspace=0, wspace=0)
-        self.data_axes.append(self.fig.add_subplot(self.data_grid_spec[0]))
+        self.data_axes.append(self.figure.add_subplot(self.data_grid_spec[0]))
         for i in range(1, nro_data_modalities):
-            self.data_axes.append(self.fig.add_subplot(self.data_grid_spec[i],
+            self.data_axes.append(self.figure.add_subplot(self.data_grid_spec[i],
                                                     sharex=self.data_axes[0]))
 
         self.ultra_fig = Figure()
@@ -188,7 +191,7 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
         if not self.current.excluded:
             self.draw_plots()
 
-        self.fig.align_ylabels()
+        self.figure.align_ylabels()
 
         self.multicursor = None
 
@@ -255,7 +258,7 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
             self.canvas,
             axes=self.data_axes+self.tier_axes, 
             color='deepskyblue', linestyle="--", lw=1)
-        self.fig.canvas.draw()
+        self.figure.canvas.draw()
 
         if self.display_tongue:
             _qt_annotator_logger.debug("Drawing ultra frame in update")
@@ -302,7 +305,7 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
             nro_tiers = len(self.current.satgrid)
             self.tier_grid_spec = self.main_grid_spec[1].subgridspec(nro_tiers, 1, hspace=0, wspace=0)
             for i, tier in enumerate(self.current.textgrid):
-                axes = self.fig.add_subplot(self.tier_grid_spec[i],
+                axes = self.figure.add_subplot(self.tier_grid_spec[i],
                                                         sharex=self.data_axes[0])
                 axes.set_yticks([])
                 self.tier_axes.append(axes)
@@ -523,7 +526,7 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
         if self.tier_axes:
             self.tier_axes[-1].set_xlabel("Time (s), go-signal at 0 s.")
 
-        self.fig.tight_layout()
+        self.figure.tight_layout()
 
         if self.current.annotations['selected_time'] > -1:
             for axes in self.data_axes[:-1]:
@@ -688,7 +691,7 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
         """
         (filename, _) = QFileDialog.getSaveFileName(
                 self, 'Export figure', directory='.')
-        self.fig.savefig(filename, bbox_inches='tight', pad_inches=0.05)
+        self.figure.savefig(filename, bbox_inches='tight', pad_inches=0.05)
 
 
     def export(self):
@@ -828,3 +831,15 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
         """Handle window being resized."""
         self.update()
         QMainWindow.resizeEvent(self, event)
+
+    def keyPressEvent(self, event):
+        if event.key() == Qt.Key_Shift:
+           self.shift_is_held = True
+        # else:
+        #     print(event.key())
+
+    def keyReleaseEvent(self, event):
+        if event.key() == Qt.Key_Shift:
+            self.shift_is_held = False
+        # else:
+        #     print(event.key)

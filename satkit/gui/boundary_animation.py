@@ -50,17 +50,6 @@ class AnimatableBoundary:
     prev_text: Optional[mpl_text] = None
     next_text: Optional[mpl_text] = None
 
-class ShiftListener:
-    shift_is_held = False
-
-    def on_key_press(event):
-       if event.key == 'shift':
-           ShiftListener.shift_is_held = True
-
-    def on_key_release(event):
-        if event.key == 'shift':
-            ShiftListener.shift_is_held = False
-
 class BoundaryAnimator:
     """
     Draggable annotation boundary with blitting.
@@ -84,6 +73,7 @@ class BoundaryAnimator:
         self.press = None
         self.backgrounds = []
         self.release_handler = release_handler
+        self.shift_is_held = False
 
     def connect(self):
         """Connect to all the events we need."""
@@ -94,6 +84,13 @@ class BoundaryAnimator:
                 'button_release_event', self.on_release)
             self.cidmotion = boundary.line.figure.canvas.mpl_connect(
                 'motion_notify_event', self.on_motion)
+
+    def disconnect(self):
+        """Disconnect all callbacks."""
+        for boundary in self.boundaries:
+            boundary.line.figure.canvas.mpl_disconnect(self.cidpress)
+            boundary.line.figure.canvas.mpl_disconnect(self.cidrelease)
+            boundary.line.figure.canvas.mpl_disconnect(self.cidmotion)
 
     def on_press(self, event):
         """Check whether mouse is over us; if so, store some data."""
@@ -206,11 +203,4 @@ class BoundaryAnimator:
             boundary.line.figure.canvas.draw()
 
         self.backgrounds = []
-
-    def disconnect(self):
-        """Disconnect all callbacks."""
-        for boundary in self.boundaries:
-            boundary.line.figure.canvas.mpl_disconnect(self.cidpress)
-            boundary.line.figure.canvas.mpl_disconnect(self.cidrelease)
-            boundary.line.figure.canvas.mpl_disconnect(self.cidmotion)
 

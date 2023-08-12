@@ -42,7 +42,7 @@ from matplotlib.backends.backend_qt5agg import \
     FigureCanvasQTAgg as FigureCanvas
 # Plotting functions and hooks for GUI
 from matplotlib.figure import Figure
-from matplotlib.widgets import MultiCursor
+from matplotlib.widgets import MultiCursor, SpanSelector
 # GUI functionality
 from PyQt5.QtCore import QCoreApplication, Qt
 from PyQt5.QtGui import QIntValidator, QKeySequence
@@ -148,6 +148,7 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
         self.mplWindowVerticalLayout.addWidget(self.canvas)
         self.data_axes = []
         self.tier_axes = []
+        self.span_selectors = []
 
         self.shift_is_held = False
         # self.cid_key_press = self.figure.canvas.mpl_connect('key_press_event', self.on_key_press)
@@ -179,21 +180,28 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
         self.data_grid_spec = self.main_grid_spec[0].subgridspec(nro_data_modalities, 
                                                     1, hspace=0, wspace=0)
         self.data_axes.append(self.figure.add_subplot(self.data_grid_spec[0]))
+        self.span_selectors.append(SpanSelector(self.data_axes[0], self.onselect, 'horizontal', useblit=True,
+                            interactive=True))
+
         for i in range(1, nro_data_modalities):
-            self.data_axes.append(self.figure.add_subplot(self.data_grid_spec[i],
-                                                    sharex=self.data_axes[0]))
+            axes = self.figure.add_subplot(self.data_grid_spec[i],
+                                            sharex=self.data_axes[0])
+            self.data_axes.append(axes)
+            self.span_selectors.append(SpanSelector(axes, self.onselect, 'horizontal', useblit=True,
+                            interactive=True))
+
 
         self.ultra_fig = Figure()
         self.ultra_canvas = FigureCanvas(self.ultra_fig)
         self.verticalLayout_6.addWidget(self.ultra_canvas)
         self.ultra_axes = self.ultra_fig.add_axes([0, 0, 1, 1])
 
+        self.multicursor = None
+
         if not self.current.excluded:
             self.draw_plots()
 
         self.figure.align_ylabels()
-
-        self.multicursor = None
 
         self.show()
         self.ultra_canvas.draw()
@@ -866,6 +874,14 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
         elif event.key() == Qt.Key_A:
             gui_params['auto x'] = True
             self.update()
+        elif event.key() == Qt.Key_N:
+            if ('selection interval' in self.current.annotations and 
+                self.current.annotations['selection interval']):
+                gui_params['auto x'] = False
+                self.xlim = self.current.annotations['selection interval']
+                if 'xlim' in gui_params:
+                    gui_params['xlim'] = self.xlim
+                self.update()
         # else:
         #     print(event.key())
 
@@ -874,3 +890,8 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
             self.shift_is_held = False
         # else:
         #     print(event.key)
+
+    def onselect(self, xmin, xmax):
+        self.current.annotations['selection interval'] = (xmin, xmax)
+        self.figure.canvas.draw_idle()
+

@@ -210,7 +210,7 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
             'pdCategory': self.categories[-1],
             'tonguePosition': self.tongue_positions[-1],
             'selected_time': -1.0,
-            'selection_index': 1,
+            'selection_index': -1,
         }
 
     def _add_annotations(self):
@@ -834,7 +834,24 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
 
     def keyPressEvent(self, event):
         if event.key() == Qt.Key_Shift:
-           self.shift_is_held = True
+            self.shift_is_held = True
+        if event.key() == Qt.Key_I:
+            if self.current.annotations['selection_index'] >= 0:
+                center = self.current.annotations['selected_time']
+            else:
+                center = (self.xlim[0] + self.xlim[1])/2.0
+            length = (self.xlim[1] - self.xlim[0])*.25
+            self.xlim = (center-length, center+length)
+            if 'xlim' in gui_params:
+                gui_params['xlim'] = self.xlim
+            self.update()
+        elif event.key() == Qt.Key_O:
+            center = (self.xlim[0] + self.xlim[1])/2.0
+            length = (self.xlim[1] - self.xlim[0])
+            self.xlim = (center-length, center+length)
+            if 'xlim' in gui_params:
+                gui_params['xlim'] = self.xlim
+            self.update()
         # else:
         #     print(event.key())
 

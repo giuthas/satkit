@@ -372,7 +372,15 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
         #          textgrid, stimulus_onset, 
         #          picker=PdQtAnnotator.line_xdirection_picker)
         ylim = None
-        if 'xlim' in gui_params:
+        if 'auto x' in gui_params and gui_params['auto x']:
+            # TODO: find the minimum and maximum timestamp of all the modalities
+            # being plotted. this can be really done only after plotting is
+            # controlled by config instead of manual code
+            self.xlim = (
+                np.min([np.min(wav_time), np.min(ultra_time)]),
+                np.max([np.max(wav_time), np.max(ultra_time)])
+                )
+        elif 'xlim' in gui_params:
             self.xlim = gui_params['xlim']
         else:
             self.xlim = (-.25, 1.5)
@@ -836,21 +844,27 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
         if event.key() == Qt.Key_Shift:
             self.shift_is_held = True
         if event.key() == Qt.Key_I:
+            gui_params['auto x'] = False
             if self.current.annotations['selection_index'] >= 0:
                 center = self.current.annotations['selected_time']
             else:
                 center = (self.xlim[0] + self.xlim[1])/2.0
             length = (self.xlim[1] - self.xlim[0])*.25
             self.xlim = (center-length, center+length)
+            # TODO: create a way of storing this that isn't 
             if 'xlim' in gui_params:
                 gui_params['xlim'] = self.xlim
             self.update()
         elif event.key() == Qt.Key_O:
+            gui_params['auto x'] = False
             center = (self.xlim[0] + self.xlim[1])/2.0
             length = (self.xlim[1] - self.xlim[0])
             self.xlim = (center-length, center+length)
             if 'xlim' in gui_params:
                 gui_params['xlim'] = self.xlim
+            self.update()
+        elif event.key() == Qt.Key_A:
+            gui_params['auto x'] = True
             self.update()
         # else:
         #     print(event.key())

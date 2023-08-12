@@ -13,8 +13,9 @@ Items will only be marked as done, once clean up is also done.
     - [ ] deleting boundaries
     - [ ] Viewing and selecting
       - [x] frame and time point  selection
-      - [ ] zooming
-      - [ ] with interval selection and Praat's shortcuts or something close
+      - [x] zooming with Praat's shortcuts or something close
+      - [ ] zooming to area selection
+      - [ ] zooming with interval selection
       - [ ] toggle for displaying acoustic boundaries
       - [ ] toggles or similar for displaying different data modalities
       - [ ] note function for annotating individual tokens with free text

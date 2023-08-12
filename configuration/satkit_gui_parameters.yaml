@@ -67,6 +67,8 @@ pervasive tiers:
 xlim: 
   - -.25
   - 1.5
+# Set initial zoom to show the whole data
+auto x: True
 
 # Font parameters
 default font size: 10

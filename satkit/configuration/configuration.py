@@ -226,6 +226,7 @@ def load_gui_params(filepath: Union[Path, str, None]=None) -> None:
                     )),
                 "pervasive tiers": Seq(Str()),
                 Optional("xlim"): FixedSeq([Float(), Float()]),
+                Optional("auto x"): Bool(),
                 "default font size": Int(),
                 })
             try:

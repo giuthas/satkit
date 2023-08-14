@@ -50,7 +50,7 @@ from satkit.scripting_interface import (Operation, SatkitArgumentParser,
 
 
 def main():
-    """Simple main to run the CLI back end and start the QT front end."""
+    """Run the Command Line Interface (cli) back end and start the QT front end (annotator)."""
 
     # Arguments need to be parsed before setting up logging so that we have
     # access to the verbosity argument.

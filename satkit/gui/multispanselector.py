@@ -14,9 +14,6 @@ class MultiCursor(Widget):
 
     Parameters
     ----------
-    canvas : object
-        This parameter is entirely unused and only kept for back-compatibility.
-
     axes : list of `matplotlib.axes.Axes`
         The `~.axes.Axes` to attach the cursor to.
 

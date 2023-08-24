@@ -39,11 +39,9 @@ class MultiCursor(Widget):
     See :doc:`/gallery/widgets/multicursor`.
     """
 
-    def __init__(self, axes, useblit=True, horizOn=False, vertOn=True,
+    def __init__(self, axes, useblit=True, 
                  **lineprops):
         self.axes = axes
-        self.horizOn = horizOn
-        self.vertOn = vertOn
 
         self._canvas_infos = {
             ax.figure.canvas: {"cids": [], "background": None} for ax in axes}
@@ -244,8 +242,9 @@ class MultiSpanSelector(Widget):
                                        square='not-applicable',
                                        center='not-applicable',
                                        rotate='not-applicable')
-        super().__init__(ax, onselect, useblit=useblit, button=button,
-                         state_modifier_keys=state_modifier_keys)
+        self.axes = axes
+        # super().__init__(ax, onselect, useblit=useblit, button=button,
+        #                  state_modifier_keys=state_modifier_keys)
 
         if props is None:
             props = dict(facecolor='red', alpha=0.5)

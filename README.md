@@ -30,8 +30,9 @@ citations.bib in BibTeX format.
 -->
 # Speech Articulation ToolKIT - SATKIT
 
-**Please note that this is a for of the original. Unless Pertti told you to
-use this repository, you should be using
+**Please note that this is a fork of the original SATKIT.**
+
+**Unless Pertti told you to use this repository, you should be using
 [the official one](https://github.com/giuthas/satkit) instead.**
 
 ![SATKIT GUI](SATKIT_UI.png)

@@ -21,10 +21,6 @@ class MultiAxesWidget(Widget):
     ----------
     axes : array of `~matplotlib.axes.Axes`
         The parent Axes for the widget.
-    canvas : `~matplotlib.backend_bases.FigureCanvasBase`
-        The parent figure canvas for the widget.
-    active : bool
-        If False, the widget does not respond to events.
     """
 
     def __init__(self, axes):
@@ -32,10 +28,8 @@ class MultiAxesWidget(Widget):
         self.canvases = []
         for ax in axes:
             self.canvases.append(ax.figure.canvas)
-        self._cids = []
+        self._cid_dict = {}
 
-
-    # TODO: convert the rest of the class to correspond to several axes.
     def connect_event(self, event, callback):
         """
         Connect a callback function with an event.
@@ -43,14 +37,18 @@ class MultiAxesWidget(Widget):
         This should be used in lieu of ``figure.canvas.mpl_connect`` since this
         function stores callback ids for later clean up.
         """
-        cid = self.canvas.mpl_connect(event, callback)
-        self._cids.append(cid)
+        for canvas in self.canvases:
+            cid = canvas.mpl_connect(event, callback)
+            self._cid_dict[cid] = canvas
 
     def disconnect_events(self):
         """Disconnect all events created by this widget."""
-        for c in self._cids:
-            self.canvas.mpl_disconnect(c)
+        for cid in self._cid_dict:
+            # This is a reference to the canvas that got stored in connect_event.
+            self._cid_dict[cid].mpl_disconnect(cid)
+            
 
+# TODO: continue conversion work from here
 class _MultiAxesSelectorWidget(MultiAxesWidget):
 
     def __init__(self, axes, onselect, useblit=False, button=None,

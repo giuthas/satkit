@@ -5,6 +5,11 @@ venv/
 ####
 # Groups of files 
 ####
+# pyinstaller results
+build/
+*.spec
+
+
 # pyreverse byproducts
 *.dot
 *.vcg

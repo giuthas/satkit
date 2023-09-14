@@ -61,18 +61,19 @@ def read_recording_meta(filepath) -> dict:
 def load_recording(filepath: Path) -> Recording:
 
     # decide which loader we will be using based on either filepath.satkit_meta
-    # or config[''] in that order an document this behaviour. this way if the
+    # or config[''] in that order and document this behaviour. this way if the
     # data has previosly been loaded satkit can decide itself what to do with it
     # and there is an easy place where to add processing
     # session/participant/whatever specific config. could also add guessing
     # based on what is present as the final fall back or as the option tried if
     # no meta and config has the wrong guess.
 
-    metapath = filepath.with_suffix() # TODO: dig the suffix from where they are stored
+    metapath = filepath.with_suffix(Suffix.META)
     if metapath.is_file():
         meta = read_recording_meta(filepath)
-    
-    # TODO: the following needs to be adapted to the fact that meta may not exist
+    else:
+        # TODO: need to hand to the right kind of importer here
+        raise NotImplementedError("Can't yet jump to a previously unloaded recording here.")
     recording = generate_ultrasound_recording(meta['basename'], Path(meta['path']))
     add_audio(recording, meta['wav_preload'])
     add_aaa_raw_ultrasound(recording, meta['ult_preload'])

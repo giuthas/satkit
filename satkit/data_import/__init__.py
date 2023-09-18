@@ -33,3 +33,8 @@ from .AAA_recordings import (generate_aaa_recording_list,
                              generate_ultrasound_recording)
 from .RASL_3D_ultrasound_recordings import (generate_3D_ultrasound_recording,
                                             generate_rasl_recording_list)
+
+from .add_audio import add_audio
+from .add_video import add_video
+from .add_AAA_raw_ultrasound import add_aaa_raw_ultrasound
+from .add_3D_ultrasound import add_rasl_3D_ultrasound

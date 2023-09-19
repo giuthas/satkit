@@ -31,9 +31,9 @@
 
 import logging
 from pathlib import Path
-from pprint import pprint
 from typing import List
 
+import icecream as ic
 import nestedtext
 import numpy as np
 from pydantic import BaseModel
@@ -89,6 +89,8 @@ def load_recording(filepath: Path) -> Recording:
         raise NotImplementedError(
             "Can't yet jump to a previously unloaded recording here.")
 
+    ic(meta)
+    exit()
     # TODO: this does not exist the way the code assumes in meta
     recording = generate_ultrasound_recording(
         meta['basename'], Path(meta['path']))

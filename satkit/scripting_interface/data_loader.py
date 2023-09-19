@@ -1,7 +1,7 @@
 #
 # Copyright (c) 2019-2023 Pertti Palo, Scott Moisik, Matthew Faytak, and Motoki Saito.
 #
-# This file is part of Speech Articulation ToolKIT 
+# This file is part of Speech Articulation ToolKIT
 # (see https://github.com/giuthas/satkit/).
 #
 # This program is free software: you can redistribute it and/or modify
@@ -42,6 +42,8 @@ logger = logging.getLogger('satkit.scripting')
 # appropriete submodule.
 
 # TODO: create and return a session rather than a list of recordings?
+
+
 def load_data(path: Path, exclusion_file: Path) -> List[Recording]:
     """Handle loading data from individual files or a previously saved session."""
     if not path.exists():
@@ -52,15 +54,17 @@ def load_data(path: Path, exclusion_file: Path) -> List[Recording]:
     elif path.is_dir():
         recordings = read_data_from_files(path, exclusion_file)
     elif path.suffix == '.satkit_meta':
-        recordings = load_satkit_data(path)
+        recordings = load_satkit_data(path=path, exclusion_file=exclusion_file)
     else:
         logger.error(
             'Unsupported filetype: %s.', path)
-    
+
     return recordings
+
 
 def load_satkit_data(path: Path, exclusion_file: Path) -> List[Recording]:
     pass
+
 
 def read_data_from_files(path: Path, exclusion_file: Path):
     """
@@ -78,4 +82,3 @@ def read_data_from_files(path: Path, exclusion_file: Path):
 
     recordings = generate_aaa_recording_list(path)
     return recordings
-

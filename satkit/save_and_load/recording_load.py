@@ -1,7 +1,7 @@
 #
 # Copyright (c) 2019-2023 Pertti Palo, Scott Moisik, Matthew Faytak, and Motoki Saito.
 #
-# This file is part of Speech Articulation ToolKIT 
+# This file is part of Speech Articulation ToolKIT
 # (see https://github.com/giuthas/satkit/).
 #
 # This program is free software: you can redistribute it and/or modify
@@ -28,6 +28,7 @@
 # articles listed in README.markdown. They can also be found in
 # citations.bib in BibTeX format.
 #
+
 import logging
 from pathlib import Path
 from pprint import pprint
@@ -38,22 +39,36 @@ import numpy as np
 from pydantic import BaseModel
 from satkit.configuration import config
 from satkit.constants import Suffix
-from satkit.data_import import add_audio, add_video, add_aaa_raw_ultrasound, generate_ultrasound_recording
+from satkit.data_import import (
+    add_audio, add_video, add_aaa_raw_ultrasound,
+    generate_ultrasound_recording)
 from satkit.data_structures import Modality, Recording
 
 _recording_loader_logger = logging.getLogger('satkit.recording_loader')
 
+
 class ModalityPaths(BaseModel):
+    """
+    ModalityPaths represents the paths to data and meta files for a given
+    Modality as strings.
+    """
     data_path: str
     meta_path: str
 
+
 class RecordingMeta(BaseModel):
+    """
+    RecordingMeta consists of a list of ModalityPaths which define the
+    Modalities of a saved Recording.
+    """
     modalities: List[ModalityPaths]
+
 
 def read_recording_meta(filepath) -> dict:
     raw_input = nestedtext.load(filepath)
     meta = RecordingMeta.parse_obj(raw_input)
     return meta
+
 
 def load_recording(filepath: Path) -> Recording:
 
@@ -67,16 +82,21 @@ def load_recording(filepath: Path) -> Recording:
 
     metapath = filepath.with_suffix(Suffix.META)
     if metapath.is_file():
+        # this is a list of Modalities, each with a data path and meta path
         meta = read_recording_meta(filepath)
     else:
         # TODO: need to hand to the right kind of importer here.
-        raise NotImplementedError("Can't yet jump to a previously unloaded recording here.")
-    recording = generate_ultrasound_recording(meta['basename'], Path(meta['path']))
+        raise NotImplementedError(
+            "Can't yet jump to a previously unloaded recording here.")
+
+    # TODO: this does not exist the way the code assumes in meta
+    recording = generate_ultrasound_recording(
+        meta['basename'], Path(meta['path']))
+
     add_audio(recording, meta['wav_preload'])
     add_aaa_raw_ultrasound(recording, meta['ult_preload'])
     add_video(recording, meta['video_preload'])
-    
-    
+
 
 def load_recordings(directory: Path) -> List[Recording]:
     """
@@ -86,4 +106,3 @@ def load_recordings(directory: Path) -> List[Recording]:
 
     recordings = [load_recording(file) for file in recording_metafiles]
     return recordings
-        

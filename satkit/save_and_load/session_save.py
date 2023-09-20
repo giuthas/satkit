@@ -1,7 +1,7 @@
 #
 # Copyright (c) 2019-2023 Pertti Palo, Scott Moisik, Matthew Faytak, and Motoki Saito.
 #
-# This file is part of Speech Articulation ToolKIT 
+# This file is part of Speech Articulation ToolKIT
 # (see https://github.com/giuthas/satkit/).
 #
 # This program is free software: you can redistribute it and/or modify
@@ -40,6 +40,7 @@ from save_and_load.recording_save import save_recordings
 
 _session_saver_logger = logging.getLogger('satkit.session_saver')
 
+
 def save_recording_session_meta(session: Session, meta: dict) -> str:
     """
     Save recording session metadata.
@@ -47,7 +48,8 @@ def save_recording_session_meta(session: Session, meta: dict) -> str:
     The meta dict should contain at least a list of the recordings in this
     session and their saving locations.
     """
-    _session_saver_logger.debug("Saving meta for session %s."%session.basename)
+    _session_saver_logger.debug(
+        "Saving meta for session %s." % session.basename)
     filename = f"{session.basename}{'.Recording'}{Suffix.META}"
     filepath = session.path/filename
 
@@ -56,14 +58,16 @@ def save_recording_session_meta(session: Session, meta: dict) -> str:
     meta['path'] = str(session.path)
 
     nestedtext.dump(meta, filepath)
-    _session_saver_logger.debug("Wrote file %s."%(filename))
+    _session_saver_logger.debug("Wrote file %s." % (filename))
 
     return filename
+
 
 def save_recording_session(session: Session):
     """
     Save a recording session.
     """
-    _session_saver_logger.debug("Saving recording session %s."%session.basename)
+    _session_saver_logger.debug(
+        "Saving recording session %s." % session.basename)
     recording_meta_files = save_recordings(session.recordings)
     save_recording_session_meta(session, recording_meta_files)

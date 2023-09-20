@@ -1,7 +1,7 @@
 #
 # Copyright (c) 2019-2023 Pertti Palo, Scott Moisik, Matthew Faytak, and Motoki Saito.
 #
-# This file is part of Speech Articulation ToolKIT 
+# This file is part of Speech Articulation ToolKIT
 # (see https://github.com/giuthas/satkit/).
 #
 # This program is free software: you can redistribute it and/or modify
@@ -30,9 +30,9 @@
 #
 import sys
 from contextlib import closing
-from enum import Enum
 from pathlib import Path
 from typing import Union
+from constants import Datasource
 
 from strictyaml import (Any, Bool, FixedSeq, Float, Int, Map, MapCombined,
                         MapPattern, Optional, ScalarValidator, Seq, Str,
@@ -50,47 +50,49 @@ _raw_data_run_params_dict = {}
 _raw_gui_params_dict = {}
 _raw_plot_params_dict = {}
 
-class Datasource(Enum):
-    aaa = 'AAA'
-    rasl = 'RASL'
 
 class DatasourceValidator(ScalarValidator):
     """
     Validate yaml representing a Path.
-    
+
     Please note that empty fields are interpeted as not available and
     represented by None. If you want to specify current working directory, use
     '.'
     """
+
     def validate_scalar(self, chunk):
         if chunk.contents:
             try:
                 return Datasource(chunk.contents)
             except ValueError:
                 values = [ds.value for ds in Datasource]
-                print(f"Error. Only following values for data source are recognised: {str(values)}")
+                print(
+                    f"Error. Only following values for data source are recognised: {str(values)}")
                 raise
         else:
             return None
 
+
 class PathValidator(ScalarValidator):
     """
     Validate yaml representing a Path.
-    
+
     Please note that empty fields are interpeted as not available and
     represented by None. If you want to specify current working directory, use
     '.'
     """
+
     def validate_scalar(self, chunk):
         if chunk.contents:
             return Path(chunk.contents)
         else:
             return None
 
-def load_config(filepath: Union[Path, str, None]=None) -> None:
+
+def load_config(filepath: Union[Path, str, None] = None) -> None:
     """
     Read the config file from filepath and recursively the other config files.
-    
+
     If filepath is None, read from the default file
     'configuration/configuration.yaml'. In both cases if the file does not
     exist, report this and exit.
@@ -101,10 +103,10 @@ def load_config(filepath: Union[Path, str, None]=None) -> None:
     # load_plot_params(config['plotting parameter file'])
 
 
-def load_main_config(filepath: Union[Path, str, None]=None) -> None:
+def load_main_config(filepath: Union[Path, str, None] = None) -> None:
     """
     Read the config file from filepath.
-    
+
     If filepath is None, read from the default file
     'configuration/configuration.yaml'. In both cases if the file does not
     exist, report this and exit.
@@ -124,7 +126,7 @@ def load_main_config(filepath: Union[Path, str, None]=None) -> None:
                 "mains frequency": Float(),
                 "data run parameter file": PathValidator(),
                 "gui parameter file": PathValidator()
-                })
+            })
             try:
                 _raw_config_dict = load(yaml_file.read(), schema)
             except YAMLError as error:
@@ -136,10 +138,11 @@ def load_main_config(filepath: Union[Path, str, None]=None) -> None:
         sys.exit()
     config.update(_raw_config_dict.data)
 
-def load_run_params(filepath: Union[Path, str, None]=None) -> None:
+
+def load_run_params(filepath: Union[Path, str, None] = None) -> None:
     """
     Read the config file from filepath.
-    
+
     If filepath is None, read from the default file
     'configuration/configuration.yaml'. In both cases if the file does not
     exist, report this and exit.
@@ -158,28 +161,28 @@ def load_run_params(filepath: Union[Path, str, None]=None) -> None:
         with closing(open(filepath, 'r')) as yaml_file:
             schema = Map({
                 "data properties": Map({
-                    "data source": DatasourceValidator(), 
-                    Optional("exclusion list"): PathValidator(), 
-                    "data path": PathValidator(), 
-                    Optional("wav directory"): PathValidator(), 
-                    Optional("textgrid directory"): PathValidator(), 
-                    Optional("ultrasound directory"): PathValidator(), 
+                    "data source": DatasourceValidator(),
+                    Optional("exclusion list"): PathValidator(),
+                    "data path": PathValidator(),
+                    Optional("wav directory"): PathValidator(),
+                    Optional("textgrid directory"): PathValidator(),
+                    Optional("ultrasound directory"): PathValidator(),
                     Optional("output directory"): PathValidator()
-                    }), 
+                }),
                 "flags": Map({
                     "detect beep": Bool(),
                     "test": Bool()
-                    }),
+                }),
                 "cast": Map({
                     "pronunciation dictionary": PathValidator(),
-                    "speaker id": Str(), 
+                    "speaker id": Str(),
                     "cast flags": Map({
                         "only words": Bool(),
                         "file": Bool(),
                         "utterance": Bool()
-                        })
                     })
                 })
+            })
             try:
                 _raw_data_run_params_dict = load(yaml_file.read(), schema)
             except YAMLError as error:
@@ -191,10 +194,11 @@ def load_run_params(filepath: Union[Path, str, None]=None) -> None:
         sys.exit()
     data_run_params.update(_raw_data_run_params_dict.data)
 
-def load_gui_params(filepath: Union[Path, str, None]=None) -> None:
+
+def load_gui_params(filepath: Union[Path, str, None] = None) -> None:
     """
     Read the config file from filepath.
-    
+
     If filepath is None, read from the default file
     'configuration/configuration.yaml'. In both cases if the file does not
     exist, report this and exit.
@@ -213,10 +217,10 @@ def load_gui_params(filepath: Union[Path, str, None]=None) -> None:
         with closing(open(filepath, 'r')) as yaml_file:
             schema = Map({
                 "data/tier height ratios": Map({
-                    "data": Int(), 
+                    "data": Int(),
                     "tier": Int()
-                    }),
-                "data axes": MapPattern( 
+                }),
+                "data axes": MapPattern(
                     Str(), MapCombined(
                         {
                             Optional("sharex"): Bool(),
@@ -227,7 +231,7 @@ def load_gui_params(filepath: Union[Path, str, None]=None) -> None:
                 "pervasive tiers": Seq(Str()),
                 Optional("xlim"): FixedSeq([Float(), Float()]),
                 "default font size": Int(),
-                })
+            })
             try:
                 _raw_gui_params_dict = load(yaml_file.read(), schema)
             except YAMLError as error:
@@ -249,10 +253,10 @@ def load_gui_params(filepath: Union[Path, str, None]=None) -> None:
     gui_params.update({'number of data axes': number_of_data_axes})
 
 
-def load_plot_params(filepath: Union[Path, str, None]=None) -> None:
+def load_plot_params(filepath: Union[Path, str, None] = None) -> None:
     """
     Read the plot file from filepath.
-    
+
     Not yet implemented. Will raise a NotImplementedError.
     """
 
@@ -272,12 +276,12 @@ def load_plot_params(filepath: Union[Path, str, None]=None) -> None:
         with closing(open(filepath, 'r')) as yaml_file:
             schema = Map({
                 "data/tier height ratios": Map({
-                    "data": Int(), 
+                    "data": Int(),
                     "tier": Int()
-                    }),
+                }),
                 "data axes": Seq(Str()),
                 "pervasive tiers": Seq(Str())
-                })
+            })
             try:
                 _raw_plot_params_dict = load(yaml_file.read(), schema)
             except YAMLError as error:

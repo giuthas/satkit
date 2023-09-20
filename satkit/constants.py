@@ -1,7 +1,7 @@
 #
 # Copyright (c) 2019-2023 Pertti Palo, Scott Moisik, Matthew Faytak, and Motoki Saito.
 #
-# This file is part of Speech Articulation ToolKIT 
+# This file is part of Speech Articulation ToolKIT
 # (see https://github.com/giuthas/satkit/).
 #
 # This program is free software: you can redistribute it and/or modify
@@ -29,13 +29,14 @@
 # citations.bib in BibTeX format.
 #
 from dataclasses import dataclass
+from enum import Enum
 
 
 @dataclass(frozen=True)
 class Suffix():
     """
     Suffixes for files saved by SATKIT.
-    
+
     These exist as a convenient way of not needing to risk typos. To see the
     whole layered scheme SATKIT uses see the 'Saving and Loading Data' section
     in the documentation.
@@ -46,3 +47,16 @@ class Suffix():
 
     def __str__(self):
         return self.value
+
+
+class Datasource(Enum):
+    """
+    Data sources SATKIT can handle.
+
+    Used in saving and loading to identify the data source in config, as well as
+    in meta and skip the step of trying to figure the data source out from the
+    type of files present.
+    """
+    AAA = "AAA"
+    # EVA = "EVA"
+    RASL = "RASL"

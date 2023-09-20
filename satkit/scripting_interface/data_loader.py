@@ -54,16 +54,13 @@ def load_data(path: Path, exclusion_file: Path) -> List[Recording]:
     elif path.is_dir():
         recordings = read_data_from_files(path, exclusion_file)
     elif path.suffix == '.satkit_meta':
-        recordings = load_satkit_data(path=path, exclusion_file=exclusion_file)
+        recordings = load_satkit_preread_session(
+            path=path, exclusion_file=exclusion_file)
     else:
         logger.error(
             'Unsupported filetype: %s.', path)
 
     return recordings
-
-
-def load_satkit_data(path: Path, exclusion_file: Path) -> List[Recording]:
-    pass
 
 
 def read_data_from_files(path: Path, exclusion_file: Path):

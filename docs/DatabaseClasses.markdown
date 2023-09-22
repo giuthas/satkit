@@ -1,7 +1,9 @@
 
 # Database Classes
 
-At time of writing (before release of 1.0) Dataset and Participant are only tentative. The rest will be part of either 1.0 or 1.1.
+At time of writing (before release of 1.0) Dataset, Participant, and Trial are
+only tentative. The rest will be part of 1.0. If there is no Trial class
+Sessions will consist of Recordings.
 
 ```mermaid
 classDiagram

@@ -1,7 +1,7 @@
 
 # Database Classes
 
-At time of writing (before release of 1.0) Dataset, Participant, and Session are only tentative. The rest will be part of either 1.0 or 1.1.
+At time of writing (before release of 1.0) Dataset and Participant are only tentative. The rest will be part of either 1.0 or 1.1.
 
 ```mermaid
 classDiagram

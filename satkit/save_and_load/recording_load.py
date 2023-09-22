@@ -31,7 +31,7 @@
 
 import logging
 from pathlib import Path
-from typing import List
+from typing import Dict, List
 
 import icecream as ic
 import nestedtext
@@ -61,7 +61,9 @@ class RecordingMeta(BaseModel):
     RecordingMeta consists of a list of ModalityPaths which define the
     Modalities of a saved Recording.
     """
-    modalities: List[ModalityPaths]
+    basename: str
+    path: Path
+    modalities: List[Dict[str, ModalityPaths]]
 
 
 def read_recording_meta(filepath) -> dict:

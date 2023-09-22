@@ -39,6 +39,7 @@ from typing import List, Optional, Union
 
 # Numerical arrays and more
 import numpy as np
+from pydantic import BaseModel
 # Praat textgrids
 import textgrids
 
@@ -49,13 +50,13 @@ from satkit.satgrid import SatGrid
 _datastructures_logger = logging.getLogger('satkit.data_structures')
 
 
-@dataclass
-class RecordingMetaData:
+class RecordingMetaData(BaseModel):
     """Basic metadata that any Recording should reasonably have."""
     prompt: str
     time_of_recording: datetime
     participant_id: str
-    # should this include basename, textgrid_path, path?
+    basename: str
+    path: Path
 
 
 @dataclass
@@ -71,12 +72,14 @@ class ModalityData:
     timevector: np.ndarray
 
 
-@dataclass
-class Session:
-    recordings: List['Recording']
+class RecordingSession(BaseModel):
+    """
+    The meta and Recordings of a recording session.
+    """
     name: str
     path: Path
     datasource: Datasource
+    recordings: List['Recording']
 
 
 class Recording:
@@ -102,6 +105,18 @@ class Recording:
         Construct a recording.
 
 
+        Parameters
+        ----------
+        meta_data : RecordingMetaData
+            _description_
+        excluded : bool, optional
+            _description_, by default False
+        path : Optional[Union[str, Path]], optional
+            _description_, by default None
+        basename : str, optional
+            _description_, by default ""
+        textgrid_path : Union[str, Path], optional
+            _description_, by default ""
         """
         self.excluded = excluded
 

@@ -1,7 +1,7 @@
 #
 # Copyright (c) 2019-2023 Pertti Palo, Scott Moisik, Matthew Faytak, and Motoki Saito.
 #
-# This file is part of Speech Articulation ToolKIT 
+# This file is part of Speech Articulation ToolKIT
 # (see https://github.com/giuthas/satkit/).
 #
 # This program is free software: you can redistribute it and/or modify
@@ -30,14 +30,44 @@
 #
 import logging
 from pathlib import Path
-from pprint import pprint
-from typing import List
 
 import nestedtext
-import numpy as np
-from pydantic import BaseModel
-from satkit.configuration import config
-from satkit.constants import Suffix
-from satkit.data_structures import Session
+from satkit.data_structures import RecordingSession
 
 _session_loader_logger = logging.getLogger('satkit.session_loader')
+
+
+def read_recording_session_meta(filepath: Path) -> dict:
+    """
+    Read a RecordingSession's metadata.
+
+    Parameters
+    ----------
+    filepath : Path
+        Path to the metafile.
+
+    Returns
+    -------
+    dict
+        The metadata.
+    """
+    raw_input = nestedtext.load(filepath)
+    meta = RecordingSession.parse_obj(raw_input)
+    return meta
+
+
+def load_recording_session(directory: Path) -> RecordingSession:
+    """
+    Load a recording session from a directory.
+
+
+    Parameters
+    ----------
+    directory: Path
+        The directory path.
+
+    Returns
+    -------
+    Session
+        The loaded RecordingSession object.
+    """

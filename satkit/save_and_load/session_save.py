@@ -34,14 +34,14 @@ from typing import List
 import nestedtext
 import numpy as np
 from satkit.constants import Suffix
-from satkit.data_structures import Session
+from satkit.data_structures import RecordingSession
 
 from save_and_load.recording_save import save_recordings
 
 _session_saver_logger = logging.getLogger('satkit.session_saver')
 
 
-def save_recording_session_meta(session: Session, meta: dict) -> str:
+def save_recording_session_meta(session: RecordingSession, meta: dict) -> str:
     """
     Save recording session metadata.
 
@@ -65,7 +65,7 @@ def save_recording_session_meta(session: Session, meta: dict) -> str:
     return filename
 
 
-def save_recording_session(session: Session):
+def save_recording_session(session: RecordingSession):
     """
     Save a recording session.
     """

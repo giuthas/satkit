@@ -32,6 +32,9 @@ from dataclasses import dataclass
 from enum import Enum
 
 
+SATKIT_VERSION = '0.6'
+
+
 @dataclass(frozen=True)
 class Suffix():
     """

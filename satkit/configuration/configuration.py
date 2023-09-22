@@ -32,8 +32,8 @@ import sys
 from contextlib import closing
 from pathlib import Path
 from typing import Union
-from constants import Datasource
 
+from satkit.constants import Datasource
 from strictyaml import (Any, Bool, FixedSeq, Float, Int, Map, MapCombined,
                         MapPattern, Optional, ScalarValidator, Seq, Str,
                         YAMLError, load)

@@ -1,7 +1,7 @@
 #
 # Copyright (c) 2019-2023 Pertti Palo, Scott Moisik, Matthew Faytak, and Motoki Saito.
 #
-# This file is part of Speech Articulation ToolKIT 
+# This file is part of Speech Articulation ToolKIT
 # (see https://github.com/giuthas/satkit/).
 #
 # This program is free software: you can redistribute it and/or modify
@@ -43,7 +43,7 @@ _AAA_video_logger = logging.getLogger('satkit.AAA_video')
 
 
 def add_video(recording: Recording, preload: bool,
-                    path: Optional[Path]=None) -> None:
+              path: Optional[Path] = None) -> None:
     """Create a RawUltrasound Modality and add it to the Recording."""
     if not path:
         video_file = (recording.path/recording.basename).with_suffix(".avi")
@@ -53,7 +53,7 @@ def add_video(recording: Recording, preload: bool,
     # This is the correct value for fps for a de-interlaced
     # video according to Alan, and he should know having
     # written AAA.
-    if data_run_params['data properties']['data source'] is Datasource.aaa:
+    if data_run_params['data properties']['data source'] is Datasource.AAA:
         meta = {
             'FramesPerSec': 59.94
         }
@@ -77,5 +77,3 @@ def add_video(recording: Recording, preload: bool,
     else:
         notice = 'Note: ' + str(video_file) + " does not exist."
         _AAA_video_logger.warning(notice)
-
-

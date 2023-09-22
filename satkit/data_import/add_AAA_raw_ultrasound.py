@@ -1,7 +1,7 @@
 #
 # Copyright (c) 2019-2023 Pertti Palo, Scott Moisik, Matthew Faytak, and Motoki Saito.
 #
-# This file is part of Speech Articulation ToolKIT 
+# This file is part of Speech Articulation ToolKIT
 # (see https://github.com/giuthas/satkit/).
 #
 # This program is free software: you can redistribute it and/or modify
@@ -65,9 +65,13 @@ def parse_aaa_promptfile(filepath: Union[str, Path]) -> dict:
                 "Participant does not have an id in file %s.", filepath)
             participant_id = ""
 
-        meta = RecordingMetaData(prompt, time_of_recording, participant_id)
+        meta = RecordingMetaData(
+            prompt=prompt, time_of_recording=time_of_recording,
+            participant_id=participant_id, basename=filepath.stem,
+            path=filepath.parent)
         _AAA_raw_ultrasound_logger.debug("Read prompt file %s.", filepath)
     return meta
+
 
 def parse_ultrasound_meta_aaa(filename):
     """
@@ -107,7 +111,7 @@ def parse_ultrasound_meta_aaa(filename):
 
 
 def add_aaa_raw_ultrasound(recording: Recording, preload: bool,
-                            path: Optional[Path]=None) -> None:
+                           path: Optional[Path] = None) -> None:
     """Create a RawUltrasound Modality and add it to the Recording."""
     if not path:
         ult_path = (recording.path/recording.basename).with_suffix(".ult")
@@ -143,14 +147,15 @@ def add_aaa_raw_ultrasound(recording: Recording, preload: bool,
         recording.exclude()
 
     _AAA_raw_ultrasound_logger.debug(
-            "Trying to read RawUltrasound for Recording representing %s.",
-            recording.basename)
-    
+        "Trying to read RawUltrasound for Recording representing %s.",
+        recording.basename)
+
     if ult_path.is_file():
         if preload:
-            raise NotImplementedError("It looks like SATKIT is trying " 
-                + "to preload ultrasound data. This may lead to Python's " 
-                + "memory running out or the whole computer crashing.")
+            raise NotImplementedError(
+                "It looks like SATKIT is trying " +
+                "to preload ultrasound data. This may lead to Python's " +
+                "memory running out or the whole computer crashing.")
         else:
             ultrasound = RawUltrasound(
                 recording=recording,
@@ -168,4 +173,3 @@ def add_aaa_raw_ultrasound(recording: Recording, preload: bool,
         notice = 'Note: ' + str(ult_path) + " does not exist. Excluding."
         _AAA_raw_ultrasound_logger.warning(notice)
         recording.exclude()
-

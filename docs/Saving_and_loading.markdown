@@ -15,12 +15,12 @@ The file names are made up of two or three parts separated by dots:
 
 1. Basename - this is the name of the corresponding `.wav` file.
 2. Modality name - the Modality's name attribute with whitespace converted to underscores if this file is specific to a Modality.
-3. Suffix - either `.satkit` or `.satkit_meta`. Former is for data stored in a numpy format and latter is for metadata stored as [NestedText](https://nestedtext.org/en/stable/index.html).
+3. Suffix - either `.npz` or `.satkit_meta`. Former is for data stored in a numpy zip format and latter is for metadata stored as [NestedText](https://nestedtext.org/en/stable/index.html).
 
 > **Example:**
 >
 > `File005.PD_l2_on_RawUltrasound.satkit`. This is the data for PD calculated with the l2 metric on raw ultrasound data for Recording File005. The metadata for the same Modality will be `File005.PD_l2_on_RawUltrasound.satkit_meta`, while the enclosing Recording's metadata will be stored in `File005.satkit_meta`.
 
-## File name suffixes
+## File name suffixes in code
 
 SATKIT defines an Enum for valid suffixes in satkit.constants.

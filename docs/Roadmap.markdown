@@ -26,14 +26,16 @@ Items will only be marked as done, once clean up is also done.
   - [ ] Average Nearest Neighbour Distance and Median Point-by-point Distance
   - [ ] Some or all of the metrics by [Kathtrine M. Dawson](https://github.com/kdawson2/tshape_analysis)
 - [ ] Saving and loading
-  - [x] loading textgrids
+  - [x] textgrids
+    - [x] loading
+    - [x] saving
   - [ ] loading data from AAA
     - [x] old style
     - [ ] new style
-  - [ ] loading data from 3D/4D ultrasound
-  - [ ] saving results in
-    - [ ] implementation free, human readable if possible, formats
-    - [ ] textgrids
+  - [ ] loading 3D/4D ultrasound data from RASL
+  - [ ] SATKIT native formats
+    - [ ] saving results in implementation free, human readable if possible, formats
+    - [ ] loading
 - [ ] Documentation
   - [ ] update README and other relevant files
   - [ ] update both references to tools SATKIT provides and tools it uses

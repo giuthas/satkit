@@ -31,44 +31,23 @@
 
 import logging
 from pathlib import Path
-from typing import Dict, List
 
-import icecream as ic
+from icecream import ic
 import nestedtext
-import numpy as np
-from pydantic import BaseModel
+from save_and_load.save_and_load_helpers import RecordingLoadSchema
 from satkit.configuration import config
 from satkit.constants import Suffix
 from satkit.data_import import (
     add_audio, add_video, add_aaa_raw_ultrasound,
     generate_ultrasound_recording)
-from satkit.data_structures import Modality, Recording
+from satkit.data_structures import Recording
 
 _recording_loader_logger = logging.getLogger('satkit.recording_loader')
 
 
-class ModalityPaths(BaseModel):
-    """
-    ModalityPaths represents the paths to data and meta files for a given
-    Modality as strings.
-    """
-    data_path: str
-    meta_path: str
-
-
-class RecordingMeta(BaseModel):
-    """
-    RecordingMeta consists of a list of ModalityPaths which define the
-    Modalities of a saved Recording.
-    """
-    basename: str
-    path: Path
-    modalities: List[Dict[str, ModalityPaths]]
-
-
 def read_recording_meta(filepath) -> dict:
     raw_input = nestedtext.load(filepath)
-    meta = RecordingMeta.parse_obj(raw_input)
+    meta = RecordingLoadSchema.parse_obj(raw_input)
     return meta
 
 
@@ -91,7 +70,7 @@ def load_recording(filepath: Path) -> Recording:
         raise NotImplementedError(
             "Can't yet jump to a previously unloaded recording here.")
 
-    ic(meta)
+    ic(meta.dict())
     exit()
     # TODO: this does not exist the way the code assumes in meta
     recording = generate_ultrasound_recording(
@@ -102,11 +81,19 @@ def load_recording(filepath: Path) -> Recording:
     add_video(recording, meta['video_preload'])
 
 
-def load_recordings(directory: Path) -> List[Recording]:
+def load_recordings_from_directory(directory: Path) -> list[Recording]:
     """
     Load Recordings from directory.
     """
     recording_metafiles = directory.glob("*.Recording"+str(Suffix.META))
 
     recordings = [load_recording(file) for file in recording_metafiles]
+    return recordings
+
+
+def load_recordings(directory, recording_names: list[str]) -> list[Recording]:
+    """
+    Load Recordings from directory.
+    """
+    recordings = [load_recording(directory/name) for name in recording_names]
     return recordings

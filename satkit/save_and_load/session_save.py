@@ -35,7 +35,7 @@ import nestedtext
 
 from satkit.constants import Suffix, SATKIT_FILE_VERSION
 from satkit.data_structures import RecordingSession
-from satkit.save_and_load import save_recordings
+from .recording_save import save_recordings
 from .save_and_load_helpers import nested_text_converters
 
 _session_saver_logger = logging.getLogger('satkit.session_saver')
@@ -55,13 +55,13 @@ def save_recording_session_meta(
     filepath = session.path/filename
 
     meta = OrderedDict()
-    meta['object type'] = type(session).__name__
+    meta['object_type'] = type(session).__name__
     meta['name'] = session.name
-    meta['format version'] = SATKIT_FILE_VERSION
+    meta['format_version'] = SATKIT_FILE_VERSION
 
     parameters = OrderedDict()
     parameters['path'] = str(session.path)
-    parameters['data source'] = str(session.datasource)
+    parameters['datasource'] = session.datasource._value_
 
     meta['parameters'] = parameters
     meta['recordings'] = recording_meta_files

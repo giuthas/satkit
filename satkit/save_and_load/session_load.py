@@ -30,36 +30,20 @@
 #
 import logging
 from pathlib import Path
+from typing import Union
+from constants import Suffix
 
 import nestedtext
+from .recording_load import load_recordings
+from .save_and_load_helpers import RecordingSessionLoadSchema
 from satkit.data_structures import RecordingSession
 
 _session_loader_logger = logging.getLogger('satkit.session_loader')
 
 
-def read_recording_session_meta(filepath: Path) -> dict:
-    """
-    Read a RecordingSession's metadata.
-
-    Parameters
-    ----------
-    filepath : Path
-        Path to the metafile.
-
-    Returns
-    -------
-    dict
-        The metadata.
-    """
-    raw_input = nestedtext.load(filepath)
-    meta = RecordingSession.parse_obj(raw_input)
-    return meta
-
-
-def load_recording_session(directory: Path) -> RecordingSession:
+def load_recording_session(directory: Union[Path, str]) -> RecordingSession:
     """
     Load a recording session from a directory.
-
 
     Parameters
     ----------
@@ -71,3 +55,19 @@ def load_recording_session(directory: Path) -> RecordingSession:
     Session
         The loaded RecordingSession object.
     """
+    if isinstance(directory, str):
+        directory = Path(directory)
+
+    filename = f"{directory.parts[-1]}{'.Session'}{Suffix.META}"
+    filepath = directory/filename
+
+    raw_input = nestedtext.load(filepath)
+    meta = RecordingSessionLoadSchema.parse_obj(raw_input)
+
+    recordings = load_recordings(directory, meta.recordings)
+
+    session = RecordingSession(
+        name=meta.name, path=meta.path, datasource=meta.datasource,
+        recordings=recordings)
+
+    return session

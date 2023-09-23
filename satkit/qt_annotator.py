@@ -57,7 +57,8 @@ from satkit.configuration import gui_params
 from satkit.gui.boundary_animation import BoundaryAnimator
 from satkit.plot import (Normalisation, plot_satgrid_tier, plot_spectrogram,
                          plot_timeseries, plot_wav)
-from satkit.save_and_load import save_recordings, save_recording_session
+from satkit.save_and_load import (
+    save_recordings, save_recording_session, load_recording_session)
 
 # Load the GUI layout generated with QtDesigner.
 Ui_MainWindow, QMainWindow = loadUiType('satkit/gui/qt_annotator.ui')
@@ -112,6 +113,7 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
             self.tr("Ctrl+E", "File|Export figure...")), self)
         self.export_figure_shortcut.activated.connect(self.export_figure)
 
+        self.actionOpen.triggered.connect(self.open)
         self.actionSaveAll.triggered.connect(self.save_all)
         # self.actionSaveToPickle.triggered.connect(self.save_to_pickle)
         self.action_export_figure.triggered.connect(self.export_figure)
@@ -672,6 +674,24 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
         Quit the app.
         """
         QCoreApplication.quit()
+
+    def open(self):
+        """
+        Open either SATKIT saved data or import new data.
+        """
+        directory = QFileDialog.getExistingDirectory(
+            self, caption="Open directory", directory='.')
+        self.recording_session = load_recording_session(directory=directory)
+
+    def open_file(self):
+        """
+        Open either SATKIT saved data or import new data.
+        """
+        filename = QFileDialog.getOpenFileName(
+            self, caption="Open file", directory='.',
+            filter="SATKIT files (*.satkit_meta)")
+        print(
+            f"Don't yet know how to open a file even though I know the name is {filename}.")
 
     def save_all(self):
         """

@@ -64,3 +64,11 @@ class Datasource(Enum):
     AAA = "AAA"
     # EVA = "EVA"
     RASL = "RASL"
+
+
+class SavedObjectTypes(Enum):
+    """
+    """
+    RECORDING_SESSION = "RecordingSession"
+    RECORDING = "Recording"
+    MODALITY = "Modality"

@@ -35,7 +35,7 @@ import logging
 from dataclasses import dataclass
 from datetime import datetime
 from pathlib import Path
-from typing import List, Optional, Union
+from typing import Optional, Union
 
 # Numerical arrays and more
 import numpy as np
@@ -73,7 +73,7 @@ class ModalityData:
 
 
 @dataclass
-class RecordingSession():
+class RecordingSession:
     # class RecordingSession(BaseModel):
     """
     The meta and Recordings of a recording session.
@@ -81,7 +81,7 @@ class RecordingSession():
     name: str
     path: Path
     datasource: Datasource
-    recordings: List['Recording']
+    recordings: list['Recording']
 
 
 class Recording:

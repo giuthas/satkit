@@ -29,10 +29,7 @@
 # citations.bib in BibTeX format.
 #
 from collections import OrderedDict
-from datetime import datetime
 import logging
-from pathlib import Path, PosixPath, WindowsPath
-from typing import List
 
 import nestedtext
 import numpy as np
@@ -76,9 +73,9 @@ def save_modality_meta(modality: Modality) -> str:
     filepath = modality.recording.path/filename
 
     meta = OrderedDict()
-    meta['object type'] = type(modality).__name__
+    meta['object_type'] = type(modality).__name__
     meta['name'] = modality.name
-    meta['format version'] = SATKIT_FILE_VERSION
+    meta['format_version'] = SATKIT_FILE_VERSION
 
     parameters = modality.get_meta().copy()
     meta['parameters'] = parameters
@@ -107,10 +104,10 @@ def save_recording_meta(recording: Recording, modalities_saves: dict) -> str:
     filepath = recording.path/filename
 
     meta = OrderedDict()
-    meta['object type'] = type(recording).__name__
+    meta['object_type'] = type(recording).__name__
     meta['name'] = recording.basename
-    meta['format version'] = SATKIT_FILE_VERSION
-    meta['meta data'] = recording.meta_data.dict()
+    meta['format_version'] = SATKIT_FILE_VERSION
+    meta['meta_data'] = recording.meta_data.dict()
     meta['modalities'] = modalities_saves
 
     try:
@@ -135,18 +132,21 @@ def save_modalities(recording: Recording) -> str:
         modality_meta = {}
         modality = recording.modalities[modality_name]
         if modality.is_derived_modality:
-            modality_meta['data_path'] = save_modality_data(modality)
-            modality_meta['meta_path'] = save_modality_meta(modality)
+            modality_meta['data_name'] = save_modality_data(modality)
+            modality_meta['meta_name'] = save_modality_meta(modality)
         else:
-            modality_meta['data_path'] = str(modality.data_path)
-            modality_meta['meta_path'] = str(modality.meta_path)
+            modality_meta['data_name'] = str(modality.data_path.name)
+            if modality.meta_path:
+                modality_meta['meta_name'] = str(modality.meta_path.name)
+            else:
+                modality_meta['meta_name'] = None
         recording_meta[modality_name] = modality_meta
     return recording_meta
 
 
 def save_recordings(
-        recordings: List[Recording],
-        save_excluded: bool = True) -> List[str]:
+        recordings: list[Recording],
+        save_excluded: bool = True) -> list[str]:
     """
     Save derived data modalities for each Recording.
     """

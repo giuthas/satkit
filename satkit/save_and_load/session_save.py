@@ -28,12 +28,13 @@
 # articles listed in README.markdown. They can also be found in
 # citations.bib in BibTeX format.
 #
+from collections import OrderedDict
 import logging
 from typing import List
 
 import nestedtext
 import numpy as np
-from satkit.constants import Suffix
+from satkit.constants import Suffix, SATKIT_FILE_VERSION
 from satkit.data_structures import RecordingSession
 
 from save_and_load.recording_save import save_recordings
@@ -41,7 +42,8 @@ from save_and_load.recording_save import save_recordings
 _session_saver_logger = logging.getLogger('satkit.session_saver')
 
 
-def save_recording_session_meta(session: RecordingSession, meta: dict) -> str:
+def save_recording_session_meta(
+        session: RecordingSession, recording_meta_files: list) -> str:
     """
     Save recording session metadata.
 
@@ -53,14 +55,25 @@ def save_recording_session_meta(session: RecordingSession, meta: dict) -> str:
     filename = f"{session.basename}{'.Session'}{Suffix.META}"
     filepath = session.path/filename
 
-    meta['object type'] = "Session"
+    meta = OrderedDict()
+    meta['object type'] = type(session)
     meta['name'] = session.name
-    meta['path'] = str(session.path)
-    meta['data source'] = str(session.datasource)
-    meta['recordings'] = [recording.basename for recording in session.recordings]
+    meta['format version'] = SATKIT_FILE_VERSION
 
-    nestedtext.dump(meta, filepath)
-    _session_saver_logger.debug("Wrote file %s." % (filename))
+    parameters = OrderedDict()
+    parameters['path'] = str(session.path)
+    parameters['data source'] = str(session.datasource)
+
+    meta['parameters'] = parameters
+    meta['recordings'] = recording_meta_files
+
+    try:
+        nestedtext.dump(meta, filepath)
+        _session_saver_logger.debug("Wrote file %s." % (filename))
+    except nestedtext.NestedTextError as e:
+        e.terminate()
+    except OSError as e:
+        _session_saver_logger.critical(e)
 
     return filename
 

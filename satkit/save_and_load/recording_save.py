@@ -1,7 +1,7 @@
 #
 # Copyright (c) 2019-2023 Pertti Palo, Scott Moisik, Matthew Faytak, and Motoki Saito.
 #
-# This file is part of Speech Articulation ToolKIT 
+# This file is part of Speech Articulation ToolKIT
 # (see https://github.com/giuthas/satkit/).
 #
 # This program is free software: you can redistribute it and/or modify
@@ -28,15 +28,19 @@
 # articles listed in README.markdown. They can also be found in
 # citations.bib in BibTeX format.
 #
+from collections import OrderedDict
+from datetime import datetime
 import logging
+from pathlib import Path, PosixPath, WindowsPath
 from typing import List
 
 import nestedtext
 import numpy as np
-from satkit.constants import Suffix
+from satkit.constants import SATKIT_FILE_VERSION, Suffix
 from satkit.data_structures import Modality, Recording
 
 _recording_saver_logger = logging.getLogger('satkit.recording_saver')
+
 
 def save_modality_data(modality: Modality) -> str:
     """
@@ -46,14 +50,14 @@ def save_modality_data(modality: Modality) -> str:
 
     Returns the filename of the 
     """
-    _recording_saver_logger.debug("Saving data for %s."%modality.name)
+    _recording_saver_logger.debug("Saving data for %s." % modality.name)
     suffix = modality.name.replace(" ", "_")
     filename = f"{modality.recording.basename}.{suffix}{Suffix.DATA}"
     filepath = modality.recording.path/filename
 
     np.savez(filepath, data=modality.data, timevector=modality.timevector)
 
-    _recording_saver_logger.debug("Wrote file %s."%(filename))
+    _recording_saver_logger.debug("Wrote file %s." % (filename))
     return filename
 
 
@@ -64,47 +68,73 @@ def save_modality_meta(modality: Modality) -> str:
     Saved data includes sampling frequency and any processing metadata that is
     needed to reconstruct the Modality. 
     """
-    _recording_saver_logger.debug("Saving meta for %s."%modality.name)
+    _recording_saver_logger.debug("Saving meta for %s." % modality.name)
     suffix = modality.name.replace(" ", "_")
     filename = f"{modality.recording.basename}.{suffix}"
     filename += Suffix.META
     filepath = modality.recording.path/filename
 
-    meta = modality.get_meta().copy()
-    meta['object type'] = "Recording"
+    meta = OrderedDict()
+    meta['object type'] = "Modality"
     meta['name'] = modality.name
+    meta['format version'] = SATKIT_FILE_VERSION
 
-    nestedtext.dump(meta, filepath)
-    _recording_saver_logger.debug("Wrote file %s."%(filename))
+    parameters = modality.get_meta().copy()
+    meta['parameters'] = parameters
+
+    try:
+        nestedtext.dump(meta, filepath)
+        _recording_saver_logger.debug("Wrote file %s." % (filename))
+    # except nestedtext.NestedTextError as e:
+    #     e.terminate()
+    except OSError as e:
+        _recording_saver_logger.critical(e)
 
     return filename
 
 
-def save_recording_meta(recording: Recording, meta: dict) -> str:
+def save_recording_meta(recording: Recording, modalities_saves: dict) -> str:
     """
     Save Recording meta.
 
     The meta dict should contain at least a list of the modalities this recording
     has and their saving locations.
     """
-    _recording_saver_logger.debug("Saving meta for recording %s."%recording.basename)
+    _recording_saver_logger.debug(
+        "Saving meta for recording %s." % recording.basename)
     filename = f"{recording.basename}{'.Recording'}{Suffix.META}"
     filepath = recording.path/filename
 
+    converters = {
+        datetime: str,
+        PosixPath: str,
+        WindowsPath: str,
+        Path: str
+    }
+
+    meta = OrderedDict()
     meta['object type'] = "Recording"
     meta['name'] = recording.basename
+    meta['format version'] = SATKIT_FILE_VERSION
+    meta['meta data'] = recording.meta_data.dict()
+    meta['modalities'] = modalities_saves
 
-    nestedtext.dump(meta, filepath)
-    _recording_saver_logger.debug("Wrote file %s."%(filename))
+    try:
+        nestedtext.dump(meta, filepath, converters=converters)
+        _recording_saver_logger.debug("Wrote file %s." % (filename))
+    # except nestedtext.NestedTextError as e:
+    #     e.terminate()
+    except OSError as e:
+        _recording_saver_logger.critical(e)
 
     return filename
 
 
 def save_modalities(recording: Recording) -> str:
     """
-    Save derived data modalities for a single Recording.
+    Save derived data Modalities for a single Recording.
 
-    Returns a dictionary of the data and meta paths of the recordings.
+    Returns a dictionary of the data and meta paths of the Modalities.
     """
     recording_meta = {}
     for modality_name in recording.modalities:
@@ -121,16 +151,16 @@ def save_modalities(recording: Recording) -> str:
 
 
 def save_recordings(
-    recordings: List[Recording], 
-    save_excluded: bool=True) -> List[str]:
+        recordings: List[Recording],
+        save_excluded: bool = True) -> List[str]:
     """
     Save derived data modalities for each Recording.
     """
     metafiles = []
     for recording in recordings:
         if save_excluded or not recording.excluded:
-            recording_meta = save_modalities(recording)
-            metafile = save_recording_meta(recording, recording_meta)
+            modalities_saves = save_modalities(recording)
+            metafile = save_recording_meta(recording, modalities_saves)
             metafiles.append(metafile)
 
     return metafiles

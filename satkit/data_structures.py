@@ -72,7 +72,9 @@ class ModalityData:
     timevector: np.ndarray
 
 
-class RecordingSession(BaseModel):
+@dataclass
+class RecordingSession():
+    # class RecordingSession(BaseModel):
     """
     The meta and Recordings of a recording session.
     """
@@ -381,7 +383,7 @@ class Modality(abc.ABC):
         '[own class name] on [data modality class name]'.
 
         Subclasses may override this behaviour to, for example, include
-        the metric used in the name.
+        the metric used to generate the instance in the name.
         """
         name_string = self.__class__.__name__
         if self.parent:

@@ -38,6 +38,7 @@ from satkit.constants import Suffix, SATKIT_FILE_VERSION
 from satkit.data_structures import RecordingSession
 
 from save_and_load.recording_save import save_recordings
+from .save_and_load_helpers import nested_text_converters
 
 _session_saver_logger = logging.getLogger('satkit.session_saver')
 
@@ -68,10 +69,8 @@ def save_recording_session_meta(
     meta['recordings'] = recording_meta_files
 
     try:
-        nestedtext.dump(meta, filepath)
+        nestedtext.dump(meta, filepath, converters=nested_text_converters)
         _session_saver_logger.debug("Wrote file %s." % (filename))
-    except nestedtext.NestedTextError as e:
-        e.terminate()
     except OSError as e:
         _session_saver_logger.critical(e)
 

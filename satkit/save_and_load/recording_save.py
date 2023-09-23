@@ -38,6 +38,7 @@ import nestedtext
 import numpy as np
 from satkit.constants import SATKIT_FILE_VERSION, Suffix
 from satkit.data_structures import Modality, Recording
+from .save_and_load_helpers import nested_text_converters
 
 _recording_saver_logger = logging.getLogger('satkit.recording_saver')
 
@@ -105,13 +106,6 @@ def save_recording_meta(recording: Recording, modalities_saves: dict) -> str:
     filename = f"{recording.basename}{'.Recording'}{Suffix.META}"
     filepath = recording.path/filename
 
-    converters = {
-        datetime: str,
-        PosixPath: str,
-        WindowsPath: str,
-        Path: str
-    }
-
     meta = OrderedDict()
     meta['object type'] = "Recording"
     meta['name'] = recording.basename
@@ -120,7 +114,7 @@ def save_recording_meta(recording: Recording, modalities_saves: dict) -> str:
     meta['modalities'] = modalities_saves
 
     try:
-        nestedtext.dump(meta, filepath, converters=converters)
+        nestedtext.dump(meta, filepath, converters=nested_text_converters)
         _recording_saver_logger.debug("Wrote file %s." % (filename))
     # except nestedtext.NestedTextError as e:
     #     e.terminate()

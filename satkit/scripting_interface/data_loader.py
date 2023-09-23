@@ -32,9 +32,11 @@ import logging
 from pathlib import Path
 from typing import List
 
+from constants import Datasource
+
 from satkit.configuration import data_run_params
 from satkit.data_import import generate_aaa_recording_list
-from satkit.data_structures import Recording
+from satkit.data_structures import Recording, RecordingSession
 
 logger = logging.getLogger('satkit.scripting')
 
@@ -44,7 +46,7 @@ logger = logging.getLogger('satkit.scripting')
 # TODO: create and return a session rather than a list of recordings?
 
 
-def load_data(path: Path, exclusion_file: Path) -> List[Recording]:
+def load_data(path: Path, exclusion_file: Path) -> RecordingSession:
     """Handle loading data from individual files or a previously saved session."""
     if not path.exists():
         logger.critical(
@@ -52,18 +54,19 @@ def load_data(path: Path, exclusion_file: Path) -> List[Recording]:
         logger.critical('Exiting.')
         quit()
     elif path.is_dir():
-        recordings = read_data_from_files(path, exclusion_file)
+        session = read_recording_session_from_dir(path, exclusion_file)
     elif path.suffix == '.satkit_meta':
-        recordings = load_satkit_preread_session(
+        session = load_satkit_preread_session(
             path=path, exclusion_file=exclusion_file)
     else:
         logger.error(
             'Unsupported filetype: %s.', path)
 
-    return recordings
+    return session
 
 
-def read_data_from_files(path: Path, exclusion_file: Path):
+def read_recording_session_from_dir(
+        path: Path, exclusion_file: Path) -> RecordingSession:
     """
     Wrapper for reading data from a directory full of files.
 
@@ -78,4 +81,13 @@ def read_data_from_files(path: Path, exclusion_file: Path):
         data_run_params['data properties']['exclusion list'] = exclusion_file
 
     recordings = generate_aaa_recording_list(path)
-    return recordings
+
+    path = recordings[0].path
+    parent_dir = path.parts[-1]
+
+    # RecordingSession.update_forward_refs()
+    session = RecordingSession(
+        name=parent_dir, path=path, datasource=Datasource.AAA,
+        recordings=recordings)
+
+    return session

@@ -34,6 +34,7 @@ import csv
 import logging
 from contextlib import closing
 from copy import deepcopy
+from data_structures import RecordingSession
 
 import matplotlib
 # Numpy
@@ -56,7 +57,7 @@ from satkit.configuration import gui_params
 from satkit.gui.boundary_animation import BoundaryAnimator
 from satkit.plot import (Normalisation, plot_satgrid_tier, plot_spectrogram,
                          plot_timeseries, plot_wav)
-from satkit.save_and_load import save_recordings
+from satkit.save_and_load import save_recordings, save_recording_session
 
 # Load the GUI layout generated with QtDesigner.
 Ui_MainWindow, QMainWindow = loadUiType('satkit/gui/qt_annotator.ui')
@@ -79,11 +80,14 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
 
     default_tongue_positions = ['High', 'Low', 'Other / Not visible']
 
-    def __init__(self, recordings, args, xlim=(-0.25, 1.5),
+    def __init__(self, recording_session: RecordingSession, args,
+                 xlim=(-0.25, 1.5),
                  categories=None, pickle_filename=None):
         super().__init__()
         self.setupUi(self)
 
+        self.recording_session = recording_session
+        recordings = recording_session.recordings
         self.index = 0
         self.max_index = len(recordings)
 
@@ -673,7 +677,8 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
         """
         Save derived modalities and annotations.
         """
-        save_recordings(self.recordings)
+        # save_recordings(self.recordings)
+        save_recording_session(self.recording_session)
 
     def save_to_pickle(self):
         """

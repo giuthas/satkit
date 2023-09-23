@@ -76,7 +76,7 @@ def save_modality_meta(modality: Modality) -> str:
     filepath = modality.recording.path/filename
 
     meta = OrderedDict()
-    meta['object type'] = "Modality"
+    meta['object type'] = type(modality).__name__
     meta['name'] = modality.name
     meta['format version'] = SATKIT_FILE_VERSION
 
@@ -107,7 +107,7 @@ def save_recording_meta(recording: Recording, modalities_saves: dict) -> str:
     filepath = recording.path/filename
 
     meta = OrderedDict()
-    meta['object type'] = "Recording"
+    meta['object type'] = type(recording).__name__
     meta['name'] = recording.basename
     meta['format version'] = SATKIT_FILE_VERSION
     meta['meta data'] = recording.meta_data.dict()

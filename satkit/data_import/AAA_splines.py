@@ -1,7 +1,7 @@
 #
 # Copyright (c) 2019-2023 Pertti Palo, Scott Moisik, Matthew Faytak, and Motoki Saito.
 #
-# This file is part of Speech Articulation ToolKIT 
+# This file is part of Speech Articulation ToolKIT
 # (see https://github.com/giuthas/satkit/).
 #
 # This program is free software: you can redistribute it and/or modify
@@ -36,6 +36,7 @@ from contextlib import closing
 import numpy as np
 
 _AAA_spline_logger = logging.getLogger('satkit.AAA_splines')
+
 
 def parse_spline_line(line):
     """Parse a single line in an old AAA spline export file."""
@@ -82,7 +83,7 @@ def retrieve_splines(filename):
     """
     Read all splines from the file.
     """
-    with closing(open(filename, 'r',encoding="utf8")) as splinefile:
+    with closing(open(filename, 'r', encoding="utf8")) as splinefile:
         splinefile.readline()  # Discard the headers on first line.
         table = [parse_spline_line(line) for line in splinefile.readlines()]
 

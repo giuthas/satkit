@@ -1,7 +1,7 @@
 #
 # Copyright (c) 2019-2023 Pertti Palo, Scott Moisik, Matthew Faytak, and Motoki Saito.
 #
-# This file is part of Speech Articulation ToolKIT 
+# This file is part of Speech Articulation ToolKIT
 # (see https://github.com/giuthas/satkit/).
 #
 # This program is free software: you can redistribute it and/or modify
@@ -33,13 +33,14 @@ from pathlib import Path
 from typing import Optional
 
 from satkit.data_structures import Recording
-from satkit.formats import read_wav
+from satkit.import_formats import read_wav
 from satkit.modalities import MonoAudio
 
 _generic_io_logger = logging.getLogger('satkit.data_structures')
 
+
 def add_audio(recording: Recording, preload: bool,
-                path: Optional[Path]=None) -> None:
+              path: Optional[Path] = None) -> None:
     """Create a MonoAudio Modality and add it to the Recording."""
     if not path:
         ult_wav_file = (recording.path/recording.basename).with_suffix(".wav")
@@ -48,12 +49,13 @@ def add_audio(recording: Recording, preload: bool,
 
     if ult_wav_file.is_file():
         if preload:
-            data, go_signal, has_speech = read_wav(ult_wav_file, detect_beep=True)
+            data, go_signal, has_speech = read_wav(
+                ult_wav_file, detect_beep=True)
             waveform = MonoAudio(
                 recording=recording,
                 data_path=ult_wav_file,
-                parsed_data = data, 
-                go_signal=go_signal, 
+                parsed_data=data,
+                go_signal=go_signal,
                 has_speech=has_speech
             )
             recording.add_modality(waveform)
@@ -70,5 +72,3 @@ def add_audio(recording: Recording, preload: bool,
         notice = 'Note: ' + str(ult_wav_file) + " does not exist. Excluding."
         _generic_io_logger.warning(notice)
         recording.exclude()
-
-

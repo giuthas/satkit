@@ -110,9 +110,26 @@ def parse_ultrasound_meta_aaa(filename):
     return meta
 
 
-def add_aaa_raw_ultrasound(recording: Recording, preload: bool,
-                           path: Optional[Path] = None) -> None:
-    """Create a RawUltrasound Modality and add it to the Recording."""
+def add_aaa_raw_ultrasound(
+        recording: Recording, preload: bool, path: Optional[Path] = None) -> None:
+    """
+    Create a RawUltrasound Modality and add it to the Recording.
+
+    Parameters
+    ----------
+    recording : Recording
+        _description_
+    preload : bool
+        _description_
+    path : Optional[Path], optional
+        _description_, by default None
+
+    Raises
+    ------
+    NotImplementedError
+        Preloading ultrasound data has not been implemented yet. If you really,
+        really want to, this is the function where to do that.
+    """
     if not path:
         ult_path = (recording.path/recording.basename).with_suffix(".ult")
         meta_path = (recording.path/(recording.basename+"US.txt"))
@@ -120,20 +137,13 @@ def add_aaa_raw_ultrasound(recording: Recording, preload: bool,
         ult_path = path
         meta_path = path.with_suffix("US.txt")
 
-    ult_time_offset = -inf
-    if meta_path.is_file():
-        meta = parse_ultrasound_meta_aaa(meta_path)
-        # We pop the timeoffset from the meta dict so that people will not
-        # accidentally rely on setting that to alter the timeoffset of the
-        # ultrasound data in the Recording. This throws KeyError if the meta
-        # file didn't contain TimeInSecsOfFirstFrame.
-        ult_time_offset = meta.pop('TimeInSecsOfFirstFrame')
-    else:
+    if not meta_path.is_file():
         if not path:
             meta_path = (recording.path/(recording.basename+".param"))
         else:
             meta_path = path.with_suffix(".param")
 
+    ult_time_offset = -inf
     if meta_path.is_file():
         meta = parse_ultrasound_meta_aaa(meta_path)
         # We pop the timeoffset from the meta dict so that people will not

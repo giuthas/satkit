@@ -1,7 +1,7 @@
 #
 # Copyright (c) 2019-2023 Pertti Palo, Scott Moisik, Matthew Faytak, and Motoki Saito.
 #
-# This file is part of Speech Articulation ToolKIT 
+# This file is part of Speech Articulation ToolKIT
 # (see https://github.com/giuthas/satkit/).
 #
 # This program is free software: you can redistribute it and/or modify
@@ -55,9 +55,10 @@ _AAA_logger = logging.getLogger('satkit.AAA')
 # like the exclusion list and splines.
 #
 
+
 def generate_aaa_recording_list(
-    directory: Path, 
-    directory_structure: Optional[dict]=None):
+        directory: Path,
+        directory_structure: Optional[dict] = None):
     """
     Produce an array of Recordings from an AAA export directory.
 
@@ -96,11 +97,10 @@ def generate_aaa_recording_list(
 
     if config['mains frequency']:
         MainsFilter.generate_mains_filter(
-            44100, 
+            44100,
             config['mains frequency'])
     else:
         MainsFilter.generate_mains_filter(44100, 50)
-    
 
     # this takes care of *.txt and *US.txt overlapping. Goal
     # here is to include also failed recordings with missing
@@ -121,15 +121,15 @@ def generate_aaa_recording_list(
     ]
 
     set_exclusions_from_csv_file(
-        data_run_params['data properties']['exclusion list'], 
+        data_run_params['data properties']['exclusion list'],
         recordings)
 
-
-    for recording in recordings: 
+    for recording in recordings:
         if not recording.excluded:
             add_modalities(recording)
 
-    return sorted(recordings, key=lambda token: token.meta_data.time_of_recording)
+    return sorted(recordings, key=lambda
+                  token: token.meta_data.time_of_recording)
 
 
 def generate_ultrasound_recording(basename: str, directory: Path):
@@ -171,8 +171,9 @@ def generate_ultrasound_recording(basename: str, directory: Path):
     return recording
 
 
-def add_modalities(recording: Recording, wav_preload: bool=True, ult_preload: bool=False,
-                    video_preload: bool=False):
+def add_modalities(
+        recording: Recording, wav_preload: bool = True, ult_preload: bool = False,
+        video_preload: bool = False):
     """
     Add audio and raw ultrasound data to the recording.
 
@@ -192,12 +193,8 @@ def add_modalities(recording: Recording, wav_preload: bool=True, ult_preload: bo
     meta file: [directory]/basename + .txt.
     """
     _AAA_logger.info("Adding modalities to recording for %s.",
-        recording.basename)
+                     recording.basename)
 
     add_audio(recording, wav_preload)
     add_aaa_raw_ultrasound(recording, ult_preload)
     add_video(recording, video_preload)
-
-
-
-

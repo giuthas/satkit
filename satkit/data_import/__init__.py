@@ -1,7 +1,7 @@
 #
 # Copyright (c) 2019-2023 Pertti Palo, Scott Moisik, Matthew Faytak, and Motoki Saito.
 #
-# This file is part of Speech Articulation ToolKIT 
+# This file is part of Speech Articulation ToolKIT
 # (see https://github.com/giuthas/satkit/).
 #
 # This program is free software: you can redistribute it and/or modify
@@ -38,3 +38,10 @@ from .add_audio import add_audio
 from .add_video import add_video
 from .add_AAA_raw_ultrasound import add_aaa_raw_ultrasound
 from .add_3D_ultrasound import add_rasl_3D_ultrasound
+
+modality_adders = {
+    'MonoAudio': add_audio,
+    'RawUltrasound': add_AAA_raw_ultrasound,
+    'ThreeD_Ultrasound': add_rasl_3D_ultrasound,
+    'Video': add_video
+}

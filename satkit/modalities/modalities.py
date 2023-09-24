@@ -1,7 +1,7 @@
 #
 # Copyright (c) 2019-2023 Pertti Palo, Scott Moisik, Matthew Faytak, and Motoki Saito.
 #
-# This file is part of Speech Articulation ToolKIT 
+# This file is part of Speech Articulation ToolKIT
 # (see https://github.com/giuthas/satkit/).
 #
 # This program is free software: you can redistribute it and/or modify
@@ -39,11 +39,12 @@ from typing import Optional
 import numpy as np
 # local modules
 from satkit.data_structures import Modality, ModalityData, Recording
-from satkit.formats import (read_3d_ultrasound_dicom, read_avi, read_ult,
-                            read_wav)
+from satkit.import_formats import (
+    read_3d_ultrasound_dicom, read_avi, read_ult, read_wav)
 from satkit.interpolate_raw_uti import to_fan, to_fan_2d
 
 _modalities_logger = logging.getLogger('satkit.modalities')
+
 
 class MonoAudio(Modality):
     """
@@ -59,15 +60,14 @@ class MonoAudio(Modality):
     # mains_frequency = None
     # filter = {}
 
-
-    def __init__(self, 
-                recording: Recording, 
-                data_path: Optional[Path]=None,
-                load_path: Optional[Path]=None,
-                parsed_data: Optional[ModalityData]=None,
-                time_offset: Optional[float]=None,
-                go_signal: Optional[float] = None, 
-                has_speech: Optional[bool] = None) -> None:
+    def __init__(self,
+                 recording: Recording,
+                 data_path: Optional[Path] = None,
+                 load_path: Optional[Path] = None,
+                 parsed_data: Optional[ModalityData] = None,
+                 time_offset: Optional[float] = None,
+                 go_signal: Optional[float] = None,
+                 has_speech: Optional[bool] = None) -> None:
         """
         Create a MonoAudio track.
 
@@ -89,12 +89,12 @@ class MonoAudio(Modality):
             audio in the sample.
         """
         super().__init__(
-                recording=recording, 
-                data_path=data_path,
-                load_path=load_path,
-                parent=None,
-                parsed_data=parsed_data,
-                time_offset=time_offset)
+            recording=recording,
+            data_path=data_path,
+            load_path=load_path,
+            parent=None,
+            parsed_data=parsed_data,
+            time_offset=time_offset)
 
         self.go_signal = go_signal
         self.has_speech = has_speech
@@ -137,15 +137,15 @@ class RawUltrasound(Modality):
         'ZeroOffset'
     ]
 
-    def __init__(self, 
-                recording: Recording, 
-                data_path: Optional[Path]=None,
-                meta_path: Optional[Path]=None,
-                load_path: Optional[Path]=None,
-                parsed_data: Optional[ModalityData]=None,
-                time_offset: Optional[float]=None,
-                meta: Optional[dict]=None 
-                ) -> None:
+    def __init__(self,
+                 recording: Recording,
+                 data_path: Optional[Path] = None,
+                 meta_path: Optional[Path] = None,
+                 load_path: Optional[Path] = None,
+                 parsed_data: Optional[ModalityData] = None,
+                 time_offset: Optional[float] = None,
+                 meta: Optional[dict] = None
+                 ) -> None:
         """
         Create a RawUltrasound Modality.
 
@@ -185,13 +185,13 @@ class RawUltrasound(Modality):
         # Initialise super only after ensuring meta is correct,
         # because latter may already end the run.
         super().__init__(
-                recording=recording, 
-                data_path=data_path,
-                meta_path=meta_path,
-                load_path=load_path,
-                parent=None,
-                parsed_data=parsed_data,
-                time_offset=time_offset)
+            recording=recording,
+            data_path=data_path,
+            meta_path=meta_path,
+            load_path=load_path,
+            parent=None,
+            parsed_data=parsed_data,
+            time_offset=time_offset)
 
         # TODO: these are related to GUI and should really be in a decorator class and not here.
         # State variables for fast retrieval of previously tagged ultrasound frames.
@@ -216,7 +216,7 @@ class RawUltrasound(Modality):
     def interpolated_image(self, index):
         """
         Return an interpolated version of the ultrasound frame at index.
-        
+
         A new interpolated image is calculated, if necessary. To avoid large memory overheads
         only the current frame's interpolated version maybe stored in memory.
 
@@ -224,18 +224,21 @@ class RawUltrasound(Modality):
         index - the index of the ultrasound frame to be returned
         """
         _modalities_logger.debug(
-            "Getting interpolated image from ultrasound. index=%d"%(index))
+            "Getting interpolated image from ultrasound. index=%d" % (index))
         if self.video_has_been_stored:
-            _modalities_logger.debug("Returning interpolated image from stored video.")
+            _modalities_logger.debug(
+                "Returning interpolated image from stored video.")
             half_way = int(self.stored_video.shape[0]/2)
             return self.stored_video[half_way, :, :].copy()
         elif self._stored_index and self._stored_index == index:
-            _modalities_logger.debug("Returning previously stored interpolated image.")
+            _modalities_logger.debug(
+                "Returning previously stored interpolated image.")
             return self._stored_image
         else:
-            _modalities_logger.debug("Calculating interpolated image from scratch.")
+            _modalities_logger.debug(
+                "Calculating interpolated image from scratch.")
             self._stored_index = index
-            #frame = scipy_medfilt(self.data[index, :, :].copy(), [1,15])
+            # frame = scipy_medfilt(self.data[index, :, :].copy(), [1,15])
             frame = self.data[index, :, :].copy()
             # half = int(frame.shape[0]/2)
             # frame[:half,:] = 0
@@ -250,7 +253,7 @@ class RawUltrasound(Modality):
     def interpolated_frames(self) -> np.ndarray:
         """
         Return an interpolated version of the ultrasound frame at index.
-        
+
         A new interpolated image is calculated, if necessary. To avoid large memory overheads
         only the current frame's interpolated version maybe stored in memory.
 
@@ -273,7 +276,6 @@ class RawUltrasound(Modality):
         return video
 
 
-
 class Video(Modality):
     """
     Video recording.    
@@ -283,14 +285,14 @@ class Video(Modality):
         'FramesPerSec'
     ]
 
-    def __init__(self, 
-                recording: Recording, 
-                data_path: Optional[Path]=None,
-                load_path: Optional[Path]=None,
-                parsed_data: Optional[ModalityData]=None,
-                time_offset: Optional[float]=None,
-                meta: Optional[dict]=None 
-                ) -> None:
+    def __init__(self,
+                 recording: Recording,
+                 data_path: Optional[Path] = None,
+                 load_path: Optional[Path] = None,
+                 parsed_data: Optional[ModalityData] = None,
+                 time_offset: Optional[float] = None,
+                 meta: Optional[dict] = None
+                 ) -> None:
         """
         Create a Video Modality.
 
@@ -331,18 +333,19 @@ class Video(Modality):
             self.meta.deepcopy(wanted_meta)
 
         super().__init__(
-                recording=recording, 
-                data_path=data_path,
-                load_path=load_path,
-                parent=None,
-                parsed_data=parsed_data,
-                time_offset=time_offset)
+            recording=recording,
+            data_path=data_path,
+            load_path=load_path,
+            parent=None,
+            parsed_data=parsed_data,
+            time_offset=time_offset)
 
     def _readData(self) -> ModalityData:
         return read_avi(self.data_path, self.meta, self._time_offset)
 
     def get_meta(self) -> dict:
         return {'sampling_rate': self.sampling_rate}
+
 
 class ThreeD_Ultrasound(Modality):
     """
@@ -359,15 +362,15 @@ class ThreeD_Ultrasound(Modality):
         'ZeroOffset'
     ]
 
-    def __init__(self, 
-                recording: Recording, 
-                data_path: Optional[Path]=None,
-                load_path: Optional[Path]=None,
-                meta_path: Optional[Path]=None,
-                parsed_data: Optional[ModalityData]=None,
-                time_offset: Optional[float]=None,
-                meta: Optional[dict]=None 
-                ) -> None:
+    def __init__(self,
+                 recording: Recording,
+                 data_path: Optional[Path] = None,
+                 load_path: Optional[Path] = None,
+                 meta_path: Optional[Path] = None,
+                 parsed_data: Optional[ModalityData] = None,
+                 time_offset: Optional[float] = None,
+                 meta: Optional[dict] = None
+                 ) -> None:
         """
         Create a RawUltrasound Modality.
 
@@ -407,13 +410,13 @@ class ThreeD_Ultrasound(Modality):
         # Initialise super only after ensuring meta is correct,
         # because latter may already end the run.
         super().__init__(
-                recording=recording, 
-                data_path=data_path,
-                meta_path=meta_path,
-                load_path=load_path,
-                parent=None,
-                parsed_data=parsed_data,
-                time_offset=time_offset)
+            recording=recording,
+            data_path=data_path,
+            meta_path=meta_path,
+            load_path=load_path,
+            parent=None,
+            parsed_data=parsed_data,
+            time_offset=time_offset)
 
         # TODO: these are related to GUI and should really be in a decorator class and not here.
         # State variables for fast retrieval of previously tagged ultrasound frames.
@@ -422,9 +425,9 @@ class ThreeD_Ultrasound(Modality):
 
     def _read_data(self) -> ModalityData:
         return read_3d_ultrasound_dicom(
-                self.data_path, 
-                self.meta, 
-                self._time_offset)
+            self.data_path,
+            self.meta,
+            self._time_offset)
 
     @property
     def data(self) -> np.ndarray:

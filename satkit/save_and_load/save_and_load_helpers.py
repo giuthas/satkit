@@ -2,8 +2,9 @@ from datetime import datetime
 from pathlib import Path, PosixPath, WindowsPath
 from typing import Optional, Union
 from constants import Datasource, SavedObjectTypes
+from data_structures import RecordingMetaData
 
-from pydantic import BaseModel, DirectoryPath, FilePath
+from pydantic import BaseModel, DirectoryPath
 
 
 nested_text_converters = {
@@ -34,19 +35,6 @@ class ModalityListingLoadschema(BaseModel):
     meta_name: Union[str, None]
 
 
-class RecordingMetaLoadSchema(BaseModel):
-    """
-    Loading schema for a saved Recording's metadata.
-
-    RecordingMetaData is defined in the data_structures module.
-    """
-    prompt: str
-    time_of_recording: datetime
-    participant_id: str
-    basename: str
-    path: str
-
-
 class RecordingLoadSchema(BaseModel):
     """
     Loading schema for a saved Recording.
@@ -56,7 +44,7 @@ class RecordingLoadSchema(BaseModel):
     object_type: SavedObjectTypes = SavedObjectTypes.RECORDING
     name: str
     format_version: str
-    parameters: RecordingMetaLoadSchema
+    parameters: RecordingMetaData
     modalities: dict[str, ModalityListingLoadschema]
 
 

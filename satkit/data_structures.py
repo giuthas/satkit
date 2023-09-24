@@ -37,6 +37,8 @@ from datetime import datetime
 from pathlib import Path
 from typing import Optional, Union
 
+from icecream import ic
+
 # Numerical arrays and more
 import numpy as np
 from pydantic import BaseModel
@@ -100,47 +102,53 @@ class Recording:
     def __init__(self,
                  meta_data: RecordingMetaData,
                  excluded: bool = False,
-                 path: Optional[Union[str, Path]] = None,
-                 basename: str = "",
                  textgrid_path: Union[str, Path] = "") -> None:
         """
-        Construct a recording.
+        Construct a mainly empty recording without modalities.
 
+        Modalities and annotations get added after constructions with their own
+        add_[modality or annotation] functions.
 
         Parameters
         ----------
         meta_data : RecordingMetaData
-            _description_
+            Some of the contents of the meta data are avaible as properties.
         excluded : bool, optional
             _description_, by default False
-        path : Optional[Union[str, Path]], optional
-            _description_, by default None
-        basename : str, optional
-            _description_, by default ""
         textgrid_path : Union[str, Path], optional
             _description_, by default ""
         """
         self.excluded = excluded
 
-        if isinstance(path, Path):
-            self.path = path
-        elif isinstance(path, str):
-            self.path = Path(path)
-        else:
-            self.path = None
-
-        self.basename = basename
         self.meta_data = meta_data
 
         if textgrid_path:
             self._textgrid_path = textgrid_path
         else:
-            self._textgrid_path = self.path.joinpath(basename + ".TextGrid")
+            ic(meta_data)
+            self._textgrid_path = meta_data.path.joinpath(
+                meta_data.basename + ".TextGrid")
         self.textgrid = self._read_textgrid()
         self.satgrid = SatGrid(self.textgrid)
 
         self.modalities = {}
         self.annotations = {}
+
+    @property
+    def path(self) -> Path:
+        return self.meta_data.path
+
+    @path.setter
+    def path(self, path: Path) -> None:
+        self.meta_data.path = path
+
+    @property
+    def basename(self) -> str:
+        return self.meta_data.basename
+
+    @basename.setter
+    def basename(self, basename: str) -> None:
+        self.meta_data.basename = basename
 
     def _read_textgrid(self) -> textgrids.TextGrid:
         """

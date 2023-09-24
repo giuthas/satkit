@@ -1,7 +1,7 @@
 #
 # Copyright (c) 2019-2023 Pertti Palo, Scott Moisik, Matthew Faytak, and Motoki Saito.
 #
-# This file is part of Speech Articulation ToolKIT 
+# This file is part of Speech Articulation ToolKIT
 # (see https://github.com/giuthas/satkit/).
 #
 # This program is free software: you can redistribute it and/or modify
@@ -38,18 +38,19 @@ from pathlib import Path
 from typing import Dict, Optional
 
 from satkit.configuration import data_run_params, set_exclusions_from_csv_file
-from satkit.data_import.add_3D_ultrasound import (add_rasl_3D_ultrasound,
-                                                  generateMeta,
-                                                  read_3D_meta_from_mat_file)
-from satkit.data_import.add_audio import add_audio
-from satkit.data_import.add_video import add_video
+from data_import.three_dim_ultrasound import (add_rasl_3D_ultrasound,
+                                              generateMeta,
+                                              read_3D_meta_from_mat_file)
+from data_import.audio import add_audio
+from data_import.video import add_video
 # Local packages
 from satkit.data_structures import Recording
 
 _3D4D_ultra_logger = logging.getLogger('satkit.ThreeD_ultrasound')
 
 
-def generate_rasl_recording_list(directory: Path, config: Optional[dict] = None):
+def generate_rasl_recording_list(
+        directory: Path, config: Optional[dict] = None):
     """
     Produce an array of Recordings from a 3D4D ultrasound directory.
 
@@ -120,17 +121,16 @@ def generate_rasl_recording_list(directory: Path, config: Optional[dict] = None)
                 'No DICOM file corresponding to number ' +
                 token['trial_number'] + ' found in ' + str(directory) + '.')
 
-
     set_exclusions_from_csv_file(
-        data_run_params['data properties']['exclusion list'], 
+        data_run_params['data properties']['exclusion list'],
         recordings)
 
-
-    for recording in recordings: 
+    for recording in recordings:
         if not recording.excluded:
             add_modalities(recording)
 
-    return sorted(recordings, key=lambda token: token.meta_data.time_of_recording)
+    return sorted(recordings, key=lambda
+                  token: token.meta_data.time_of_recording)
 
     return sorted(recordings, key=lambda token: token.meta['date_and_time'])
 
@@ -225,7 +225,8 @@ def generate_recording_list_old_style(directory):
     recordings = []
     for token in meta:
         if token['trial_number'] in dicom_dict:
-            _3D4D_ultra_logger.debug("Processing %s.", dicom_dict[token['trial_number']])
+            _3D4D_ultra_logger.debug(
+                "Processing %s.", dicom_dict[token['trial_number']])
             recording = generate_3D_ultrasound_recording(
                 dicom_dict[token['trial_number']],
                 token['sound_filename'],
@@ -241,10 +242,10 @@ def generate_recording_list_old_style(directory):
 
 
 def generate_3D_ultrasound_recording(
-        dicom_name: str, 
-        sound_name: str, 
-        meta: dict, 
-        directories: Optional[Dict[str, Path]]=None):
+        dicom_name: str,
+        sound_name: str,
+        meta: dict,
+        directories: Optional[Dict[str, Path]] = None):
     """
     Generate an UltrasoundRecording without Modalities.
 
@@ -293,8 +294,10 @@ def generate_3D_ultrasound_recording(
 
     return recording
 
-def add_modalities(recording: Recording, wav_preload: bool=True, ult_preload: bool=False,
-                    video_preload: bool=False):
+
+def add_modalities(
+        recording: Recording, wav_preload: bool = True, ult_preload: bool = False,
+        video_preload: bool = False):
     """
     Add audio and raw ultrasound data to the recording.
 
@@ -315,12 +318,11 @@ def add_modalities(recording: Recording, wav_preload: bool=True, ult_preload: bo
     meta file: [directory]/basename + .txt.
     """
     _3D4D_ultra_logger.info("Adding modalities to recording for %s.",
-        recording.basename)
+                            recording.basename)
 
     add_audio(recording, wav_preload)
     add_rasl_3D_ultrasound(recording, ult_preload)
     add_video(recording, video_preload)
-
 
     # def addModalities(self, wavPreload=True, ultPreload=False,
     #                   videoPreload=False):
@@ -339,7 +341,7 @@ def add_modalities(recording: Recording, wav_preload: bool=True, ult_preload: bo
     #         files are, yet again, roughly one to two orders of magnitude
     #         larger than .ult files.
 
-    #     Throws KeyError if TimeInSecsOfFirstFrame is missing from the 
+    #     Throws KeyError if TimeInSecsOfFirstFrame is missing from the
     #     meta file: [directory]/basename + .txt.
     #     """
     #     _3D4D_ultra_logger.info("Adding modalities to recording for "

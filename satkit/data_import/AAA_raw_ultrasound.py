@@ -137,7 +137,7 @@ def add_aaa_raw_ultrasound(
         meta_path = (recording.path/(recording.basename+"US.txt"))
     else:
         ult_path = path
-        meta_path = path.with_suffix("US.txt")
+        meta_path = path.parent/(path.stem+"US.txt")
 
     if not meta_path.is_file():
         if not path:

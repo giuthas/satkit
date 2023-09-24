@@ -1,7 +1,7 @@
 #
 # Copyright (c) 2019-2023 Pertti Palo, Scott Moisik, Matthew Faytak, and Motoki Saito.
 #
-# This file is part of Speech Articulation ToolKIT 
+# This file is part of Speech Articulation ToolKIT
 # (see https://github.com/giuthas/satkit/).
 #
 # This program is free software: you can redistribute it and/or modify
@@ -29,15 +29,13 @@
 # citations.bib in BibTeX format.
 #
 
+from satkit.import_formats.rasl_dat_to_wav import dat_to_wav
+from pathlib import Path
+import time
 import sys
 
 # setting path
 sys.path.append('../satkit')
-
-import time
-from pathlib import Path
-
-from satkit.formats.rasl_dat_to_wav import dat_to_wav
 
 
 def main(args):
@@ -52,12 +50,13 @@ def main(args):
         wav = wav.with_suffix('.wav')
         dat_to_wav(dat, wav)
 
+
 if (len(sys.argv) not in [2]):
     print("\ndat_to_wav.py")
     print("\tusage: dat_to_wav.py dat_dir")
     print("\n\tConverts dat files in dat_dir to wav files and creates a directory for them.")
     print("\tThe wav file directory will be formed by changin 'DAT' to 'WAV' in the dat directory path's end.")
-    sys.exit(0) 
+    sys.exit(0)
 
 
 if (__name__ == '__main__'):

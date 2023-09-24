@@ -40,13 +40,13 @@ from satkit.configuration import config
 from satkit.constants import Suffix
 from satkit.data_import import (
     add_audio, add_video, add_aaa_raw_ultrasound,
-    generate_ultrasound_recording)
+    generate_ultrasound_recording, modality_adders)
 from satkit.data_structures import Recording, RecordingSession
 
 _recording_loader_logger = logging.getLogger('satkit.recording_loader')
 
 
-def read_recording_meta(filepath) -> dict:
+def read_recording_meta(filepath) -> RecordingLoadSchema:
     raw_input = nestedtext.load(filepath)
     meta = RecordingLoadSchema.parse_obj(raw_input)
     return meta
@@ -71,15 +71,20 @@ def load_recording(filepath: Path) -> Recording:
         raise NotImplementedError(
             "Can't yet jump to a previously unloaded recording here.")
 
-    ic(meta.dict())
-    exit()
-    # TODO: this does not exist the way the code assumes in meta
-    recording = generate_ultrasound_recording(
-        meta['basename'], Path(meta['path']))
+    # TODO: This is still the wrong version of the params to pass Recording
+    # because this is the load schema not the actual RecordingMetaData. So do
+    # the unimplemented function below:
+    # recording_meta = recording_meta_from_loaded_schema()
+    recording = Recording(meta.parameters)
 
-    add_audio(recording, meta['wav_preload'])
-    add_aaa_raw_ultrasound(recording, meta['ult_preload'])
-    add_video(recording, meta['video_preload'])
+    for modality in meta.modalities:
+        if modality in modality_adders:
+            adder = modality_adders[modality]
+            path = meta.parameters.path/meta.modalities[modality].data_name
+            adder(recording, path=path)
+        else:
+            pass
+            # TODO: implement loading a derived modality
 
 
 def load_recordings_from_directory(directory: Path) -> list[Recording]:

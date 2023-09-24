@@ -1,6 +1,6 @@
 from datetime import datetime
 from pathlib import Path, PosixPath, WindowsPath
-from typing import Union
+from typing import Optional, Union
 from constants import Datasource, SavedObjectTypes
 
 from pydantic import BaseModel, DirectoryPath, FilePath
@@ -56,7 +56,7 @@ class RecordingLoadSchema(BaseModel):
     object_type: SavedObjectTypes = SavedObjectTypes.RECORDING
     name: str
     format_version: str
-    meta_data: RecordingMetaLoadSchema
+    parameters: RecordingMetaLoadSchema
     modalities: dict[str, ModalityListingLoadschema]
 
 

@@ -107,7 +107,7 @@ def save_recording_meta(recording: Recording, modalities_saves: dict) -> str:
     meta['object_type'] = type(recording).__name__
     meta['name'] = recording.basename
     meta['format_version'] = SATKIT_FILE_VERSION
-    meta['meta_data'] = recording.meta_data.dict()
+    meta['parameters'] = recording.meta_data.dict()
     meta['modalities'] = modalities_saves
 
     try:
@@ -183,7 +183,7 @@ def save_recording_session_meta(
     parameters['datasource'] = session.datasource._value_
 
     meta['parameters'] = parameters
-    meta['members'] = recording_meta_files
+    meta['recordings'] = recording_meta_files
 
     try:
         nestedtext.dump(meta, filepath, converters=nested_text_converters)

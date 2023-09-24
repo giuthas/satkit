@@ -28,7 +28,5 @@
 # articles listed in README.markdown. They can also be found in
 # citations.bib in BibTeX format.
 #
-from .recording_load import load_recordings
-from .recording_save import save_recordings
-from .session_load import load_recording_session
-from .session_save import save_recording_session
+from .load import load_recordings, load_recording_session
+from .save import save_recordings, save_recording_session

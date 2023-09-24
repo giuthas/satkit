@@ -34,10 +34,10 @@ import logging
 import nestedtext
 import numpy as np
 from satkit.constants import SATKIT_FILE_VERSION, Suffix
-from satkit.data_structures import Modality, Recording
+from satkit.data_structures import Modality, Recording, RecordingSession
 from .save_and_load_helpers import nested_text_converters
 
-_recording_saver_logger = logging.getLogger('satkit.recording_saver')
+_saver_logger = logging.getLogger('satkit._saver')
 
 
 def save_modality_data(modality: Modality) -> str:
@@ -48,14 +48,14 @@ def save_modality_data(modality: Modality) -> str:
 
     Returns the filename of the 
     """
-    _recording_saver_logger.debug("Saving data for %s." % modality.name)
+    _saver_logger.debug("Saving data for %s." % modality.name)
     suffix = modality.name.replace(" ", "_")
     filename = f"{modality.recording.basename}.{suffix}{Suffix.DATA}"
     filepath = modality.recording.path/filename
 
     np.savez(filepath, data=modality.data, timevector=modality.timevector)
 
-    _recording_saver_logger.debug("Wrote file %s." % (filename))
+    _saver_logger.debug("Wrote file %s." % (filename))
     return filename
 
 
@@ -66,7 +66,7 @@ def save_modality_meta(modality: Modality) -> str:
     Saved data includes sampling frequency and any processing metadata that is
     needed to reconstruct the Modality. 
     """
-    _recording_saver_logger.debug("Saving meta for %s." % modality.name)
+    _saver_logger.debug("Saving meta for %s." % modality.name)
     suffix = modality.name.replace(" ", "_")
     filename = f"{modality.recording.basename}.{suffix}"
     filename += Suffix.META
@@ -82,11 +82,11 @@ def save_modality_meta(modality: Modality) -> str:
 
     try:
         nestedtext.dump(meta, filepath)
-        _recording_saver_logger.debug("Wrote file %s." % (filename))
+        _saver_logger.debug("Wrote file %s." % (filename))
     # except nestedtext.NestedTextError as e:
     #     e.terminate()
     except OSError as e:
-        _recording_saver_logger.critical(e)
+        _saver_logger.critical(e)
 
     return filename
 
@@ -98,7 +98,7 @@ def save_recording_meta(recording: Recording, modalities_saves: dict) -> str:
     The meta dict should contain at least a list of the modalities this recording
     has and their saving locations.
     """
-    _recording_saver_logger.debug(
+    _saver_logger.debug(
         "Saving meta for recording %s." % recording.basename)
     filename = f"{recording.basename}{'.Recording'}{Suffix.META}"
     filepath = recording.path/filename
@@ -112,11 +112,11 @@ def save_recording_meta(recording: Recording, modalities_saves: dict) -> str:
 
     try:
         nestedtext.dump(meta, filepath, converters=nested_text_converters)
-        _recording_saver_logger.debug("Wrote file %s." % (filename))
+        _saver_logger.debug("Wrote file %s." % (filename))
     # except nestedtext.NestedTextError as e:
     #     e.terminate()
     except OSError as e:
-        _recording_saver_logger.critical(e)
+        _saver_logger.critical(e)
 
     return filename
 
@@ -158,3 +158,47 @@ def save_recordings(
             metafiles.append(metafile)
 
     return metafiles
+
+
+def save_recording_session_meta(
+        session: RecordingSession, recording_meta_files: list) -> str:
+    """
+    Save recording session metadata.
+
+    The meta dict should contain at least a list of the recordings in this
+    session and their saving locations.
+    """
+    _saver_logger.debug(
+        "Saving meta for session %s." % session.name)
+    filename = f"{session.name}{'.Session'}{Suffix.META}"
+    filepath = session.path/filename
+
+    meta = OrderedDict()
+    meta['object_type'] = type(session).__name__
+    meta['name'] = session.name
+    meta['format_version'] = SATKIT_FILE_VERSION
+
+    parameters = OrderedDict()
+    parameters['path'] = str(session.path)
+    parameters['datasource'] = session.datasource._value_
+
+    meta['parameters'] = parameters
+    meta['members'] = recording_meta_files
+
+    try:
+        nestedtext.dump(meta, filepath, converters=nested_text_converters)
+        _saver_logger.debug("Wrote file %s." % (filename))
+    except OSError as e:
+        _saver_logger.critical(e)
+
+    return filename
+
+
+def save_recording_session(session: RecordingSession):
+    """
+    Save a recording session.
+    """
+    _saver_logger.debug(
+        "Saving recording session %s." % session.name)
+    recording_meta_files = save_recordings(session.recordings)
+    save_recording_session_meta(session, recording_meta_files)

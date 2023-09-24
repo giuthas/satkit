@@ -31,16 +31,17 @@
 
 import logging
 from pathlib import Path
+from typing import Union
 
 from icecream import ic
 import nestedtext
-from save_and_load.save_and_load_helpers import RecordingLoadSchema
+from save_and_load.save_and_load_helpers import RecordingLoadSchema, RecordingSessionLoadSchema
 from satkit.configuration import config
 from satkit.constants import Suffix
 from satkit.data_import import (
     add_audio, add_video, add_aaa_raw_ultrasound,
     generate_ultrasound_recording)
-from satkit.data_structures import Recording
+from satkit.data_structures import Recording, RecordingSession
 
 _recording_loader_logger = logging.getLogger('satkit.recording_loader')
 
@@ -97,3 +98,35 @@ def load_recordings(directory, recording_names: list[str]) -> list[Recording]:
     """
     recordings = [load_recording(directory/name) for name in recording_names]
     return recordings
+
+
+def load_recording_session(directory: Union[Path, str]) -> RecordingSession:
+    """
+    Load a recording session from a directory.
+
+    Parameters
+    ----------
+    directory: Path
+        The directory path.
+
+    Returns
+    -------
+    Session
+        The loaded RecordingSession object.
+    """
+    if isinstance(directory, str):
+        directory = Path(directory)
+
+    filename = f"{directory.parts[-1]}{'.Session'}{Suffix.META}"
+    filepath = directory/filename
+
+    raw_input = nestedtext.load(filepath)
+    meta = RecordingSessionLoadSchema.parse_obj(raw_input)
+
+    recordings = load_recordings(directory, meta.recordings)
+
+    session = RecordingSession(
+        name=meta.name, path=meta.path, datasource=meta.datasource,
+        recordings=recordings)
+
+    return session

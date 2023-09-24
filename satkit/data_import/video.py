@@ -42,9 +42,27 @@ from satkit.modalities import Video
 _AAA_video_logger = logging.getLogger('satkit.AAA_video')
 
 
-def add_video(recording: Recording, preload: bool,
+def add_video(recording: Recording, preload: bool = False,
               path: Optional[Path] = None) -> None:
-    """Create a RawUltrasound Modality and add it to the Recording."""
+    """
+    Create a RawUltrasound Modality and add it to the Recording.
+
+    Parameters
+    ----------
+    recording : Recording
+        _description_
+    preload : bool, optional
+        Should we load the data when creating the modality or not. Defaults to
+        False to prevent massive memory consumption. See also error below.
+    path : Optional[Path], optional
+        _description_, by default None
+
+    Raises
+    ------
+    NotImplementedError
+        Preloading video data has not been implemented yet. If you really,
+        really want to, this is the function where to do that.
+    """
     if not path:
         video_file = (recording.path/recording.basename).with_suffix(".avi")
     else:

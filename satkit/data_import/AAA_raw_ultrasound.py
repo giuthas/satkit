@@ -41,10 +41,11 @@ from satkit.modalities import RawUltrasound
 _AAA_raw_ultrasound_logger = logging.getLogger('satkit.AAA_raw_ultrasound')
 
 
-def parse_aaa_promptfile(filepath: Union[str, Path]) -> dict:
+def parse_recording_meta_from_aaa_promptfile(
+        filepath: Union[str, Path]) -> RecordingMetaData:
     """
     Read an AAA .txt (not US.txt or .param) file and save prompt, 
-    recording date and time, and participant name into the meta dictionary.
+    recording date and time, and participant name into the RecordingMetaData.
     """
     if isinstance(filepath, str):
         filepath = Path(filepath)
@@ -111,7 +112,7 @@ def parse_ultrasound_meta_aaa(filename):
 
 
 def add_aaa_raw_ultrasound(
-        recording: Recording, preload: bool, path: Optional[Path] = None) -> None:
+        recording: Recording, preload: bool = False, path: Optional[Path] = None) -> None:
     """
     Create a RawUltrasound Modality and add it to the Recording.
 
@@ -120,7 +121,8 @@ def add_aaa_raw_ultrasound(
     recording : Recording
         _description_
     preload : bool
-        _description_
+        Should we load the data when creating the modality or not. Defaults to
+        False to prevent massive memory consumption. See also error below.
     path : Optional[Path], optional
         _description_, by default None
 

@@ -38,8 +38,8 @@ from typing import Optional
 from satkit.audio_processing import MainsFilter
 from satkit.configuration import (config, data_run_params,
                                   set_exclusions_from_csv_file)
-from satkit.data_import.add_AAA_raw_ultrasound import (add_aaa_raw_ultrasound,
-                                                       parse_aaa_promptfile)
+from satkit.data_import.add_AAA_raw_ultrasound import (
+    add_aaa_raw_ultrasound, parse_recording_meta_from_aaa_promptfile)
 from satkit.data_import.add_audio import add_audio
 from satkit.data_import.add_video import add_video
 from satkit.data_structures import Recording
@@ -149,7 +149,8 @@ def generate_ultrasound_recording(basename: str, directory: Path):
     _AAA_logger.info(
         "Building Recording object for %s in %s.", basename, directory)
 
-    meta = parse_aaa_promptfile((directory/basename).with_suffix('.txt'))
+    meta = parse_recording_meta_from_aaa_promptfile(
+        (directory / basename).with_suffix('.txt'))
 
     textgrid = directory/basename
     textgrid = textgrid.with_suffix('.TextGrid')
@@ -157,15 +158,11 @@ def generate_ultrasound_recording(basename: str, directory: Path):
     if textgrid.is_file():
         recording = Recording(
             meta_data=meta,
-            path=directory,
-            basename=basename,
             textgrid_path=textgrid
         )
     else:
         recording = Recording(
             meta_data=meta,
-            path=directory,
-            basename=basename
         )
 
     return recording

@@ -39,9 +39,20 @@ from satkit.modalities import MonoAudio
 _generic_io_logger = logging.getLogger('satkit.data_structures')
 
 
-def add_audio(recording: Recording, preload: bool,
+def add_audio(recording: Recording, preload: bool = True,
               path: Optional[Path] = None) -> None:
-    """Create a MonoAudio Modality and add it to the Recording."""
+    """
+    Create a MonoAudio Modality and add it to the Recording.
+
+    Parameters
+    ----------
+    recording : Recording
+        _description_
+    preload : bool, optional
+        _description_, by default True
+    path : Optional[Path], optional
+        _description_, by default None
+    """
     if not path:
         ult_wav_file = (recording.path/recording.basename).with_suffix(".wav")
     else:

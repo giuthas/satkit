@@ -1,8 +1,9 @@
 from datetime import datetime
 from pathlib import Path, PosixPath, WindowsPath
-from typing import Optional, Union
+from typing import Union
 from constants import Datasource, SavedObjectTypes
 from data_structures import RecordingMetaData
+from metrics.pd import ImageMask
 
 from pydantic import BaseModel, DirectoryPath
 
@@ -11,7 +12,10 @@ nested_text_converters = {
     datetime: str,
     PosixPath: str,
     WindowsPath: str,
-    Path: str
+    Path: str,
+    ImageMask.top: str,
+    ImageMask.bottom: str,
+    ImageMask.whole: str
 }
 
 
@@ -21,7 +25,7 @@ class ModalityLoadSchema(BaseModel):
 
     Modality is defined in the data_structures module.
     """
-    object_type: SavedObjectTypes = SavedObjectTypes.MODALITY
+    object_type: str
     name: str
     format_version: str
     parameters: dict

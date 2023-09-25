@@ -33,17 +33,52 @@ import logging
 from pathlib import Path
 from typing import Union
 
+import numpy as np
 from icecream import ic
 import nestedtext
-from save_and_load.save_and_load_helpers import RecordingLoadSchema, RecordingSessionLoadSchema
+from .save_and_load_helpers import (
+    ModalityListingLoadschema, ModalityLoadSchema, RecordingLoadSchema,
+    RecordingSessionLoadSchema)
 from satkit.configuration import config
 from satkit.constants import Suffix
-from satkit.data_import import (
-    add_audio, add_video, add_aaa_raw_ultrasound,
-    generate_ultrasound_recording, modality_adders)
-from satkit.data_structures import Recording, RecordingSession
+from satkit.data_import import modality_adders
+from satkit.data_structures import Modality, ModalityData, Recording, RecordingSession
+from satkit.metrics import metrics
 
 _recording_loader_logger = logging.getLogger('satkit.recording_loader')
+
+
+def load_derived_modality(
+        recording: Recording, path: Path,
+        modality_schema: ModalityListingLoadschema) -> None:
+    """
+    Load a saved derived Modality meta and data and return them. 
+
+    Parameters
+    ----------
+    path : Path
+        This is the path to the save files.
+    modality_schema : ModalityListingLoadschema
+        This contains the name of the meta and data files.
+    """
+    meta_path = path/modality_schema.meta_name
+    data_path = path/modality_schema.data_name
+
+    raw_input = nestedtext.load(meta_path)
+    meta = ModalityLoadSchema.parse_obj(raw_input)
+
+    saved_data = np.load(data_path)
+
+    modality_data = ModalityData(
+        saved_data.data, sampling_rate=saved_data.sampling_rate,
+        timevector=saved_data.timevector)
+
+    metric, paremeter_schema = metrics[meta.object_type]
+    parameters = paremeter_schema(meta.parameters)
+    modality = metric(recording=recording,
+                      parsed_data=modality_data, parameters=parameters)
+
+    recording.add_modality(modality=modality)
 
 
 def read_recording_meta(filepath) -> RecordingLoadSchema:
@@ -83,8 +118,8 @@ def load_recording(filepath: Path) -> Recording:
             path = meta.parameters.path/meta.modalities[modality].data_name
             adder(recording, path=path)
         else:
-            pass
-            # TODO: implement loading a derived modality
+            load_derived_modality(
+                recording, path=meta.parameters.path, modality_schema=modality)
 
 
 def load_recordings_from_directory(directory: Path) -> list[Recording]:
@@ -131,7 +166,7 @@ def load_recording_session(directory: Union[Path, str]) -> RecordingSession:
     recordings = load_recordings(directory, meta.recordings)
 
     session = RecordingSession(
-        name=meta.name, path=meta.path, datasource=meta.datasource,
-        recordings=recordings)
+        name=meta.name, path=meta.parameters.path,
+        datasource=meta.parameters.datasource, recordings=recordings)
 
     return session

@@ -67,6 +67,7 @@ class Datasource(Enum):
 
 
 class SavedObjectTypes(Enum):
+    # TODO 1.0: Check if this is actually in use.
     """
     """
     RECORDING_SESSION = "RecordingSession"

@@ -1,7 +1,7 @@
 #
 # Copyright (c) 2019-2023 Pertti Palo, Scott Moisik, Matthew Faytak, and Motoki Saito.
 #
-# This file is part of Speech Articulation ToolKIT 
+# This file is part of Speech Articulation ToolKIT
 # (see https://github.com/giuthas/satkit/).
 #
 # This program is free software: you can redistribute it and/or modify
@@ -30,4 +30,8 @@
 #
 from .annd import annd
 from .ofreg import of
-from .pd import add_pd
+from .pd import add_pd, PD, PdParameters
+
+metrics = {
+    'PD': (PD, PdParameters)
+}

@@ -120,12 +120,12 @@ class Recording:
         """
         self.excluded = excluded
 
+        ic(meta_data)
         self.meta_data = meta_data
 
         if textgrid_path:
             self._textgrid_path = textgrid_path
         else:
-            ic(meta_data)
             self._textgrid_path = meta_data.path.joinpath(
                 meta_data.basename + ".TextGrid")
         self.textgrid = self._read_textgrid()
@@ -265,11 +265,12 @@ class Modality(abc.ABC):
 
     def __init__(self,
                  recording: Recording,
+                 parsed_data: Optional[ModalityData] = None,
+                 meta_data: Optional[dict] = None,
                  data_path: Optional[Path] = None,
                  meta_path: Optional[Path] = None,
                  load_path: Optional[Path] = None,
                  parent: Optional['Modality'] = None,
-                 parsed_data: Optional[ModalityData] = None,
                  time_offset: Optional[float] = None
                  ) -> None:
         """
@@ -302,6 +303,8 @@ class Modality(abc.ABC):
         self._meta_path = meta_path  # self.meta_path is a property
         self.load_path = load_path
         self.parent = parent
+
+        self.meta_data = meta_data
 
         if parsed_data:
             self._data = parsed_data.data

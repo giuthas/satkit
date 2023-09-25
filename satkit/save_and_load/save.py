@@ -30,9 +30,11 @@
 #
 from collections import OrderedDict
 import logging
+from metrics.pd import ImageMask
 
 import nestedtext
 import numpy as np
+from icecream import ic
 from satkit.constants import SATKIT_FILE_VERSION, Suffix
 from satkit.data_structures import Modality, Recording, RecordingSession
 from .save_and_load_helpers import nested_text_converters
@@ -53,7 +55,9 @@ def save_modality_data(modality: Modality) -> str:
     filename = f"{modality.recording.basename}.{suffix}{Suffix.DATA}"
     filepath = modality.recording.path/filename
 
-    np.savez(filepath, data=modality.data, timevector=modality.timevector)
+    np.savez(
+        filepath, data=modality.data, sampling_rate=modality.sampling_rate,
+        timevector=modality.timevector)
 
     _saver_logger.debug("Wrote file %s." % (filename))
     return filename
@@ -81,7 +85,8 @@ def save_modality_meta(modality: Modality) -> str:
     meta['parameters'] = parameters
 
     try:
-        nestedtext.dump(meta, filepath)
+        ic(meta)
+        nestedtext.dump(meta, filepath, converters=nested_text_converters)
         _saver_logger.debug("Wrote file %s." % (filename))
     # except nestedtext.NestedTextError as e:
     #     e.terminate()

@@ -32,7 +32,7 @@ import logging
 from pathlib import Path
 from typing import List
 
-from constants import Datasource
+from satkit.constants import Datasource
 
 from satkit.configuration import data_run_params
 from satkit.data_import import generate_aaa_recording_list

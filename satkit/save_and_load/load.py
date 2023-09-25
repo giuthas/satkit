@@ -65,16 +65,20 @@ def load_derived_modality(
     data_path = path/modality_schema.data_name
 
     raw_input = nestedtext.load(meta_path)
-    meta = ModalityLoadSchema.parse_obj(raw_input)
+    meta = ModalityLoadSchema.model_validate(raw_input)
 
     saved_data = np.load(data_path)
 
     modality_data = ModalityData(
-        saved_data.data, sampling_rate=saved_data.sampling_rate,
-        timevector=saved_data.timevector)
+        saved_data['data'], sampling_rate=saved_data['sampling_rate'],
+        timevector=saved_data['timevector'])
 
     metric, paremeter_schema = metrics[meta.object_type]
-    parameters = paremeter_schema(meta.parameters)
+    for key in meta.parameters:
+        if meta.parameters[key] == 'None':
+            meta.parameters[key] = None
+    ic(meta.parameters)
+    parameters = paremeter_schema(**meta.parameters)
     modality = metric(recording=recording,
                       parsed_data=modality_data, parameters=parameters)
 
@@ -83,7 +87,7 @@ def load_derived_modality(
 
 def read_recording_meta(filepath) -> RecordingLoadSchema:
     raw_input = nestedtext.load(filepath)
-    meta = RecordingLoadSchema.parse_obj(raw_input)
+    meta = RecordingLoadSchema.model_validate(raw_input)
     return meta
 
 
@@ -119,7 +123,8 @@ def load_recording(filepath: Path) -> Recording:
             adder(recording, path=path)
         else:
             load_derived_modality(
-                recording, path=meta.parameters.path, modality_schema=modality)
+                recording, path=meta.parameters.path,
+                modality_schema=meta.modalities[modality])
 
 
 def load_recordings_from_directory(directory: Path) -> list[Recording]:
@@ -161,7 +166,7 @@ def load_recording_session(directory: Union[Path, str]) -> RecordingSession:
     filepath = directory/filename
 
     raw_input = nestedtext.load(filepath)
-    meta = RecordingSessionLoadSchema.parse_obj(raw_input)
+    meta = RecordingSessionLoadSchema.model_validate(raw_input)
 
     recordings = load_recordings(directory, meta.recordings)
 

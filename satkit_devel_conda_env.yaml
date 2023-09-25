@@ -28,6 +28,7 @@
 ## articles listed in README.markdown. They can also be found in
 ## citations.bib in BibTeX format.
 ##
+#  - pydantic >= 1.10
 name: satkit-devel
 channels:
   - conda-forge 
@@ -42,14 +43,16 @@ dependencies:
   - pyqt >= 5.9
   - pylint >= 2.9
   - strictyaml >= 1.6.1
-  - nestedtext >= 3.5
-  - pydantic >= 1.10
+  - pydantic >= 2.3
   - setuptools >= 58
+  - pydicom
   - pdoc
   - build 
   - virtualenv
   - pip >= 22
   - pip:
+    - nestedtext >= 3.5
     - opencv-python >= 4.5
     - praat-textgrids >= 1.4
     - licenseheaders
+    - icecream

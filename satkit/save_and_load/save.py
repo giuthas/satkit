@@ -30,7 +30,6 @@
 #
 from collections import OrderedDict
 import logging
-from metrics.pd import ImageMask
 
 import nestedtext
 import numpy as np
@@ -111,7 +110,7 @@ def save_recording_meta(recording: Recording, modalities_saves: dict) -> str:
     meta['object_type'] = type(recording).__name__
     meta['name'] = recording.basename
     meta['format_version'] = SATKIT_FILE_VERSION
-    meta['parameters'] = recording.meta_data.dict()
+    meta['parameters'] = recording.meta_data.model_dump()
     meta['modalities'] = modalities_saves
 
     try:

@@ -45,7 +45,7 @@ from pydantic import BaseModel
 # Praat textgrids
 import textgrids
 
-from constants import Datasource, Suffix
+from satkit.constants import Datasource, Suffix
 from satkit.errors import MissingDataError, ModalityError, OverWriteError
 from satkit.satgrid import SatGrid
 
@@ -120,7 +120,6 @@ class Recording:
         """
         self.excluded = excluded
 
-        ic(meta_data)
         self.meta_data = meta_data
 
         if textgrid_path:

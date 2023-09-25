@@ -402,7 +402,10 @@ class PD(Modality):
         """
         # This allows the caller to be lazy.
         if not time_offset:
-            time_offset = parent.time_offset
+            if parsed_data:
+                time_offset = parsed_data.timevector[0]
+            elif parent:
+                time_offset = parent.time_offset
 
         super().__init__(
             recording,
@@ -423,7 +426,7 @@ class PD(Modality):
 
     def get_meta(self) -> dict:
         # This conversion is done to keep nestedtext working.
-        meta = self.meta_data.dict()
+        meta = self.meta_data.model_dump()
         meta['image_mask'] = str(meta['image_mask'])
         return meta
 

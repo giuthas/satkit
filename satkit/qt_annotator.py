@@ -34,7 +34,6 @@ import csv
 import logging
 from contextlib import closing
 from copy import deepcopy
-from data_structures import RecordingSession
 
 import matplotlib
 # Numpy
@@ -52,9 +51,10 @@ from PyQt5.uic import loadUiType
 
 # Local modules
 # import satkit.io as satkit_io
-from plot.plot import plot_density
+from satkit.data_structures import RecordingSession
 from satkit.configuration import gui_params
 from satkit.gui.boundary_animation import BoundaryAnimator
+from satkit.plot.plot import plot_density
 from satkit.plot import (Normalisation, plot_satgrid_tier, plot_spectrogram,
                          plot_timeseries, plot_wav)
 from satkit.save_and_load import (

@@ -38,11 +38,11 @@ from pathlib import Path
 from typing import Dict, Optional
 
 from satkit.configuration import data_run_params, set_exclusions_from_csv_file
-from data_import.three_dim_ultrasound import (add_rasl_3D_ultrasound,
-                                              generateMeta,
-                                              read_3D_meta_from_mat_file)
-from data_import.audio import add_audio
-from data_import.video import add_video
+from .three_dim_ultrasound import (add_rasl_3D_ultrasound,
+                                   generateMeta,
+                                   read_3D_meta_from_mat_file)
+from .audio import add_audio
+from .video import add_video
 # Local packages
 from satkit.data_structures import Recording
 

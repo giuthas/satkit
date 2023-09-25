@@ -29,7 +29,7 @@ Items will only be marked as done, once clean up is also done.
   - [x] textgrids
     - [x] loading
     - [x] saving
-  - [ ] loading data from AAA
+  - [x] loading data from AAA
     - [x] old style
     - [x] new style
   - [ ] loading 3D/4D ultrasound data from RASL

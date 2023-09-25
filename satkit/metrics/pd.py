@@ -422,6 +422,7 @@ class PD(Modality):
             "Currently PD Modalities have to be calculated at instantiation time.")
 
     def get_meta(self) -> dict:
+        # This conversion is done to keep nestedtext working.
         meta = self.meta_data.dict()
         meta['image_mask'] = str(meta['image_mask'])
         return meta

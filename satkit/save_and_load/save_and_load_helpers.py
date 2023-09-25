@@ -12,10 +12,7 @@ nested_text_converters = {
     datetime: str,
     PosixPath: str,
     WindowsPath: str,
-    Path: str,
-    ImageMask.top: str,
-    ImageMask.bottom: str,
-    ImageMask.whole: str
+    Path: str
 }
 
 

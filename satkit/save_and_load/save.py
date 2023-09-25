@@ -85,7 +85,6 @@ def save_modality_meta(modality: Modality) -> str:
     meta['parameters'] = parameters
 
     try:
-        ic(meta)
         nestedtext.dump(meta, filepath, converters=nested_text_converters)
         _saver_logger.debug("Wrote file %s." % (filename))
     # except nestedtext.NestedTextError as e:

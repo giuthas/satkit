@@ -422,7 +422,9 @@ class PD(Modality):
             "Currently PD Modalities have to be calculated at instantiation time.")
 
     def get_meta(self) -> dict:
-        return self.meta_data.dict()
+        meta = self.meta_data.dict()
+        meta['image_mask'] = str(meta['image_mask'])
+        return meta
 
     @property
     def name(self) -> str:

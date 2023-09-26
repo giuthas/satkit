@@ -107,6 +107,9 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
 
         self.pickle_filename = pickle_filename
 
+        #
+        # Menu actions and shortcuts
+        #
         self.close_window_shortcut = QShortcut(
             QKeySequence(self.tr("Ctrl+W", "File|Quit")), self)
         self.close_window_shortcut.activated.connect(self.quit)
@@ -128,6 +131,9 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
 
         self.actionQuit.triggered.connect(self.quit)
 
+        #
+        # GUI buttons
+        #
         self.nextButton.clicked.connect(self.next)
         self.prevButton.clicked.connect(self.prev)
         self.saveButton.clicked.connect(self.save_all)

@@ -685,11 +685,13 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
         """
         directory = QFileDialog.getExistingDirectory(
             self, caption="Open directory", directory='.')
-        self.recording_session = load_recording_session(directory=directory)
-        self.recordings = self.recording_session.recordings
-        self.index = 0
-        self.max_index = len(self.recordings)
-        self.update()
+        if directory:
+            self.recording_session = load_recording_session(
+                directory=directory)
+            self.recordings = self.recording_session.recordings
+            self.index = 0
+            self.max_index = len(self.recordings)
+            self.update()
 
     def open_file(self):
         """

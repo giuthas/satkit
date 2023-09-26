@@ -1,8 +1,8 @@
 #
-# Copyright (c) 2019-2023 
+# Copyright (c) 2019-2023
 # Pertti Palo, Scott Moisik, Matthew Faytak, and Motoki Saito.
 #
-# This file is part of Speech Articulation ToolKIT 
+# This file is part of Speech Articulation ToolKIT
 # (see https://github.com/giuthas/satkit/).
 #
 # This program is free software: you can redistribute it and/or modify
@@ -78,11 +78,12 @@ def load_derived_modality(
     for key in meta.parameters:
         if meta.parameters[key] == 'None':
             meta.parameters[key] = None
-    ic(meta.parameters)
     parameters = paremeter_schema(**meta.parameters)
     modality = metric(recording=recording,
                       parsed_data=modality_data, parameters=parameters)
 
+    ic('loading derived modalities')
+    ic(modality.name)
     recording.add_modality(modality=modality)
 
 
@@ -126,6 +127,8 @@ def load_recording(filepath: Path) -> Recording:
             load_derived_modality(
                 recording, path=meta.parameters.path,
                 modality_schema=meta.modalities[modality])
+
+    return recording
 
 
 def load_recordings_from_directory(directory: Path) -> list[Recording]:

@@ -1,8 +1,8 @@
 #
-# Copyright (c) 2019-2023 
+# Copyright (c) 2019-2023
 # Pertti Palo, Scott Moisik, Matthew Faytak, and Motoki Saito.
 #
-# This file is part of Speech Articulation ToolKIT 
+# This file is part of Speech Articulation ToolKIT
 # (see https://github.com/giuthas/satkit/).
 #
 # This program is free software: you can redistribute it and/or modify
@@ -50,6 +50,8 @@ from PyQt5.QtGui import QIntValidator, QKeySequence
 from PyQt5.QtWidgets import QFileDialog, QShortcut
 from PyQt5.uic import loadUiType
 
+from icecream import ic
+
 # Local modules
 # import satkit.io as satkit_io
 from satkit.data_structures import RecordingSession
@@ -89,11 +91,10 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
         self.setupUi(self)
 
         self.recording_session = recording_session
-        recordings = recording_session.recordings
+        self.recordings = recording_session.recordings
         self.index = 0
-        self.max_index = len(recordings)
+        self.max_index = len(self.recordings)
 
-        self.recordings = recordings
         self.commandlineargs = args
         self.display_tongue = args.displayTongue
 
@@ -340,6 +341,8 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
         # l0_1 = self.current.modalities['PD l0.1 on RawUltrasound']
         # l0_5 = self.current.modalities['PD l0.5 on RawUltrasound']
 
+        ic('plotting in qtannotator')
+        ic(self.current.modalities)
         l1 = self.current.modalities['PD l1 on RawUltrasound']
         # l1_top = self.current.modalities['PD l1 top on RawUltrasound']
         # l1_bottom = self.current.modalities['PD l1 bottom on RawUltrasound']
@@ -683,6 +686,10 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
         directory = QFileDialog.getExistingDirectory(
             self, caption="Open directory", directory='.')
         self.recording_session = load_recording_session(directory=directory)
+        self.recordings = self.recording_session.recordings
+        self.index = 0
+        self.max_index = len(self.recordings)
+        self.update()
 
     def open_file(self):
         """

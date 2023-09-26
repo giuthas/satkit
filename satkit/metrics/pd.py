@@ -1,8 +1,8 @@
 #
-# Copyright (c) 2019-2023 
+# Copyright (c) 2019-2023
 # Pertti Palo, Scott Moisik, Matthew Faytak, and Motoki Saito.
 #
-# This file is part of Speech Articulation ToolKIT 
+# This file is part of Speech Articulation ToolKIT
 # (see https://github.com/giuthas/satkit/).
 #
 # This program is free software: you can redistribute it and/or modify
@@ -165,9 +165,10 @@ def calculate_pd(
 
     _pd_logger.info(str(parent_modality.data_path)
                     + ': Calculating PD on '
-                    + type(parent_modality).__name__ + '.')
+                    + parent_modality.name + '.')
 
     data = parent_modality.data
+    parent_name = parent_modality.name
 
     # TODO wrap this up in its own modality generation,
     # but within the same read context - so run with pd
@@ -209,10 +210,10 @@ def calculate_pd(
                                          timevector)
             pd_params = PdParameters(
                 metric=norm, timestep=timestep, interpolated=False,
-                release_data_memory=release_data_memory, image_mask=None)
+                release_data_memory=release_data_memory, image_mask=None,
+                parent_name=parent_name)
             pds.append(
                 PD(parent_modality.recording, pd_params,
-                    parent=parent_modality,
                     parsed_data=modality_data)
             )
             if pd_on_interpolated_data:
@@ -221,10 +222,10 @@ def calculate_pd(
                                              timevector)
                 pd_params = PdParameters(
                     metric=norm, timestep=timestep, interpolated=True,
-                    release_data_memory=release_data_memory, image_mask=None)
+                    release_data_memory=release_data_memory, image_mask=None,
+                    parent_name=parent_name)
                 pds.append(
                     PD(parent_modality.recording, pd_params,
-                        parent=parent_modality,
                         parsed_data=modality_data)
                 )
             if mask_images:
@@ -235,10 +236,9 @@ def calculate_pd(
                     pd_params = PdParameters(
                         metric=norm, timestep=timestep, interpolated=False,
                         release_data_memory=release_data_memory,
-                        image_mask=mask)
+                        image_mask=mask, parent_name=parent_name)
                     pds.append(
                         PD(parent_modality.recording, pd_params,
-                            parent=parent_modality,
                             parsed_data=modality_data)
                     )
                     if pd_on_interpolated_data:
@@ -250,10 +250,9 @@ def calculate_pd(
                         pd_params = PdParameters(
                             metric=norm, timestep=timestep, interpolated=True,
                             release_data_memory=release_data_memory,
-                            image_mask=mask)
+                            image_mask=mask, parent_name=parent_name)
                         pds.append(
                             PD(parent_modality.recording, pd_params,
-                                parent=parent_modality,
                                 parsed_data=modality_data)
                         )
 
@@ -352,6 +351,7 @@ class PdParameters(BaseModel):
     interpolated: bool = False
     release_data_memory: bool = True
     image_mask: Optional[ImageMask] = None
+    parent_name: str
 
 
 class PD(Modality):
@@ -378,7 +378,6 @@ class PD(Modality):
                  parameters: PdParameters,
                  load_path: Optional[Path] = None,
                  meta_path: Optional[Path] = None,
-                 parent: Optional[Modality] = None,
                  parsed_data: Optional[ModalityData] = None,
                  time_offset: Optional[float] = None) -> None:
         """
@@ -405,15 +404,14 @@ class PD(Modality):
         if not time_offset:
             if parsed_data:
                 time_offset = parsed_data.timevector[0]
-            elif parent:
-                time_offset = parent.time_offset
+            elif parameters.parent_name:
+                time_offset = parameters.parent_name.time_offset
 
         super().__init__(
             recording,
             data_path=None,
             load_path=load_path,
             meta_path=meta_path,
-            parent=parent,
             parsed_data=parsed_data)
 
         self.meta_data = parameters
@@ -446,10 +444,10 @@ class PD(Modality):
         if self.meta_data.image_mask:
             name_string = name_string + " " + self.meta_data.image_mask.value
 
-        if self.meta_data.interpolated and self.parent:
+        if self.meta_data.interpolated and self.meta_data.parent_name:
             name_string = ("Interpolated " + name_string + " on " +
-                           self.parent.__class__.__name__)
-        elif self.parent:
-            name_string = name_string + " on " + self.parent.__class__.__name__
+                           self.meta_data.parent_name)
+        elif self.meta_data.parent_name:
+            name_string = name_string + " on " + self.meta_data.parent_name
 
         return name_string

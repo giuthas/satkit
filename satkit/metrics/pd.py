@@ -41,7 +41,7 @@ import numpy as np
 from icecream import ic
 from pydantic import BaseModel
 # local modules
-from satkit.data_structures import Modality, ModalityData, Recording
+from satkit.data_structures import Modality, ModalityData, ModalityMetaData, Recording
 from satkit.errors import UnrecognisedNormError
 
 _pd_logger = logging.getLogger('satkit.pd')
@@ -323,7 +323,7 @@ def add_pd(recording: Recording,
             "' to recording: " + recording.basename + '.')
 
 
-class PdParameters(BaseModel):
+class PdParameters(ModalityMetaData):
     """
     Parameters used in generating the parent PD modality.
 
@@ -409,6 +409,7 @@ class PD(Modality):
 
         super().__init__(
             recording,
+            meta_data=parameters,
             data_path=None,
             load_path=load_path,
             meta_path=meta_path,

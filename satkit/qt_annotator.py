@@ -341,8 +341,6 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
         # l0_1 = self.current.modalities['PD l0.1 on RawUltrasound']
         # l0_5 = self.current.modalities['PD l0.5 on RawUltrasound']
 
-        ic('plotting in qtannotator')
-        ic(self.current.modalities)
         l1 = self.current.modalities['PD l1 on RawUltrasound']
         # l1_top = self.current.modalities['PD l1 top on RawUltrasound']
         # l1_bottom = self.current.modalities['PD l1 bottom on RawUltrasound']

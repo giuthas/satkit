@@ -1,8 +1,8 @@
 #
-# Copyright (c) 2019-2023 
+# Copyright (c) 2019-2023
 # Pertti Palo, Scott Moisik, Matthew Faytak, and Motoki Saito.
 #
-# This file is part of Speech Articulation ToolKIT 
+# This file is part of Speech Articulation ToolKIT
 # (see https://github.com/giuthas/satkit/).
 #
 # This program is free software: you can redistribute it and/or modify
@@ -73,6 +73,10 @@ class ModalityData:
     data: np.ndarray
     sampling_rate: int
     timevector: np.ndarray
+
+
+class ModalityMetaData(BaseModel):
+    parent_name: Optional[str] = None
 
 
 @dataclass
@@ -266,11 +270,10 @@ class Modality(abc.ABC):
     def __init__(self,
                  recording: Recording,
                  parsed_data: Optional[ModalityData] = None,
-                 meta_data: Optional[dict] = None,
+                 meta_data: Optional[ModalityMetaData] = None,
                  data_path: Optional[Path] = None,
                  meta_path: Optional[Path] = None,
                  load_path: Optional[Path] = None,
-                 parent: Optional['Modality'] = None,
                  time_offset: Optional[float] = None
                  ) -> None:
         """
@@ -302,7 +305,6 @@ class Modality(abc.ABC):
         self.data_path = data_path
         self._meta_path = meta_path  # self.meta_path is a property
         self.load_path = load_path
-        self.parent = parent
 
         self.meta_data = meta_data
 
@@ -331,7 +333,7 @@ class Modality(abc.ABC):
             return self._read_data()
         elif self.load_path:
             return self._load_data()
-        elif self.parent:
+        elif self.meta_data.parent_name:
             return self._derive_data()
         else:
             raise MissingDataError(
@@ -397,8 +399,8 @@ class Modality(abc.ABC):
         the metric used to generate the instance in the name.
         """
         name_string = self.__class__.__name__
-        if self.parent:
-            name_string = name_string + " on " + self.parent.__class__.__name__
+        if self.meta_data and self.meta_data.parent_name:
+            name_string = name_string + " on " + self.meta_data.parent_name
         return name_string
 
     @property
@@ -465,6 +467,10 @@ class Modality(abc.ABC):
         if not self._sampling_rate:
             self._set_data(self._get_data())
         return self._sampling_rate
+
+    @property
+    def parent_name(self) -> str:
+        return self.meta_data.parent_name
 
     @property
     def time_offset(self):
@@ -549,7 +555,9 @@ class Modality(abc.ABC):
         self._excluded = excluded
 
         if excluded:
-            self.parent.excluded = excluded
+            pass
+            # TODO 1.O: find a workaround for self.parent not existing currently
+            # self.parent.excluded = excluded
 
     @property
     def is_derived_modality(self) -> bool:
@@ -558,7 +566,7 @@ class Modality(abc.ABC):
 
         This cannot be set from the outside.
         """
-        if self.parent:
+        if self.meta_data and self.meta_data.parent_name:
             return True
         else:
             return False

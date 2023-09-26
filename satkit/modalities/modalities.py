@@ -1,8 +1,8 @@
 #
-# Copyright (c) 2019-2023 
+# Copyright (c) 2019-2023
 # Pertti Palo, Scott Moisik, Matthew Faytak, and Motoki Saito.
 #
-# This file is part of Speech Articulation ToolKIT 
+# This file is part of Speech Articulation ToolKIT
 # (see https://github.com/giuthas/satkit/).
 #
 # This program is free software: you can redistribute it and/or modify
@@ -93,7 +93,6 @@ class MonoAudio(Modality):
             recording=recording,
             data_path=data_path,
             load_path=load_path,
-            parent=None,
             parsed_data=parsed_data,
             time_offset=time_offset)
 
@@ -190,7 +189,6 @@ class RawUltrasound(Modality):
             data_path=data_path,
             meta_path=meta_path,
             load_path=load_path,
-            parent=None,
             parsed_data=parsed_data,
             time_offset=time_offset)
 

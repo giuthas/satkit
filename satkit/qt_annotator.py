@@ -225,7 +225,7 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
         }
 
     def _add_annotations(self):
-        """Plot the annotations."""
+        """Add the annotations."""
         for recording in self.recordings:
             if recording.annotations:
                 recording.annotations = dict(
@@ -689,6 +689,7 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
             self.recordings = self.recording_session.recordings
             self.index = 0
             self.max_index = len(self.recordings)
+            self._add_annotations()
             self.update()
 
     def open_file(self):

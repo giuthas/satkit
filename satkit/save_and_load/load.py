@@ -82,8 +82,6 @@ def load_derived_modality(
     modality = metric(recording=recording,
                       parsed_data=modality_data, parameters=parameters)
 
-    ic('loading derived modalities')
-    ic(modality.name)
     recording.add_modality(modality=modality)
 
 

@@ -1,8 +1,8 @@
 #
-# Copyright (c) 2019-2023 
+# Copyright (c) 2019-2023
 # Pertti Palo, Scott Moisik, Matthew Faytak, and Motoki Saito.
 #
-# This file is part of Speech Articulation ToolKIT 
+# This file is part of Speech Articulation ToolKIT
 # (see https://github.com/giuthas/satkit/).
 #
 # This program is free software: you can redistribute it and/or modify
@@ -39,7 +39,7 @@ from strictyaml import (Any, Bool, FixedSeq, Float, Int, Map, MapCombined,
                         MapPattern, Optional, ScalarValidator, Seq, Str,
                         YAMLError, load)
 
-config = {}
+config_dict = {}
 data_run_params = {}
 gui_params = {}
 plot_params = {}
@@ -99,8 +99,8 @@ def load_config(filepath: Union[Path, str, None] = None) -> None:
     exist, report this and exit.
     """
     load_main_config(filepath)
-    load_run_params(config['data run parameter file'])
-    load_gui_params(config['gui parameter file'])
+    load_run_params(config_dict['data run parameter file'])
+    load_gui_params(config_dict['gui parameter file'])
     # load_plot_params(config['plotting parameter file'])
 
 
@@ -117,7 +117,7 @@ def load_main_config(filepath: Union[Path, str, None] = None) -> None:
     elif isinstance(filepath, str):
         filepath = Path(filepath)
 
-    global config
+    global config_dict
     global _raw_config_dict
 
     if filepath.is_file():
@@ -137,7 +137,7 @@ def load_main_config(filepath: Union[Path, str, None] = None) -> None:
     else:
         print(f"Didn't find {filepath}. Exiting.".format(str(filepath)))
         sys.exit()
-    config.update(_raw_config_dict.data)
+    config_dict.update(_raw_config_dict.data)
 
 
 def load_run_params(filepath: Union[Path, str, None] = None) -> None:

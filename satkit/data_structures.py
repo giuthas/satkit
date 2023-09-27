@@ -46,7 +46,7 @@ from pydantic import BaseModel
 # Praat textgrids
 import textgrids
 
-from satkit.constants import Datasource, Suffix
+from satkit.constants import Datasource, SatkitSuffix
 from satkit.errors import MissingDataError, ModalityError, OverWriteError
 from satkit.satgrid import SatGrid
 
@@ -582,5 +582,19 @@ class Modality(abc.ABC):
         if not self._meta_path:
             path = Path(self.recording.basename).with_suffix(
                 "." + self.name.replace(" ", "_"))
-            path.with_suffix(Suffix.META)
+            path.with_suffix(SatkitSuffix.META)
         return self._meta_path
+
+
+def satkit_suffix(satkit_type: Union[Recording, RecordingSession, Modality]):
+    # TODO 1.1: This is one possibility for not having hardcoded file suffixes.
+    # Another is to let all the classes take care of it themselves and make it into
+    # a Protocol (Python version of an interface).
+    suffix = SatkitSuffix.META
+    if satkit_type == Recording:
+        suffix = '.Recording' + suffix
+    elif satkit_type == RecordingSession:
+        suffix = '.RecordingSession' + suffix
+    elif satkit_type == Modality:
+        suffix = ''
+    return suffix

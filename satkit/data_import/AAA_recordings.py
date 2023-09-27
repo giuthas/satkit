@@ -1,8 +1,8 @@
 #
-# Copyright (c) 2019-2023 
+# Copyright (c) 2019-2023
 # Pertti Palo, Scott Moisik, Matthew Faytak, and Motoki Saito.
 #
-# This file is part of Speech Articulation ToolKIT 
+# This file is part of Speech Articulation ToolKIT
 # (see https://github.com/giuthas/satkit/).
 #
 # This program is free software: you can redistribute it and/or modify
@@ -36,8 +36,7 @@ from pathlib import Path
 from typing import Optional
 
 # Local packages
-from satkit.audio_processing import MainsFilter
-from satkit.configuration import (config, data_run_params,
+from satkit.configuration import (config_dict, data_run_params,
                                   set_exclusions_from_csv_file)
 from .AAA_raw_ultrasound import (
     add_aaa_raw_ultrasound, parse_recording_meta_from_aaa_promptfile)
@@ -95,13 +94,6 @@ def generate_aaa_recording_list(
     ult_meta_files = sorted(directory.glob('*US.txt'))
     if len(ult_meta_files) == 0:
         ult_meta_files = sorted(directory.glob('*.param'))
-
-    if config['mains frequency']:
-        MainsFilter.generate_mains_filter(
-            44100,
-            config['mains frequency'])
-    else:
-        MainsFilter.generate_mains_filter(44100, 50)
 
     # this takes care of *.txt and *US.txt overlapping. Goal
     # here is to include also failed recordings with missing

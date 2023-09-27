@@ -1,8 +1,8 @@
 #
-# Copyright (c) 2019-2023 
+# Copyright (c) 2019-2023
 # Pertti Palo, Scott Moisik, Matthew Faytak, and Motoki Saito.
 #
-# This file is part of Speech Articulation ToolKIT 
+# This file is part of Speech Articulation ToolKIT
 # (see https://github.com/giuthas/satkit/).
 #
 # This program is free software: you can redistribute it and/or modify
@@ -31,6 +31,7 @@
 #
 from dataclasses import dataclass
 from enum import Enum
+from typing import Union
 
 # TODO 1.0: Decouple program and file format versions at version 1.0.
 SATKIT_VERSION = '0.6'
@@ -38,7 +39,7 @@ SATKIT_FILE_VERSION = SATKIT_VERSION
 
 
 @dataclass(frozen=True)
-class Suffix():
+class SatkitSuffix():
     """
     Suffixes for files saved by SATKIT.
 
@@ -49,6 +50,32 @@ class Suffix():
     CONFIG = ".yaml"
     DATA = ".npz"
     META = ".satkit_meta"
+
+    def __str__(self):
+        return self.value
+
+
+@dataclass(frozen=True)
+class SourceSuffix():
+    """
+    Suffixes for files imported by SATKIT.
+
+    These exist as a convenient way of not needing to risk typos and for
+    recognising what SATKIT is being asked to import.
+
+    Note that AAA_ULTRA_META_OLD is not a proper suffix and won't be recognised
+    by pathlib and Path as such. Instead do this
+    ```python
+    directory_path = Path(from_some_source)
+    directory_path/(name_string + SourceSuffix.AAA_ULTRA_META_OLD) 
+    ```
+    """
+    AAA_ULTRA = ".ult"
+    AAA_ULTRA_META_OLD = "US.txt"
+    AAA_ULTRA_META_NEW = ".param"
+    AAA_PROMPT = ".txt"
+    AAA_SPLINES = ".spl"
+    AVI = ".avi"
 
     def __str__(self):
         return self.value

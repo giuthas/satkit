@@ -40,8 +40,8 @@ import nestedtext
 from .save_and_load_helpers import (
     ModalityListingLoadschema, ModalityLoadSchema, RecordingLoadSchema,
     RecordingSessionLoadSchema)
-from satkit.configuration import config
-from satkit.constants import Suffix
+from satkit.configuration import config_dict
+from satkit.constants import SatkitSuffix
 from satkit.data_import import modality_adders
 from satkit.data_structures import Modality, ModalityData, Recording, RecordingSession
 from satkit.metrics import metrics
@@ -101,7 +101,7 @@ def load_recording(filepath: Path) -> Recording:
     # based on what is present as the final fall back or as the option tried if
     # no meta and config has the wrong guess.
 
-    metapath = filepath.with_suffix(Suffix.META)
+    metapath = filepath.with_suffix(SatkitSuffix.META)
     if metapath.is_file():
         # this is a list of Modalities, each with a data path and meta path
         meta = read_recording_meta(filepath)
@@ -133,7 +133,7 @@ def load_recordings_from_directory(directory: Path) -> list[Recording]:
     """
     Load Recordings from directory.
     """
-    recording_metafiles = directory.glob("*.Recording"+str(Suffix.META))
+    recording_metafiles = directory.glob("*.Recording"+str(SatkitSuffix.META))
 
     recordings = [load_recording(file) for file in recording_metafiles]
     return recordings
@@ -164,7 +164,7 @@ def load_recording_session(directory: Union[Path, str]) -> RecordingSession:
     if isinstance(directory, str):
         directory = Path(directory)
 
-    filename = f"{directory.parts[-1]}{'.Session'}{Suffix.META}"
+    filename = f"{directory.parts[-1]}{'.RecordingSession'}{SatkitSuffix.META}"
     filepath = directory/filename
 
     raw_input = nestedtext.load(filepath)

@@ -1,8 +1,8 @@
 #
-# Copyright (c) 2019-2023 
+# Copyright (c) 2019-2023
 # Pertti Palo, Scott Moisik, Matthew Faytak, and Motoki Saito.
 #
-# This file is part of Speech Articulation ToolKIT 
+# This file is part of Speech Articulation ToolKIT
 # (see https://github.com/giuthas/satkit/).
 #
 # This program is free software: you can redistribute it and/or modify
@@ -35,7 +35,7 @@ import logging
 import nestedtext
 import numpy as np
 from icecream import ic
-from satkit.constants import SATKIT_FILE_VERSION, Suffix
+from satkit.constants import SATKIT_FILE_VERSION, SatkitSuffix
 from satkit.data_structures import Modality, Recording, RecordingSession
 from .save_and_load_helpers import nested_text_converters
 
@@ -52,7 +52,7 @@ def save_modality_data(modality: Modality) -> str:
     """
     _saver_logger.debug("Saving data for %s." % modality.name)
     suffix = modality.name.replace(" ", "_")
-    filename = f"{modality.recording.basename}.{suffix}{Suffix.DATA}"
+    filename = f"{modality.recording.basename}.{suffix}{SatkitSuffix.DATA}"
     filepath = modality.recording.path/filename
 
     np.savez(
@@ -73,7 +73,7 @@ def save_modality_meta(modality: Modality) -> str:
     _saver_logger.debug("Saving meta for %s." % modality.name)
     suffix = modality.name.replace(" ", "_")
     filename = f"{modality.recording.basename}.{suffix}"
-    filename += Suffix.META
+    filename += SatkitSuffix.META
     filepath = modality.recording.path/filename
 
     meta = OrderedDict()
@@ -104,7 +104,7 @@ def save_recording_meta(recording: Recording, modalities_saves: dict) -> str:
     """
     _saver_logger.debug(
         "Saving meta for recording %s." % recording.basename)
-    filename = f"{recording.basename}{'.Recording'}{Suffix.META}"
+    filename = f"{recording.basename}{'.Recording'}{SatkitSuffix.META}"
     filepath = recording.path/filename
 
     meta = OrderedDict()
@@ -174,7 +174,7 @@ def save_recording_session_meta(
     """
     _saver_logger.debug(
         "Saving meta for session %s." % session.name)
-    filename = f"{session.name}{'.Session'}{Suffix.META}"
+    filename = f"{session.name}{'.RecordingSession'}{SatkitSuffix.META}"
     filepath = session.path/filename
 
     meta = OrderedDict()

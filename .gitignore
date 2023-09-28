@@ -9,6 +9,8 @@ venv/
 build/
 *.spec
 
+# vs code line counter's files
+.VSCodeCounter/
 
 # pyreverse byproducts
 *.dot

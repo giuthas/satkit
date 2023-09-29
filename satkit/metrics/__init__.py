@@ -31,7 +31,7 @@
 #
 from .annd import annd
 from .ofreg import of
-from .add_pd import add_pd
+from .calculate_pd import add_pd
 from .pd import PD, PdParameters, ImageMask
 
 metrics = {

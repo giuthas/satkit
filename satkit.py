@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
 #
-# Copyright (c) 2019-2023 
+# Copyright (c) 2019-2023
 # Pertti Palo, Scott Moisik, Matthew Faytak, and Motoki Saito.
 #
-# This file is part of Speech Articulation ToolKIT 
+# This file is part of Speech Articulation ToolKIT
 # (see https://github.com/giuthas/satkit/).
 #
 # This program is free software: you can redistribute it and/or modify
@@ -42,7 +42,7 @@ from PyQt5 import QtWidgets
 
 # local modules
 from satkit import log_elapsed_time, set_logging_level
-from satkit.metrics import pd, peaks
+from satkit.metrics import add_pd, peaks
 from satkit.modalities import RawUltrasound
 from satkit.qt_annotator import PdQtAnnotator
 from satkit.scripting_interface import (Operation, SatkitArgumentParser,
@@ -78,7 +78,7 @@ def main():
         'preload': True}
 
     function_dict = {
-        'PD': (pd.add_pd,
+        'PD': (add_pd,
                [RawUltrasound],
                pd_arguments)  # ,
         # 'peaks': (peaks.time_series_peaks,

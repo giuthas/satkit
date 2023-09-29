@@ -160,7 +160,7 @@ class PD(Modality):
             'timestep': timesteps,
             'image_mask': masks,
             'interpolated': [pd_on_interpolated_data],
-            'release_data_memory': release_data_memory}
+            'release_data_memory': [release_data_memory]}
 
         pdparams = [PdParameters(**item)
                     for item in product_dict(**param_dict)]

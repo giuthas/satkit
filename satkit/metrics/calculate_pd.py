@@ -155,10 +155,6 @@ def calculate_pd(
     data = parent_modality.data
     parent_name = parent_modality.name
 
-    # TODO wrap this up in its own modality generation,
-    # but within the same read context - so run with pd
-    # between reading data and releasing memory
-
     # # TODO: Make this happen in processing LipVideo, not here.
     # # Hacky hack to recognise LipVideo data and change the timestep for it.
     # if len(data.shape) != 3:
@@ -255,6 +251,7 @@ def calculate_pd(
 def calculate_intensity(parent_modality: Modality):
     data = parent_modality.data
     return np.sum(data, axis=(1, 2))
+    # TODO: Compare this to the PD similarity matrix used by Gabor et al.
 
 
 def calculate_pd_from_params(
@@ -283,6 +280,74 @@ def calculate_pd_from_params(
                     + parent_name + '.')
 
     data = parent_modality.data
+    sampling_rate = parent_modality.sampling_rate
+
+    # # TODO: Make this happen in processing LipVideo, not here.
+    # # Hacky hack to recognise LipVideo data and change the timestep for it.
+    # if len(data.shape) != 3:
+    #     timesteps[0] = 2
+
+    # # Use this if we want to collapse e.g. rgb data without producing a
+    # # PD contour for each colour or channel.
+    # if raw_diff.ndim > 2:
+    #     old_shape = raw_diff.shape
+    #     new_shape = (old_shape[0], old_shape[1], np.prod(old_shape[2:]))
+    #     raw_diff = raw_diff.reshape(new_shape)
+
+    timesteps = [to_be_computed[key].timestep for key in to_be_computed]
+    timesteps.sort()
+    timevectors = {
+        timestep: calculate_timevector(parent_modality.timevector, timestep)
+        for timestep in timesteps}
+
+    interpolated = [to_be_computed[key].interpolated for key in to_be_computed]
+    if any(interpolated):
+        _pd_logger.info(str(parent_modality.data_path)
+                        + ': Interpolating frames of '
+                        + parent_modality.name + '.')
+        # TODO: make this into its own derived modality and parallelise the
+        # calculation. or make frame interpolation into a filter function that
+        # doesn't live in the modality.
+        interpolated_data = parent_modality.interpolated_frames()
+
+        abs_diffs_interpolated = {}
+        for timestep in timesteps:
+            raw_diff_interpolated = np.subtract(interpolated_data[: -timestep],
+                                                interpolated_data[timestep:])
+            abs_diffs_interpolated[timestep] = np.abs(raw_diff_interpolated)
+
+    abs_diffs = {}
+    for timestep in timesteps:
+        raw_diff = np.subtract(
+            data[: -timestep],
+            data[timestep:])
+        abs_diffs[timestep] = np.abs(raw_diff)
+
+    pds = []
+    for (_, param_set) in to_be_computed.items():
+        if param_set.interpolated:
+            norm_data = calculate_metric(
+                abs_diffs_interpolated[param_set.timestep],
+                norm=param_set.metric, mask=param_set.image_mask,
+                interpolated=param_set.interpolated)
+        else:
+            norm_data = calculate_metric(
+                abs_diffs[param_set.timestep],
+                norm=param_set.metric, mask=param_set.image_mask,
+                interpolated=param_set.interpolated)
+
+        modality_data = ModalityData(
+            norm_data, sampling_rate, timevectors[param_set.timestep])
+        pds.append(PD(parent_modality.recording,
+                   param_set, parsed_data=modality_data))
+
+    if param_set.release_data_memory:
+        # Accessing the data modality's data causes it to be
+        # loaded into memory. Keeping it there may cause memory
+        # overflow. This releases the memory.
+        parent_modality.data = None
+
+    return pds
 
 
 def add_pd(recording: Recording,
@@ -325,17 +390,22 @@ def add_pd(recording: Recording,
             recording.modalities.keys())
 
         dataModality = recording.modalities[modality.__name__]
-        pds = calculate_pd(dataModality,
-                           norms=norms,
-                           timesteps=timesteps,
-                           release_data_memory=release_data_memory,
-                           pd_on_interpolated_data=pd_on_interpolated_data,
-                           mask_images=mask_images)
+        # pds = calculate_pd(dataModality,
+        #                    norms=norms,
+        #                    timesteps=timesteps,
+        #                    release_data_memory=release_data_memory,
+        #                    pd_on_interpolated_data=pd_on_interpolated_data,
+        #                    mask_images=mask_images)
 
-        pds = calculate_pd_from_params(to_be_computed)
+        if to_be_computed:
+            pds = calculate_pd_from_params(dataModality, to_be_computed)
 
-        for pd in pds:
-            recording.add_modality(pd)
-        _pd_logger.info(
-            "Added '" + pd.name +
-            "' to recording: " + recording.basename + '.')
+            for pd in pds:
+                recording.add_modality(pd)
+            _pd_logger.info(
+                "Added '" + pd.name +
+                "' to recording: " + recording.basename + '.')
+        else:
+            _pd_logger.info(
+                "Nothing to compute in PD for recording: " +
+                recording.basename + '.')

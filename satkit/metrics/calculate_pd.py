@@ -294,6 +294,7 @@ def calculate_pd_from_params(
     #     new_shape = (old_shape[0], old_shape[1], np.prod(old_shape[2:]))
     #     raw_diff = raw_diff.reshape(new_shape)
 
+    ic(to_be_computed)
     timesteps = [to_be_computed[key].timestep for key in to_be_computed]
     timesteps.sort()
     timevectors = {
@@ -384,10 +385,13 @@ def add_pd(recording: Recording,
             "Data modality '" + modality.__name__ +
             "' not found in recording: " + recording.basename + '.')
     else:
-        to_be_computed = PD.get_names_and_meta(
+        all_requested = PD.get_names_and_meta(
             modality, norms, timesteps, pd_on_interpolated_data, mask_images)
-        to_be_computed = set(to_be_computed).difference(
+        missing_keys = set(all_requested).difference(
             recording.modalities.keys())
+        to_be_computed = dict((key, value) for key,
+                              value in all_requested.items()
+                              if key in missing_keys)
 
         dataModality = recording.modalities[modality.__name__]
         # pds = calculate_pd(dataModality,

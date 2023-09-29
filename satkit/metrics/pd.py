@@ -147,7 +147,6 @@ class PD(Modality):
         """
         parent_name = modality.__name__
 
-        ic(modality)
         if mask_images:
             masks = list(ImageMask)
             masks.append(None)

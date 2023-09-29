@@ -132,129 +132,13 @@ def calculate_slwpd(raw_diff):
     return slw_pd
 
 
-def calculate_pd(
-        parent_modality: Modality,
-        norms: list[str] = ['l1'],
-        timesteps: list[int] = [1],
-        release_data_memory: bool = True,
-        pd_on_interpolated_data: bool = False,
-        mask_images: bool = False) -> list['PD']:
-    """
-    Calculate Pixel Difference (PD) on the data Modality parent.       
-
-    If self._timesteps is a vector of positive integers, then calculate
-    pd for each of those. 
-    """
-    if not all(norm in PD.accepted_metrics for norm in norms):
-        ValueError("Unexpected norm requested in " + str(norms))
-
-    _pd_logger.info(str(parent_modality.data_path)
-                    + ': Calculating PD on '
-                    + parent_modality.name + '.')
-
-    data = parent_modality.data
-    parent_name = parent_modality.name
-
-    # # TODO: Make this happen in processing LipVideo, not here.
-    # # Hacky hack to recognise LipVideo data and change the timestep for it.
-    # if len(data.shape) != 3:
-    #     timesteps[0] = 2
-
-    # # Use this if we want to collapse e.g. rgb data without producing a
-    # # PD contour for each colour or channel.
-    # if raw_diff.ndim > 2:
-    #     old_shape = raw_diff.shape
-    #     new_shape = (old_shape[0], old_shape[1], np.prod(old_shape[2:]))
-    #     raw_diff = raw_diff.reshape(new_shape)
-
-    if pd_on_interpolated_data:
-        _pd_logger.info(str(parent_modality.data_path)
-                        + ': Interpolating frames of '
-                        + parent_modality.name + '.')
-        interpolated_data = parent_modality.interpolated_frames()
-
-    pds = []
-    sampling_rate = parent_modality.sampling_rate
-    for timestep in timesteps:
-        timevector = calculate_timevector(parent_modality.timevector,
-                                          timestep)
-        raw_diff = np.subtract(data[: -timestep], data[timestep:])
-        abs_diff = np.abs(raw_diff)
-        if pd_on_interpolated_data:
-            raw_diff_interpolated = np.subtract(interpolated_data[: -timestep],
-                                                interpolated_data[timestep:])
-            abs_diff_interpolated = np.abs(raw_diff_interpolated)
-        for norm in norms:
-            norm_data = calculate_metric(abs_diff, norm)
-            modality_data = ModalityData(norm_data, sampling_rate,
-                                         timevector)
-            pd_params = PdParameters(
-                metric=norm, timestep=timestep, interpolated=False,
-                release_data_memory=release_data_memory, image_mask=None,
-                parent_name=parent_name)
-            pds.append(
-                PD(parent_modality.recording, pd_params,
-                    parsed_data=modality_data)
-            )
-            if pd_on_interpolated_data:
-                norm_data = calculate_metric(abs_diff_interpolated, norm)
-                modality_data = ModalityData(norm_data, sampling_rate,
-                                             timevector)
-                pd_params = PdParameters(
-                    metric=norm, timestep=timestep, interpolated=True,
-                    release_data_memory=release_data_memory, image_mask=None,
-                    parent_name=parent_name)
-                pds.append(
-                    PD(parent_modality.recording, pd_params,
-                        parsed_data=modality_data)
-                )
-            if mask_images:
-                for mask in ImageMask:
-                    norm_data = calculate_metric(abs_diff, norm, mask)
-                    modality_data = ModalityData(norm_data, sampling_rate,
-                                                 timevector)
-                    pd_params = PdParameters(
-                        metric=norm, timestep=timestep, interpolated=False,
-                        release_data_memory=release_data_memory,
-                        image_mask=mask, parent_name=parent_name)
-                    pds.append(
-                        PD(parent_modality.recording, pd_params,
-                            parsed_data=modality_data)
-                    )
-                    if pd_on_interpolated_data:
-                        norm_data = calculate_metric(
-                            abs_diff_interpolated, norm, mask,
-                            interpolated=True)
-                        modality_data = ModalityData(norm_data, sampling_rate,
-                                                     timevector)
-                        pd_params = PdParameters(
-                            metric=norm, timestep=timestep, interpolated=True,
-                            release_data_memory=release_data_memory,
-                            image_mask=mask, parent_name=parent_name)
-                        pds.append(
-                            PD(parent_modality.recording, pd_params,
-                                parsed_data=modality_data)
-                        )
-
-    _pd_logger.debug(str(parent_modality.data_path)
-                     + ': PD calculated.')
-
-    if release_data_memory:
-        # Accessing the data modality's data causes it to be
-        # loaded into memory. Keeping it there may cause memory
-        # overflow. This releases the memory.
-        parent_modality.data = None
-
-    return pds
-
-
 def calculate_intensity(parent_modality: Modality):
     data = parent_modality.data
     return np.sum(data, axis=(1, 2))
     # TODO: Compare this to the PD similarity matrix used by Gabor et al.
 
 
-def calculate_pd_from_params(
+def calculate_pd(
         parent_modality: Modality,
         to_be_computed: dict[str, PdParameters]
 ) -> list[PD]:
@@ -294,7 +178,6 @@ def calculate_pd_from_params(
     #     new_shape = (old_shape[0], old_shape[1], np.prod(old_shape[2:]))
     #     raw_diff = raw_diff.reshape(new_shape)
 
-    ic(to_be_computed)
     timesteps = [to_be_computed[key].timestep for key in to_be_computed]
     timesteps.sort()
     timevectors = {
@@ -402,7 +285,7 @@ def add_pd(recording: Recording,
         #                    mask_images=mask_images)
 
         if to_be_computed:
-            pds = calculate_pd_from_params(dataModality, to_be_computed)
+            pds = calculate_pd(dataModality, to_be_computed)
 
             for pd in pds:
                 recording.add_modality(pd)

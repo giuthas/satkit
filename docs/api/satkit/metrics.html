@@ -30,6 +30,7 @@
             <h2>Submodules</h2>
             <ul>
                     <li><a href="metrics/annd.html">annd</a></li>
+                    <li><a href="metrics/calculate_pd.html">calculate_pd</a></li>
                     <li><a href="metrics/ofreg.html">ofreg</a></li>
                     <li><a href="metrics/pd.html">pd</a></li>
                     <li><a href="metrics/peaks.html">peaks</a></li>
@@ -94,11 +95,12 @@
 </span><span id="L-31"><a href="#L-31"><span class="linenos">31</span></a><span class="c1">#</span>
 </span><span id="L-32"><a href="#L-32"><span class="linenos">32</span></a><span class="kn">from</span> <span class="nn">.annd</span> <span class="kn">import</span> <span class="n">annd</span>
 </span><span id="L-33"><a href="#L-33"><span class="linenos">33</span></a><span class="kn">from</span> <span class="nn">.ofreg</span> <span class="kn">import</span> <span class="n">of</span>
-</span><span id="L-34"><a href="#L-34"><span class="linenos">34</span></a><span class="kn">from</span> <span class="nn">.pd</span> <span class="kn">import</span> <span class="n">add_pd</span><span class="p">,</span> <span class="n">PD</span><span class="p">,</span> <span class="n">PdParameters</span>
-</span><span id="L-35"><a href="#L-35"><span class="linenos">35</span></a>
-</span><span id="L-36"><a href="#L-36"><span class="linenos">36</span></a><span class="n">metrics</span> <span class="o">=</span> <span class="p">{</span>
-</span><span id="L-37"><a href="#L-37"><span class="linenos">37</span></a>    <span class="s1">&#39;PD&#39;</span><span class="p">:</span> <span class="p">(</span><span class="n">PD</span><span class="p">,</span> <span class="n">PdParameters</span><span class="p">)</span>
-</span><span id="L-38"><a href="#L-38"><span class="linenos">38</span></a><span class="p">}</span>
+</span><span id="L-34"><a href="#L-34"><span class="linenos">34</span></a><span class="kn">from</span> <span class="nn">.calculate_pd</span> <span class="kn">import</span> <span class="n">add_pd</span>
+</span><span id="L-35"><a href="#L-35"><span class="linenos">35</span></a><span class="kn">from</span> <span class="nn">.pd</span> <span class="kn">import</span> <span class="n">PD</span><span class="p">,</span> <span class="n">PdParameters</span><span class="p">,</span> <span class="n">ImageMask</span>
+</span><span id="L-36"><a href="#L-36"><span class="linenos">36</span></a>
+</span><span id="L-37"><a href="#L-37"><span class="linenos">37</span></a><span class="n">metrics</span> <span class="o">=</span> <span class="p">{</span>
+</span><span id="L-38"><a href="#L-38"><span class="linenos">38</span></a>    <span class="s1">&#39;PD&#39;</span><span class="p">:</span> <span class="p">(</span><span class="n">PD</span><span class="p">,</span> <span class="n">PdParameters</span><span class="p">)</span>
+</span><span id="L-39"><a href="#L-39"><span class="linenos">39</span></a><span class="p">}</span>
 </span></pre></div>
 
 

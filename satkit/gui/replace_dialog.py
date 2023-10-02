@@ -30,9 +30,19 @@
 # citations.bib in BibTeX format.
 #
 
+from enum import Enum, IntEnum
 from PyQt5.QtWidgets import (
     QDialog, QVBoxLayout, QLabel, QDialogButtonBox, QApplication)
 from PyQt5.QtCore import Qt
+
+from icecream import ic
+
+
+class ReplaceResult(Enum):
+    YES = 'yes'
+    YES_TO_ALL = 'yes to all'
+    NO = 'no'
+    NO_TO_ALL = 'no to all'
 
 
 class ReplaceDialog(QDialog):
@@ -49,25 +59,46 @@ class ReplaceDialog(QDialog):
 
         # OK and Cancel buttons
         buttons = QDialogButtonBox(
-            (QDialogButtonBox.Ok | QDialogButtonBox.YesToAll |
-             QDialogButtonBox.Cancel | QDialogButtonBox.NoToAll),
+            (QDialogButtonBox.Yes | QDialogButtonBox.YesToAll |
+             QDialogButtonBox.No | QDialogButtonBox.NoToAll),
             Qt.Horizontal, self)
-        buttons.accepted.connect(self.accept)
-        buttons.rejected.connect(self.reject)
         layout.addWidget(buttons)
 
-    # get current date and time from the dialog
-    def dateTime(self):
-        return self.datetime.dateTime()
+        buttons.accepted.connect(self.accept)
+        buttons.rejected.connect(self.reject)
+
+        button_yes = buttons.button(QDialogButtonBox.Yes)
+        button_yes.clicked.connect(self.handle_yes)
+        button_yes_all = buttons.button(QDialogButtonBox.YesToAll)
+        button_yes_all.clicked.connect(self.handle_yes_all)
+        button_no = buttons.button(QDialogButtonBox.No)
+        button_no.clicked.connect(self.handle_no)
+        button_no_all = buttons.button(QDialogButtonBox.NoToAll)
+        button_no_all.clicked.connect(self.handle_no_all)
+
+        self.pressed_button = None
+
+    def handle_yes(self):
+        self.pressed_button = ReplaceResult.YES
+
+    def handle_yes_all(self):
+        self.pressed_button = ReplaceResult.YES_TO_ALL
+
+    def handle_no(self):
+        self.pressed_button = ReplaceResult.NO
+
+    def handle_no_all(self):
+        self.pressed_button = ReplaceResult.NO_TO_ALL
 
     # static method to create the dialog and return (date, time, accepted)
     @staticmethod
-    def getDateTime(filename: str, parent=None):
+    def confirmOverwrite(filename: str, parent=None) -> ReplaceResult:
         dialog = ReplaceDialog(filename, parent)
-        result = dialog.exec_()
-        return (result == QDialog.Accepted, result)
+        dialog.exec_()
+        pressed_button = dialog.pressed_button
+        return pressed_button
 
 
-app = QApplication([])
-(ok, result) = ReplaceDialog.getDateTime(filename='foobar.txt')
-print("{} {}".format(ok, result))
+# app = QApplication([])
+# pressed_button = ReplaceDialog.confirmOverwrite(filename='foobar.txt')
+# print("user said: {}".format(pressed_button.value))

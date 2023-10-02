@@ -35,9 +35,16 @@ from PyQt5.QtWidgets import (
 from PyQt5.QtCore import Qt
 
 
-class ReplaceDialog(QDialog):
+class DialogTemplate(QDialog):
+    """
+    Template for making dialog windows. Have a look at ReplaceDialog for a
+    different way of handling button presses.
+
+    This file can be run by itself for ease of testing out the dialog design.
+    """
+
     def __init__(self, filename: str, parent=None):
-        super(ReplaceDialog, self).__init__(parent)
+        super(DialogTemplate, self).__init__(parent)
 
         layout = QVBoxLayout(self)
 
@@ -63,11 +70,11 @@ class ReplaceDialog(QDialog):
     # static method to create the dialog and return (date, time, accepted)
     @staticmethod
     def getDateTime(filename: str, parent=None):
-        dialog = ReplaceDialog(filename, parent)
+        dialog = DialogTemplate(filename, parent)
         result = dialog.exec_()
         return (result == QDialog.Accepted, result)
 
 
 app = QApplication([])
-(ok, result) = ReplaceDialog.getDateTime(filename='foobar.txt')
+(ok, result) = DialogTemplate.getDateTime(filename='foobar.txt')
 print("{} {}".format(ok, result))

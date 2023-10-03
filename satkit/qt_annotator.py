@@ -1,8 +1,8 @@
 #
-# Copyright (c) 2019-2023 
+# Copyright (c) 2019-2023
 # Pertti Palo, Scott Moisik, Matthew Faytak, and Motoki Saito.
 #
-# This file is part of Speech Articulation ToolKIT 
+# This file is part of Speech Articulation ToolKIT
 # (see https://github.com/giuthas/satkit/).
 #
 # This program is free software: you can redistribute it and/or modify
@@ -56,17 +56,24 @@ from icecream import ic
 # import satkit.io as satkit_io
 from satkit.data_structures import RecordingSession
 from satkit.configuration import gui_params
-from satkit.gui.boundary_animation import BoundaryAnimator
+from satkit.gui import BoundaryAnimator, ReplaceDialog
 from satkit.plot.plot import plot_density
 from satkit.plot import (Normalisation, plot_satgrid_tier, plot_spectrogram,
                          plot_timeseries, plot_wav)
 from satkit.save_and_load import (
     save_recordings, save_recording_session, load_recording_session)
+from satkit.ui_callbacks import UiCallbacks
 
 # Load the GUI layout generated with QtDesigner.
 Ui_MainWindow, QMainWindow = loadUiType('satkit/gui/qt_annotator.ui')
 
 _qt_annotator_logger = logging.getLogger('satkit.qt_annotator')
+
+
+def setup_qtannotator_ui_callbacks():
+
+    UiCallbacks.register_overwrite_confirmation_callback(
+        ReplaceDialog.confirm_overwrite)
 
 
 class PdQtAnnotator(QMainWindow, Ui_MainWindow):
@@ -89,6 +96,8 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
                  categories=None, pickle_filename=None):
         super().__init__()
         self.setupUi(self)
+
+        setup_qtannotator_ui_callbacks()
 
         self.recording_session = recording_session
         self.recordings = recording_session.recordings
@@ -712,7 +721,7 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
         """
         Save derived modalities and annotations.
         """
-        # save_recordings(self.recordings)
+        # TODO 1.0: write a call back for asking for overwrite confirmation.
         save_recording_session(self.recording_session)
 
     def save_to_pickle(self):

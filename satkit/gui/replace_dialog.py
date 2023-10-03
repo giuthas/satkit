@@ -30,19 +30,13 @@
 # citations.bib in BibTeX format.
 #
 
-from enum import Enum, IntEnum
 from PyQt5.QtWidgets import (
     QDialog, QVBoxLayout, QLabel, QDialogButtonBox, QApplication)
 from PyQt5.QtCore import Qt
 
 from icecream import ic
 
-
-class ReplaceResult(Enum):
-    YES = 'yes'
-    YES_TO_ALL = 'yes to all'
-    NO = 'no'
-    NO_TO_ALL = 'no to all'
+from satkit.ui_callbacks import ReplaceResult
 
 
 class ReplaceDialog(QDialog):
@@ -90,9 +84,8 @@ class ReplaceDialog(QDialog):
     def handle_no_all(self):
         self.pressed_button = ReplaceResult.NO_TO_ALL
 
-    # static method to create the dialog and return (date, time, accepted)
     @staticmethod
-    def confirmOverwrite(filename: str, parent=None) -> ReplaceResult:
+    def confirm_overwrite(filename: str, parent=None) -> ReplaceResult:
         dialog = ReplaceDialog(filename, parent)
         dialog.exec_()
         pressed_button = dialog.pressed_button

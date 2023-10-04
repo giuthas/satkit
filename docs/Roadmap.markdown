@@ -4,17 +4,17 @@ Items will only be marked as done, once clean up is also done.
 
 - [ ] GUI
   - [ ] Boundaries and labels
+    - [x] selection of tier that will be displayed over the graphs
     - [x] movable single boundaries
     - [ ] shift+drag moving of all boundaries at the same time point
-    - [x] selection of tier that will be displayed over the graphs
     - [ ] label editing
     - [ ] adding boundaries
       - [ ] including interval selection and adding from that maybe
     - [ ] deleting boundaries
     - [ ] Viewing and selecting
       - [x] frame and time point  selection
-      - [ ] zooming
-      - [ ] with interval selection and Praat's shortcuts or something close
+      - [x] zooming with Praat's shortcuts or something close
+      - [ ] zooming with interval selection
       - [ ] toggle for displaying acoustic boundaries
       - [ ] toggles or similar for displaying different data modalities
       - [ ] note function for annotating individual tokens with free text

@@ -38,7 +38,7 @@ from typing import Callable, Optional, Protocol, TypeVar
 T = TypeVar('T')
 
 
-class ReplaceResult(Enum):
+class OverwriteConfirmation(Enum):
     """
     Codes for a user's response when asked if a file should be overwritten.
     """
@@ -46,28 +46,6 @@ class ReplaceResult(Enum):
     YES_TO_ALL = 'yes to all'
     NO = 'no'
     NO_TO_ALL = 'no to all'
-
-
-class SupportsConfirmOverwrite(Protocol):
-    @staticmethod
-    def confirmOverwrite(
-            filename: str, parent=None) -> ReplaceResult:
-        """
-        Confirm overwriting a file by asking the user.
-
-        Parameters
-        ----------
-        filename : str
-            File about to be overwritten.
-        parent : _type_, optional
-            For tying a dialog to the gui mainwindow, by default None
-
-        Returns
-        -------
-        ReplaceResult
-            The user's response.
-        """
-        ...
 
 
 class UiCallbacks:
@@ -80,16 +58,17 @@ class UiCallbacks:
     for details.
     """
 
-    confirm_overwrite: Optional[Callable[[str, T], ReplaceResult]] = None
+    confirm_overwrite: Optional[Callable[[
+        str, T], OverwriteConfirmation]] = None
 
     @staticmethod
     def register_overwrite_confirmation_callback(
-            callback: Callable[[str, T], ReplaceResult]) -> None:
+            callback: Callable[[str, T], OverwriteConfirmation]) -> None:
         UiCallbacks.confirm_overwrite = callback
 
     @staticmethod
     def get_overwrite_confirmation(
-            filename: str, parent=None) -> ReplaceResult:
+            filename: str, parent=None) -> OverwriteConfirmation:
         """
         Confirm overwriting a file by asking the user.
 

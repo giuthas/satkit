@@ -1,8 +1,8 @@
 #
-# Copyright (c) 2019-2023 
+# Copyright (c) 2019-2023
 # Pertti Palo, Scott Moisik, Matthew Faytak, and Motoki Saito.
 #
-# This file is part of Speech Articulation ToolKIT 
+# This file is part of Speech Articulation ToolKIT
 # (see https://github.com/giuthas/satkit/).
 #
 # This program is free software: you can redistribute it and/or modify
@@ -38,11 +38,14 @@ from icecream import ic
 from satkit.constants import SATKIT_FILE_VERSION, SatkitSuffix
 from satkit.data_structures import Modality, Recording, RecordingSession
 from .save_and_load_helpers import nested_text_converters
+from satkit.ui_callbacks import UiCallbacks, OverwriteConfirmation
 
 _saver_logger = logging.getLogger('satkit._saver')
 
 
-def save_modality_data(modality: Modality) -> str:
+def save_modality_data(
+        modality: Modality, confirmation: OverwriteConfirmation) -> [
+        str, OverwriteConfirmation]:
     """
     Save the data of a Modality.
 
@@ -55,15 +58,29 @@ def save_modality_data(modality: Modality) -> str:
     filename = f"{modality.recording.basename}.{suffix}{SatkitSuffix.DATA}"
     filepath = modality.recording.path/filename
 
-    np.savez(
-        filepath, data=modality.data, sampling_rate=modality.sampling_rate,
-        timevector=modality.timevector)
+    if filepath.exists():
+        if confirmation is OverwriteConfirmation.NO_TO_ALL:
+            return filename, confirmation
 
-    _saver_logger.debug("Wrote file %s." % (filename))
-    return filename
+        if confirmation is not OverwriteConfirmation.YES_TO_ALL:
+            confirmation = UiCallbacks.get_overwrite_confirmation(
+                str(filepath))
+
+    if not filepath.exists() or confirmation in [
+            OverwriteConfirmation.YES, OverwriteConfirmation.YES_TO_ALL]:
+        np.savez(
+            filepath, data=modality.data,
+            sampling_rate=modality.sampling_rate,
+            timevector=modality.timevector)
+
+        _saver_logger.debug("Wrote file %s." % (filename))
+
+    return filename, confirmation
 
 
-def save_modality_meta(modality: Modality) -> str:
+def save_modality_meta(
+        modality: Modality, confirmation: OverwriteConfirmation) -> [
+        str, OverwriteConfirmation]:
     """
     Save meta data and annotations for a Modality.
 
@@ -76,6 +93,14 @@ def save_modality_meta(modality: Modality) -> str:
     filename += SatkitSuffix.META
     filepath = modality.recording.path/filename
 
+    if filepath.exists():
+        if confirmation is OverwriteConfirmation.NO_TO_ALL:
+            return filename, confirmation
+
+        if confirmation is not OverwriteConfirmation.YES_TO_ALL:
+            confirmation = UiCallbacks.get_overwrite_confirmation(
+                str(filepath))
+
     meta = OrderedDict()
     meta['object_type'] = type(modality).__name__
     meta['name'] = modality.name
@@ -84,18 +109,24 @@ def save_modality_meta(modality: Modality) -> str:
     parameters = modality.get_meta().copy()
     meta['parameters'] = parameters
 
-    try:
-        nestedtext.dump(meta, filepath, converters=nested_text_converters)
-        _saver_logger.debug("Wrote file %s." % (filename))
-    # except nestedtext.NestedTextError as e:
-    #     e.terminate()
-    except OSError as e:
-        _saver_logger.critical(e)
+    if not filepath.exists() or confirmation in [
+            OverwriteConfirmation.YES, OverwriteConfirmation.YES_TO_ALL]:
+        try:
+            nestedtext.dump(meta, filepath, converters=nested_text_converters)
+            _saver_logger.debug("Wrote file %s." % (filename))
+        # except nestedtext.NestedTextError as e:
+        #     e.terminate()
+        except OSError as e:
+            _saver_logger.critical(e)
 
-    return filename
+    return filename, confirmation
 
 
-def save_recording_meta(recording: Recording, modalities_saves: dict) -> str:
+def save_recording_meta(
+        recording: Recording,
+        modalities_saves: dict,
+        confirmation: OverwriteConfirmation) -> [str,
+                                                 OverwriteConfirmation]:
     """
     Save Recording meta.
 
@@ -107,6 +138,14 @@ def save_recording_meta(recording: Recording, modalities_saves: dict) -> str:
     filename = f"{recording.basename}{'.Recording'}{SatkitSuffix.META}"
     filepath = recording.path/filename
 
+    if filepath.exists():
+        if confirmation is OverwriteConfirmation.NO_TO_ALL:
+            return filename, confirmation
+
+        if confirmation is not OverwriteConfirmation.YES_TO_ALL:
+            confirmation = UiCallbacks.get_overwrite_confirmation(
+                str(filepath))
+
     meta = OrderedDict()
     meta['object_type'] = type(recording).__name__
     meta['name'] = recording.basename
@@ -114,18 +153,22 @@ def save_recording_meta(recording: Recording, modalities_saves: dict) -> str:
     meta['parameters'] = recording.meta_data.model_dump()
     meta['modalities'] = modalities_saves
 
-    try:
-        nestedtext.dump(meta, filepath, converters=nested_text_converters)
-        _saver_logger.debug("Wrote file %s." % (filename))
-    # except nestedtext.NestedTextError as e:
-    #     e.terminate()
-    except OSError as e:
-        _saver_logger.critical(e)
+    if not filepath.exists() or confirmation in [
+            OverwriteConfirmation.YES, OverwriteConfirmation.YES_TO_ALL]:
+        try:
+            nestedtext.dump(meta, filepath, converters=nested_text_converters)
+            _saver_logger.debug("Wrote file %s." % (filename))
+        # except nestedtext.NestedTextError as e:
+        #     e.terminate()
+        except OSError as e:
+            _saver_logger.critical(e)
 
-    return filename
+    return filename, confirmation
 
 
-def save_modalities(recording: Recording) -> str:
+def save_modalities(
+        recording: Recording, confirmation: OverwriteConfirmation) -> [
+        str, OverwriteConfirmation]:
     """
     Save derived data Modalities for a single Recording.
 
@@ -136,8 +179,10 @@ def save_modalities(recording: Recording) -> str:
         modality_meta = {}
         modality = recording.modalities[modality_name]
         if modality.is_derived_modality:
-            modality_meta['data_name'] = save_modality_data(modality)
-            modality_meta['meta_name'] = save_modality_meta(modality)
+            (modality_meta['data_name'], confirmation) = save_modality_data(
+                modality, confirmation)
+            (modality_meta['meta_name'], confirmation) = save_modality_meta(
+                modality, confirmation)
         else:
             modality_meta['data_name'] = str(modality.data_path.name)
             if modality.meta_path:
@@ -145,27 +190,31 @@ def save_modalities(recording: Recording) -> str:
             else:
                 modality_meta['meta_name'] = None
         recording_meta[modality_name] = modality_meta
-    return recording_meta
+    return recording_meta, confirmation
 
 
 def save_recordings(
-        recordings: list[Recording],
-        save_excluded: bool = True) -> list[str]:
+        recordings: list[Recording], confirmation: OverwriteConfirmation,
+        save_excluded: bool = True) -> [list[str], OverwriteConfirmation]:
     """
     Save derived data modalities for each Recording.
     """
     metafiles = []
     for recording in recordings:
         if save_excluded or not recording.excluded:
-            modalities_saves = save_modalities(recording)
-            metafile = save_recording_meta(recording, modalities_saves)
+            (modalities_saves, confirmation) = save_modalities(
+                recording, confirmation)
+            (metafile, confirmation) = save_recording_meta(
+                recording, modalities_saves, confirmation)
             metafiles.append(metafile)
 
-    return metafiles
+    return metafiles, confirmation
 
 
-def save_recording_session_meta(
-        session: RecordingSession, recording_meta_files: list) -> str:
+def save_recording_session_meta(session: RecordingSession,
+                                recording_meta_files: list,
+                                confirmation: OverwriteConfirmation) -> [str,
+                                                                         OverwriteConfirmation]:
     """
     Save recording session metadata.
 
@@ -176,6 +225,14 @@ def save_recording_session_meta(
         "Saving meta for session %s." % session.name)
     filename = f"{session.name}{'.RecordingSession'}{SatkitSuffix.META}"
     filepath = session.path/filename
+
+    if filepath.exists():
+        if confirmation is OverwriteConfirmation.NO_TO_ALL:
+            return filename, confirmation
+
+        if confirmation is not OverwriteConfirmation.YES_TO_ALL:
+            confirmation = UiCallbacks.get_overwrite_confirmation(
+                str(filepath))
 
     meta = OrderedDict()
     meta['object_type'] = type(session).__name__
@@ -189,11 +246,13 @@ def save_recording_session_meta(
     meta['parameters'] = parameters
     meta['recordings'] = recording_meta_files
 
-    try:
-        nestedtext.dump(meta, filepath, converters=nested_text_converters)
-        _saver_logger.debug("Wrote file %s." % (filename))
-    except OSError as e:
-        _saver_logger.critical(e)
+    if not filepath.exists() or confirmation in [
+            OverwriteConfirmation.YES, OverwriteConfirmation.YES_TO_ALL]:
+        try:
+            nestedtext.dump(meta, filepath, converters=nested_text_converters)
+            _saver_logger.debug("Wrote file %s." % (filename))
+        except OSError as e:
+            _saver_logger.critical(e)
 
     return filename
 
@@ -204,5 +263,6 @@ def save_recording_session(session: RecordingSession):
     """
     _saver_logger.debug(
         "Saving recording session %s." % session.name)
-    recording_meta_files = save_recordings(session.recordings)
-    save_recording_session_meta(session, recording_meta_files)
+    (recording_meta_files, confirmation) = save_recordings(
+        session.recordings, confirmation=None)
+    save_recording_session_meta(session, recording_meta_files, confirmation)

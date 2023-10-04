@@ -36,7 +36,7 @@ from PyQt5.QtCore import Qt
 
 from icecream import ic
 
-from satkit.ui_callbacks import ReplaceResult
+from satkit.ui_callbacks import OverwriteConfirmation
 
 
 class ReplaceDialog(QDialog):
@@ -73,19 +73,19 @@ class ReplaceDialog(QDialog):
         self.pressed_button = None
 
     def handle_yes(self):
-        self.pressed_button = ReplaceResult.YES
+        self.pressed_button = OverwriteConfirmation.YES
 
     def handle_yes_all(self):
-        self.pressed_button = ReplaceResult.YES_TO_ALL
+        self.pressed_button = OverwriteConfirmation.YES_TO_ALL
 
     def handle_no(self):
-        self.pressed_button = ReplaceResult.NO
+        self.pressed_button = OverwriteConfirmation.NO
 
     def handle_no_all(self):
-        self.pressed_button = ReplaceResult.NO_TO_ALL
+        self.pressed_button = OverwriteConfirmation.NO_TO_ALL
 
     @staticmethod
-    def confirm_overwrite(filename: str, parent=None) -> ReplaceResult:
+    def confirm_overwrite(filename: str, parent=None) -> OverwriteConfirmation:
         dialog = ReplaceDialog(filename, parent)
         dialog.exec_()
         pressed_button = dialog.pressed_button

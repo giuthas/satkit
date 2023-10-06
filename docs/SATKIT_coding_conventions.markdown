@@ -62,3 +62,21 @@ doing something else). This means we have the following kinds of branches:
 - Hotfix branches can be branched off of any branch, but especially if branched
   from main they need to eventually be merged to both main *and* devel.
   Hotfixes are always small bug fixes never major features.
+
+### Making a release
+
+A release of SATKIT is created as follows:
+
+1. If doing a major or minor release (first or second version number
+   increments), check that all features in the the current roadmap are either
+   done (implemented and merged to `devel`), or that all undone features are
+   moved to the next release's roadmap. This is done in the `devel` branch.
+2. Create a new release candidate branch named 'vX.Y.Z' e.g. 'v0.7.0'.
+3. Merge `main` to the release branch (not the other way around).
+4. Fix any bugs that occur, run tests see that they pass, update the release
+   notes.
+5. Merge release branch to `main`.
+6. Tag the commit in main with the release title ('vX.Y.Z'), delete the now
+   defunct release branch, if any commits were made to the release branch,
+   merge `main` into `devel`.
+7. Announce the release.

@@ -167,8 +167,8 @@ Proper testing is yet to be implemented.
 
 ## Contributing
 
-Please get in touch with [Pertti](https://taurlin.org), if you would
-like to contribute to the project.
+Please, read the docs and get in touch with [Pertti](https://taurlin.org), if
+you would like to contribute to the project.
 
 ## Versioning
 

@@ -43,14 +43,22 @@ repository](https://github.com/giuthas/satkit/tags).
 
 ## SATKIT's branches
 
-SATKIT uses gitflow as the branching convention (until we have a reason for doing something else). This means we have the following kinds of branches:
+SATKIT uses gitflow as the branching convention (until we have a reason for
+doing something else). This means we have the following kinds of branches:
 
 - `main` is the release branch. Any update here after 1.0 will get it's own
-  version number and be considered a new version of SATKIT. See [Versioning](#versioning) above.
+  version number and be considered a new version of SATKIT. See
+  [Versioning](#versioning) above.
 - `devel` is the main development branch. New features are added by branching
   from devel, working on the feature branch, and merging back to devel before
-  creating a release branch that will be merged in to main to do the actual realease.
-- Feature branches are used to develop a major feature. They may have subbranches as needed.
-- Release branches are branched from `devel` when all of the features for a release have been implemented and merged back to `devel`. After creating the release branch, `main` is merged in to the release branch and any problems ironed out before creating the actual release by mergin into main.
+  creating a release branch that will be merged in to main to do the actual
+  realease.
+- Feature branches are used to develop a major feature. They may have
+  subbranches as needed.
+- Release branches are branched from `devel` when all of the features for a
+  release have been implemented and merged back to `devel`. After creating the
+  release branch, `main` is merged in to the release branch and any problems
+  ironed out before creating the actual release by mergin into main. If any commits need to be made before merging into `main`, a merge back to `devel` needs to also be done.
 - Hotfix branches can be branched off of any branch, but especially if branched
-  from main they need to eventually be merged to both main *and* devel. Hotfixes are always small bug fixes never major features.
+  from main they need to eventually be merged to both main *and* devel.
+  Hotfixes are always small bug fixes never major features.

@@ -62,6 +62,8 @@ More up-to-date information can be found in the
 [Documentation](https://giuthas.github.io/satkit/). See
 [Roadmap](docs/Roadmap.markdown) for updates on progress towards 1.0.
 
+See [Release notes](docs/Release_notes.markdown), for what's new.
+
 ## Getting Started
 
 Download the repository to either a subdirectory of the project you

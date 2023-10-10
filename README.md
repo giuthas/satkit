@@ -1,5 +1,6 @@
 <!--
-Copyright (c) 2019-2022 Pertti Palo, Scott Moisik, Matthew Faytak, and Motoki Saito.
+Copyright (c) 2019-2023 
+Pertti Palo, Scott Moisik, Matthew Faytak, and Motoki Saito.
 
 This file is part of Speech Articulation ToolKIT 
 (see https://github.com/giuthas/satkit/).
@@ -50,12 +51,18 @@ spline distance measures and optic flow.
 
 ## Major update -- version 1.0 -- coming up
 
-After Ultrafest 2022 there is going to be a major update to the codebase. While
-this notice is here in the main branch, that update is not yet complete. If you
-wish to try SATKIT in the meanwhile, please contact Pertti for instructions.
+After ICPhS 2023 there will be incremental 0.x releases until the codebase
+reaches milestones for version 1.0 (See [Roadmap](docs/Roadmap.markdown)). While
+this notice is here in the main branch, that update is not yet complete. In the
+meanwhile, if you wish to try SATKIT or contribute to the code or as a beta
+tester, please contact Pertti for instructions.
 
 With version 1.0 getting closer a lot of the instructions below are outdated.
-More up-to-date information can be found in the [Documentation](https://giuthas.github.io/satkit/). See [Roadmap](docs/Roadmap.markdown) for updates on progress towards 1.0.
+More up-to-date information can be found in the
+[Documentation](https://giuthas.github.io/satkit/). See
+[Roadmap](docs/Roadmap.markdown) for updates on progress towards 1.0.
+
+See [Release notes](docs/Release_notes.markdown), for what's new.
 
 ## Getting Started
 
@@ -162,8 +169,8 @@ Proper testing is yet to be implemented.
 
 ## Contributing
 
-Please get in touch with [Pertti](https://taurlin.org), if you would
-like to contribute to the project.
+Please, read the docs and get in touch with [Pertti](https://taurlin.org), if
+you would like to contribute to the project.
 
 ## Versioning
 
@@ -191,12 +198,12 @@ will be updated once there are more people working on this project.
 The Speech Articulation ToolKIT (SATKIT for short) and examples is a
 tool box for analysing articulatory data.
 
-SATKIT Copyright (C) 2019-2022 Pertti Palo, Scott Moisik, Matthew
+SATKIT Copyright (C) 2019-2023 Pertti Palo, Scott Moisik, Matthew
 Faytak and Motoki Saito.
 
-Optical Flow tools Copyright (C) 2020-2022 Scott Moisik
+Optical Flow tools Copyright (C) 2020-2023 Scott Moisik
 
-Pixel Difference tools Copyright (C) 2019-2022 Pertti Palo
+Pixel Difference tools Copyright (C) 2019-2023 Pertti Palo
 
 Laryngeal example data Copyright (C) 2020 Scott Moisik
 

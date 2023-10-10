@@ -1,5 +1,6 @@
 #
-# Copyright (c) 2019-2022 Pertti Palo, Scott Moisik, Matthew Faytak, and Motoki Saito.
+# Copyright (c) 2019-2023 
+# Pertti Palo, Scott Moisik, Matthew Faytak, and Motoki Saito.
 #
 # This file is part of Speech Articulation ToolKIT 
 # (see https://github.com/giuthas/satkit/).
@@ -29,6 +30,6 @@
 # citations.bib in BibTeX format.
 #
 
-from satkit.configuration.configuration import (Datasource, config,
+from satkit.configuration.configuration import (Datasource, config_dict,
                                                 data_run_params, gui_params)
 from satkit.configuration.exclusion_list import set_exclusions_from_csv_file

@@ -1,5 +1,6 @@
 #
-# Copyright (c) 2019-2022 Pertti Palo, Scott Moisik, Matthew Faytak, and Motoki Saito.
+# Copyright (c) 2019-2023 
+# Pertti Palo, Scott Moisik, Matthew Faytak, and Motoki Saito.
 #
 # This file is part of Speech Articulation ToolKIT 
 # (see https://github.com/giuthas/satkit/).
@@ -32,19 +33,20 @@
 from pathlib import Path
 
 import numpy as np
-import satkit.audio_processing as satkit_audio
-# wav file handling
-import scipy.io.wavfile as sio_wavfile
+# scikit-video for io and processing of video data.
+import skvideo.io
 from satkit.data_structures import ModalityData
 
 
-# TODO: break into two different functions: one that runs beep detection and one that doesn't.
-def read_wav(path: Path, detect_beep: bool=False) -> ModalityData:
+def read_avi(path: Path, meta: dict, time_offset: float) -> ModalityData:
     """
     Read wavfile from path.
 
-    Positional argument:
+    Positional arguments:
     path -- Path of the wav file
+    meta -- a dict containing the following keys:
+        NumVectors -- number of scanlines in the data
+        PixPerVector -- number of pixels on a scanline
 
     Keyword argument:
     detect_beep -- Should 1kHz beep detection be run. Changes return values (see below).
@@ -52,28 +54,22 @@ def read_wav(path: Path, detect_beep: bool=False) -> ModalityData:
     Returns a ModalityData instance that contains the wav frames, a timevector, and
     the sampling rate. 
 
-    Also returns the time of a 1kHz go-signal and a guess about if the file contains 
-    speech if detect_beep = True.
+    Also adds the 'no_frames', 'width', and 'height' keys and values to the meta dict.
     """
-    (wav_fs, wav_frames) = sio_wavfile.read(path)
+    data = skvideo.io.vread(str(path))
 
-    timevector = np.linspace(0, len(wav_frames),
-                                    len(wav_frames),
-                                    endpoint=False)
-    timevector = timevector/wav_fs
-    data = ModalityData(wav_frames, wav_fs, timevector)
+    meta['no_frames'] = data.shape[0]
+    meta['width'] = data.shape[1]
+    meta['height'] = data.shape[2]
+    video_time = np.linspace(
+        0, meta['no_frames'],
+        num=meta['no_frames'],
+        endpoint=False)
+    timevector = video_time / \
+        meta['FramesPerSec'] + time_offset
+    # this should be added for PD and similar time vectors:
+    # + .5/self.meta['framesPerSec']
+    # while at the same time dropping a suitable number
+    # (most likely = timestep) of timestamps
 
-    if detect_beep:
-        # use a high-pass filter for removing the mains frequency (and anything below it)
-        # from the recorded sound.
-        go_signal, has_speech = satkit_audio.detect_beep_and_speech(
-            wav_frames, 
-            wav_fs, 
-            satkit_audio.MainsFilter.mains_filter['b'],
-            satkit_audio.MainsFilter.mains_filter['a'],
-            path
-        )
-
-        return data, go_signal, has_speech
-    else:
-        return data
+    return ModalityData(data, timevector, meta['FramesPerSec'])

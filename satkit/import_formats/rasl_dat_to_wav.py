@@ -1,5 +1,6 @@
 #
-# Copyright (c) 2019-2022 Pertti Palo, Scott Moisik, Matthew Faytak, and Motoki Saito.
+# Copyright (c) 2019-2023 
+# Pertti Palo, Scott Moisik, Matthew Faytak, and Motoki Saito.
 #
 # This file is part of Speech Articulation ToolKIT 
 # (see https://github.com/giuthas/satkit/).
@@ -49,17 +50,17 @@ def dat_to_wav(datpath: Path, wavpath: Path):
             np.diff(np.nonzero(np.abs(diffData) < threshold)))
         numberOfChannels = int(numberOfChannels)
         if len(data) % numberOfChannels == 0:
-            data.shape = [int(len(data)/numberOfChannels), 
-                            numberOfChannels]
+            data.shape = [int(len(data)/numberOfChannels),
+                          numberOfChannels]
 
-        # The commented out section below tries to replicate the batchDAT2WAV 
+        # The commented out section below tries to replicate the batchDAT2WAV
         # behaviour but something makes difference 1D when it should be 2D.
-        # Since we are for the moment dealing with a steady data source, 
+        # Since we are for the moment dealing with a steady data source,
         # we just hardcode the variables instead.
 
         # print(data.shape)
         # print(data[:8,:])
-        
+
         # difference = np.diff(np.flipud(data[:,0]))
 
         # print(np.flipud(data[:,3]).shape)
@@ -77,10 +78,10 @@ def dat_to_wav(datpath: Path, wavpath: Path):
         #     print(f'Calculated sampling rate {sampling_rate} is not equal to 48kHz.')
         #     sampling_rate = 48000
         # data = data/np.repmat(np.max(np.abs(data)), data.shape[0],1)
-        
-        channel = 1 # second channel
+
+        channel = 1  # second channel
         sampling_rate = 48000
-        sound = data[:,channel]
+        sound = data[:, channel]
         sound = sound/np.max(np.abs(sound))*0.99
 
         with closing(open(wavpath, 'wb')) as wav_file:

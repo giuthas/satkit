@@ -1,5 +1,6 @@
 #
-# Copyright (c) 2019-2022 Pertti Palo, Scott Moisik, Matthew Faytak, and Motoki Saito.
+# Copyright (c) 2019-2023 
+# Pertti Palo, Scott Moisik, Matthew Faytak, and Motoki Saito.
 #
 # This file is part of Speech Articulation ToolKIT 
 # (see https://github.com/giuthas/satkit/).
@@ -30,4 +31,9 @@
 #
 from .annd import annd
 from .ofreg import of
-from .pd import add_pd
+from .calculate_pd import add_pd
+from .pd import PD, PdParameters, ImageMask
+
+metrics = {
+    'PD': (PD, PdParameters)
+}

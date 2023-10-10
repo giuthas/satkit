@@ -1,5 +1,6 @@
 #
-# Copyright (c) 2019-2022 Pertti Palo, Scott Moisik, Matthew Faytak, and Motoki Saito.
+# Copyright (c) 2019-2023 
+# Pertti Palo, Scott Moisik, Matthew Faytak, and Motoki Saito.
 #
 # This file is part of Speech Articulation ToolKIT 
 # (see https://github.com/giuthas/satkit/).
@@ -63,16 +64,20 @@ class BoundaryAnimator:
     lock = None  # only one boundary can be animated at a time
 
     def __init__(self,
-            release_handler,
+            main_window,
             boundaries: List[AnimatableBoundary], 
             segment: SatInterval, 
             time_offset=0):
+        self.main_window = main_window
         self.boundaries = boundaries
         self.segment = segment
         self.time_offset = time_offset
+
         self.press = None
         self.backgrounds = []
-        self.release_handler = release_handler
+        self.shift_is_held = False
+        # We generate this dynamically every time a shift-drag occurs.
+        self.coincident_boundaries = []
 
     def connect(self):
         """Connect to all the events we need."""
@@ -84,10 +89,27 @@ class BoundaryAnimator:
             self.cidmotion = boundary.line.figure.canvas.mpl_connect(
                 'motion_notify_event', self.on_motion)
 
+    def disconnect(self):
+        """Disconnect all callbacks."""
+        for boundary in self.boundaries:
+            boundary.line.figure.canvas.mpl_disconnect(self.cidpress)
+            boundary.line.figure.canvas.mpl_disconnect(self.cidrelease)
+            boundary.line.figure.canvas.mpl_disconnect(self.cidmotion)
+
     def on_press(self, event):
         """Check whether mouse is over us; if so, store some data."""
         if BoundaryAnimator.lock is not None:
             return
+
+        # Store the state of shift at the beginning of the press.
+        # This will be released locally in this class at the end.
+        if self.main_window.shift_is_held:
+            self.shift_is_held = True
+            for animator in self.main_window.animators:
+                if (animator is not self and 
+                    animator.segment.begin == self.segment.begin):
+                    self.coincident_boundaries.append(animator)
+                    print(f"self: {self.segment.text} {self.segment.begin} other:{animator.segment.text} {animator.segment.begin}")
 
         is_inaxes = False
         for boundary in self.boundaries:
@@ -108,6 +130,7 @@ class BoundaryAnimator:
         BoundaryAnimator.lock = self
 
         # draw everything but the selected line and store the pixel buffer
+        # TODO: don't draw coinciding lines if shift was held
         for boundary in self.boundaries:
             line = boundary.line
             prev_text = boundary.prev_text
@@ -148,6 +171,7 @@ class BoundaryAnimator:
 
         x0, xpress = self.press
         dx = event.xdata - xpress
+        # Prevent boundary crossings.
         if self.segment.is_legal_value(x0[0]+dx+self.time_offset):
             for i, boundary in enumerate(self.boundaries):
                 self.segment.begin = x0[0] + dx + self.time_offset
@@ -177,11 +201,14 @@ class BoundaryAnimator:
     def on_release(self, event):
         """Clear button press information."""
         if BoundaryAnimator.lock is not self:
-            self.release_handler.onpick(event)
+            self.main_window.onpick(event)
             return
 
         self.press = None
         BoundaryAnimator.lock = None
+        # We generate this dynamically every time a shift-drag occurs.
+        self.coincident_boundaries = []
+        self.shift_is_held = False
 
         # turn off the rect animation property and reset the background
         for boundary in self.boundaries:
@@ -195,11 +222,4 @@ class BoundaryAnimator:
             boundary.line.figure.canvas.draw()
 
         self.backgrounds = []
-
-    def disconnect(self):
-        """Disconnect all callbacks."""
-        for boundary in self.boundaries:
-            boundary.line.figure.canvas.mpl_disconnect(self.cidpress)
-            boundary.line.figure.canvas.mpl_disconnect(self.cidrelease)
-            boundary.line.figure.canvas.mpl_disconnect(self.cidmotion)
 

@@ -1,5 +1,6 @@
 ##
-## Copyright (c) 2019-2022 Pertti Palo, Scott Moisik, Matthew Faytak, and Motoki Saito.
+## Copyright (c) 2019-2023 
+## Pertti Palo, Scott Moisik, Matthew Faytak, and Motoki Saito.
 ##
 ## This file is part of Speech Articulation ToolKIT 
 ## (see https://github.com/giuthas/satkit/).
@@ -42,12 +43,16 @@ dependencies:
   - pyqt >= 5.9
   - pylint >= 2.9
   - strictyaml >= 1.6.1
+  - pydantic >= 2.3
   - setuptools >= 58
+  - pydicom
   - pdoc
   - build 
   - virtualenv
   - pip >= 22
   - pip:
+    - nestedtext >= 3.5
     - opencv-python >= 4.5
     - praat-textgrids >= 1.4
     - licenseheaders
+    - icecream

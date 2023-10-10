@@ -1,5 +1,6 @@
 #
-# Copyright (c) 2019-2022 Pertti Palo, Scott Moisik, Matthew Faytak, and Motoki Saito.
+# Copyright (c) 2019-2023 
+# Pertti Palo, Scott Moisik, Matthew Faytak, and Motoki Saito.
 #
 # This file is part of Speech Articulation ToolKIT 
 # (see https://github.com/giuthas/satkit/).
@@ -44,13 +45,16 @@ graphical annotation tools derive from Annotator.
 ![SATKIT Class hierarchies](classes_satkit.png "SATKIT Class hierarchies")
 """
 
+import json
 import logging
 import logging.config
-import json
+
+import satkit.configuration.configuration as configuration
+from satkit.logging_helpers import log_elapsed_time, set_logging_level
 
 # Load config from json file.
-with open("satkit_logging_configuration.json", 'r') as logging_configuration_file:
-    config_dict = json.load(logging_configuration_file)
+with open("satkit_logging_configuration.json", 'r') as configuration_file:
+    config_dict = json.load(configuration_file)
     logging.config.dictConfig(config_dict)
  
 # Create the module logger.
@@ -58,3 +62,10 @@ _satkit_logger = logging.getLogger('satkit')
 
 # Log that the logger was configured.
 _satkit_logger.info('Completed configuring logger.')
+
+# Config should be loaded before parsing arguments, because it may affect
+# how arguments are parsed, and parsed arguments may change config variables.
+configuration.load_config()
+
+
+

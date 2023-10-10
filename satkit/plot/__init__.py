@@ -1,5 +1,6 @@
 #
-# Copyright (c) 2019-2022 Pertti Palo, Scott Moisik, Matthew Faytak, and Motoki Saito.
+# Copyright (c) 2019-2023 
+# Pertti Palo, Scott Moisik, Matthew Faytak, and Motoki Saito.
 #
 # This file is part of Speech Articulation ToolKIT 
 # (see https://github.com/giuthas/satkit/).
@@ -28,5 +29,5 @@
 # articles listed in README.markdown. They can also be found in
 # citations.bib in BibTeX format.
 #
-from satkit.plot.plot import (plot_satgrid_tier, plot_spectrogram,
-                              plot_timeseries, plot_wav)
+from satkit.plot.plot import (Normalisation, plot_satgrid_tier,
+                              plot_spectrogram, plot_timeseries, plot_wav)

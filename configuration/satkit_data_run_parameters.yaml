@@ -1,5 +1,6 @@
 ##
-## Copyright (c) 2019-2022 Pertti Palo, Scott Moisik, Matthew Faytak, and Motoki Saito.
+## Copyright (c) 2019-2023 
+## Pertti Palo, Scott Moisik, Matthew Faytak, and Motoki Saito.
 ##
 ## This file is part of Speech Articulation ToolKIT 
 ## (see https://github.com/giuthas/satkit/).
@@ -36,11 +37,6 @@
 flags:
   detect beep: True # Should onset beep detection be run?
   test: False # Run on only the first 10 recordings.
-  # Flags for the yet-to-happen submodule CAST that is still a separate entity. 
-  cast flags:
-    only words: False # Add only Utterance and Word Tiers.
-    utterance: True # Add Utterance Tier.
-    file: False # Add File Tier.
 
 data properties:
   # This tells SATKIT which metadata importer to use.
@@ -50,15 +46,9 @@ data properties:
   # on both prompts and file names.
   exclusion list: 
 
-  # Consists of words followed by their segments in arbitrary transcription.  
-  pronunciation dictionary: local_data/gam_mono_and_disyllables_for_automatic_segmentation.csv
-
-  # Speaker id is used in the output csv file.
-  speaker id: gam-1-2
-
   # This is where we read the data and metadata from. Leave the data type specific
   # directories empty if everything is in one directory.
-  data directory: local_data/tongue_data_4
+  data path: local_data/icphs-2023-giulia
   wav directory:
   textgrid directory: 
   ultrasound directory:
@@ -66,6 +56,17 @@ data properties:
   # This is where SATKIT will save results of data processing. Please note that
   # once exclusion list or similar things can be edited in SATKIT, they will by
   # default be saved at their original locations.
-  output directory : local_data/tongue_data_4/satkit/
+  output directory : local_data/icphs-2023-giulia/satkit/
 
+# Config for the yet-to-happen submodule CAST that is still a separate entity. 
+cast:
+  # Consists of words followed by their segments in arbitrary transcription.  
+  pronunciation dictionary: local_data/gam_mono_and_disyllables_for_automatic_segmentation.csv
 
+  # Speaker id is used in the output csv file.
+  speaker id: gam-1-2
+
+  cast flags:
+    only words: False # Add only Utterance and Word Tiers.
+    utterance: True # Add Utterance Tier.
+    file: False # Add File Tier.

@@ -1,5 +1,6 @@
 #
-# Copyright (c) 2019-2022 Pertti Palo, Scott Moisik, Matthew Faytak, and Motoki Saito.
+# Copyright (c) 2019-2023 
+# Pertti Palo, Scott Moisik, Matthew Faytak, and Motoki Saito.
 #
 # This file is part of Speech Articulation ToolKIT 
 # (see https://github.com/giuthas/satkit/).
@@ -42,9 +43,27 @@ from satkit.modalities import Video
 _AAA_video_logger = logging.getLogger('satkit.AAA_video')
 
 
-def add_video(recording: Recording, preload: bool,
-                    path: Optional[Path]=None) -> None:
-    """Create a RawUltrasound Modality and add it to the Recording."""
+def add_video(recording: Recording, preload: bool = False,
+              path: Optional[Path] = None) -> None:
+    """
+    Create a RawUltrasound Modality and add it to the Recording.
+
+    Parameters
+    ----------
+    recording : Recording
+        _description_
+    preload : bool, optional
+        Should we load the data when creating the modality or not. Defaults to
+        False to prevent massive memory consumption. See also error below.
+    path : Optional[Path], optional
+        _description_, by default None
+
+    Raises
+    ------
+    NotImplementedError
+        Preloading video data has not been implemented yet. If you really,
+        really want to, this is the function where to do that.
+    """
     if not path:
         video_file = (recording.path/recording.basename).with_suffix(".avi")
     else:
@@ -53,7 +72,7 @@ def add_video(recording: Recording, preload: bool,
     # This is the correct value for fps for a de-interlaced
     # video according to Alan, and he should know having
     # written AAA.
-    if data_run_params['data properties']['data source'] is Datasource.aaa:
+    if data_run_params['data properties']['data source'] is Datasource.AAA:
         meta = {
             'FramesPerSec': 59.94
         }
@@ -77,5 +96,3 @@ def add_video(recording: Recording, preload: bool,
     else:
         notice = 'Note: ' + str(video_file) + " does not exist."
         _AAA_video_logger.warning(notice)
-
-

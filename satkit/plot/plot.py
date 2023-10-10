@@ -1,5 +1,6 @@
 #
-# Copyright (c) 2019-2022 Pertti Palo, Scott Moisik, Matthew Faytak, and Motoki Saito.
+# Copyright (c) 2019-2023 
+# Pertti Palo, Scott Moisik, Matthew Faytak, and Motoki Saito.
 #
 # This file is part of Speech Articulation ToolKIT 
 # (see https://github.com/giuthas/satkit/).
@@ -31,6 +32,7 @@
 
 # Built in packages
 import logging
+from enum import Enum
 from typing import List, Optional, Tuple, Union
 
 # Efficient array operations
@@ -41,24 +43,30 @@ from matplotlib.lines import Line2D
 # Local packages
 from satkit.gui.boundary_animation import AnimatableBoundary, BoundaryAnimator
 from satkit.satgrid import SatTier
+from scipy import signal as scipy_signal
 
 _plot_logger = logging.getLogger('satkit.plot')
 
-
+class Normalisation(Enum):
+    none = 'NONE'
+    peak = 'PEAK'
+    bottom = 'BOTTOM'
+    both = 'PEAK AND BOTTOM'
 
 def plot_timeseries(axes: Axes, 
             data: np.ndarray, 
             time: np.ndarray,
             xlim: Tuple[float, float], 
             ylim: Optional[Tuple[float, float]]=None, 
-            peak_normalise: bool=False,
+            normalise: Normalisation='NONE',
             number_of_ignored_frames: int=10,
             ylabel: Optional[str]=None,
             picker=None, 
             color: str="deepskyblue",
             linestyle: str="-", 
             alpha: float=1.0,
-            sampling_step=1):
+            sampling_step: int=1,
+            find_peaks: bool=False):
     """
     Plot a timeseries.
 
@@ -86,33 +94,69 @@ def plot_timeseries(axes: Axes,
     """
     plot_data = data[number_of_ignored_frames:]
     plot_time = time[number_of_ignored_frames:]
+
+    _plot_logger.debug("Normalisation is %s."%(normalise))
+    if normalise in (Normalisation.both, Normalisation.bottom):
+        plot_data = plot_data - np.min(plot_data)
+    if normalise in [Normalisation.both, Normalisation.peak]:
+        plot_data = plot_data/np.max(plot_data)
+
     if picker:
-        if peak_normalise:
-            axes.plot(plot_time[::sampling_step], plot_data[::sampling_step]/np.max(plot_data), 
-                color=color, lw=1, linestyle=linestyle, picker=picker, alpha=alpha)
-        else:
-            axes.plot(plot_time[::sampling_step], plot_data[::sampling_step], 
-                color=color, lw=1, linestyle=linestyle, picker=picker, alpha=alpha)
+        axes.plot(plot_time[::sampling_step], plot_data[::sampling_step], 
+            color=color, lw=1, linestyle=linestyle, picker=picker, alpha=alpha)
     else:
-        if peak_normalise:
-            axes.plot(plot_time[::sampling_step], plot_data[::sampling_step]/np.max(plot_data), 
-                color=color, lw=1, linestyle=linestyle, alpha=alpha)
-        else:
-            axes.plot(plot_time[::sampling_step], plot_data[::sampling_step], 
-                color=color, lw=1, linestyle=linestyle, alpha=alpha)
+        axes.plot(plot_time[::sampling_step], plot_data[::sampling_step], 
+            color=color, lw=1, linestyle=linestyle, alpha=alpha)
+
+
     # The official fix for the above curve not showing up on the legend.
     timeseries = Line2D([], [], color=color, lw=1, linestyle=linestyle)
 
+    if find_peaks:
+        mark_gesture_peaks(axes, plot_data, plot_time)
+        # mark_gesture_boundaries(axes, plot_data, plot_time)
+        
     axes.set_xlim(xlim)
+
     if ylim:
         axes.set_ylim(ylim)
-    elif peak_normalise:
+    elif normalise in [Normalisation.both]:
         axes.set_ylim([-0.05, 1.05])
+    elif normalise in [Normalisation.peak]:
+        axes.set_ylim([-0.05, 1.05])
+        # axes.set_yscale('log')
+
     if ylabel:
         axes.set_ylabel(ylabel)
 
     return timeseries
 
+def mark_gesture_peaks(axes, data, timevector) -> Line2D:
+    peaks, properties = find_gesture_peaks(data)
+    for peak in peaks:
+        line = axes.axvline(
+            x=timevector[peak], 
+            color="crimson", 
+            lw=1,
+            linestyle=':')            
+    return line
+
+def mark_gesture_boundaries(axes, data, timevector) -> Line2D:
+    peaks, properties = find_gesture_peaks(-data)
+    for peak in peaks:
+        line = axes.axvline(
+            x=timevector[peak], 
+            color="dodgerblue", 
+            lw=1,
+            linestyle=':')            
+    return line
+
+def find_gesture_peaks(data: np.ndarray):
+    search_data = data - np.min(data)
+    search_data = search_data/np.max(search_data)
+
+    peaks, properties = scipy_signal.find_peaks(search_data)#, distance=10, prominence=.05)
+    return peaks, properties
 
 def plot_satgrid_tier(axes: Axes, 
                     tier: SatTier, 
@@ -186,7 +230,7 @@ def plot_wav(
     ax.axvline(x=0, color="dimgrey", lw=1, linestyle=(0, (5, 10)))
 
     ax.set_xlim(xlim)
-    ax.set_ylim((-1.05, 1.05))
+    ax.set_ylim((-1.1, 1.1))
     ax.set_ylabel("Wave")
 
     return line
@@ -216,3 +260,27 @@ def plot_spectrogram(
     ax.set_ylabel(ylabel)
 
     return Pxx, freqs, bins, im
+
+def plot_density(
+        ax: Axes, 
+        frequencies: np.ndarray,
+        x_values: Optional[np.ndarray]=None, 
+        ylim: Optional[Tuple[float, float]]=None,
+        ylabel: str="Densities)", 
+        picker=None):
+
+    densities = frequencies/np.amax(frequencies)
+    if not x_values:
+        x_values = np.arange(len(densities))
+
+    line = None
+    if picker:
+        line = ax.plot(x_values, densities, color="k", lw=1, picker=picker)
+    else:
+        line = ax.plot(x_values, densities, color="k", lw=1)
+
+    if ylim:
+        ax.set_ylim(ylim)
+    ax.set_ylabel(ylabel)
+
+    return line

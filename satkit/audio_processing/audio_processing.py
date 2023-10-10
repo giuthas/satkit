@@ -1,5 +1,6 @@
 #
-# Copyright (c) 2019-2022 Pertti Palo, Scott Moisik, Matthew Faytak, and Motoki Saito.
+# Copyright (c) 2019-2023 
+# Pertti Palo, Scott Moisik, Matthew Faytak, and Motoki Saito.
 #
 # This file is part of Speech Articulation ToolKIT 
 # (see https://github.com/giuthas/satkit/).
@@ -35,6 +36,7 @@ import logging
 # Numpy and scipy
 import numpy as np
 from scipy.signal import butter, filtfilt, kaiser, sosfilt
+from icecream import ic
 
 _audio_logger = logging.getLogger('satkit.audio')
 
@@ -45,7 +47,7 @@ def high_pass_50(sampling_frequency):
     _audio_logger.debug("Generating high-pass filter.")
     stop = (50/(sampling_frequency/2))  # 50 Hz stop band
     b, a = butter(10, stop, 'highpass')
-    return(b, a)
+    return (b, a)
 
 
 def high_pass(sampling_frequency, stop_band):
@@ -64,16 +66,20 @@ def band_pass(sampling_frequency):
     low = 950.0 / nyq
     high = 1050.0 / nyq
     sos = butter(1, [low, high], btype='band', output='sos')
-    return(sos)
+    return (sos)
+
 
 class MainsFilter():
     mains_frequency = None
     mains_filter = None
 
-    def generate_mains_filter(sampling_frequency: float, mains_frequency: float):
+    def generate_mains_filter(sampling_frequency: float,
+                              mains_frequency: float):
         MainsFilter.mains_frequency = mains_frequency
-        MainsFilter.mains_filter = high_pass(sampling_frequency, mains_frequency)
-            
+        MainsFilter.mains_filter = high_pass(
+            sampling_frequency, mains_frequency)
+
+
 def detect_beep_and_speech(frames, sampling_frequency, b, a, name):
     """
     Find a 1kHz 50ms beep at the beginning of a sound sample.
@@ -96,7 +102,7 @@ def detect_beep_and_speech(frames, sampling_frequency, b, a, name):
 1    """
 
     _audio_logger.debug(
-        "Detecting beep onset and presence of speech in %s."%(name))
+        "Detecting beep onset and presence of speech in %s." % (name))
     hp_signal = filtfilt(b, a, frames)
     sos = band_pass(sampling_frequency)
     bp_signal = sosfilt(sos, frames)
@@ -135,7 +141,8 @@ def detect_beep_and_speech(frames, sampling_frequency, b, a, name):
     # Old int_time was used to almost correct the shift caused by windowing.
     # int_time = np.linspace(0, float(len(hp_signal) +
     # (window_length%2 - 1)/2.0)/fs, len(int_signal))
-    int_time = np.linspace(0, float(len(hp_signal))/sampling_frequency, len(hp_signal))
+    int_time = np.linspace(
+        0, float(len(hp_signal))/sampling_frequency, len(hp_signal))
     int_signal[int_time < 1] = -80
 
     # First form a rough estimate of where the beep is by detecting the first
@@ -160,7 +167,8 @@ def detect_beep_and_speech(frames, sampling_frequency, b, a, name):
 
     zero_crossings = np.where(
         np.diff(np.signbit(frames[beep_approx_index:roi_end])))[0]
-    beep_index = beep_approx_index + zero_crossings[0] + 1 - int(.001*sampling_frequency)
+    beep_index = beep_approx_index + \
+        zero_crossings[0] + 1 - int(.001*sampling_frequency)
     beep = int_time[beep_index]
 
     # check if the energy before the beep begins is less
@@ -176,5 +184,3 @@ def detect_beep_and_speech(frames, sampling_frequency, b, a, name):
         has_speech = False
 
     return (beep, has_speech)
-
-

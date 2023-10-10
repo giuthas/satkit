@@ -1,5 +1,6 @@
 #
-# Copyright (c) 2019-2022 Pertti Palo, Scott Moisik, Matthew Faytak, and Motoki Saito.
+# Copyright (c) 2019-2023 
+# Pertti Palo, Scott Moisik, Matthew Faytak, and Motoki Saito.
 #
 # This file is part of Speech Articulation ToolKIT 
 # (see https://github.com/giuthas/satkit/).
@@ -50,7 +51,7 @@ from PyQt5.QtCore import QCoreApplication
 from PyQt5.QtGui import QIntValidator
 from PyQt5.QtWidgets import QFileDialog
 from PyQt5.uic import loadUiType
-from satkit.configuration.configuration import config, data_run_params
+from satkit.configuration.configuration import config_dict, data_run_params
 from satkit.gui.qt_annotator_window import QtAnnotatorWindow
 from satkit.plot import plot_timeseries, plot_wav
 from satkit.plot.plot import plot_satgrid_tier
@@ -178,7 +179,7 @@ class Annotator():
                 self.recordings,
                 self.pickle_filename)
             _qt_annotator_logger.info(
-                "Wrote data to file {file}.", file = self.pickle_filename)
+                "Wrote data to file {file}.", file=self.pickle_filename)
         self.has_been_saved = True
 
     def export_cb(self):
@@ -256,7 +257,7 @@ class Annotator():
                 annotations['C1'] = recording.meta['prompt'][0]
                 writer.writerow(annotations)
             _qt_annotator_logger.info(
-                'Wrote onset data in file {file}.', file = filename)
+                'Wrote onset data in file {file}.', file=filename)
 
     def pd_category_cb(self):
         """
@@ -277,7 +278,6 @@ class Annotator():
         if radio_button.isChecked():
             self.current.annotations['tonguePosition'] = radio_button.text()
             self.has_been_saved = False
-
 
     def onpick_cb(self, event):
         """

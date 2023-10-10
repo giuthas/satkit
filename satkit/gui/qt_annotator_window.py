@@ -1,7 +1,8 @@
 #
-# Copyright (c) 2019-2022 Pertti Palo, Scott Moisik, Matthew Faytak, and Motoki Saito.
+# Copyright (c) 2019-2023
+# Pertti Palo, Scott Moisik, Matthew Faytak, and Motoki Saito.
 #
-# This file is part of Speech Articulation ToolKIT 
+# This file is part of Speech Articulation ToolKIT
 # (see https://github.com/giuthas/satkit/).
 #
 # This program is free software: you can redistribute it and/or modify
@@ -48,7 +49,6 @@ from satkit.plot import plot_timeseries, plot_wav
 Ui_MainWindow, QMainWindow = loadUiType('satkit/gui/qt_annotator.ui')
 
 _qt_annotator_logger = logging.getLogger('satkit.qt_annotator')
-
 
 
 class QtAnnotatorWindow(QMainWindow, Ui_MainWindow):
@@ -130,7 +130,6 @@ class QtAnnotatorWindow(QMainWindow, Ui_MainWindow):
         self.positionRB_3.toggled.connect(annotator.tongue_position_cb)
         self.positionRB_1.toggled.connect(annotator.tongue_position_cb)
 
-
         #
         # Graphs to be annotated and the waveform for reference.
         #
@@ -152,7 +151,6 @@ class QtAnnotatorWindow(QMainWindow, Ui_MainWindow):
         self.add_mpl_elements()
 
         self.show()
-
 
     def _get_title(self):
         """
@@ -244,20 +242,20 @@ class QtAnnotatorWindow(QMainWindow, Ui_MainWindow):
         pd = self.current.modalities['PD on RawUltrasound']
         ultra_time = pd.timevector - stimulus_onset
 
-        #self.xlim = [ultra_time[0] - 0.05, ultra_time[-1]+0.05]
+        # self.xlim = [ultra_time[0] - 0.05, ultra_time[-1]+0.05]
         self.xlim = [-0.25, 1.0]
 
         textgrid = self.current.textgrid
 
         # self.pd_boundaries = plot_pd(
-            # self.ax1, pd.data['pd'],
-            # ultra_time, self.xlim, textgrid, stimulus_onset,
-            # picker=PdQtAnnotator.line_xdirection_picker)
+        # self.ax1, pd.data['pd'],
+        # ultra_time, self.xlim, textgrid, stimulus_onset,
+        # picker=PdQtAnnotator.line_xdirection_picker)
         self.pd_boundaries = plot_timeseries(
             self.ax1, pd.data['pd'],
             ultra_time, self.xlim, textgrid, stimulus_onset)
         self.wav_boundaries = plot_wav(self.ax3, wav, wav_time, self.xlim,
-                 textgrid, stimulus_onset)
+                                       textgrid, stimulus_onset)
 
         if self.current.annotations['pdOnset'] > -1:
             self.ax1.axvline(x=self.current.annotations['pdOnset'],
@@ -291,4 +289,3 @@ class QtAnnotatorWindow(QMainWindow, Ui_MainWindow):
         array = np.flip(array, 0).copy()
         array = array.astype(np.int8)
         self.ultra_axes.imshow(array, interpolation='nearest', cmap='gray')
-

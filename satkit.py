@@ -1,5 +1,7 @@
+#!/usr/bin/env python3
 #
-# Copyright (c) 2019-2022 Pertti Palo, Scott Moisik, Matthew Faytak, and Motoki Saito.
+# Copyright (c) 2019-2023 
+# Pertti Palo, Scott Moisik, Matthew Faytak, and Motoki Saito.
 #
 # This file is part of Speech Articulation ToolKIT 
 # (see https://github.com/giuthas/satkit/).
@@ -30,10 +32,8 @@
 #
 
 # built-in modules
-import datetime
 import logging
 import sys
-import time
 from pathlib import Path
 from typing import Optional
 
@@ -41,8 +41,8 @@ from typing import Optional
 from PyQt5 import QtWidgets
 
 # local modules
-import satkit.configuration.configuration as configuration
-from satkit.metrics import pd
+from satkit import log_elapsed_time, set_logging_level
+from satkit.metrics import add_pd, peaks
 from satkit.modalities import RawUltrasound
 from satkit.qt_annotator import PdQtAnnotator
 from satkit.scripting_interface import (Operation, SatkitArgumentParser,
@@ -50,90 +50,68 @@ from satkit.scripting_interface import (Operation, SatkitArgumentParser,
                                         process_data, save_data)
 
 
-def set_up_logging(verbosity: Optional[int]):
-        """Set up logging with the logging module.
-
-        Main thing to do is set the level of printed output based on the
-        verbosity argument.
-        """
-        logger = logging.getLogger('satkit')
-        logger.setLevel(logging.DEBUG)
-
-        # also log to the console at a level determined by the --verbose flag
-        console_handler = logging.StreamHandler()  # sys.stderr
-
-        # Set the level of logging messages that will be printed to
-        # console/stderr.
-        if not verbosity:
-            console_handler.setLevel('WARNING')
-        elif verbosity < 1:
-            console_handler.setLevel('ERROR')
-        elif verbosity == 1:
-            console_handler.setLevel('WARNING')
-        elif verbosity == 2:
-            console_handler.setLevel('INFO')
-        elif verbosity >= 3:
-            console_handler.setLevel('DEBUG')
-        else:
-            logging.critical("Negative argument %s to verbose!",
-                str(verbosity))
-        logger.addHandler(console_handler)
-
-        logger.info('Data run started at %s.', str(datetime.datetime.now()))
-        
-        return logger
-
 def main():
     """Simple main to run the CLI back end and start the QT front end."""
-    start_time = time.time()
-
-    # Config needs to be loaded before parsing arguments, because it may affect
-    # how arguments are parsed, and parsed arguments may change config variables.
-    configuration.load_config()
 
     # Arguments need to be parsed before setting up logging so that we have
     # access to the verbosity argument.
     cli = SatkitArgumentParser("SATKIT")
 
-    logger = set_up_logging(cli.args.verbose)
+    logger = set_logging_level(cli.args.verbose)
 
     if cli.args.exclusion_filename:
-        recordings = load_data(Path(cli.args.load_path), Path(cli.args.exclusion_filename))
+        recording_session = load_data(
+            Path(cli.args.load_path),
+            Path(cli.args.exclusion_filename))
     else:
-        recordings = load_data(Path(cli.args.load_path), None)
+        recording_session = load_data(Path(cli.args.load_path), None)
 
-    #function_dict = {'pd':pd.pd, 'annd':annd.annd}
+    log_elapsed_time()
+
+    # function_dict = {'pd':pd.pd, 'annd':annd.annd}
+    pd_arguments = {
+        # 'norms': ['l0', 'l0.01', 'l0.1', 'l0.5', 'l1', 'l2', 'l4', 'l10', 'l_inf', 'd'],
+        'norms': ['l1'],
+        'mask_images': True,
+        'pd_on_interpolated_data': False,
+        'release_data_memory': True,
+        'preload': True}
+
     function_dict = {
-        'PD': (pd.add_pd, 
-        [RawUltrasound], 
-        {'mask_images': True, 'pd_on_interpolated_data': False, 'release_data_memory': True, 'preload': True})}
-    process_data(recordings=recordings, processing_functions=function_dict)
+        'PD': (add_pd,
+               [RawUltrasound],
+               pd_arguments)  # ,
+        # 'peaks': (peaks.time_series_peaks,
+        # [RawUltrasound], # TODO: figure out if this will actually work because this should be 'PD l1 on RawUltrasound' or something like that
+        # peak_arguments)
+    }
+    process_data(recordings=recording_session.recordings,
+                 processing_functions=function_dict)
+
+    # peaks.save_peaks('pd_l1', recordings)
 
     # operation = Operation(
-    #     processing_function = pd.add_pd, 
-    #     modality = RawUltrasound, 
+    #     processing_function = pd.add_pd,
+    #     modality = RawUltrasound,
     #     arguments= {'mask_images': True, 'pd_on_interpolated_data': True, 'release_data_memory': True, 'preload': True})
     # multi_process_data(recordings, operation)
 
-    logger.info('Data run ended at %s.', str(datetime.datetime.now()))
+    logger.info('Data run ended.')
 
     # save before plotting just in case.
     if cli.args.output_filename:
-        save_data(Path(cli.args.output_filename), recordings)
+        save_data(Path(cli.args.output_filename), recording_session)
 
     # Plot the data into files if asked to.
     if cli.args.plot:
         print("implement plotting to get results")
 
-
-    elapsed_time = time.time() - start_time
-    log_text = 'Elapsed time ' + str(elapsed_time)
-    logger.info(log_text)
+    log_elapsed_time()
 
     # Get the GUI running.
     app = QtWidgets.QApplication(sys.argv)
     # Apparently the assigment to an unused variable is needed to avoid a segfault.
-    annotator = PdQtAnnotator(recordings, cli.args)
+    annotator = PdQtAnnotator(recording_session, cli.args)
     sys.exit(app.exec_())
 
 

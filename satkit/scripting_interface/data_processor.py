@@ -1,5 +1,6 @@
 #
-# Copyright (c) 2019-2022 Pertti Palo, Scott Moisik, Matthew Faytak, and Motoki Saito.
+# Copyright (c) 2019-2023 
+# Pertti Palo, Scott Moisik, Matthew Faytak, and Motoki Saito.
 #
 # This file is part of Speech Articulation ToolKIT 
 # (see https://github.com/giuthas/satkit/).
@@ -48,7 +49,18 @@ class Operation:
 def process_data(
     recordings: List[Recording], 
     processing_functions: Dict) -> None:
-    
+    """
+    Apply processing functions to data.
+
+    Arguments: 
+    recordings is a list of Recordings to be processed. The results of applying
+        the functions get added to the Recordings as new Modalities.
+    processing_functions is a dictionary containing three keys:
+        'function' is a callable used to process a Recording,
+        'modality' is the Modality passed to the function, and 
+        'arguments' is a dict of arguments for the function.
+    """
+
     # calculate the metrics
     for recording in recordings:
         if recording.excluded:

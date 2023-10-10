@@ -1,5 +1,6 @@
 #
-# Copyright (c) 2019-2022 Pertti Palo, Scott Moisik, Matthew Faytak, and Motoki Saito.
+# Copyright (c) 2019-2023 
+# Pertti Palo, Scott Moisik, Matthew Faytak, and Motoki Saito.
 #
 # This file is part of Speech Articulation ToolKIT 
 # (see https://github.com/giuthas/satkit/).
@@ -30,52 +31,78 @@
 #
 import logging
 from pathlib import Path
-from typing import List
 
-import satkit.io as satkit_io
+from icecream import ic
+
+from satkit.audio_processing import MainsFilter
+from satkit.configuration import config_dict
+from satkit.constants import Datasource, SourceSuffix, SatkitSuffix
 from satkit.configuration import data_run_params
 from satkit.data_import import generate_aaa_recording_list
-from satkit.data_structures import Recording
+from satkit.data_structures import RecordingSession
+from satkit.save_and_load import load_recording_session
 
 logger = logging.getLogger('satkit.scripting')
 
+# TODO: change the name of this file to data_importer and move it to a more
+# appropriete submodule.
+
+# TODO: create and return a session rather than a list of recordings?
 
 
-def load_data(path: Path, exclusion_file: Path) -> List[Recording]:
+def load_data(path: Path, exclusion_file: Path) -> RecordingSession:
     """Handle loading data from individual files or a previously saved session."""
+    if exclusion_file:
+        data_run_params['data properties']['exclusion list'] = exclusion_file
+
+    if config_dict['mains frequency']:
+        MainsFilter.generate_mains_filter(
+            44100,
+            config_dict['mains frequency'])
+    else:
+        MainsFilter.generate_mains_filter(44100, 50)
+
     if not path.exists():
         logger.critical(
             'File or directory does not exist: %s.', path)
         logger.critical('Exiting.')
         quit()
     elif path.is_dir():
-        # this is the actual list of recordings that gets processed
-        # token_list includes meta data contained outwith the ult file
-        recordings = read_data_from_files(path, exclusion_file)
-    elif path.suffix == '.pickle':
-        recordings = satkit_io.load_pickled_data(path)
-    elif path.suffix == '.json':
-        recordings = satkit_io.load_json_data(path)
+        session = read_recording_session_from_dir(path)
+    elif path.suffix == '.satkit_meta':
+        session = load_recording_session(path=path)
     else:
         logger.error(
             'Unsupported filetype: %s.', path)
-    
-    return recordings
 
-def read_data_from_files(path: Path, exclusion_file: Path):
+    return session
+
+
+def read_recording_session_from_dir(
+        path: Path) -> RecordingSession:
     """
     Wrapper for reading data from a directory full of files.
 
     Having this as a separate method allows subclasses to change
     arguments or even the parser.
 
-    Note that to make data loading work the in a consistent way,
-    this method just returns the data and saving it in a
+    Note that to make data loading work in a consistent way,
+    this method just returns the data and saving it in an
     instance variable is left for the caller to handle.
     """
-    if exclusion_file:
-        data_run_params['data properties']['exclusion list'] = exclusion_file
+    containing_dir = path.parts[-1]
 
-    recordings = generate_aaa_recording_list(path)
-    return recordings
+    if (path/(containing_dir + '.RecordingSession' + SatkitSuffix.META)).is_file():
+        session = load_recording_session(directory=path)
+    elif list(path.glob('*' + SourceSuffix.AAA_ULTRA)):
+        ic(containing_dir+SatkitSuffix.META)
+        recordings = generate_aaa_recording_list(path)
 
+        session = RecordingSession(
+            name=containing_dir, path=path, datasource=Datasource.AAA,
+            recordings=recordings)
+    else:
+        logger.error(
+            'Could not find a suitable importer: %s.', path)
+
+    return session

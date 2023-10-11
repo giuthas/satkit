@@ -1,8 +1,8 @@
 #
-# Copyright (c) 2019-2023 
+# Copyright (c) 2019-2023
 # Pertti Palo, Scott Moisik, Matthew Faytak, and Motoki Saito.
 #
-# This file is part of Speech Articulation ToolKIT 
+# This file is part of Speech Articulation ToolKIT
 # (see https://github.com/giuthas/satkit/).
 #
 # This program is free software: you can redistribute it and/or modify
@@ -31,11 +31,31 @@
 #
 from dataclasses import dataclass
 from enum import Enum
-from typing import Union
 
 # TODO 1.0: Decouple program and file format versions at version 1.0.
 SATKIT_VERSION = '0.6'
 SATKIT_FILE_VERSION = SATKIT_VERSION
+
+
+class Coordinates(Enum):
+    """
+    Enum to differentiate coordinate systems.
+    """
+    CARTESIAN = 'cartesian'
+    POLAR = 'polar'
+
+
+class Datasource(Enum):
+    """
+    Data sources SATKIT can handle.
+
+    Used in saving and loading to identify the data source in config, as well as
+    in meta and skip the step of trying to figure the data source out from the
+    type of files present.
+    """
+    AAA = "AAA"
+    # EVA = "EVA"
+    RASL = "RASL"
 
 
 @dataclass(frozen=True)
@@ -53,6 +73,15 @@ class SatkitSuffix():
 
     def __str__(self):
         return self.value
+
+
+class SavedObjectTypes(Enum):
+    # TODO 1.0: Check if this is actually in use.
+    """
+    """
+    RECORDING_SESSION = "RecordingSession"
+    RECORDING = "Recording"
+    MODALITY = "Modality"
 
 
 @dataclass(frozen=True)
@@ -79,25 +108,3 @@ class SourceSuffix():
 
     def __str__(self):
         return self.value
-
-
-class Datasource(Enum):
-    """
-    Data sources SATKIT can handle.
-
-    Used in saving and loading to identify the data source in config, as well as
-    in meta and skip the step of trying to figure the data source out from the
-    type of files present.
-    """
-    AAA = "AAA"
-    # EVA = "EVA"
-    RASL = "RASL"
-
-
-class SavedObjectTypes(Enum):
-    # TODO 1.0: Check if this is actually in use.
-    """
-    """
-    RECORDING_SESSION = "RecordingSession"
-    RECORDING = "Recording"
-    MODALITY = "Modality"

@@ -29,6 +29,8 @@
 # citations.bib in BibTeX format.
 #
 
+from dataclasses import dataclass
+from enum import Enum
 import logging
 import sys
 from copy import deepcopy
@@ -37,6 +39,7 @@ from typing import Optional
 
 # Numpy
 import numpy as np
+from satkit.constants import Coordinates
 # local modules
 from satkit.data_structures import Modality, ModalityData, Recording
 from satkit.import_formats import read_ult
@@ -45,20 +48,19 @@ from satkit.interpolate_raw_uti import to_fan, to_fan_2d
 _modalities_logger = logging.getLogger('satkit.modalities')
 
 
+@dataclass
+class SplineMetadata:
+    coordinates: Coordinates
+    sample_points: int
+    confidence_exists: bool
+
+# TODO: check that the initialisation corresponds to the way these are handled currently
+
+
 class Splines(Modality):
     """
     Splines from 2D ultrasound data.
     """
-
-    requiredMetaKeys = [
-        'meta_file',
-        'Angle',
-        'FramesPerSec',
-        'NumVectors',
-        'PixPerVector',
-        'PixelsPerMm',
-        'ZeroOffset'
-    ]
 
     def __init__(self,
                  recording: Recording,
@@ -68,24 +70,6 @@ class Splines(Modality):
                  time_offset: Optional[float] = None,
                  meta: Optional[dict] = None
                  ) -> None:
-        """
-        Create a RawUltrasound Modality.
-
-        Positional arguments:
-        recording -- the containing Recording.        
-
-        Keyword arguments:
-        data_path -- path of the ultrasound file
-        load_path -- path of the saved data - both ultrasound and metadata
-        parsed_data -- ModalityData object containing raw ultrasound, sampling rate,
-            and either timevector and/or time_offset. Providing a timevector 
-            overrides any time_offset value given, but in absence of a 
-            timevector the time_offset will be applied on reading the data 
-            from file. 
-        meta -- a dict with (at least) the keys listed in 
-            RawUltrasound.requiredMetaKeys. Extra keys will be ignored. 
-            Default is None.
-        """
         # Explicitly copy meta data fields to ensure that we have what we expected to get.
         if meta != None:
             try:
@@ -131,60 +115,18 @@ class Splines(Modality):
     def data(self, data) -> None:
         super()._data_setter(data)
 
-    def interpolated_image(self, index):
-        """
-        Return an interpolated version of the ultrasound frame at index.
-
-        A new interpolated image is calculated, if necessary. To avoid large memory overheads
-        only the current frame's interpolated version maybe stored in memory.
-
-        Arguments:
-        index - the index of the ultrasound frame to be returned
-        """
-        if self.video_has_been_stored:
-            half_way = int(self.stored_video.shape[0]/2)
-            return self.stored_video[half_way, :, :].copy()
-        elif self._stored_index and self._stored_index == index:
-            return self._stored_image
+    @property
+    def in_polar(self) -> np.ndarray:
+        if self.meta_data.coordinates is Coordinates.POLAR:
+            return self.data
         else:
-            self._stored_index = index
-            # frame = scipy_medfilt(self.data[index, :, :].copy(), [1,15])
-            frame = self.data[index, :, :].copy()
-            half = int(frame.shape[1]/2)
-            frame[:, half:] = 0
-            frame = np.transpose(frame)
-            frame = np.flip(frame, 0)
-            self._stored_image = to_fan_2d(
-                frame,
-                angle=self.meta['Angle'],
-                zero_offset=self.meta['ZeroOffset'],
-                pix_per_mm=self.meta['PixelsPerMm'],
-                num_vectors=self.meta['NumVectors'])
-            return self._stored_image
+            raise NotImplementedError(
+                "Can't yet convert cartesian coordinates to polar in Splines.")
 
-    def interpolated_frames(self) -> np.ndarray:
-        """
-        Return an interpolated version of the ultrasound frame at index.
-
-        A new interpolated image is calculated, if necessary. To avoid large memory overheads
-        only the current frame's interpolated version maybe stored in memory.
-
-        Arguments:
-        index - the index of the ultrasound frame to be returned
-        """
-        data = self.data.copy()
-        data = np.transpose(data, (0, 2, 1))
-        data = np.flip(data, 1)
-
-        self.video_has_been_stored = True
-        video = to_fan(
-            data,
-            angle=self.meta['Angle'],
-            zero_offset=self.meta['ZeroOffset'],
-            pix_per_mm=self.meta['PixelsPerMm'],
-            num_vectors=self.meta['NumVectors'],
-            show_progress=True)
-        half = int(video.shape[1]/2)
-        self.stored_video = video.copy()
-        self.stored_video[:, :half, :] = 0
-        return video
+    @property
+    def in_cartesian(self) -> np.ndarray:
+        if self.meta_data.coordinates is Coordinates.CARTESIAN:
+            return self.data
+        else:
+            raise NotImplementedError(
+                "Can't yet convert polar coordinates to cartesian in Splines.")

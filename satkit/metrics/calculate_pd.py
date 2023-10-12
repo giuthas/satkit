@@ -41,7 +41,6 @@ from icecream import ic
 from satkit.data_structures import Modality, ModalityData, Recording
 from satkit.errors import UnrecognisedNormError
 from .pd import ImageMask, PdParameters, PD
-from satkit.helpers.processing_helpers import product_dict
 
 _pd_logger = logging.getLogger('satkit.pd')
 

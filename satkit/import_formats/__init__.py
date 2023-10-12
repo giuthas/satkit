@@ -1,8 +1,8 @@
 #
-# Copyright (c) 2019-2023 
+# Copyright (c) 2019-2023
 # Pertti Palo, Scott Moisik, Matthew Faytak, and Motoki Saito.
 #
-# This file is part of Speech Articulation ToolKIT 
+# This file is part of Speech Articulation ToolKIT
 # (see https://github.com/giuthas/satkit/).
 #
 # This program is free software: you can redistribute it and/or modify
@@ -29,7 +29,12 @@
 # articles listed in README.markdown. They can also be found in
 # citations.bib in BibTeX format.
 #
+"""
+Reading functions for the imported formats.
+"""
+
 from .avi_read import read_avi
 from .dicom_ultra_read import read_3d_ultrasound_dicom
 from .ult_read import read_ult
 from .wav_read import read_wav
+from .splines_read import read_splines

@@ -29,8 +29,6 @@
 # citations.bib in BibTeX format.
 #
 
-from dataclasses import dataclass
-from enum import Enum
 import logging
 import sys
 from copy import deepcopy
@@ -43,19 +41,16 @@ from satkit.constants import Coordinates
 # local modules
 from satkit.data_structures import Modality, ModalityData, Recording
 from satkit.helpers.computational import cartesian_to_polar, polar_to_cartesian
-from satkit.import_formats import read_ult
-from satkit.interpolate_raw_uti import to_fan, to_fan_2d
+from satkit.import_formats import read_splines
 
 _modalities_logger = logging.getLogger('satkit.modalities')
 
 
-@dataclass
-class SplineMetadata:
-    coordinates: Coordinates
-    sample_points: int
-    confidence_exists: bool
-
-# TODO: check that the initialisation corresponds to the way these are handled currently
+# @dataclass
+# class SplineMetadata:
+#     coordinates: Coordinates
+#     sample_points: int
+#     confidence_exists: bool
 
 
 class Splines(Modality):
@@ -112,7 +107,7 @@ class Splines(Modality):
             time_offset=time_offset)
 
     def _read_data(self) -> ModalityData:
-        return read_ult(self.data_path, self.meta, self._time_offset)
+        return read_splines(self.data_path, self.meta, self._time_offset)
 
     @property
     def data(self) -> np.ndarray:

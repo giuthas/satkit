@@ -1,8 +1,8 @@
 #
-# Copyright (c) 2019-2023 
+# Copyright (c) 2019-2023
 # Pertti Palo, Scott Moisik, Matthew Faytak, and Motoki Saito.
 #
-# This file is part of Speech Articulation ToolKIT 
+# This file is part of Speech Articulation ToolKIT
 # (see https://github.com/giuthas/satkit/).
 #
 # This program is free software: you can redistribute it and/or modify
@@ -40,8 +40,9 @@ import numpy as np
 from icecream import ic
 from pydantic import PositiveInt
 
-from satkit.data_structures import Modality, ModalityData, ModalityMetaData, Recording
-from satkit.processing_helpers import product_dict
+from satkit.data_structures import (
+    Modality, ModalityData, ModalityMetaData, Recording)
+from satkit.helpers.processing_helpers import product_dict
 
 _pd_logger = logging.getLogger('satkit.pd')
 
@@ -105,11 +106,12 @@ class PD(Modality):
         'inf',
     ]
 
+    @staticmethod
     def generate_name(params: PdParameters) -> str:
         """
         Generate a PD modality name to be used as its unique identifier.
 
-        This class method **defines** what the names are. This implementation
+        This statit method **defines** what the names are. This implementation
         pattern (PD.name calls this and any where that needs to guess what a
         name would be calls this) is how all derived Modalities should work.
 
@@ -142,10 +144,11 @@ class PD(Modality):
 
         return name_string
 
+    @staticmethod
     def get_names_and_meta(
         modality: Modality,
-        norms: list[str] = ['l2'],
-        timesteps: list[int] = [1],
+        norms: list[str] = None,
+        timesteps: list[int] = None,
         pd_on_interpolated_data: bool = False,
         mask_images: bool = False,
         release_data_memory: bool = True
@@ -162,9 +165,9 @@ class PD(Modality):
         modality : Modality
             parent modality that PD would be derived from
         norms : List[str], optional
-            list of norms to be calculated, by default ['l2']
+            list of norms to be calculated, defaults to 'l2'.
         timesteps : List[int], optional
-            list of timesteps to be used, by default [1]
+            list of timesteps to be used, defaults to 1.
         pd_on_interpolated_data : bool, optional
             indicates if interpolated data should be used for instead of
             RawUltrasound, by default False
@@ -177,6 +180,11 @@ class PD(Modality):
             Names that the calculated PD instances would have.
         """
         parent_name = modality.__name__
+
+        if not norms:
+            norms = ['l2']
+        if not timesteps:
+            timesteps = [1]
 
         if mask_images:
             masks = list(ImageMask)

@@ -1,8 +1,8 @@
 #
-# Copyright (c) 2019-2023 
+# Copyright (c) 2019-2023
 # Pertti Palo, Scott Moisik, Matthew Faytak, and Motoki Saito.
 #
-# This file is part of Speech Articulation ToolKIT 
+# This file is part of Speech Articulation ToolKIT
 # (see https://github.com/giuthas/satkit/).
 #
 # This program is free software: you can redistribute it and/or modify
@@ -38,10 +38,10 @@ from typing import Optional
 import numpy as np
 from icecream import ic
 # local modules
-from satkit.data_structures import Modality, ModalityData, ModalityMetaData, Recording
+from satkit.data_structures import Modality, ModalityData, Recording
 from satkit.errors import UnrecognisedNormError
 from .pd import ImageMask, PdParameters, PD
-from satkit.processing_helpers import product_dict
+from satkit.helpers.processing_helpers import product_dict
 
 _pd_logger = logging.getLogger('satkit.pd')
 

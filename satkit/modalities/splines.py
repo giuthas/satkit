@@ -42,6 +42,7 @@ import numpy as np
 from satkit.constants import Coordinates
 # local modules
 from satkit.data_structures import Modality, ModalityData, Recording
+from satkit.helpers.computational import cartesian_to_polar, polar_to_cartesian
 from satkit.import_formats import read_ult
 from satkit.interpolate_raw_uti import to_fan, to_fan_2d
 
@@ -62,9 +63,21 @@ class Splines(Modality):
     Splines from 2D ultrasound data.
     """
 
+    requiredMetaKeys = [
+        'meta_file',
+        'Angle',
+        'FramesPerSec',
+        'NumVectors',
+        'PixPerVector',
+        'PixelsPerMm',
+        'ZeroOffset',
+        'coordinates'
+    ]
+
     def __init__(self,
                  recording: Recording,
                  data_path: Optional[Path] = None,
+                 meta_path: Optional[Path] = None,
                  load_path: Optional[Path] = None,
                  parsed_data: Optional[ModalityData] = None,
                  time_offset: Optional[float] = None,
@@ -93,16 +106,10 @@ class Splines(Modality):
         super().__init__(
             recording=recording,
             data_path=data_path,
+            meta_path=meta_path,
             load_path=load_path,
-            parent=None,
             parsed_data=parsed_data,
             time_offset=time_offset)
-
-        # TODO: these are related to GUI and should really be in a decorator class and not here.
-        # State variables for fast retrieval of previously tagged ultrasound frames.
-        self._stored_index = None
-        self._stored_image = None
-        self.video_has_been_stored = False
 
     def _read_data(self) -> ModalityData:
         return read_ult(self.data_path, self.meta, self._time_offset)
@@ -120,13 +127,11 @@ class Splines(Modality):
         if self.meta_data.coordinates is Coordinates.POLAR:
             return self.data
         else:
-            raise NotImplementedError(
-                "Can't yet convert cartesian coordinates to polar in Splines.")
+            return cartesian_to_polar(self.data.data)
 
     @property
     def in_cartesian(self) -> np.ndarray:
         if self.meta_data.coordinates is Coordinates.CARTESIAN:
             return self.data
         else:
-            raise NotImplementedError(
-                "Can't yet convert polar coordinates to cartesian in Splines.")
+            return polar_to_cartesian(self.data.data)

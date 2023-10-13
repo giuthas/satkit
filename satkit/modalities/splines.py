@@ -40,7 +40,8 @@ import numpy as np
 from satkit.constants import Coordinates
 # local modules
 from satkit.data_structures import Modality, ModalityData, Recording
-from satkit.helpers.computational import cartesian_to_polar, polar_to_cartesian
+from satkit.helpers.computational import (
+    cartesian_to_polar, polar_to_cartesian)
 from satkit.import_formats import read_splines
 
 _modalities_logger = logging.getLogger('satkit.modalities')
@@ -78,15 +79,19 @@ class Splines(Modality):
                  time_offset: Optional[float] = None,
                  meta: Optional[dict] = None
                  ) -> None:
-        # Explicitly copy meta data fields to ensure that we have what we expected to get.
+        # Explicitly copy meta data fields to ensure that we have what we
+        # expected to get.
+        # TODO: convert this and other similar cases to use this instead:
+        # https://stackoverflow.com/a/64118589/12970261
         if meta != None:
             try:
                 wanted_meta = {key: meta[key]
                                for key in Splines.requiredMetaKeys}
                 self.meta = deepcopy(wanted_meta)
             except KeyError:
-                # Missing metadata for one recording may be ok and this could be handled with just
-                # a call to _recording_logger.critical and setting self.excluded = True
+                # Missing metadata for one recording may be ok and this could
+                # be handled with just a call to _recording_logger.critical and
+                # setting self.excluded = True
                 notFound = set(Splines.requiredMetaKeys) - set(meta)
                 _modalities_logger.critical(
                     "Part of metadata missing when processing %s.",

@@ -1,8 +1,8 @@
 #
-# Copyright (c) 2019-2023 
+# Copyright (c) 2019-2023
 # Pertti Palo, Scott Moisik, Matthew Faytak, and Motoki Saito.
 #
-# This file is part of Speech Articulation ToolKIT 
+# This file is part of Speech Articulation ToolKIT
 # (see https://github.com/giuthas/satkit/).
 #
 # This program is free software: you can redistribute it and/or modify
@@ -47,8 +47,6 @@ logger = logging.getLogger('satkit.scripting')
 # TODO: change the name of this file to data_importer and move it to a more
 # appropriete submodule.
 
-# TODO: create and return a session rather than a list of recordings?
-
 
 def load_data(path: Path, exclusion_file: Path) -> RecordingSession:
     """Handle loading data from individual files or a previously saved session."""
@@ -70,7 +68,7 @@ def load_data(path: Path, exclusion_file: Path) -> RecordingSession:
     elif path.is_dir():
         session = read_recording_session_from_dir(path)
     elif path.suffix == '.satkit_meta':
-        session = load_recording_session(path=path)
+        session = load_recording_session(path)
     else:
         logger.error(
             'Unsupported filetype: %s.', path)

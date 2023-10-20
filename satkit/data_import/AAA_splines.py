@@ -1,8 +1,8 @@
 #
-# Copyright (c) 2019-2023 
+# Copyright (c) 2019-2023
 # Pertti Palo, Scott Moisik, Matthew Faytak, and Motoki Saito.
 #
-# This file is part of Speech Articulation ToolKIT 
+# This file is part of Speech Articulation ToolKIT
 # (see https://github.com/giuthas/satkit/).
 #
 # This program is free software: you can redistribute it and/or modify
@@ -30,7 +30,7 @@
 # citations.bib in BibTeX format.
 #
 
-import datetime
+from datetime import datetime
 import logging
 from contextlib import closing
 
@@ -52,15 +52,6 @@ def parse_spline_line(line):
         'prompt': cells[3],
         'nro_spline_points': int(cells[4]),
         'beg': 0, 'end': 42}
-
-    # token['x'] = np.fromiter(cells[8:8+token['nro_spline_points']:2], dtype='float')
-    # token['y'] = np.fromiter(cells[9:9+token['nro_spline_points']:2], dtype='float')
-
-    #    temp = [token['x'], token['y']]
-    #    nans = np.sum(np.isnan(temp), axis=0)
-    #    print(token['prompt'])
-    #    print('first ' + str(nans[::-1].cumsum(0).argmax(0)))
-    #    print('last ' + str(nans.cumsum(0).argmax(0)))
 
     token['r'] = np.fromiter(
         cells[5: 5 + token['nro_spline_points']],
@@ -119,6 +110,6 @@ def add_splines_from_file(recording_list, spline_file) -> None:
                 if row['date_and_time'] == token['date_and_time']]
             token['splines'] = table
             _AAA_spline_logger.debug(
-                token['prompt'] + ' has ' + str(len(table)) + 'splines.')
-    
+                "%s has %d splines.", token['prompt'], len(table))
+
     # return recording_list

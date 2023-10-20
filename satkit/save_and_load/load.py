@@ -37,14 +37,14 @@ from typing import Union
 import numpy as np
 from icecream import ic
 import nestedtext
+from satkit.constants import SatkitSuffix
+from satkit.data_import import modality_adders
+from satkit.data_structures import ModalityData, Recording, RecordingSession
+from satkit.metrics import metrics
+
 from .save_and_load_helpers import (
     ModalityListingLoadschema, ModalityLoadSchema, RecordingLoadSchema,
     RecordingSessionLoadSchema)
-from satkit.configuration import config_dict
-from satkit.constants import SatkitSuffix
-from satkit.data_import import modality_adders
-from satkit.data_structures import Modality, ModalityData, Recording, RecordingSession
-from satkit.metrics import metrics
 
 _recording_loader_logger = logging.getLogger('satkit.recording_loader')
 

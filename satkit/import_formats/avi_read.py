@@ -1,8 +1,8 @@
 #
-# Copyright (c) 2019-2023 
+# Copyright (c) 2019-2023
 # Pertti Palo, Scott Moisik, Matthew Faytak, and Motoki Saito.
 #
-# This file is part of Speech Articulation ToolKIT 
+# This file is part of Speech Articulation ToolKIT
 # (see https://github.com/giuthas/satkit/).
 #
 # This program is free software: you can redistribute it and/or modify
@@ -72,4 +72,4 @@ def read_avi(path: Path, meta: dict, time_offset: float) -> ModalityData:
     # while at the same time dropping a suitable number
     # (most likely = timestep) of timestamps
 
-    return ModalityData(data, timevector, meta['FramesPerSec'])
+    return ModalityData(data, meta['FramesPerSec'], timevector)

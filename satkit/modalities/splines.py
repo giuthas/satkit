@@ -1,5 +1,6 @@
 #
-# Copyright (c) 2019-2022 Pertti Palo, Scott Moisik, Matthew Faytak, and Motoki Saito.
+# Copyright (c) 2019-2023
+# Pertti Palo, Scott Moisik, Matthew Faytak, and Motoki Saito.
 #
 # This file is part of Speech Articulation ToolKIT
 # (see https://github.com/giuthas/satkit/).
@@ -83,7 +84,7 @@ class Splines(Modality):
         # expected to get.
         # TODO: convert this and other similar cases to use this instead:
         # https://stackoverflow.com/a/64118589/12970261
-        if meta != None:
+        if meta is not None:
             try:
                 wanted_meta = {key: meta[key]
                                for key in Splines.requiredMetaKeys}
@@ -92,12 +93,12 @@ class Splines(Modality):
                 # Missing metadata for one recording may be ok and this could
                 # be handled with just a call to _recording_logger.critical and
                 # setting self.excluded = True
-                notFound = set(Splines.requiredMetaKeys) - set(meta)
+                not_found = set(Splines.requiredMetaKeys) - set(meta)
                 _modalities_logger.critical(
                     "Part of metadata missing when processing %s.",
                     self.meta['filename'])
                 _modalities_logger.critical(
-                    "Could not find %s.", str(notFound))
+                    "Could not find %s.", str(not_found))
                 _modalities_logger.critical('Exiting.')
                 sys.exit()
 
@@ -124,6 +125,14 @@ class Splines(Modality):
 
     @property
     def in_polar(self) -> np.ndarray:
+        """
+        Spline coordinates in polar coordiantes.
+
+        Returns
+        -------
+        np.ndarray
+            The coordinates
+        """
         if self.meta_data.coordinates is Coordinates.POLAR:
             return self.data
         else:
@@ -131,6 +140,14 @@ class Splines(Modality):
 
     @property
     def in_cartesian(self) -> np.ndarray:
+        """
+        Spline coordinates in Cartesian coordiantes.
+
+        Returns
+        -------
+        np.ndarray
+            The coordinates
+        """
         if self.meta_data.coordinates is Coordinates.CARTESIAN:
             return self.data
         else:

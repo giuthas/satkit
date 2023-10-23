@@ -55,11 +55,7 @@ _raw_plot_params_dict = {}
 
 class DatasourceValidator(ScalarValidator):
     """
-    Validate yaml representing a Path.
-
-    Please note that empty fields are interpeted as not available and
-    represented by None. If you want to specify current working directory, use
-    '.'
+    Validate yaml representing a Datasource.
     """
 
     def validate_scalar(self, chunk):

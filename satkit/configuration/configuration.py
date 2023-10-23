@@ -69,7 +69,8 @@ class DatasourceValidator(ScalarValidator):
             except ValueError:
                 values = [ds.value for ds in Datasource]
                 print(
-                    f"Error. Only following values for data source are recognised: {str(values)}")
+                    f"Error. Only following values for data source are"
+                    f"recognised: {str(values)}")
                 raise
         else:
             return None
@@ -122,7 +123,7 @@ def load_main_config(filepath: Union[Path, str, None] = None) -> None:
     global _raw_config_dict
 
     if filepath.is_file():
-        with closing(open(filepath, 'r')) as yaml_file:
+        with closing(open(filepath, 'r', encoding='utf8')) as yaml_file:
             schema = Map({
                 "epsilon": Float(),
                 "mains frequency": Float(),
@@ -150,8 +151,7 @@ def load_run_params(filepath: Union[Path, str, None] = None) -> None:
     exist, report this and exit.
     """
     if filepath is None:
-        print(f"Fatal error in reading {filepath}:")
-        print(error)
+        print("Fatal error in loading run parameters: filepath is None")
         sys.exit()
     elif isinstance(filepath, str):
         filepath = Path(filepath)
@@ -160,7 +160,7 @@ def load_run_params(filepath: Union[Path, str, None] = None) -> None:
     global _raw_data_run_params_dict
 
     if filepath.is_file():
-        with closing(open(filepath, 'r')) as yaml_file:
+        with closing(open(filepath, 'r', encoding='utf8')) as yaml_file:
             schema = Map({
                 "data properties": Map({
                     "data source": DatasourceValidator(),
@@ -206,8 +206,7 @@ def load_gui_params(filepath: Union[Path, str, None] = None) -> None:
     exist, report this and exit.
     """
     if filepath is None:
-        print(f"Fatal error in reading {filepath}:")
-        print(error)
+        print("Fatal error in loading run parameters: filepath is None")
         sys.exit()
     elif isinstance(filepath, str):
         filepath = Path(filepath)
@@ -216,7 +215,7 @@ def load_gui_params(filepath: Union[Path, str, None] = None) -> None:
     global _raw_gui_params_dict
 
     if filepath.is_file():
-        with closing(open(filepath, 'r')) as yaml_file:
+        with closing(open(filepath, 'r', encoding='uft8')) as yaml_file:
             schema = Map({
                 "data/tier height ratios": Map({
                     "data": Int(),
@@ -257,7 +256,7 @@ def load_gui_params(filepath: Union[Path, str, None] = None) -> None:
 
 def load_plot_params(filepath: Union[Path, str, None] = None) -> None:
     """
-    Read the plot file from filepath.
+    Read the plot configuration file from filepath.
 
     Not yet implemented. Will raise a NotImplementedError.
     """
@@ -265,8 +264,7 @@ def load_plot_params(filepath: Union[Path, str, None] = None) -> None:
     raise NotImplementedError
 
     if filepath is None:
-        print(f"Fatal error in reading {filepath}:")
-        print(error)
+        print("Fatal error in loading run parameters: filepath is None")
         sys.exit()
     elif isinstance(filepath, str):
         filepath = Path(filepath)
@@ -275,7 +273,7 @@ def load_plot_params(filepath: Union[Path, str, None] = None) -> None:
     global _raw_plot_params_dict
 
     if filepath.is_file():
-        with closing(open(filepath, 'r')) as yaml_file:
+        with closing(open(filepath, 'r', encoding='uft8')) as yaml_file:
             schema = Map({
                 "data/tier height ratios": Map({
                     "data": Int(),

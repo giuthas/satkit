@@ -168,10 +168,11 @@ class Recording:
                 textgrid = textgrids.TextGrid(self._textgrid_path)
                 _datastructures_logger.info("Read textgrid in %s.",
                                             self._textgrid_path)
-            except Exception as e:
+            except Exception as exception:
                 _datastructures_logger.critical(
                     "Could not read textgrid in %s.", self._textgrid_path)
-                _datastructures_logger.critical("Failed with: %s.", str(e))
+                _datastructures_logger.critical(
+                    "Failed with: %s.", str(exception))
                 _datastructures_logger.critical("Creating an empty textgrid "
                                                 + "instead.")
                 textgrid = textgrids.TextGrid()

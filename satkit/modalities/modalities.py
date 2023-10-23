@@ -1,8 +1,8 @@
 #
-# Copyright (c) 2019-2023 
+# Copyright (c) 2019-2023
 # Pertti Palo, Scott Moisik, Matthew Faytak, and Motoki Saito.
 #
-# This file is part of Speech Articulation ToolKIT 
+# This file is part of Speech Articulation ToolKIT
 # (see https://github.com/giuthas/satkit/).
 #
 # This program is free software: you can redistribute it and/or modify
@@ -111,12 +111,12 @@ class MonoAudio(Modality):
     # TODO: uncomment and implement when implementing the save features.
     # def _load_data(self):
         # """
-        # Call io functions to load wav data, and any wav related meta saved with it.
+        # Call io functions to load wav data, and any wav related meta
+        # saved with it.
 
-        # The wav data itself is just the original file, but along that a metadata
-        # save file will be read as well to recover any go-signal or speech detection
-        # results.
-        # """
+        # The wav data itself is just the original file, but along that a
+        # metadata save file will be read as well to recover any go-signal or
+        # speech detection results. """
 
     def get_meta(self) -> dict:
         return {'sampling_rate': self.sampling_rate}
@@ -155,30 +155,32 @@ class RawUltrasound(Modality):
         Keyword arguments:
         data_path -- path of the ultrasound file
         load_path -- path of the saved data - both ultrasound and metadata
-        parsed_data -- ModalityData object containing raw ultrasound, sampling rate,
-            and either timevector and/or time_offset. Providing a timevector 
-            overrides any time_offset value given, but in absence of a 
-            timevector the time_offset will be applied on reading the data 
-            from file. 
+        parsed_data -- ModalityData object containing raw ultrasound,
+            sampling rate, and either timevector and/or time_offset.
+            Providing a timevector overrides any time_offset value given,
+            but in absence of a timevector the time_offset will be applied
+            on reading the data from file. 
         meta -- a dict with (at least) the keys listed in 
             RawUltrasound.requiredMetaKeys. Extra keys will be ignored. 
             Default is None.
         """
-        # Explicitly copy meta data fields to ensure that we have what we expected to get.
-        if meta != None:
+        # Explicitly copy meta data fields to ensure that we have what we
+        # expected to get.
+        if meta is not None:
             try:
                 wanted_meta = {key: meta[key]
                                for key in RawUltrasound.requiredMetaKeys}
                 self.meta = deepcopy(wanted_meta)
             except KeyError:
-                # Missing metadata for one recording may be ok and this could be handled with just
-                # a call to _recording_logger.critical and setting self.excluded = True
-                notFound = set(RawUltrasound.requiredMetaKeys) - set(meta)
+                # Missing metadata for one recording may be ok and this could
+                # be handled with just a call to _recording_logger.critical and
+                # setting self.excluded = True
+                not_found = set(RawUltrasound.requiredMetaKeys) - set(meta)
                 _modalities_logger.critical(
                     "Part of metadata missing when processing %s.",
                     self.meta['filename'])
                 _modalities_logger.critical(
-                    "Could not find %s.", str(notFound))
+                    "Could not find %s.", str(not_found))
                 _modalities_logger.critical('Exiting.')
                 sys.exit()
 
@@ -192,8 +194,9 @@ class RawUltrasound(Modality):
             parsed_data=parsed_data,
             time_offset=time_offset)
 
-        # TODO: these are related to GUI and should really be in a decorator class and not here.
-        # State variables for fast retrieval of previously tagged ultrasound frames.
+        # TODO: these are related to GUI and should really be in a decorator
+        # class and not here. State variables for fast retrieval of previously
+        # tagged ultrasound frames.
         self._stored_index = None
         self._stored_image = None
         self.video_has_been_stored = False
@@ -216,11 +219,11 @@ class RawUltrasound(Modality):
         """
         Return an interpolated version of the ultrasound frame at index.
 
-        A new interpolated image is calculated, if necessary. To avoid large memory overheads
-        only the current frame's interpolated version maybe stored in memory.
+        A new interpolated image is calculated, if necessary. To avoid large
+        memory overheads only the current frame's interpolated version maybe
+        stored in memory.
 
-        Arguments:
-        index - the index of the ultrasound frame to be returned
+        Arguments: index - the index of the ultrasound frame to be returned
         """
         _modalities_logger.debug(
             "Getting interpolated image from ultrasound. index=%d" % (index))

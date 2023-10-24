@@ -74,7 +74,7 @@ class SplineDataColumn(Enum):
     CONFIDENCE = "confidence"
 
 
-class SplineMetaData(Enum):
+class SplineMetaColumn(Enum):
     """
     Basic metadata that any Spline should reasonably have.
 

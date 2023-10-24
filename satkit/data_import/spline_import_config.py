@@ -39,7 +39,7 @@ from strictyaml import (Bool, Map,
                         ScalarValidator, Seq,
                         YAMLError, load)
 
-from satkit.constants import Coordinates, SplineDataColumn, SplineMetaData
+from satkit.constants import Coordinates, SplineDataColumn, SplineMetaColumn
 
 
 class CoordinatesValidator(ScalarValidator):
@@ -69,9 +69,9 @@ class SplineMetaValidator(ScalarValidator):
     def validate_scalar(self, chunk):
         if chunk.contents:
             try:
-                return SplineMetaData(chunk.contents)
+                return SplineMetaColumn(chunk.contents)
             except ValueError:
-                values = [smd.value for smd in SplineMetaData]
+                values = [smd.value for smd in SplineMetaColumn]
                 print(
                     f"Error. Only following values for spline metadata are"
                     f"recognised: {str(values)}")
@@ -88,7 +88,7 @@ class DataColumnValidator(ScalarValidator):
     def validate_scalar(self, chunk):
         if chunk.contents:
             try:
-                return SplineMetaData(chunk.contents)
+                return SplineMetaColumn(chunk.contents)
             except ValueError:
                 values = [smd.value for smd in SplineDataColumn]
                 print(
@@ -110,7 +110,7 @@ class SplineImportConfig:
     headers: bool
     coordinates: Coordinates
     interleaved_coords: bool
-    meta_columns: tuple(SplineMetaData)
+    meta_columns: tuple(SplineMetaColumn)
     data_columns: tuple(SplineDataColumn)
 
 

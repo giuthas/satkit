@@ -29,6 +29,9 @@
 # articles listed in README.markdown. They can also be found in
 # citations.bib in BibTeX format.
 #
+"""
+This module contains all sorts of constants used by SATKIT.
+"""
 from dataclasses import dataclass
 from enum import Enum
 
@@ -41,7 +44,7 @@ class Coordinates(Enum):
     """
     Enum to differentiate coordinate systems.
     """
-    CARTESIAN = 'cartesian'
+    CARTESIAN = 'Cartesian'
     POLAR = 'polar'
 
 
@@ -49,13 +52,53 @@ class Datasource(Enum):
     """
     Data sources SATKIT can handle.
 
-    Used in saving and loading to identify the data source in config, as well as
-    in meta and skip the step of trying to figure the data source out from the
-    type of files present.
+    Used in saving and loading to identify the data source in config, as well
+    as in meta and skip the step of trying to figure the data source out from
+    the type of files present.
     """
     AAA = "AAA"
     # EVA = "EVA"
     RASL = "RASL"
+
+
+class SplineDataColumn(Enum):
+    """
+    Basic data columns that any Spline should reasonably have.
+
+    Accepted values: 'r' with 'phi', 'x' with 'y', and 'confidence'
+    """
+    R = "r"
+    PHI = "phi"
+    X = "x"
+    Y = "y"
+    CONFIDENCE = "confidence"
+
+
+class SplineMetaData(Enum):
+    """
+    Basic metadata that any Spline should reasonably have.
+
+    Accepted values:
+    - ignore: marks a column to be ignored, unlike the others below, 
+        can be used several times
+    - id: used to identify the speaker, 
+        often contained in a csv field called 'family name'
+    - given names: appended to 'id' if not marked 'ignore'
+    - date and time: dat3 and time of recording
+    - prompt: prompt of recording, used to identify the recording with 'id'
+    - annotation label: optional field containing annotation information
+    - time in recording: timestamp of the frame this spline belongs to
+    - number of spline points: number of sample points in the spline used 
+        to parse the coordinates and possible confidence information    
+    """
+    IGNORE = "ignore"
+    ID = "id"
+    GIVEN_NAMES = "given names"
+    DATE_AND_TIME = "date and time"
+    PROMPT = "prompt"
+    ANNOTATION_LABEL = "annotation label"
+    TIME_IN_RECORDING = "time in recording"
+    NUMBER_OF_SPLINE_POINTS = "number of spline points"
 
 
 @dataclass(frozen=True)
@@ -72,13 +115,16 @@ class SatkitSuffix():
     META = ".satkit_meta"
 
     def __str__(self):
+        # Pylinter seems to think this does not exist. Running the code
+        # disagrees.
         return self.value
 
 
 class SavedObjectTypes(Enum):
+    """
+    Represent type of a saved satkit object in .satkit_meta.
+    """
     # TODO 1.0: Check if this is actually in use.
-    """
-    """
     RECORDING_SESSION = "RecordingSession"
     RECORDING = "Recording"
     MODALITY = "Modality"
@@ -107,4 +153,6 @@ class SourceSuffix():
     AVI = ".avi"
 
     def __str__(self):
+        # Pylinter seems to think this does not exist. Running the code
+        # disagrees.
         return self.value

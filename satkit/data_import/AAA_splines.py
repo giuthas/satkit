@@ -30,11 +30,20 @@
 # citations.bib in BibTeX format.
 #
 
+from collections import defaultdict
+import csv
 from datetime import datetime
 import logging
 from contextlib import closing
+from pathlib import Path
+from typing import Union
 
 import numpy as np
+from satkit.constants import SplineMetaData
+from satkit.data_import import load_spline_import_config, SplineImportConfig
+from satkit.data_structures import ModalityData, Recording
+
+from satkit.modalities.splines import Splines
 
 _AAA_spline_logger = logging.getLogger('satkit.AAA_splines')
 
@@ -71,19 +80,74 @@ def parse_spline_line(line):
     return token
 
 
-def retrieve_splines(filename):
+def parse_splines(
+        lines: list,
+        spline_config: SplineImportConfig) -> ModalityData:
+    """
+    Parse a list of lines into a ModalityData representing Splines.
+
+    Parameters
+    ----------
+    lines : list
+        Lines from a csv file.
+    spline_config : SplineImportConfig
+        satkit spline configuration which explains how to parse the lines.
+
+    Returns
+    -------
+    ModalityData
+        _description_
+    """
+
+    sampling_rate = 0
+
+    timestamp_ind = spline_config.meta_columns.index(
+        SplineMetaData.TIME_IN_RECORDING)
+    timevector = [(line[timestamp_ind]) for line in lines]
+
+    coordinates = 0
+
+    return ModalityData(coordinates, sampling_rate, timevector)
+
+
+def retrieve_splines(
+        splinefile: Path,
+        spline_config: SplineImportConfig) -> dict[str, Splines]:
     """
     Read all splines from the file.
     """
-    with closing(open(filename, 'r', encoding="utf8")) as splinefile:
-        splinefile.readline()  # Discard the headers on first line.
-        table = [parse_spline_line(line) for line in splinefile.readlines()]
+    prompt_pos = spline_config.meta_columns.index(
+        SplineMetaData.PROMPT)
+    rec_time_pos = spline_config.meta_columns.index(
+        SplineMetaData.DATE_AND_TIME)
 
-    _AAA_spline_logger.info("Read file %s.", filename)
+    # each entry of the dict is, by default, an empty list
+    rows_by_recording = defaultdict(list)
+    with closing(open(splinefile, 'r', encoding="utf8")) as csvfile:
+        csvreader = csv.reader(csvfile, delimiter=',', quotechar='"',)
+
+        # We aren't using the header for anything.
+        if spline_config.headers:
+            next(csvreader)
+
+        for row in csvreader:
+            key = f"{row[prompt_pos]} {row[rec_time_pos]}"
+            rows_by_recording[key].append(row)
+
+        table = {key: parse_splines(rows_by_recording[key], spline_config)
+                 for key in rows_by_recording}
+
+    # TODO: Create Splines objects either here or in parse_splines or
+    # add_splines....
+
+    _AAA_spline_logger.info("Read file %s.", str(splinefile))
     return table
 
 
-def add_splines_from_file(recording_list, spline_file) -> None:
+def add_splines_from_batch_export(
+        recording_list: list[Recording],
+        spline_file: Union[str, Path],
+        spline_config_file: Union[str, Path]) -> None:
     """
     Add a Spline Modality to each recording.
 
@@ -98,18 +162,19 @@ def add_splines_from_file(recording_list, spline_file) -> None:
 
     Return -- None. Recordings are modified in place.
     """
-    # select the right recording here - we are accessing a database.
-    # splines = retrieve_splines(token['spline_file'], token['prompt'])
-    # splines = retrieve_splines('annd_sample/File003_splines.csv',
-    #                            token['prompt'])
-    if spline_file:
-        splines = retrieve_splines(spline_file)
-        for token in recording_list:
-            table = [
-                row for row in splines
-                if row['date_and_time'] == token['date_and_time']]
-            token['splines'] = table
-            _AAA_spline_logger.debug(
-                "%s has %d splines.", token['prompt'], len(table))
+    if isinstance(spline_file, str):
+        spline_file = Path(spline_file)
+    if isinstance(spline_config_file, str):
+        spline_file = Path(spline_config_file)
 
-    # return recording_list
+    if spline_file.is_file() and spline_config_file.is_file():
+        spline_config = load_spline_import_config(spline_config_file)
+        spline_dict = retrieve_splines(spline_file, spline_config)
+        for recording in recording_list:
+            search_key = recording.identifier()
+            splines = spline_dict[search_key]
+            recording.add_modality(splines)
+
+            _AAA_spline_logger.debug(
+                "%s has %d splines.",
+                recording.basename, len(splines.data.timevector))

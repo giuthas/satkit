@@ -40,7 +40,8 @@ from typing import Optional
 import numpy as np
 from satkit.constants import Coordinates
 # local modules
-from satkit.data_structures import Modality, ModalityData, Recording
+from satkit.data_structures import (
+    Modality, ModalityData, ModalityMetaData, Recording)
 from satkit.helpers.computational import (
     cartesian_to_polar, polar_to_cartesian)
 from satkit.import_formats import read_splines
@@ -48,11 +49,16 @@ from satkit.import_formats import read_splines
 _modalities_logger = logging.getLogger('satkit.modalities')
 
 
-# @dataclass
-# class SplineMetadata:
-#     coordinates: Coordinates
-#     sample_points: int
-#     confidence_exists: bool
+class SplineMetadata(ModalityMetaData):
+    """
+    Meta data of a Splines Modality.
+    """
+    coordinates: Coordinates
+    number_of_sample_points: int
+    confidence_exists: bool
+
+# TODO: convert requiredMetaKeys into a metadata class and get rid of the extra
+# fields that Splines don't have.
 
 
 class Splines(Modality):

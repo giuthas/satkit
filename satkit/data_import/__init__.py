@@ -1,8 +1,8 @@
 #
-# Copyright (c) 2019-2023 
+# Copyright (c) 2019-2023
 # Pertti Palo, Scott Moisik, Matthew Faytak, and Motoki Saito.
 #
-# This file is part of Speech Articulation ToolKIT 
+# This file is part of Speech Articulation ToolKIT
 # (see https://github.com/giuthas/satkit/).
 #
 # This program is free software: you can redistribute it and/or modify
@@ -34,6 +34,8 @@ from .AAA_recordings import (generate_aaa_recording_list,
                              generate_ultrasound_recording)
 from .RASL_3D_ultrasound_recordings import (generate_3D_ultrasound_recording,
                                             generate_rasl_recording_list)
+
+from .spline_import_config import load_spline_import_config, SplineImportConfig
 
 from .audio import add_audio
 from .video import add_video

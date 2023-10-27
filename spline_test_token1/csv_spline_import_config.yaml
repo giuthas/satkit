@@ -37,11 +37,9 @@ interleaved_coords: False
   #   to parse the coordinates and possible confidence information
 meta_columns:
   - id
-  - given names
   - date and time
-  - prompt
-  - annotation label
   - time in recording
+  - prompt
   - number of spline points
 
 # These will be either interleaved or not as specified by 'interleaved coords'.

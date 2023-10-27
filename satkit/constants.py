@@ -110,11 +110,6 @@ class SatkitConfigFile():
     """
     CSV_SPLINE_IMPORT = "csv_spline_import_config.yaml"
 
-    def __str__(self):
-        # Pylinter seems to think this does not exist. Running the code
-        # disagrees.
-        return self.value
-
 
 @dataclass(frozen=True)
 class SatkitSuffix():
@@ -128,11 +123,6 @@ class SatkitSuffix():
     CONFIG = ".yaml"
     DATA = ".npz"
     META = ".satkit_meta"
-
-    def __str__(self):
-        # Pylinter seems to think this does not exist. Running the code
-        # disagrees.
-        return self.value
 
 
 class SavedObjectTypes(Enum):
@@ -166,8 +156,3 @@ class SourceSuffix():
     AAA_PROMPT = ".txt"
     AAA_SPLINES = ".spl"
     AVI = ".avi"
-
-    def __str__(self):
-        # Pylinter seems to think this does not exist. Running the code
-        # disagrees.
-        return self.value

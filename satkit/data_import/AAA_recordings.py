@@ -40,6 +40,7 @@ from satkit.configuration import (data_run_params,
                                   set_exclusions_from_csv_file)
 from satkit.constants import SatkitConfigFile, SourceSuffix
 from satkit.data_import import add_splines_from_batch_export
+from satkit.data_import.spline_import_config import load_spline_import_config
 from satkit.data_structures import Recording
 from .AAA_raw_ultrasound import (
     add_aaa_raw_ultrasound, parse_recording_meta_from_aaa_promptfile)
@@ -47,15 +48,6 @@ from .audio import add_audio
 from .video import add_video
 
 _AAA_logger = logging.getLogger('satkit.AAA')
-
-#
-# The logic here is to do a as much as we can with minimal arguments.
-# Therefore, generate_recording_list uses helpers to read all the meta
-# and all the Data that it can without using any other arguments.
-#
-# Next step is to decorate that list with single file passes
-# like the exclusion list and splines.
-#
 
 
 def generate_aaa_recording_list(
@@ -87,6 +79,10 @@ def generate_aaa_recording_list(
     Recording objects sorted by date and time
         of recording.
     """
+
+    # TODO 1.1.: Deal with directory sturcture specifications.
+    if directory_structure is not None:
+        raise NotImplementedError
 
     ult_meta_files = sorted(directory.glob(
         '*' + SourceSuffix.AAA_ULTRA_META_OLD))
@@ -122,9 +118,13 @@ def generate_aaa_recording_list(
 
     spline_config_path = directory/SatkitConfigFile.CSV_SPLINE_IMPORT
     if spline_config_path.is_file():
-        # TODO: figure out where the spline_file actually is
-        add_splines_from_batch_export(
-            recordings, spline_file, spline_config_path)
+        spline_config = load_spline_import_config(spline_config_path)
+        if (spline_config.singe_spline_file
+                and spline_config.spline_file.is_file()):
+            add_splines_from_batch_export(
+                recordings, spline_config)
+        else:
+            raise NotImplementedError
 
     return sorted(recordings, key=lambda
                   token: token.meta_data.time_of_recording)

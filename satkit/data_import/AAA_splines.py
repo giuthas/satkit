@@ -36,11 +36,10 @@ from datetime import datetime
 import logging
 from contextlib import closing
 from pathlib import Path
-from typing import Union
 
 import numpy as np
 from satkit.constants import Coordinates, SplineDataColumn, SplineMetaColumn
-from satkit.data_import import load_spline_import_config, SplineImportConfig
+from satkit.data_import import SplineImportConfig
 from satkit.data_structures import ModalityData, Recording
 
 from satkit.modalities.splines import Splines
@@ -174,8 +173,7 @@ def retrieve_splines(
 
 def add_splines_from_batch_export(
         recording_list: list[Recording],
-        spline_file: Union[str, Path],
-        spline_config_file: Union[str, Path]) -> None:
+        spline_config: SplineImportConfig) -> None:
     """
     Add a Spline Modality to each recording.
 
@@ -190,22 +188,16 @@ def add_splines_from_batch_export(
 
     Return -- None. Recordings are modified in place.
     """
-    if isinstance(spline_file, str):
-        spline_file = Path(spline_file)
-    if isinstance(spline_config_file, str):
-        spline_file = Path(spline_config_file)
+    spline_file = spline_config.spline_file
+    spline_dict = retrieve_splines(spline_file, spline_config)
 
-    if spline_file.is_file() and spline_config_file.is_file():
-        spline_config = load_spline_import_config(spline_config_file)
-        spline_dict = retrieve_splines(spline_file, spline_config)
+    for recording in recording_list:
+        search_key = recording.identifier()
+        spline_data = spline_dict[search_key]
+        splines = Splines(recording, data_path=spline_file,
+                          parsed_data=spline_data)
+        recording.add_modality(splines)
 
-        for recording in recording_list:
-            search_key = recording.identifier()
-            spline_data = spline_dict[search_key]
-            splines = Splines(recording, data_path=spline_file,
-                              parsed_data=spline_data)
-            recording.add_modality(splines)
-
-            _AAA_spline_logger.debug(
-                "%s has %d splines.",
-                recording.basename, len(splines.data.timevector))
+        _AAA_spline_logger.debug(
+            "%s has %d splines.",
+            recording.basename, len(splines.data.timevector))

@@ -33,11 +33,12 @@ from dataclasses import dataclass
 import sys
 from contextlib import closing
 from pathlib import Path
-from typing import Union
+from typing import Optional, Union
 
 from strictyaml import (Bool, Map,
-                        ScalarValidator, Seq,
+                        ScalarValidator, Str, Seq,
                         YAMLError, load)
+from satkit.configuration.configuration import PathValidator
 
 from satkit.constants import Coordinates, SplineDataColumn, SplineMetaColumn
 
@@ -112,6 +113,8 @@ class SplineImportConfig:
     interleaved_coords: bool
     meta_columns: tuple(SplineMetaColumn)
     data_columns: tuple(SplineDataColumn)
+    spline_file: Optional[Path]
+    spline_file_glob: Optional[str]
 
 
 def load_spline_import_config(
@@ -136,6 +139,8 @@ def load_spline_import_config(
         with closing(open(filepath, 'r', encoding='utf8')) as yaml_file:
             schema = Map({
                 "single_spline_file": Bool(),
+                "spline_file": PathValidator(),
+                "spline_file_glob": Str(),
                 "headers": Bool(),
                 "coordinates": CoordinatesValidator(),
                 "interleaved_coords": Bool(),

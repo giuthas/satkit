@@ -31,6 +31,7 @@
 #
 import logging
 from pathlib import Path
+from typing import Optional
 
 from icecream import ic
 
@@ -48,8 +49,25 @@ logger = logging.getLogger('satkit.scripting')
 # appropriete submodule.
 
 
-def load_data(path: Path, exclusion_file: Path) -> RecordingSession:
-    """Handle loading data from individual files or a previously saved session."""
+def load_data(
+        path: Path, exclusion_file: Optional[Path] = None) -> RecordingSession:
+    """
+    Handle loading data from individual files or a previously saved session.
+
+    Parameters
+    ----------
+    path : Path
+        Directory or SATKIT metafile to read the RecordingSession from.
+    exclusion_file : Optional[Path], optional
+        Path to an optional exclusion list, by default None
+
+    Returns
+    -------
+    RecordingSession
+        The generated RecordingSession object with the exclusion list applied.
+    """
+    # TODO: this seems like a potentially problematic way of setting the
+    # exclusion file without any verification.
     if exclusion_file:
         data_run_params['data properties']['exclusion list'] = exclusion_file
 
@@ -90,7 +108,10 @@ def read_recording_session_from_dir(
     """
     containing_dir = path.parts[-1]
 
-    if (path/(containing_dir + '.RecordingSession' + SatkitSuffix.META)).is_file():
+    # TODO: deal with splines too
+    session_meta_path = path / (containing_dir + '.RecordingSession' +
+                                SatkitSuffix.META)
+    if session_meta_path.is_file():
         session = load_recording_session(directory=path)
     elif list(path.glob('*' + SourceSuffix.AAA_ULTRA)):
         ic(containing_dir+SatkitSuffix.META)

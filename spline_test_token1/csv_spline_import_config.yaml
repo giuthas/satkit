@@ -1,5 +1,13 @@
-# Single spline file for all recordings (True) or one for each recording (False).
+# Single spline file for all recordings (True) or one for each recording
+# (False).
 single_spline_file: False
+
+# Only one of the following will be in use.
+# If a single spline file, what is it called.
+spline_file:
+# If not a single spline, what glob pattern should be used to find the splines.
+# E.g. '*.csv'
+spline_file_glob: '*.csv'
 
 # Do the files have a header row?
 # Please note that possible header row information is ignored.

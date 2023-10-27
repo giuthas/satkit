@@ -129,9 +129,9 @@ class Recording:
 
         self.meta_data = meta_data
 
-        self.textgridpath = textgrid_path
-        if not self.textgridpath:
-            self._textgrid_path = meta_data.path.joinpath(
+        self.textgrid_path = textgrid_path
+        if not self.textgrid_path:
+            self.textgrid_path = meta_data.path.joinpath(
                 meta_data.basename + ".TextGrid")
         self.textgrid = self._read_textgrid()
         self.satgrid = SatGrid(self.textgrid)
@@ -166,21 +166,21 @@ class Recording:
         recording.
         """
         textgrid = None
-        if self._textgrid_path.is_file():
+        if self.textgrid_path.is_file():
             try:
-                textgrid = textgrids.TextGrid(self._textgrid_path)
+                textgrid = textgrids.TextGrid(self.textgrid_path)
                 _datastructures_logger.info("Read textgrid in %s.",
-                                            self._textgrid_path)
+                                            self.textgrid_path)
             except Exception as exception:
                 _datastructures_logger.critical(
-                    "Could not read textgrid in %s.", self._textgrid_path)
+                    "Could not read textgrid in %s.", self.textgrid_path)
                 _datastructures_logger.critical(
                     "Failed with: %s.", str(exception))
                 _datastructures_logger.critical("Creating an empty textgrid "
                                                 + "instead.")
                 textgrid = textgrids.TextGrid()
         else:
-            notice = 'Note: ' + str(self._textgrid_path) + " did not exist."
+            notice = 'Note: ' + str(self.textgrid_path) + " did not exist."
             _datastructures_logger.warning(notice)
             _datastructures_logger.warning("Creating an empty textgrid "
                                            + "instead.")
@@ -225,13 +225,13 @@ class Recording:
         """
         try:
             if filepath:
-                self.textgridpath = filepath
+                self.textgrid_path = filepath
                 self.textgrid.write(filepath)
             else:
-                self.textgrid.write(self.textgridpath)
+                self.textgrid.write(self.textgrid_path)
         except Exception as exception:
             _datastructures_logger.critical(
-                "Could not write textgrid to %s.", str(self.textgridpath))
+                "Could not write textgrid to %s.", str(self.textgrid_path))
             _datastructures_logger.critical(
                 "TextGrid save failed with error: %s", str(exception))
 

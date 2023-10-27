@@ -39,12 +39,13 @@ from typing import Optional
 from satkit.configuration import (data_run_params,
                                   set_exclusions_from_csv_file)
 from satkit.constants import SatkitConfigFile, SourceSuffix
-from satkit.data_import import add_splines_from_batch_export
-from satkit.data_import.spline_import_config import load_spline_import_config
 from satkit.data_structures import Recording
+
 from .AAA_raw_ultrasound import (
     add_aaa_raw_ultrasound, parse_recording_meta_from_aaa_promptfile)
+from .AAA_splines import add_splines_from_batch_export
 from .audio import add_audio
+from .spline_import_config import load_spline_import_config
 from .video import add_video
 
 _AAA_logger = logging.getLogger('satkit.AAA')
@@ -119,8 +120,11 @@ def generate_aaa_recording_list(
     spline_config_path = directory/SatkitConfigFile.CSV_SPLINE_IMPORT
     if spline_config_path.is_file():
         spline_config = load_spline_import_config(spline_config_path)
-        if (spline_config.singe_spline_file
-                and spline_config.spline_file.is_file()):
+        spline_file = directory/spline_config.spline_file
+        # TODO: fix this ugly hack
+        spline_config.spline_file = spline_file
+        if (spline_config.single_spline_file
+                and spline_file.is_file()):
             add_splines_from_batch_export(
                 recordings, spline_config)
         else:

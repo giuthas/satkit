@@ -39,10 +39,10 @@ from pathlib import Path
 
 import numpy as np
 from satkit.constants import Coordinates, SplineDataColumn, SplineMetaColumn
-from satkit.data_import import SplineImportConfig
 from satkit.data_structures import ModalityData, Recording
-
 from satkit.modalities.splines import Splines
+
+from .spline_import_config import SplineImportConfig
 
 _AAA_spline_logger = logging.getLogger('satkit.AAA_splines')
 

@@ -89,7 +89,7 @@ class DataColumnValidator(ScalarValidator):
     def validate_scalar(self, chunk):
         if chunk.contents:
             try:
-                return SplineMetaColumn(chunk.contents)
+                return SplineDataColumn(chunk.contents)
             except ValueError:
                 values = [smd.value for smd in SplineDataColumn]
                 print(
@@ -107,7 +107,7 @@ class SplineImportConfig:
 
     This describes how to interpret a csv file containing splines.
     """
-    singe_spline_file: bool
+    single_spline_file: bool
     headers: bool
     coordinates: Coordinates
     interleaved_coords: bool

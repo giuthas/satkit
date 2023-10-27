@@ -153,7 +153,7 @@ def retrieve_splines(
 
     # each entry of the dict is, by default, an empty list
     rows_by_recording = defaultdict(list)
-    with closing(open(splinefile, 'r', encoding="utf8")) as csvfile:
+    with closing(open(splinefile, 'r', encoding='utf-8')) as csvfile:
         csvreader = csv.reader(csvfile, delimiter=',', quotechar='"',)
 
         # We aren't using the header for anything.

@@ -1,8 +1,8 @@
 #
-# Copyright (c) 2019-2023 
+# Copyright (c) 2019-2023
 # Pertti Palo, Scott Moisik, Matthew Faytak, and Motoki Saito.
 #
-# This file is part of Speech Articulation ToolKIT 
+# This file is part of Speech Articulation ToolKIT
 # (see https://github.com/giuthas/satkit/).
 #
 # This program is free software: you can redistribute it and/or modify
@@ -51,7 +51,7 @@ def parse_recording_meta_from_aaa_promptfile(
     if isinstance(filepath, str):
         filepath = Path(filepath)
 
-    with closing(open(filepath, 'r', encoding="utf8")) as promptfile:
+    with closing(open(filepath, 'r', encoding='utf-8')) as promptfile:
         lines = promptfile.read().splitlines()
         prompt = lines[0]
 
@@ -97,7 +97,7 @@ def parse_ultrasound_meta_aaa(filename):
         TimeInSecsOfFirstFrame -- time from recording start to first frame
     """
     meta = {}
-    with closing(open(filename, 'r', encoding="utf8")) as metafile:
+    with closing(open(filename, 'r', encoding='utf-8')) as metafile:
         for line in metafile:
             (key, value_str) = line.split("=")
             try:

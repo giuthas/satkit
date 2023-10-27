@@ -136,7 +136,7 @@ def load_spline_import_config(
         filepath = Path(filepath)
 
     if filepath.is_file():
-        with closing(open(filepath, 'r', encoding='utf8')) as yaml_file:
+        with closing(open(filepath, 'r', encoding='utf-8')) as yaml_file:
             schema = Map({
                 "single_spline_file": Bool(),
                 "spline_file": PathValidator(),

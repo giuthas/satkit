@@ -53,7 +53,8 @@ import satkit.configuration.configuration as configuration
 from satkit.helpers.logging_helpers import log_elapsed_time, set_logging_level
 
 # Load logging config from json file.
-with open("satkit_logging_configuration.json", 'r', encoding='utf8') as configuration_file:
+LOG_CONFIG = "satkit_logging_configuration.json"
+with open(LOG_CONFIG, 'r', encoding='utf-8') as configuration_file:
     config_dict = json.load(configuration_file)
     logging.config.dictConfig(config_dict)
 

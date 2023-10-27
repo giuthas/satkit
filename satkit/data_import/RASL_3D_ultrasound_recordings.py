@@ -1,8 +1,8 @@
 #
-# Copyright (c) 2019-2023 
+# Copyright (c) 2019-2023
 # Pertti Palo, Scott Moisik, Matthew Faytak, and Motoki Saito.
 #
-# This file is part of Speech Articulation ToolKIT 
+# This file is part of Speech Articulation ToolKIT
 # (see https://github.com/giuthas/satkit/).
 #
 # This program is free software: you can redistribute it and/or modify
@@ -174,7 +174,7 @@ def generate_recording_list_old_style(directory):
         'note_dir': note_dir,
     }
 
-    with closing(open(path/"notes.csv", 'r', encoding="utf8")) as csvfile:
+    with closing(open(path/"notes.csv", 'r', encoding='utf-8')) as csvfile:
         reader = csv.DictReader(csvfile, delimiter='\t',)
 
         rows = [row for row in reader if row]

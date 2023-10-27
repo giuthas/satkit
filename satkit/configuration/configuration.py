@@ -119,7 +119,7 @@ def load_main_config(filepath: Union[Path, str, None] = None) -> None:
     global _raw_config_dict
 
     if filepath.is_file():
-        with closing(open(filepath, 'r', encoding='utf8')) as yaml_file:
+        with closing(open(filepath, 'r', encoding='utf-8')) as yaml_file:
             schema = Map({
                 "epsilon": Float(),
                 "mains frequency": Float(),
@@ -156,7 +156,7 @@ def load_run_params(filepath: Union[Path, str, None] = None) -> None:
     global _raw_data_run_params_dict
 
     if filepath.is_file():
-        with closing(open(filepath, 'r', encoding='utf8')) as yaml_file:
+        with closing(open(filepath, 'r', encoding='utf-8')) as yaml_file:
             schema = Map({
                 "data properties": Map({
                     "data source": DatasourceValidator(),
@@ -211,7 +211,7 @@ def load_gui_params(filepath: Union[Path, str, None] = None) -> None:
     global _raw_gui_params_dict
 
     if filepath.is_file():
-        with closing(open(filepath, 'r', encoding='uft8')) as yaml_file:
+        with closing(open(filepath, 'r', encoding='utf-8')) as yaml_file:
             schema = Map({
                 "data/tier height ratios": Map({
                     "data": Int(),

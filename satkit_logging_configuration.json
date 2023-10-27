@@ -16,7 +16,7 @@
             "class": "logging.FileHandler",
             "level": "INFO",
             "formatter": "detailed",
-            "encoding": "utf8"
+            "encoding": "utf-8"
         }
     },
     "root": {

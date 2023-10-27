@@ -34,10 +34,10 @@ from collections import defaultdict
 from contextlib import closing
 import csv
 from datetime import datetime
-import dateutil.parser
 import logging
 from pathlib import Path
 
+import dateutil.parser
 import numpy as np
 from icecream import ic
 

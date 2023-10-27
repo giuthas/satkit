@@ -36,7 +36,7 @@ from math import inf
 from pathlib import Path
 from typing import Optional, Union
 
-from satkit.data_structures import ModalityData, Recording, RecordingMetaData
+from satkit.data_structures import Recording, RecordingMetaData
 from satkit.modalities import RawUltrasound
 
 _AAA_raw_ultrasound_logger = logging.getLogger('satkit.AAA_raw_ultrasound')
@@ -55,8 +55,8 @@ def parse_recording_meta_from_aaa_promptfile(
         lines = promptfile.read().splitlines()
         prompt = lines[0]
 
-        # The date used to be just a string, but needs to be more sturctured since
-        # the spline export files have a different date format.
+        # The date used to be just a string, but needs to be more sturctured
+        # since the spline export files have a different date format.
         time_of_recording = datetime.strptime(
             lines[1], '%d/%m/%Y %H:%M:%S')
 
@@ -113,7 +113,9 @@ def parse_ultrasound_meta_aaa(filename):
 
 
 def add_aaa_raw_ultrasound(
-        recording: Recording, preload: bool = False, path: Optional[Path] = None) -> None:
+        recording: Recording,
+        preload: bool = False,
+        path: Optional[Path] = None) -> None:
     """
     Create a RawUltrasound Modality and add it to the Recording.
 
@@ -135,14 +137,14 @@ def add_aaa_raw_ultrasound(
     """
     if not path:
         ult_path = (recording.path/recording.basename).with_suffix(".ult")
-        meta_path = (recording.path/(recording.basename+"US.txt"))
+        meta_path = recording.path/(recording.basename+"US.txt")
     else:
         ult_path = path
         meta_path = path.parent/(path.stem+"US.txt")
 
     if not meta_path.is_file():
         if not path:
-            meta_path = (recording.path/(recording.basename+".param"))
+            meta_path = recording.path/(recording.basename+".param")
         else:
             meta_path = path.with_suffix(".param")
 

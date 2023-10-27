@@ -31,13 +31,16 @@
 #
 
 from collections import defaultdict
+from contextlib import closing
 import csv
 from datetime import datetime
+import dateutil.parser
 import logging
-from contextlib import closing
 from pathlib import Path
 
 import numpy as np
+from icecream import ic
+
 from satkit.constants import Coordinates, SplineDataColumn, SplineMetaColumn
 from satkit.data_structures import ModalityData, Recording
 from satkit.modalities.splines import Splines
@@ -115,7 +118,7 @@ def parse_splines(
     else:
         spline_point_index = spline_config.meta_columns.index(
             SplineMetaColumn.NUMBER_OF_SPLINE_POINTS)
-        spline_points = lines[0][spline_point_index]
+        spline_points = int(lines[0][spline_point_index])
         data_start_index = len(spline_config.meta_columns)
 
         if spline_config.coordinates is Coordinates.POLAR:
@@ -124,18 +127,18 @@ def parse_splines(
             r_index = data_start_index + r_index * spline_points
             phi_index = spline_config.data_columns.index(SplineDataColumn.PHI)
             phi_index = data_start_index + phi_index * spline_points
-            r = lines[:][r_index:r_index + spline_points]
-            phi = lines[:][phi_index:phi_index + spline_points]
-            coordinates = np.ndarray([r, phi])
+            r = [line[r_index:r_index + spline_points] for line in lines]
+            phi = [line[phi_index:phi_index + spline_points] for line in lines]
+            coordinates = np.asfarray([r, phi])
         else:
             x_index = spline_config.data_columns.index(
                 SplineDataColumn.X)
             x_index = data_start_index + x_index * spline_points
             y_index = spline_config.data_columns.index(SplineDataColumn.Y)
             y_index = data_start_index + y_index * spline_points
-            x = lines[:][x_index:x_index + spline_points]
-            y = lines[:][y_index:y_index + spline_points]
-            coordinates = np.ndarray([x, y])
+            x = [line[x_index:x_index + spline_points] for line in lines]
+            y = [line[y_index:y_index + spline_points] for line in lines]
+            coordinates = np.asfarray([x, y])
 
     return ModalityData(coordinates, sampling_rate, timevector)
 
@@ -154,14 +157,16 @@ def retrieve_splines(
     # each entry of the dict is, by default, an empty list
     rows_by_recording = defaultdict(list)
     with closing(open(splinefile, 'r', encoding='utf-8')) as csvfile:
-        csvreader = csv.reader(csvfile, delimiter=',', quotechar='"',)
+        csvreader = csv.reader(csvfile, delimiter='\t', quotechar='"',)
 
         # We aren't using the header for anything.
         if spline_config.headers:
             next(csvreader)
 
         for row in csvreader:
-            key = f"{row[prompt_pos]} {row[rec_time_pos]}"
+            key = (
+                f"{row[prompt_pos]} "
+                f"{dateutil.parser.parse(row[rec_time_pos])}")
             rows_by_recording[key].append(row)
 
         table = {key: parse_splines(rows_by_recording[key], spline_config)
@@ -200,4 +205,4 @@ def add_splines_from_batch_export(
 
         _AAA_spline_logger.debug(
             "%s has %d splines.",
-            recording.basename, len(splines.data.timevector))
+            recording.basename, len(splines.timevector))

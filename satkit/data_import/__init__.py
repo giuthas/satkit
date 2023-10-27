@@ -41,6 +41,7 @@ from .audio import add_audio
 from .video import add_video
 from .AAA_raw_ultrasound import add_aaa_raw_ultrasound
 from .three_dim_ultrasound import add_rasl_3D_ultrasound
+from .AAA_splines import add_splines_from_batch_export
 
 modality_adders = {
     'MonoAudio': add_audio,

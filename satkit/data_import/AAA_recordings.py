@@ -1,8 +1,8 @@
 #
-# Copyright (c) 2019-2023 
+# Copyright (c) 2019-2023
 # Pertti Palo, Scott Moisik, Matthew Faytak, and Motoki Saito.
 #
-# This file is part of Speech Articulation ToolKIT 
+# This file is part of Speech Articulation ToolKIT
 # (see https://github.com/giuthas/satkit/).
 #
 # This program is free software: you can redistribute it and/or modify
@@ -36,13 +36,15 @@ from pathlib import Path
 from typing import Optional
 
 # Local packages
-from satkit.configuration import (config_dict, data_run_params,
+from satkit.configuration import (data_run_params,
                                   set_exclusions_from_csv_file)
+from satkit.constants import SatkitConfigFile, SourceSuffix
+from satkit.data_import import add_splines_from_batch_export
+from satkit.data_structures import Recording
 from .AAA_raw_ultrasound import (
     add_aaa_raw_ultrasound, parse_recording_meta_from_aaa_promptfile)
 from .audio import add_audio
 from .video import add_video
-from satkit.data_structures import Recording
 
 _AAA_logger = logging.getLogger('satkit.AAA')
 
@@ -62,46 +64,43 @@ def generate_aaa_recording_list(
     """
     Produce an array of Recordings from an AAA export directory.
 
-    Prepare a list of Recording objects from the files exported by AAA
-    into the named directory. File existence is tested for,
-    and if crucial files are missing from a given recording it will be
-    excluded.
+    Prepare a list of Recording objects from the files exported by AAA into the
+    named directory. File existence is tested for, and if crucial files are
+    missing from a given recording it will be excluded.
 
-    Each recording meta file (.txt, not US.txt) will
-    be represented by a Recording object regardless of whether a complete
-    set of files was found for the recording. Exclusion is marked with
-    recording.excluded rather than not listing the recording. Log
-    file will show reasons of exclusion.
+    Each recording meta file (.txt, not US.txt) will be represented by a
+    Recording object regardless of whether a complete set of files was found
+    for the recording. Exclusion is marked with recording.excluded rather than
+    not listing the recording. Log file will show reasons of exclusion.
 
-    The processed files are
-    recording meta: .txt,
-    ultrasound meta: US.txt or .param,
-    ultrasound: .ult, and
-    audio waveform: .wav.
+    The processed files are recording meta: .txt, ultrasound meta: US.txt or
+    .param, ultrasound: .ult, and audio waveform: .wav.
+
+    If there is a `satkit_spline_import_config.yaml` present Splines modalities
+    will be added to the Recordings, but any missing ones (or even all missing)
+    are considered non-fatal.
 
     Additionally these will be added, but missing files are considered
-    non-fatal
-    TextGrid: .textgrid, and
-    avi video: .avi.
+    non-fatal avi video: .avi, and TextGrid: .textgrid.
 
-    directory -- the path to the directory to be processed.
-    Returns an array of Recording objects sorted by date and time
+    directory -- the path to the directory to be processed. Returns an array of
+    Recording objects sorted by date and time
         of recording.
     """
 
-    # this is equivalent with the following:
-    # sorted(glob.glob(directory + '/.' +  '/*US.txt'))
-    ult_meta_files = sorted(directory.glob('*US.txt'))
+    ult_meta_files = sorted(directory.glob(
+        '*' + SourceSuffix.AAA_ULTRA_META_OLD))
     if len(ult_meta_files) == 0:
-        ult_meta_files = sorted(directory.glob('*.param'))
+        ult_meta_files = sorted(directory.glob(
+            '*' + SourceSuffix.AAA_ULTRA_META_NEW))
 
     # this takes care of *.txt and *US.txt overlapping. Goal
     # here is to include also failed recordings with missing
     # ultrasound data in the list for completeness.
-    ult_prompt_files = [prompt_file
-                        for prompt_file in directory.glob('*.txt')
-                        if not prompt_file in ult_meta_files
-                        ]
+    ult_prompt_files = [
+        prompt_file
+        for prompt_file in directory.glob('*' + SourceSuffix.AAA_PROMPT)
+        if not prompt_file in ult_meta_files]
     ult_prompt_files = sorted(ult_prompt_files)
 
     # strip file extensions off of filepaths to get the base names
@@ -120,6 +119,12 @@ def generate_aaa_recording_list(
     for recording in recordings:
         if not recording.excluded:
             add_modalities(recording)
+
+    spline_config_path = directory/SatkitConfigFile.CSV_SPLINE_IMPORT
+    if spline_config_path.is_file():
+        # TODO: figure out where the spline_file actually is
+        add_splines_from_batch_export(
+            recordings, spline_file, spline_config_path)
 
     return sorted(recordings, key=lambda
                   token: token.meta_data.time_of_recording)
@@ -162,7 +167,9 @@ def generate_ultrasound_recording(basename: str, directory: Path):
 
 
 def add_modalities(
-        recording: Recording, wav_preload: bool = True, ult_preload: bool = False,
+        recording: Recording,
+        wav_preload: bool = True,
+        ult_preload: bool = False,
         video_preload: bool = False):
     """
     Add audio and raw ultrasound data to the recording.

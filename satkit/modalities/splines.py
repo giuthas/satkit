@@ -129,6 +129,9 @@ class Splines(Modality):
     def data(self, data) -> None:
         super()._data_setter(data)
 
+    def get_meta(self) -> dict:
+        return self.meta
+
     @property
     def in_polar(self) -> np.ndarray:
         """

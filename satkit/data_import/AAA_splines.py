@@ -143,7 +143,7 @@ def parse_splines(
 
 def retrieve_splines(
         splinefile: Path,
-        spline_config: SplineImportConfig) -> dict[str, Splines]:
+        spline_config: SplineImportConfig) -> dict[str, ModalityData]:
     """
     Read all splines from the file.
     """
@@ -167,9 +167,6 @@ def retrieve_splines(
 
         table = {key: parse_splines(rows_by_recording[key], spline_config)
                  for key in rows_by_recording}
-
-    # TODO: Create Splines objects either here or in parse_splines or
-    # add_splines....
 
     _AAA_spline_logger.info("Read file %s.", str(splinefile))
     return table
@@ -201,9 +198,12 @@ def add_splines_from_batch_export(
     if spline_file.is_file() and spline_config_file.is_file():
         spline_config = load_spline_import_config(spline_config_file)
         spline_dict = retrieve_splines(spline_file, spline_config)
+
         for recording in recording_list:
             search_key = recording.identifier()
-            splines = spline_dict[search_key]
+            spline_data = spline_dict[search_key]
+            splines = Splines(recording, data_path=spline_file,
+                              parsed_data=spline_data)
             recording.add_modality(splines)
 
             _AAA_spline_logger.debug(

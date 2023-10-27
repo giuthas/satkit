@@ -102,6 +102,21 @@ class SplineMetaColumn(Enum):
 
 
 @dataclass(frozen=True)
+class SatkitConfigFile():
+    """
+    Various configuration files used by SATKIT.
+
+    These exist as a convenient way of not needing to risk typos. 
+    """
+    CSV_SPLINE_IMPORT = "csv_spline_import_config.yaml"
+
+    def __str__(self):
+        # Pylinter seems to think this does not exist. Running the code
+        # disagrees.
+        return self.value
+
+
+@dataclass(frozen=True)
 class SatkitSuffix():
     """
     Suffixes for files saved by SATKIT.

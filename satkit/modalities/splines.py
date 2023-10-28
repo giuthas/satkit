@@ -63,8 +63,8 @@ class Splines(Modality):
     Splines from 2D ultrasound data.
     """
 
-    # TODO: convert requiredMetaKeys into a metadata class and get rid of the extra
-    # fields that Splines don't have.
+    # TODO: convert requiredMetaKeys into a metadata class and get rid of the
+    # extra fields that Splines don't have.
     requiredMetaKeys = [
         'meta_file',
         'Angle',

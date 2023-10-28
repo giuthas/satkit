@@ -38,14 +38,15 @@ from copy import deepcopy
 from pathlib import Path
 from typing import Dict, Optional
 
+# Local packages
+from satkit.data_structures import Recording
 from satkit.configuration import data_run_params, set_exclusions_from_csv_file
+
 from .three_dim_ultrasound import (add_rasl_3D_ultrasound,
                                    generateMeta,
                                    read_3D_meta_from_mat_file)
 from .audio import add_audio
 from .video import add_video
-# Local packages
-from satkit.data_structures import Recording
 
 _3D4D_ultra_logger = logging.getLogger('satkit.ThreeD_ultrasound')
 
@@ -119,8 +120,9 @@ def generate_rasl_recording_list(
             recordings.append(recording)
         else:
             _3D4D_ultra_logger.info(
-                'No DICOM file corresponding to number ' +
-                token['trial_number'] + ' found in ' + str(directory) + '.')
+                'No DICOM file corresponding to number %s found in %s.',
+                token['trial_number'],
+                str(directory))
 
     set_exclusions_from_csv_file(
         data_run_params['data properties']['exclusion list'],
@@ -132,8 +134,6 @@ def generate_rasl_recording_list(
 
     return sorted(recordings, key=lambda
                   token: token.meta_data.time_of_recording)
-
-    return sorted(recordings, key=lambda token: token.meta['date_and_time'])
 
 
 def generate_recording_list_old_style(directory):

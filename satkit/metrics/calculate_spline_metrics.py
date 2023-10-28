@@ -11,16 +11,20 @@ import math
 import csv
 import glob
 import os
+import logging
 
+from icecream import ic
 import numpy as np
 
 from scipy.integrate import simpson
 from scipy.signal import butter, filtfilt
 
+_spline_metric_logger = logging.getLogger('satkit.spline_metrics')
+
 
 def procrustes(reference_shape: np.ndarray, compared_shape: np.ndarray):
     """
-    _summary_
+    Compare the two shapes with procrustes analysis.
 
     See Katherine M. Dawson, Mark K. Tiede & D. H. Whalen (2016) Methods for
     quantifying tongue shape and complexity using ultrasound imaging, Clinical
@@ -40,6 +44,10 @@ def procrustes(reference_shape: np.ndarray, compared_shape: np.ndarray):
     _type_
         _description_
     """
+    # TODO: this could be done easy enough by just checking if onset has been
+    # annotated on a Recording and using that as the reference. however, the
+    # same shape maybe should be used for all. problems ensue and an article
+    # could be written just on that.
 
     # translate the points to be centred at 0, 0
     normalised_reference = reference_shape - reference_shape.mean(axis=0)
@@ -69,11 +77,9 @@ def procrustes(reference_shape: np.ndarray, compared_shape: np.ndarray):
     return math.sqrt(((normalised_reference - b2)**2.0).sum())
 
 
-def modified_curvature_index(data):
+def modified_curvature_index(data: np.ndarray, run_filter: bool = True):
     """
     Calculate the modified curvature index.
-
-    NOTE: remains to be seen what we are going to calculate this on in SATKIT.
 
     The results are smoothed with a 5th order Butterworth lowpass filter with a
     critical frequency of 1/4. The filter is applied both forwards and
@@ -95,6 +101,8 @@ def modified_curvature_index(data):
     _type_
         _description_
     """
+    # TODO: remains to be seen which object we are going to calculate this on
+    # in SATKIT.
 
     # compute signed curvature
     diff_x = np.gradient(data[:, 0])
@@ -108,13 +116,16 @@ def modified_curvature_index(data):
         np.sqrt(np.sum(np.diff(data, axis=0)**2, axis=1)))
     cumulative_sum = np.insert(cumulative_sum, 0, 0)
 
-    butter_b, butter_a = butter(5, 1./4.)
-    r = curvature[::-1]
-    filtered_curvature = filtfilt(
-        butter_b, butter_a, np.concatenate((r, curvature, r)))
-    filtered_curvature = filtered_curvature[len(data):-len(data)]
+    if run_filter:
+        butter_b, butter_a = butter(5, 1./4.)
+        r = curvature[::-1]
+        filtered_curvature = filtfilt(
+            butter_b, butter_a, np.concatenate((r, curvature, r)))
+        filtered_curvature = filtered_curvature[len(data):-len(data)]
 
-    mci = simpson(np.abs(filtered_curvature), cumulative_sum)
+        mci = simpson(np.abs(filtered_curvature), cumulative_sum)
+    else:
+        mci = simpson(np.abs(curvature), cumulative_sum)
 
     return mci
 
@@ -149,14 +160,13 @@ def fourier_tongue_shape_analysis(tongue_data: np.ndarray):
     _type_
         _description_
     """
-
-    # TODO: possibly misnamed variable, check the article for what this is
-    # actually supposed to be.
-    radians = np.arctan2(
+    tangent_angle = np.arctan2(
         np.gradient(tongue_data[:, 1]),
         np.gradient(tongue_data[:, 0]))
+    # TODO: tangent angle or tangent vector?
+    ic(tangent_angle)
 
-    ntfm = np.fft.rfft(radians)
+    ntfm = np.fft.rfft(tangent_angle)
 
     real = np.real(ntfm)
     imaginary = np.imag(ntfm)
@@ -186,7 +196,9 @@ def run_analysis():
     # find the unique IDs among all files
     ids = set(i[1][0] for i in file_list)
 
-    print(f"Got data for {len(ids)} unique id(s). {ids}")
+    _spline_metric_logger.debug(
+        "Got data for %d unique id(s). %s",
+        len(ids), str(ids))
 
     # open csv file for data output and write header information
     with open(output_file_name, 'wb') as output_file:
@@ -197,8 +209,8 @@ def run_analysis():
              "imag_3", "mod_3"])
 
         for current_id in ids:
-
-            print("Processing data for {current_id}")
+            _spline_metric_logger.debug(
+                "Processing data for %s", str(current_id))
 
             # filter to get the files relevant to the current id
             current_files = [(i[0], i[1][1])
@@ -210,9 +222,11 @@ def run_analysis():
 
             # check that there is either 0 or 1 resting shape file
             if len(rest_file) == 0:
-                print(
-                    f"No resting shape found for {current_id}"
-                    f" Procrustes analysis not available")
+                _spline_metric_logger.debug(
+                    "No resting shape found for %s.",
+                    str(current_id))
+                _spline_metric_logger.debug(
+                    "Procrustes analysis not available.")
                 do_procrustes = False
             elif len(rest_file) == 1:
                 do_procrustes = True
@@ -224,7 +238,8 @@ def run_analysis():
                     raise IOError(
                         "There should be one and only one "
                         "shape in the resting shape file")
-                print("Found resting shape")
+                _spline_metric_logger.debug(
+                    "Found resting shape")
             else:
                 assert False, "This can't happen"
 
@@ -243,7 +258,8 @@ def run_analysis():
                         "Number of data columns not a multiple of 2 in " +
                         str(file_name))
                 num_reps = data.shape[1]/2
-                print(f"Found {num_reps} shapes for {symbol}")
+                _spline_metric_logger.debug(
+                    "Found %d shapes for %s", num_reps, symbol)
 
                 for rep in range(0, num_reps):
 
@@ -251,7 +267,8 @@ def run_analysis():
 
                     # check for NaNs
                     if np.isnan(np.sum(data[:, j:j+2])):
-                        print(f"NaN in shape {rep} ignoring.")
+                        _spline_metric_logger.debug(
+                            "NaN in shape %d ignoring.", rep)
                         continue
 
                     if do_procrustes:

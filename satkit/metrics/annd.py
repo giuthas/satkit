@@ -114,13 +114,7 @@ class ANND(Modality):
         if params.timestep != 1:
             name_string = name_string + " ts" + str(params.timestep)
 
-        if params.image_mask:
-            name_string = name_string + " " + params.image_mask.value
-
-        if params.interpolated and params.parent_name:
-            name_string = ("Interpolated " + name_string + " on " +
-                           params.parent_name)
-        elif params.parent_name:
+        if params.parent_name:
             name_string = name_string + " on " + params.parent_name
 
         return name_string

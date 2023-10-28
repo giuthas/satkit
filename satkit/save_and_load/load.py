@@ -32,13 +32,13 @@
 
 import logging
 from pathlib import Path
-from typing import Union
+from typing import Optional, TextIO, Union
 
 import numpy as np
-from icecream import ic
 import nestedtext
 from satkit.constants import SatkitSuffix
 from satkit.data_import import modality_adders
+from satkit.data_import.AAA_splines import add_splines
 from satkit.data_structures import ModalityData, Recording, RecordingSession
 from satkit.metrics import metrics
 
@@ -53,7 +53,7 @@ def load_derived_modality(
         recording: Recording, path: Path,
         modality_schema: ModalityListingLoadschema) -> None:
     """
-    Load a saved derived Modality meta and data and return them. 
+    Load a saved derived Modality meta and data and add them to the Recording. 
 
     Parameters
     ----------
@@ -85,18 +85,52 @@ def load_derived_modality(
     recording.add_modality(modality=modality)
 
 
-def read_recording_meta(filepath) -> RecordingLoadSchema:
+def read_recording_meta(
+        filepath: Union[str, Path, TextIO]) -> RecordingLoadSchema:
+    """
+    Read a Recording's saved metadata, validate it, and return it.
+
+    Parameters
+    ----------
+    filepath : Union[str, Path, TextIO]
+        This is passed to nestedtext.load.
+
+    Returns
+    -------
+    RecordingLoadSchema
+        The validated metadata.
+    """
     raw_input = nestedtext.load(filepath)
     meta = RecordingLoadSchema.model_validate(raw_input)
     return meta
 
 
 def load_recording(filepath: Path) -> Recording:
+    """
+    Load a recording from given Path.
 
+    Parameters
+    ----------
+    filepath : Path
+        Path to Recording's saved metadata.
+
+    Returns
+    -------
+    Recording
+        A Recording object with most of it's modalities loaded. Modalities like
+        Splines that maybe stored in one file for several recordings aren't yet
+        loaded at this point.
+
+    Raises
+    ------
+    NotImplementedError
+        If there is no previously saved metadata for the recording. This maybe
+        handled by a future version of SATKIT, if it should prove necessary.
+    """
     # decide which loader we will be using based on either filepath.satkit_meta
     # or config[''] in that order and document this behaviour. this way if the
-    # data has previosly been loaded satkit can decide itself what to do with it
-    # and there is an easy place where to add processing
+    # data has previosly been loaded satkit can decide itself what to do with
+    # it and there is an easy place where to add processing
     # session/participant/whatever specific config. could also add guessing
     # based on what is present as the final fall back or as the option tried if
     # no meta and config has the wrong guess.
@@ -110,10 +144,6 @@ def load_recording(filepath: Path) -> Recording:
         raise NotImplementedError(
             "Can't yet jump to a previously unloaded recording here.")
 
-    # TODO: This is still the wrong version of the params to pass Recording
-    # because this is the load schema not the actual RecordingMetaData. So do
-    # the unimplemented function below:
-    # recording_meta = recording_meta_from_loaded_schema()
     recording = Recording(meta.parameters)
 
     for modality in meta.modalities:
@@ -129,21 +159,33 @@ def load_recording(filepath: Path) -> Recording:
     return recording
 
 
-def load_recordings_from_directory(directory: Path) -> list[Recording]:
+def load_recordings(directory: Path, recording_metafiles: Optional
+                    [list[str]]) -> list[Recording]:
     """
-    Load Recordings from directory.
-    """
-    recording_metafiles = directory.glob("*.Recording"+str(SatkitSuffix.META))
+    Load (specified) Recordings from directory.
 
-    recordings = [load_recording(file) for file in recording_metafiles]
-    return recordings
+    Parameters
+    ----------
+    directory : Path
+        Path to the directory.
+    recording_metafiles : Optional[list[str]]
+        Names of the Recording metafiles. If omitted, all Recordings in the
+        directory will be loaded.
 
+    Returns
+    -------
+    list[Recording]
+        List of the loaded Recordings.
+    """
+    if not recording_metafiles:
+        recording_metafiles = directory.glob(
+            "*.Recording"+str(SatkitSuffix.META))
 
-def load_recordings(directory, recording_names: list[str]) -> list[Recording]:
-    """
-    Load Recordings from directory.
-    """
-    recordings = [load_recording(directory/name) for name in recording_names]
+    recordings = [load_recording(directory / name)
+                  for name in recording_metafiles]
+
+    add_splines(recordings, directory)
+
     return recordings
 
 

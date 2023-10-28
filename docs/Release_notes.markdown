@@ -1,5 +1,14 @@
 # SATKIT Release Notes
 
+## Version 0.8.0
+
+- Spline loading from AAA exports and several spline metrics now work.
+- Some updates to clean code in general.
+
+Known issues:
+
+- Same as in 0.7.0.
+
 ## Version 0.7.0
 
 - Saving and loading to/from native formats for derived Modalities.

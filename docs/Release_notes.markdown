@@ -19,5 +19,5 @@
 Known issues:
 
 - ctrl+'i' and ctrl+'a' zoom but ctrl+'o' is bound to opening a recording
-  session. The fix will be removing the first two binding which are
+  session. The fix will be removing the first two bindings which are
   unintentional.

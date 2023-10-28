@@ -55,7 +55,9 @@ SATKIT's class structure aims for efficiency without sacrificing clarity. Clarit
   - [Core Data Structures](CoreDataStructures.markdown)
   - [Modalities for Recorded Data](ModalitiesforRecordedData.markdown)
   - [Modalities for Derived Data](ModalitiesforDerivedData.markdown)
-  - [Modalities in Practice](ModalitiesinPractice.markdown)
+  - [Modalities in Practice](ModalitiesinPractice.markdown) including notes on
+    specific Modalities
+    - [Splines in SATKIT](Splines.markdown)
   - [Database Classes](DatabaseClasses.markdown)
 - Extending SATKIT
   - Before starting, please read [SATKIT Coding Conventions](SATKIT_coding_conventions.markdown).

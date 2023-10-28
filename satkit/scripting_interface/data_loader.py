@@ -108,13 +108,11 @@ def read_recording_session_from_dir(
     """
     containing_dir = path.parts[-1]
 
-    # TODO: deal with splines too
     session_meta_path = path / (containing_dir + '.RecordingSession' +
                                 SatkitSuffix.META)
     if session_meta_path.is_file():
         session = load_recording_session(directory=path)
     elif list(path.glob('*' + SourceSuffix.AAA_ULTRA)):
-        ic(containing_dir+SatkitSuffix.META)
         recordings = generate_aaa_recording_list(path)
 
         session = RecordingSession(

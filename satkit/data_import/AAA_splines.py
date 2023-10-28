@@ -40,12 +40,12 @@ import dateutil.parser
 import numpy as np
 from icecream import ic
 
-from satkit.constants import Coordinates, SplineDataColumn, SplineMetaColumn
+from satkit.constants import Coordinates, SatkitConfigFile, SplineDataColumn, SplineMetaColumn
 from satkit.data_structures import ModalityData, Recording
 from satkit.errors import SatkitError
 from satkit.modalities.splines import Splines
 
-from .spline_import_config import SplineImportConfig
+from .spline_import_config import SplineImportConfig, load_spline_import_config
 
 _AAA_spline_logger = logging.getLogger('satkit.AAA_splines')
 
@@ -211,7 +211,6 @@ def add_splines_from_individual_files(
                 f"Spline file {spline_file} was supposed to "
                 f"contain splines of a single recording, "
                 f"but multiple found: {keys}.")
-        ic(keys)
         spline_data = spline_dict[keys[0]]
         splines = Splines(recording, data_path=spline_file,
                           parsed_data=spline_data)
@@ -220,3 +219,16 @@ def add_splines_from_individual_files(
         _AAA_spline_logger.debug(
             "%s has %d splines.",
             recording.basename, len(splines.timevector))
+
+
+def add_splines(
+        recording_list: list[Recording],
+        directory: Path) -> None:
+    spline_config_path = directory/SatkitConfigFile.CSV_SPLINE_IMPORT
+    if spline_config_path.is_file():
+        spline_config = load_spline_import_config(spline_config_path)
+        if spline_config.single_spline_file:
+            add_splines_from_batch_export(
+                recording_list, spline_config)
+        else:
+            add_splines_from_individual_files(recording_list, spline_config)

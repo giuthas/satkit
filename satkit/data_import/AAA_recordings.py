@@ -38,15 +38,13 @@ from typing import Optional
 # Local packages
 from satkit.configuration import (data_run_params,
                                   set_exclusions_from_csv_file)
-from satkit.constants import SatkitConfigFile, SourceSuffix
+from satkit.constants import SourceSuffix
 from satkit.data_structures import Recording
 
 from .AAA_raw_ultrasound import (
     add_aaa_raw_ultrasound, parse_recording_meta_from_aaa_promptfile)
-from .AAA_splines import (add_splines_from_batch_export,
-                          add_splines_from_individual_files)
+from .AAA_splines import add_splines
 from .audio import add_audio
-from .spline_import_config import load_spline_import_config
 from .video import add_video
 
 _AAA_logger = logging.getLogger('satkit.AAA')
@@ -82,7 +80,7 @@ def generate_aaa_recording_list(
         of recording.
     """
 
-    # TODO 1.1.: Deal with directory sturcture specifications.
+    # TODO 1.1.: Deal with directory structure specifications.
     if directory_structure is not None:
         raise NotImplementedError
 
@@ -114,18 +112,7 @@ def generate_aaa_recording_list(
         data_run_params['data properties']['exclusion list'],
         recordings)
 
-    for recording in recordings:
-        if not recording.excluded:
-            add_modalities(recording)
-
-    spline_config_path = directory/SatkitConfigFile.CSV_SPLINE_IMPORT
-    if spline_config_path.is_file():
-        spline_config = load_spline_import_config(spline_config_path)
-        if spline_config.single_spline_file:
-            add_splines_from_batch_export(
-                recordings, spline_config)
-        else:
-            add_splines_from_individual_files(recordings, spline_config)
+    add_modalities(recordings, directory)
 
     return sorted(recordings, key=lambda
                   token: token.meta_data.time_of_recording)
@@ -168,10 +155,11 @@ def generate_ultrasound_recording(basename: str, directory: Path):
 
 
 def add_modalities(
-        recording: Recording,
+        recording_list: list[Recording],
+        directory: Path,
         wav_preload: bool = True,
         ult_preload: bool = False,
-        video_preload: bool = False):
+        video_preload: bool = False) -> None:
     """
     Add audio and raw ultrasound data to the recording.
 
@@ -190,9 +178,13 @@ def add_modalities(
     Throws KeyError if TimeInSecsOfFirstFrame is missing from the
     meta file: [directory]/basename + .txt.
     """
-    _AAA_logger.info("Adding modalities to recording for %s.",
-                     recording.basename)
+    for recording in recording_list:
+        if not recording.excluded:
+            _AAA_logger.info("Adding modalities to recording for %s.",
+                             recording.basename)
 
-    add_audio(recording, wav_preload)
-    add_aaa_raw_ultrasound(recording, ult_preload)
-    add_video(recording, video_preload)
+            add_audio(recording, wav_preload)
+            add_aaa_raw_ultrasound(recording, ult_preload)
+            add_video(recording, video_preload)
+
+    add_splines(recording_list, directory)

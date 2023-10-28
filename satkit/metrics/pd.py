@@ -47,6 +47,12 @@ _pd_logger = logging.getLogger('satkit.pd')
 
 
 class ImageMask(Enum):
+    """
+    Accepted image masking options in calculating PD.
+
+    If both imagemask and interpolated data are chosen, the masking will happen
+    before interpolation.
+    """
     TOP = "top"
     BOTTOM = "bottom"
     WHOLE = "whole"
@@ -155,7 +161,7 @@ class PD(Modality):
         release_data_memory: bool = True
     ) -> dict[str: PdParameters]:
         """
-        Generate PD modality names for checking if they already exist.
+        Generate PD modality names and metadata.
 
         This method will generate the full cartesian product of the possible
         combinations. If only some of them are needed, make more than one call
@@ -174,11 +180,15 @@ class PD(Modality):
             RawUltrasound, by default False
         mask_images : bool, optional
             indicates if images should be masked, by default False
+        release_data_memory: bool
+            Should parent Modlity's data be assigned to None after calculations
+            are complete, by default True.
 
         Returns
         -------
-        list[str]
-            Names that the calculated PD instances would have.
+        dict[str: PdParameters]
+            Dictionary where the names of the PD Modalities index the 
+            PdParameter objects.
         """
         parent_name = modality.__name__
 

@@ -130,7 +130,7 @@ class ANND(Modality):
         modality: Modality,
         norms: list[str] = None,
         timesteps: list[int] = None,
-        release_data_memory: bool = True
+        release_data_memory: bool = False
     ) -> dict[str: AnndParameters]:
         """
         Generate ANND modality names and metadata.
@@ -147,6 +147,9 @@ class ANND(Modality):
             list of norms to be calculated, defaults to 'l2'.
         timesteps : List[int], optional
             list of timesteps to be used, defaults to 1.
+        release_data_memory: bool
+            Should parent Modlity's data be assigned to None after calculations
+            are complete, by default False.
 
         Returns
         -------

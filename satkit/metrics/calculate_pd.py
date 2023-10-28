@@ -118,12 +118,6 @@ def calculate_slwpd(raw_diff):
     return slw_pd
 
 
-def calculate_intensity(parent_modality: Modality):
-    data = parent_modality.data
-    return np.sum(data, axis=(1, 2))
-    # TODO: Compare this to the PD similarity matrix used by Gabor et al.
-
-
 def calculate_pd(
         parent_modality: Modality,
         to_be_computed: dict[str, PdParameters]) -> list[PD]:

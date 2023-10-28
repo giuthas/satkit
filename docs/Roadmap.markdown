@@ -33,6 +33,7 @@ Items will only be marked as done, once clean up is also done.
     - [x] old style
     - [x] new style
   - [ ] loading 3D/4D ultrasound data from RASL
+  - [x] load splines from .csv files exported by AAA
   - [x] SATKIT native formats
     - [x] saving results in implementation free, human readable if possible, formats
     - [x] loading

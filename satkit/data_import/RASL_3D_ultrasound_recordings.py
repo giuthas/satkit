@@ -38,13 +38,15 @@ from copy import deepcopy
 from pathlib import Path
 from typing import Dict, Optional
 
+from icecream import ic
+
 # Local packages
-from satkit.data_structures import Recording
+from satkit.data_structures import Recording, RecordingMetaData
 from satkit.configuration import data_run_params, set_exclusions_from_csv_file
 
-from .three_dim_ultrasound import (add_rasl_3D_ultrasound,
-                                   generateMeta,
-                                   read_3D_meta_from_mat_file)
+from .three_dim_ultrasound import (add_rasl_3d_ultrasound,
+                                   generate_meta,
+                                   read_3d_meta_from_mat_file)
 from .audio import add_audio
 from .video import add_video
 
@@ -101,7 +103,7 @@ def generate_rasl_recording_list(
 
     # strip file extensions off of filepaths to get the base names
     dicom_basenames = [filepath.name for filepath in dicom_files]
-    meta = read_3D_meta_from_mat_file(mat_file)
+    meta = read_3d_meta_from_mat_file(mat_file)
 
     # Create a lookup table for matching sound and dicom.
     # First file names with their ordinal numbers.
@@ -116,12 +118,14 @@ def generate_rasl_recording_list(
     recordings = []
     for token in meta:
         if token['trial_number'] in dicom_dict:
-            print(dicom_dict[token['trial_number']])
-            recording = generate_3D_ultrasound_recording(
+
+            ic(dicom_dict[token['trial_number']])
+
+            recording = generate_3d_ultrasound_recording(
                 dicom_dict[token['trial_number']],
                 token['dat_filename'],
+                token,
                 directories)
-            recording.addMeta(token)
             recordings.append(recording)
         else:
             _3D4D_ultra_logger.info(
@@ -143,7 +147,9 @@ def generate_rasl_recording_list(
 
 def generate_recording_list_old_style(directory):
     """
-    Produce an array of Recordings from a 3D4D ultrasound directory without .mat notes file.
+    Load Recordings from a old style 3D4D ultrasound directory.
+
+    Old style directories don't have a `.mat` notes file.
 
     Prepare a list of Recording objects from the files exported by AAA
     into the named directory. File existence is tested for,
@@ -210,7 +216,7 @@ def generate_recording_list_old_style(directory):
 
     # strip file extensions off of filepaths to get the base names
     dicom_basenames = [filepath.name for filepath in dicom_files]
-    meta = generateMeta(rows)
+    meta = generate_meta(rows)
 
     # Create a lookup table for matching sound and dicom.
     # First file names with their ordinal numbers.
@@ -222,7 +228,7 @@ def generate_recording_list_old_style(directory):
         for name_number in dicom_names_numbers
     }
 
-    for token in meta:
+    for token in meta.copy():
         if token['trial_number'] in dicom_dict:
             token['filename'] = dicom_dict[token['trial_number']]
         else:
@@ -233,7 +239,7 @@ def generate_recording_list_old_style(directory):
         if token['trial_number'] in dicom_dict:
             _3D4D_ultra_logger.debug(
                 "Processing %s.", dicom_dict[token['trial_number']])
-            recording = generate_3D_ultrasound_recording(
+            recording = generate_3d_ultrasound_recording(
                 dicom_dict[token['trial_number']],
                 token['sound_filename'],
                 directories,
@@ -241,13 +247,14 @@ def generate_recording_list_old_style(directory):
             recordings.append(recording)
         else:
             _3D4D_ultra_logger.info(
-                'No DICOM file corresponding to number ' +
-                token['trial_number'] + ' found in ' + str(directory) + '.')
+                'No DICOM file corresponding to number %d found in %s.',
+                token['trial_number'],
+                str(directory))
 
     return sorted(recordings, key=lambda token: token.meta['date_and_time'])
 
 
-def generate_3D_ultrasound_recording(
+def generate_3d_ultrasound_recording(
         dicom_name: str,
         sound_name: str,
         meta: dict,
@@ -268,41 +275,37 @@ def generate_3D_ultrasound_recording(
     """
 
     _3D4D_ultra_logger.info(
-        "Building Recording object for " + str(dicom_name) + " in " +
-        str(directories['root_dir']) + ".")
-
-    # If we aren't going to process this recording,
-    # don't bother with the rest.
-    if recording.excluded:
-        _3D4D_ultra_logger.info(
-            "Recording " + str(dicom_name) + " automatically excluded.")
+        "Building Recording object for %s in %s.", str(dicom_name),
+        str(directories['root_dir']))
 
     # Candidates for filenames. Existence tested below.
-    ult_wav_file = directories['wav_dir']/sound_name.with_suffix(".wav")
     textgrid = directories['wav_dir']/sound_name.with_suffix(".TextGrid")
-    ult_file = directories['dicom_dir']/dicom_name
     video_file = directories['avi_dir']/dicom_name
     video_file = video_file.with_suffix(".avi")
 
+    # TODO: this is a pretty much bogus call. check what actually is in meta
+    recording_meta = RecordingMetaData(
+        prompt=meta['prompt'],
+        time_of_recording=meta['date_and_time'],
+        participant_id=meta,
+        basename=dicom_name,
+        path=directories)
+
     if textgrid.is_file():
         recording = Recording(
-            meta_data=meta,
-            path=directories['root_dir'],
-            basename=dicom_name,
+            meta_data=recording_meta,
             textgrid_path=textgrid
         )
     else:
-        recording = Recording(
-            meta_data=meta,
-            path=directories['root_dir'],
-            basename=dicom_name
-        )
+        recording = Recording(meta_data=recording_meta)
 
     return recording
 
 
 def add_modalities(
-        recording: Recording, wav_preload: bool = True, ult_preload: bool = False,
+        recording: Recording,
+        wav_preload: bool = True,
+        ult_preload: bool = False,
         video_preload: bool = False):
     """
     Add audio and raw ultrasound data to the recording.
@@ -327,7 +330,7 @@ def add_modalities(
                             recording.basename)
 
     add_audio(recording, wav_preload)
-    add_rasl_3D_ultrasound(recording, ult_preload)
+    add_rasl_3d_ultrasound(recording, ult_preload)
     add_video(recording, video_preload)
 
     # def addModalities(self, wavPreload=True, ultPreload=False,
@@ -342,7 +345,8 @@ def add_modalities(
     #         memory on initialising. Defaults to False. Note: these
     #         files are, roughly one to two orders of magnitude
     #         larger than .wav files.
-    #     videoPreload -- boolean indicating if the .avi file is to be read into
+    #     videoPreload -- boolean indicating if the .avi file
+    #         is to be read into
     #         memory on initialising. Defaults to False. Note: these
     #         files are, yet again, roughly one to two orders of magnitude
     #         larger than .ult files.
@@ -385,8 +389,8 @@ def add_modalities(
     #         }
     #         warnings.warn(
     #             "Video (.avi) fps set to " + str(videoMeta['FramesPerSec']) +
-    #             "This is the correct value for fps for a de-interlaced video "
-    #             + " for AAA recordings. Check it for other data.")
+    #             "This is the correct value for fps for a de-interlaced "
+    #             + " video for AAA recordings. Check it for other data.")
 
     #         video = Video(
     #             parent=self,

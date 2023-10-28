@@ -1,8 +1,8 @@
 #
-# Copyright (c) 2019-2023 
+# Copyright (c) 2019-2023
 # Pertti Palo, Scott Moisik, Matthew Faytak, and Motoki Saito.
 #
-# This file is part of Speech Articulation ToolKIT 
+# This file is part of Speech Articulation ToolKIT
 # (see https://github.com/giuthas/satkit/).
 #
 # This program is free software: you can redistribute it and/or modify
@@ -33,13 +33,11 @@
 
 # Built in packages
 import logging
-from copy import deepcopy
 from datetime import datetime
 from pathlib import Path, PureWindowsPath
 from typing import Optional
 
 # Numpy and scipy
-import numpy as np
 # from numpy.matlib import repmat
 import scipy.io
 from satkit.data_structures import Recording
@@ -47,7 +45,7 @@ from satkit.data_structures import Recording
 _3D4D_ultra_logger = logging.getLogger('satkit.ThreeD_ultrasound')
 
 
-def read_3D_meta_from_mat_file(mat_file):
+def read_3d_meta_from_mat_file(mat_file):
     """
     Read a RASL .mat file and return relevant contents as a dict.
 
@@ -94,7 +92,7 @@ def read_3D_meta_from_mat_file(mat_file):
     return meta
 
 
-def generateMeta(rows):
+def generate_meta(rows):
     """
     Parse a RASL .mat file's rows and return relevant contents as a dict.
 
@@ -126,6 +124,6 @@ def generateMeta(rows):
     return meta
 
 
-def add_rasl_3D_ultrasound(recording: Recording, preload: bool,
+def add_rasl_3d_ultrasound(recording: Recording, preload: bool,
                            path: Optional[Path] = None) -> None:
     """Create a RawUltrasound Modality and add it to the Recording."""

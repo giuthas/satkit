@@ -33,3 +33,7 @@ classDiagram
     RawUltrasound <.. PixelDifference : derived from
 
 ```
+
+## Notes on specific Modalities
+
+- [Splines in SATKIT](Splines.markdown)

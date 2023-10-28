@@ -118,42 +118,6 @@ def generate_aaa_recording_list(
                   token: token.meta_data.time_of_recording)
 
 
-def generate_ultrasound_recording(basename: str, directory: Path):
-    """
-    Generate an UltrasoundRecording without Modalities.
-
-    Arguments:
-    basename -- name of the files to be read without type extensions but
-        with path.
-
-    KeywordArguments:
-    directory -- path to files
-
-    Returns an AaaUltrasoundRecording without any modalities.
-    """
-
-    _AAA_logger.info(
-        "Building Recording object for %s in %s.", basename, directory)
-
-    meta = parse_recording_meta_from_aaa_promptfile(
-        (directory / basename).with_suffix('.txt'))
-
-    textgrid = directory/basename
-    textgrid = textgrid.with_suffix('.TextGrid')
-
-    if textgrid.is_file():
-        recording = Recording(
-            meta_data=meta,
-            textgrid_path=textgrid
-        )
-    else:
-        recording = Recording(
-            meta_data=meta,
-        )
-
-    return recording
-
-
 def add_modalities(
         recording_list: list[Recording],
         directory: Path,
@@ -188,3 +152,39 @@ def add_modalities(
             add_video(recording, video_preload)
 
     add_splines(recording_list, directory)
+
+
+def generate_ultrasound_recording(basename: str, directory: Path):
+    """
+    Generate an UltrasoundRecording without Modalities.
+
+    Arguments:
+    basename -- name of the files to be read without type extensions but
+        with path.
+
+    KeywordArguments:
+    directory -- path to files
+
+    Returns an AaaUltrasoundRecording without any modalities.
+    """
+
+    _AAA_logger.info(
+        "Building Recording object for %s in %s.", basename, directory)
+
+    meta = parse_recording_meta_from_aaa_promptfile(
+        (directory / basename).with_suffix('.txt'))
+
+    textgrid = directory/basename
+    textgrid = textgrid.with_suffix('.TextGrid')
+
+    if textgrid.is_file():
+        recording = Recording(
+            meta_data=meta,
+            textgrid_path=textgrid
+        )
+    else:
+        recording = Recording(
+            meta_data=meta,
+        )
+
+    return recording

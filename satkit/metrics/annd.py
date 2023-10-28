@@ -32,109 +32,211 @@
 
 # Built in packages
 import logging
+from pathlib import Path
+from typing import Optional, Tuple
 
 # Numpy and scipy
 import numpy as np
+from pydantic import PositiveInt
 
-from satkit.modalities import Splines
+from satkit.data_structures import (
+    Modality, ModalityData, ModalityMetaData, Recording)
+from satkit.helpers.processing_helpers import product_dict
 
 _annd_logger = logging.getLogger('satkit.annd')
 
 
-def annd(splines: Splines):
+class AnndParameters(ModalityMetaData):
     """
-    Calculate Average Nearest Neighbour Distance (ANND) on the Splines. 
+    Parameters used in generating the parent ANND modality.
 
-    Returns a dictionary containing ANND as a function of time,
-    a time vector spanning the splined part of the ultrasound recording.
+    Parameters
+    ----------
+    metric : str
+        A string specifying this Modality's metric. Defaults to the l1 norm.
+    timestep : int 
+        A  positive integer used as the timestep in calculating this Modality's
+        data. Defaults to 1, which means comparison of consequetive frames.
+    release_data_memory : bool
+        Wether to assign None to parent.data after deriving this Modality from
+        the data. Currently has no effect as deriving ANND at runtime is not
+        yet supported.
+    """
+    parent_name: str
+    metric: str = 'l2'
+    timestep: PositiveInt = 1
+    release_data_memory: bool = False
+
+
+class ANND(Modality):
+    """
+    Represent Average Nearest Neighbour Distance (ANND) as a Modality. 
     """
 
-    notice = token['base_name'] + " " + token['prompt']
-    if token['excluded']:
-        notice += ': Token excluded.'
-        _annd_logger.info(notice)
-        return None
-    else:
-        notice += ': Token being processed.'
-        _annd_logger.info(notice)
+    accepted_metrics = [
+        'l1',
+        'l2',
+        'l3',
+        'l4',
+        'l5',
+        'l6',
+        'l7',
+        'l8',
+        'l9',
+        'l10',
+        'inf',
+    ]
 
-    if 'splines' in token:
-        # Taking a copy so that we don't mess things if other metrices are run
-        # on the same splines.
-        splines = token['splines']
-    else:
-        notice = 'No splines found for ' + token['base_name'] + " "
-        notice += token['prompt'] + '.'
-        _annd_logger.critical(notice)
-        return
+    @staticmethod
+    def generate_name(params: AnndParameters) -> str:
+        """
+        Generate a ANND modality name to be used as its unique identifier.
 
-    for spline in splines:
-        #####
-        # disregard samples from front and from back
-        #
-        # this should be user adjustable after examining the splines
-        #####
-        spline['x'] = spline['x'][10:-4]
-        spline['y'] = spline['y'][10:-4]
+        This statit method **defines** what the names are. This implementation
+        pattern (ANND.name calls this and any where that needs to guess what a
+        name would be calls this) is how all derived Modalities should work.
 
-    # loop to calculate annd, mnnd, apbpd and mpbpd
-    timestep = 3
-    num_points = len(splines[1]['x'])
-    annd = np.zeros(len(splines)-timestep)
-    spline_d = np.zeros(len(splines)-timestep)
-    spline_l1 = np.zeros(len(splines)-timestep)
-    mnnd = np.zeros(len(splines)-timestep)
-    apbpd = np.zeros(len(splines)-timestep)
-    mpbpd = np.zeros(len(splines)-timestep)
-    for i in range(len(splines)-timestep):
-        current_points = np.stack((splines[i]['x'], splines[i]['y']))
-        next_points = np.stack(
-            (splines[i + timestep]['x'],
-             splines[i + timestep]['y']))
+        Parameters
+        ----------
+        modality : Modality
+            Parent Modality that ANND is calculated on.
+        params : AnndParameters
+            The parameters of the ANND instance. Note that this AnndParameters
+            instance does not need to be attached to a ANND instance.
 
-        diff = np.subtract(current_points, next_points)
-        spline_l1[i] = np.sum(np.abs(diff))
-        diff = np.square(diff)
-        spline_d[i] = np.sqrt(np.sum(diff))
-        diff = np.sum(diff, axis=0)  # sums over (x,y) for individual points
-        diff = np.sqrt(diff)
-        apbpd[i] = np.average(diff)
-        mpbpd[i] = np.median(diff)
+        Returns
+        -------
+        str
+            Name of the ANND instance.
+        """
+        name_string = 'ANND' + " " + params.metric
 
-        nnd = np.zeros(num_points)
-        for j in range(num_points):
-            current_point = np.tile(current_points[:, j:j+1], (1, num_points))
-            diff = np.subtract(current_point, next_points)
-            diff = np.square(diff)
-            diff = np.sum(diff, axis=0)
-            diff = np.sqrt(diff)
-            nnd[j] = np.amin(diff)
+        if params.timestep != 1:
+            name_string = name_string + " ts" + str(params.timestep)
 
-        annd[i] = np.average(nnd)
-        mnnd[i] = np.median(nnd)
+        if params.image_mask:
+            name_string = name_string + " " + params.image_mask.value
 
-    notice = token['base_name'] + " " + token['prompt']
-    notice += ': ANND calculated.'
-    _annd_logger.debug(notice)
+        if params.interpolated and params.parent_name:
+            name_string = ("Interpolated " + name_string + " on " +
+                           params.parent_name)
+        elif params.parent_name:
+            name_string = name_string + " on " + params.parent_name
 
-    spline_time = np.array([spline['sample_time'] for spline in splines])
-    annd_time = np.add(spline_time[timestep:], spline_time[0:-timestep])
-    annd_time = np.divide(annd_time, np.repeat(2.0, len(splines)-timestep))
+        return name_string
 
-    notice = token['base_name'] + " " + token['prompt']
-    notice += ': Token processed in ANND.'
-    _annd_logger.info(notice)
+    @staticmethod
+    def get_names_and_meta(
+        modality: Modality,
+        norms: list[str] = None,
+        timesteps: list[int] = None,
+        release_data_memory: bool = True
+    ) -> dict[str: AnndParameters]:
+        """
+        Generate PD modality names for checking if they already exist.
 
-    data = {}
-    data['annd'] = annd
-    data['mnnd'] = mnnd
-    data['spline_l1'] = spline_l1
+        This method will generate the full cartesian product of the possible
+        combinations. If only some of them are needed, make more than one call
+        or weed the results afterwards.
 
-    # this one is no good, but should be documented as such before removing the code
-    data['spline_d'] = spline_d/num_points
+        Parameters
+        ----------
+        modality : Modality
+            parent modality that PD would be derived from
+        norms : List[str], optional
+            list of norms to be calculated, defaults to 'l2'.
+        timesteps : List[int], optional
+            list of timesteps to be used, defaults to 1.
 
-    data['apbpd'] = apbpd
-    data['mpbpd'] = mpbpd  # median point-by-point Euclidean distance
-    data['annd_time'] = annd_time
+        Returns
+        -------
+        list[str]
+            Names that the calculated PD instances would have.
+        """
+        parent_name = modality.__name__
 
-    return data
+        if not norms:
+            norms = ['l2']
+        if not timesteps:
+            timesteps = [1]
+
+        param_dict = {
+            'parent_name': [parent_name],
+            'metric': norms,
+            'timestep': timesteps,
+            'release_data_memory': [release_data_memory]}
+
+        anndparams = [AnndParameters(**item)
+                      for item in product_dict(**param_dict)]
+
+        return {ANND.generate_name(params): params for params in anndparams}
+
+    def __init__(self,
+                 recording: Recording,
+                 parameters: AnndParameters,
+                 load_path: Optional[Path] = None,
+                 meta_path: Optional[Path] = None,
+                 parsed_data: Optional[ModalityData] = None,
+                 time_offset: Optional[float] = None) -> None:
+        """
+        Build a Average Nearest Neighbour Distance (ANND) Modality.       
+
+        Positional arguments: recording -- the containing Recording. paremeters
+        : AnndParameters
+            Parameters used in calculating this instance of ANND.
+        Keyword arguments: load_path -- path of the saved data - both
+        ultrasound and metadata parent -- the Modality this one was derived
+        from. None means this 
+            is an underived data Modality. If parent is None, it will be copied
+            from dataModality.
+        parsed_data -- ModalityData object containing raw ultrasound, 
+            sampling rate,and either timevector and/or time_offset. Providing a
+            timevector overrides any time_offset value given, but in absence of
+            a timevector the time_offset will be applied on reading the data
+            from file. 
+        timeoffset -- timeoffset in seconds against the Recordings baseline.
+            If not specified or 0, timeOffset will be copied from dataModality.
+        """
+        # This allows the caller to be lazy.
+        if not time_offset:
+            if parsed_data:
+                time_offset = parsed_data.timevector[0]
+            elif parameters.parent_name:
+                time_offset = parameters.parent_name.time_offset
+
+        super().__init__(
+            recording,
+            meta_data=parameters,
+            data_path=None,
+            load_path=load_path,
+            meta_path=meta_path,
+            parsed_data=parsed_data)
+
+        self.meta_data = parameters
+
+    def _derive_data(self) -> Tuple[np.ndarray, np.ndarray, float]:
+        """
+        Calculate Average Nearest Neighbour Distance (ANND) on the data
+        Modality parent.       
+        """
+        raise NotImplementedError(
+            "Currently ANND Modalities have to be "
+            "calculated at instantiation time.")
+
+    def get_meta(self) -> dict:
+        # This conversion is done to keep nestedtext working.
+        meta = self.meta_data.model_dump()
+        meta['image_mask'] = str(meta['image_mask'])
+        return meta
+
+    @property
+    def name(self) -> str:
+        """
+        Identity, metric, and parent data class.
+
+        The name will be of the form
+        'PD [metric name] on [data modality class name]'.
+
+        This overrides the default behaviour of Modality.name.
+        """
+        return ANND.generate_name(self.meta_data)

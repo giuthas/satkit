@@ -37,7 +37,6 @@ from typing import Optional, Tuple
 
 import numpy as np
 
-from icecream import ic
 from pydantic import PositiveInt
 
 from satkit.data_structures import (
@@ -62,6 +61,8 @@ class PdParameters(ModalityMetaData):
 
     Parameters
     ----------
+    parent_name: str
+        Name of the Modality this instance of PD was calculated on.
     metric : str
         A string specifying this Modality's metric. Defaults to the l1 norm.
     timestep : int 

@@ -38,7 +38,6 @@ from pathlib import Path
 
 import dateutil.parser
 import numpy as np
-from icecream import ic
 
 from satkit.constants import (
     Coordinates, SatkitConfigFile, SplineDataColumn, SplineMetaColumn)

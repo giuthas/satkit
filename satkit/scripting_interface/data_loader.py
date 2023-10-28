@@ -33,8 +33,6 @@ import logging
 from pathlib import Path
 from typing import Optional
 
-from icecream import ic
-
 from satkit.audio_processing import MainsFilter
 from satkit.configuration import config_dict
 from satkit.constants import Datasource, SourceSuffix, SatkitSuffix

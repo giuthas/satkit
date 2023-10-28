@@ -38,9 +38,9 @@ from pathlib import Path
 
 import dateutil.parser
 import numpy as np
-from icecream import ic
 
-from satkit.constants import Coordinates, SatkitConfigFile, SplineDataColumn, SplineMetaColumn
+from satkit.constants import (
+    Coordinates, SatkitConfigFile, SplineDataColumn, SplineMetaColumn)
 from satkit.data_structures import ModalityData, Recording
 from satkit.errors import SatkitError
 from satkit.modalities.splines import Splines
@@ -224,6 +224,21 @@ def add_splines_from_individual_files(
 def add_splines(
         recording_list: list[Recording],
         directory: Path) -> None:
+    """
+    Load and add Splines to the Recordings if available.
+
+    Note that a SatkitConfigFile.CSV_SPLINE_IMPORT file needs to be present in
+    the directory. Otherwise nothing gets loaded because SATKIT doesn't know
+    how to handle arbitrary spline files.
+
+    Parameters
+    ----------
+    recording_list : list[Recording]
+        The Recordings.
+    directory : Path
+        Path to the directory where the splines (and most likely other
+        Recording files) are.
+    """
     spline_config_path = directory/SatkitConfigFile.CSV_SPLINE_IMPORT
     if spline_config_path.is_file():
         spline_config = load_spline_import_config(spline_config_path)

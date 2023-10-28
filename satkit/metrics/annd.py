@@ -1,8 +1,8 @@
 #
-# Copyright (c) 2019-2023 
+# Copyright (c) 2019-2023
 # Pertti Palo, Scott Moisik, Matthew Faytak, and Motoki Saito.
 #
-# This file is part of Speech Articulation ToolKIT 
+# This file is part of Speech Articulation ToolKIT
 # (see https://github.com/giuthas/satkit/).
 #
 # This program is free software: you can redistribute it and/or modify
@@ -36,12 +36,14 @@ import logging
 # Numpy and scipy
 import numpy as np
 
+from satkit.modalities import Splines
+
 _annd_logger = logging.getLogger('satkit.annd')
 
 
-def annd(token):
+def annd(splines: Splines):
     """
-    Calculate Average Nearest Neighbour Distance (ANND) curve for the recording. 
+    Calculate Average Nearest Neighbour Distance (ANND) on the Splines. 
 
     Returns a dictionary containing ANND as a function of time,
     a time vector spanning the splined part of the ultrasound recording.

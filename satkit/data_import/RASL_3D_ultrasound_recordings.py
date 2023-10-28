@@ -52,7 +52,8 @@ _3D4D_ultra_logger = logging.getLogger('satkit.ThreeD_ultrasound')
 
 
 def generate_rasl_recording_list(
-        directory: Path, config: Optional[dict] = None):
+        directory: Path,
+        directory_structure: Optional[dict] = None):
     """
     Produce an array of Recordings from a 3D4D ultrasound directory.
 
@@ -78,6 +79,10 @@ def generate_rasl_recording_list(
     Returns an array of Recording objects sorted by date and time
         of recording.
     """
+
+    # TODO 1.1.: Deal with directory structure specifications.
+    if directory_structure is not None:
+        raise NotImplementedError
 
     dicom_dir = directory / "DICOM"
     note_dir = directory / "NOTES"

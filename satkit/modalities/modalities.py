@@ -200,6 +200,7 @@ class RawUltrasound(Modality):
         self._stored_index = None
         self._stored_image = None
         self.video_has_been_stored = False
+        self.stored_video = None
 
     def _read_data(self) -> ModalityData:
         return read_ult(self.data_path, self.meta, self._time_offset)
@@ -226,7 +227,7 @@ class RawUltrasound(Modality):
         Arguments: index - the index of the ultrasound frame to be returned
         """
         _modalities_logger.debug(
-            "Getting interpolated image from ultrasound. index=%d" % (index))
+            "Getting interpolated image from ultrasound. index=%d", index)
         if self.video_has_been_stored:
             _modalities_logger.debug(
                 "Returning interpolated image from stored video.")
@@ -256,11 +257,11 @@ class RawUltrasound(Modality):
         """
         Return an interpolated version of the ultrasound frame at index.
 
-        A new interpolated image is calculated, if necessary. To avoid large memory overheads
-        only the current frame's interpolated version maybe stored in memory.
+        A new interpolated image is calculated, if necessary. To avoid large
+        memory overheads only the current frame's interpolated version maybe
+        stored in memory.
 
-        Arguments:
-        index - the index of the ultrasound frame to be returned
+        Arguments: index - the index of the ultrasound frame to be returned
         """
         data = self.data.copy()
 
@@ -273,7 +274,7 @@ class RawUltrasound(Modality):
             num_vectors=self.meta['NumVectors'],
             show_progress=True)
         self.stored_video = video.copy()
-        half = int(video.shape[1]/2)
+        # half = int(video.shape[1]/2)
         # self.stored_video[:,half:,:] = 0
         return video
 
@@ -298,58 +299,58 @@ class Video(Modality):
         """
         Create a Video Modality.
 
-        Positional arguments:
-        recording -- the containing Recording.        
+        Positional arguments: recording -- the containing Recording.        
 
-        Keyword arguments:
-        data_path -- path of the ultrasound file
-        load_path -- path of the saved data - both ultrasound and metadata
-        parent -- the Modality this one was derived from. Should be None 
+        Keyword arguments: data_path -- path of the ultrasound file load_path
+        -- path of the saved data - both ultrasound and metadata parent -- the
+        Modality this one was derived from. Should be None 
             which means this is an underived data Modality.
-        parsed_data -- ModalityData object containing raw ultrasound, sampling rate,
-            and either timevector and/or time_offset. Providing a timevector 
-            overrides any time_offset value given, but in absence of a 
-            timevector the time_offset will be applied on reading the data 
+        parsed_data -- ModalityData object containing raw ultrasound, sampling
+            rate, and either timevector and/or time_offset. Providing a
+            timevector overrides any time_offset value given, but in absence of
+            a timevector the time_offset will be applied on reading the data
             from file. 
         meta -- a dict with (at least) the keys listed in 
-            Video.requiredMetaKeys. Extra keys will be ignored. 
-            Default is None.
+            Video.requiredMetaKeys. Extra keys will be ignored. Default is
+            None.
         """
-        # Explicitly copy meta data fields to ensure that we have what we expected to get.
-        if meta != None:
+        # Explicitly copy meta data fields to ensure that we have what we
+        # expected to get.
+        if meta is not None:
             try:
                 wanted_meta = {key: meta[key]
                                for key in Video.requiredMetaKeys}
             except KeyError:
-                # Missing metadata for one recording may be ok and this could be handled with just
-                # a call to _recording_logger.critical and setting self.excluded = True
-                notFound = set(Video.requiredMetaKeys) - set(meta)
+                # Missing metadata for one recording may be ok and this could
+                # be handled with just a call to _recording_logger.critical and
+                # setting self.excluded = True
+                not_found = set(Video.requiredMetaKeys) - set(meta)
                 _modalities_logger.critical(
-                    "Part of metadata missing when processing "
-                    + self.meta['filename'] + ". ")
+                    "Part of metadata missing when processing video for %s. ",
+                    recording.basename)
                 _modalities_logger.critical(
-                    "Could not find " + str(notFound) + ".")
+                    "Could not find %s.", str(not_found))
                 _modalities_logger.critical('Exiting.')
                 sys.exit()
 
-            self.meta.deepcopy(wanted_meta)
+            self.meta = deepcopy(wanted_meta)
 
         super().__init__(
             recording=recording,
             data_path=data_path,
             load_path=load_path,
-            parent=None,
             parsed_data=parsed_data,
             time_offset=time_offset)
 
-    def _readData(self) -> ModalityData:
+    def _read_data(self) -> ModalityData:
+        """Concrete implementation of _read_data by reading .avi video."""
         return read_avi(self.data_path, self.meta, self._time_offset)
 
     def get_meta(self) -> dict:
         return {'sampling_rate': self.sampling_rate}
 
 
-class ThreeD_Ultrasound(Modality):
+class ThreeDimUltrasound(Modality):
     """
     Ultrasound Recording with interpolated 3D/4D data.  
     """
@@ -376,36 +377,36 @@ class ThreeD_Ultrasound(Modality):
         """
         Create a RawUltrasound Modality.
 
-        Positional arguments:
-        recording -- the containing Recording.        
+        Positional arguments: recording -- the containing Recording.        
 
-        Keyword arguments:
-        data_path -- path of the ultrasound file
-        load_path -- path of the saved data - both ultrasound and metadata
-        parsed_data -- ModalityData object containing raw ultrasound, sampling rate,
-            and either timevector and/or time_offset. Providing a timevector 
-            overrides any time_offset value given, but in absence of a 
-            timevector the time_offset will be applied on reading the data 
+        Keyword arguments: data_path -- path of the ultrasound file load_path
+        -- path of the saved data - both ultrasound and metadata parsed_data --
+        ModalityData object containing raw ultrasound, 
+            sampling rate, and either timevector and/or time_offset. Providing
+            a timevector overrides any time_offset value given, but in absence
+            of a timevector the time_offset will be applied on reading the data
             from file. 
         meta -- a dict with (at least) the keys listed in 
-            RawUltrasound.requiredMetaKeys. Extra keys will be ignored. 
-            Default is None.
+            RawUltrasound.requiredMetaKeys. Extra keys will be ignored. Default
+            is None.
         """
-        # Explicitly copy meta data fields to ensure that we have what we expected to get.
-        if meta != None:
+        # Explicitly copy meta data fields to ensure that we have what we
+        # expected to get.
+        if meta is not None:
             try:
                 wanted_meta = {key: meta[key]
                                for key in RawUltrasound.requiredMetaKeys}
                 self.meta = deepcopy(wanted_meta)
             except KeyError:
-                # Missing metadata for one recording may be ok and this could be handled with just
-                # a call to _recording_logger.critical and setting self.excluded = True
-                notFound = set(RawUltrasound.requiredMetaKeys) - set(meta)
+                # Missing metadata for one recording may be ok and this could
+                # be handled with just a call to _recording_logger.critical and
+                # setting self.excluded = True
+                not_found = set(RawUltrasound.requiredMetaKeys) - set(meta)
                 _modalities_logger.critical(
                     "Part of metadata missing when processing %s.",
                     self.meta['filename'])
                 _modalities_logger.critical(
-                    "Could not find %s.", str(notFound))
+                    "Could not find %s.", str(not_found))
                 _modalities_logger.critical('Exiting.')
                 sys.exit()
 
@@ -416,12 +417,12 @@ class ThreeD_Ultrasound(Modality):
             data_path=data_path,
             meta_path=meta_path,
             load_path=load_path,
-            parent=None,
             parsed_data=parsed_data,
             time_offset=time_offset)
 
-        # TODO: these are related to GUI and should really be in a decorator class and not here.
-        # State variables for fast retrieval of previously tagged ultrasound frames.
+        # TODO: these are related to GUI and should really be in a decorator
+        # class and not here. State variables for fast retrieval of previously
+        # tagged ultrasound frames.
         self._stored_index = None
         self._stored_image = None
 

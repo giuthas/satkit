@@ -43,7 +43,8 @@ from satkit.data_structures import Recording
 
 from .AAA_raw_ultrasound import (
     add_aaa_raw_ultrasound, parse_recording_meta_from_aaa_promptfile)
-from .AAA_splines import add_splines_from_batch_export
+from .AAA_splines import (add_splines_from_batch_export,
+                          add_splines_from_individual_files)
 from .audio import add_audio
 from .spline_import_config import load_spline_import_config
 from .video import add_video
@@ -120,15 +121,11 @@ def generate_aaa_recording_list(
     spline_config_path = directory/SatkitConfigFile.CSV_SPLINE_IMPORT
     if spline_config_path.is_file():
         spline_config = load_spline_import_config(spline_config_path)
-        spline_file = directory/spline_config.spline_file
-        # TODO: fix this ugly hack
-        spline_config.spline_file = spline_file
-        if (spline_config.single_spline_file
-                and spline_file.is_file()):
+        if spline_config.single_spline_file:
             add_splines_from_batch_export(
                 recordings, spline_config)
         else:
-            raise NotImplementedError
+            add_splines_from_individual_files(recordings, spline_config)
 
     return sorted(recordings, key=lambda
                   token: token.meta_data.time_of_recording)

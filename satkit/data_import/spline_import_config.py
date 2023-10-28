@@ -114,7 +114,7 @@ class SplineImportConfig:
     meta_columns: tuple(SplineMetaColumn)
     data_columns: tuple(SplineDataColumn)
     spline_file: Optional[Path]
-    spline_file_glob: Optional[str]
+    spline_file_extension: Optional[str]
 
 
 def load_spline_import_config(
@@ -140,7 +140,7 @@ def load_spline_import_config(
             schema = Map({
                 "single_spline_file": Bool(),
                 "spline_file": PathValidator(),
-                "spline_file_glob": Str(),
+                "spline_file_extension": Str(),
                 "headers": Bool(),
                 "coordinates": CoordinatesValidator(),
                 "interleaved_coords": Bool(),

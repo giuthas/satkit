@@ -33,7 +33,6 @@
 from collections import defaultdict
 from contextlib import closing
 import csv
-from datetime import datetime
 import logging
 from pathlib import Path
 
@@ -43,43 +42,12 @@ from icecream import ic
 
 from satkit.constants import Coordinates, SplineDataColumn, SplineMetaColumn
 from satkit.data_structures import ModalityData, Recording
+from satkit.errors import SatkitError
 from satkit.modalities.splines import Splines
 
 from .spline_import_config import SplineImportConfig
 
 _AAA_spline_logger = logging.getLogger('satkit.AAA_splines')
-
-
-def parse_spline_line(line):
-    """Parse a single line in an old AAA spline export file."""
-    # This relies on none of the fields being empty and is necessary to be
-    # able to process AAA's output which sometimes has extra tabs.
-    cells = line.split('\t')
-    token = {'id': cells[0],
-             'date_and_time': datetime.strptime(
-        cells[1],
-        '%m/%d/%Y %I:%M:%S %p'),
-        'sample_time': float(cells[2]),
-        'prompt': cells[3],
-        'nro_spline_points': int(cells[4]),
-        'beg': 0, 'end': 42}
-
-    token['r'] = np.fromiter(
-        cells[5: 5 + token['nro_spline_points']],
-        dtype='float')
-    token['phi'] = np.fromiter(
-        cells
-        [5 + token['nro_spline_points']: 5 + 2 * token['nro_spline_points']],
-        dtype='float')
-    token['conf'] = np.fromiter(
-        cells
-        [5 + 2 * token['nro_spline_points']: 5 + 3 * token
-         ['nro_spline_points']],
-        dtype='float')
-    token['x'] = np.multiply(token['r'], np.sin(token['phi']))
-    token['y'] = np.multiply(token['r'], np.cos(token['phi']))
-
-    return token
 
 
 def parse_splines(
@@ -180,25 +148,71 @@ def add_splines_from_batch_export(
         recording_list: list[Recording],
         spline_config: SplineImportConfig) -> None:
     """
-    Add a Spline Modality to each recording.
+    Add a Splines Modality to each recording from a batch file.
 
-    The splines are read from a single AAA export file and added to
-    the correct Recording by identifying the Recordings based on the date
-    and time of the original recording. If no splines are found for a
-    given Recording, an empty Spline object will be attached to it.
+    The splines are read from a single AAA export file and added to the correct
+    Recording by identifying the Recordings based on the date and time of the
+    original recording and the prompt (because several recordings may have been
+    saved during the same minute). 
 
-    Arguments:
-    recording_list -- a list of Recording objects
-    spline_file -- an AAA export file containing splines
+    If no splines are found for a given Recording, an empty Spline object will
+    be attached to it.
 
-    Return -- None. Recordings are modified in place.
+    Note that Recordings are modified in place.
+
+    Parameters
+    ----------
+    recording_list : list[Recording]
+        a list of Recording objects
+    spline_config : SplineImportConfig
+        a parsed spline import configuration file
     """
-    spline_file = spline_config.spline_file
+    spline_file = recording_list[0].path/spline_config.spline_file
     spline_dict = retrieve_splines(spline_file, spline_config)
 
     for recording in recording_list:
         search_key = recording.identifier()
         spline_data = spline_dict[search_key]
+        splines = Splines(recording, data_path=spline_file,
+                          parsed_data=spline_data)
+        recording.add_modality(splines)
+
+        _AAA_spline_logger.debug(
+            "%s has %d splines.",
+            recording.basename, len(splines.timevector))
+
+
+def add_splines_from_individual_files(
+        recording_list: list[Recording],
+        spline_config: SplineImportConfig) -> None:
+    """
+    Add a Splines Modality to each Recording a corresponding file.
+
+    If no splines are found for a given Recording, an empty Spline object will
+    be attached to it.
+
+    Note that Recordings are modified in place.
+
+    Parameters
+    ----------
+    recording_list : list[Recording]
+        a list of Recording objects
+    spline_config : SplineImportConfig
+        a parsed spline import configuration file
+    """
+    spline_extension = spline_config.spline_file_extension
+
+    for recording in recording_list:
+        spline_file = recording.path/(recording.basename + spline_extension)
+        spline_dict = retrieve_splines(spline_file, spline_config)
+        keys = list(spline_dict.keys())
+        if len(keys) > 1:
+            raise SatkitError(
+                f"Spline file {spline_file} was supposed to "
+                f"contain splines of a single recording, "
+                f"but multiple found: {keys}.")
+        ic(keys)
+        spline_data = spline_dict[keys[0]]
         splines = Splines(recording, data_path=spline_file,
                           parsed_data=spline_data)
         recording.add_modality(splines)

@@ -115,6 +115,14 @@ class SplineImportConfig:
     data_columns: tuple(SplineDataColumn)
     spline_file: Optional[Path]
     spline_file_extension: Optional[str]
+    delimiter: Optional[str] = '\t'
+
+    def __post_init__(self):
+        """
+        Empty delimiter strings are replaced with a tabulator.
+        """
+        if not self.delimiter:
+            self.delimiter = '\t'
 
 
 def load_spline_import_config(
@@ -142,6 +150,7 @@ def load_spline_import_config(
                 "spline_file": PathValidator(),
                 "spline_file_extension": Str(),
                 "headers": Bool(),
+                "delimiter": Str(),
                 "coordinates": CoordinatesValidator(),
                 "interleaved_coords": Bool(),
                 "meta_columns": Seq(SplineMetaValidator()),

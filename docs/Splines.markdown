@@ -3,11 +3,22 @@
 While SATKIT does not generate splines it can handle them as a Modality. Since
 the formats in which splines are saved vary quite a bit, SATKIT needs a helping
 hand in understanding how to read the files. This happens in the form of a YAML
-file, such as those in the included spline sample directories.
+(Yet Another Markup Language) file, such as those in the included spline sample
+directories.
+
+## Assumptions made about the spline files
+
+Currently the spline files are assumed to consist of possibly a header line
+(which will be ignored by SATKIT), and lines that contain first some metadata
+for each spline and then the coordinates of the splines points in either
+Cartesian or polar coordinates. All values are assumed to be delimited by
+tabulators ('\t') unless specified otherwise in the YAML file.
+
+A future version of SATKIT maybe able to read `.spl` files exported by AAA.
 
 ## Import configuration files
 
-The file should always be called 'csv_spline_import_config.yaml' and follow the
+The file should always be called `csv_spline_import_config.yaml` and follow the
 format of the example below. The comments in the file (this is one of the
 example ones) explain the role of each parameter.
 
@@ -26,6 +37,9 @@ spline_file_glob: '*.csv'
 # Do the files have a header row?
 # Please note that possible header row information is ignored.
 headers: True
+
+# What delimiter does the file use. If left empty, this defaults to a tabulator.
+delimiter: ,
 
 # Either 'polar' or 'Cartesian' 
 coordinates: polar

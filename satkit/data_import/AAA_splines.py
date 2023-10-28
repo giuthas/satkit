@@ -38,6 +38,7 @@ from pathlib import Path
 
 import dateutil.parser
 import numpy as np
+from icecream import ic
 
 from satkit.constants import (
     Coordinates, SatkitConfigFile, SplineDataColumn, SplineMetaColumn)
@@ -125,7 +126,8 @@ def retrieve_splines(
     # each entry of the dict is, by default, an empty list
     rows_by_recording = defaultdict(list)
     with closing(open(splinefile, 'r', encoding='utf-8')) as csvfile:
-        csvreader = csv.reader(csvfile, delimiter='\t', quotechar='"',)
+        csvreader = csv.reader(
+            csvfile, delimiter=spline_config.delimiter, quotechar='"',)
 
         # We aren't using the header for anything.
         if spline_config.headers:

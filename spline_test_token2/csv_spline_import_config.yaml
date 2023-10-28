@@ -13,6 +13,9 @@ spline_file_extension: '_splines.csv'
 # Please note that possible header row information is ignored.
 headers: True
 
+# What delimiter does the file use. If left empty, this defaults to a tabulator.
+delimiter:
+
 # Either 'polar' or 'Cartesian' 
 coordinates: polar
 

@@ -32,19 +32,22 @@
 
 # Built in packages
 import logging
-from typing import Union
+from typing import Optional, Union
 
 # Numpy and scipy
 import numpy as np
+from satkit.data_structures import Recording
 
 from satkit.modalities import Splines
 
-from .annd import ANND
+from .metrics_helpers import calculate_timevector
+from .annd import ANND, AnndParameters
 
 _annd_logger = logging.getLogger('satkit.annd')
 
 
-def calculate_annd(splines: Splines) -> Union[ANND, None]:
+def calculate_annd(
+        splines: Splines, params: AnndParameters) -> Union[ANND, None]:
     """
     Calculate Average Nearest Neighbour Distance (ANND) on the Splines. 
     """
@@ -135,3 +138,66 @@ def calculate_annd(splines: Splines) -> Union[ANND, None]:
     data['annd_time'] = annd_time
 
     return data
+
+
+def add_annd(recording: Recording,
+             splines: Splines,
+             preload: bool = True,
+             norms: Optional[list[str]] = None,
+             timesteps: Optional[list[int]] = None,
+             release_data_memory: bool = True) -> None:
+    """
+    Calculate ANND on dataModality and add it to recording.
+
+    Positional arguments:
+    recording -- a Recording object
+    modality -- the type of the Modality to be processed. The access will 
+        be by recording.modalities[modality.__name__]
+
+    Keyword arguments:
+    preload -- boolean indicating if PD should be calculated on creation 
+        (preloaded) or only on access.
+    releaseDataMemory -- boolean indicatin if the data attribute of the 
+        data modality should be set to None after access. Only set this 
+        to False, if you know that you have enough memory to hold all 
+        of the data in RAM.
+    """
+    if not norms:
+        norms = ['l2']
+    if not timesteps:
+        timesteps = [1]
+
+    if recording.excluded:
+        _annd_logger.info(
+            "Recording %s excluded from processing.", recording.basename)
+    elif not splines.__name__ in recording.modalities:
+        _annd_logger.info("Data modality '%s' not found in recording: %s.",
+                          splines.__name__, recording.basename)
+    else:
+        all_requested = ANND.get_names_and_meta(
+            splines, norms, timesteps, release_data_memory)
+        missing_keys = set(all_requested).difference(
+            recording.modalities.keys())
+        to_be_computed = dict((key, value) for key,
+                              value in all_requested.items()
+                              if key in missing_keys)
+
+        data_modality = recording.modalities[splines.__name__]
+        # pds = calculate_pd(dataModality,
+        #                    norms=norms,
+        #                    timesteps=timesteps,
+        #                    release_data_memory=release_data_memory,
+        #                    pd_on_interpolated_data=pd_on_interpolated_data,
+        #                    mask_images=mask_images)
+
+        if to_be_computed:
+            annds = calculate_annd(data_modality, to_be_computed)
+
+            for annd in annds:
+                recording.add_modality(annd)
+                _annd_logger.info("Added '%s' to recording: %s.",
+                                  annd.name, recording.basename)
+        else:
+            _annd_logger.info(
+                "Nothing to compute in ANND for recording: %s.",
+                recording.basename)

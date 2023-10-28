@@ -133,7 +133,7 @@ class ANND(Modality):
         release_data_memory: bool = True
     ) -> dict[str: AnndParameters]:
         """
-        Generate PD modality names for checking if they already exist.
+        Generate ANND modality names and metadata.
 
         This method will generate the full cartesian product of the possible
         combinations. If only some of them are needed, make more than one call
@@ -142,7 +142,7 @@ class ANND(Modality):
         Parameters
         ----------
         modality : Modality
-            parent modality that PD would be derived from
+            parent modality that ANND would be derived from
         norms : List[str], optional
             list of norms to be calculated, defaults to 'l2'.
         timesteps : List[int], optional
@@ -150,8 +150,9 @@ class ANND(Modality):
 
         Returns
         -------
-        list[str]
-            Names that the calculated PD instances would have.
+        dict[str: AnndParameters]
+            Dictionary where the names of the ANND Modalities index the 
+            AnndParameter objects.
         """
         parent_name = modality.__name__
 

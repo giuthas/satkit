@@ -35,30 +35,15 @@ from typing import Optional
 
 # Numpy and scipy
 import numpy as np
-from icecream import ic
 
 # local modules
 from satkit.data_structures import Modality, ModalityData, Recording
 from satkit.errors import UnrecognisedNormError
+
+from .metrics_helpers import calculate_timevector
 from .pd import ImageMask, PdParameters, PD
 
 _pd_logger = logging.getLogger('satkit.pd')
-
-
-def calculate_timevector(original_timevector, timestep):
-    if timestep == 1:
-        half_step_early = original_timevector[0:-1]
-        half_step_late = original_timevector[1:]
-        timevector = (half_step_early+half_step_late)/2
-    elif timestep % 2 == 1:
-        begin = timestep // 2
-        end = -(timestep // 2 + 1)
-        half_step_early = original_timevector[begin:end]
-        half_step_late = original_timevector[begin+1:end+1]
-        timevector = (half_step_early+half_step_late)/2
-    else:
-        timevector = original_timevector[timestep//2:-timestep//2]
-    return timevector
 
 
 def calculate_metric(
@@ -236,8 +221,8 @@ def calculate_pd(
 def add_pd(recording: Recording,
            modality: Modality,
            preload: bool = True,
-           norms: list[str] = ['l2'],
-           timesteps: list[int] = [1],
+           norms: Optional[list[str]] = None,
+           timesteps: Optional[list[int]] = None,
            release_data_memory: bool = True,
            pd_on_interpolated_data: bool = False,
            mask_images: bool = False):
@@ -257,6 +242,10 @@ def add_pd(recording: Recording,
         to False, if you know that you have enough memory to hold all 
         of the data in RAM.
     """
+    if not norms:
+        norms = ['l2']
+    if not timesteps:
+        timesteps = [1]
 
     if recording.excluded:
         _pd_logger.info(
@@ -266,7 +255,8 @@ def add_pd(recording: Recording,
                         modality.__name__, recording.basename)
     else:
         all_requested = PD.get_names_and_meta(
-            modality, norms, timesteps, pd_on_interpolated_data, mask_images)
+            modality, norms, timesteps, pd_on_interpolated_data, mask_images,
+            release_data_memory)
         missing_keys = set(all_requested).difference(
             recording.modalities.keys())
         to_be_computed = dict((key, value) for key,

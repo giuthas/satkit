@@ -48,9 +48,9 @@ _pd_logger = logging.getLogger('satkit.pd')
 
 
 class ImageMask(Enum):
-    top = "top"
-    bottom = "bottom"
-    whole = "whole"
+    TOP = "top"
+    BOTTOM = "bottom"
+    WHOLE = "whole"
 
     def __str__(self):
         return self.value

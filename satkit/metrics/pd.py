@@ -235,8 +235,9 @@ class PD(Modality):
         parent -- the Modality this one was derived from. None means this 
             is an underived data Modality.
             If parent is None, it will be copied from dataModality.
-        parsed_data -- ModalityData object containing raw ultrasound, sampling rate,
-            and either timevector and/or time_offset. Providing a timevector 
+        parsed_data -- ModalityData object containing raw ultrasound, 
+            sampling rate, and either timevector and/or time_offset. Providing a 
+            timevector 
             overrides any time_offset value given, but in absence of a 
             timevector the time_offset will be applied on reading the data 
             from file. 
@@ -247,8 +248,6 @@ class PD(Modality):
         if not time_offset:
             if parsed_data:
                 time_offset = parsed_data.timevector[0]
-            elif parameters.parent_name:
-                time_offset = parameters.parent_name.time_offset
 
         super().__init__(
             recording,
@@ -265,7 +264,8 @@ class PD(Modality):
         Calculate Pixel Difference (PD) on the data Modality parent.       
         """
         raise NotImplementedError(
-            "Currently PD Modalities have to be calculated at instantiation time.")
+            "Currently PD Modalities have to be "
+            "calculated at instantiation time.")
 
     def get_meta(self) -> dict:
         # This conversion is done to keep nestedtext working.
@@ -283,18 +283,4 @@ class PD(Modality):
 
         This overrides the default behaviour of Modality.name.
         """
-        # name_string = self.__class__.__name__ + " " + self.meta_data.metric
-
-        # if self.meta_data.timestep != 1:
-        #     name_string = name_string + " " + str(self.meta_data.timestep)
-
-        # if self.meta_data.image_mask:
-        #     name_string = name_string + " " + self.meta_data.image_mask.value
-
-        # if self.meta_data.interpolated and self.meta_data.parent_name:
-        #     name_string = ("Interpolated " + name_string + " on " +
-        #                    self.meta_data.parent_name)
-        # elif self.meta_data.parent_name:
-        #     name_string = name_string + " on " + self.meta_data.parent_name
-
         return PD.generate_name(self.meta_data)

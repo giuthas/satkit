@@ -199,8 +199,6 @@ class ANND(Modality):
         if not time_offset:
             if parsed_data:
                 time_offset = parsed_data.timevector[0]
-            elif parameters.parent_name:
-                time_offset = parameters.parent_name.time_offset
 
         super().__init__(
             recording,

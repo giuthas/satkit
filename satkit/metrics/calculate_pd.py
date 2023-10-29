@@ -264,7 +264,7 @@ def add_pd(recording: Recording,
     Keyword arguments:
     preload -- boolean indicating if PD should be calculated on creation 
         (preloaded) or only on access.
-    releaseDataMemor -- boolean indicatin if the data attribute of the 
+    releaseDataMemor -- boolean indicating if the data attribute of the 
         data modality should be set to None after access. Only set this 
         to False, if you know that you have enough memory to hold all 
         of the data in RAM.

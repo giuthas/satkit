@@ -50,6 +50,20 @@ def calculate_annd(
         splines: Splines, params: AnndParameters) -> Union[ANND, None]:
     """
     Calculate Average Nearest Neighbour Distance (ANND) on the Splines. 
+
+
+    Parameters
+    ----------
+    splines : Splines
+        splines to process
+    params : AnndParameters
+        Processing options.
+
+    Returns
+    -------
+    Union[ANND, None]
+        Returns the new Modality or None if the Modality could not be
+        calculated.
     """
 
     basename = splines.recording.meta_data.basename
@@ -183,12 +197,6 @@ def add_annd(recording: Recording,
                               if key in missing_keys)
 
         data_modality = recording.modalities[splines.__name__]
-        # pds = calculate_pd(dataModality,
-        #                    norms=norms,
-        #                    timesteps=timesteps,
-        #                    release_data_memory=release_data_memory,
-        #                    pd_on_interpolated_data=pd_on_interpolated_data,
-        #                    mask_images=mask_images)
 
         if to_be_computed:
             annds = calculate_annd(data_modality, to_be_computed)

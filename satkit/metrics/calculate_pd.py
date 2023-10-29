@@ -47,23 +47,57 @@ _pd_logger = logging.getLogger('satkit.pd')
 
 
 def calculate_metric(
-        abs_diff, norm, mask: Optional[ImageMask] = None, interpolated:
-        bool = False):
+        abs_diff: np.ndarray,
+        norm: str,
+        mask: Optional[ImageMask] = None) -> np.ndarray:
+    # interpolated: bool = False) -> np.ndarray:
+    """
+    Module internal method for the actual PD calculation.
+
+    Parameters
+    ----------
+    abs_diff : np.ndarray
+        Pre-calculated absolute differences
+    norm : str
+        Which norm to calculate
+    mask : Optional[ImageMask], optional
+        Should the data be masked, by default None
+    interpolated : bool, optional
+        _description_, by default False
+
+    Returns
+    -------
+    np.ndarray
+        The PD curve
+
+    Raises
+    ------
+    UnrecognisedNormError
+        If the norm is not an lp norm where p belongs in [0, inf], an error is
+        raised.
+    """
     data = np.copy(abs_diff)
-    if mask and not interpolated:
+    if mask:
         if mask == ImageMask.BOTTOM:
             half = int(abs_diff.shape[1]/2)
-            data = abs_diff[:, half:, :]  # The bottom is on top in raw.
+            data = abs_diff[:, half:, :]  # The bottom is on top,
         elif mask == ImageMask.TOP:
             half = int(abs_diff.shape[1]/2)
-            data = abs_diff[:, :half, :]  # and top is on bottom in raw.
-    elif mask:
-        if mask == ImageMask.BOTTOM:
-            half = int(abs_diff.shape[1]/2)
-            data = abs_diff[:, half:, :]  # These are also upside down.
-        elif mask == ImageMask.TOP:
-            half = int(abs_diff.shape[1]/2)
-            data = abs_diff[:, :half, :]  # These are also upside down.
+            data = abs_diff[:, :half, :]  # and top is on bottom.
+    # if mask and not interpolated:
+    #     if mask == ImageMask.BOTTOM:
+    #         half = int(abs_diff.shape[1]/2)
+    #         data = abs_diff[:, half:, :]  # The bottom is on top in raw.
+    #     elif mask == ImageMask.TOP:
+    #         half = int(abs_diff.shape[1]/2)
+    #         data = abs_diff[:, :half, :]  # and top is on bottom in raw.
+    # elif mask:
+    #     if mask == ImageMask.BOTTOM:
+    #         half = int(abs_diff.shape[1]/2)
+    #         data = abs_diff[:, half:, :]  # These are also upside down.
+    #     elif mask == ImageMask.TOP:
+    #         half = int(abs_diff.shape[1]/2)
+    #         data = abs_diff[:, :half, :]  # These are also upside down.
 
     if norm[0] == 'l':
         if norm[1:] == '_inf':
@@ -137,9 +171,8 @@ def calculate_pd(
         _description_
     """
 
-    parent_name = parent_modality.name
     _pd_logger.info('%s: Calculating PD on %s.',
-                    str(parent_modality.data_path), parent_name)
+                    str(parent_modality.data_path), parent_modality.name)
 
     data = parent_modality.data
     sampling_rate = parent_modality.sampling_rate
@@ -190,13 +223,13 @@ def calculate_pd(
         if param_set.interpolated:
             norm_data = calculate_metric(
                 abs_diffs_interpolated[param_set.timestep],
-                norm=param_set.metric, mask=param_set.image_mask,
-                interpolated=param_set.interpolated)
+                norm=param_set.metric, mask=param_set.image_mask)
+            # interpolated=param_set.interpolated)
         else:
             norm_data = calculate_metric(
                 abs_diffs[param_set.timestep],
-                norm=param_set.metric, mask=param_set.image_mask,
-                interpolated=param_set.interpolated)
+                norm=param_set.metric, mask=param_set.image_mask)
+            # interpolated=param_set.interpolated)
 
         modality_data = ModalityData(
             norm_data, sampling_rate, timevectors[param_set.timestep])
@@ -258,12 +291,6 @@ def add_pd(recording: Recording,
                               if key in missing_keys)
 
         data_modality = recording.modalities[modality.__name__]
-        # pds = calculate_pd(dataModality,
-        #                    norms=norms,
-        #                    timesteps=timesteps,
-        #                    release_data_memory=release_data_memory,
-        #                    pd_on_interpolated_data=pd_on_interpolated_data,
-        #                    mask_images=mask_images)
 
         if to_be_computed:
             pds = calculate_pd(data_modality, to_be_computed)

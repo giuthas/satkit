@@ -36,7 +36,7 @@ from typing import Optional, Union
 
 # Numpy and scipy
 import numpy as np
-from satkit.data_structures import Recording
+from satkit.data_structures import ModalityData, Recording
 
 from satkit.modalities import Splines
 
@@ -46,66 +46,35 @@ from .annd import ANND, AnndParameters
 _annd_logger = logging.getLogger('satkit.annd')
 
 
-def calculate_annd(
-        splines: Splines, params: AnndParameters) -> Union[ANND, None]:
-    """
-    Calculate Average Nearest Neighbour Distance (ANND) on the Splines. 
+def calculate_spline_distance_metric(
+        spline_data: np.ndarray,
+        metric: str,
+        notice_base: str,
+        exclude_points: tuple[int] = (10, 4)):
 
-
-    Parameters
-    ----------
-    splines : Splines
-        splines to process
-    params : AnndParameters
-        Processing options.
-
-    Returns
-    -------
-    Union[ANND, None]
-        Returns the new Modality or None if the Modality could not be
-        calculated.
-    """
-
-    basename = splines.recording.meta_data.basename
-    prompt = splines.recording.meta_data.prompt
-    notice_base = basename + " " + prompt
-
-    if splines.recording.excluded:
-        notice = notice_base + ': Token excluded.'
-        _annd_logger.info(notice)
-        return None
-    else:
-        notice = notice_base + ': Token being processed.'
-        _annd_logger.info(notice)
-
-    if len(splines.timevector) < 2:
-        notice = 'Not enough splines found for ' + basename + " " + prompt
-        _annd_logger.critical(notice)
-        return None
-
-    for spline in splines:
+    for spline in spline_data:
         #####
         # disregard samples from front and from back
         #
         # this should be user adjustable after examining the splines
         #####
-        spline['x'] = spline['x'][10:-4]
-        spline['y'] = spline['y'][10:-4]
+        spline['x'] = spline['x'][exclude_points[0]:-exclude_points[1]]
+        spline['y'] = spline['y'][exclude_points[0]:-exclude_points[1]]
 
     # loop to calculate annd, mnnd, apbpd and mpbpd
     timestep = 3
-    num_points = len(splines[1]['x'])
-    annd = np.zeros(len(splines)-timestep)
-    spline_d = np.zeros(len(splines)-timestep)
-    spline_l1 = np.zeros(len(splines)-timestep)
-    mnnd = np.zeros(len(splines)-timestep)
-    apbpd = np.zeros(len(splines)-timestep)
-    mpbpd = np.zeros(len(splines)-timestep)
-    for i in range(len(splines)-timestep):
-        current_points = np.stack((splines[i]['x'], splines[i]['y']))
+    num_points = len(spline_data[1]['x'])
+    annd = np.zeros(len(spline_data)-timestep)
+    spline_d = np.zeros(len(spline_data)-timestep)
+    spline_l1 = np.zeros(len(spline_data)-timestep)
+    mnnd = np.zeros(len(spline_data)-timestep)
+    apbpd = np.zeros(len(spline_data)-timestep)
+    mpbpd = np.zeros(len(spline_data)-timestep)
+    for i in range(len(spline_data)-timestep):
+        current_points = np.stack((spline_data[i]['x'], spline_data[i]['y']))
         next_points = np.stack(
-            (splines[i + timestep]['x'],
-             splines[i + timestep]['y']))
+            (spline_data[i + timestep]['x'],
+             spline_data[i + timestep]['y']))
 
         diff = np.subtract(current_points, next_points)
         spline_l1[i] = np.sum(np.abs(diff))
@@ -131,9 +100,9 @@ def calculate_annd(
     notice = notice_base + ': ANND calculated.'
     _annd_logger.debug(notice)
 
-    spline_time = np.array([spline['sample_time'] for spline in splines])
+    spline_time = np.array([spline['sample_time'] for spline in spline_data])
     annd_time = np.add(spline_time[timestep:], spline_time[0:-timestep])
-    annd_time = np.divide(annd_time, np.repeat(2.0, len(splines)-timestep))
+    annd_time = np.divide(annd_time, np.repeat(2.0, len(spline_data)-timestep))
 
     notice = notice_base + ': Token processed in ANND.'
     _annd_logger.info(notice)
@@ -154,10 +123,83 @@ def calculate_annd(
     return data
 
 
+def calculate_annd(
+        splines: Splines,
+        to_be_computed: dict[str, AnndParameters]) -> list[ANND]:
+    """
+    Calculate Average Nearest Neighbour Distance (ANND) on the Splines. 
+
+
+    Parameters
+    ----------
+    splines : Splines
+        splines to process
+    params : AnndParameters
+        Processing options.
+
+    Returns
+    -------
+    Union[ANND, None]
+        Returns the new Modality or None if the Modality could not be
+        calculated.
+    """
+
+    _annd_logger.info('%s: Calculating PD on %s.',
+                      str(splines.data_path), splines.name)
+
+    data = splines.data
+    sampling_rate = splines.sampling_rate
+
+    basename = splines.recording.meta_data.basename
+    prompt = splines.recording.meta_data.prompt
+    notice_base = basename + " " + prompt
+
+    if splines.recording.excluded:
+        notice = notice_base + ': Token excluded.'
+        _annd_logger.info(notice)
+        return None
+    else:
+        notice = notice_base + ': Token being processed.'
+        _annd_logger.info(notice)
+
+    if len(splines.timevector) < 2:
+        notice = 'Not enough splines found for ' + basename + " " + prompt
+        _annd_logger.critical(notice)
+        return None
+
+    timesteps = [to_be_computed[key].timestep for key in to_be_computed]
+    timesteps.sort()
+    timevectors = {
+        timestep: calculate_timevector(splines.timevector, timestep)
+        for timestep in timesteps}
+
+    spline_distances = []
+    param_set = None
+    for (_, param_set) in to_be_computed.items():
+        norm_data = calculate_spline_distance_metric(
+            data,
+            metric=param_set.metric,
+            notice_base=notice_base)
+        # interpolated=param_set.interpolated)
+
+        modality_data = ModalityData(
+            norm_data, sampling_rate, timevectors[param_set.timestep])
+        spline_distances.append(ANND(splines.recording,
+                                     param_set, parsed_data=modality_data))
+
+    if param_set and param_set.release_data_memory:
+        # Accessing the data modality's data causes it to be
+        # loaded into memory. Keeping it there may cause memory
+        # overflow. This releases the memory.
+        splines.data = None
+
+    return spline_distances
+
+
 def add_annd(recording: Recording,
              splines: Splines,
              preload: bool = True,
-             norms: Optional[list[str]] = None,
+             metrics: Optional[list[str]] = None,
              timesteps: Optional[list[int]] = None,
              release_data_memory: bool = True) -> None:
     """
@@ -176,8 +218,10 @@ def add_annd(recording: Recording,
         to False, if you know that you have enough memory to hold all 
         of the data in RAM.
     """
-    if not norms:
-        norms = ['l2']
+    # TODO: this could be just as well merged with add_pd, because they are
+    # very nearly identical.
+    if not metrics:
+        metrics = ['annd']
     if not timesteps:
         timesteps = [1]
 
@@ -189,7 +233,7 @@ def add_annd(recording: Recording,
                           splines.__name__, recording.basename)
     else:
         all_requested = ANND.get_names_and_meta(
-            splines, norms, timesteps, release_data_memory)
+            splines, metrics, timesteps, release_data_memory)
         missing_keys = set(all_requested).difference(
             recording.modalities.keys())
         to_be_computed = dict((key, value) for key,

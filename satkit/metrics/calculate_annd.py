@@ -30,14 +30,13 @@
 # citations.bib in BibTeX format.
 #
 
-# Built in packages
 import logging
-from typing import Optional, Union
+from typing import Optional
 
-# Numpy and scipy
 import numpy as np
-from satkit.data_structures import ModalityData, Recording
+from icecream import ic
 
+from satkit.data_structures import ModalityData, Recording
 from satkit.modalities import Splines
 
 from .metrics_helpers import calculate_timevector
@@ -49,32 +48,38 @@ _annd_logger = logging.getLogger('satkit.annd')
 def calculate_spline_distance_metric(
         spline_data: np.ndarray,
         metric: str,
+        timestep: int,
         notice_base: str,
         exclude_points: tuple[int] = (10, 4)):
 
-    for spline in spline_data:
-        #####
-        # disregard samples from front and from back
-        #
-        # this should be user adjustable after examining the splines
-        #####
-        spline['x'] = spline['x'][exclude_points[0]:-exclude_points[1]]
-        spline['y'] = spline['y'][exclude_points[0]:-exclude_points[1]]
+    ic(spline_data.shape)
+
+    data = spline_data[:, exclude_points[0]:-exclude_points[1]]
+
+    # for spline in data:
+    #     #####
+    #     # disregard samples from front and from back
+    #     #
+    #     # this should be user adjustable after examining the splines
+    #     #####
+    #     spline['x'] = spline['x'][exclude_points[0]:-exclude_points[1]]
+    #     spline['y'] = spline['y'][exclude_points[0]:-exclude_points[1]]
 
     # loop to calculate annd, mnnd, apbpd and mpbpd
-    timestep = 3
-    num_points = len(spline_data[1]['x'])
-    annd = np.zeros(len(spline_data)-timestep)
-    spline_d = np.zeros(len(spline_data)-timestep)
-    spline_l1 = np.zeros(len(spline_data)-timestep)
-    mnnd = np.zeros(len(spline_data)-timestep)
-    apbpd = np.zeros(len(spline_data)-timestep)
-    mpbpd = np.zeros(len(spline_data)-timestep)
-    for i in range(len(spline_data)-timestep):
-        current_points = np.stack((spline_data[i]['x'], spline_data[i]['y']))
+    num_points = len(data[1]['x'])
+
+    annd = np.zeros(len(data)-timestep)
+    spline_d = np.zeros(len(data)-timestep)
+    spline_l1 = np.zeros(len(data)-timestep)
+    mnnd = np.zeros(len(data)-timestep)
+    apbpd = np.zeros(len(data)-timestep)
+    mpbpd = np.zeros(len(data)-timestep)
+
+    for i in range(len(data)-timestep):
+        current_points = np.stack((data[i]['x'], data[i]['y']))
         next_points = np.stack(
-            (spline_data[i + timestep]['x'],
-             spline_data[i + timestep]['y']))
+            (data[i + timestep]['x'],
+             data[i + timestep]['y']))
 
         diff = np.subtract(current_points, next_points)
         spline_l1[i] = np.sum(np.abs(diff))
@@ -100,13 +105,6 @@ def calculate_spline_distance_metric(
     notice = notice_base + ': ANND calculated.'
     _annd_logger.debug(notice)
 
-    spline_time = np.array([spline['sample_time'] for spline in spline_data])
-    annd_time = np.add(spline_time[timestep:], spline_time[0:-timestep])
-    annd_time = np.divide(annd_time, np.repeat(2.0, len(spline_data)-timestep))
-
-    notice = notice_base + ': Token processed in ANND.'
-    _annd_logger.info(notice)
-
     data = {}
     data['annd'] = annd
     data['mnnd'] = mnnd
@@ -118,7 +116,6 @@ def calculate_spline_distance_metric(
 
     data['apbpd'] = apbpd
     data['mpbpd'] = mpbpd  # median point-by-point Euclidean distance
-    data['annd_time'] = annd_time
 
     return data
 
@@ -179,6 +176,7 @@ def calculate_annd(
         norm_data = calculate_spline_distance_metric(
             data,
             metric=param_set.metric,
+            timestep=param_set.timestep,
             notice_base=notice_base)
         # interpolated=param_set.interpolated)
 

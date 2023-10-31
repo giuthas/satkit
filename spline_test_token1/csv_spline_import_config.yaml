@@ -7,7 +7,7 @@ single_spline_file: True
 spline_file: File003_splines.csv
 # If not a single spline, what glob pattern should be used to find the splines.
 # E.g. '*.csv'
-spline_file_glob: '*.csv'
+spline_file_extension: '_splines.csv'
 
 # Do the files have a header row?
 # Please note that possible header row information is ignored.

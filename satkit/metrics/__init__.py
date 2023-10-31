@@ -29,9 +29,9 @@
 # articles listed in README.markdown. They can also be found in
 # citations.bib in BibTeX format.
 #
-from .annd import calculate_annd
 from .ofreg import of
 from .calculate_pd import add_pd
+from .calculate_annd import add_annd
 from .pd import PD, PdParameters, ImageMask
 from .annd import ANND, AnndParameters
 

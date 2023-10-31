@@ -53,8 +53,11 @@ def calculate_spline_distance_metric(
         exclude_points: tuple[int] = (10, 4)):
 
     ic(spline_data.shape)
-
+    # TODO: check that how to do the exclusion correctly
     data = spline_data[:, exclude_points[0]:-exclude_points[1]]
+
+    # TODO: extract just ANND and MPBPD from below as their own functions, get
+    # one to work, and see how to generalise that here.
 
     # for spline in data:
     #     #####

@@ -106,6 +106,8 @@ class Splines(Modality):
                     "Could not find %s.", str(not_found))
                 _modalities_logger.critical('Exiting.')
                 sys.exit()
+        else:
+            self.meta = None
 
         # Initialise super only after ensuring meta is correct,
         # because latter may already end the run.

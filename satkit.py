@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
 #
-# Copyright (c) 2019-2023 
+# Copyright (c) 2019-2023
 # Pertti Palo, Scott Moisik, Matthew Faytak, and Motoki Saito.
 #
-# This file is part of Speech Articulation ToolKIT 
+# This file is part of Speech Articulation ToolKIT
 # (see https://github.com/giuthas/satkit/).
 #
 # This program is free software: you can redistribute it and/or modify
@@ -42,8 +42,8 @@ from PyQt5 import QtWidgets
 
 # local modules
 from satkit import log_elapsed_time, set_logging_level
-from satkit.metrics import add_pd, peaks
-from satkit.modalities import RawUltrasound
+from satkit.metrics import add_pd, peaks, add_annd
+from satkit.modalities import RawUltrasound, Splines
 from satkit.qt_annotator import PdQtAnnotator
 from satkit.scripting_interface import (Operation, SatkitArgumentParser,
                                         load_data, multi_process_data,
@@ -70,19 +70,30 @@ def main():
 
     # function_dict = {'pd':pd.pd, 'annd':annd.annd}
     pd_arguments = {
-        # 'norms': ['l0', 'l0.01', 'l0.1', 'l0.5', 'l1', 'l2', 'l4', 'l10', 'l_inf', 'd'],
+        # 'norms': ['l0', 'l0.01', 'l0.1', 'l0.5', 'l1', 'l2',
+        # 'l4', 'l10', 'l_inf', 'd'],
         'norms': ['l1'],
         'mask_images': True,
         'pd_on_interpolated_data': False,
         'release_data_memory': True,
         'preload': True}
 
+    annd_arguments = {
+        'metrics': ['annd'],
+        'release_data_memory': False,
+        'preload': True}
+
     function_dict = {
         'PD': (add_pd,
                [RawUltrasound],
-               pd_arguments)  # ,
+               pd_arguments),
+        'ANND': (add_annd,
+                 [Splines],
+                 annd_arguments)  # ,
         # 'peaks': (peaks.time_series_peaks,
-        # [RawUltrasound], # TODO: figure out if this will actually work because this should be 'PD l1 on RawUltrasound' or something like that
+        # [RawUltrasound],
+        # TODO: figure out if this will actually work because this should be
+        # 'PD l1 on RawUltrasound' or something like that
         # peak_arguments)
     }
     process_data(recordings=recording_session.recordings,
@@ -90,10 +101,12 @@ def main():
 
     # peaks.save_peaks('pd_l1', recordings)
 
-    # operation = Operation(
-    #     processing_function = pd.add_pd,
-    #     modality = RawUltrasound,
-    #     arguments= {'mask_images': True, 'pd_on_interpolated_data': True, 'release_data_memory': True, 'preload': True})
+    # operation = Operation(processing_function=pd.add_pd,
+    #                       modality=RawUltrasound,
+    #                       arguments={'mask_images': True,
+    #                                  'pd_on_interpolated_data': True,
+    #                                  'release_data_memory': True,
+    #                                  'preload': True})
     # multi_process_data(recordings, operation)
 
     logger.info('Data run ended.')
@@ -110,7 +123,8 @@ def main():
 
     # Get the GUI running.
     app = QtWidgets.QApplication(sys.argv)
-    # Apparently the assigment to an unused variable is needed to avoid a segfault.
+    # Apparently the assigment to an unused variable is needed
+    # to avoid a segfault.
     annotator = PdQtAnnotator(recording_session, cli.args)
     sys.exit(app.exec_())
 

@@ -63,13 +63,13 @@ def calculate_timevector(
     if timestep == 1:
         half_step_early = original_timevector[0:-1]
         half_step_late = original_timevector[1:]
-        timevector = (half_step_early+half_step_late)/2
+        timevector = np.divide(half_step_early+half_step_late, 2.0)
     elif timestep % 2 == 1:
         begin = timestep // 2
         end = -(timestep // 2 + 1)
         half_step_early = original_timevector[begin:end]
         half_step_late = original_timevector[begin+1:end+1]
-        timevector = (half_step_early+half_step_late)/2
+        timevector = np.divide(half_step_early+half_step_late, 2.0)
     else:
         timevector = original_timevector[timestep//2:-timestep//2]
     return timevector

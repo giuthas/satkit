@@ -36,6 +36,8 @@ from typing import Optional, TextIO, Union
 
 import numpy as np
 import nestedtext
+from icecream import ic
+
 from satkit.constants import SatkitSuffix
 from satkit.data_import import modality_adders
 from satkit.data_import.AAA_splines import add_splines
@@ -65,6 +67,9 @@ def load_derived_modality(
     meta_path = path/modality_schema.meta_name
     data_path = path/modality_schema.data_name
 
+    ic(modality_schema)
+    ic(meta_path)
+    ic(data_path)
     raw_input = nestedtext.load(meta_path)
     meta = ModalityLoadSchema.model_validate(raw_input)
 
@@ -147,6 +152,8 @@ def load_recording(filepath: Path) -> Recording:
     recording = Recording(meta.parameters)
 
     for modality in meta.modalities:
+        # TODO: fix this to allow for modalities that are neither in the adders
+        # nor derived.
         if modality in modality_adders:
             adder = modality_adders[modality]
             path = meta.parameters.path/meta.modalities[modality].data_name

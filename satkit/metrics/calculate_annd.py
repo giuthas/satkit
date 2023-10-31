@@ -50,39 +50,30 @@ def calculate_spline_distance_metric(
         metric: str,
         timestep: int,
         notice_base: str,
-        exclude_points: tuple[int] = (10, 4)):
+        exclude_points: tuple[int] = (10, 4)) -> np.ndarray:
 
     ic(spline_data.shape)
-    # TODO: check that how to do the exclusion correctly
-    data = spline_data[:, exclude_points[0]:-exclude_points[1]]
-
-    # TODO: extract just ANND and MPBPD from below as their own functions, get
-    # one to work, and see how to generalise that here.
-
-    # for spline in data:
-    #     #####
-    #     # disregard samples from front and from back
-    #     #
-    #     # this should be user adjustable after examining the splines
-    #     #####
-    #     spline['x'] = spline['x'][exclude_points[0]:-exclude_points[1]]
-    #     spline['y'] = spline['y'][exclude_points[0]:-exclude_points[1]]
+    # TODO: standardise the order of axes in Modality data or at the very least
+    # include a list of their names in modality meta: 'time', 'x-y-z',
+    # 'splinepoint' or some such AND enable the use of those names for data
+    # indexing. DOCUMENT THIS!
+    data = spline_data[:, :, exclude_points[0]:-exclude_points[1]]
+    ic(data.shape)
 
     # loop to calculate annd, mnnd, apbpd and mpbpd
-    num_points = len(data[1]['x'])
+    num_points = data.shape[2]
+    time_points = data.shape[1] - timestep
 
-    annd = np.zeros(len(data)-timestep)
-    spline_d = np.zeros(len(data)-timestep)
-    spline_l1 = np.zeros(len(data)-timestep)
-    mnnd = np.zeros(len(data)-timestep)
-    apbpd = np.zeros(len(data)-timestep)
-    mpbpd = np.zeros(len(data)-timestep)
+    annd = np.zeros(time_points)
+    spline_d = np.zeros(time_points)
+    spline_l1 = np.zeros(time_points)
+    mnnd = np.zeros(time_points)
+    apbpd = np.zeros(time_points)
+    mpbpd = np.zeros(time_points)
 
-    for i in range(len(data)-timestep):
-        current_points = np.stack((data[i]['x'], data[i]['y']))
-        next_points = np.stack(
-            (data[i + timestep]['x'],
-             data[i + timestep]['y']))
+    for i in range(time_points):
+        current_points = data[:, i, :]
+        next_points = data[:, i+timestep, :]
 
         diff = np.subtract(current_points, next_points)
         spline_l1[i] = np.sum(np.abs(diff))
@@ -108,19 +99,28 @@ def calculate_spline_distance_metric(
     notice = notice_base + ': ANND calculated.'
     _annd_logger.debug(notice)
 
-    data = {}
-    data['annd'] = annd
-    data['mnnd'] = mnnd
-    data['spline_l1'] = spline_l1
+    # data = {}
+    # data['annd'] = annd
+    # data['mnnd'] = mnnd
+    # data['spline_l1'] = spline_l1
 
-    # this one is no good, but should be documented as such before removing the
-    # code
-    data['spline_d'] = spline_d/num_points
+    # # this one is no good, but should be documented as such before removing the
+    # # code
+    # data['spline_d'] = spline_d/num_points
 
-    data['apbpd'] = apbpd
-    data['mpbpd'] = mpbpd  # median point-by-point Euclidean distance
+    # data['apbpd'] = apbpd
+    # data['mpbpd'] = mpbpd  # median point-by-point Euclidean distance
 
-    return data
+    if metric == 'annd':
+        return annd
+    elif metric == 'mnnd':
+        return mnnd
+    elif metric == 'spline_l1':
+        return spline_l1
+    elif metric == 'apbpd':
+        return apbpd
+    else:
+        return mpbpd
 
 
 def calculate_annd(
@@ -176,7 +176,7 @@ def calculate_annd(
     spline_distances = []
     param_set = None
     for (_, param_set) in to_be_computed.items():
-        norm_data = calculate_spline_distance_metric(
+        metric_data = calculate_spline_distance_metric(
             data,
             metric=param_set.metric,
             timestep=param_set.timestep,
@@ -184,7 +184,7 @@ def calculate_annd(
         # interpolated=param_set.interpolated)
 
         modality_data = ModalityData(
-            norm_data, sampling_rate, timevectors[param_set.timestep])
+            metric_data, sampling_rate, timevectors[param_set.timestep])
         spline_distances.append(ANND(splines.recording,
                                      param_set, parsed_data=modality_data))
 

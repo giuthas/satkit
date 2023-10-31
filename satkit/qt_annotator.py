@@ -357,6 +357,8 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
         # l0_5 = self.current.modalities['PD l0.5 on RawUltrasound']
 
         l1 = self.current.modalities['PD l1 on RawUltrasound']
+        annd = self.current.modalities['ANND annd on Splines']
+        mpbpd = self.current.modalities['ANND mpbpd on Splines']
         # l1_top = self.current.modalities['PD l1 top on RawUltrasound']
         # l1_bottom = self.current.modalities['PD l1 bottom on RawUltrasound']
 
@@ -374,7 +376,7 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
         # l2_interpolated_top = self.current.modalities['Interpolated PD l2 top on RawUltrasound']
         # l2_interpolated_bottom = self.current.modalities['Interpolated PD l2 bottom on RawUltrasound']
         ultra_time = l1.timevector - stimulus_onset
-
+        spline_time = annd.timevector - stimulus_onset
         # l2_size = len(self.current.modalities['RawUltrasound'].data[0,:,:])
         # half = int(self.current.modalities['RawUltrasound'].data.shape[1]/2)
         # l2_top_size = len(self.current.modalities['RawUltrasound'].data[0,:half,:])
@@ -429,6 +431,16 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
         raw_l1 = plot_timeseries(
             self.data_axes[0],
             l1.data, ultra_time, self.xlim, ylim, color='yellowgreen',
+            normalise=Normalisation('PEAK AND BOTTOM'),
+            find_peaks=False)
+        annd_line = plot_timeseries(
+            self.data_axes[0],
+            annd.data, spline_time, self.xlim, ylim, color='blue',
+            normalise=Normalisation('PEAK AND BOTTOM'),
+            find_peaks=False)
+        mpbpd_line = plot_timeseries(
+            self.data_axes[0],
+            mpbpd.data, spline_time, self.xlim, ylim, color='orange',
             normalise=Normalisation('PEAK AND BOTTOM'),
             find_peaks=False)
         # raw_l1_bottom = plot_timeseries(self.data_axes[0], l1_bottom.data,

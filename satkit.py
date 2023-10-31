@@ -79,7 +79,8 @@ def main():
         'preload': True}
 
     annd_arguments = {
-        'metrics': ['annd'],
+        'metrics': ['annd', 'mpbpd'],
+        'timestep': 3,
         'release_data_memory': False,
         'preload': True}
 

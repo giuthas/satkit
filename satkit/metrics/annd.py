@@ -222,7 +222,6 @@ class ANND(Modality):
     def get_meta(self) -> dict:
         # This conversion is done to keep nestedtext working.
         meta = self.meta_data.model_dump()
-        meta['image_mask'] = str(meta['image_mask'])
         return meta
 
     @property

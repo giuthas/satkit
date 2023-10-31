@@ -85,7 +85,7 @@ def parse_splines(
 
     timestamp_ind = spline_config.meta_columns.index(
         SplineMetaColumn.TIME_IN_RECORDING)
-    timevector = [float(line[timestamp_ind]) for line in lines]
+    timevector = np.asarray([float(line[timestamp_ind]) for line in lines])
 
     if spline_config.interleaved_coords:
         raise NotImplementedError

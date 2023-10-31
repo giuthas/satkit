@@ -72,9 +72,15 @@ def parse_splines(
         ModalityData which contains the splines. Sampling rate will be set to
         zero, because splines may not exist for all frames rendering any value
         calculated from spline timestamps unreliable.
+
+        Note that the sampling rate of the returned modality data will only be
+        set to non-zero, if `np.amax(time_diffs) < 1.1*np.amin(time_diffs`
+        where `time_diffs = np.diffs(timevector_of_splines)`. This is so that,
+        if the splines are sparse in time, we won't set a weird sampling rate.
+        However, this may cause problems when trying to calculate time-wise
+        comparisons of splines and determine that metric's sampling rate.
     """
     # TODO 1.1: import also confidence values.
-    sampling_rate = 0
     coordinates = []
 
     timestamp_ind = spline_config.meta_columns.index(
@@ -107,6 +113,14 @@ def parse_splines(
             x = [line[x_index:x_index + spline_points] for line in lines]
             y = [line[y_index:y_index + spline_points] for line in lines]
             coordinates = np.asfarray([x, y])
+
+    if len(timevector) > 2:
+        time_diffs = np.diff(timevector)
+        if np.amax(time_diffs) < 1.1*np.amin(time_diffs):
+            step = np.mean(time_diffs)
+            sampling_rate = 1.0/step
+        else:
+            sampling_rate = 0
 
     return ModalityData(coordinates, sampling_rate, timevector)
 

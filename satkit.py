@@ -80,7 +80,7 @@ def main():
 
     annd_arguments = {
         'metrics': ['annd', 'mpbpd'],
-        'timestep': 3,
+        'timesteps': [3],
         'release_data_memory': False,
         'preload': True}
 

@@ -52,7 +52,8 @@ _recording_loader_logger = logging.getLogger('satkit.recording_loader')
 
 
 def load_derived_modality(
-        recording: Recording, path: Path,
+        recording: Recording,
+        path: Path,
         modality_schema: ModalityListingLoadschema) -> None:
     """
     Load a saved derived Modality meta and data and add them to the Recording. 
@@ -64,6 +65,13 @@ def load_derived_modality(
     modality_schema : ModalityListingLoadschema
         This contains the name of the meta and data files.
     """
+    if not modality_schema.meta_name:
+        _recording_loader_logger.info(
+            "Looks like %s doesn't have a metafile for one of the Modalities.",
+            modality_schema.data_name)
+        _recording_loader_logger.info(
+            "Assuming the Modality to be batch loaded, so skipping.")
+        return
     meta_path = path/modality_schema.meta_name
     data_path = path/modality_schema.data_name
 
@@ -152,15 +160,14 @@ def load_recording(filepath: Path) -> Recording:
     recording = Recording(meta.parameters)
 
     for modality in meta.modalities:
-        # TODO: fix this to allow for modalities that are neither in the adders
-        # nor derived.
         if modality in modality_adders:
             adder = modality_adders[modality]
             path = meta.parameters.path/meta.modalities[modality].data_name
             adder(recording, path=path)
         else:
             load_derived_modality(
-                recording, path=meta.parameters.path,
+                recording,
+                path=meta.parameters.path,
                 modality_schema=meta.modalities[modality])
 
     return recording

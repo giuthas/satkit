@@ -221,6 +221,11 @@ def add_annd(recording: Recording,
     """
     # TODO: this could be just as well merged with add_pd, because they are
     # very nearly identical.
+    if not preload:
+        message = ("Looks like somebody is trying to leave Spline metrics "
+                   "to be calculated on the fly. This is not yet supported.")
+        raise NotImplementedError(message)
+
     if not metrics:
         metrics = ['annd']
     if not timesteps:

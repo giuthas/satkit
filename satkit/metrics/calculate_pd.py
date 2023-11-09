@@ -269,6 +269,11 @@ def add_pd(recording: Recording,
         to False, if you know that you have enough memory to hold all 
         of the data in RAM.
     """
+    if not preload:
+        message = ("Looks like somebody is trying to leave PD to be "
+                   "calculated on the fly. This is not yet supported.")
+        raise NotImplementedError(message)
+
     if not norms:
         norms = ['l2']
     if not timesteps:

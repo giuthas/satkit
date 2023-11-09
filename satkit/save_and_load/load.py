@@ -75,9 +75,6 @@ def load_derived_modality(
     meta_path = path/modality_schema.meta_name
     data_path = path/modality_schema.data_name
 
-    ic(modality_schema)
-    ic(meta_path)
-    ic(data_path)
     raw_input = nestedtext.load(meta_path)
     meta = ModalityLoadSchema.model_validate(raw_input)
 

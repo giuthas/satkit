@@ -52,13 +52,13 @@ def calculate_spline_distance_metric(
         notice_base: str,
         exclude_points: tuple[int] = (10, 4)) -> np.ndarray:
 
-    ic(spline_data.shape)
+    _annd_logger.debug("Calculating spline metric %s.", metric)
+
     # TODO: standardise the order of axes in Modality data or at the very least
     # include a list of their names in modality meta: 'time', 'x-y-z',
     # 'splinepoint' or some such AND enable the use of those names for data
     # indexing. DOCUMENT THIS!
     data = spline_data[:, :, exclude_points[0]:-exclude_points[1]]
-    ic(data.shape)
 
     # loop to calculate annd, mnnd, apbpd and mpbpd
     num_points = data.shape[2]
@@ -104,8 +104,8 @@ def calculate_spline_distance_metric(
     # data['mnnd'] = mnnd
     # data['spline_l1'] = spline_l1
 
-    # # this one is no good, but should be documented as such before removing the
-    # # code
+    # # this one is no good, but should be documented as such before
+    # # removing the code
     # data['spline_d'] = spline_d/num_points
 
     # data['apbpd'] = apbpd
@@ -144,7 +144,7 @@ def calculate_annd(
         calculated.
     """
 
-    _annd_logger.info('%s: Calculating PD on %s.',
+    _annd_logger.info('%s: Calculating spline metrics on %s.',
                       str(splines.data_path), splines.name)
 
     data = splines.data
@@ -245,6 +245,8 @@ def add_annd(recording: Recording,
         to_be_computed = dict((key, value) for key,
                               value in all_requested.items()
                               if key in missing_keys)
+
+        ic(to_be_computed)
 
         data_modality = recording.modalities[splines.__name__]
 

@@ -40,7 +40,7 @@ from satkit.data_structures import ModalityData, Recording
 from satkit.modalities import Splines
 
 from .metrics_helpers import calculate_timevector
-from .annd import ANND, AnndParameters
+from .annd import ANND, AnndParameters, SplineMetrics
 
 _annd_logger = logging.getLogger('satkit.annd')
 
@@ -64,63 +64,48 @@ def calculate_spline_distance_metric(
     num_points = data.shape[2]
     time_points = data.shape[1] - timestep
 
-    annd = np.zeros(time_points)
-    spline_d = np.zeros(time_points)
-    spline_l1 = np.zeros(time_points)
-    mnnd = np.zeros(time_points)
-    apbpd = np.zeros(time_points)
-    mpbpd = np.zeros(time_points)
+    result = np.zeros(time_points)
 
     for i in range(time_points):
         current_points = data[:, i, :]
         next_points = data[:, i+timestep, :]
 
-        diff = np.subtract(current_points, next_points)
-        spline_l1[i] = np.sum(np.abs(diff))
-        diff = np.square(diff)
-        spline_d[i] = np.sqrt(np.sum(diff))
-        diff = np.sum(diff, axis=0)  # sums over (x,y) for individual points
-        diff = np.sqrt(diff)
-        apbpd[i] = np.average(diff)
-        mpbpd[i] = np.median(diff)
+        if metric in [SplineMetrics.APBPD, SplineMetrics.MPBPD, SplineMetrics.SPLINE_L1, SplineMetrics.SPLINE_L2]:
+            diff = np.subtract(current_points, next_points)
+            if metric is SplineMetrics.SPLINE_L1:
+                result[i] = np.sum(np.abs(diff))
+            elif metric is SplineMetrics.SPLINE_L2:
+                diff = np.square(diff)
+                result[i] = np.sqrt(np.sum(diff))
+            else:
+                diff = np.square(diff)
+                # sums over (x,y) for individual points
+                diff = np.sum(diff, axis=0)
+                diff = np.sqrt(diff)
+                if metric is SplineMetrics.APBPD:
+                    result[i] = np.average(diff)
+                elif metric is SplineMetrics.MPBPD:
+                    result[i] = np.median(diff)
+        elif metric in [SplineMetrics.ANND, SplineMetrics.MNND]:
+            nnd = np.zeros(num_points)
+            for j in range(num_points):
+                current_point = np.tile(
+                    current_points[:, j:j+1], (1, num_points))
+                diff = np.subtract(current_point, next_points)
+                diff = np.square(diff)
+                diff = np.sum(diff, axis=0)
+                diff = np.sqrt(diff)
+                nnd[j] = np.amin(diff)
+            if metric is SplineMetrics.ANND:
+                result[i] = np.average(nnd)
+            elif metric is SplineMetrics.MNND:
+                result[i] = np.median(nnd)
+        else:
+            message = f"Unknown Spline metric: {metric}."
+            raise ValueError(message)
 
-        nnd = np.zeros(num_points)
-        for j in range(num_points):
-            current_point = np.tile(current_points[:, j:j+1], (1, num_points))
-            diff = np.subtract(current_point, next_points)
-            diff = np.square(diff)
-            diff = np.sum(diff, axis=0)
-            diff = np.sqrt(diff)
-            nnd[j] = np.amin(diff)
-
-        annd[i] = np.average(nnd)
-        mnnd[i] = np.median(nnd)
-
-    notice = notice_base + ': ANND calculated.'
-    _annd_logger.debug(notice)
-
-    # data = {}
-    # data['annd'] = annd
-    # data['mnnd'] = mnnd
-    # data['spline_l1'] = spline_l1
-
-    # # this one is no good, but should be documented as such before
-    # # removing the code
-    # data['spline_d'] = spline_d/num_points
-
-    # data['apbpd'] = apbpd
-    # data['mpbpd'] = mpbpd  # median point-by-point Euclidean distance
-
-    if metric == 'annd':
-        return annd
-    elif metric == 'mnnd':
-        return mnnd
-    elif metric == 'spline_l1':
-        return spline_l1
-    elif metric == 'apbpd':
-        return apbpd
-    else:
-        return mpbpd
+    _annd_logger.debug("%s: %s calculated.", notice_base, metric)
+    return result
 
 
 def calculate_annd(

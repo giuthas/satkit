@@ -31,6 +31,7 @@
 #
 
 # Built in packages
+from enum import Enum
 import logging
 from pathlib import Path
 from typing import Optional, Tuple
@@ -44,6 +45,15 @@ from satkit.data_structures import (
 from satkit.helpers.processing_helpers import product_dict
 
 _annd_logger = logging.getLogger('satkit.annd')
+
+
+class SplineMetrics(Enum):
+    ANND = 'annd'
+    MNND = 'mnnd'
+    APBPD = 'apbpd'
+    MPBPD = 'mpbpd'
+    SPLINE_L1 = 'spline_l1'
+    SPLINE_L2 = 'spline_l2'
 
 
 class AnndParameters(ModalityMetaData):

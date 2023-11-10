@@ -47,7 +47,7 @@ from satkit.helpers.processing_helpers import product_dict
 _annd_logger = logging.getLogger('satkit.annd')
 
 
-class SplineMetrics(Enum):
+class SplineMetric(Enum):
     ANND = 'annd'
     MNND = 'mnnd'
     APBPD = 'apbpd'

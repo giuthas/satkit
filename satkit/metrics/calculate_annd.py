@@ -40,18 +40,43 @@ from satkit.data_structures import ModalityData, Recording
 from satkit.modalities import Splines
 
 from .metrics_helpers import calculate_timevector
-from .annd import ANND, AnndParameters, SplineMetrics
+from .annd import ANND, AnndParameters, SplineMetric
 
 _annd_logger = logging.getLogger('satkit.annd')
 
 
 def calculate_spline_distance_metric(
         spline_data: np.ndarray,
-        metric: str,
+        metric: SplineMetric,
         timestep: int,
         notice_base: str,
         exclude_points: tuple[int] = (10, 4)) -> np.ndarray:
+    """
+    Calculate spline metric over given array of splines.
 
+    Parameters
+    ----------
+    spline_data : np.ndarray
+        _description_
+    metric : SplineMetric
+        _description_
+    timestep : int
+        _description_
+    notice_base : str
+        _description_
+    exclude_points : tuple[int], optional
+        _description_, by default (10, 4)
+
+    Returns
+    -------
+    np.ndarray
+        _description_
+
+    Raises
+    ------
+    ValueError
+        If an invalid SplineMetric is passed as an argument.
+    """
     _annd_logger.debug("Calculating spline metric %s.", metric)
 
     # TODO: standardise the order of axes in Modality data or at the very least
@@ -70,11 +95,11 @@ def calculate_spline_distance_metric(
         current_points = data[:, i, :]
         next_points = data[:, i+timestep, :]
 
-        if metric in [SplineMetrics.APBPD, SplineMetrics.MPBPD, SplineMetrics.SPLINE_L1, SplineMetrics.SPLINE_L2]:
+        if metric in [SplineMetric.APBPD, SplineMetric.MPBPD, SplineMetric.SPLINE_L1, SplineMetric.SPLINE_L2]:
             diff = np.subtract(current_points, next_points)
-            if metric is SplineMetrics.SPLINE_L1:
+            if metric is SplineMetric.SPLINE_L1:
                 result[i] = np.sum(np.abs(diff))
-            elif metric is SplineMetrics.SPLINE_L2:
+            elif metric is SplineMetric.SPLINE_L2:
                 diff = np.square(diff)
                 result[i] = np.sqrt(np.sum(diff))
             else:
@@ -82,11 +107,11 @@ def calculate_spline_distance_metric(
                 # sums over (x,y) for individual points
                 diff = np.sum(diff, axis=0)
                 diff = np.sqrt(diff)
-                if metric is SplineMetrics.APBPD:
+                if metric is SplineMetric.APBPD:
                     result[i] = np.average(diff)
-                elif metric is SplineMetrics.MPBPD:
+                elif metric is SplineMetric.MPBPD:
                     result[i] = np.median(diff)
-        elif metric in [SplineMetrics.ANND, SplineMetrics.MNND]:
+        elif metric in [SplineMetric.ANND, SplineMetric.MNND]:
             nnd = np.zeros(num_points)
             for j in range(num_points):
                 current_point = np.tile(
@@ -96,9 +121,9 @@ def calculate_spline_distance_metric(
                 diff = np.sum(diff, axis=0)
                 diff = np.sqrt(diff)
                 nnd[j] = np.amin(diff)
-            if metric is SplineMetrics.ANND:
+            if metric is SplineMetric.ANND:
                 result[i] = np.average(nnd)
-            elif metric is SplineMetrics.MNND:
+            elif metric is SplineMetric.MNND:
                 result[i] = np.median(nnd)
         else:
             message = f"Unknown Spline metric: {metric}."

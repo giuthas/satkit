@@ -60,7 +60,7 @@ SATKIT's class structure aims for efficiency without sacrificing clarity. Clarit
     - [Splines in SATKIT](Splines.markdown)
   - [Database Classes](DatabaseClasses.markdown)
 - Extending SATKIT
-  - Before starting, please read [SATKIT Coding Conventions](SATKIT_coding_conventions.markdown).
+  - Before starting, please read Coding conventions in [SATKIT development guide](SATKIT_development_guide.markdown).
   - Implementing a New Datasource
   - [Writing a New Modality](WritingNewModality.markdown)
 

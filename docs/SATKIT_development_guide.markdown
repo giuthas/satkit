@@ -1,6 +1,8 @@
-# SATKIT Code Conventions
+# SATKIT development guide
 
-This document is a guideline, not a ruleset.
+## Code conventions
+
+These are a guidelines, not a ruleset.
 
 First things first: write in good pythonic style.
 
@@ -73,10 +75,14 @@ A release of SATKIT is created as follows:
    moved to the next release's roadmap. This is done in the `devel` branch.
 2. Create a new release candidate branch named 'vX.Y.Z' e.g. 'v0.7.0'.
 3. Merge `main` to the release branch (not the other way around).
-4. Fix any bugs that occur, run tests see that they pass, update the release
+4. Check that conda environments are up to date. It is especially possible that
+   satkit-stable is neither up to date with satkit-devel, nor tested.
+5. Run tests.
+   - These don't exist yet at time of SATKIT 0.7.0.
+6. Fix any bugs that occur, run tests see that they pass, update the release
    notes.
-5. Merge release branch to `main`.
-6. Tag the commit in main with the release title ('vX.Y.Z'), delete the now
+7. Merge release branch to `main`.
+8. Tag the commit in main with the release title ('vX.Y.Z'), delete the now
    defunct release branch, if any commits were made to the release branch,
    merge `main` into `devel`.
-7. Announce the release.
+9. Announce the release.

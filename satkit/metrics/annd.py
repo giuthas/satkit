@@ -45,7 +45,7 @@ from satkit.data_structures import (
 from satkit.helpers import enum_union, ValueComparedEnumMeta
 from satkit.helpers.processing_helpers import product_dict
 
-_annd_logger = logging.getLogger('satkit.annd')
+_logger = logging.getLogger('satkit.annd')
 
 
 class SplineNNDs(Enum, metaclass=ValueComparedEnumMeta):
@@ -66,7 +66,7 @@ class SplineDiffs(Enum, metaclass=ValueComparedEnumMeta):
     SPLINE_L2 = 'spline_l2'
 
 
-SplineMetric = enum_union([SplineDiffs, SplineNNDs], "SplineMetric")
+SplineMetricEnum = enum_union([SplineDiffs, SplineNNDs], "SplineMetric")
 """
 Enum of all valid spline metrics.
 
@@ -74,7 +74,7 @@ This is formed as a UnionEnum of the subtypes.
 """
 
 
-class AnndParameters(ModalityMetaData):
+class SplineMetricParameters(ModalityMetaData):
     """
     Parameters used in generating the parent ANND modality.
 
@@ -97,7 +97,7 @@ class AnndParameters(ModalityMetaData):
     exclude_points: tuple[int] = (10, 4)
 
 
-class ANND(Modality):
+class SplineMetric(Modality):
     """
     Represent Average Nearest Neighbour Distance (ANND) as a Modality. 
     """
@@ -117,7 +117,7 @@ class ANND(Modality):
     ]
 
     @staticmethod
-    def generate_name(params: AnndParameters) -> str:
+    def generate_name(params: SplineMetricParameters) -> str:
         """
         Generate a ANND modality name to be used as its unique identifier.
 
@@ -154,7 +154,7 @@ class ANND(Modality):
         norms: list[str] = None,
         timesteps: list[int] = None,
         release_data_memory: bool = False
-    ) -> dict[str: AnndParameters]:
+    ) -> dict[str: SplineMetricParameters]:
         """
         Generate ANND modality names and metadata.
 
@@ -193,14 +193,14 @@ class ANND(Modality):
             'timestep': timesteps,
             'release_data_memory': [release_data_memory]}
 
-        anndparams = [AnndParameters(**item)
+        anndparams = [SplineMetricParameters(**item)
                       for item in product_dict(**param_dict)]
 
-        return {ANND.generate_name(params): params for params in anndparams}
+        return {SplineMetric.generate_name(params): params for params in anndparams}
 
     def __init__(self,
                  recording: Recording,
-                 parameters: AnndParameters,
+                 parameters: SplineMetricParameters,
                  load_path: Optional[Path] = None,
                  meta_path: Optional[Path] = None,
                  parsed_data: Optional[ModalityData] = None,
@@ -263,4 +263,4 @@ class ANND(Modality):
 
         This overrides the default behaviour of Modality.name.
         """
-        return ANND.generate_name(self.meta_data)
+        return SplineMetric.generate_name(self.meta_data)

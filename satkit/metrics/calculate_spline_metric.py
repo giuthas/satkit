@@ -40,7 +40,7 @@ from satkit.data_structures import ModalityData, Recording
 from satkit.modalities import Splines
 
 from .metrics_helpers import calculate_timevector
-from .annd import ANND, AnndParameters, SplineDiffs, SplineMetric, SplineNNDs
+from .annd import SplineMetric, SplineMetricParameters, SplineDiffs, SplineMetricEnum, SplineNNDs
 
 _logger = logging.getLogger('satkit.gen_spline_metric')
 
@@ -48,7 +48,7 @@ _logger = logging.getLogger('satkit.gen_spline_metric')
 def spline_diff_metric(
         data: np.ndarray,
         time_points: np.ndarray,
-        metric: SplineMetric,
+        metric: SplineMetricEnum,
         timestep: int,
         notice_base: str) -> np.ndarray:
 
@@ -59,9 +59,9 @@ def spline_diff_metric(
         next_points = data[:, i+timestep, :]
 
         diff = np.subtract(current_points, next_points)
-        if metric == SplineMetric.SPLINE_L1.value:
+        if metric == SplineMetricEnum.SPLINE_L1.value:
             result[i] = np.sum(np.abs(diff))
-        elif metric == SplineMetric.SPLINE_L2.value:
+        elif metric == SplineMetricEnum.SPLINE_L2.value:
             diff = np.square(diff)
             result[i] = np.sqrt(np.sum(diff))
         else:
@@ -69,9 +69,9 @@ def spline_diff_metric(
             # sums over (x,y) for individual points
             diff = np.sum(diff, axis=0)
             diff = np.sqrt(diff)
-            if metric == SplineMetric.APBPD.value:
+            if metric == SplineMetricEnum.APBPD.value:
                 result[i] = np.average(diff)
-            elif metric == SplineMetric.MPBPD.value:
+            elif metric == SplineMetricEnum.MPBPD.value:
                 result[i] = np.median(diff)
 
     _logger.debug("%s: %s calculated.", notice_base, metric)
@@ -81,7 +81,7 @@ def spline_diff_metric(
 def spline_nnd_metric(
         data: np.ndarray,
         time_points: np.ndarray,
-        metric: SplineMetric,
+        metric: SplineMetricEnum,
         timestep: int,
         notice_base: str) -> np.ndarray:
 
@@ -101,9 +101,9 @@ def spline_nnd_metric(
             diff = np.sum(diff, axis=0)
             diff = np.sqrt(diff)
             nnd[j] = np.amin(diff)
-        if metric == SplineMetric.ANND.value:
+        if metric == SplineMetricEnum.ANND.value:
             result[i] = np.average(nnd)
-        elif metric == SplineMetric.MNND.value:
+        elif metric == SplineMetricEnum.MNND.value:
             result[i] = np.median(nnd)
 
     _logger.debug("%s: %s calculated.", notice_base, metric)
@@ -112,7 +112,7 @@ def spline_nnd_metric(
 
 def calculate_spline_metric(
         splines: Splines,
-        to_be_computed: dict[str, AnndParameters]) -> list[ANND]:
+        to_be_computed: dict[str, SplineMetricParameters]) -> list[SplineMetric]:
     """
     Calculate Average Nearest Neighbour Distance (ANND) on the Splines. 
 
@@ -186,17 +186,11 @@ def calculate_spline_metric(
         else:
             message = f"Unknown Spline metric: {metric}."
             raise ValueError(message)
-        # metric_data = calculate_spline_metric(
-        #     data,
-        #     metric=param_set.metric,
-        #     timestep=param_set.timestep,
-        #     notice_base=notice_base)
-        # interpolated=param_set.interpolated)
 
         modality_data = ModalityData(
             metric_data, sampling_rate, timevectors[param_set.timestep])
-        spline_distances.append(ANND(splines.recording,
-                                     param_set, parsed_data=modality_data))
+        spline_distances.append(SplineMetric(splines.recording,
+                                             param_set, parsed_data=modality_data))
 
     if param_set and param_set.release_data_memory:
         # Accessing the data modality's data causes it to be
@@ -246,7 +240,7 @@ def add_spline_metric(recording: Recording,
         _logger.info("Data modality '%s' not found in recording: %s.",
                      splines.__name__, recording.basename)
     else:
-        all_requested = ANND.get_names_and_meta(
+        all_requested = SplineMetric.get_names_and_meta(
             splines, metrics, timesteps, release_data_memory)
         missing_keys = set(all_requested).difference(
             recording.modalities.keys())

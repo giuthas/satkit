@@ -31,7 +31,7 @@
 #
 from .ofreg import of
 from .calculate_pd import add_pd
-from .calculate_annd import add_annd
+from .calculate_spline_metric import add_spline_metric
 from .pd import PD, PdParameters, ImageMask
 from .annd import ANND, AnndParameters
 

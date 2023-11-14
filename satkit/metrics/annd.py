@@ -94,6 +94,7 @@ class AnndParameters(ModalityMetaData):
     metric: str = 'l2'
     timestep: PositiveInt = 1
     release_data_memory: bool = False
+    exclude_points: tuple[int] = (10, 4)
 
 
 class ANND(Modality):

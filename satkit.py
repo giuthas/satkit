@@ -42,7 +42,7 @@ from PyQt5 import QtWidgets
 
 # local modules
 from satkit import log_elapsed_time, set_logging_level
-from satkit.metrics import add_pd, peaks, add_annd
+from satkit.metrics import add_pd, peaks, add_spline_metric
 from satkit.modalities import RawUltrasound, Splines
 from satkit.qt_annotator import PdQtAnnotator
 from satkit.scripting_interface import (Operation, SatkitArgumentParser,
@@ -88,7 +88,7 @@ def main():
         'PD': (add_pd,
                [RawUltrasound],
                pd_arguments),
-        'ANND': (add_annd,
+        'ANND': (add_spline_metric,
                  [Splines],
                  annd_arguments)  # ,
         # 'peaks': (peaks.time_series_peaks,

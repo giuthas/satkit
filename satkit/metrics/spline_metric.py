@@ -45,7 +45,7 @@ from satkit.data_structures import (
 from satkit.helpers import enum_union, ValueComparedEnumMeta
 from satkit.helpers.processing_helpers import product_dict
 
-_logger = logging.getLogger('satkit.annd')
+_logger = logging.getLogger('satkit.spline_metric')
 
 
 class SplineNNDs(Enum, metaclass=ValueComparedEnumMeta):
@@ -76,7 +76,7 @@ This is formed as a UnionEnum of the subtypes.
 
 class SplineMetricParameters(ModalityMetaData):
     """
-    Parameters used in generating the parent ANND modality.
+    Parameters used in generating a SplineMetric modality.
 
     Parameters
     ----------
@@ -87,8 +87,8 @@ class SplineMetricParameters(ModalityMetaData):
         data. Defaults to 1, which means comparison of consequetive frames.
     release_data_memory : bool
         Wether to assign None to parent.data after deriving this Modality from
-        the data. Currently has no effect as deriving ANND at runtime is not
-        yet supported.
+        the data. Currently has no effect as deriving SplineMetric at runtime
+        is not yet supported.
     """
     parent_name: str
     metric: str = 'l2'
@@ -99,7 +99,7 @@ class SplineMetricParameters(ModalityMetaData):
 
 class SplineMetric(Modality):
     """
-    Represent Average Nearest Neighbour Distance (ANND) as a Modality. 
+    Represent a SplineMetric as a Modality. 
     """
 
     accepted_metrics = [
@@ -119,26 +119,28 @@ class SplineMetric(Modality):
     @staticmethod
     def generate_name(params: SplineMetricParameters) -> str:
         """
-        Generate a ANND modality name to be used as its unique identifier.
+        Generate a SplineMetric name to be used as its unique identifier.
 
         This statit method **defines** what the names are. This implementation
-        pattern (ANND.name calls this and any where that needs to guess what a
-        name would be calls this) is how all derived Modalities should work.
+        pattern (SplineMetric.name calls this and any where that needs to guess
+        what a name would be calls this) is how all derived Modalities should
+        work.
 
         Parameters
         ----------
         modality : Modality
-            Parent Modality that ANND is calculated on.
-        params : AnndParameters
-            The parameters of the ANND instance. Note that this AnndParameters
-            instance does not need to be attached to a ANND instance.
+            Parent Modality that SplineMetric is calculated on.
+        params : SplineMetricParameters
+            The parameters of the SplineMetric instance. Note that this
+            SplineMetricParameters instance does not need to be attached to a
+            SplineMetric instance.
 
         Returns
         -------
         str
-            Name of the ANND instance.
+            Name of the SplineMetric instance.
         """
-        name_string = 'ANND' + " " + params.metric
+        name_string = 'SplineMetric' + " " + params.metric
 
         if params.timestep != 1:
             name_string = name_string + " ts" + str(params.timestep)
@@ -156,7 +158,7 @@ class SplineMetric(Modality):
         release_data_memory: bool = False
     ) -> dict[str: SplineMetricParameters]:
         """
-        Generate ANND modality names and metadata.
+        Generate SplineMetric modality names and metadata.
 
         This method will generate the full cartesian product of the possible
         combinations. If only some of them are needed, make more than one call
@@ -165,7 +167,7 @@ class SplineMetric(Modality):
         Parameters
         ----------
         modality : Modality
-            parent modality that ANND would be derived from
+            parent modality that SplineMetric would be derived from
         norms : List[str], optional
             list of norms to be calculated, defaults to 'l2'.
         timesteps : List[int], optional
@@ -176,9 +178,9 @@ class SplineMetric(Modality):
 
         Returns
         -------
-        dict[str: AnndParameters]
-            Dictionary where the names of the ANND Modalities index the 
-            AnndParameter objects.
+        dict[str: SplineMetricParameters]
+            Dictionary where the names of the SplineMetric Modalities index the
+            SplineMetricParameter objects.
         """
         parent_name = modality.__name__
 
@@ -193,10 +195,11 @@ class SplineMetric(Modality):
             'timestep': timesteps,
             'release_data_memory': [release_data_memory]}
 
-        anndparams = [SplineMetricParameters(**item)
-                      for item in product_dict(**param_dict)]
+        spline_metric_params = [SplineMetricParameters(**item)
+                                for item in product_dict(**param_dict)]
 
-        return {SplineMetric.generate_name(params): params for params in anndparams}
+        return {SplineMetric.generate_name(params): params
+                for params in spline_metric_params}
 
     def __init__(self,
                  recording: Recording,
@@ -206,11 +209,11 @@ class SplineMetric(Modality):
                  parsed_data: Optional[ModalityData] = None,
                  time_offset: Optional[float] = None) -> None:
         """
-        Build a Average Nearest Neighbour Distance (ANND) Modality.       
+        Build a SplineMetric Modality.       
 
         Positional arguments: recording -- the containing Recording. paremeters
-        : AnndParameters
-            Parameters used in calculating this instance of ANND.
+        : SplineMetricParameters
+            Parameters used in calculating this instance of SplineMetric.
         Keyword arguments: load_path -- path of the saved data - both
         ultrasound and metadata parent -- the Modality this one was derived
         from. None means this 
@@ -241,11 +244,10 @@ class SplineMetric(Modality):
 
     def _derive_data(self) -> Tuple[np.ndarray, np.ndarray, float]:
         """
-        Calculate Average Nearest Neighbour Distance (ANND) on the data
-        Modality parent.       
+        Calculate the SplineMetric on the data of the parent Modality.
         """
         raise NotImplementedError(
-            "Currently ANND Modalities have to be "
+            "Currently SplineMetric Modalities have to be "
             "calculated at instantiation time.")
 
     def get_meta(self) -> dict:

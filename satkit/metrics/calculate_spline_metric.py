@@ -40,7 +40,9 @@ from satkit.data_structures import ModalityData, Recording
 from satkit.modalities import Splines
 
 from .metrics_helpers import calculate_timevector
-from .annd import SplineMetric, SplineMetricParameters, SplineDiffs, SplineMetricEnum, SplineNNDs
+from .spline_metric import (
+    SplineMetric, SplineMetricParameters, SplineDiffs,
+    SplineMetricEnum, SplineNNDs)
 
 _logger = logging.getLogger('satkit.gen_spline_metric')
 
@@ -112,21 +114,22 @@ def spline_nnd_metric(
 
 def calculate_spline_metric(
         splines: Splines,
-        to_be_computed: dict[str, SplineMetricParameters]) -> list[SplineMetric]:
+        to_be_computed: dict[str, SplineMetricParameters]
+) -> list[SplineMetric]:
     """
-    Calculate Average Nearest Neighbour Distance (ANND) on the Splines. 
+    Calculate SplineMetrics on the Splines. 
 
 
     Parameters
     ----------
     splines : Splines
         splines to process
-    params : AnndParameters
+    params : SplineMetricParameters
         Processing options.
 
     Returns
     -------
-    Union[ANND, None]
+    Union[SplineMetric, None]
         Returns the new Modality or None if the Modality could not be
         calculated.
     """

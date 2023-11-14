@@ -38,4 +38,4 @@ So tools that relate to Modalities will be where Modalities are, but tools that
 relate to for example Python base modules -- like enum_union does -- are here. 
 """
 
-from .enum_extensions import enum_union, LooseTypedEnumMeta
+from .enum_extensions import enum_union, ValueComparedEnumMeta

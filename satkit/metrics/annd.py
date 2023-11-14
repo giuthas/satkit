@@ -31,7 +31,7 @@
 #
 
 # Built in packages
-from enum import Enum, EnumMeta
+from enum import Enum
 import logging
 from pathlib import Path
 from typing import Optional, Tuple
@@ -39,17 +39,16 @@ from typing import Optional, Tuple
 # Numpy and scipy
 import numpy as np
 from pydantic import PositiveInt
-from icecream import ic
 
 from satkit.data_structures import (
     Modality, ModalityData, ModalityMetaData, Recording)
-from satkit.helpers import enum_union, LooseTypedEnumMeta
+from satkit.helpers import enum_union, ValueComparedEnumMeta
 from satkit.helpers.processing_helpers import product_dict
 
 _annd_logger = logging.getLogger('satkit.annd')
 
 
-class SplineNNDs(Enum, metaclass=LooseTypedEnumMeta):
+class SplineNNDs(Enum, metaclass=ValueComparedEnumMeta):
     """
     Spline metrics that use nearest neighbour distance.
     """
@@ -57,7 +56,7 @@ class SplineNNDs(Enum, metaclass=LooseTypedEnumMeta):
     MNND = 'mnnd'
 
 
-class SplineDiffs(Enum, metaclass=LooseTypedEnumMeta):
+class SplineDiffs(Enum, metaclass=ValueComparedEnumMeta):
     """
     Spline metrics that use distance between corresponding points.
     """
@@ -67,20 +66,12 @@ class SplineDiffs(Enum, metaclass=LooseTypedEnumMeta):
     SPLINE_L2 = 'spline_l2'
 
 
-SplineMetric = enum_union(SplineDiffs, SplineNNDs)
+SplineMetric = enum_union([SplineDiffs, SplineNNDs], "SplineMetric")
 """
 Enum of all valid spline metrics.
 
 This is formed as a UnionEnum of the subtypes.
 """
-
-# class SplineMetric(Enum):
-#     ANND = 'annd'
-#     MNND = 'mnnd'
-#     APBPD = 'apbpd'
-#     MPBPD = 'mpbpd'
-#     SPLINE_L1 = 'spline_l1'
-#     SPLINE_L2 = 'spline_l2'
 
 
 class AnndParameters(ModalityMetaData):

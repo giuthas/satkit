@@ -28,21 +28,24 @@ from enum import Enum, EnumMeta
 import itertools as itt
 import operator
 from functools import reduce
-from typing import Literal, Union
+from typing import Optional
 
 import more_itertools as mitt
 
 
-AUTO = object()
-
-
-class LooseTypedEnumMeta(EnumMeta):
+class ValueComparedEnumMeta(EnumMeta):
+    """
+    EnumMeta where `in` matches also value of member matching compared item. 
+    """
     def __contains__(cls, item):
         members = dict(cls.__members__)
         values = [members[name].value for name in members]
-        if item in values:
+        if item in values or item in members:
             return True
         return False
+        # This was originally used above but use of cls like this
+        # does not make the linter happy and so above solution seems
+        # preferable.
         # try:
         #     cls(item)
         # except ValueError:
@@ -50,7 +53,7 @@ class LooseTypedEnumMeta(EnumMeta):
         # return True
 
 
-class UnionEnumMeta(LooseTypedEnumMeta):
+class UnionEnumMeta(ValueComparedEnumMeta):
     """
     The metaclass for enums which are the union of several sub-enums.
 
@@ -61,9 +64,9 @@ class UnionEnumMeta(LooseTypedEnumMeta):
     # noinspection PyProtectedMember
     @classmethod
     def make_union(
-        mcs,
-        *subenums: EnumMeta,
-        name: Union[str, Literal[AUTO], None] = AUTO
+        cls,
+        subenums: list[EnumMeta],
+        name: Optional[str] = None
     ) -> EnumMeta:
         """
         Create an enum from the union of members of several enums.
@@ -120,11 +123,11 @@ class UnionEnumMeta(LooseTypedEnumMeta):
         >>> set(UnionAB).issubset(UnionABC)
         True
         """
-        subenums = mcs._normalize_subenums(subenums)
-        mcs._check_duplicates(subenums)
+        subenums = cls._normalize_subenums(subenums)
+        cls._check_duplicates(subenums)
 
-        class UnionEnum(Enum, metaclass=mcs):
-            pass
+        class UnionEnum(Enum, metaclass=cls):
+            """See make_union for documentation."""
 
         union_enum = UnionEnum
         union_enum._subenums_ = subenums
@@ -158,7 +161,7 @@ class UnionEnumMeta(LooseTypedEnumMeta):
         )
 
         # set the __name__ attribute of the enum
-        if name is AUTO:
+        if name is None:
             name = (
                 "".join(subenum.__name__.removesuffix("Enum")
                         for subenum in subenums)
@@ -189,19 +192,19 @@ class UnionEnumMeta(LooseTypedEnumMeta):
         return cls._subenums_ == other._subenums_
 
     @classmethod
-    def _normalize_subenums(mcs, subenums):
+    def _normalize_subenums(cls, subenums):
         """Remove duplicate subenums and flatten nested unions"""
         # we will need to collapse at most one level of nesting, with the
         # inductive hypothesis that any previous unions are already flat
         subenums = mitt.collapse(
-            (e._subenums_ if isinstance(e, mcs) else e for e in subenums),
+            (e._subenums_ if isinstance(e, cls) else e for e in subenums),
             base_type=EnumMeta,
         )
         subenums = mitt.unique_everseen(subenums)
         return tuple(subenums)
 
     @classmethod
-    def _check_duplicates(mcs, subenums):
+    def _check_duplicates(cls, subenums):
         names, duplicates = set(), set()
         for subenum in subenums:
             for name in subenum.__members__:

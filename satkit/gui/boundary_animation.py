@@ -1,8 +1,8 @@
 #
-# Copyright (c) 2019-2023 
+# Copyright (c) 2019-2023
 # Pertti Palo, Scott Moisik, Matthew Faytak, and Motoki Saito.
 #
-# This file is part of Speech Articulation ToolKIT 
+# This file is part of Speech Articulation ToolKIT
 # (see https://github.com/giuthas/satkit/).
 #
 # This program is free software: you can redistribute it and/or modify
@@ -43,13 +43,14 @@ from satkit.satgrid import SatInterval
 class AnimatableBoundary:
     """
     GUI/matplotlib elements of a rendered boundary.
-    
+
     These are: one line and the previous and following label.
     """
     axes: Axes
     line: mpl_line_2d
     prev_text: Optional[mpl_text] = None
     next_text: Optional[mpl_text] = None
+
 
 class BoundaryAnimator:
     """
@@ -64,10 +65,10 @@ class BoundaryAnimator:
     lock = None  # only one boundary can be animated at a time
 
     def __init__(self,
-            main_window,
-            boundaries: List[AnimatableBoundary], 
-            segment: SatInterval, 
-            time_offset=0):
+                 main_window,
+                 boundaries: List[AnimatableBoundary],
+                 segment: SatInterval,
+                 time_offset=0):
         self.main_window = main_window
         self.boundaries = boundaries
         self.segment = segment
@@ -106,10 +107,11 @@ class BoundaryAnimator:
         if self.main_window.shift_is_held:
             self.shift_is_held = True
             for animator in self.main_window.animators:
-                if (animator is not self and 
-                    animator.segment.begin == self.segment.begin):
+                if (animator is not self and
+                        animator.segment.begin == self.segment.begin):
                     self.coincident_boundaries.append(animator)
-                    print(f"self: {self.segment.text} {self.segment.begin} other:{animator.segment.text} {animator.segment.begin}")
+                    print(
+                        f"self: {self.segment.text} {self.segment.begin} other:{animator.segment.text} {animator.segment.begin}")
 
         is_inaxes = False
         for boundary in self.boundaries:
@@ -179,9 +181,11 @@ class BoundaryAnimator:
                 boundary.line.set(xdata=x0+dx)
 
                 if boundary.prev_text:
-                    boundary.prev_text.set(x=self.segment.prev.mid - self.time_offset)
+                    boundary.prev_text.set(
+                        x=self.segment.prev.mid - self.time_offset)
                 if boundary.next_text:
-                    boundary.next_text.set(x=self.segment.mid - self.time_offset)
+                    boundary.next_text.set(
+                        x=self.segment.mid - self.time_offset)
 
                 canvas = boundary.line.figure.canvas
                 axes = boundary.axes
@@ -219,7 +223,7 @@ class BoundaryAnimator:
                 boundary.next_text.set_animated(False)
 
             # redraw the full figure
-            boundary.line.figure.canvas.draw()
+            if hasattr(boundary.line.figure, 'canvas'):
+                boundary.line.figure.canvas.draw()
 
         self.backgrounds = []
-

@@ -42,52 +42,15 @@ from satkit.modalities import Splines
 from .metrics_helpers import calculate_timevector
 from .annd import ANND, AnndParameters, SplineDiffs, SplineMetric, SplineNNDs
 
-_annd_logger = logging.getLogger('satkit.annd')
+_logger = logging.getLogger('satkit.gen_spline_metric')
 
 
-def calculate_spline_distance_metric(
-        spline_data: np.ndarray,
+def spline_diff_metric(
+        data: np.ndarray,
+        time_points: np.ndarray,
         metric: SplineMetric,
         timestep: int,
-        notice_base: str,
-        exclude_points: tuple[int] = (10, 4)) -> np.ndarray:
-    """
-    Calculate spline metric over given array of splines.
-
-    Parameters
-    ----------
-    spline_data : np.ndarray
-        _description_
-    metric : SplineMetric
-        _description_
-    timestep : int
-        _description_
-    notice_base : str
-        _description_
-    exclude_points : tuple[int], optional
-        _description_, by default (10, 4)
-
-    Returns
-    -------
-    np.ndarray
-        _description_
-
-    Raises
-    ------
-    ValueError
-        If an invalid SplineMetric is passed as an argument.
-    """
-    _annd_logger.debug("Calculating spline metric %s.", metric)
-
-    # TODO: standardise the order of axes in Modality data or at the very least
-    # include a list of their names in modality meta: 'time', 'x-y-z',
-    # 'splinepoint' or some such AND enable the use of those names for data
-    # indexing. DOCUMENT THIS!
-    data = spline_data[:, :, exclude_points[0]:-exclude_points[1]]
-
-    # loop to calculate annd, mnnd, apbpd and mpbpd
-    num_points = data.shape[2]
-    time_points = data.shape[1] - timestep
+        notice_base: str) -> np.ndarray:
 
     result = np.zeros(time_points)
 
@@ -95,46 +58,59 @@ def calculate_spline_distance_metric(
         current_points = data[:, i, :]
         next_points = data[:, i+timestep, :]
 
-        if metric in SplineDiffs:
-            diff = np.subtract(current_points, next_points)
-            if metric == SplineMetric.SPLINE_L1.value:
-                result[i] = np.sum(np.abs(diff))
-            elif metric == SplineMetric.SPLINE_L2.value:
-                diff = np.square(diff)
-                result[i] = np.sqrt(np.sum(diff))
-            else:
-                diff = np.square(diff)
-                # sums over (x,y) for individual points
-                diff = np.sum(diff, axis=0)
-                diff = np.sqrt(diff)
-                if metric == SplineMetric.APBPD.value:
-                    result[i] = np.average(diff)
-                elif metric == SplineMetric.MPBPD.value:
-                    result[i] = np.median(diff)
-        elif metric in SplineNNDs:
-            nnd = np.zeros(num_points)
-            for j in range(num_points):
-                current_point = np.tile(
-                    current_points[:, j:j+1], (1, num_points))
-                diff = np.subtract(current_point, next_points)
-                diff = np.square(diff)
-                diff = np.sum(diff, axis=0)
-                diff = np.sqrt(diff)
-                nnd[j] = np.amin(diff)
-            if metric == SplineMetric.ANND.value:
-                result[i] = np.average(nnd)
-            elif metric == SplineMetric.MNND.value:
-                result[i] = np.median(nnd)
+        diff = np.subtract(current_points, next_points)
+        if metric == SplineMetric.SPLINE_L1.value:
+            result[i] = np.sum(np.abs(diff))
+        elif metric == SplineMetric.SPLINE_L2.value:
+            diff = np.square(diff)
+            result[i] = np.sqrt(np.sum(diff))
         else:
-            message = f"Unknown Spline metric: {metric}."
-            raise ValueError(message)
+            diff = np.square(diff)
+            # sums over (x,y) for individual points
+            diff = np.sum(diff, axis=0)
+            diff = np.sqrt(diff)
+            if metric == SplineMetric.APBPD.value:
+                result[i] = np.average(diff)
+            elif metric == SplineMetric.MPBPD.value:
+                result[i] = np.median(diff)
 
-    _annd_logger.debug("%s: %s calculated.", notice_base, metric)
-
+    _logger.debug("%s: %s calculated.", notice_base, metric)
     return result
 
 
-def calculate_annd(
+def spline_nnd_metric(
+        data: np.ndarray,
+        time_points: np.ndarray,
+        metric: SplineMetric,
+        timestep: int,
+        notice_base: str) -> np.ndarray:
+
+    result = np.zeros(time_points)
+    num_points = data.shape[2]
+
+    for i in range(time_points):
+        current_points = data[:, i, :]
+        next_points = data[:, i+timestep, :]
+
+        nnd = np.zeros(num_points)
+        for j in range(num_points):
+            current_point = np.tile(
+                current_points[:, j:j+1], (1, num_points))
+            diff = np.subtract(current_point, next_points)
+            diff = np.square(diff)
+            diff = np.sum(diff, axis=0)
+            diff = np.sqrt(diff)
+            nnd[j] = np.amin(diff)
+        if metric == SplineMetric.ANND.value:
+            result[i] = np.average(nnd)
+        elif metric == SplineMetric.MNND.value:
+            result[i] = np.median(nnd)
+
+    _logger.debug("%s: %s calculated.", notice_base, metric)
+    return result
+
+
+def calculate_spline_metric(
         splines: Splines,
         to_be_computed: dict[str, AnndParameters]) -> list[ANND]:
     """
@@ -155,8 +131,8 @@ def calculate_annd(
         calculated.
     """
 
-    _annd_logger.info('%s: Calculating spline metrics on %s.',
-                      str(splines.data_path), splines.name)
+    _logger.info('%s: Calculating spline metrics on %s.',
+                 str(splines.data_path), splines.name)
 
     data = splines.data
     sampling_rate = splines.sampling_rate
@@ -167,15 +143,15 @@ def calculate_annd(
 
     if splines.recording.excluded:
         notice = notice_base + ': Token excluded.'
-        _annd_logger.info(notice)
+        _logger.info(notice)
         return None
     else:
         notice = notice_base + ': Token being processed.'
-        _annd_logger.info(notice)
+        _logger.info(notice)
 
     if len(splines.timevector) < 2:
         notice = 'Not enough splines found for ' + basename + " " + prompt
-        _annd_logger.critical(notice)
+        _logger.critical(notice)
         return None
 
     timesteps = [to_be_computed[key].timestep for key in to_be_computed]
@@ -187,11 +163,34 @@ def calculate_annd(
     spline_distances = []
     param_set = None
     for (_, param_set) in to_be_computed.items():
-        metric_data = calculate_spline_distance_metric(
-            data,
-            metric=param_set.metric,
-            timestep=param_set.timestep,
-            notice_base=notice_base)
+        metric = param_set.metric
+        _logger.debug(
+            "Calculating spline metric %s.", metric)
+
+        timestep = param_set.timestep
+        # TODO: standardise the order of axes in Modality data or at the very
+        # least include a list of their names in modality meta: 'time',
+        # 'x-y-z', 'splinepoint' or some such AND enable the use of those names
+        # for data indexing. DOCUMENT THIS!
+        exclude_points = param_set.exclude_points
+        data = splines.data[:, :, exclude_points[0]:-exclude_points[1]]
+
+        time_points = data.shape[1] - timestep
+
+        if metric in SplineDiffs:
+            metric_data = spline_diff_metric(
+                data, time_points, metric, timestep, notice_base)
+        elif metric in SplineNNDs:
+            metric_data = spline_nnd_metric(
+                data, time_points, metric, timestep, notice_base)
+        else:
+            message = f"Unknown Spline metric: {metric}."
+            raise ValueError(message)
+        # metric_data = calculate_spline_metric(
+        #     data,
+        #     metric=param_set.metric,
+        #     timestep=param_set.timestep,
+        #     notice_base=notice_base)
         # interpolated=param_set.interpolated)
 
         modality_data = ModalityData(
@@ -208,14 +207,14 @@ def calculate_annd(
     return spline_distances
 
 
-def add_annd(recording: Recording,
-             splines: Splines,
-             preload: bool = True,
-             metrics: Optional[list[str]] = None,
-             timesteps: Optional[list[int]] = None,
-             release_data_memory: bool = True) -> None:
+def add_spline_metric(recording: Recording,
+                      splines: Splines,
+                      preload: bool = True,
+                      metrics: Optional[list[str]] = None,
+                      timesteps: Optional[list[int]] = None,
+                      release_data_memory: bool = True) -> None:
     """
-    Calculate ANND on dataModality and add it to recording.
+    Calculate missing spline metrics and add them to the recording.
 
     Positional arguments:
     recording -- a Recording object
@@ -230,8 +229,6 @@ def add_annd(recording: Recording,
         to False, if you know that you have enough memory to hold all 
         of the data in RAM.
     """
-    # TODO: this could be just as well merged with add_pd, because they are
-    # very nearly identical.
     if not preload:
         message = ("Looks like somebody is trying to leave Spline metrics "
                    "to be calculated on the fly. This is not yet supported.")
@@ -243,11 +240,11 @@ def add_annd(recording: Recording,
         timesteps = [1]
 
     if recording.excluded:
-        _annd_logger.info(
+        _logger.info(
             "Recording %s excluded from processing.", recording.basename)
     elif not splines.__name__ in recording.modalities:
-        _annd_logger.info("Data modality '%s' not found in recording: %s.",
-                          splines.__name__, recording.basename)
+        _logger.info("Data modality '%s' not found in recording: %s.",
+                     splines.__name__, recording.basename)
     else:
         all_requested = ANND.get_names_and_meta(
             splines, metrics, timesteps, release_data_memory)
@@ -260,13 +257,15 @@ def add_annd(recording: Recording,
         data_modality = recording.modalities[splines.__name__]
 
         if to_be_computed:
-            annds = calculate_annd(data_modality, to_be_computed)
+            spline_metrics = calculate_spline_metric(
+                data_modality, to_be_computed)
 
-            for annd in annds:
-                recording.add_modality(annd)
-                _annd_logger.info("Added '%s' to recording: %s.",
-                                  annd.name, recording.basename)
+            for spline_metric in spline_metrics:
+                recording.add_modality(spline_metric)
+                _logger.info("Added '%s' to recording: %s.",
+                             spline_metric.name,
+                             recording.basename)
         else:
-            _annd_logger.info(
+            _logger.info(
                 "Nothing to compute in ANND for recording: %s.",
                 recording.basename)

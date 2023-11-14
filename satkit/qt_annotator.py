@@ -357,8 +357,8 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
         # l0_5 = self.current.modalities['PD l0.5 on RawUltrasound']
 
         l1 = self.current.modalities['PD l1 on RawUltrasound']
-        annd = self.current.modalities['ANND annd on Splines']
-        mpbpd = self.current.modalities['ANND mpbpd on Splines']
+        annd = self.current.modalities['ANND annd ts3 on Splines']
+        mpbpd = self.current.modalities['ANND mpbpd ts3 on Splines']
         # l1_top = self.current.modalities['PD l1 top on RawUltrasound']
         # l1_bottom = self.current.modalities['PD l1 bottom on RawUltrasound']
 

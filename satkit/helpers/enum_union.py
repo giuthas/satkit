@@ -158,6 +158,14 @@ class UnionEnumMeta(enum.EnumMeta):
 
         return union_enum
 
+    def __contains__(cls, item):
+        """Does this Enum contain the given item."""
+        try:
+            cls(item)
+        except ValueError:
+            return False
+        return True
+
     def __hash__(cls):
         """Hash based on the tuple of subenums (order-sensitive)."""
         return hash(cls._subenums_)

@@ -33,9 +33,9 @@ from .ofreg import of
 from .calculate_pd import add_pd
 from .calculate_spline_metric import add_spline_metric
 from .pd import PD, PdParameters, ImageMask
-from .annd import SplineMetricEnum, SplineMetricParameters
+from .annd import SplineMetric, SplineMetricParameters
 
 metrics = {
     'PD': (PD, PdParameters),
-    'ANND': (SplineMetricEnum, SplineMetricParameters)
+    'SplineMetric': (SplineMetric, SplineMetricParameters)
 }

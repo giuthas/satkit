@@ -88,9 +88,9 @@ def main():
         'PD': (add_pd,
                [RawUltrasound],
                pd_arguments),
-        'ANND': (add_spline_metric,
-                 [Splines],
-                 annd_arguments)  # ,
+        'SplineMetric': (add_spline_metric,
+                         [Splines],
+                         annd_arguments)  # ,
         # 'peaks': (peaks.time_series_peaks,
         # [RawUltrasound],
         # TODO: figure out if this will actually work because this should be

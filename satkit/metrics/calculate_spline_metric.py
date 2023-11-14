@@ -264,5 +264,5 @@ def add_spline_metric(recording: Recording,
                              recording.basename)
         else:
             _logger.info(
-                "Nothing to compute in ANND for recording: %s.",
+                "Nothing to compute in for SplineMetrics for recording: %s.",
                 recording.basename)

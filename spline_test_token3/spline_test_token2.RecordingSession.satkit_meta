@@ -1,0 +1,8 @@
+object_type: RecordingSession
+name: spline_test_token2
+format_version: 0.7.0
+parameters:
+    path: spline_test_token2
+    datasource: AAA
+recordings:
+    - File156.Recording.satkit_meta

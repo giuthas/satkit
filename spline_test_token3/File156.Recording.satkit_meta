@@ -1,0 +1,37 @@
+object_type: Recording
+name: File156
+format_version: 0.7.0
+parameters:
+    prompt: 001   gap
+    time_of_recording: 2015-01-16 14:39:09
+    participant_id:
+    basename: File156
+    path: spline_test_token2
+modalities:
+    MonoAudio:
+        data_name: File156.wav
+        meta_name:
+    RawUltrasound:
+        data_name: File156.ult
+        meta_name: File156US.txt
+    Splines:
+        data_name: File156_splines.csv
+        meta_name:
+    PD l1 top on RawUltrasound:
+        data_name: File156.PD_l1_top_on_RawUltrasound.npz
+        meta_name: File156.PD_l1_top_on_RawUltrasound.satkit_meta
+    PD l1 bottom on RawUltrasound:
+        data_name: File156.PD_l1_bottom_on_RawUltrasound.npz
+        meta_name: File156.PD_l1_bottom_on_RawUltrasound.satkit_meta
+    PD l1 whole on RawUltrasound:
+        data_name: File156.PD_l1_whole_on_RawUltrasound.npz
+        meta_name: File156.PD_l1_whole_on_RawUltrasound.satkit_meta
+    PD l1 on RawUltrasound:
+        data_name: File156.PD_l1_on_RawUltrasound.npz
+        meta_name: File156.PD_l1_on_RawUltrasound.satkit_meta
+    SplineMetric annd ts3 on Splines:
+        data_name: File156.SplineMetric_annd_ts3_on_Splines.npz
+        meta_name: File156.SplineMetric_annd_ts3_on_Splines.satkit_meta
+    SplineMetric mpbpd ts3 on Splines:
+        data_name: File156.SplineMetric_mpbpd_ts3_on_Splines.npz
+        meta_name: File156.SplineMetric_mpbpd_ts3_on_Splines.satkit_meta

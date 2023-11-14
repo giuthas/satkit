@@ -39,25 +39,17 @@ from typing import Optional, Tuple
 # Numpy and scipy
 import numpy as np
 from pydantic import PositiveInt
+from icecream import ic
 
 from satkit.data_structures import (
     Modality, ModalityData, ModalityMetaData, Recording)
-from satkit.helpers import enum_union
+from satkit.helpers import enum_union, LooseTypedEnumMeta
 from satkit.helpers.processing_helpers import product_dict
 
 _annd_logger = logging.getLogger('satkit.annd')
 
 
-class _LooseTypedEnumMeta(EnumMeta):
-    def __contains__(cls, item):
-        try:
-            cls(item)
-        except ValueError:
-            return False
-        return True
-
-
-class SplineNNDs(Enum, metaclass=_LooseTypedEnumMeta):
+class SplineNNDs(Enum, metaclass=LooseTypedEnumMeta):
     """
     Spline metrics that use nearest neighbour distance.
     """
@@ -65,7 +57,7 @@ class SplineNNDs(Enum, metaclass=_LooseTypedEnumMeta):
     MNND = 'mnnd'
 
 
-class SplineDiffs(Enum, metaclass=_LooseTypedEnumMeta):
+class SplineDiffs(Enum, metaclass=LooseTypedEnumMeta):
     """
     Spline metrics that use distance between corresponding points.
     """

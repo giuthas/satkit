@@ -24,7 +24,7 @@ Enum union based on and compatible with the standard library's `enum`.
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-import enum
+from enum import Enum, EnumMeta
 import itertools as itt
 import operator
 from functools import reduce
@@ -36,7 +36,21 @@ import more_itertools as mitt
 AUTO = object()
 
 
-class UnionEnumMeta(enum.EnumMeta):
+class LooseTypedEnumMeta(EnumMeta):
+    def __contains__(cls, item):
+        members = dict(cls.__members__)
+        values = [members[name].value for name in members]
+        if item in values:
+            return True
+        return False
+        # try:
+        #     cls(item)
+        # except ValueError:
+        #     return False
+        # return True
+
+
+class UnionEnumMeta(LooseTypedEnumMeta):
     """
     The metaclass for enums which are the union of several sub-enums.
 
@@ -48,9 +62,9 @@ class UnionEnumMeta(enum.EnumMeta):
     @classmethod
     def make_union(
         mcs,
-        *subenums: enum.EnumMeta,
+        *subenums: EnumMeta,
         name: Union[str, Literal[AUTO], None] = AUTO
-    ) -> enum.EnumMeta:
+    ) -> EnumMeta:
         """
         Create an enum from the union of members of several enums.
 
@@ -67,9 +81,9 @@ class UnionEnumMeta(enum.EnumMeta):
 
         Example (using the :func:`enum_union` alias defined below):
 
-        >>> class EnumA(enum.Enum):
+        >>> class EnumA(Enum):
         ...    A = 1
-        >>> class EnumB(enum.Enum):
+        >>> class EnumB(Enum):
         ...    B = 2
         ...    ALIAS = 1
         >>> UnionAB = enum_union(EnumA, EnumB)
@@ -88,10 +102,10 @@ class UnionEnumMeta(enum.EnumMeta):
         >>> isinstance(EnumB.B, UnionAB)
         True
 
-        >>> issubclass(UnionAB, enum.Enum)
+        >>> issubclass(UnionAB, Enum)
         True
 
-        >>> class EnumC(enum.Enum):
+        >>> class EnumC(Enum):
         ...    C = 3
         >>> enum_union(UnionAB, EnumC) == enum_union(EnumA, EnumB, EnumC)
         True
@@ -109,7 +123,7 @@ class UnionEnumMeta(enum.EnumMeta):
         subenums = mcs._normalize_subenums(subenums)
         mcs._check_duplicates(subenums)
 
-        class UnionEnum(enum.Enum, metaclass=mcs):
+        class UnionEnum(Enum, metaclass=mcs):
             pass
 
         union_enum = UnionEnum
@@ -158,14 +172,6 @@ class UnionEnumMeta(enum.EnumMeta):
 
         return union_enum
 
-    def __contains__(cls, item):
-        """Does this Enum contain the given item."""
-        try:
-            cls(item)
-        except ValueError:
-            return False
-        return True
-
     def __hash__(cls):
         """Hash based on the tuple of subenums (order-sensitive)."""
         return hash(cls._subenums_)
@@ -189,7 +195,7 @@ class UnionEnumMeta(enum.EnumMeta):
         # inductive hypothesis that any previous unions are already flat
         subenums = mitt.collapse(
             (e._subenums_ if isinstance(e, mcs) else e for e in subenums),
-            base_type=enum.EnumMeta,
+            base_type=EnumMeta,
         )
         subenums = mitt.unique_everseen(subenums)
         return tuple(subenums)
@@ -208,7 +214,7 @@ class UnionEnumMeta(enum.EnumMeta):
 enum_union = UnionEnumMeta.make_union
 
 
-def extend_enum(base_enum: enum.EnumMeta):
+def extend_enum(base_enum: EnumMeta):
     """
     Decorator to "extend" an enum by computing the union with the given enum.
 
@@ -222,11 +228,11 @@ def extend_enum(base_enum: enum.EnumMeta):
 
     Example:
 
-    >>> class BaseEnum(enum.Enum):
+    >>> class BaseEnum(Enum):
     ...     A = 1
     ...
     >>> @extend_enum(BaseEnum)
-    ... class ExtendedEnum(enum.Enum):
+    ... class ExtendedEnum(Enum):
     ...     ALIAS = 1
     ...     B = 2
     >>> ExtendedEnum.__members__
@@ -235,7 +241,7 @@ def extend_enum(base_enum: enum.EnumMeta):
                   'B': <ExtendedEnum.B: 2>})
     """
 
-    def decorator(extension_enum: enum.EnumMeta):
+    def decorator(extension_enum: EnumMeta):
         return enum_union(base_enum, extension_enum)
 
     return decorator

@@ -189,7 +189,8 @@ def calculate_spline_metric(
         modality_data = ModalityData(
             metric_data, sampling_rate, timevectors[param_set.timestep])
         spline_distances.append(SplineMetric(splines.recording,
-                                             param_set, parsed_data=modality_data))
+                                             param_set,
+                                             parsed_data=modality_data))
 
     if param_set and param_set.release_data_memory:
         # Accessing the data modality's data causes it to be

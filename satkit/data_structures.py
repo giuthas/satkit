@@ -286,7 +286,7 @@ class Modality(abc.ABC):
     def __init__(self,
                  recording: Recording,
                  parsed_data: Optional[ModalityData] = None,
-                 meta_data: Optional[ModalityMetaData] = None,
+                 metadata: Optional[ModalityMetaData] = None,
                  data_path: Optional[Path] = None,
                  meta_path: Optional[Path] = None,
                  load_path: Optional[Path] = None,
@@ -322,7 +322,7 @@ class Modality(abc.ABC):
         self._meta_path = meta_path  # self.meta_path is a property
         self.load_path = load_path
 
-        self.meta_data = meta_data
+        self.metadata = metadata
 
         if parsed_data:
             self._data = parsed_data.data
@@ -349,7 +349,7 @@ class Modality(abc.ABC):
             return self._read_data()
         elif self.load_path:
             return self._load_data()
-        elif self.meta_data.parent_name:
+        elif self.metadata.parent_name:
             return self._derive_data()
         else:
             raise MissingDataError(
@@ -415,8 +415,8 @@ class Modality(abc.ABC):
         the metric used to generate the instance in the name.
         """
         name_string = self.__class__.__name__
-        if self.meta_data and self.meta_data.parent_name:
-            name_string = name_string + " on " + self.meta_data.parent_name
+        if self.metadata and self.metadata.parent_name:
+            name_string = name_string + " on " + self.metadata.parent_name
         return name_string
 
     @property
@@ -489,7 +489,7 @@ class Modality(abc.ABC):
     @property
     def parent_name(self) -> str:
         """Name of the Modality this Modality was derived from, if any."""
-        return self.meta_data.parent_name
+        return self.metadata.parent_name
 
     @property
     def time_offset(self):
@@ -587,7 +587,7 @@ class Modality(abc.ABC):
 
         This cannot be set from the outside.
         """
-        if self.meta_data and self.meta_data.parent_name:
+        if self.metadata and self.metadata.parent_name:
             return True
         else:
             return False

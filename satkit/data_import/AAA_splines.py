@@ -38,12 +38,13 @@ from pathlib import Path
 
 import dateutil.parser
 import numpy as np
+from icecream import ic
 
 from satkit.constants import (
     Coordinates, SatkitConfigFile, SplineDataColumn, SplineMetaColumn)
 from satkit.data_structures import ModalityData, Recording
 from satkit.errors import SatkitError
-from satkit.modalities.splines import Splines
+from satkit.modalities.splines import Splines, SplineMetadata
 
 from .spline_import_config import SplineImportConfig, load_spline_import_config
 
@@ -52,7 +53,7 @@ _AAA_spline_logger = logging.getLogger('satkit.AAA_splines')
 
 def parse_splines(
         lines: list,
-        spline_config: SplineImportConfig) -> ModalityData:
+        spline_config: SplineImportConfig) -> tuple[ModalityData, int, bool]:
     """
     Construct a ModalityData from a list of lines representing Splines.
 
@@ -81,6 +82,8 @@ def parse_splines(
         comparisons of splines and determine that metric's sampling rate.
     """
     # TODO 1.1: import also confidence values.
+    confidence_exists = False
+
     coordinates = []
 
     timestamp_ind = spline_config.meta_columns.index(
@@ -122,7 +125,12 @@ def parse_splines(
         else:
             sampling_rate = 0
 
-    return ModalityData(coordinates, sampling_rate, timevector)
+    # Make time the first dimension.
+    coordinates = np.swapaxes(coordinates, 0, 1)
+
+    return (ModalityData(coordinates, sampling_rate, timevector),
+            spline_points,
+            confidence_exists)
 
 
 def retrieve_splines(
@@ -152,11 +160,11 @@ def retrieve_splines(
                 f"{dateutil.parser.parse(row[rec_time_pos])}")
             rows_by_recording[key].append(row)
 
-        table = {key: parse_splines(rows_by_recording[key], spline_config)
-                 for key in rows_by_recording}
+        result = {key: parse_splines(rows_by_recording[key], spline_config)
+                  for key in rows_by_recording}
 
     _AAA_spline_logger.info("Read file %s.", str(splinefile))
-    return table
+    return result
 
 
 def add_splines_from_batch_export(
@@ -187,8 +195,13 @@ def add_splines_from_batch_export(
 
     for recording in recording_list:
         search_key = recording.identifier()
-        spline_data = spline_dict[search_key]
-        splines = Splines(recording, data_path=spline_file,
+        (spline_data, number_of_points, confidence) = spline_dict[search_key]
+        metadata = SplineMetadata(coordinates=spline_config.coordinates,
+                                  number_of_sample_points=number_of_points,
+                                  confidence_exists=confidence)
+        splines = Splines(recording,
+                          metadata=metadata,
+                          data_path=spline_file,
                           parsed_data=spline_data)
         recording.add_modality(splines)
 
@@ -226,8 +239,14 @@ def add_splines_from_individual_files(
                 f"Spline file {spline_file} was supposed to "
                 f"contain splines of a single recording, "
                 f"but multiple found: {keys}.")
-        spline_data = spline_dict[keys[0]]
-        splines = Splines(recording, data_path=spline_file,
+        (spline_data, number_of_points, confidence) = spline_dict[keys[0]]
+        metadata = SplineMetadata(coordinates=spline_config.coordinates,
+                                  number_of_sample_points=number_of_points,
+                                  confidence_exists=confidence)
+
+        splines = Splines(recording,
+                          metadata=metadata,
+                          data_path=spline_file,
                           parsed_data=spline_data)
         recording.add_modality(splines)
 

@@ -234,7 +234,7 @@ class SplineMetric(Modality):
 
         super().__init__(
             recording,
-            meta_data=parameters,
+            metadata=parameters,
             data_path=None,
             load_path=load_path,
             meta_path=meta_path,

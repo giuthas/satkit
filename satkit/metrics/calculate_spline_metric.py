@@ -57,8 +57,8 @@ def spline_diff_metric(
     result = np.zeros(time_points)
 
     for i in range(time_points):
-        current_points = data[:, i, :]
-        next_points = data[:, i+timestep, :]
+        current_points = data[i, :, :]
+        next_points = data[i+timestep, :, :]
 
         diff = np.subtract(current_points, next_points)
         if metric == SplineMetricEnum.SPLINE_L1.value:
@@ -91,8 +91,8 @@ def spline_nnd_metric(
     num_points = data.shape[2]
 
     for i in range(time_points):
-        current_points = data[:, i, :]
-        next_points = data[:, i+timestep, :]
+        current_points = data[i, :, :]
+        next_points = data[i+timestep, :, :]
 
         nnd = np.zeros(num_points)
         for j in range(num_points):
@@ -171,14 +171,10 @@ def calculate_spline_metric(
             "Calculating spline metric %s.", metric)
 
         timestep = param_set.timestep
-        # TODO: standardise the order of axes in Modality data or at the very
-        # least include a list of their names in modality meta: 'time',
-        # 'x-y-z', 'splinepoint' or some such AND enable the use of those names
-        # for data indexing. DOCUMENT THIS!
         exclude_points = param_set.exclude_points
         data = splines.data[:, :, exclude_points[0]:-exclude_points[1]]
 
-        time_points = data.shape[1] - timestep
+        time_points = data.shape[0] - timestep
 
         if metric in SplineDiffs:
             metric_data = spline_diff_metric(

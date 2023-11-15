@@ -164,7 +164,7 @@ def fourier_tongue_shape_analysis(tongue_data: np.ndarray):
         np.gradient(tongue_data[:, 1]),
         np.gradient(tongue_data[:, 0]))
     # TODO: tangent angle or tangent vector?
-    ic(tangent_angle)
+    # ic(tangent_angle)
 
     ntfm = np.fft.rfft(tangent_angle)
 
@@ -184,7 +184,7 @@ def run_analysis():
     n_header_lines = 0
 
     # make list of csv files in the working directory
-    file_list = glob.glob("*.csv")
+    file_list = glob.glob("test_data/*.csv")
 
     # remove output file from file list
     if output_file_name in file_list:
@@ -201,7 +201,7 @@ def run_analysis():
         len(ids), str(ids))
 
     # open csv file for data output and write header information
-    with open(output_file_name, 'wb') as output_file:
+    with open(output_file_name, 'w', encoding='utf-8') as output_file:
         writer = csv.writer(output_file)
         writer.writerow(
             ["ID", "symbol", "repetition", "MCI", "procrustes", "real_1",
@@ -253,11 +253,13 @@ def run_analysis():
                 data = np.genfromtxt(
                     file_name, delimiter=",", skip_header=n_header_lines)
 
+                ic(data.shape)
+
                 if data.shape[1] % 2 != 0:
                     raise IOError(
                         "Number of data columns not a multiple of 2 in " +
                         str(file_name))
-                num_reps = data.shape[1]/2
+                num_reps = int(data.shape[1]/2)
                 _logger.debug(
                     "Found %d shapes for %s", num_reps, symbol)
 
@@ -291,3 +293,6 @@ def run_analysis():
                          real[3],
                          imaginary[3],
                          mod[3]])
+
+
+run_analysis()

@@ -263,6 +263,9 @@ def run_analysis():
                 _logger.debug(
                     "Found %d shapes for %s", num_reps, symbol)
 
+                # TODO: rewrite this to first reshape the data to time, x-y, splinepoints
+                # and to run on that kind of data.
+                # then see if it would make sense to drop the for loop into the processing functions.
                 for rep in range(0, num_reps):
 
                     j = 2*rep

@@ -48,14 +48,6 @@ from satkit.helpers.processing_helpers import product_dict
 _logger = logging.getLogger('satkit.spline_metric')
 
 
-class SplineNNDs(Enum, metaclass=ValueComparedEnumMeta):
-    """
-    Spline metrics that use nearest neighbour distance.
-    """
-    ANND = 'annd'
-    MNND = 'mnnd'
-
-
 class SplineDiffs(Enum, metaclass=ValueComparedEnumMeta):
     """
     Spline metrics that use distance between corresponding points.
@@ -66,7 +58,26 @@ class SplineDiffs(Enum, metaclass=ValueComparedEnumMeta):
     SPLINE_L2 = 'spline_l2'
 
 
-SplineMetricEnum = enum_union([SplineDiffs, SplineNNDs], "SplineMetric")
+class SplineNNDs(Enum, metaclass=ValueComparedEnumMeta):
+    """
+    Spline metrics that use nearest neighbour distance.
+    """
+    ANND = 'annd'
+    MNND = 'mnnd'
+
+
+class SplineShapes(Enum, metaclass=ValueComparedEnumMeta):
+    """
+    Spline metrics that characterise shape.
+    """
+    CURVATURE = 'curvature'
+    FOURIER = 'fourier'
+    MODIFIED_CURVATURE = 'modified_curvature'
+    PROCRUSTES = 'procrustes'
+
+
+SplineMetricEnum = enum_union(
+    [SplineDiffs, SplineNNDs, SplineShapes], "SplineMetric")
 """
 Enum of all valid spline metrics.
 

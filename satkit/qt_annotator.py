@@ -362,6 +362,7 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
         annd = self.current.modalities['SplineMetric annd ts3 on Splines']
         mpbpd = self.current.modalities['SplineMetric mpbpd ts3 on Splines']
         curvature = self.current.modalities['SplineMetric modified_curvature on Splines']
+        fourier = self.current.modalities['SplineMetric fourier on Splines']
         # l1_top = self.current.modalities['PD l1 top on RawUltrasound']
         # l1_bottom = self.current.modalities['PD l1 bottom on RawUltrasound']
 
@@ -450,6 +451,12 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
         curvature_line = plot_timeseries(
             self.data_axes[0],
             curvature.data, curvature_time, self.xlim, ylim, color='black',
+            normalise=Normalisation('PEAK'),
+            find_peaks=False)
+        fourier_line = plot_timeseries(
+            self.data_axes[0],
+            fourier.data[:, 0,
+                         0], curvature_time, self.xlim, ylim, color='gray',
             normalise=Normalisation('PEAK AND BOTTOM'),
             find_peaks=False)
         # raw_l1_bottom = plot_timeseries(self.data_axes[0], l1_bottom.data,

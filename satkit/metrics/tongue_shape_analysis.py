@@ -14,6 +14,7 @@ import os
 import logging
 
 import numpy as np
+from icecream import ic
 
 from scipy.integrate import simpson
 from scipy.signal import butter, filtfilt
@@ -134,11 +135,9 @@ def modified_curvature_index(data: np.ndarray,
     return mci
 
 
-def fourier_tongue_shape_analysis(
-    data: np.ndarray
-) -> tuple[list[float], list[float], list[float]]:
+def fourier_tongue_shape_analysis(data: np.ndarray) -> np.ndarray:
     """
-    _summary_
+    Calculate fourier transform of a spline.
 
     The output of the DFT analysis for our purposes is the value of a given
     shape provided by the ﬁrst three Fourier coeﬃcients. The ﬁrst coeﬃcient of
@@ -163,8 +162,9 @@ def fourier_tongue_shape_analysis(
 
     Returns
     -------
-    tuple[list[float], list[float], list[float]]
-        real, imaginary, mod
+    np.ndarray
+        array of floats with the axes ordered: 
+        real-imaginary-modulus, paramvector
     """
     tangent_angle = np.arctan2(
         np.gradient(data[1, :]),
@@ -176,7 +176,7 @@ def fourier_tongue_shape_analysis(
     imaginary = np.imag(ntfm)
     modulus = np.absolute(ntfm)
 
-    return real, imaginary, modulus
+    return np.stack([real, imaginary, modulus])
 
 
 def spline_shape_metric(
@@ -220,9 +220,15 @@ def spline_shape_metric(
         raise NotImplementedError(message)
 
     if metric == SplineShapesEnum.FOURIER.value:
-        message = "Spline Fourier analysis hasn't been fully implemented yet."
-        message += " Passing results out hasn't been implemented."
-        raise NotImplementedError(message)
+        if data.shape[2] % 2 == 0:
+            result = np.zeros((data.shape[0], 3, int((data.shape[2]/2)+1)))
+        else:
+            result = np.zeros((data.shape[0], 3, int((data.shape[2]+1)/2)))
+
+        for i in range(data.shape[0]):
+            result[i, :, :] = fourier_tongue_shape_analysis(data[i, :])
+        _logger.debug("%s: Calculated %s", notice_base, metric)
+        return result
 
     if metric == SplineShapesEnum.MODIFIED_CURVATURE.value:
         result = np.zeros(data.shape[0])
@@ -344,8 +350,11 @@ def run_analysis():
                     mci = modified_curvature_index(
                         data[rep, :, :])
 
-                    real, imaginary, mod = fourier_tongue_shape_analysis(
+                    fourier_params = fourier_tongue_shape_analysis(
                         data[rep, :, :])
+                    real = fourier_params[0, :]
+                    imaginary = fourier_params[1, :]
+                    mod = fourier_params[2, :]
 
                     writer.writerow(
                         [current_id, symbol, rep, mci, proc, real[1],

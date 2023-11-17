@@ -79,7 +79,7 @@ def main():
         'preload': True}
 
     annd_arguments = {
-        'metrics': ['annd', 'mpbpd', 'modified_curvature'],
+        'metrics': ['annd', 'mpbpd', 'modified_curvature', 'fourier'],
         'timesteps': [3],
         'release_data_memory': False,
         'preload': True}

@@ -22,7 +22,8 @@ from scipy.signal import butter, filtfilt
 _logger = logging.getLogger('satkit.spline_metrics')
 
 
-def procrustes(reference_shape: np.ndarray, compared_shape: np.ndarray):
+def procrustes(reference_shape: np.ndarray,
+               compared_shape: np.ndarray) -> float:
     """
     Compare the two shapes with procrustes analysis.
 
@@ -35,14 +36,14 @@ def procrustes(reference_shape: np.ndarray, compared_shape: np.ndarray):
     Parameters
     ----------
     reference_shape : np.ndarray
-        _description_
+        the reference spline
     compared_shape : np.ndarray
-        _description_
+        the spline to be compared to the reference
 
     Returns
     -------
-    _type_
-        _description_
+    float
+        The procrustes similarity value.
     """
     # TODO: this could be done easy enough by just checking if onset has been
     # annotated on a Recording and using that as the reference. however, the
@@ -50,6 +51,8 @@ def procrustes(reference_shape: np.ndarray, compared_shape: np.ndarray):
     # could be written just on that.
 
     # translate the points to be centred at 0, 0
+    reference_shape = reference_shape.transpose()
+    compared_shape = compared_shape.transpose()
     normalised_reference = reference_shape - reference_shape.mean(axis=0)
     normalised_compared = compared_shape - compared_shape.mean(axis=0)
 
@@ -77,7 +80,8 @@ def procrustes(reference_shape: np.ndarray, compared_shape: np.ndarray):
     return math.sqrt(((normalised_reference - b2)**2.0).sum())
 
 
-def modified_curvature_index(data: np.ndarray, run_filter: bool = True):
+def modified_curvature_index(data: np.ndarray,
+                             run_filter: bool = True) -> float:
     """
     Calculate the modified curvature index.
 
@@ -93,27 +97,26 @@ def modified_curvature_index(data: np.ndarray, run_filter: bool = True):
 
     Parameters
     ----------
-    data : _type_
-        _description_
+    data : np.ndarray
+        one spline with axes ordered: x-y, splinepoints 
+    run_filter : bool
+        Should the curvature be filtered before integration.
 
     Returns
     -------
-    _type_
-        _description_
+    float
+        the modified curvature index
     """
-    # TODO: remains to be seen which object we are going to calculate this on
-    # in SATKIT.
-
     # compute signed curvature
-    diff_x = np.gradient(data[:, 0])
-    diff_y = np.gradient(data[:, 1])
+    diff_x = np.gradient(data[0, :])
+    diff_y = np.gradient(data[1, :])
     diff2_x = np.gradient(diff_x)
     diff2_y = np.gradient(diff_y)
     curvature = (diff_x * diff2_y - diff_y * diff2_x) / (diff_x **
                                                          2 + diff_y**2)**1.5
 
     cumulative_sum = np.cumsum(
-        np.sqrt(np.sum(np.diff(data, axis=0)**2, axis=1)))
+        np.sqrt(np.sum(np.diff(data, axis=1)**2, axis=0)))
     cumulative_sum = np.insert(cumulative_sum, 0, 0)
 
     if run_filter:
@@ -121,7 +124,7 @@ def modified_curvature_index(data: np.ndarray, run_filter: bool = True):
         r = curvature[::-1]
         filtered_curvature = filtfilt(
             butter_b, butter_a, np.concatenate((r, curvature, r)))
-        filtered_curvature = filtered_curvature[len(data):-len(data)]
+        filtered_curvature = filtered_curvature[data.shape[1]:-data.shape[1]]
 
         mci = simpson(np.abs(filtered_curvature), cumulative_sum)
     else:
@@ -130,7 +133,7 @@ def modified_curvature_index(data: np.ndarray, run_filter: bool = True):
     return mci
 
 
-def fourier_tongue_shape_analysis(tongue_data: np.ndarray):
+def fourier_tongue_shape_analysis(data: np.ndarray):
     """
     _summary_
 
@@ -152,27 +155,25 @@ def fourier_tongue_shape_analysis(tongue_data: np.ndarray):
 
     Parameters
     ----------
-    data : _type_
-        _description_
+    tongue_data : np.ndarray
+        one spline with axes ordered: x-y, splinepoints 
 
     Returns
     -------
-    _type_
-        _description_
+    tuple
+        real, imaginary, mod
     """
     tangent_angle = np.arctan2(
-        np.gradient(tongue_data[:, 1]),
-        np.gradient(tongue_data[:, 0]))
-    # TODO: tangent angle or tangent vector?
-    # ic(tangent_angle)
+        np.gradient(data[1, :]),
+        np.gradient(data[0, :]))
 
     ntfm = np.fft.rfft(tangent_angle)
 
     real = np.real(ntfm)
     imaginary = np.imag(ntfm)
-    mod = np.absolute(ntfm)
+    modulus = np.absolute(ntfm)
 
-    return real, imaginary, mod
+    return real, imaginary, modulus
 
 
 def run_analysis():
@@ -238,6 +239,8 @@ def run_analysis():
                     raise IOError(
                         "There should be one and only one "
                         "shape in the resting shape file")
+
+                rdata = np.moveaxis(rdata, 0, 1)
                 _logger.debug(
                     "Found resting shape")
             else:
@@ -253,8 +256,6 @@ def run_analysis():
                 data = np.genfromtxt(
                     file_name, delimiter=",", skip_header=n_header_lines)
 
-                ic(data.shape)
-
                 if data.shape[1] % 2 != 0:
                     raise IOError(
                         "Number of data columns not a multiple of 2 in " +
@@ -263,28 +264,28 @@ def run_analysis():
                 _logger.debug(
                     "Found %d shapes for %s", num_reps, symbol)
 
-                # TODO: rewrite this to first reshape the data to time, x-y, splinepoints
-                # and to run on that kind of data.
-                # then see if it would make sense to drop the for loop into the processing functions.
+                # This transforms the test data into the axes
+                # time, x-y, splinepoint
+                data = np.stack((data[:, 0::2], data[:, 1::2]))
+                data = np.moveaxis(data, (0, 1), (1, 2))
+
                 for rep in range(0, num_reps):
-
-                    j = 2*rep
-
                     # check for NaNs
-                    if np.isnan(np.sum(data[:, j:j+2])):
+                    if np.isnan(np.sum(data[rep, :, :])):
                         _logger.debug(
                             "NaN in shape %d ignoring.", rep)
                         continue
 
                     if do_procrustes:
-                        proc = procrustes(rdata, data[:, j:j+2])
+                        proc = procrustes(rdata, data[rep, :, :])
                     else:
                         proc = 0
 
-                    mci = modified_curvature_index(data[:, j:j+2])
+                    mci = modified_curvature_index(
+                        data[rep, :, :])
 
                     real, imaginary, mod = fourier_tongue_shape_analysis(
-                        data[:, j: j + 2])
+                        data[rep, :, :])
 
                     writer.writerow(
                         [current_id, symbol, rep, mci, proc, real[1],

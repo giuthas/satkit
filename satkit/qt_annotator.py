@@ -356,9 +356,12 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
         # l0_1 = self.current.modalities['PD l0.1 on RawUltrasound']
         # l0_5 = self.current.modalities['PD l0.5 on RawUltrasound']
 
+        # ic(self.current.modalities)
+
         l1 = self.current.modalities['PD l1 on RawUltrasound']
         annd = self.current.modalities['SplineMetric annd ts3 on Splines']
         mpbpd = self.current.modalities['SplineMetric mpbpd ts3 on Splines']
+        curvature = self.current.modalities['SplineMetric modified_curvature on Splines']
         # l1_top = self.current.modalities['PD l1 top on RawUltrasound']
         # l1_bottom = self.current.modalities['PD l1 bottom on RawUltrasound']
 
@@ -376,7 +379,8 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
         # l2_interpolated_top = self.current.modalities['Interpolated PD l2 top on RawUltrasound']
         # l2_interpolated_bottom = self.current.modalities['Interpolated PD l2 bottom on RawUltrasound']
         ultra_time = l1.timevector - stimulus_onset
-        spline_time = annd.timevector - stimulus_onset
+        annd_time = annd.timevector - stimulus_onset
+        curvature_time = curvature.timevector - stimulus_onset
         # l2_size = len(self.current.modalities['RawUltrasound'].data[0,:,:])
         # half = int(self.current.modalities['RawUltrasound'].data.shape[1]/2)
         # l2_top_size = len(self.current.modalities['RawUltrasound'].data[0,:half,:])
@@ -402,9 +406,9 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
         #          picker=PdQtAnnotator.line_xdirection_picker)
         ylim = None
         if 'auto x' in gui_params and gui_params['auto x']:
-            # TODO: find the minimum and maximum timestamp of all the modalities
-            # being plotted. this can be really done only after plotting is
-            # controlled by config instead of manual code
+            # TODO: find the minimum and maximum timestamp of all the
+            # modalities being plotted. this can be really done only after
+            # plotting is controlled by config instead of manual code
             self.xlim = (
                 np.min([np.min(wav_time), np.min(ultra_time)]),
                 np.max([np.max(wav_time), np.max(ultra_time)])
@@ -435,12 +439,17 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
             find_peaks=False)
         annd_line = plot_timeseries(
             self.data_axes[0],
-            annd.data, spline_time, self.xlim, ylim, color='blue',
+            annd.data, annd_time, self.xlim, ylim, color='blue',
             normalise=Normalisation('PEAK AND BOTTOM'),
             find_peaks=False)
         mpbpd_line = plot_timeseries(
             self.data_axes[0],
-            mpbpd.data, spline_time, self.xlim, ylim, color='orange',
+            mpbpd.data, annd_time, self.xlim, ylim, color='orange',
+            normalise=Normalisation('PEAK AND BOTTOM'),
+            find_peaks=False)
+        curvature_line = plot_timeseries(
+            self.data_axes[0],
+            curvature.data, curvature_time, self.xlim, ylim, color='black',
             normalise=Normalisation('PEAK AND BOTTOM'),
             find_peaks=False)
         # raw_l1_bottom = plot_timeseries(self.data_axes[0], l1_bottom.data,
@@ -539,7 +548,8 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
                          sampling_frequency=audio.sampling_rate,
                          xtent_on_x=[wav_time[0], wav_time[-1]])
 
-        # TODO: the sync is out with this one, but plotting a pd spectrum is still a good idea.
+        # TODO: the sync is out with this one, but plotting a pd spectrum is
+        # still a good idea.
         # plot_spectrogram(self.data_axes[2],
         #                 waveform=l2.data,
         #                 ylim=(0,40),
@@ -645,8 +655,7 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
         if 'PD l1 on RawUltrasound' in self.current.modalities:
             pd_metrics = self.current.modalities['PD l1 on RawUltrasound']
             ultra_time = pd_metrics.timevector - stimulus_onset
-            self.current.annotations['selected_time'] = ultra_time[self.
-                                                                   current.annotations['selection_index']]
+            self.current.annotations['selected_time'] = ultra_time[self.current.annotations['selection_index']]
 
     def next_frame(self):
         """
@@ -658,7 +667,7 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
 
             self.current.annotations['selection_index'] += 1
             _qt_annotator_logger.debug(
-                "next frame: %d" %
+                "next frame: %d",
                 (self.current.annotations['selection_index']))
             self._update_pd_onset()
             self.update()
@@ -671,7 +680,7 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
         if self.current.annotations['selection_index'] > 0:
             self.current.annotations['selection_index'] -= 1
             _qt_annotator_logger.debug(
-                "previous frame: %d" %
+                "previous frame: %d",
                 (self.current.annotations['selection_index']))
             self._update_pd_onset()
             self.update()
@@ -759,9 +768,10 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
         """
         if not self.current._textgrid_path:
             (self.current._textgrid_path, _) = QFileDialog.getSaveFileName(
-                self, 'Save file', directory='.', filter="TextGrid files (*.TextGrid)")
+                self, 'Save file', directory='.',
+                filter="TextGrid files (*.TextGrid)")
         if self.current._textgrid_path and self.current.satgrid:
-            with open(self.current._textgrid_path, 'w') as outfile:
+            with open(self.current._textgrid_path, 'w', encoding='utf-8') as outfile:
                 outfile.write(self.current.satgrid.format_long())
             _qt_annotator_logger.info(
                 "Wrote TextGrid to file %s.", str(self.current._textgrid_path))
@@ -770,8 +780,8 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
         """
         Callback method to export the current figure in any supported format.
 
-        Opens a filedialog to ask for the filename. Save format is determined by
-        file extension.
+        Opens a filedialog to ask for the filename. Save format is determined
+        by file extension.
         """
         (filename, _) = QFileDialog.getSaveFileName(
             self, 'Export figure', directory='.')
@@ -853,7 +863,7 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
                 annotations['C1'] = recording.meta_data.prompt[0]
                 writer.writerow(annotations)
             _qt_annotator_logger.info(
-                'Wrote onset data in file %s.' % (filename))
+                "Wrote onset data in file %s.", (filename))
 
     def pd_category_cb(self):
         """
@@ -889,8 +899,9 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
                 subplot = i+1
                 break
 
-        _qt_annotator_logger.debug("Inside onpick - subplot: %d, x=%f" % (
-            subplot, event.xdata))
+        _qt_annotator_logger.debug(
+            "Inside onpick - subplot: %d, x=%f",
+            subplot, event.xdata)
 
         # if subplot == 1:
         #     self.current.annotations['selected_time'] = event.pickx
@@ -904,9 +915,10 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
         self.current.annotations['selected_time'] = event.xdata
 
         _qt_annotator_logger.debug(
-            "Inside onpick - subplot: %d, index=%d, x=%f" %
-            (subplot, self.current.annotations['selection_index'],
-             self.current.annotations['selected_time']))
+            "Inside onpick - subplot: %d, index=%d, x=%f",
+            subplot,
+            self.current.annotations['selection_index'],
+            self.current.annotations['selected_time'])
 
         self.update()
 

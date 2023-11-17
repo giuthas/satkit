@@ -48,7 +48,7 @@ from satkit.helpers.processing_helpers import product_dict
 _logger = logging.getLogger('satkit.spline_metric')
 
 
-class SplineDiffs(Enum, metaclass=ValueComparedEnumMeta):
+class SplineDiffsEnum(Enum, metaclass=ValueComparedEnumMeta):
     """
     Spline metrics that use distance between corresponding points.
     """
@@ -58,7 +58,7 @@ class SplineDiffs(Enum, metaclass=ValueComparedEnumMeta):
     SPLINE_L2 = 'spline_l2'
 
 
-class SplineNNDs(Enum, metaclass=ValueComparedEnumMeta):
+class SplineNNDsEnum(Enum, metaclass=ValueComparedEnumMeta):
     """
     Spline metrics that use nearest neighbour distance.
     """
@@ -66,7 +66,7 @@ class SplineNNDs(Enum, metaclass=ValueComparedEnumMeta):
     MNND = 'mnnd'
 
 
-class SplineShapes(Enum, metaclass=ValueComparedEnumMeta):
+class SplineShapesEnum(Enum, metaclass=ValueComparedEnumMeta):
     """
     Spline metrics that characterise shape.
     """
@@ -77,7 +77,7 @@ class SplineShapes(Enum, metaclass=ValueComparedEnumMeta):
 
 
 SplineMetricEnum = enum_union(
-    [SplineDiffs, SplineNNDs, SplineShapes], "SplineMetric")
+    [SplineDiffsEnum, SplineNNDsEnum, SplineShapesEnum], "SplineMetricEnum")
 """
 Enum of all valid spline metrics.
 
@@ -153,7 +153,7 @@ class SplineMetric(Modality):
         """
         name_string = 'SplineMetric' + " " + params.metric
 
-        if params.timestep != 1:
+        if params.timestep != 1 and params.metric not in SplineShapesEnum:
             name_string = name_string + " ts" + str(params.timestep)
 
         if params.parent_name:

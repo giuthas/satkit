@@ -13,13 +13,14 @@ import glob
 import os
 import logging
 
-from icecream import ic
 import numpy as np
 
 from scipy.integrate import simpson
 from scipy.signal import butter, filtfilt
 
-_logger = logging.getLogger('satkit.spline_metrics')
+from .spline_metric import SplineShapesEnum
+
+_logger = logging.getLogger('satkit.spline_shape')
 
 
 def procrustes(reference_shape: np.ndarray,
@@ -133,7 +134,9 @@ def modified_curvature_index(data: np.ndarray,
     return mci
 
 
-def fourier_tongue_shape_analysis(data: np.ndarray):
+def fourier_tongue_shape_analysis(
+    data: np.ndarray
+) -> tuple[list[float], list[float], list[float]]:
     """
     _summary_
 
@@ -160,7 +163,7 @@ def fourier_tongue_shape_analysis(data: np.ndarray):
 
     Returns
     -------
-    tuple
+    tuple[list[float], list[float], list[float]]
         real, imaginary, mod
     """
     tangent_angle = np.arctan2(
@@ -176,9 +179,66 @@ def fourier_tongue_shape_analysis(data: np.ndarray):
     return real, imaginary, modulus
 
 
+def spline_shape_metric(
+        data: np.ndarray,
+        metric: SplineShapesEnum,
+        notice_base: str) -> np.ndarray:
+    """
+    Calculate nearest neighbour distance based spline metrics.
+
+    Parameters
+    ----------
+    data : np.ndarray
+        the spline data
+    metric : SplineMetricEnum
+        which metric to calculate
+    notice_base : str
+        text prepended to logging messages
+
+    Returns
+    -------
+    np.ndarray
+        an array of analysis values where array.shape[0] == time_points
+
+    Raises
+    ------
+    NotImplementedError
+        if asked for regular curvature index instead of the modified one.
+    NotImplementedError
+        if asked for procrustes analysis because passing reference shape in
+        hasn't been implemented.
+    """
+
+    if metric == SplineShapesEnum.CURVATURE.value:
+        message = "Regular curvature index hasn't been implemented yet."
+        message += " Did you mean modified_curvature?"
+        raise NotImplementedError(message)
+
+    if metric == SplineShapesEnum.PROCRUSTES.value:
+        message = "Procrustes analysis hasn't been fully implemented yet."
+        message += " Passing reference shape in hasn't been implemented."
+        raise NotImplementedError(message)
+
+    if metric == SplineShapesEnum.FOURIER.value:
+        message = "Spline Fourier analysis hasn't been fully implemented yet."
+        message += " Passing results out hasn't been implemented."
+        raise NotImplementedError(message)
+
+    if metric == SplineShapesEnum.MODIFIED_CURVATURE.value:
+        result = np.zeros(data.shape[0])
+        for i in range(data.shape[0]):
+            result[i] = modified_curvature_index(data[i, :])
+        _logger.debug("Calculated %s", metric)
+        return result
+
+
 def run_analysis():
     """This is only a place holder function showing how each metric is supposed
-    to be run until things are more like SATKIT in general."""
+    to be run until things are more like SATKIT in general.
+    """
+    # TODO: move this function and the associated data to tests and ask Kate if
+    # it's ok to use her data.
+
     # name for the data output file
     output_file_name = "shape_analysis_data_out.csv"
     # number of lines to skip for header information in csv files
@@ -299,4 +359,5 @@ def run_analysis():
                          mod[3]])
 
 
-run_analysis()
+if __name__ == '__main__':
+    run_analysis()

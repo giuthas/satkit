@@ -34,15 +34,15 @@ import logging
 from typing import Optional
 
 import numpy as np
-from icecream import ic
 
 from satkit.data_structures import ModalityData, Recording
 from satkit.modalities import Splines
 
 from .metrics_helpers import calculate_timevector
 from .spline_metric import (
-    SplineMetric, SplineMetricParameters, SplineDiffs,
-    SplineMetricEnum, SplineNNDs)
+    SplineMetric, SplineMetricParameters, SplineDiffsEnum,
+    SplineMetricEnum, SplineNNDsEnum, SplineShapesEnum)
+from .tongue_shape_analysis import spline_shape_metric
 
 _logger = logging.getLogger('satkit.gen_spline_metric')
 
@@ -53,6 +53,27 @@ def spline_diff_metric(
         metric: SplineMetricEnum,
         timestep: int,
         notice_base: str) -> np.ndarray:
+    """
+    Calculate difference based spline metrics.
+
+    Parameters
+    ----------
+    data : np.ndarray
+        the spline data
+    time_points : np.ndarray
+        number of time points in the result
+    metric : SplineMetricEnum
+        which metric to calculate
+    timestep : int
+        which timestep to take
+    notice_base : str
+        text prepended to logging messages
+
+    Returns
+    -------
+    np.ndarray
+        an array of analysis values where array.shape[0] == time_points
+    """
 
     result = np.zeros(time_points)
 
@@ -86,7 +107,27 @@ def spline_nnd_metric(
         metric: SplineMetricEnum,
         timestep: int,
         notice_base: str) -> np.ndarray:
+    """
+    Calculate nearest neighbour distance based spline metrics.
 
+    Parameters
+    ----------
+    data : np.ndarray
+        the spline data
+    time_points : np.ndarray
+        number of time points in the result
+    metric : SplineMetricEnum
+        which metric to calculate
+    timestep : int
+        which timestep to take
+    notice_base : str
+        text prepended to logging messages
+
+    Returns
+    -------
+    np.ndarray
+        an array of analysis values where array.shape[0] == time_points
+    """
     result = np.zeros(time_points)
     num_points = data.shape[2]
 
@@ -176,26 +217,33 @@ def calculate_spline_metric(
 
         time_points = data.shape[0] - timestep
 
-        if metric in SplineDiffs:
+        if metric in SplineDiffsEnum:
             metric_data = spline_diff_metric(
                 data, time_points, metric, timestep, notice_base)
-        elif metric in SplineNNDs:
+        elif metric in SplineNNDsEnum:
             metric_data = spline_nnd_metric(
                 data, time_points, metric, timestep, notice_base)
+        elif metric in SplineShapesEnum:
+            metric_data = spline_shape_metric(
+                data, metric, notice_base)
         else:
             message = f"Unknown Spline metric: {metric}."
             raise ValueError(message)
 
-        modality_data = ModalityData(
-            metric_data, sampling_rate, timevectors[param_set.timestep])
+        if metric in SplineShapesEnum:
+            modality_data = ModalityData(
+                metric_data, sampling_rate, splines.timevector)
+        else:
+            modality_data = ModalityData(
+                metric_data, sampling_rate, timevectors[param_set.timestep])
         spline_distances.append(SplineMetric(splines.recording,
                                              param_set,
                                              parsed_data=modality_data))
 
     if param_set and param_set.release_data_memory:
-        # Accessing the data modality's data causes it to be
-        # loaded into memory. Keeping it there may cause memory
-        # overflow. This releases the memory.
+        # Accessing the data modality's data causes it to be loaded into
+        # memory. Keeping it there may cause memory overflow. This releases the
+        # memory to garbage collection.
         splines.data = None
 
     return spline_distances

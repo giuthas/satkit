@@ -228,7 +228,7 @@ def spline_shape_metric(
         result = np.zeros(data.shape[0])
         for i in range(data.shape[0]):
             result[i] = modified_curvature_index(data[i, :])
-        _logger.debug("Calculated %s", metric)
+        _logger.debug("%s: Calculated %s", notice_base, metric)
         return result
 
 

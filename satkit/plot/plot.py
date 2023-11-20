@@ -38,6 +38,9 @@ from typing import List, Optional, Tuple, Union
 # Efficient array operations
 import numpy as np
 from scipy import signal as scipy_signal
+from scipy import interpolate
+
+from icecream import ic
 
 # Scientific plotting
 from matplotlib.axes import Axes
@@ -138,7 +141,7 @@ def plot_timeseries(axes: Axes,
 
 
 def mark_gesture_peaks(axes, data, timevector) -> Line2D:
-    peaks, properties = find_gesture_peaks(data)
+    peaks, _ = find_gesture_peaks(data)
     for peak in peaks:
         line = axes.axvline(
             x=timevector[peak],
@@ -149,7 +152,7 @@ def mark_gesture_peaks(axes, data, timevector) -> Line2D:
 
 
 def mark_gesture_boundaries(axes, data, timevector) -> Line2D:
-    peaks, properties = find_gesture_peaks(-data)
+    peaks, _ = find_gesture_peaks(-data)
     for peak in peaks:
         line = axes.axvline(
             x=timevector[peak],
@@ -297,3 +300,33 @@ def plot_density(
     ax.set_ylabel(ylabel)
 
     return line
+
+
+def plot_spline(
+        ax: Axes,
+        data: np.ndarray) -> None:
+    """
+    Plot a spline on the given axes.
+
+    Parameters
+    ----------
+    ax : Axes
+        matplotlib axes
+    data : np.ndarray
+        the spline Cartesian coordinates in axes order x-y, splinepoints.
+    """
+
+    interp_result = interpolate.splprep(data, s=0)
+    tck = interp_result[0]
+    interpolation_points = np.arange(0, 1.01, 0.01)
+    interpolated_spline = interpolate.splev(interpolation_points, tck)
+    # ic(ax.get_xlim())
+    # ic(ax.get_ylim())
+    # ic(np.min(data, axis=1, keepdims=True))
+    # ic(np.min(interpolated_spline, axis=1, keepdims=True))
+    # ic(np.max(data, axis=1, keepdims=True))
+    # ic(np.max(interpolated_spline, axis=1, keepdims=True))
+
+    ax.plot(interpolated_spline[0],
+            -interpolated_spline[1], color='red', linewidth=1)
+    ax.plot(data[0, :], -data[1, :], 'ob', markersize=2)

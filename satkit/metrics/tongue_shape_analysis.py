@@ -118,7 +118,7 @@ def modified_curvature_index(data: np.ndarray,
                                                          2 + diff_y**2)**1.5
 
     cumulative_sum = np.cumsum(
-        np.sqrt(np.sum(np.diff(data, axis=1)**2, axis=0)))
+        np.sqrt(np.sum(np.diff(data[0:1, :], axis=1)**2, axis=0)))
     cumulative_sum = np.insert(cumulative_sum, 0, 0)
 
     if run_filter:
@@ -166,6 +166,7 @@ def fourier_tongue_shape_analysis(data: np.ndarray) -> np.ndarray:
         array of floats with the axes ordered: 
         real-imaginary-modulus, paramvector
     """
+    ic(data[2, :])
     tangent_angle = np.arctan2(
         np.gradient(data[1, :]),
         np.gradient(data[0, :]))

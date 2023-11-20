@@ -55,9 +55,9 @@ from icecream import ic
 # Local modules
 # import satkit.io as satkit_io
 from satkit.data_structures import RecordingSession
-from satkit.configuration import gui_params
+from satkit.configuration import gui_params, config_dict
 from satkit.gui import BoundaryAnimator, ReplaceDialog
-from satkit.plot.plot import plot_density
+from satkit.plot.plot import plot_density, plot_spline
 from satkit.plot import (Normalisation, plot_satgrid_tier, plot_spectrogram,
                          plot_timeseries, plot_wav)
 from satkit.save_and_load import (
@@ -451,7 +451,7 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
         curvature_line = plot_timeseries(
             self.data_axes[0],
             curvature.data, curvature_time, self.xlim, ylim, color='black',
-            normalise=Normalisation('PEAK'),
+            normalise=Normalisation('PEAK AND BOTTOM'),
             find_peaks=False)
         fourier_line = plot_timeseries(
             self.data_axes[0],
@@ -624,7 +624,37 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
             index = self.current.annotations['selection_index']
             image = self.current.modalities['RawUltrasound'].interpolated_image(
                 index)
-            self.ultra_axes.imshow(image, interpolation='nearest', cmap='gray')
+            ic(image.shape)
+            self.ultra_axes.imshow(
+                image, interpolation='nearest', cmap='gray',
+                extent=(-image.shape[1]/2-5, image.shape[1]/2+.5,
+                        -.5, image.shape[0]+.5))
+
+            if 'Splines' in self.current.modalities:
+                splines = self.current.modalities['Splines']
+                index = self.current.annotations['selection_index']
+                ultra = self.current.modalities['RawUltrasound']
+                timestamp = ultra.timevector[index]
+
+                spline_index = np.argmin(
+                    np.abs(splines.timevector - timestamp))
+
+                ic(splines.timevector)
+                ic(ultra.timevector[:len(splines.timevector)])
+                time_diff = splines.timevector - \
+                    ultra.timevector[:len(splines.timevector)]
+                ic(np.diff(time_diff, n=1))
+                ic(np.max(np.abs(np.diff(time_diff, n=1))))
+                epsilon = config_dict['epsilon']
+                ic(epsilon, splines.timevector[spline_index] - timestamp)
+                ic(splines.timevector[spline_index], timestamp)
+                if (splines.timevector[spline_index] - timestamp) < epsilon:
+                    plot_spline(self.ultra_axes,
+                                splines.cartesian_spline(spline_index))
+                else:
+                    ic("no spline at", timestamp)
+            else:
+                ic("No splines")
         self.ultra_canvas.draw()
 
     def draw_raw_ultra_frame(self):

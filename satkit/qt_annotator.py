@@ -653,10 +653,13 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
 
                 # TODO: make epsilon here maximum of config epsilon and the
                 # precision of the timevectors.
-                epsilon = config_dict['epsilon']
-                # ic(epsilon, splines.timevector[spline_index] - timestamp)
-                # ic(splines.timevector[spline_index], timestamp)
-                if (splines.timevector[spline_index] - timestamp) < epsilon:
+                epsilon = max((config_dict['epsilon'], splines.time_precision))
+                # maybe this instead when loading data
+                # str(number)[::-1].find('.') -> precision
+
+                ic(epsilon, splines.timevector[spline_index] - timestamp)
+                ic(splines.timevector[spline_index], timestamp)
+                if abs(splines.timevector[spline_index] - timestamp) < epsilon:
                     # TODO: pass SplineMetricParameters or where ever
                     # exclude_points ends up being stored to plot_spline
                     # so that it can display only the analysed part.

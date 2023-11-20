@@ -341,6 +341,7 @@ class Modality(abc.ABC):
         # This is a property which when set to True will also set
         # parent.excluded to True.
         self.excluded = False
+        self._time_precision = None
 
     def _get_data(self) -> ModalityData:
         # TODO: Provide a way to force the data to be derived.
@@ -506,6 +507,21 @@ class Modality(abc.ABC):
         if not self._time_offset:
             self._set_data(self._get_data())
         return self._time_offset
+
+    @property
+    def time_precision(self) -> float:
+        """
+        Timevector precision: the maximum of absolute deviations.
+
+        Essentially this means that we are guestimating the timevector to be no
+        more precise than the largest deviation from the average timestep.
+        """
+        if not self._time_precision:
+            differences = np.diff(self.timevector)
+            average = np.average(differences)
+            deviations = np.abs(differences - average)
+            self._time_precision = np.max(deviations)
+        return self._time_precision
 
     @time_offset.setter
     def time_offset(self, time_offset):

@@ -110,7 +110,21 @@ class Splines(Modality):
         if self.metadata.coordinates is Coordinates.POLAR:
             return self.data
         else:
-            return cartesian_to_polar(self.data.data)
+            return cartesian_to_polar(self.data)
+
+    def cartesian_spline(self, index) -> np.ndarray:
+        """
+        Spline coordinates in Cartesian coordiantes.
+
+        Returns
+        -------
+        np.ndarray
+            The coordinates
+        """
+        if self.metadata.coordinates is Coordinates.CARTESIAN:
+            return self.data[index, :, :]
+        else:
+            return polar_to_cartesian(self.data[index, :, :], np.pi/2)
 
     @property
     def in_cartesian(self) -> np.ndarray:
@@ -125,4 +139,4 @@ class Splines(Modality):
         if self.metadata.coordinates is Coordinates.CARTESIAN:
             return self.data
         else:
-            return polar_to_cartesian(self.data.data)
+            return polar_to_cartesian(self.data)

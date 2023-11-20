@@ -166,7 +166,6 @@ def fourier_tongue_shape_analysis(data: np.ndarray) -> np.ndarray:
         array of floats with the axes ordered: 
         real-imaginary-modulus, paramvector
     """
-    ic(data[2, :])
     tangent_angle = np.arctan2(
         np.gradient(data[1, :]),
         np.gradient(data[0, :]))

@@ -81,9 +81,6 @@ def parse_splines(
         However, this may cause problems when trying to calculate time-wise
         comparisons of splines and determine that metric's sampling rate.
     """
-    # TODO 1.1: import also confidence values.
-    confidence_exists = False
-
     coordinates = []
 
     timestamp_ind = spline_config.meta_columns.index(
@@ -98,24 +95,44 @@ def parse_splines(
         spline_points = int(lines[0][spline_point_index])
         data_start_index = len(spline_config.meta_columns)
 
+        if SplineDataColumn.CONFIDENCE in spline_config.data_columns:
+            confidence_exists = True
+            conf_index = spline_config.data_columns.index(
+                SplineDataColumn.CONFIDENCE)
+            conf_index = data_start_index + conf_index * spline_points
+        else:
+            confidence_exists = False
+
         if spline_config.coordinates is Coordinates.POLAR:
             r_index = spline_config.data_columns.index(
                 SplineDataColumn.R)
             r_index = data_start_index + r_index * spline_points
             phi_index = spline_config.data_columns.index(SplineDataColumn.PHI)
             phi_index = data_start_index + phi_index * spline_points
+
             r = [line[r_index:r_index + spline_points] for line in lines]
             phi = [line[phi_index:phi_index + spline_points] for line in lines]
-            coordinates = np.asfarray([r, phi])
+            if confidence_exists:
+                confidence = [line[conf_index:conf_index + spline_points]
+                              for line in lines]
+                coordinates = np.asfarray([r, phi, confidence])
+            else:
+                coordinates = np.asfarray([r, phi])
         else:
             x_index = spline_config.data_columns.index(
                 SplineDataColumn.X)
             x_index = data_start_index + x_index * spline_points
             y_index = spline_config.data_columns.index(SplineDataColumn.Y)
             y_index = data_start_index + y_index * spline_points
+
             x = [line[x_index:x_index + spline_points] for line in lines]
             y = [line[y_index:y_index + spline_points] for line in lines]
-            coordinates = np.asfarray([x, y])
+            if confidence_exists:
+                confidence = [line[conf_index:conf_index + spline_points]
+                              for line in lines]
+                coordinates = np.asfarray([x, y, confidence])
+            else:
+                coordinates = np.asfarray([x, y])
 
     if len(timevector) > 2:
         time_diffs = np.diff(timevector)

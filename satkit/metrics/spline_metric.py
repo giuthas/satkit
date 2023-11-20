@@ -105,7 +105,7 @@ class SplineMetricParameters(ModalityMetaData):
     metric: str = 'l2'
     timestep: PositiveInt = 1
     release_data_memory: bool = False
-    exclude_points: tuple[int] = (10, 4)
+    exclude_points: tuple[int] = (11, 4)
 
 
 class SplineMetric(Modality):

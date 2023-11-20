@@ -36,8 +36,8 @@ from copy import deepcopy
 from pathlib import Path
 from typing import Optional
 
-# Numpy
 import numpy as np
+
 # local modules
 from satkit.data_structures import Modality, ModalityData, Recording
 from satkit.import_formats import (
@@ -226,7 +226,7 @@ class RawUltrasound(Modality):
         Arguments: index - the index of the ultrasound frame to be returned
         """
         _modalities_logger.debug(
-            "Getting interpolated image from ultrasound. index=%d" % (index))
+            "Getting interpolated image from ultrasound. index=%d", index)
         if self.video_has_been_stored:
             _modalities_logger.debug(
                 "Returning interpolated image from stored video.")
@@ -256,11 +256,11 @@ class RawUltrasound(Modality):
         """
         Return an interpolated version of the ultrasound frame at index.
 
-        A new interpolated image is calculated, if necessary. To avoid large memory overheads
-        only the current frame's interpolated version maybe stored in memory.
+        A new interpolated image is calculated, if necessary. To avoid large
+        memory overheads only the current frame's interpolated version maybe
+        stored in memory.
 
-        Arguments:
-        index - the index of the ultrasound frame to be returned
+        Arguments: index - the index of the ultrasound frame to be returned
         """
         data = self.data.copy()
 

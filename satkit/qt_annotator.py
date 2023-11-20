@@ -621,13 +621,14 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
                 self.current.annotations['selection_index'] == -1):
             self.ultra_axes.clear()
         elif self.current.annotations['selection_index']:
+            self.ultra_axes.clear()
             index = self.current.annotations['selection_index']
             image = self.current.modalities['RawUltrasound'].interpolated_image(
                 index)
-            ic(image.shape)
+
             self.ultra_axes.imshow(
                 image, interpolation='nearest', cmap='gray',
-                extent=(-image.shape[1]/2-5, image.shape[1]/2+.5,
+                extent=(-image.shape[1]/2-.5, image.shape[1]/2+.5,
                         -.5, image.shape[0]+.5))
 
             if 'Splines' in self.current.modalities:
@@ -639,18 +640,25 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
                 spline_index = np.argmin(
                     np.abs(splines.timevector - timestamp))
 
-                ic(splines.timevector)
-                ic(ultra.timevector[:len(splines.timevector)])
-                time_diff = splines.timevector - \
-                    ultra.timevector[:len(splines.timevector)]
-                ic(np.diff(time_diff, n=1))
-                ic(np.max(np.abs(np.diff(time_diff, n=1))))
+                # TODO: move this to reading splines/end of loading and make
+                # the system warn the user when there is a creeping
+                # discprepancy. also make it a integration test where
+                # spline_test_token1 gets run and triggers this
+                # ic(splines.timevector)
+                # ic(ultra.timevector[:len(splines.timevector)])
+                # time_diff = splines.timevector - \
+                #     ultra.timevector[:len(splines.timevector)]
+                # ic(np.diff(time_diff, n=1))
+                # ic(np.max(np.abs(np.diff(time_diff, n=1))))
+
+                # TODO: make epsilon here maximum of config epsilon and the
+                # precision of the timevectors.
                 epsilon = config_dict['epsilon']
-                ic(epsilon, splines.timevector[spline_index] - timestamp)
-                ic(splines.timevector[spline_index], timestamp)
+                # ic(epsilon, splines.timevector[spline_index] - timestamp)
+                # ic(splines.timevector[spline_index], timestamp)
                 if (splines.timevector[spline_index] - timestamp) < epsilon:
                     plot_spline(self.ultra_axes,
-                                splines.cartesian_spline(spline_index))
+                                splines.cartesian_spline(spline_index)[:, 11:])
                 else:
                     ic("no spline at", timestamp)
             else:

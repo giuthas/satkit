@@ -100,6 +100,10 @@ def parse_splines(
             conf_index = spline_config.data_columns.index(
                 SplineDataColumn.CONFIDENCE)
             conf_index = data_start_index + conf_index * spline_points
+            confidence = [line[conf_index:conf_index + spline_points]
+                          for line in lines]
+            confidence = np.asfarray(confidence)
+            confidence = np.divide(confidence, 100.0)
         else:
             confidence_exists = False
 
@@ -113,8 +117,6 @@ def parse_splines(
             r = [line[r_index:r_index + spline_points] for line in lines]
             phi = [line[phi_index:phi_index + spline_points] for line in lines]
             if confidence_exists:
-                confidence = [line[conf_index:conf_index + spline_points]
-                              for line in lines]
                 coordinates = np.asfarray([r, phi, confidence])
             else:
                 coordinates = np.asfarray([r, phi])
@@ -128,8 +130,6 @@ def parse_splines(
             x = [line[x_index:x_index + spline_points] for line in lines]
             y = [line[y_index:y_index + spline_points] for line in lines]
             if confidence_exists:
-                confidence = [line[conf_index:conf_index + spline_points]
-                              for line in lines]
                 coordinates = np.asfarray([x, y, confidence])
             else:
                 coordinates = np.asfarray([x, y])

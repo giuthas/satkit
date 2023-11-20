@@ -657,6 +657,9 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
                 # ic(epsilon, splines.timevector[spline_index] - timestamp)
                 # ic(splines.timevector[spline_index], timestamp)
                 if (splines.timevector[spline_index] - timestamp) < epsilon:
+                    # TODO: pass SplineMetricParameters or where ever
+                    # exclude_points ends up being stored to plot_spline so that it
+                    # can display only the analysed part.
                     plot_spline(self.ultra_axes,
                                 splines.cartesian_spline(spline_index)[:, 11:])
                 else:

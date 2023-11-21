@@ -2,12 +2,20 @@
 
 ## Version 0.8.0
 
-- Spline loading from AAA exports and several spline metrics now work.
-- Some updates to clean code in general.
+- Splines
+  - Spline loading from AAA export files.
+  - Several spline metrics now work and can be displayed.
+  - Splines can be displayed on the ultrasound frame.
+- Some updates to clean the code in general.
 
 Known issues:
 
-- Same as in 0.7.0.
+- Same as in 0.7.0. plus
+- Synchronising spline metrics and splines with ultrasound is currently
+  unreliable. This is because the timestamps in spline files have proven to
+  have either drift or just inaccuracies and testing why this is so is a job
+  for the future. This may eventually be solved just by matching splines with
+  ultrasound frames and reporting when that becomes too unreliable.
 
 ## Version 0.7.0
 

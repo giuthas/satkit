@@ -68,8 +68,14 @@ class ModalityData:
     """
     Data passed from Modality generation into Modality.
 
-    None of the fields are optional. This class represents already
-    loaded data.
+    None of the fields are optional. This class represents already loaded data.
+
+    Axes order for the data field is (time, coordinate axes and datatypes,
+    datapoints) and further structure. For example stereo audio data would be
+    (time, channels, samples) or just (time, samples) for mono audio. For a
+    more complex example, splines from AAA have (time, x-y-confidende, spline
+    points) or (time, r-phi-confidence, spline points) for data in pola
+    coordinates.
     """
     data: np.ndarray
     sampling_rate: float

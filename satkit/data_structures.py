@@ -74,7 +74,7 @@ class ModalityData:
     datapoints] and further structure. For example stereo audio data would be
     [time, channels] or just [time] for mono audio. For a more complex example,
     splines from AAA have [time, x-y-confidende, spline points] or [time,
-    r-phi-confidence, spline points] for data in pola coordinates.
+    r-phi-confidence, spline points] for data in polar coordinates.
     """
     data: np.ndarray
     sampling_rate: float

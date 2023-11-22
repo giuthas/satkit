@@ -36,7 +36,7 @@ from pathlib import Path
 from typing import Optional, Union
 
 from strictyaml import (Bool, Map,
-                        ScalarValidator, Str, Seq,
+                        ScalarValidator, Str, Seq, FixedSeq, Int,
                         YAMLError, load)
 from satkit.configuration.configuration import PathValidator
 
@@ -116,6 +116,7 @@ class SplineImportConfig:
     spline_file: Optional[Path]
     spline_file_extension: Optional[str]
     delimiter: Optional[str] = '\t'
+    ignore_points: Optional[tuple[int]] = (0, 0)
 
     def __post_init__(self):
         """
@@ -154,7 +155,8 @@ def load_spline_import_config(
                 "coordinates": CoordinatesValidator(),
                 "interleaved_coords": Bool(),
                 "meta_columns": Seq(SplineMetaValidator()),
-                "data_columns": Seq(DataColumnValidator())
+                "data_columns": Seq(DataColumnValidator()),
+                "ignore_points": FixedSeq([Int(), Int()])
             })
             try:
                 raw_spline_config = load(yaml_file.read(), schema)

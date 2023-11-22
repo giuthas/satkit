@@ -213,7 +213,8 @@ def calculate_spline_metric(
 
         timestep = param_set.timestep
         exclude_points = param_set.exclude_points
-        data = splines.data[:, :, exclude_points[0]:-exclude_points[1]]
+        # data = splines.data[:, :, exclude_points[0]:-exclude_points[1]]
+        data = splines.in_cartesian[:, :, exclude_points[0]:-exclude_points[1]]
 
         time_points = data.shape[0] - timestep
 

@@ -34,6 +34,7 @@ Computation helper functions.
 """
 
 import numpy as np
+# from icecream import ic
 
 
 def cartesian_to_polar(xy_array: np.ndarray) -> np.ndarray:
@@ -45,11 +46,18 @@ def cartesian_to_polar(xy_array: np.ndarray) -> np.ndarray:
     xy_array : np.ndarray
         axes order is x-y, splinepoints
 
+        This maybe passed in as 1D array which will then be reshaped into a 2*x
+        array. This makes it possible to apply the transformation with
+        `np.apply_along_axis`.
+
     Returns
     -------
     np.ndarray
         axes order is r-phi, splinepoints
     """
+    if xy_array.ndim == 1 and xy_array.shape[0] % 2 == 0:
+        xy_array = xy_array.reshape((2, xy_array.shape[0]//2))
+
     r = np.sqrt((xy_array**2).sum(0))
     phi = np.arctan2(xy_array[1, :], xy_array[0, :])
     return np.stack(r, phi)
@@ -64,13 +72,23 @@ def polar_to_cartesian(
     Parameters
     ----------
     r_phi_array : np.ndarray
-        axes order is r-phi, splinepoints
+        axes order is r-phi, splinepoints 
+
+        This maybe passed in as 1D array which will then be reshaped into a 2*x
+        array. This makes it possible to apply the transformation with 
+        `   r_phi = self.data[:, 0:2, :]
+            r_phi = r_phi.reshape([self.data.shape[0], -1])
+            coords = np.apply_along_axis(
+                polar_to_cartesian, 1, r_phi)`
 
     Returns
     -------
     np.ndarray
         axes order is x-y, splinepoints
     """
+    if r_phi_array.ndim == 1 and r_phi_array.shape[0] % 2 == 0:
+        r_phi_array = r_phi_array.reshape((2, r_phi_array.shape[0]//2))
+
     x = r_phi_array[0, :] * np.cos(r_phi_array[1, :]-angle_offset)
     y = r_phi_array[0, :] * np.sin(r_phi_array[1, :]-angle_offset)
     return np.stack((x, y))

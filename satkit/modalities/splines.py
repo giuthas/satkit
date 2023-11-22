@@ -34,10 +34,10 @@ import logging
 from pathlib import Path
 from typing import Optional
 
-# Numpy
 import numpy as np
+# from icecream import ic
+
 from satkit.constants import Coordinates
-# local modules
 from satkit.data_structures import (
     Modality, ModalityData, ModalityMetaData, Recording)
 from satkit.helpers.computational import (
@@ -110,7 +110,13 @@ class Splines(Modality):
         if self.metadata.coordinates is Coordinates.POLAR:
             return self.data
         else:
-            return cartesian_to_polar(self.data)
+            cartesian = self.data[:, 0:2, :]
+            cartesian = cartesian.reshape([self.data.shape[0], -1])
+            coords = np.apply_along_axis(
+                cartesian_to_polar, 1, cartesian)
+            polar = np.stack(
+                [coords[:, 0, :], coords[:, 1, :], self.data[:, 2, :]], axis=1)
+            return polar
 
     def cartesian_spline(self, index) -> np.ndarray:
         """
@@ -139,4 +145,10 @@ class Splines(Modality):
         if self.metadata.coordinates is Coordinates.CARTESIAN:
             return self.data
         else:
-            return polar_to_cartesian(self.data)
+            r_phi = self.data[:, 0:2, :]
+            r_phi = r_phi.reshape([self.data.shape[0], -1])
+            coords = np.apply_along_axis(
+                polar_to_cartesian, 1, r_phi)
+            cartesian = np.stack(
+                [coords[:, 0, :], coords[:, 1, :], self.data[:, 2, :]], axis=1)
+            return cartesian

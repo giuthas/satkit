@@ -37,7 +37,7 @@ from typing import Optional
 import numpy as np
 # from icecream import ic
 
-from satkit.constants import Coordinates
+from satkit.constants import CoordinateSystems
 from satkit.data_structures import (
     Modality, ModalityData, ModalityMetaData, Recording)
 from satkit.helpers.computational import (
@@ -51,7 +51,7 @@ class SplineMetadata(ModalityMetaData):
     """
     Metadata of a Splines Modality.
     """
-    coordinates: Coordinates
+    coordinates: CoordinateSystems
     number_of_sample_points: int
     confidence_exists: bool
     axisnames: tuple[str] = ('time', 'x-y', 'splinepoint')
@@ -107,7 +107,7 @@ class Splines(Modality):
         np.ndarray
             The coordinates
         """
-        if self.metadata.coordinates is Coordinates.POLAR:
+        if self.metadata.coordinates is CoordinateSystems.POLAR:
             return self.data
         else:
             cartesian = self.data[:, 0:2, :]
@@ -127,7 +127,7 @@ class Splines(Modality):
         np.ndarray
             The coordinates
         """
-        if self.metadata.coordinates is Coordinates.CARTESIAN:
+        if self.metadata.coordinates is CoordinateSystems.CARTESIAN:
             return self.data[index, :, :]
         else:
             return polar_to_cartesian(self.data[index, :, :], np.pi/2)
@@ -142,7 +142,7 @@ class Splines(Modality):
         np.ndarray
             The coordinates
         """
-        if self.metadata.coordinates is Coordinates.CARTESIAN:
+        if self.metadata.coordinates is CoordinateSystems.CARTESIAN:
             return self.data
         else:
             r_phi = self.data[:, 0:2, :]

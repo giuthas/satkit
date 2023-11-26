@@ -40,7 +40,7 @@ SATKIT_VERSION = '0.7.0'
 SATKIT_FILE_VERSION = SATKIT_VERSION
 
 
-class Coordinates(Enum):
+class CoordinateSystems(Enum):
     """
     Enum to differentiate coordinate systems.
     """

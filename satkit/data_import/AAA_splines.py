@@ -41,7 +41,7 @@ import numpy as np
 from icecream import ic
 
 from satkit.constants import (
-    Coordinates, SatkitConfigFile, SplineDataColumn, SplineMetaColumn)
+    CoordinateSystems, SatkitConfigFile, SplineDataColumn, SplineMetaColumn)
 from satkit.data_structures import ModalityData, Recording
 from satkit.errors import SatkitError
 from satkit.modalities.splines import Splines, SplineMetadata
@@ -107,7 +107,7 @@ def parse_splines(
         else:
             confidence_exists = False
 
-        if spline_config.coordinates is Coordinates.POLAR:
+        if spline_config.coordinates is CoordinateSystems.POLAR:
             r_index = spline_config.data_columns.index(
                 SplineDataColumn.R)
             r_index = data_start_index + r_index * spline_points

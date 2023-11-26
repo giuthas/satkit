@@ -40,10 +40,10 @@ from strictyaml import (Bool, Map,
                         YAMLError, load)
 from satkit.configuration.configuration import PathValidator
 
-from satkit.constants import Coordinates, SplineDataColumn, SplineMetaColumn
+from satkit.constants import CoordinateSystems, SplineDataColumn, SplineMetaColumn
 
 
-class CoordinatesValidator(ScalarValidator):
+class CoordinateSystemValidator(ScalarValidator):
     """
     Validate yaml representing a CoordinateType.
     """
@@ -51,9 +51,9 @@ class CoordinatesValidator(ScalarValidator):
     def validate_scalar(self, chunk):
         if chunk.contents:
             try:
-                return Coordinates(chunk.contents)
+                return CoordinateSystems(chunk.contents)
             except ValueError:
-                values = [ct.value for ct in Coordinates]
+                values = [ct.value for ct in CoordinateSystems]
                 print(
                     f"Error. Only following values for coordinate types are"
                     f"recognised: {str(values)}")
@@ -109,7 +109,7 @@ class SplineImportConfig:
     """
     single_spline_file: bool
     headers: bool
-    coordinates: Coordinates
+    coordinates: CoordinateSystems
     interleaved_coords: bool
     meta_columns: tuple(SplineMetaColumn)
     data_columns: tuple(SplineDataColumn)
@@ -152,7 +152,7 @@ def load_spline_import_config(
                 "spline_file_extension": Str(),
                 "headers": Bool(),
                 "delimiter": Str(),
-                "coordinates": CoordinatesValidator(),
+                "coordinates": CoordinateSystemValidator(),
                 "interleaved_coords": Bool(),
                 "meta_columns": Seq(SplineMetaValidator()),
                 "data_columns": Seq(DataColumnValidator()),

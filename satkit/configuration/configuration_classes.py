@@ -102,12 +102,12 @@ class PathStructure:
     Path structure of a Session for both loading and saving.
     """
     data_path: Path
-    exclusion_list_path: Optional[Path]
-    exclusion_list: Optional[Path]
-    wav_directory: Optional[Path]
-    textgrid_directory: Optional[Path]
-    ultrasound_directory: Optional[Path]
-    spline_import_config: Optional[Path]
+    exclusion_list_path: Optional[Path] = None
+    exclusion_list: Optional[Path] = None
+    wav_directory: Optional[Path] = None
+    textgrid_directory: Optional[Path] = None
+    ultrasound_directory: Optional[Path] = None
+    spline_import_config: Optional[Path] = None
 
 
 @dataclass
@@ -117,5 +117,5 @@ class SessionConfig:
     """
     data_source: Datasource
     paths: PathStructure
-    exclusion_list: Optional[ExclusionList]
-    spline_config: Optional[SplineConfig]
+    exclusion_list: Optional[ExclusionList] = None
+    spline_config: Optional[SplineConfig] = None

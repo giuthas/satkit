@@ -36,8 +36,12 @@ This file exist to remove a namespace conflict between typing.Optional and
 strictyaml.Optional.
 """
 
+from pathlib import Path
 from dataclasses import dataclass
 from typing import Optional
+
+from satkit.constants import (
+    CoordinateSystems, Datasource, SplineDataColumn, SplineMetaColumn)
 
 
 @dataclass
@@ -48,3 +52,70 @@ class ExclusionList:
     files: Optional[list[str]] = None
     prompts: Optional[list[str]] = None
     parts_of_prompts: Optional[list[str]] = None
+
+
+@dataclass
+class SplineImportConfig:
+    """
+    Spline import csv file configuration.
+
+    This describes how to interpret a csv file containing splines.
+    """
+    single_spline_file: bool
+    headers: bool
+    coordinates: CoordinateSystems
+    interleaved_coords: bool
+    meta_columns: tuple(SplineMetaColumn)
+    data_columns: tuple(SplineDataColumn)
+    spline_file: Optional[Path]
+    spline_file_extension: Optional[str]
+    delimiter: Optional[str] = '\t'
+
+    def __post_init__(self):
+        """
+        Empty delimiter strings are replaced with a tabulator.
+        """
+        if not self.delimiter:
+            self.delimiter = '\t'
+
+
+@dataclass
+class SplineDataConfig:
+    """
+    Configuration options for processing and display of splines.
+    """
+    ignore_points: Optional[tuple[int]] = None
+
+
+@dataclass
+class SplineConfig:
+    """
+    Configuration options for both import and processing of splines.
+    """
+    import_config: SplineImportConfig
+    config: SplineDataConfig
+
+
+@dataclass
+class PathStructure:
+    """
+    Path structure of a Session for both loading and saving.
+    """
+    data_path: Path
+    exclusion_list_path: Optional[Path]
+    exclusion_list: Optional[Path]
+    wav_directory: Optional[Path]
+    textgrid_directory: Optional[Path]
+    ultrasound_directory: Optional[Path]
+    spline_import_config: Optional[Path]
+
+
+@dataclass
+class SessionConfig:
+    """
+    Description of a RecordingSession for import into SATKIT.
+    """
+    data_source: Datasource
+    paths: PathStructure
+    exclusion_list: Optional[ExclusionList]
+    spline_config: Optional[SplineConfig]

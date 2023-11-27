@@ -31,5 +31,7 @@
 #
 
 from satkit.configuration.configuration import (
-    Datasource, config_dict, data_run_params, gui_params, PathValidator)
-from satkit.configuration.exclusion_list import set_exclusions_from_csv_file
+    config_dict, data_run_params, gui_params, PathValidator)
+from satkit.configuration.exclusion_list import (
+    apply_exclusion_list, load_exclusion_list)
+from satkit.configuration.configuration_classes import ExclusionList

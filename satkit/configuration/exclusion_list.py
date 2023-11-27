@@ -1,8 +1,8 @@
 #
-# Copyright (c) 2019-2023 
+# Copyright (c) 2019-2023
 # Pertti Palo, Scott Moisik, Matthew Faytak, and Motoki Saito.
 #
-# This file is part of Speech Articulation ToolKIT 
+# This file is part of Speech Articulation ToolKIT
 # (see https://github.com/giuthas/satkit/).
 #
 # This program is free software: you can redistribute it and/or modify
@@ -29,93 +29,140 @@
 # articles listed in README.markdown. They can also be found in
 # citations.bib in BibTeX format.
 #
+"""
+Routines for dealing with exclusion lists.
+"""
 
 # Built in packages
 import csv
 import logging
 from contextlib import closing
 from pathlib import Path
+from typing import Union
 
-from strictyaml import load
+from strictyaml import (Map, Optional, Seq, Str,
+                        YAMLError, load)
 
-_io_logger = logging.getLogger('satkit.io')
+from satkit.constants import SatkitSuffix, SourceSuffix
+from satkit.data_structures import Recording
 
-def set_exclusions_from_csv_file(filename, recordings):
+from .configuration_classes import ExclusionList
+
+
+_logger = logging.getLogger('satkit.configuration')
+
+
+def apply_exclusion_list(
+        recordings: list[Recording],
+        exclusion_list: ExclusionList) -> None:
     """
-    Read list of files (that is, recordings) to be excluded from processing
-    and mark them as excluded in the array of recording objects.
+    Apply exclusion list to the list of Recordings.
+
+    Parameters
+    ----------
+    recordings : list[Recording]
+        the list of Recordings
+    exclusion_list : Path
+        _description_
     """
-    if filename is not None:
-        _io_logger.debug(
-            "Setting exclusions from file %s.", filename)
-        with closing(open(filename, 'r', encoding='utf-8')) as csvfile:
-            reader = csv.reader(csvfile, delimiter='\t')
-            # Throw away the second field - it is a comment for human readers.
-            exclusion_list = [row[0] for row in reader if row]
-            _io_logger.info('Read exclusion list %s with %s names.', 
-                            filename, str(len(exclusion_list)))
-    else:
-        _io_logger.debug(
-            "No exclusion file. Using an empty list.")
-        exclusion_list = []
+    if not exclusion_list:
+        return
 
-    # mark as excluded
-    [recording.exclude() for recording in recordings
-     if recording.basename in exclusion_list]
+    for recording in recordings:
+        filename = recording.basename
+        if filename in exclusion_list.files:
+            _logger.info('Excluding %s: File is in exclusion list.', filename)
+            recording.exclude()
+
+        # The first condition sees if the whole prompt is excluded,
+        # the second condition checks if any parts of the prompt
+        # match exclucion criteria (for example excluding 'foobar ...'
+        # based on 'foobar').
+        prompt = recording.meta_data.prompt
+        partials = [element
+                    for element in exclusion_list.parts_of_prompts
+                    if element in prompt]
+        if prompt in exclusion_list.prompts or partials:
+            _logger.info(
+                'Excluding %s. Prompt: %s matches exclusion list.',
+                filename, prompt)
+            recording.exclude()
 
 
-def read_exclusion_list_from_yaml(filepath: Path) -> dict:
+def load_exclusion_list(filepath: Union[Path, str]) -> ExclusionList:
     """
-    Read the exclusion list from filepath.
-    
+    If it exists, load the exclusion list from the given path.
+
+    Parameters
+    ----------
+    filepath : Union[Path, str]
+        Either a Path object or a string. If a string is passed, it is assumed
+        to be a relative path.
+
+    Returns
+    -------
+    ExclusionList
+        The exclusion list. If the file was a .csv file, there will be only
+        files excluded, a .yaml gives more options.
+    """
+    if isinstance(filepath, str):
+        filepath = Path(filepath)
+
+    if filepath.suffix == SatkitSuffix.CONFIG:
+        return read_exclusion_list_from_yaml(filepath)
+
+    if filepath.suffix == SourceSuffix.CSV:
+        return read_file_exclusion_list_from_csv(filepath)
+
+
+def read_exclusion_list_from_yaml(filepath: Path) -> ExclusionList:
+    """
+    Read a yaml exclusion list from filepath.
+
     If no exclusion list file is present, return an empty array
     after warning the user.
     """
     if filepath.is_file():
-        with closing(open(filepath, 'r')) as yaml_file:
-            yaml = load(yaml_file.read())
-            exclusion_dict = yaml.data
+        with closing(open(filepath, 'r', encoding='utf-8')) as yaml_file:
+            schema = Map({
+                Optional("files"): Seq(Str()),
+                Optional("prompts"): Seq(Str()),
+                Optional("parts_of_prompt"): Seq(Str())
+            })
+            try:
+                raw_exclusion_dict = load(yaml_file.read(), schema)
+            except YAMLError as error:
+                _logger.fatal("Fatal error in reading exclusion list at %s.",
+                              str(filepath))
+                _logger.fatal(str(error))
+                raise
     else:
-        exclusion_dict = {}
-        print(f"Did not find the exclusion list at {filepath}. Proceeding anyhow.")
-    return exclusion_dict
+        _logger.warning(
+            "Didn't find run exclusion list at %s.", str(filepath))
+        _logger.warning(
+            "Continuing regardless.")
+        raw_exclusion_dict = {}
 
-def apply_yaml_exclusion_list(table: list[dict], exclusion_path: Path) -> None:
-
-    exclusion_list = read_exclusion_list_from_yaml(exclusion_path)
-
-    if not exclusion_list:
-        return
-
-    for entry in table:
-        filename = entry['filename']
-        if filename in exclusion_list['files']:
-            print(f'Excluding {filename}: File is in exclusion list.')
-            entry['excluded'] = True
-
-        # The first condition sees if the whole prompt is excluded, 
-        # the second condition checks if any parts of the prompt 
-        # match exclucion criteria (for example excluding 'foobar ...' 
-        # based on 'foobar').
-        prompt = entry['prompt']
-        if (prompt in exclusion_list['prompts'] or
-            [element for element in exclusion_list['parts of prompts'] if(element in prompt)]):
-            print(f'Excluding {filename}. Prompt: {prompt} matches exclusion list.')
-            entry['excluded'] = True
+    return ExclusionList(files=raw_exclusion_dict)
 
 
-def read_file_exclusion_list_from_csv(filename):
+def read_file_exclusion_list_from_csv(filepath: Path) -> ExclusionList:
     """
-    Read list of files (that is, recordings) to be excluded from processing.
+    Read a csv exclusion list from filepath.
+
+    Read list of files (that is, Recordings) to be excluded from processing.
     """
-    if filename is not None:
-        with closing(open(filename, 'r', encoding = 'utf-8')) as csvfile:
+    if filepath.is_file():
+        with closing(open(filepath, 'r', encoding='utf-8')) as csvfile:
             reader = csv.reader(csvfile, delimiter='\t')
             # Throw away the second field - it is a comment for human readers.
-            exclusion_list = [row[0] for row in reader]
-            _io_logger.info('Read exclusion list {filename} with {length} names.', 
-                        filename = filename, length = str(len(exclusion_list)))
+            excluded_files = [row[0] for row in reader]
+            _logger.info('Read exclusion list %s with %d names.',
+                         str(filepath), len(excluded_files))
     else:
-        exclusion_list = []
+        excluded_files = []
+        _logger.warning(
+            "Did not find the exclusion list at %s. Proceeding anyhow.",
+            str(filepath))
 
-    return exclusion_list
+    return ExclusionList(files=excluded_files)

@@ -29,6 +29,7 @@
 # articles listed in README.markdown. They can also be found in
 # citations.bib in BibTeX format.
 #
+import logging
 import sys
 from contextlib import closing
 from pathlib import Path
@@ -37,8 +38,6 @@ from typing import Union
 from strictyaml import (Any, Bool, FixedSeq, Float, Int, Map, MapCombined,
                         MapPattern, Optional, ScalarValidator, Seq, Str,
                         YAMLError, load)
-
-from satkit.constants import Datasource
 
 config_dict = {}
 data_run_params = {}
@@ -52,24 +51,7 @@ _raw_data_run_params_dict = {}
 _raw_gui_params_dict = {}
 _raw_plot_params_dict = {}
 
-
-class DatasourceValidator(ScalarValidator):
-    """
-    Validate yaml representing a Datasource.
-    """
-
-    def validate_scalar(self, chunk):
-        if chunk.contents:
-            try:
-                return Datasource(chunk.contents)
-            except ValueError:
-                values = [ds.value for ds in Datasource]
-                print(
-                    f"Error. Only following values for data source are"
-                    f"recognised: {str(values)}")
-                raise
-        else:
-            return None
+_logger = logging.getLogger('satkit.configuration')
 
 
 class PathValidator(ScalarValidator):
@@ -129,12 +111,15 @@ def load_main_config(filepath: Union[Path, str, None] = None) -> None:
             try:
                 _raw_config_dict = load(yaml_file.read(), schema)
             except YAMLError as error:
-                print(f"Fatal error in reading {filepath}:")
-                print(error)
-                sys.exit()
+                _logger.fatal("Fatal error in reading %s.",
+                              str(filepath))
+                _logger.fatal(str(error))
+                raise
     else:
-        print(f"Didn't find {filepath}. Exiting.".format(str(filepath)))
+        _logger.fatal(
+            "Didn't find main config file at %s.", str(filepath))
         sys.exit()
+
     config_dict.update(_raw_config_dict.data)
 
 
@@ -158,15 +143,7 @@ def load_run_params(filepath: Union[Path, str, None] = None) -> None:
     if filepath.is_file():
         with closing(open(filepath, 'r', encoding='utf-8')) as yaml_file:
             schema = Map({
-                "data properties": Map({
-                    "data source": DatasourceValidator(),
-                    Optional("exclusion list"): PathValidator(),
-                    "data path": PathValidator(),
-                    Optional("wav directory"): PathValidator(),
-                    Optional("textgrid directory"): PathValidator(),
-                    Optional("ultrasound directory"): PathValidator(),
-                    Optional("output directory"): PathValidator()
-                }),
+                Optional("output directory"): PathValidator(),
                 "flags": Map({
                     "detect beep": Bool(),
                     "test": Bool()
@@ -184,12 +161,15 @@ def load_run_params(filepath: Union[Path, str, None] = None) -> None:
             try:
                 _raw_data_run_params_dict = load(yaml_file.read(), schema)
             except YAMLError as error:
-                print(f"Fatal error in reading {filepath}:")
-                print(error)
-                sys.exit()
+                _logger.fatal("Fatal error in reading %s.",
+                              str(filepath))
+                _logger.fatal(str(error))
+                raise
     else:
-        print(f"Didn't find {filepath}. Exiting.".format(str(filepath)))
+        _logger.fatal(
+            "Didn't find run parameter file at %s.", str(filepath))
         sys.exit()
+
     data_run_params.update(_raw_data_run_params_dict.data)
 
 
@@ -232,11 +212,13 @@ def load_gui_params(filepath: Union[Path, str, None] = None) -> None:
             try:
                 _raw_gui_params_dict = load(yaml_file.read(), schema)
             except YAMLError as error:
-                print(f"Fatal error in reading {filepath}:")
-                print(error)
-                sys.exit()
+                _logger.fatal("Fatal error in reading %s.",
+                              str(filepath))
+                _logger.fatal(str(error))
+                raise
     else:
-        print(f"Didn't find {filepath}. Exiting.".format(str(filepath)))
+        _logger.fatal(
+            "Didn't find gui parameter file at %s.", str(filepath))
         sys.exit()
 
     gui_params.update(_raw_gui_params_dict.data)
@@ -281,10 +263,13 @@ def load_plot_params(filepath: Union[Path, str, None] = None) -> None:
             try:
                 _raw_plot_params_dict = load(yaml_file.read(), schema)
             except YAMLError as error:
-                print(f"Fatal error in reading {filepath}:")
-                print(error)
-                sys.exit()
+                _logger.fatal("Fatal error in reading %s.",
+                              str(filepath))
+                _logger.fatal(str(error))
+                raise
     else:
-        print(f"Didn't find {filepath}. Exiting.".format(str(filepath)))
+        _logger.fatal(
+            "Didn't find plot parameter file at %s.", str(filepath))
         sys.exit()
+
     plot_params.update(_raw_plot_params_dict.data)

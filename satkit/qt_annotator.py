@@ -29,6 +29,10 @@
 # articles listed in README.markdown. They can also be found in
 # citations.bib in BibTeX format.
 #
+"""
+This is the main GUI class for SATKIT.
+"""
+
 
 # Built in packages
 import csv
@@ -67,7 +71,7 @@ from satkit.ui_callbacks import UiCallbacks
 # Load the GUI layout generated with QtDesigner.
 Ui_MainWindow, QMainWindow = loadUiType('satkit/gui/qt_annotator.ui')
 
-_qt_annotator_logger = logging.getLogger('satkit.qt_annotator')
+_logger = logging.getLogger('satkit.qt_annotator')
 
 
 def setup_qtannotator_ui_callbacks():
@@ -287,7 +291,7 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
         self.figure.canvas.draw()
 
         if self.display_tongue:
-            _qt_annotator_logger.debug("Drawing ultra frame in update")
+            _logger.debug("Drawing ultra frame in update")
             self.draw_ultra_frame()
 
     def update_ui(self):
@@ -654,21 +658,25 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
                 # TODO: make epsilon here maximum of config epsilon and the
                 # precision of the timevectors.
                 epsilon = max((config_dict['epsilon'], splines.time_precision))
+                min_difference = abs(
+                    splines.timevector[spline_index] - timestamp)
                 # maybe this instead when loading data
                 # str(number)[::-1].find('.') -> precision
 
-                ic(epsilon, splines.timevector[spline_index] - timestamp)
-                ic(splines.timevector[spline_index], timestamp)
-                if abs(splines.timevector[spline_index] - timestamp) < epsilon:
+                # ic(epsilon, splines.timevector[spline_index] - timestamp)
+                # ic(splines.timevector[spline_index], timestamp)
+                if min_difference > epsilon:
                     # TODO: pass SplineMetricParameters or where ever
                     # exclude_points ends up being stored to plot_spline
                     # so that it can display only the analysed part.
-                    plot_spline(self.ultra_axes,
-                                splines.cartesian_spline(spline_index)[:, 11:])
-                else:
-                    ic("no spline at", timestamp)
+                    _logger.info("Splines out of synch in %s.",
+                                 self.current.basename)
+                    _logger.info("Minimal difference: %f, epsilon: %f",
+                                 min_difference, epsilon)
+                plot_spline(self.ultra_axes,
+                            splines.cartesian_spline(spline_index)[:, 11:])
             else:
-                ic("No splines")
+                _logger.info("No splines")
         self.ultra_canvas.draw()
 
     def draw_raw_ultra_frame(self):
@@ -717,7 +725,7 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
                 self.current.annotations['selection_index'] < self.current.modalities['PD l1 on RawUltrasound'].data.size):
 
             self.current.annotations['selection_index'] += 1
-            _qt_annotator_logger.debug(
+            _logger.debug(
                 "next frame: %d",
                 (self.current.annotations['selection_index']))
             self._update_pd_onset()
@@ -730,7 +738,7 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
         """
         if self.current.annotations['selection_index'] > 0:
             self.current.annotations['selection_index'] -= 1
-            _qt_annotator_logger.debug(
+            _logger.debug(
                 "previous frame: %d",
                 (self.current.annotations['selection_index']))
             self._update_pd_onset()
@@ -804,7 +812,7 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
             (self.pickle_filename, _) = QFileDialog.getSaveFileName(
                 self, 'Save file', directory='.', filter="Pickle files (*.pickle)")
         if self.pickle_filename:
-            _qt_annotator_logger.info(
+            _logger.info(
                 "Pickling is currently disabled. Did NOT write file {file}.",
                 file=self.pickle_filename)
             # satkit_io.save2pickle(
@@ -824,7 +832,7 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
         if self.current._textgrid_path and self.current.satgrid:
             with open(self.current._textgrid_path, 'w', encoding='utf-8') as outfile:
                 outfile.write(self.current.satgrid.format_long())
-            _qt_annotator_logger.info(
+            _logger.info(
                 "Wrote TextGrid to file %s.", str(self.current._textgrid_path))
 
     def export_figure(self):
@@ -913,7 +921,7 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
 
                 annotations['C1'] = recording.meta_data.prompt[0]
                 writer.writerow(annotations)
-            _qt_annotator_logger.info(
+            _logger.info(
                 "Wrote onset data in file %s.", (filename))
 
     def pd_category_cb(self):
@@ -950,7 +958,7 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
                 subplot = i+1
                 break
 
-        _qt_annotator_logger.debug(
+        _logger.debug(
             "Inside onpick - subplot: %d, x=%f",
             subplot, event.xdata)
 
@@ -965,7 +973,7 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
         self.current.annotations['selection_index'] = np.argmin(distances)
         self.current.annotations['selected_time'] = event.xdata
 
-        _qt_annotator_logger.debug(
+        _logger.debug(
             "Inside onpick - subplot: %d, index=%d, x=%f",
             subplot,
             self.current.annotations['selection_index'],

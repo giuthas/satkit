@@ -44,9 +44,11 @@ from icecream import ic
 # Numerical arrays and more
 import numpy as np
 from pydantic import BaseModel
+
 # Praat textgrids
 import textgrids
 
+from satkit.configuration import SessionConfig
 from satkit.constants import Datasource, SatkitSuffix
 from satkit.errors import MissingDataError, ModalityError, OverWriteError
 from satkit.satgrid import SatGrid
@@ -93,8 +95,7 @@ class RecordingSession:
     The meta and Recordings of a recording session.
     """
     name: str
-    path: Path
-    datasource: Datasource
+    config: SessionConfig
     recordings: list['Recording']
 
 

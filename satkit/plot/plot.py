@@ -29,6 +29,7 @@
 # articles listed in README.markdown. They can also be found in
 # citations.bib in BibTeX format.
 #
+"""SATKIT plotting functions."""
 
 # Built in packages
 import logging
@@ -54,6 +55,14 @@ _plot_logger = logging.getLogger('satkit.plot')
 
 
 class Normalisation(Enum):
+    """
+    An Enum for different kinds of plot normalisation in the y-direction.
+
+    none: no normalisation
+    peak: divide all data points y-values by the largest y-value
+    bottom: deduct the lowest y-value from all data poitns y-values
+    both: do first bottom normalisation and then peak normalisation.
+    """
     none = 'NONE'
     peak = 'PEAK'
     bottom = 'BOTTOM'
@@ -231,7 +240,28 @@ def plot_wav(
         waveform: np.ndarray,
         wav_time: np.ndarray,
         xlim: Tuple[float, float],
-        picker=None):
+        picker=None) -> Line2D:
+    """
+    Plot a waveform.
+
+    Parameters
+    ----------
+    ax : Axes
+        Axes to plot on.
+    waveform : np.ndarray
+        Waveform to plot
+    wav_time : np.ndarray
+        Timevector for the waveform. Must of same shape and length
+    xlim : Tuple[float, float]
+        x-axis limits.
+    picker : _type_, optional
+        Picker for selecting points on the plotted line, by default None
+
+    Returns
+    -------
+    Line2D
+        The plotted line.
+    """
     normalised_wav = waveform / np.amax(np.abs(waveform))
 
     line = None
@@ -304,7 +334,9 @@ def plot_density(
 
 def plot_spline(
         ax: Axes,
-        data: np.ndarray) -> None:
+        data: np.ndarray,
+        display_line: bool = True,
+        display_points: bool = False) -> None:
     """
     Plot a spline on the given axes.
 
@@ -314,19 +346,17 @@ def plot_spline(
         matplotlib axes
     data : np.ndarray
         the spline Cartesian coordinates in axes order x-y, splinepoints.
+    display_line : bool, optional
+        should the interpolated spline line be drawn, by default True
+    display_points : bool, optional
+        should the spline control points be drawn, by default False
     """
-
-    interp_result = interpolate.splprep(data, s=0)
-    tck = interp_result[0]
-    interpolation_points = np.arange(0, 1.01, 0.01)
-    interpolated_spline = interpolate.splev(interpolation_points, tck)
-    # ic(ax.get_xlim())
-    # ic(ax.get_ylim())
-    # ic(np.min(data, axis=1, keepdims=True))
-    # ic(np.min(interpolated_spline, axis=1, keepdims=True))
-    # ic(np.max(data, axis=1, keepdims=True))
-    # ic(np.max(interpolated_spline, axis=1, keepdims=True))
-
-    ax.plot(interpolated_spline[0],
-            -interpolated_spline[1], color='red', linewidth=1)
-    ax.plot(data[0, :], -data[1, :], 'ob', markersize=2)
+    if display_line:
+        interp_result = interpolate.splprep(data, s=0)
+        tck = interp_result[0]
+        interpolation_points = np.arange(0, 1.01, 0.01)
+        interpolated_spline = interpolate.splev(interpolation_points, tck)
+        ax.plot(interpolated_spline[0],
+                -interpolated_spline[1], color='red', linewidth=1)
+    if display_points:
+        ax.plot(data[0, :], -data[1, :], 'ob', markersize=2)

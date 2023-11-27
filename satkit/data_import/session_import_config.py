@@ -71,7 +71,7 @@ class DatasourceValidator(ScalarValidator):
             return None
 
 
-def make_session_config(raw_config: dict) -> SessionConfig:
+def make_session_config(raw_config: dict) -> tuple[PathStructure, SessionConfig]:
     """
     Parse needed fields and create the new SessionImportConfig.
 
@@ -82,25 +82,25 @@ def make_session_config(raw_config: dict) -> SessionConfig:
 
     Returns
     -------
-    SessionImportConfig
-        The fully parsed object.
+    tuple[PathStructure, SessionConfig]
+        A tuple of PathStructure and SessionConfig
     """
     paths = PathStructure(**raw_config['paths'])
-    raw_config['paths'] = paths
+    raw_config.pop('paths', None)
 
     if paths.spline_config:
         raw_config['spline_config'] = load_spline_config(
-            paths.data/paths.spline_config)
+            paths.root/paths.spline_config)
 
     if paths.exclusion_list:
         raw_config['exclusion_list'] = load_exclusion_list(
             paths.spline_config/paths.exclusion_list)
 
-    return SessionConfig(**raw_config)
+    return paths, SessionConfig(**raw_config)
 
 
 def load_session_config(
-        filepath: Union[Path, str]) -> SessionConfig:
+        filepath: Union[Path, str]) -> tuple[PathStructure, SessionConfig]:
     """
     Read a Sesssion config file from filepath.
 
@@ -111,8 +111,8 @@ def load_session_config(
 
     Returns
     -------
-    SessionImportConfig
-        The loaded configuration.
+    tuple[PathStructure, SessionConfig]
+        A tuple of PathStructure and SessionConfig
     """
     if isinstance(filepath, str):
         filepath = Path(filepath)
@@ -122,7 +122,7 @@ def load_session_config(
             schema = Map({
                 "data_source": DatasourceValidator(),
                 "paths": Map({
-                    "data": PathValidator(),
+                    "root": PathValidator(),
                     Optional("wav"): PathValidator(),
                     Optional("textgrid"): PathValidator(),
                     Optional("ultrasound"): PathValidator(),

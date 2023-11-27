@@ -5,7 +5,7 @@ data_source: AAA
 paths:
   # This is where we read the data and metadata from. Leave the data type specific
   # directories empty if everything is in one directory.
-  data: spline_test_token1
+  root: spline_test_token1
   wav:
   textgrid: 
   ultrasound:

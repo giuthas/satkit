@@ -48,8 +48,8 @@ from pydantic import BaseModel
 # Praat textgrids
 import textgrids
 
-from satkit.configuration import SessionConfig
-from satkit.constants import Datasource, SatkitSuffix
+from satkit.configuration import PathStructure, SessionConfig
+from satkit.constants import SatkitSuffix
 from satkit.errors import MissingDataError, ModalityError, OverWriteError
 from satkit.satgrid import SatGrid
 
@@ -95,6 +95,7 @@ class RecordingSession:
     The meta and Recordings of a recording session.
     """
     name: str
+    paths: PathStructure
     config: SessionConfig
     recordings: list['Recording']
 

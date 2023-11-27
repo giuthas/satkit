@@ -36,8 +36,8 @@ from pathlib import Path
 from typing import Optional
 
 # Local packages
-from satkit.configuration import (data_run_params,
-                                  SessionConfig)
+from satkit.configuration import (
+    PathStructure, SessionConfig)
 from satkit.constants import Datasource, SourceSuffix
 from satkit.data_structures import Recording
 
@@ -53,7 +53,8 @@ _AAA_logger = logging.getLogger('satkit.AAA')
 
 def generate_aaa_recording_list(
         directory: Path,
-        import_config: Optional[SessionConfig] = None) -> list[Recording]:
+        import_config: Optional[SessionConfig] = None,
+        paths: Optional[PathStructure] = None) -> list[Recording]:
     """
     Produce an array of Recordings from an AAA export directory.
 
@@ -82,7 +83,7 @@ def generate_aaa_recording_list(
     """
 
     # TODO 1.1.: Deal with directory structure specifications.
-    if import_config and import_config.paths.wav:
+    if paths and paths.wav:
         raise NotImplementedError
 
     ult_meta_files = sorted(directory.glob(

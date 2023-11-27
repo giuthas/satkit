@@ -101,7 +101,7 @@ class PathStructure:
     """
     Path structure of a Session for both loading and saving.
     """
-    data: Path
+    root: Path
     exclusion_list: Optional[Path] = None
     wav: Optional[Path] = None
     textgrid: Optional[Path] = None
@@ -115,6 +115,5 @@ class SessionConfig:
     Description of a RecordingSession for import into SATKIT.
     """
     data_source: Datasource
-    paths: PathStructure
     exclusion_list: Optional[ExclusionList] = None
     spline_config: Optional[SplineConfig] = None

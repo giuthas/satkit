@@ -1,8 +1,8 @@
 #
-# Copyright (c) 2019-2023 
+# Copyright (c) 2019-2023
 # Pertti Palo, Scott Moisik, Matthew Faytak, and Motoki Saito.
 #
-# This file is part of Speech Articulation ToolKIT 
+# This file is part of Speech Articulation ToolKIT
 # (see https://github.com/giuthas/satkit/).
 #
 # This program is free software: you can redistribute it and/or modify
@@ -37,13 +37,17 @@ from pydantic import BaseModel, DirectoryPath
 
 from satkit.constants import Datasource, SavedObjectTypes
 from satkit.data_structures import RecordingMetaData
+from satkit.metrics import (SplineDiffsEnum, SplineNNDsEnum, SplineShapesEnum)
 
 
 nested_text_converters = {
     datetime: str,
     PosixPath: str,
     WindowsPath: str,
-    Path: str
+    Path: str,
+    SplineDiffsEnum: str,
+    SplineNNDsEnum: str,
+    SplineShapesEnum: str
 }
 
 

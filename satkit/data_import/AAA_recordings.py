@@ -37,11 +37,10 @@ from typing import Optional
 
 # Local packages
 from satkit.configuration import (data_run_params,
-                                  apply_exclusion_list)
+                                  apply_exclusion_list, SessionConfig)
 from satkit.constants import SourceSuffix
 from satkit.data_structures import Recording
 
-from .import_config import SessionImportConfig
 from .AAA_raw_ultrasound import (
     add_aaa_raw_ultrasound, parse_recording_meta_from_aaa_promptfile)
 from .AAA_splines import add_splines
@@ -53,7 +52,7 @@ _AAA_logger = logging.getLogger('satkit.AAA')
 
 def generate_aaa_recording_list(
         directory: Path,
-        import_config: Optional[SessionImportConfig] = None) -> list[Recording]:
+        import_config: Optional[SessionConfig] = None) -> list[Recording]:
     """
     Produce an array of Recordings from an AAA export directory.
 

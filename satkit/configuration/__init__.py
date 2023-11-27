@@ -35,4 +35,4 @@ from satkit.configuration.configuration import (
 from satkit.configuration.exclusion_list import (
     apply_exclusion_list, load_exclusion_list)
 from satkit.configuration.configuration_classes import (
-    ExclusionList, SessionConfig, SplineConfig)
+    ExclusionList, SessionConfig, SplineConfig, SplineImportConfig)

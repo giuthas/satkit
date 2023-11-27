@@ -42,10 +42,9 @@ from strictyaml import (Bool, Map, Optional,
                         ScalarValidator, Str, Seq, FixedSeq, Int,
                         YAMLError, load)
 
-from satkit.configuration import PathValidator
+from satkit.configuration import (PathValidator, SplineImportConfig)
 from satkit.constants import (
     CoordinateSystems, SplineDataColumn, SplineMetaColumn)
-from .import_config import SplineImportConfig
 
 _logger = logging.getLogger('satkit.data_import')
 

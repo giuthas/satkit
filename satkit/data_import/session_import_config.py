@@ -42,9 +42,9 @@ from strictyaml import (Map, Optional,
                         ScalarValidator,
                         YAMLError, load)
 
-from satkit.configuration import (load_exclusion_list, PathValidator)
+from satkit.configuration import (
+    load_exclusion_list, PathValidator, SessionConfig, SplineImportConfig)
 from satkit.constants import Datasource
-from .import_config import SessionImportConfig, SplineImportConfig
 
 _logger = logging.getLogger('satkit.data_import')
 
@@ -68,7 +68,7 @@ class DatasourceValidator(ScalarValidator):
             return None
 
 
-def make_session_import_config(raw_config: dict) -> SessionImportConfig:
+def make_session_import_config(raw_config: dict) -> SessionConfig:
     """
     Parse needed fields and create the new SessionImportConfig.
 
@@ -84,17 +84,17 @@ def make_session_import_config(raw_config: dict) -> SessionImportConfig:
     """
     if 'spline_import_config' in raw_config:
         raw_config['spline_import_config'] = SplineImportConfig(
-            **raw_config['spline_import_config'])
+            **raw_config['paths']['spline_import_config'])
 
     if 'exclusion_list' in raw_config:
         raw_config['exclusion_list'] = load_exclusion_list(
-            raw_config['exclusion_list'])
+            raw_config['paths']['exclusion_list'])
 
-    return SessionImportConfig(**raw_config)
+    return SessionConfig(**raw_config)
 
 
 def load_session_import_config(
-        filepath: Union[Path, str]) -> SessionImportConfig:
+        filepath: Union[Path, str]) -> SessionConfig:
     """
     Read a Sesssion config file from filepath.
 
@@ -115,12 +115,14 @@ def load_session_import_config(
         with closing(open(filepath, 'r', encoding='utf-8')) as yaml_file:
             schema = Map({
                 "data_source": DatasourceValidator(),
-                Optional("exclusion_list"): PathValidator(),
-                "data_path": PathValidator(),
-                Optional("wav_directory"): PathValidator(),
-                Optional("textgrid_directory"): PathValidator(),
-                Optional("ultrasound_directory"): PathValidator(),
-                Optional("spline_import_config"): PathValidator()
+                "paths": Map({
+                    "data_path": PathValidator(),
+                    Optional("wav"): PathValidator(),
+                    Optional("textgrid"): PathValidator(),
+                    Optional("ultrasound"): PathValidator(),
+                    Optional("exclusion_list"): PathValidator(),
+                    Optional("spline_import_config"): PathValidator()
+                })
             })
             try:
                 raw_session_import_config = load(yaml_file.read(), schema)

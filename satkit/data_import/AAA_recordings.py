@@ -37,10 +37,11 @@ from typing import Optional
 
 # Local packages
 from satkit.configuration import (data_run_params,
-                                  set_exclusions_from_csv_file)
+                                  apply_exclusion_list)
 from satkit.constants import SourceSuffix
 from satkit.data_structures import Recording
 
+from .import_config import SessionImportConfig
 from .AAA_raw_ultrasound import (
     add_aaa_raw_ultrasound, parse_recording_meta_from_aaa_promptfile)
 from .AAA_splines import add_splines
@@ -52,7 +53,7 @@ _AAA_logger = logging.getLogger('satkit.AAA')
 
 def generate_aaa_recording_list(
         directory: Path,
-        directory_structure: Optional[dict] = None):
+        import_config: Optional[SessionImportConfig] = None) -> list[Recording]:
     """
     Produce an array of Recordings from an AAA export directory.
 
@@ -81,7 +82,7 @@ def generate_aaa_recording_list(
     """
 
     # TODO 1.1.: Deal with directory structure specifications.
-    if directory_structure is not None:
+    if import_config.wav_directory:
         raise NotImplementedError
 
     ult_meta_files = sorted(directory.glob(
@@ -108,9 +109,8 @@ def generate_aaa_recording_list(
         for basename in basenames
     ]
 
-    set_exclusions_from_csv_file(
-        data_run_params['data properties']['exclusion list'],
-        recordings)
+    if import_config.exclusion_list:
+        apply_exclusion_list(recordings, import_config.exclusion_list)
 
     add_modalities(recordings, directory)
 

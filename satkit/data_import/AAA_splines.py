@@ -29,6 +29,9 @@
 # articles listed in README.markdown. They can also be found in
 # citations.bib in BibTeX format.
 #
+"""
+Routines for loading splines exported from AAA.
+"""
 
 from collections import defaultdict
 from contextlib import closing
@@ -41,12 +44,14 @@ import numpy as np
 from icecream import ic
 
 from satkit.constants import (
-    CoordinateSystems, SatkitConfigFile, SplineDataColumn, SplineMetaColumn)
+    CoordinateSystems, SatkitImportConfigFile,
+    SplineDataColumn, SplineMetaColumn)
 from satkit.data_structures import ModalityData, Recording
 from satkit.errors import SatkitError
 from satkit.modalities.splines import Splines, SplineMetadata
 
-from .spline_import_config import SplineImportConfig, load_spline_import_config
+from .spline_import_config import (
+    SplineImportConfig, load_spline_import_config)
 
 _AAA_spline_logger = logging.getLogger('satkit.AAA_splines')
 
@@ -290,7 +295,7 @@ def add_splines(
         Path to the directory where the splines (and most likely other
         Recording files) are.
     """
-    spline_config_path = directory/SatkitConfigFile.CSV_SPLINE_IMPORT
+    spline_config_path = directory/SatkitImportConfigFile.SPLINE
     if spline_config_path.is_file():
         spline_config = load_spline_import_config(spline_config_path)
         if spline_config.single_spline_file:

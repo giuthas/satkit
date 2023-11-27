@@ -29,12 +29,16 @@
 # articles listed in README.markdown. They can also be found in
 # citations.bib in BibTeX format.
 #
+"""
+Classes for describing how data should be imported.
+"""
 from pathlib import Path
 from typing import Optional
 from dataclasses import dataclass
 
+from satkit.configuration import ExclusionList
 from satkit.constants import (
-    CoordinateSystems, SplineDataColumn, SplineMetaColumn)
+    CoordinateSystems, Datasource, SplineDataColumn, SplineMetaColumn)
 
 
 @dataclass
@@ -61,3 +65,17 @@ class SplineImportConfig:
         """
         if not self.delimiter:
             self.delimiter = '\t'
+
+
+@dataclass
+class SessionImportConfig:
+    """
+    Description of a RecordingSession for import into SATKIT.
+    """
+    data_source: Datasource
+    data_path: Path
+    exclusion_list: Optional[ExclusionList]
+    wav_directory: Optional[Path]
+    textgrid_directory: Optional[Path]
+    ultrasound_directory: Optional[Path]
+    spline_import_config: Optional[SplineImportConfig]

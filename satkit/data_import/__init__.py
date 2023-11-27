@@ -35,7 +35,10 @@ from .AAA_recordings import (generate_aaa_recording_list,
 from .RASL_3D_ultrasound_recordings import (generate_3D_ultrasound_recording,
                                             generate_rasl_recording_list)
 
-from .spline_import_config import load_spline_import_config, SplineImportConfig
+from .spline_import_config import (
+    load_spline_import_config, SplineImportConfig)
+from .session_import_config import (
+    load_session_import_config, SessionImportConfig)
 
 from .audio import add_audio
 from .video import add_video

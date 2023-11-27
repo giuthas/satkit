@@ -1,8 +1,8 @@
 #
-# Copyright (c) 2019-2023 
+# Copyright (c) 2019-2023
 # Pertti Palo, Scott Moisik, Matthew Faytak, and Motoki Saito.
 #
-# This file is part of Speech Articulation ToolKIT 
+# This file is part of Speech Articulation ToolKIT
 # (see https://github.com/giuthas/satkit/).
 #
 # This program is free software: you can redistribute it and/or modify
@@ -35,7 +35,8 @@ import logging
 from pathlib import Path
 from typing import Optional
 
-from satkit.configuration import Datasource, data_run_params
+from satkit.constants import Datasource
+from satkit.configuration import data_run_params
 from satkit.data_structures import Recording
 # Local packages
 from satkit.modalities import Video

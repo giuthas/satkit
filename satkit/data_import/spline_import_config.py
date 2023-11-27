@@ -29,7 +29,11 @@
 # articles listed in README.markdown. They can also be found in
 # citations.bib in BibTeX format.
 #
-import sys
+"""
+How to load and validate spline import configuration files.
+"""
+
+import logging
 from contextlib import closing
 from pathlib import Path
 from typing import Union
@@ -42,6 +46,8 @@ from satkit.configuration import PathValidator
 from satkit.constants import (
     CoordinateSystems, SplineDataColumn, SplineMetaColumn)
 from .import_config import SplineImportConfig
+
+_logger = logging.getLogger('satkit.data_import')
 
 
 class CoordinateSystemValidator(ScalarValidator):
@@ -136,11 +142,13 @@ def load_spline_import_config(
             try:
                 raw_spline_config = load(yaml_file.read(), schema)
             except YAMLError as error:
-                print(f"Fatal error in reading {filepath}:")
-                print(error)
-                sys.exit()
+                _logger.warning(
+                    "Could not read Spline import configuration at %s.",
+                    str(filepath))
+                _logger.warning(str(error))
+                raise
     else:
-        print(f"Didn't find {filepath}. Exiting.".format(str(filepath)))
-        sys.exit()
+        _logger.warning(
+            "Didn't find Spline import configuration at %s.", str(filepath))
 
     return SplineImportConfig(**raw_spline_config.data)

@@ -31,6 +31,13 @@
 #
 """
 This module contains all sorts of constants used by SATKIT.
+
+Enums are used for constants that need to be instantiated from other variables.
+They maybe used as fields in other objects. Using an Enum limits the possible
+values and avoids typos and makes an IDE help in writing code.
+
+Frozen dataclasses are used for constants that only ever need to be accessed
+and never are stored. In effect, they function as look-up tables.
 """
 from dataclasses import dataclass
 from enum import Enum

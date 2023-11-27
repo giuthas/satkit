@@ -36,7 +36,6 @@ from pathlib import Path
 from typing import Optional
 
 from satkit.constants import Datasource
-from satkit.configuration import data_run_params
 from satkit.data_structures import Recording
 # Local packages
 from satkit.modalities import Video

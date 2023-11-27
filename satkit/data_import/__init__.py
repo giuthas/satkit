@@ -38,7 +38,7 @@ from .RASL_3D_ultrasound_recordings import (generate_3D_ultrasound_recording,
 from .spline_import_config import (
     load_spline_import_config, SplineImportConfig)
 from .session_import_config import (
-    load_session_import_config, SessionConfig)
+    load_session_config, SessionConfig)
 
 from .audio import add_audio
 from .video import add_video

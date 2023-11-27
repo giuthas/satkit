@@ -43,9 +43,10 @@ from strictyaml import (Map, Optional,
                         YAMLError, load)
 
 from satkit.configuration import (
-    load_exclusion_list, PathValidator, SessionConfig, SplineImportConfig)
+    PathValidator, SessionConfig, SplineImportConfig)
 from satkit.constants import Datasource
 
+from .exclusion_list import load_exclusion_list
 _logger = logging.getLogger('satkit.data_import')
 
 
@@ -93,7 +94,7 @@ def make_session_import_config(raw_config: dict) -> SessionConfig:
     return SessionConfig(**raw_config)
 
 
-def load_session_import_config(
+def load_session_config(
         filepath: Union[Path, str]) -> SessionConfig:
     """
     Read a Sesssion config file from filepath.
@@ -116,12 +117,12 @@ def load_session_import_config(
             schema = Map({
                 "data_source": DatasourceValidator(),
                 "paths": Map({
-                    "data_path": PathValidator(),
+                    "data": PathValidator(),
                     Optional("wav"): PathValidator(),
                     Optional("textgrid"): PathValidator(),
                     Optional("ultrasound"): PathValidator(),
                     Optional("exclusion_list"): PathValidator(),
-                    Optional("spline_import_config"): PathValidator()
+                    Optional("spline_config"): PathValidator()
                 })
             })
             try:
@@ -136,4 +137,4 @@ def load_session_import_config(
         _logger.warning(
             "Didn't find Session import configuration at %s.", str(filepath))
 
-    return make_session_import_config(**raw_session_import_config.data)
+    return make_session_import_config(raw_session_import_config.data)

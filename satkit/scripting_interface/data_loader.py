@@ -34,11 +34,12 @@ from pathlib import Path
 from typing import Optional
 
 from satkit.audio_processing import MainsFilter
-from satkit.configuration import config_dict, data_run_params
+from satkit.configuration import (
+    config_dict, data_run_params, PathStructure, SessionConfig)
 from satkit.constants import (
-    Datasource, SourceSuffix, SatkitSuffix, SatkitImportConfigFile)
+    Datasource, SourceSuffix, SatkitSuffix, SatkitConfigFile)
 from satkit.data_import import (
-    generate_aaa_recording_list, load_session_import_config)
+    generate_aaa_recording_list, load_session_config)
 from satkit.data_structures import RecordingSession
 from satkit.save_and_load import load_recording_session
 
@@ -107,31 +108,33 @@ def read_recording_session_from_dir(
     """
     containing_dir = path.parts[-1]
 
-    session_import_config = path / SatkitImportConfigFile.SESSION
+    session_import_config = path / SatkitConfigFile.SESSION
     session_meta_path = path / (containing_dir + '.RecordingSession' +
                                 SatkitSuffix.META)
     if session_meta_path.is_file():
         return load_recording_session(directory=path)
 
     if session_import_config.is_file():
-        import_config = load_session_import_config(session_import_config)
+        session_config = load_session_config(session_import_config)
 
-        if import_config.data_source == Datasource.AAA:
-            recordings = generate_aaa_recording_list(path, import_config)
+        if session_config.data_source == Datasource.AAA:
+            recordings = generate_aaa_recording_list(path, session_config)
 
             return RecordingSession(
-                name=containing_dir, path=path, datasource=Datasource.AAA,
-                recordings=recordings, import_config)
+                name=containing_dir, config=session_config,
+                recordings=recordings)
 
-        if import_config.data_source == Datasource.RASL:
+        if session_config.data_source == Datasource.RASL:
             raise NotImplementedError(
                 "Loading RASL data hasn't been impmelented yet.")
 
     if list(path.glob('*' + SourceSuffix.AAA_ULTRA)):
         recordings = generate_aaa_recording_list(path)
 
+        paths = PathStructure(data_path=path)
+        session_config = SessionConfig(data_source=Datasource.AAA, paths=paths)
         return RecordingSession(
-            name=containing_dir, path=path, datasource=Datasource.AAA,
+            name=containing_dir, config=session_config,
             recordings=recordings)
 
     logger.error(

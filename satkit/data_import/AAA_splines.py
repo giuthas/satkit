@@ -44,7 +44,7 @@ import numpy as np
 from icecream import ic
 
 from satkit.constants import (
-    CoordinateSystems, SatkitImportConfigFile,
+    CoordinateSystems, SatkitConfigFile,
     SplineDataColumn, SplineMetaColumn)
 from satkit.data_structures import ModalityData, Recording
 from satkit.errors import SatkitError
@@ -295,7 +295,7 @@ def add_splines(
         Path to the directory where the splines (and most likely other
         Recording files) are.
     """
-    spline_config_path = directory/SatkitImportConfigFile.SPLINE
+    spline_config_path = directory/SatkitConfigFile.SPLINE
     if spline_config_path.is_file():
         spline_config = load_spline_import_config(spline_config_path)
         if spline_config.single_spline_file:

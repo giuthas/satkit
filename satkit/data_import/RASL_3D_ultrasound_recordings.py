@@ -39,9 +39,10 @@ from pathlib import Path
 from typing import Dict, Optional
 
 from satkit.configuration import (
-    data_run_params, apply_exclusion_list, SessionConfig)
+    data_run_params, SessionConfig)
 from satkit.data_structures import Recording
 
+from .exclusion_list import apply_exclusion_list
 from .three_dim_ultrasound import (add_rasl_3D_ultrasound,
                                    generateMeta,
                                    read_3D_meta_from_mat_file)

@@ -102,13 +102,12 @@ class SplineMetaColumn(Enum):
 
 
 @dataclass(frozen=True)
-class SatkitConfigFile():
+class SatkitImportConfigFile:
     """
-    Various configuration files used by SATKIT.
-
-    These exist as a convenient way of not needing to risk typos. 
+    Human written yaml files to control importing data.
     """
-    CSV_SPLINE_IMPORT = "csv_spline_import_config.yaml"
+    SESSION = 'session_import_config.yaml'
+    SPLINE = 'spline_import_config.yaml'
 
 
 @dataclass(frozen=True)
@@ -156,3 +155,4 @@ class SourceSuffix():
     AAA_PROMPT = ".txt"
     AAA_SPLINES = ".spl"
     AVI = ".avi"
+    CSV = ".csv"

@@ -34,10 +34,11 @@ from pathlib import Path
 from typing import Optional
 
 from satkit.audio_processing import MainsFilter
-from satkit.configuration import config_dict
-from satkit.constants import Datasource, SourceSuffix, SatkitSuffix
-from satkit.configuration import data_run_params
-from satkit.data_import import generate_aaa_recording_list
+from satkit.configuration import config_dict, data_run_params
+from satkit.constants import (
+    Datasource, SourceSuffix, SatkitSuffix, SatkitImportConfigFile)
+from satkit.data_import import (
+    generate_aaa_recording_list, load_session_import_config)
 from satkit.data_structures import RecordingSession
 from satkit.save_and_load import load_recording_session
 
@@ -106,18 +107,32 @@ def read_recording_session_from_dir(
     """
     containing_dir = path.parts[-1]
 
+    session_import_config = path / SatkitImportConfigFile.SESSION
     session_meta_path = path / (containing_dir + '.RecordingSession' +
                                 SatkitSuffix.META)
     if session_meta_path.is_file():
-        session = load_recording_session(directory=path)
-    elif list(path.glob('*' + SourceSuffix.AAA_ULTRA)):
+        return load_recording_session(directory=path)
+
+    if session_import_config.is_file():
+        import_config = load_session_import_config(session_import_config)
+
+        if import_config.data_source == Datasource.AAA:
+            recordings = generate_aaa_recording_list(path, import_config)
+
+            return RecordingSession(
+                name=containing_dir, path=path, datasource=Datasource.AAA,
+                recordings=recordings, import_config)
+
+        if import_config.data_source == Datasource.RASL:
+            raise NotImplementedError(
+                "Loading RASL data hasn't been impmelented yet.")
+
+    if list(path.glob('*' + SourceSuffix.AAA_ULTRA)):
         recordings = generate_aaa_recording_list(path)
 
-        session = RecordingSession(
+        return RecordingSession(
             name=containing_dir, path=path, datasource=Datasource.AAA,
             recordings=recordings)
-    else:
-        logger.error(
-            'Could not find a suitable importer: %s.', path)
 
-    return session
+    logger.error(
+        'Could not find a suitable importer: %s.', path)

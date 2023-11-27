@@ -135,7 +135,7 @@ class SavedObjectTypes(Enum):
     """
     Represent type of a saved satkit object in .satkit_meta.
     """
-    # TODO 1.0: Check if this is actually in use.
+    # TODO 1.1: Check if this is actually in use.
     RECORDING_SESSION = "RecordingSession"
     RECORDING = "Recording"
     MODALITY = "Modality"

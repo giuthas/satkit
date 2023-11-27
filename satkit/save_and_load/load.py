@@ -225,6 +225,7 @@ def load_recording_session(directory: Union[Path, str]) -> RecordingSession:
 
     recordings = load_recordings(directory, meta.recordings)
 
+    # TODO: See read_recording_session_from_dir for how to do this.
     session = RecordingSession(
         name=meta.name, path=meta.parameters.path,
         datasource=meta.parameters.datasource, recordings=recordings)

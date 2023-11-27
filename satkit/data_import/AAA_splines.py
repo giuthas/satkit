@@ -51,7 +51,7 @@ from satkit.errors import SatkitError
 from satkit.modalities.splines import Splines, SplineMetadata
 
 from .spline_import_config import (
-    SplineImportConfig, load_spline_import_config)
+    SplineImportConfig, load_spline_config)
 
 _AAA_spline_logger = logging.getLogger('satkit.AAA_splines')
 
@@ -297,10 +297,10 @@ def add_splines(
     """
     spline_config_path = directory/SatkitConfigFile.SPLINE
     if spline_config_path.is_file():
-        spline_config = load_spline_import_config(spline_config_path)
-        if spline_config.single_spline_file:
+        spline_config = load_spline_config(spline_config_path)
+        if spline_config.import_config.single_spline_file:
             add_splines_from_batch_export(
-                recording_list, spline_config)
+                recording_list, spline_config.import_config)
         else:
             add_splines_from_individual_files(recording_list, spline_config)
     else:

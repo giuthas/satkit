@@ -38,7 +38,7 @@ from typing import Optional
 # Local packages
 from satkit.configuration import (data_run_params,
                                   SessionConfig)
-from satkit.constants import SourceSuffix
+from satkit.constants import Datasource, SourceSuffix
 from satkit.data_structures import Recording
 
 from .AAA_raw_ultrasound import (
@@ -82,7 +82,7 @@ def generate_aaa_recording_list(
     """
 
     # TODO 1.1.: Deal with directory structure specifications.
-    if import_config and import_config.paths.wav_directory:
+    if import_config and import_config.paths.wav:
         raise NotImplementedError
 
     ult_meta_files = sorted(directory.glob(
@@ -109,7 +109,7 @@ def generate_aaa_recording_list(
         for basename in basenames
     ]
 
-    if import_config.exclusion_list:
+    if import_config and import_config.exclusion_list:
         apply_exclusion_list(recordings, import_config.exclusion_list)
 
     add_modalities(recordings, directory)
@@ -185,6 +185,6 @@ def add_modalities(
 
             add_audio(recording, wav_preload)
             add_aaa_raw_ultrasound(recording, ult_preload)
-            add_video(recording, video_preload)
+            add_video(recording, video_preload, Datasource.AAA)
 
     add_splines(recording_list, directory)

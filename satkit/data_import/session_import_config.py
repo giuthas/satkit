@@ -43,8 +43,10 @@ from strictyaml import (Map, Optional,
                         YAMLError, load)
 
 from satkit.configuration import (
-    PathValidator, SessionConfig, SplineImportConfig)
+    PathStructure, PathValidator, SessionConfig)
 from satkit.constants import Datasource
+
+from .spline_import_config import load_spline_config
 
 from .exclusion_list import load_exclusion_list
 _logger = logging.getLogger('satkit.data_import')
@@ -69,7 +71,7 @@ class DatasourceValidator(ScalarValidator):
             return None
 
 
-def make_session_import_config(raw_config: dict) -> SessionConfig:
+def make_session_config(raw_config: dict) -> SessionConfig:
     """
     Parse needed fields and create the new SessionImportConfig.
 
@@ -83,13 +85,16 @@ def make_session_import_config(raw_config: dict) -> SessionConfig:
     SessionImportConfig
         The fully parsed object.
     """
-    if 'spline_import_config' in raw_config:
-        raw_config['spline_import_config'] = SplineImportConfig(
-            **raw_config['paths']['spline_import_config'])
+    paths = PathStructure(**raw_config['paths'])
+    raw_config['paths'] = paths
 
-    if 'exclusion_list' in raw_config:
+    if paths.spline_config:
+        raw_config['spline_config'] = load_spline_config(
+            paths.data/paths.spline_config)
+
+    if paths.exclusion_list:
         raw_config['exclusion_list'] = load_exclusion_list(
-            raw_config['paths']['exclusion_list'])
+            paths.spline_config/paths.exclusion_list)
 
     return SessionConfig(**raw_config)
 
@@ -137,4 +142,4 @@ def load_session_config(
         _logger.warning(
             "Didn't find Session import configuration at %s.", str(filepath))
 
-    return make_session_import_config(raw_session_import_config.data)
+    return make_session_config(raw_session_import_config.data)

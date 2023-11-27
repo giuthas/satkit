@@ -45,6 +45,7 @@ _AAA_video_logger = logging.getLogger('satkit.AAA_video')
 
 
 def add_video(recording: Recording, preload: bool = False,
+              datasource: Optional[Datasource] = None,
               path: Optional[Path] = None) -> None:
     """
     Create a RawUltrasound Modality and add it to the Recording.
@@ -73,7 +74,7 @@ def add_video(recording: Recording, preload: bool = False,
     # This is the correct value for fps for a de-interlaced
     # video according to Alan, and he should know having
     # written AAA.
-    if data_run_params['data properties']['data source'] is Datasource.AAA:
+    if datasource is Datasource.AAA:
         meta = {
             'FramesPerSec': 59.94
         }

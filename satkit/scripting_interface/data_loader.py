@@ -108,16 +108,17 @@ def read_recording_session_from_dir(
     """
     containing_dir = path.parts[-1]
 
-    session_import_config = path / SatkitConfigFile.SESSION
+    session_config_path = path / SatkitConfigFile.SESSION
     session_meta_path = path / (containing_dir + '.RecordingSession' +
                                 SatkitSuffix.META)
     if session_meta_path.is_file():
         return load_recording_session(directory=path)
 
-    if session_import_config.is_file():
-        session_config = load_session_config(session_import_config)
+    if session_config_path.is_file():
+        session_config = load_session_config(session_config_path)
 
         if session_config.data_source == Datasource.AAA:
+
             recordings = generate_aaa_recording_list(path, session_config)
 
             return RecordingSession(
@@ -131,7 +132,7 @@ def read_recording_session_from_dir(
     if list(path.glob('*' + SourceSuffix.AAA_ULTRA)):
         recordings = generate_aaa_recording_list(path)
 
-        paths = PathStructure(data_path=path)
+        paths = PathStructure(data=path)
         session_config = SessionConfig(data_source=Datasource.AAA, paths=paths)
         return RecordingSession(
             name=containing_dir, config=session_config,

@@ -38,11 +38,12 @@ from contextlib import closing
 from pathlib import Path
 from typing import Union
 
-from strictyaml import (Bool, Map, Optional,
-                        ScalarValidator, Str, Seq, FixedSeq, Int,
-                        YAMLError, load)
+from strictyaml import (
+    Bool, Map, Optional, ScalarValidator, Str, Seq,
+    FixedSeq, Int, YAMLError, load)
 
-from satkit.configuration import (PathValidator, SplineImportConfig)
+from satkit.configuration import (
+    PathValidator, SplineConfig, SplineDataConfig, SplineImportConfig)
 from satkit.constants import (
     CoordinateSystems, SplineDataColumn, SplineMetaColumn)
 
@@ -106,8 +107,27 @@ class DataColumnValidator(ScalarValidator):
             return None
 
 
-def load_spline_import_config(
-        filepath: Union[Path, str]) -> SplineImportConfig:
+def make_spline_config(raw_config: dict) -> SplineConfig:
+    """
+    Construct a SplineConfig out of a dict read by `load_spline_config`.
+
+    Parameters
+    ----------
+    raw_config : dict
+        The dict
+
+    Returns
+    -------
+    SplineConfig
+        The new SplineConfig.
+    """
+    import_config = SplineImportConfig(**raw_config['import_config'])
+    data_config = SplineDataConfig(**raw_config['data_config'])
+    return SplineConfig(import_config, data_config)
+
+
+def load_spline_config(
+        filepath: Union[Path, str]) -> SplineConfig:
     """
     Read a spline config file from filepath.
 
@@ -127,27 +147,31 @@ def load_spline_import_config(
     if filepath.is_file():
         with closing(open(filepath, 'r', encoding='utf-8')) as yaml_file:
             schema = Map({
-                "single_spline_file": Bool(),
-                "spline_file": PathValidator(),
-                "spline_file_extension": Str(),
-                "headers": Bool(),
-                "delimiter": Str(),
-                "coordinates": CoordinateSystemValidator(),
-                "interleaved_coords": Bool(),
-                "meta_columns": Seq(SplineMetaValidator()),
-                "data_columns": Seq(DataColumnValidator()),
-                Optional("ignore_points"): FixedSeq([Int(), Int()])
+                "import_config": Map({
+                    "single_spline_file": Bool(),
+                    "spline_file": PathValidator(),
+                    "spline_file_extension": Str(),
+                    "headers": Bool(),
+                    "delimiter": Str(),
+                    "coordinates": CoordinateSystemValidator(),
+                    "interleaved_coords": Bool(),
+                    "meta_columns": Seq(SplineMetaValidator()),
+                    "data_columns": Seq(DataColumnValidator())
+                }),
+                "data_config": Map({
+                    Optional("ignore_points"): FixedSeq([Int(), Int()])
+                })
             })
             try:
                 raw_spline_config = load(yaml_file.read(), schema)
             except YAMLError as error:
                 _logger.warning(
-                    "Could not read Spline import configuration at %s.",
+                    "Could not read Spline configuration at %s.",
                     str(filepath))
                 _logger.warning(str(error))
                 raise
     else:
         _logger.warning(
-            "Didn't find Spline import configuration at %s.", str(filepath))
+            "Didn't find Spline configuration at %s.", str(filepath))
 
-    return SplineImportConfig(**raw_spline_config.data)
+    return make_spline_config(raw_spline_config.data)

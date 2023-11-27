@@ -93,7 +93,7 @@ class SplineConfig:
     Configuration options for both import and processing of splines.
     """
     import_config: SplineImportConfig
-    config: SplineDataConfig
+    data_config: SplineDataConfig
 
 
 @dataclass

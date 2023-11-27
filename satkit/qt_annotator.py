@@ -673,8 +673,16 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
                                  self.current.basename)
                     _logger.info("Minimal difference: %f, epsilon: %f",
                                  min_difference, epsilon)
-                plot_spline(self.ultra_axes,
-                            splines.cartesian_spline(spline_index)[:, 11:])
+
+                spline_config = self.recording_session.config.spline_config
+                if spline_config.data_config:
+                    limits = spline_config.data_config.ignore_points
+                    plot_spline(self.ultra_axes,
+                                splines.cartesian_spline(spline_index),
+                                limits=limits)
+                else:
+                    plot_spline(self.ultra_axes,
+                                splines.cartesian_spline(spline_index))
             else:
                 _logger.info("No splines")
         self.ultra_canvas.draw()

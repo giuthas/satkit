@@ -335,6 +335,7 @@ def plot_density(
 def plot_spline(
         ax: Axes,
         data: np.ndarray,
+        limits: Optional[tuple[int, int]] = None,
         display_line: bool = True,
         display_points: bool = False) -> None:
     """
@@ -351,6 +352,12 @@ def plot_spline(
     display_points : bool, optional
         should the spline control points be drawn, by default False
     """
+    if limits:
+        if limits[1] == 0:
+            data = data[:, limits[0]:]
+        else:
+            data = data[:, limits[0]:-limits[1]]
+
     if display_line:
         interp_result = interpolate.splprep(data, s=0)
         tck = interp_result[0]

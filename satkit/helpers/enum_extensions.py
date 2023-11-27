@@ -72,8 +72,9 @@ class ValueComparedEnumMeta(EnumMeta):
     EnumMeta where `in` matches also value of member matching compared item. 
     """
     def __contains__(cls, item):
-        members = dict(cls.__members__)
-        values = [members[name].value for name in members]
+        members_dict = dict(cls.__members__)
+        values = [members_dict[name].value for name in members_dict]
+        members = [members_dict[name] for name in members_dict]
         if item in values or item in members:
             return True
         return False

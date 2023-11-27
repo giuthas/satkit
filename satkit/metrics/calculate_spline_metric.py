@@ -34,6 +34,7 @@ import logging
 from typing import Optional
 
 import numpy as np
+from icecream import ic
 
 from satkit.data_structures import ModalityData, Recording
 from satkit.modalities import Splines
@@ -82,9 +83,9 @@ def spline_diff_metric(
         next_points = data[i+timestep, :, :]
 
         diff = np.subtract(current_points, next_points)
-        if metric == SplineMetricEnum.SPLINE_L1.value:
+        if metric == SplineMetricEnum.SPLINE_L1:
             result[i] = np.sum(np.abs(diff))
-        elif metric == SplineMetricEnum.SPLINE_L2.value:
+        elif metric == SplineMetricEnum.SPLINE_L2:
             diff = np.square(diff)
             result[i] = np.sqrt(np.sum(diff))
         else:
@@ -92,9 +93,9 @@ def spline_diff_metric(
             # sums over (x,y) for individual points
             diff = np.sum(diff, axis=0)
             diff = np.sqrt(diff)
-            if metric == SplineMetricEnum.APBPD.value:
+            if metric == SplineMetricEnum.APBPD:
                 result[i] = np.average(diff)
-            elif metric == SplineMetricEnum.MPBPD.value:
+            elif metric == SplineMetricEnum.MPBPD:
                 result[i] = np.median(diff)
 
     _logger.debug("%s: %s calculated.", notice_base, metric)
@@ -144,9 +145,9 @@ def spline_nnd_metric(
             diff = np.sum(diff, axis=0)
             diff = np.sqrt(diff)
             nnd[j] = np.amin(diff)
-        if metric == SplineMetricEnum.ANND.value:
+        if metric == SplineMetricEnum.ANND:
             result[i] = np.average(nnd)
-        elif metric == SplineMetricEnum.MNND.value:
+        elif metric == SplineMetricEnum.MNND:
             result[i] = np.median(nnd)
 
     _logger.debug("%s: %s calculated.", notice_base, metric)
@@ -212,9 +213,12 @@ def calculate_spline_metric(
             "Calculating spline metric %s.", metric)
 
         timestep = param_set.timestep
-        exclude_points = param_set.exclude_points
-        # data = splines.data[:, :, exclude_points[0]:-exclude_points[1]]
-        data = splines.in_cartesian[:, :, exclude_points[0]:-exclude_points[1]]
+        if param_set.exclude_points:
+            exclude_points = param_set.exclude_points
+            data = splines.in_cartesian[:, :,
+                                        exclude_points[0]:-exclude_points[1]]
+        else:
+            data = splines.in_cartesian
 
         time_points = data.shape[0] - timestep
 
@@ -293,8 +297,8 @@ def add_spline_metric(recording: Recording,
             splines, metrics, timesteps, release_data_memory)
         missing_keys = set(all_requested).difference(
             recording.modalities.keys())
-        to_be_computed = dict((key, value) for key,
-                              value in all_requested.items()
+        to_be_computed = dict((key, value)
+                              for key, value in all_requested.items()
                               if key in missing_keys)
 
         data_modality = recording.modalities[splines.__name__]

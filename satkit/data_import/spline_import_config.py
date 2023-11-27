@@ -29,18 +29,19 @@
 # articles listed in README.markdown. They can also be found in
 # citations.bib in BibTeX format.
 #
-from dataclasses import dataclass
 import sys
 from contextlib import closing
 from pathlib import Path
-from typing import Optional, Union
+from typing import Union
 
-from strictyaml import (Bool, Map,
+from strictyaml import (Bool, Map, Optional,
                         ScalarValidator, Str, Seq, FixedSeq, Int,
                         YAMLError, load)
-from satkit.configuration.configuration import PathValidator
 
-from satkit.constants import CoordinateSystems, SplineDataColumn, SplineMetaColumn
+from satkit.configuration import PathValidator
+from satkit.constants import (
+    CoordinateSystems, SplineDataColumn, SplineMetaColumn)
+from .import_config import SplineImportConfig
 
 
 class CoordinateSystemValidator(ScalarValidator):
@@ -100,32 +101,6 @@ class DataColumnValidator(ScalarValidator):
             return None
 
 
-@dataclass
-class SplineImportConfig:
-    """
-    Spline import csv file configuration.
-
-    This describes how to interpret a csv file containing splines.
-    """
-    single_spline_file: bool
-    headers: bool
-    coordinates: CoordinateSystems
-    interleaved_coords: bool
-    meta_columns: tuple(SplineMetaColumn)
-    data_columns: tuple(SplineDataColumn)
-    spline_file: Optional[Path]
-    spline_file_extension: Optional[str]
-    delimiter: Optional[str] = '\t'
-    ignore_points: Optional[tuple[int]] = (0, 0)
-
-    def __post_init__(self):
-        """
-        Empty delimiter strings are replaced with a tabulator.
-        """
-        if not self.delimiter:
-            self.delimiter = '\t'
-
-
 def load_spline_import_config(
         filepath: Union[Path, str]) -> SplineImportConfig:
     """
@@ -156,7 +131,7 @@ def load_spline_import_config(
                 "interleaved_coords": Bool(),
                 "meta_columns": Seq(SplineMetaValidator()),
                 "data_columns": Seq(DataColumnValidator()),
-                "ignore_points": FixedSeq([Int(), Int()])
+                Optional("ignore_points"): FixedSeq([Int(), Int()])
             })
             try:
                 raw_spline_config = load(yaml_file.read(), schema)

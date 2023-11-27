@@ -209,17 +209,17 @@ def spline_shape_metric(
         hasn't been implemented.
     """
 
-    if metric == SplineShapesEnum.CURVATURE.value:
+    if metric == SplineShapesEnum.CURVATURE:
         message = "Regular curvature index hasn't been implemented yet."
         message += " Did you mean modified_curvature?"
         raise NotImplementedError(message)
 
-    if metric == SplineShapesEnum.PROCRUSTES.value:
+    if metric == SplineShapesEnum.PROCRUSTES:
         message = "Procrustes analysis hasn't been fully implemented yet."
         message += " Passing reference shape in hasn't been implemented."
         raise NotImplementedError(message)
 
-    if metric == SplineShapesEnum.FOURIER.value:
+    if metric == SplineShapesEnum.FOURIER:
         if data.shape[2] % 2 == 0:
             result = np.zeros((data.shape[0], 3, int((data.shape[2]/2)+1)))
         else:
@@ -230,7 +230,7 @@ def spline_shape_metric(
         _logger.debug("%s: Calculated %s", notice_base, metric)
         return result
 
-    if metric == SplineShapesEnum.MODIFIED_CURVATURE.value:
+    if metric == SplineShapesEnum.MODIFIED_CURVATURE:
         result = np.zeros(data.shape[0])
         for i in range(data.shape[0]):
             result[i] = modified_curvature_index(data[i, :])

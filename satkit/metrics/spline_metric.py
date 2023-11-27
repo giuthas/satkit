@@ -102,30 +102,16 @@ class SplineMetricParameters(ModalityMetaData):
         is not yet supported.
     """
     parent_name: str
-    metric: str = 'l2'
+    metric: SplineMetricEnum = SplineDiffsEnum.MPBPD
     timestep: PositiveInt = 1
     release_data_memory: bool = False
-    exclude_points: tuple[int] = (0, 0)
+    exclude_points: Optional[tuple[int]] = None
 
 
 class SplineMetric(Modality):
     """
     Represent a SplineMetric as a Modality. 
     """
-
-    accepted_metrics = [
-        'l1',
-        'l2',
-        'l3',
-        'l4',
-        'l5',
-        'l6',
-        'l7',
-        'l8',
-        'l9',
-        'l10',
-        'inf',
-    ]
 
     @staticmethod
     def generate_name(params: SplineMetricParameters) -> str:
@@ -151,7 +137,7 @@ class SplineMetric(Modality):
         str
             Name of the SplineMetric instance.
         """
-        name_string = 'SplineMetric' + " " + params.metric
+        name_string = 'SplineMetric' + " " + params.metric.value
 
         if params.timestep != 1 and params.metric not in SplineShapesEnum:
             name_string = name_string + " ts" + str(params.timestep)
@@ -164,7 +150,7 @@ class SplineMetric(Modality):
     @staticmethod
     def get_names_and_meta(
         modality: Modality,
-        norms: list[str] = None,
+        metrics: list[str] = None,
         timesteps: list[int] = None,
         release_data_memory: bool = False
     ) -> dict[str: SplineMetricParameters]:
@@ -179,8 +165,8 @@ class SplineMetric(Modality):
         ----------
         modality : Modality
             parent modality that SplineMetric would be derived from
-        norms : List[str], optional
-            list of norms to be calculated, defaults to 'l2'.
+        metrics : List[str], optional
+            list of metrics to be calculated, defaults to 'l2'.
         timesteps : List[int], optional
             list of timesteps to be used, defaults to 1.
         release_data_memory: bool
@@ -195,14 +181,14 @@ class SplineMetric(Modality):
         """
         parent_name = modality.__name__
 
-        if not norms:
-            norms = ['l2']
+        if not metrics:
+            metrics = SplineDiffsEnum.MPBPD
         if not timesteps:
             timesteps = [1]
 
         param_dict = {
             'parent_name': [parent_name],
-            'metric': norms,
+            'metric': metrics,
             'timestep': timesteps,
             'release_data_memory': [release_data_memory]}
 
@@ -257,9 +243,9 @@ class SplineMetric(Modality):
         """
         Calculate the SplineMetric on the data of the parent Modality.
         """
-        raise NotImplementedError(
-            "Currently SplineMetric Modalities have to be "
-            "calculated at instantiation time.")
+        message = ("Currently SplineMetric Modalities have to be "
+                   "calculated at instantiation time. In: " + self.name)
+        raise NotImplementedError(message)
 
     def get_meta(self) -> dict:
         # This conversion is done to keep nestedtext working.

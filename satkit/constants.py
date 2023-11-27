@@ -109,12 +109,12 @@ class SplineMetaColumn(Enum):
 
 
 @dataclass(frozen=True)
-class SatkitImportConfigFile:
+class SatkitConfigFile:
     """
     Human written yaml files to control importing data.
     """
-    SESSION = 'session_import_config.yaml'
-    SPLINE = 'spline_import_config.yaml'
+    SESSION = 'session_config.yaml'
+    SPLINE = 'spline_config.yaml'
 
 
 @dataclass(frozen=True)

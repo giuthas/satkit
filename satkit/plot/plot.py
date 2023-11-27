@@ -352,14 +352,23 @@ def plot_spline(
     display_points : bool, optional
         should the spline control points be drawn, by default False
     """
+    solid_data = data
     if limits:
         if limits[1] == 0:
-            data = data[:, limits[0]:]
+            solid_data = data[:, limits[0]:]
         else:
-            data = data[:, limits[0]:-limits[1]]
+            solid_data = data[:, limits[0]:-limits[1]]
 
     if display_line:
-        interp_result = interpolate.splprep(data, s=0)
+        if limits:
+            interp_result = interpolate.splprep(data, s=0)
+            tck = interp_result[0]
+            interpolation_points = np.arange(0, 1.01, 0.01)
+            interpolated_spline = interpolate.splev(interpolation_points, tck)
+            ax.plot(interpolated_spline[0],
+                    -interpolated_spline[1], color='orange', linewidth=1, alpha=.5)
+
+        interp_result = interpolate.splprep(solid_data, s=0)
         tck = interp_result[0]
         interpolation_points = np.arange(0, 1.01, 0.01)
         interpolated_spline = interpolate.splev(interpolation_points, tck)

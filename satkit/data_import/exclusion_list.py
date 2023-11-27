@@ -43,10 +43,9 @@ from typing import Union
 from strictyaml import (Map, Optional, Seq, Str,
                         YAMLError, load)
 
+from satkit.configuration import ExclusionList
 from satkit.constants import SatkitSuffix, SourceSuffix
 from satkit.data_structures import Recording
-
-from .configuration_classes import ExclusionList
 
 
 _logger = logging.getLogger('satkit.configuration')

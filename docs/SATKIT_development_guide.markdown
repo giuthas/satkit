@@ -105,6 +105,7 @@ A release of SATKIT is created as follows:
    - Rerun doc generation if there were any changes.
 8. Merge release branch to `main`.
 9. Tag the commit in main with the release title ('vX.Y.Z'), delete the now
-   defunct release branch, if any commits were made to the release branch,
+   defunct release branch (`git push -d <remote_name> <branchname>` and
+   `git branch -d <branchname`), if any commits were made to the release branch,
    merge `main` into `devel`.
 10. Announce the release.

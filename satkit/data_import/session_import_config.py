@@ -71,12 +71,18 @@ class DatasourceValidator(ScalarValidator):
             return None
 
 
-def make_session_config(raw_config: dict) -> tuple[PathStructure, SessionConfig]:
+def make_session_config(
+        data_root: Path,
+        raw_config: dict) -> tuple[PathStructure, SessionConfig]:
     """
     Parse needed fields and create the new SessionImportConfig.
 
     Parameters
     ----------
+    data_root : Path
+        Path to the root directory for the data. If all data is in the same
+        directory, this is that directory. Otherwise this is the deepest common
+        path among data types.
     raw_config : dict
         The raw config read from a yaml file.
 
@@ -85,6 +91,8 @@ def make_session_config(raw_config: dict) -> tuple[PathStructure, SessionConfig]
     tuple[PathStructure, SessionConfig]
         A tuple of PathStructure and SessionConfig
     """
+    raw_config['paths']['root'] = data_root
+
     paths = PathStructure(**raw_config['paths'])
     raw_config.pop('paths', None)
 
@@ -100,12 +108,17 @@ def make_session_config(raw_config: dict) -> tuple[PathStructure, SessionConfig]
 
 
 def load_session_config(
+        data_root: Path,
         filepath: Union[Path, str]) -> tuple[PathStructure, SessionConfig]:
     """
     Read a Sesssion config file from filepath.
 
     Parameters
     ----------
+    data_root : Path
+        Path to the root directory for the data. If all data is in the same
+        directory, this is that directory. Otherwise this is the deepest common
+        path among data types.
     filepath : Union[Path, str]
         Path or str to the Session import configuration file.
 
@@ -122,7 +135,6 @@ def load_session_config(
             schema = Map({
                 "data_source": DatasourceValidator(),
                 "paths": Map({
-                    "root": PathValidator(),
                     Optional("wav"): PathValidator(),
                     Optional("textgrid"): PathValidator(),
                     Optional("ultrasound"): PathValidator(),
@@ -142,4 +154,4 @@ def load_session_config(
         _logger.warning(
             "Didn't find Session import configuration at %s.", str(filepath))
 
-    return make_session_config(raw_session_import_config.data)
+    return make_session_config(data_root, raw_session_import_config.data)

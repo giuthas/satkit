@@ -107,7 +107,7 @@ def read_recording_session_from_dir(
         return load_recording_session(path, session_config_path)
 
     if session_config_path.is_file():
-        paths, session_config = load_session_config(session_config_path)
+        paths, session_config = load_session_config(path, session_config_path)
 
         if session_config.data_source == Datasource.AAA:
 

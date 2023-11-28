@@ -442,11 +442,11 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
             l1.data, ultra_time, self.xlim, ylim, color='yellowgreen',
             normalise=Normalisation('PEAK AND BOTTOM'),
             find_peaks=False)
-        annd_line = plot_timeseries(
-            self.data_axes[0],
-            annd.data, annd_time, self.xlim, ylim, color='blue',
-            normalise=Normalisation('PEAK AND BOTTOM'),
-            find_peaks=False)
+        # annd_line = plot_timeseries(
+        #     self.data_axes[0],
+        #     annd.data, annd_time, self.xlim, ylim, color='blue',
+        #     normalise=Normalisation('PEAK AND BOTTOM'),
+        #     find_peaks=False)
         mpbpd_line = plot_timeseries(
             self.data_axes[0],
             mpbpd.data, annd_time, self.xlim, ylim, color='orange',
@@ -473,20 +473,20 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
         #     ultra_time, self.xlim, ylim, color='black',
         #     normalise=Normalisation('PEAK'))
         self.data_axes[0].set_ylabel("Pixel difference (PD)")
-        # self.data_axes[0].legend(
-        #     (
-        #         #raw_l0, raw_l0_01,
-        #         # raw_l0_1, raw_l0_5,
-        #         raw_l1, raw_l1_bottom, raw_l1_top
-        #     ),
-        #     # , interp, interp_top, interp_bottom),
-        #     (
-        #         # 'l0', 'l0.01',
-        #         # 'l0.1', 'l0.5',
-        #         'l1 whole', 'l1 bottom', 'l1 top'
-        #     ),
-        #     #, 'Interpolated', 'Interpolated top', 'Interpolated bottom'),
-        #     loc='upper right')
+        self.data_axes[0].legend(
+            (
+                # raw_l0, raw_l0_01,
+                # raw_l0_1, raw_l0_5,
+                raw_l1, mpbpd_line, curvature_line, fourier_line
+            ),
+            # , interp, interp_top, interp_bottom),
+            (
+                # 'l0', 'l0.01',
+                # 'l0.1', 'l0.5',
+                'PD l1', 'mpbpd', 'mci', 'fft real1'
+            ),
+            # , 'Interpolated', 'Interpolated top', 'Interpolated bottom'),
+            loc='upper right')
 
         # raw_l1 = plot_timeseries(self.data_axes[1], l1.data,
         #     ultra_time, self.xlim, ylim, color='gray', linestyle=':',

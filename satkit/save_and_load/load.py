@@ -214,7 +214,7 @@ def load_recording_session(
     Parameters
     ----------
     directory: Path
-        The directory path.
+        Root directory of the data.
 
     Returns
     -------
@@ -234,7 +234,8 @@ def load_recording_session(
     meta = RecordingSessionLoadSchema.model_validate(raw_input)
 
     if session_config_path.is_file():
-        paths, session_config = load_session_config(session_config_path)
+        paths, session_config = load_session_config(
+            directory, session_config_path)
     else:
         paths = PathStructure(root=directory)
         session_config = SessionConfig(data_source=meta.parameters.datasource)

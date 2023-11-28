@@ -149,8 +149,8 @@ def load_spline_config(
             schema = Map({
                 "import_config": Map({
                     "single_spline_file": Bool(),
-                    "spline_file": PathValidator(),
-                    "spline_file_extension": Str(),
+                    Optional("spline_file"): PathValidator(),
+                    Optional("spline_file_extension"): Str(),
                     "headers": Bool(),
                     "delimiter": Str(),
                     "coordinates": CoordinateSystemValidator(),

@@ -3,9 +3,9 @@ data_source: AAA
 
 # Paths to data, metadata and instructions.
 paths:
-  # This is where we read the data and metadata from. Leave the data type specific
-  # directories empty if everything is in one directory.
-  root: spline_test_token1
+  # This is where we read the data and metadata from. Leave the data type
+  # specific directories empty if everything is in one directory. Dataset's
+  # root directory is determined at run time .
   wav:
   textgrid: 
   ultrasound:

@@ -302,7 +302,8 @@ def add_splines(
             add_splines_from_batch_export(
                 recording_list, spline_config.import_config)
         else:
-            add_splines_from_individual_files(recording_list, spline_config)
+            add_splines_from_individual_files(
+                recording_list, spline_config.import_config)
     else:
         _AAA_spline_logger.info(
             "Did not find spline import config file at %s.",

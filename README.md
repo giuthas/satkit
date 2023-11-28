@@ -241,9 +241,12 @@ BY-NC-SA 4.0) License. See link above or
 
 When using any part of SATKIT, please cite:
 
-1. Faytak, M., Moisik, S. & Palo, P. (2020): The Speech Articulation
-Toolkit (SATKit): Ultrasound image analysis in Python.
-In ISSP 2020, Online (planned as Providence, Rhode Island)
+1. Palo, P., Moisik, S. R., and Faytak, M. (2023). “Analysing Speech Data with
+SATKIT”. In: International Conference of Phonetic Sciences (ICPhS 2023).
+Prague.
+2. Faytak, M., Moisik, S. & Palo, P. (2020): The Speech Articulation Toolkit
+(SATKit): Ultrasound image analysis in Python. In ISSP 2020, Online (planned as
+Providence, Rhode Island)
 
 When making use of the Optic Flow code, please cite:
 

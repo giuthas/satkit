@@ -65,7 +65,7 @@ from satkit.plot.plot import plot_density, plot_spline
 from satkit.plot import (Normalisation, plot_satgrid_tier, plot_spectrogram,
                          plot_timeseries, plot_wav)
 from satkit.save_and_load import (
-    save_recordings, save_recording_session, load_recording_session)
+    save_recording_session, load_recording_session)
 from satkit.ui_callbacks import UiCallbacks
 
 # Load the GUI layout generated with QtDesigner.
@@ -353,7 +353,7 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
         audio = self.current.modalities['MonoAudio']
         stimulus_onset = audio.go_signal
         wav = audio.data
-        wav_time = (audio.timevector - stimulus_onset)
+        wav_time = audio.timevector - stimulus_onset
 
         # l0 = self.current.modalities['PD l0 on RawUltrasound']
         # l0_01 = self.current.modalities['PD l0.01 on RawUltrasound']
@@ -570,7 +570,9 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
 
         segment_line = None
         self.animators = []
-        for (name, tier), axis in zip(self.current.satgrid.items(), self.tier_axes, strict=True):
+        iterator = zip(self.current.satgrid.items(),
+                       self.tier_axes, strict=True)
+        for (name, tier), axis in iterator:
             boundaries_by_axis = []
             boundary_set, segment_line = plot_satgrid_tier(
                 axis, tier, time_offset=stimulus_onset, text_y=.5)
@@ -803,7 +805,8 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
             self, caption="Open file", directory='.',
             filter="SATKIT files (*.satkit_meta)")
         print(
-            f"Don't yet know how to open a file even though I know the name is {filename}.")
+            f"Don't yet know how to open a file "
+            f"even though I know the name is {filename}.")
 
     def save_all(self):
         """
@@ -818,7 +821,8 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
         """
         if not self.pickle_filename:
             (self.pickle_filename, _) = QFileDialog.getSaveFileName(
-                self, 'Save file', directory='.', filter="Pickle files (*.pickle)")
+                self, 'Save file', directory='.',
+                filter="Pickle files (*.pickle)")
         if self.pickle_filename:
             _logger.info(
                 "Pickling is currently disabled. Did NOT write file {file}.",
@@ -831,17 +835,18 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
 
     def save_textgrid(self):
         """
-        Save the recordings.
+        Save the current TextGrid.
         """
-        if not self.current._textgrid_path:
-            (self.current._textgrid_path, _) = QFileDialog.getSaveFileName(
+        # TODO 1.0: write a call back for asking for overwrite confirmation.
+        if not self.current.textgrid_path:
+            (self.current.textgrid_path, _) = QFileDialog.getSaveFileName(
                 self, 'Save file', directory='.',
                 filter="TextGrid files (*.TextGrid)")
-        if self.current._textgrid_path and self.current.satgrid:
-            with open(self.current._textgrid_path, 'w', encoding='utf-8') as outfile:
+        if self.current.textgrid_path and self.current.satgrid:
+            with open(self.current.textgrid_path, 'w', encoding='utf-8') as outfile:
                 outfile.write(self.current.satgrid.format_long())
             _logger.info(
-                "Wrote TextGrid to file %s.", str(self.current._textgrid_path))
+                "Wrote TextGrid to file %s.", str(self.current.textgrid_path))
 
     def export_figure(self):
         """
@@ -895,9 +900,10 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
                         if interval.text == "":
                             continue
 
-                        # Before 1.0: check if there is a duration to use here. and maybe make this
-                        # more intelligent by selecting purposefully the last non-empty first and
-                        # taking the duration?
+                        # Before 1.0: check if there is a duration to use here.
+                        # and maybe make this more intelligent by selecting
+                        # purposefully the last non-empty first and taking the
+                        # duration?
                         word_dur = interval.dur
                         stimulus_onset = recording.modalities['MonoAudio'].go_signal
                         acoustic_onset = interval.xmin - stimulus_onset
@@ -989,12 +995,17 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
 
         self.update()
 
-    def resizeEvent(self, event):
-        """Handle window being resized."""
+    def resize_event(self, event):
+        """
+        Window resize callback.
+        """
         self.update()
         QMainWindow.resizeEvent(self, event)
 
-    def keyPressEvent(self, event):
+    def key_press_event(self, event):
+        """
+        Key press callback.
+        """
         if event.key() == Qt.Key_Shift:
             self.shift_is_held = True
         if event.key() == Qt.Key_I:
@@ -1012,7 +1023,7 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
         elif event.key() == Qt.Key_O:
             gui_params['auto x'] = False
             center = (self.xlim[0] + self.xlim[1])/2.0
-            length = (self.xlim[1] - self.xlim[0])
+            length = self.xlim[1] - self.xlim[0]
             self.xlim = (center-length, center+length)
             if 'xlim' in gui_params:
                 gui_params['xlim'] = self.xlim
@@ -1023,7 +1034,10 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
         # else:
         #     print(event.key())
 
-    def keyReleaseEvent(self, event):
+    def key_release_event(self, event):
+        """
+        Key release callback.
+        """
         if event.key() == Qt.Key_Shift:
             self.shift_is_held = False
         # else:

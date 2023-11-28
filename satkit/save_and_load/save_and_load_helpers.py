@@ -29,6 +29,10 @@
 # articles listed in README.markdown. They can also be found in
 # citations.bib in BibTeX format.
 #
+"""
+Some general helpers and connectors for saving and loading.
+"""
+
 from datetime import datetime
 from pathlib import Path, PosixPath, WindowsPath
 from typing import Union

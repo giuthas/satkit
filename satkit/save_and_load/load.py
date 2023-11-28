@@ -92,7 +92,6 @@ def load_derived_modality(
     for key in meta.parameters:
         if meta.parameters[key] == 'None':
             meta.parameters[key] = None
-    ic(meta.parameters)
     parameters = paremeter_schema(**meta.parameters)
     modality = metric(recording=recording,
                       parsed_data=modality_data, parameters=parameters)

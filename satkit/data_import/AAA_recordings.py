@@ -29,6 +29,9 @@
 # articles listed in README.markdown. They can also be found in
 # citations.bib in BibTeX format.
 #
+"""
+Import data exported by AAA.
+"""
 
 # Built in packages
 import logging

@@ -29,6 +29,9 @@
 # articles listed in README.markdown. They can also be found in
 # citations.bib in BibTeX format.
 #
+"""
+SplineMetric and supporting classes.
+"""
 
 # Built in packages
 from enum import Enum

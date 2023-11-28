@@ -31,7 +31,7 @@ citations.bib in BibTeX format.
 -->
 # Speech Articulation ToolKIT - SATKIT
 
-![SATKIT GUI](SATKIT_UI.png)
+![SATKIT GUI](docs/SATKIT_UI.png)
 
 Tools for processing speech data. While currently these tools mainly work on
 tongue and larynx ultrasound as well as audio, in future, the toolkit will

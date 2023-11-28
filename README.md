@@ -207,7 +207,7 @@ Pixel Difference tools Copyright (C) 2019-2023 Pertti Palo
 
 Laryngeal example data Copyright (C) 2020 Scott Moisik
 
-Tongue Example data Copyright (C) 2013-2020 Pertti Palo
+Tongue and tongue spline example data Copyright (C) 2013-2020 Pertti Palo
 
 ### Program license
 

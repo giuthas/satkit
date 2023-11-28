@@ -9,7 +9,7 @@ First things first: write in good pythonic style.
 - [PEP 8](https://www.python.org/dev/peps/pep-0008/) outlines the general
   style.
   - Most of these guidelines can be followed automatically by using the
-    [autopep8](https://pypi.org/project/autopep8/) and pylint packages to
+    [autopep8](https://pypi.org/project/autopep8/) and Pylint packages to
     format code.
 - [PEP 257](https://www.python.org/dev/peps/pep-0257/) talks about conventions
   for docstrings. In addition we might do the following:
@@ -36,8 +36,8 @@ In Python a module is -- [roughly
 speaking](https://docs.python.org/3/reference/import.html#packages) -- any .py
 file and a regular package is a directory that contains a `__init__.py` file
 and possibly some other `.py` files. In SATKIT `__init__.py` files are used for
-two purposes: Defineing the public API of the module and running any
-initialisation that is needed. For an example have a look at
+two purposes: Defining the public API of the module and running any
+initialization that is needed. For an example have a look at
 `satkit/__init__.py`.
 
 ## Versioning
@@ -61,13 +61,13 @@ doing something else). This means we have the following kinds of branches:
 - `devel` is the main development branch. New features are added by branching
   from devel, working on the feature branch, and merging back to devel before
   creating a release branch that will be merged in to main to do the actual
-  realease.
+  release.
 - Feature branches are used to develop a major feature. They may have
   subbranches as needed.
 - Release branches are branched from `devel` when all of the features for a
   release have been implemented and merged back to `devel`. After creating the
   release branch, `main` is merged in to the release branch and any problems
-  ironed out before creating the actual release by mergin into main. If any
+  ironed out before creating the actual release by merging into main. If any
   commits need to be made before merging into `main`, a merge back to `devel`
   needs to also be done.
 - Hotfix branches can be branched off of any branch, but especially if branched
@@ -84,21 +84,23 @@ A release of SATKIT is created as follows:
    moved to the next release's roadmap.
    - This applies from version 1.0. Before that the roadmap is for 1.0 and
      minor releases are done when significant parts have been updated without
-     fullfilling all of the promises in the roadmap.
+     fulfilling all of the promises in the roadmap.
    - This is done in the `devel` branch.
-2. Create a new release candidate branch named 'vX.Y.Z' e.g. 'v0.7.0' from the
+2. Update [Release notes](Release_notes.markdown).
+3. Create a new release candidate branch named 'vX.Y.Z' e.g. 'v0.7.0' from the
    `devel` branch.
-3. Merge `main` to the release branch (not the other way around).
-4. Check that conda environments are up to date. It is especially possible that
+4. Merge `main` to the release branch (not the other way around).
+5. Check that conda environments are up to date. It is especially possible that
    satkit-stable is neither up to date with satkit-devel, nor tested.
    - While we are in the time before 1.0, satkit-stable most likely does not
      work.
-5. Run tests.
+6. Run tests.
    - These don't exist yet at the time of SATKIT 0.8.0.
-6. Fix any bugs that occur, run tests see that they pass, update the release
+7. Fix any bugs that occur, run tests see that they pass, update the release
    notes.
-7. Merge release branch to `main`.
-8. Tag the commit in main with the release title ('vX.Y.Z'), delete the now
+   - Check if [Release notes](Release_notes.markdown) need any final updates.
+8. Merge release branch to `main`.
+9. Tag the commit in main with the release title ('vX.Y.Z'), delete the now
    defunct release branch, if any commits were made to the release branch,
    merge `main` into `devel`.
-9. Announce the release.
+10. Announce the release.

@@ -7,5 +7,5 @@ parameters:
     timestep: 3
     release_data_memory: False
     exclude_points:
-        - 10
-        - 4
+        - 11
+        - 0

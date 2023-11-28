@@ -6,7 +6,7 @@ parameters:
     time_of_recording: 2015-01-16 14:39:09
     participant_id:
     basename: File156
-    path: spline_test_token2
+    path: spline_test_token3
 modalities:
     MonoAudio:
         data_name: File156.wav
@@ -35,3 +35,9 @@ modalities:
     SplineMetric mpbpd ts3 on Splines:
         data_name: File156.SplineMetric_mpbpd_ts3_on_Splines.npz
         meta_name: File156.SplineMetric_mpbpd_ts3_on_Splines.satkit_meta
+    SplineMetric modified_curvature on Splines:
+        data_name: File156.SplineMetric_modified_curvature_on_Splines.npz
+        meta_name: File156.SplineMetric_modified_curvature_on_Splines.satkit_meta
+    SplineMetric fourier on Splines:
+        data_name: File156.SplineMetric_fourier_on_Splines.npz
+        meta_name: File156.SplineMetric_fourier_on_Splines.satkit_meta

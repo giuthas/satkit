@@ -81,13 +81,20 @@ A release of SATKIT is created as follows:
 1. If doing a major or minor release (first or second version number
    increments), check that all features in the the current roadmap are either
    done (implemented and merged to `devel`), or that all undone features are
-   moved to the next release's roadmap. This is done in the `devel` branch.
-2. Create a new release candidate branch named 'vX.Y.Z' e.g. 'v0.7.0'.
+   moved to the next release's roadmap.
+   - This applies from version 1.0. Before that the roadmap is for 1.0 and
+     minor releases are done when significant parts have been updated without
+     fullfilling all of the promises in the roadmap.
+   - This is done in the `devel` branch.
+2. Create a new release candidate branch named 'vX.Y.Z' e.g. 'v0.7.0' from the
+   `devel` branch.
 3. Merge `main` to the release branch (not the other way around).
 4. Check that conda environments are up to date. It is especially possible that
    satkit-stable is neither up to date with satkit-devel, nor tested.
+   - While we are in the time before 1.0, satkit-stable most likely does not
+     work.
 5. Run tests.
-   - These don't exist yet at time of SATKIT 0.7.0.
+   - These don't exist yet at the time of SATKIT 0.8.0.
 6. Fix any bugs that occur, run tests see that they pass, update the release
    notes.
 7. Merge release branch to `main`.

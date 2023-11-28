@@ -86,7 +86,10 @@ A release of SATKIT is created as follows:
      minor releases are done when significant parts have been updated without
      fulfilling all of the promises in the roadmap.
    - This is done in the `devel` branch.
-2. Update [Release notes](Release_notes.markdown).
+2. Update documentation
+   - [Release notes](Release_notes.markdown)
+   - [Generated documentation](devel/doc_generation_commands)
+   - [License headers](devel/licenseheaders_command)
 3. Create a new release candidate branch named 'vX.Y.Z' e.g. 'v0.7.0' from the
    `devel` branch.
 4. Merge `main` to the release branch (not the other way around).
@@ -99,6 +102,7 @@ A release of SATKIT is created as follows:
 7. Fix any bugs that occur, run tests see that they pass, update the release
    notes.
    - Check if [Release notes](Release_notes.markdown) need any final updates.
+   - Rerun doc generation if there were any changes.
 8. Merge release branch to `main`.
 9. Tag the commit in main with the release title ('vX.Y.Z'), delete the now
    defunct release branch, if any commits were made to the release branch,

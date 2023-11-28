@@ -29,6 +29,9 @@
 # articles listed in README.markdown. They can also be found in
 # citations.bib in BibTeX format.
 #
+"""
+Functions for producing spline metrics.
+"""
 
 import logging
 from typing import Optional
@@ -212,14 +215,16 @@ def calculate_spline_metric(
         _logger.debug(
             "Calculating spline metric %s.", metric)
 
-        timestep = param_set.timestep
+        data = splines.in_cartesian
         if param_set.exclude_points:
             exclude_points = param_set.exclude_points
-            data = splines.in_cartesian[:, :,
-                                        exclude_points[0]:-exclude_points[1]]
-        else:
-            data = splines.in_cartesian
+            if exclude_points[1] == 0:
+                data = data[:, :, exclude_points[0]:]
+            else:
+                data = data[:, :,
+                            exclude_points[0]:-exclude_points[1]]
 
+        timestep = param_set.timestep
         time_points = data.shape[0] - timestep
 
         if metric in SplineDiffsEnum:
@@ -259,6 +264,7 @@ def add_spline_metric(recording: Recording,
                       preload: bool = True,
                       metrics: Optional[list[str]] = None,
                       timesteps: Optional[list[int]] = None,
+                      exclude_points: Optional[tuple[int, int]] = None,
                       release_data_memory: bool = True) -> None:
     """
     Calculate missing spline metrics and add them to the recording.
@@ -294,7 +300,7 @@ def add_spline_metric(recording: Recording,
                      splines.__name__, recording.basename)
     else:
         all_requested = SplineMetric.get_names_and_meta(
-            splines, metrics, timesteps, release_data_memory)
+            splines, metrics, timesteps, exclude_points, release_data_memory)
         missing_keys = set(all_requested).difference(
             recording.modalities.keys())
         to_be_computed = dict((key, value)

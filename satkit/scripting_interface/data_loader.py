@@ -29,13 +29,13 @@
 # articles listed in README.markdown. They can also be found in
 # citations.bib in BibTeX format.
 #
+
 import logging
 from pathlib import Path
-from typing import Optional
 
 from satkit.audio_processing import MainsFilter
 from satkit.configuration import (
-    config_dict, data_run_params, PathStructure, SessionConfig)
+    config_dict, PathStructure, SessionConfig)
 from satkit.constants import (
     Datasource, SourceSuffix, SatkitSuffix, SatkitConfigFile)
 from satkit.data_import import (
@@ -49,8 +49,7 @@ logger = logging.getLogger('satkit.scripting')
 # appropriete submodule.
 
 
-def load_data(
-        path: Path, exclusion_file: Optional[Path] = None) -> RecordingSession:
+def load_data(path: Path) -> RecordingSession:
     """
     Handle loading data from individual files or a previously saved session.
 
@@ -58,19 +57,12 @@ def load_data(
     ----------
     path : Path
         Directory or SATKIT metafile to read the RecordingSession from.
-    exclusion_file : Optional[Path], optional
-        Path to an optional exclusion list, by default None
 
     Returns
     -------
     RecordingSession
         The generated RecordingSession object with the exclusion list applied.
     """
-    # TODO: this seems like a potentially problematic way of setting the
-    # exclusion file without any verification.
-    if exclusion_file:
-        data_run_params['data properties']['exclusion list'] = exclusion_file
-
     if config_dict['mains frequency']:
         MainsFilter.generate_mains_filter(
             44100,
@@ -112,7 +104,7 @@ def read_recording_session_from_dir(
     session_meta_path = path / (containing_dir + '.RecordingSession' +
                                 SatkitSuffix.META)
     if session_meta_path.is_file():
-        return load_recording_session(directory=path)
+        return load_recording_session(path, session_config_path)
 
     if session_config_path.is_file():
         paths, session_config = load_session_config(session_config_path)

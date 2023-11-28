@@ -59,12 +59,7 @@ def main():
 
     logger = set_logging_level(cli.args.verbose)
 
-    if cli.args.exclusion_filename:
-        recording_session = load_data(
-            Path(cli.args.load_path),
-            Path(cli.args.exclusion_filename))
-    else:
-        recording_session = load_data(Path(cli.args.load_path), None)
+    recording_session = load_data(Path(cli.args.load_path))
 
     log_elapsed_time()
 
@@ -78,9 +73,10 @@ def main():
         'release_data_memory': True,
         'preload': True}
 
-    annd_arguments = {
+    spline_metric_arguments = {
         'metrics': ['annd', 'mpbpd', 'modified_curvature', 'fourier'],
         'timesteps': [3],
+        'exclude_points': recording_session.config.spline_config.data_config.ignore_points,
         'release_data_memory': False,
         'preload': True}
 
@@ -90,7 +86,7 @@ def main():
                pd_arguments),
         'SplineMetric': (add_spline_metric,
                          [Splines],
-                         annd_arguments)  # ,
+                         spline_metric_arguments)  # ,
         # 'peaks': (peaks.time_series_peaks,
         # [RawUltrasound],
         # TODO: figure out if this will actually work because this should be

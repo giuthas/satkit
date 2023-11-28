@@ -29,6 +29,9 @@
 # articles listed in README.markdown. They can also be found in
 # citations.bib in BibTeX format.
 #
+"""
+Functions for loading previously saved/seen data.
+"""
 
 import logging
 from pathlib import Path
@@ -38,9 +41,10 @@ import numpy as np
 import nestedtext
 from icecream import ic
 
-from satkit.constants import SatkitSuffix
-from satkit.data_import import modality_adders
-from satkit.data_import.AAA_splines import add_splines
+from satkit.configuration import PathStructure, SessionConfig
+from satkit.constants import SatkitConfigFile, SatkitSuffix
+from satkit.data_import import (
+    modality_adders, add_splines, load_session_config)
 from satkit.data_structures import ModalityData, Recording, RecordingSession
 from satkit.metrics import metrics
 
@@ -88,6 +92,7 @@ def load_derived_modality(
     for key in meta.parameters:
         if meta.parameters[key] == 'None':
             meta.parameters[key] = None
+    ic(meta.parameters)
     parameters = paremeter_schema(**meta.parameters)
     modality = metric(recording=recording,
                       parsed_data=modality_data, parameters=parameters)
@@ -200,7 +205,10 @@ def load_recordings(directory: Path, recording_metafiles: Optional
     return recordings
 
 
-def load_recording_session(directory: Union[Path, str]) -> RecordingSession:
+def load_recording_session(
+    directory: Union[Path, str],
+    session_config_path: Optional[Path] = None
+) -> RecordingSession:
     """
     Load a recording session from a directory.
 
@@ -217,17 +225,26 @@ def load_recording_session(directory: Union[Path, str]) -> RecordingSession:
     if isinstance(directory, str):
         directory = Path(directory)
 
+    if not session_config_path:
+        session_config_path = directory / SatkitConfigFile.SESSION
+
     filename = f"{directory.parts[-1]}{'.RecordingSession'}{SatkitSuffix.META}"
     filepath = directory/filename
 
     raw_input = nestedtext.load(filepath)
     meta = RecordingSessionLoadSchema.model_validate(raw_input)
 
+    if session_config_path.is_file():
+        paths, session_config = load_session_config(session_config_path)
+    else:
+        paths = PathStructure(root=directory)
+        session_config = SessionConfig(data_source=meta.parameters.datasource)
+
     recordings = load_recordings(directory, meta.recordings)
 
-    # TODO: See read_recording_session_from_dir for how to do this.
     session = RecordingSession(
-        name=meta.name, path=meta.parameters.path,
-        datasource=meta.parameters.datasource, recordings=recordings)
+        name=meta.name, paths=paths,
+        config=session_config,
+        recordings=recordings)
 
     return session

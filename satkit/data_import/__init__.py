@@ -29,6 +29,9 @@
 # articles listed in README.markdown. They can also be found in
 # citations.bib in BibTeX format.
 #
+"""
+Data and metadata importing.
+"""
 
 from .AAA_recordings import (generate_aaa_recording_list,
                              generate_ultrasound_recording)
@@ -49,6 +52,9 @@ from .AAA_splines import add_splines
 modality_adders = {
     'MonoAudio': add_audio,
     'RawUltrasound': add_aaa_raw_ultrasound,
+    # This does not belong here because splines maybe in a
+    # single file for many recordings.
+    # 'Splines': add_splines,
     'ThreeD_Ultrasound': add_rasl_3D_ultrasound,
     'Video': add_video
 }

@@ -48,7 +48,16 @@ from satkit.helpers.processing_helpers import product_dict
 _logger = logging.getLogger('satkit.spline_metric')
 
 
-class SplineDiffsEnum(Enum, metaclass=ValueComparedEnumMeta):
+class PrintableEnum(Enum):
+    """
+    Extension of the regular Enum that returns its value as a string.
+    """
+
+    def __str__(self) -> str:
+        return str(self.value)
+
+
+class SplineDiffsEnum(PrintableEnum, metaclass=ValueComparedEnumMeta):
     """
     Spline metrics that use distance between corresponding points.
     """
@@ -58,7 +67,7 @@ class SplineDiffsEnum(Enum, metaclass=ValueComparedEnumMeta):
     SPLINE_L2 = 'spline_l2'
 
 
-class SplineNNDsEnum(Enum, metaclass=ValueComparedEnumMeta):
+class SplineNNDsEnum(PrintableEnum, metaclass=ValueComparedEnumMeta):
     """
     Spline metrics that use nearest neighbour distance.
     """
@@ -66,7 +75,7 @@ class SplineNNDsEnum(Enum, metaclass=ValueComparedEnumMeta):
     MNND = 'mnnd'
 
 
-class SplineShapesEnum(Enum, metaclass=ValueComparedEnumMeta):
+class SplineShapesEnum(PrintableEnum, metaclass=ValueComparedEnumMeta):
     """
     Spline metrics that characterise shape.
     """
@@ -105,7 +114,7 @@ class SplineMetricParameters(ModalityMetaData):
     metric: SplineMetricEnum = SplineDiffsEnum.MPBPD
     timestep: PositiveInt = 1
     release_data_memory: bool = False
-    exclude_points: Optional[tuple[int]] = None
+    exclude_points: Optional[tuple[int, int]] = None
 
 
 class SplineMetric(Modality):
@@ -152,6 +161,7 @@ class SplineMetric(Modality):
         modality: Modality,
         metrics: list[str] = None,
         timesteps: list[int] = None,
+        exclude_points: tuple[int, int] = None,
         release_data_memory: bool = False
     ) -> dict[str: SplineMetricParameters]:
         """
@@ -190,6 +200,7 @@ class SplineMetric(Modality):
             'parent_name': [parent_name],
             'metric': metrics,
             'timestep': timesteps,
+            'exclude_points': [exclude_points],
             'release_data_memory': [release_data_memory]}
 
         spline_metric_params = [SplineMetricParameters(**item)

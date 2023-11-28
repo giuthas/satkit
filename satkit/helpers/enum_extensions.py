@@ -78,6 +78,7 @@ class ValueComparedEnumMeta(EnumMeta):
         if item in values or item in members:
             return True
         return False
+
         # This was originally used above but use of cls like this
         # does not make the linter happy and so above solution seems
         # preferable.

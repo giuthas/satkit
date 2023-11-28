@@ -486,7 +486,7 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
                 'PD l1', 'mpbpd', 'mci', 'fft real1'
             ),
             # , 'Interpolated', 'Interpolated top', 'Interpolated bottom'),
-            loc='upper right')
+            loc='upper left')
 
         # raw_l1 = plot_timeseries(self.data_axes[1], l1.data,
         #     ultra_time, self.xlim, ylim, color='gray', linestyle=':',
@@ -1002,9 +1002,11 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
         self.update()
         QMainWindow.resizeEvent(self, event)
 
-    def key_press_event(self, event):
+    def keyPressEvent(self, event):
         """
         Key press callback.
+
+        QtPy is silly and wants the callback to have this specific name.
         """
         if event.key() == Qt.Key_Shift:
             self.shift_is_held = True
@@ -1034,9 +1036,11 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
         # else:
         #     print(event.key())
 
-    def key_release_event(self, event):
+    def keyReleaseEvent(self, event):
         """
         Key release callback.
+
+        QtPy is silly and wants the callback to have this specific name.
         """
         if event.key() == Qt.Key_Shift:
             self.shift_is_held = False

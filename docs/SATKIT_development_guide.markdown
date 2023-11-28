@@ -86,10 +86,12 @@ A release of SATKIT is created as follows:
      minor releases are done when significant parts have been updated without
      fulfilling all of the promises in the roadmap.
    - This is done in the `devel` branch.
-2. Update documentation
+2. Update documentation and version numbers
    - [Release notes](Release_notes.markdown)
    - [Generated documentation](devel/doc_generation_commands)
    - [License headers](devel/licenseheaders_command)
+   - Version number lives in at least README.md and constants.py. File version
+     number will be different from program version number after 1.0.
 3. Create a new release candidate branch named 'vX.Y.Z' e.g. 'v0.7.0' from the
    `devel` branch.
 4. Merge `main` to the release branch (not the other way around).

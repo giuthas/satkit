@@ -1,5 +1,22 @@
 # SATKIT Release Notes
 
+## Version 0.8.0
+
+- Splines
+  - Spline loading from AAA export files.
+  - Several spline metrics now work and can be displayed.
+  - Splines can be displayed on the ultrasound frame.
+- Some updates to clean the code in general.
+
+Known issues:
+
+- Same as in 0.7.0. plus
+- Synchronising spline metrics and splines with ultrasound is currently
+  unreliable. This is because the timestamps in spline files have proven to
+  have either drift or just inaccuracies and testing why this is so is a job
+  for the future. This may eventually be solved just by matching splines with
+  ultrasound frames and reporting when that becomes too unreliable.
+
 ## Version 0.7.0
 
 - Saving and loading to/from native formats for derived Modalities.
@@ -19,5 +36,5 @@
 Known issues:
 
 - ctrl+'i' and ctrl+'a' zoom but ctrl+'o' is bound to opening a recording
-  session. The fix will be removing the first two binding which are
+  session. The fix will be removing the first two bindings which are
   unintentional.

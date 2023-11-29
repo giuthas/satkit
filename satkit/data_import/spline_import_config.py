@@ -29,21 +29,28 @@
 # articles listed in README.markdown. They can also be found in
 # citations.bib in BibTeX format.
 #
-from dataclasses import dataclass
-import sys
+"""
+How to load and validate spline import configuration files.
+"""
+
+import logging
 from contextlib import closing
 from pathlib import Path
-from typing import Optional, Union
+from typing import Union
 
-from strictyaml import (Bool, Map,
-                        ScalarValidator, Str, Seq,
-                        YAMLError, load)
-from satkit.configuration.configuration import PathValidator
+from strictyaml import (
+    Bool, Map, Optional, ScalarValidator, Str, Seq,
+    FixedSeq, Int, YAMLError, load)
 
-from satkit.constants import Coordinates, SplineDataColumn, SplineMetaColumn
+from satkit.configuration import (
+    PathValidator, SplineConfig, SplineDataConfig, SplineImportConfig)
+from satkit.constants import (
+    CoordinateSystems, SplineDataColumn, SplineMetaColumn)
+
+_logger = logging.getLogger('satkit.data_import')
 
 
-class CoordinatesValidator(ScalarValidator):
+class CoordinateSystemValidator(ScalarValidator):
     """
     Validate yaml representing a CoordinateType.
     """
@@ -51,9 +58,9 @@ class CoordinatesValidator(ScalarValidator):
     def validate_scalar(self, chunk):
         if chunk.contents:
             try:
-                return Coordinates(chunk.contents)
+                return CoordinateSystems(chunk.contents)
             except ValueError:
-                values = [ct.value for ct in Coordinates]
+                values = [ct.value for ct in CoordinateSystems]
                 print(
                     f"Error. Only following values for coordinate types are"
                     f"recognised: {str(values)}")
@@ -100,33 +107,27 @@ class DataColumnValidator(ScalarValidator):
             return None
 
 
-@dataclass
-class SplineImportConfig:
+def make_spline_config(raw_config: dict) -> SplineConfig:
     """
-    Spline import csv file configuration.
+    Construct a SplineConfig out of a dict read by `load_spline_config`.
 
-    This describes how to interpret a csv file containing splines.
+    Parameters
+    ----------
+    raw_config : dict
+        The dict
+
+    Returns
+    -------
+    SplineConfig
+        The new SplineConfig.
     """
-    single_spline_file: bool
-    headers: bool
-    coordinates: Coordinates
-    interleaved_coords: bool
-    meta_columns: tuple(SplineMetaColumn)
-    data_columns: tuple(SplineDataColumn)
-    spline_file: Optional[Path]
-    spline_file_extension: Optional[str]
-    delimiter: Optional[str] = '\t'
-
-    def __post_init__(self):
-        """
-        Empty delimiter strings are replaced with a tabulator.
-        """
-        if not self.delimiter:
-            self.delimiter = '\t'
+    import_config = SplineImportConfig(**raw_config['import_config'])
+    data_config = SplineDataConfig(**raw_config['data_config'])
+    return SplineConfig(import_config, data_config)
 
 
-def load_spline_import_config(
-        filepath: Union[Path, str]) -> SplineImportConfig:
+def load_spline_config(
+        filepath: Union[Path, str]) -> SplineConfig:
     """
     Read a spline config file from filepath.
 
@@ -146,24 +147,31 @@ def load_spline_import_config(
     if filepath.is_file():
         with closing(open(filepath, 'r', encoding='utf-8')) as yaml_file:
             schema = Map({
-                "single_spline_file": Bool(),
-                "spline_file": PathValidator(),
-                "spline_file_extension": Str(),
-                "headers": Bool(),
-                "delimiter": Str(),
-                "coordinates": CoordinatesValidator(),
-                "interleaved_coords": Bool(),
-                "meta_columns": Seq(SplineMetaValidator()),
-                "data_columns": Seq(DataColumnValidator())
+                "import_config": Map({
+                    "single_spline_file": Bool(),
+                    Optional("spline_file"): PathValidator(),
+                    Optional("spline_file_extension"): Str(),
+                    "headers": Bool(),
+                    "delimiter": Str(),
+                    "coordinates": CoordinateSystemValidator(),
+                    "interleaved_coords": Bool(),
+                    "meta_columns": Seq(SplineMetaValidator()),
+                    "data_columns": Seq(DataColumnValidator())
+                }),
+                "data_config": Map({
+                    Optional("ignore_points"): FixedSeq([Int(), Int()])
+                })
             })
             try:
                 raw_spline_config = load(yaml_file.read(), schema)
             except YAMLError as error:
-                print(f"Fatal error in reading {filepath}:")
-                print(error)
-                sys.exit()
+                _logger.warning(
+                    "Could not read Spline configuration at %s.",
+                    str(filepath))
+                _logger.warning(str(error))
+                raise
     else:
-        print(f"Didn't find {filepath}. Exiting.".format(str(filepath)))
-        sys.exit()
+        _logger.warning(
+            "Didn't find Spline configuration at %s.", str(filepath))
 
-    return SplineImportConfig(**raw_spline_config.data)
+    return make_spline_config(raw_spline_config.data)

@@ -37,7 +37,6 @@ from typing import Optional, Tuple
 
 import numpy as np
 
-from icecream import ic
 from pydantic import PositiveInt
 
 from satkit.data_structures import (
@@ -48,9 +47,15 @@ _pd_logger = logging.getLogger('satkit.pd')
 
 
 class ImageMask(Enum):
-    top = "top"
-    bottom = "bottom"
-    whole = "whole"
+    """
+    Accepted image masking options in calculating PD.
+
+    If both imagemask and interpolated data are chosen, the masking will happen
+    before interpolation.
+    """
+    TOP = "top"
+    BOTTOM = "bottom"
+    WHOLE = "whole"
 
     def __str__(self):
         return self.value
@@ -62,6 +67,8 @@ class PdParameters(ModalityMetaData):
 
     Parameters
     ----------
+    parent_name: str
+        Name of the Modality this instance of PD was calculated on.
     metric : str
         A string specifying this Modality's metric. Defaults to the l1 norm.
     timestep : int 
@@ -154,7 +161,7 @@ class PD(Modality):
         release_data_memory: bool = True
     ) -> dict[str: PdParameters]:
         """
-        Generate PD modality names for checking if they already exist.
+        Generate PD modality names and metadata.
 
         This method will generate the full cartesian product of the possible
         combinations. If only some of them are needed, make more than one call
@@ -173,11 +180,15 @@ class PD(Modality):
             RawUltrasound, by default False
         mask_images : bool, optional
             indicates if images should be masked, by default False
+        release_data_memory: bool
+            Should parent Modlity's data be assigned to None after calculations
+            are complete, by default True.
 
         Returns
         -------
-        list[str]
-            Names that the calculated PD instances would have.
+        dict[str: PdParameters]
+            Dictionary where the names of the PD Modalities index the 
+            PdParameter objects.
         """
         parent_name = modality.__name__
 
@@ -224,8 +235,9 @@ class PD(Modality):
         parent -- the Modality this one was derived from. None means this 
             is an underived data Modality.
             If parent is None, it will be copied from dataModality.
-        parsed_data -- ModalityData object containing raw ultrasound, sampling rate,
-            and either timevector and/or time_offset. Providing a timevector 
+        parsed_data -- ModalityData object containing raw ultrasound, 
+            sampling rate, and either timevector and/or time_offset. Providing a 
+            timevector 
             overrides any time_offset value given, but in absence of a 
             timevector the time_offset will be applied on reading the data 
             from file. 
@@ -236,12 +248,10 @@ class PD(Modality):
         if not time_offset:
             if parsed_data:
                 time_offset = parsed_data.timevector[0]
-            elif parameters.parent_name:
-                time_offset = parameters.parent_name.time_offset
 
         super().__init__(
             recording,
-            meta_data=parameters,
+            metadata=parameters,
             data_path=None,
             load_path=load_path,
             meta_path=meta_path,
@@ -254,7 +264,8 @@ class PD(Modality):
         Calculate Pixel Difference (PD) on the data Modality parent.       
         """
         raise NotImplementedError(
-            "Currently PD Modalities have to be calculated at instantiation time.")
+            "Currently PD Modalities have to be "
+            "calculated at instantiation time.")
 
     def get_meta(self) -> dict:
         # This conversion is done to keep nestedtext working.
@@ -272,18 +283,4 @@ class PD(Modality):
 
         This overrides the default behaviour of Modality.name.
         """
-        # name_string = self.__class__.__name__ + " " + self.meta_data.metric
-
-        # if self.meta_data.timestep != 1:
-        #     name_string = name_string + " " + str(self.meta_data.timestep)
-
-        # if self.meta_data.image_mask:
-        #     name_string = name_string + " " + self.meta_data.image_mask.value
-
-        # if self.meta_data.interpolated and self.meta_data.parent_name:
-        #     name_string = ("Interpolated " + name_string + " on " +
-        #                    self.meta_data.parent_name)
-        # elif self.meta_data.parent_name:
-        #     name_string = name_string + " on " + self.meta_data.parent_name
-
         return PD.generate_name(self.meta_data)

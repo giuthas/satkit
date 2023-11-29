@@ -29,6 +29,9 @@
 # articles listed in README.markdown. They can also be found in
 # citations.bib in BibTeX format.
 #
+"""
+Import data exported by AAA.
+"""
 
 # Built in packages
 import logging
@@ -36,13 +39,14 @@ from pathlib import Path
 from typing import Optional
 
 # Local packages
-from satkit.configuration import (data_run_params,
-                                  set_exclusions_from_csv_file)
-from satkit.constants import SourceSuffix
+from satkit.configuration import (
+    PathStructure, SessionConfig)
+from satkit.constants import Datasource, SourceSuffix
 from satkit.data_structures import Recording
 
 from .AAA_raw_ultrasound import (
     add_aaa_raw_ultrasound, parse_recording_meta_from_aaa_promptfile)
+from .exclusion_list import apply_exclusion_list
 from .AAA_splines import add_splines
 from .audio import add_audio
 from .video import add_video
@@ -52,7 +56,8 @@ _AAA_logger = logging.getLogger('satkit.AAA')
 
 def generate_aaa_recording_list(
         directory: Path,
-        directory_structure: Optional[dict] = None):
+        import_config: Optional[SessionConfig] = None,
+        paths: Optional[PathStructure] = None) -> list[Recording]:
     """
     Produce an array of Recordings from an AAA export directory.
 
@@ -81,7 +86,7 @@ def generate_aaa_recording_list(
     """
 
     # TODO 1.1.: Deal with directory structure specifications.
-    if directory_structure is not None:
+    if paths and paths.wav:
         raise NotImplementedError
 
     ult_meta_files = sorted(directory.glob(
@@ -108,9 +113,8 @@ def generate_aaa_recording_list(
         for basename in basenames
     ]
 
-    set_exclusions_from_csv_file(
-        data_run_params['data properties']['exclusion list'],
-        recordings)
+    if import_config and import_config.exclusion_list:
+        apply_exclusion_list(recordings, import_config.exclusion_list)
 
     add_modalities(recordings, directory)
 
@@ -149,7 +153,7 @@ def add_modalities(
 
             add_audio(recording, wav_preload)
             add_aaa_raw_ultrasound(recording, ult_preload)
-            add_video(recording, video_preload)
+            add_video(recording, video_preload, Datasource.AAA)
 
     add_splines(recording_list, directory)
 

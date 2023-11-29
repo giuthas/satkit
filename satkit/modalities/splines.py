@@ -31,15 +31,13 @@
 #
 
 import logging
-import sys
-from copy import deepcopy
 from pathlib import Path
 from typing import Optional
 
-# Numpy
 import numpy as np
-from satkit.constants import Coordinates
-# local modules
+# from icecream import ic
+
+from satkit.constants import CoordinateSystems
 from satkit.data_structures import (
     Modality, ModalityData, ModalityMetaData, Recording)
 from satkit.helpers.computational import (
@@ -51,11 +49,12 @@ _modalities_logger = logging.getLogger('satkit.modalities')
 
 class SplineMetadata(ModalityMetaData):
     """
-    Meta data of a Splines Modality.
+    Metadata of a Splines Modality.
     """
-    coordinates: Coordinates
+    coordinates: CoordinateSystems
     number_of_sample_points: int
     confidence_exists: bool
+    axisnames: tuple[str] = ('time', 'x-y', 'splinepoint')
 
 
 class Splines(Modality):
@@ -63,54 +62,21 @@ class Splines(Modality):
     Splines from 2D ultrasound data.
     """
 
-    # TODO: convert requiredMetaKeys into a metadata class and get rid of the
-    # extra fields that Splines don't have.
-    requiredMetaKeys = [
-        'meta_file',
-        'Angle',
-        'FramesPerSec',
-        'NumVectors',
-        'PixPerVector',
-        'PixelsPerMm',
-        'ZeroOffset',
-        'coordinates'
-    ]
-
     def __init__(self,
                  recording: Recording,
+                 metadata: SplineMetadata,
                  data_path: Optional[Path] = None,
                  meta_path: Optional[Path] = None,
                  load_path: Optional[Path] = None,
                  parsed_data: Optional[ModalityData] = None,
-                 time_offset: Optional[float] = None,
-                 meta: Optional[dict] = None
+                 time_offset: Optional[float] = None
                  ) -> None:
-        # Explicitly copy meta data fields to ensure that we have what we
-        # expected to get.
-        # TODO: convert this and other similar cases to use this instead:
-        # https://stackoverflow.com/a/64118589/12970261
-        if meta is not None:
-            try:
-                wanted_meta = {key: meta[key]
-                               for key in Splines.requiredMetaKeys}
-                self.meta = deepcopy(wanted_meta)
-            except KeyError:
-                # Missing metadata for one recording may be ok and this could
-                # be handled with just a call to _recording_logger.critical and
-                # setting self.excluded = True
-                not_found = set(Splines.requiredMetaKeys) - set(meta)
-                _modalities_logger.critical(
-                    "Part of metadata missing when processing %s.",
-                    self.meta['filename'])
-                _modalities_logger.critical(
-                    "Could not find %s.", str(not_found))
-                _modalities_logger.critical('Exiting.')
-                sys.exit()
 
         # Initialise super only after ensuring meta is correct,
         # because latter may already end the run.
         super().__init__(
             recording=recording,
+            metadata=metadata,
             data_path=data_path,
             meta_path=meta_path,
             load_path=load_path,
@@ -118,7 +84,7 @@ class Splines(Modality):
             time_offset=time_offset)
 
     def _read_data(self) -> ModalityData:
-        return read_splines(self.data_path, self.meta, self._time_offset)
+        return read_splines(self.data_path, self.metadata, self._time_offset)
 
     @property
     def data(self) -> np.ndarray:
@@ -129,7 +95,7 @@ class Splines(Modality):
         super()._data_setter(data)
 
     def get_meta(self) -> dict:
-        return self.meta
+        return self.metadata
 
     @property
     def in_polar(self) -> np.ndarray:
@@ -141,10 +107,30 @@ class Splines(Modality):
         np.ndarray
             The coordinates
         """
-        if self.meta_data.coordinates is Coordinates.POLAR:
+        if self.metadata.coordinates is CoordinateSystems.POLAR:
             return self.data
         else:
-            return cartesian_to_polar(self.data.data)
+            cartesian = self.data[:, 0:2, :]
+            cartesian = cartesian.reshape([self.data.shape[0], -1])
+            coords = np.apply_along_axis(
+                cartesian_to_polar, 1, cartesian)
+            polar = np.stack(
+                [coords[:, 0, :], coords[:, 1, :], self.data[:, 2, :]], axis=1)
+            return polar
+
+    def cartesian_spline(self, index) -> np.ndarray:
+        """
+        Spline coordinates in Cartesian coordiantes.
+
+        Returns
+        -------
+        np.ndarray
+            The coordinates
+        """
+        if self.metadata.coordinates is CoordinateSystems.CARTESIAN:
+            return self.data[index, :, :]
+        else:
+            return polar_to_cartesian(self.data[index, :, :], np.pi/2)
 
     @property
     def in_cartesian(self) -> np.ndarray:
@@ -156,7 +142,13 @@ class Splines(Modality):
         np.ndarray
             The coordinates
         """
-        if self.meta_data.coordinates is Coordinates.CARTESIAN:
+        if self.metadata.coordinates is CoordinateSystems.CARTESIAN:
             return self.data
         else:
-            return polar_to_cartesian(self.data.data)
+            r_phi = self.data[:, 0:2, :]
+            r_phi = r_phi.reshape([self.data.shape[0], -1])
+            coords = np.apply_along_axis(
+                polar_to_cartesian, 1, r_phi)
+            cartesian = np.stack(
+                [coords[:, 0, :], coords[:, 1, :], self.data[:, 2, :]], axis=1)
+            return cartesian

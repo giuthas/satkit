@@ -31,54 +31,73 @@
 #
 
 import logging
-# Built in packages
 from typing import Optional
 
 # Numpy and scipy
 import numpy as np
-from icecream import ic
+
 # local modules
 from satkit.data_structures import Modality, ModalityData, Recording
 from satkit.errors import UnrecognisedNormError
+
+from .metrics_helpers import calculate_timevector
 from .pd import ImageMask, PdParameters, PD
 
 _pd_logger = logging.getLogger('satkit.pd')
 
 
-def calculate_timevector(original_timevector, timestep):
-    if timestep == 1:
-        half_step_early = (original_timevector[0:-1])
-        half_step_late = (original_timevector[1:])
-        timevector = (half_step_early+half_step_late)/2
-    elif timestep % 2 == 1:
-        begin = timestep // 2
-        end = -(timestep // 2 + 1)
-        half_step_early = (original_timevector[begin:end])
-        half_step_late = (original_timevector[begin+1:end+1])
-        timevector = (half_step_early+half_step_late)/2
-    else:
-        timevector = original_timevector[timestep//2:-timestep//2]
-    return timevector
-
-
 def calculate_metric(
-        abs_diff, norm, mask: Optional[ImageMask] = None, interpolated:
-        bool = False):
+        abs_diff: np.ndarray,
+        norm: str,
+        mask: Optional[ImageMask] = None) -> np.ndarray:
+    # interpolated: bool = False) -> np.ndarray:
+    """
+    Module internal method for the actual PD calculation.
+
+    Parameters
+    ----------
+    abs_diff : np.ndarray
+        Pre-calculated absolute differences
+    norm : str
+        Which norm to calculate
+    mask : Optional[ImageMask], optional
+        Should the data be masked, by default None
+    interpolated : bool, optional
+        _description_, by default False
+
+    Returns
+    -------
+    np.ndarray
+        The PD curve
+
+    Raises
+    ------
+    UnrecognisedNormError
+        If the norm is not an lp norm where p belongs in [0, inf], an error is
+        raised.
+    """
     data = np.copy(abs_diff)
-    if mask and not interpolated:
-        if mask == ImageMask.bottom:
+    if mask:
+        if mask == ImageMask.BOTTOM:
             half = int(abs_diff.shape[1]/2)
-            data = abs_diff[:, half:, :]  # The bottom is on top in raw.
-        elif mask == ImageMask.top:
+            data = abs_diff[:, half:, :]  # The bottom is on top,
+        elif mask == ImageMask.TOP:
             half = int(abs_diff.shape[1]/2)
-            data = abs_diff[:, :half, :]  # and top is on bottom in raw.
-    elif mask:
-        if mask == ImageMask.bottom:
-            half = int(abs_diff.shape[1]/2)
-            data = abs_diff[:, half:, :]  # These are also upside down.
-        elif mask == ImageMask.top:
-            half = int(abs_diff.shape[1]/2)
-            data = abs_diff[:, :half, :]  # These are also upside down.
+            data = abs_diff[:, :half, :]  # and top is on bottom.
+    # if mask and not interpolated:
+    #     if mask == ImageMask.BOTTOM:
+    #         half = int(abs_diff.shape[1]/2)
+    #         data = abs_diff[:, half:, :]  # The bottom is on top in raw.
+    #     elif mask == ImageMask.TOP:
+    #         half = int(abs_diff.shape[1]/2)
+    #         data = abs_diff[:, :half, :]  # and top is on bottom in raw.
+    # elif mask:
+    #     if mask == ImageMask.BOTTOM:
+    #         half = int(abs_diff.shape[1]/2)
+    #         data = abs_diff[:, half:, :]  # These are also upside down.
+    #     elif mask == ImageMask.TOP:
+    #         half = int(abs_diff.shape[1]/2)
+    #         data = abs_diff[:, :half, :]  # These are also upside down.
 
     if norm[0] == 'l':
         if norm[1:] == '_inf':
@@ -95,7 +114,9 @@ def calculate_metric(
         else:
             order = float(norm[1:])
             # if order < 0.09:
-            #     sums = np.sum(np.float_power(data, order, dtype='float128'), axis=(1, 2))
+            #     sums = np.sum(
+            #         np.float_power(data, order, dtype='float128'),
+            #         axis=(1, 2))
             # else:
             sums = np.sum(np.float_power(data, order), axis=(1, 2))
 
@@ -107,7 +128,7 @@ def calculate_metric(
         return np.bincount(data.flatten().astype('uint8'))
     else:
         raise UnrecognisedNormError(
-            "Don't know how to calculate norm for %s.", norm)
+            f"Don't know how to calculate norm for {norm}.", )
 
 
 def calculate_slwpd(raw_diff):
@@ -131,16 +152,9 @@ def calculate_slwpd(raw_diff):
     return slw_pd
 
 
-def calculate_intensity(parent_modality: Modality):
-    data = parent_modality.data
-    return np.sum(data, axis=(1, 2))
-    # TODO: Compare this to the PD similarity matrix used by Gabor et al.
-
-
 def calculate_pd(
         parent_modality: Modality,
-        to_be_computed: dict[str, PdParameters]
-) -> list[PD]:
+        to_be_computed: dict[str, PdParameters]) -> list[PD]:
     """
     _summary_
 
@@ -157,10 +171,8 @@ def calculate_pd(
         _description_
     """
 
-    parent_name = parent_modality.name
-    _pd_logger.info(str(parent_modality.data_path)
-                    + ': Calculating PD on '
-                    + parent_name + '.')
+    _pd_logger.info('%s: Calculating PD on %s.',
+                    str(parent_modality.data_path), parent_modality.name)
 
     data = parent_modality.data
     sampling_rate = parent_modality.sampling_rate
@@ -185,9 +197,8 @@ def calculate_pd(
 
     interpolated = [to_be_computed[key].interpolated for key in to_be_computed]
     if any(interpolated):
-        _pd_logger.info(str(parent_modality.data_path)
-                        + ': Interpolating frames of '
-                        + parent_modality.name + '.')
+        _pd_logger.info('%s: Interpolating frames of %s.',
+                        str(parent_modality.data_path), parent_modality.name)
         # TODO: make this into its own derived modality and parallelise the
         # calculation. or make frame interpolation into a filter function that
         # doesn't live in the modality.
@@ -207,24 +218,25 @@ def calculate_pd(
         abs_diffs[timestep] = np.abs(raw_diff)
 
     pds = []
+    param_set = None
     for (_, param_set) in to_be_computed.items():
         if param_set.interpolated:
             norm_data = calculate_metric(
                 abs_diffs_interpolated[param_set.timestep],
-                norm=param_set.metric, mask=param_set.image_mask,
-                interpolated=param_set.interpolated)
+                norm=param_set.metric, mask=param_set.image_mask)
+            # interpolated=param_set.interpolated)
         else:
             norm_data = calculate_metric(
                 abs_diffs[param_set.timestep],
-                norm=param_set.metric, mask=param_set.image_mask,
-                interpolated=param_set.interpolated)
+                norm=param_set.metric, mask=param_set.image_mask)
+            # interpolated=param_set.interpolated)
 
         modality_data = ModalityData(
             norm_data, sampling_rate, timevectors[param_set.timestep])
         pds.append(PD(parent_modality.recording,
                    param_set, parsed_data=modality_data))
 
-    if param_set.release_data_memory:
+    if param_set and param_set.release_data_memory:
         # Accessing the data modality's data causes it to be
         # loaded into memory. Keeping it there may cause memory
         # overflow. This releases the memory.
@@ -236,8 +248,8 @@ def calculate_pd(
 def add_pd(recording: Recording,
            modality: Modality,
            preload: bool = True,
-           norms: list[str] = ['l2'],
-           timesteps: list[int] = [1],
+           norms: Optional[list[str]] = None,
+           timesteps: Optional[list[int]] = None,
            release_data_memory: bool = True,
            pd_on_interpolated_data: bool = False,
            mask_images: bool = False):
@@ -252,46 +264,47 @@ def add_pd(recording: Recording,
     Keyword arguments:
     preload -- boolean indicating if PD should be calculated on creation 
         (preloaded) or only on access.
-    releaseDataMemor -- boolean indicatin if the data attribute of the 
+    releaseDataMemor -- boolean indicating if the data attribute of the 
         data modality should be set to None after access. Only set this 
         to False, if you know that you have enough memory to hold all 
         of the data in RAM.
     """
+    if not preload:
+        message = ("Looks like somebody is trying to leave PD to be "
+                   "calculated on the fly. This is not yet supported.")
+        raise NotImplementedError(message)
+
+    if not norms:
+        norms = ['l2']
+    if not timesteps:
+        timesteps = [1]
 
     if recording.excluded:
         _pd_logger.info(
-            "Recording " + recording.basename
-            + " excluded from processing.")
+            "Recording %s excluded from processing.", recording.basename)
     elif not modality.__name__ in recording.modalities:
-        _pd_logger.info(
-            "Data modality '" + modality.__name__ +
-            "' not found in recording: " + recording.basename + '.')
+        _pd_logger.info("Data modality '%s' not found in recording: %s.",
+                        modality.__name__, recording.basename)
     else:
         all_requested = PD.get_names_and_meta(
-            modality, norms, timesteps, pd_on_interpolated_data, mask_images)
+            modality, norms, timesteps, pd_on_interpolated_data, mask_images,
+            release_data_memory)
         missing_keys = set(all_requested).difference(
             recording.modalities.keys())
         to_be_computed = dict((key, value) for key,
                               value in all_requested.items()
                               if key in missing_keys)
 
-        dataModality = recording.modalities[modality.__name__]
-        # pds = calculate_pd(dataModality,
-        #                    norms=norms,
-        #                    timesteps=timesteps,
-        #                    release_data_memory=release_data_memory,
-        #                    pd_on_interpolated_data=pd_on_interpolated_data,
-        #                    mask_images=mask_images)
+        data_modality = recording.modalities[modality.__name__]
 
         if to_be_computed:
-            pds = calculate_pd(dataModality, to_be_computed)
+            pds = calculate_pd(data_modality, to_be_computed)
 
             for pd in pds:
                 recording.add_modality(pd)
-            _pd_logger.info(
-                "Added '" + pd.name +
-                "' to recording: " + recording.basename + '.')
+                _pd_logger.info("Added '%s' to recording: %s.",
+                                pd.name, recording.basename)
         else:
             _pd_logger.info(
-                "Nothing to compute in PD for recording: " +
-                recording.basename + '.')
+                "Nothing to compute in PD for recording: %s.",
+                recording.basename)

@@ -31,7 +31,7 @@ citations.bib in BibTeX format.
 -->
 # Speech Articulation ToolKIT - SATKIT
 
-![SATKIT GUI](SATKIT_UI.png)
+![SATKIT GUI](docs/SATKIT_UI.png)
 
 Tools for processing speech data. While currently these tools mainly work on
 tongue and larynx ultrasound as well as audio, in future, the toolkit will
@@ -207,7 +207,7 @@ Pixel Difference tools Copyright (C) 2019-2023 Pertti Palo
 
 Laryngeal example data Copyright (C) 2020 Scott Moisik
 
-Tongue Example data Copyright (C) 2013-2020 Pertti Palo
+Tongue and tongue spline example data Copyright (C) 2013-2020 Pertti Palo
 
 ### Program license
 
@@ -241,9 +241,12 @@ BY-NC-SA 4.0) License. See link above or
 
 When using any part of SATKIT, please cite:
 
-1. Faytak, M., Moisik, S. & Palo, P. (2020): The Speech Articulation
-Toolkit (SATKit): Ultrasound image analysis in Python.
-In ISSP 2020, Online (planned as Providence, Rhode Island)
+1. Palo, P., Moisik, S. R., and Faytak, M. (2023). “Analysing Speech Data with
+SATKIT”. In: International Conference of Phonetic Sciences (ICPhS 2023).
+Prague.
+2. Faytak, M., Moisik, S. & Palo, P. (2020): The Speech Articulation Toolkit
+(SATKit): Ultrasound image analysis in Python. In ISSP 2020, Online (planned as
+Providence, Rhode Island)
 
 When making use of the Optic Flow code, please cite:
 

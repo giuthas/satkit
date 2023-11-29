@@ -29,13 +29,19 @@
 # articles listed in README.markdown. They can also be found in
 # citations.bib in BibTeX format.
 #
+"""
+Data and metadata importing.
+"""
 
 from .AAA_recordings import (generate_aaa_recording_list,
                              generate_ultrasound_recording)
 from .RASL_3D_ultrasound_recordings import (generate_3d_ultrasound_recording,
                                             generate_rasl_recording_list)
 
-from .spline_import_config import load_spline_import_config, SplineImportConfig
+from .spline_import_config import (
+    load_spline_config, SplineImportConfig)
+from .session_import_config import (
+    load_session_config, SessionConfig)
 
 from .audio import add_audio
 from .video import add_video
@@ -46,6 +52,9 @@ from .AAA_splines import add_splines
 modality_adders = {
     'MonoAudio': add_audio,
     'RawUltrasound': add_aaa_raw_ultrasound,
-    'ThreeD_Ultrasound': add_rasl_3d_ultrasound,
+    # This does not belong here because splines maybe in a
+    # single file for many recordings.
+    # 'Splines': add_splines,
+    'ThreeD_Ultrasound': add_rasl_3D_ultrasound,
     'Video': add_video
 }

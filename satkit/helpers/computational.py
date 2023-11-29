@@ -34,31 +34,7 @@ Computation helper functions.
 """
 
 import numpy as np
-
-
-def _combine_coordinates(
-        coord1: np.ndarray,
-        coord2: np.ndarray) -> np.ndarray:
-    """
-    Concatenate the given coordinates by rows.
-
-    Parameters
-    ----------
-    coord1 : np.ndarray
-        data for first row. Has to be same length as coord2.
-    coord2 : np.ndarray
-        data for second row. Has to be same length as coord1.
-
-    Returns
-    -------
-    np.ndarray
-        The concatenation result: an array with 
-        shape = ([length of coord1 and coord2], 2).
-    """
-    return np.concatenate(
-        (coord1.reshape(-1, 1),
-         coord2.reshape(-1, 1)),
-        axis=1)
+# from icecream import ic
 
 
 def cartesian_to_polar(xy_array: np.ndarray) -> np.ndarray:
@@ -68,32 +44,51 @@ def cartesian_to_polar(xy_array: np.ndarray) -> np.ndarray:
     Parameters
     ----------
     xy_array : np.ndarray
-        x and y values in their own rows.
+        axes order is x-y, splinepoints
+
+        This maybe passed in as 1D array which will then be reshaped into a 2*x
+        array. This makes it possible to apply the transformation with
+        `np.apply_along_axis`.
 
     Returns
     -------
     np.ndarray
-        r and phi values in their own rows.
+        axes order is r-phi, splinepoints
     """
-    r = np.sqrt((xy_array**2).sum(1))
-    phi = np.arctan2(xy_array[:, 1], xy_array[:, 0])
-    return _combine_coordinates(r, phi)
+    if xy_array.ndim == 1 and xy_array.shape[0] % 2 == 0:
+        xy_array = xy_array.reshape((2, xy_array.shape[0]//2))
+
+    r = np.sqrt((xy_array**2).sum(0))
+    phi = np.arctan2(xy_array[1, :], xy_array[0, :])
+    return np.stack(r, phi)
 
 
-def polar_to_cartesian(r_phi_array: np.ndarray) -> np.ndarray:
+def polar_to_cartesian(
+        r_phi_array: np.ndarray,
+        angle_offset: float = 0) -> np.ndarray:
     """
     Transform an array of 2D polar coordinates to Cartesian coordinates.
 
     Parameters
     ----------
     r_phi_array : np.ndarray
-        r and phi values in their own rows.
+        axes order is r-phi, splinepoints 
+
+        This maybe passed in as 1D array which will then be reshaped into a 2*x
+        array. This makes it possible to apply the transformation with 
+        `   r_phi = self.data[:, 0:2, :]
+            r_phi = r_phi.reshape([self.data.shape[0], -1])
+            coords = np.apply_along_axis(
+                polar_to_cartesian, 1, r_phi)`
 
     Returns
     -------
     np.ndarray
-        x and y values in their own rows.
+        axes order is x-y, splinepoints
     """
-    x = r_phi_array[:, 0] * np.cos(r_phi_array[:, 1])
-    y = r_phi_array[:, 0] * np.sin(r_phi_array[:, 1])
-    return _combine_coordinates(x, y)
+    if r_phi_array.ndim == 1 and r_phi_array.shape[0] % 2 == 0:
+        r_phi_array = r_phi_array.reshape((2, r_phi_array.shape[0]//2))
+
+    x = r_phi_array[0, :] * np.cos(r_phi_array[1, :]-angle_offset)
+    y = r_phi_array[0, :] * np.sin(r_phi_array[1, :]-angle_offset)
+    return np.stack((x, y))

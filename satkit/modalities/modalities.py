@@ -36,8 +36,8 @@ from copy import deepcopy
 from pathlib import Path
 from typing import Optional
 
-# Numpy
 import numpy as np
+
 # local modules
 from satkit.data_structures import Modality, ModalityData, Recording
 from satkit.import_formats import (

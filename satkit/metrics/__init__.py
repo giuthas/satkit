@@ -1,8 +1,8 @@
 #
-# Copyright (c) 2019-2023 
+# Copyright (c) 2019-2023
 # Pertti Palo, Scott Moisik, Matthew Faytak, and Motoki Saito.
 #
-# This file is part of Speech Articulation ToolKIT 
+# This file is part of Speech Articulation ToolKIT
 # (see https://github.com/giuthas/satkit/).
 #
 # This program is free software: you can redistribute it and/or modify
@@ -29,11 +29,14 @@
 # articles listed in README.markdown. They can also be found in
 # citations.bib in BibTeX format.
 #
-from .annd import annd
 from .ofreg import of
 from .calculate_pd import add_pd
+from .calculate_spline_metric import add_spline_metric
 from .pd import PD, PdParameters, ImageMask
+from .spline_metric import (SplineMetric, SplineMetricParameters,
+                            SplineDiffsEnum, SplineNNDsEnum, SplineShapesEnum)
 
 metrics = {
-    'PD': (PD, PdParameters)
+    'PD': (PD, PdParameters),
+    'SplineMetric': (SplineMetric, SplineMetricParameters)
 }

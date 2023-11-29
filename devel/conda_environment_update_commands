@@ -1,0 +1,14 @@
+# Update satkit-stable
+conda activate base
+conda env remove --name satkit-stable 
+mamba env create -f satkit_stable_conda_env.yaml 
+conda activate satkit-stable
+
+# Update satkit-devel
+conda activate base
+conda env remove --name satkit-devel 
+mamba env create -f satkit_devel_conda_env.yaml 
+conda activate satkit-devel
+cd ../textgrids/
+pip install -e .
+cd ../satkit/

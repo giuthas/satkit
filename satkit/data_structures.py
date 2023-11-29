@@ -44,10 +44,12 @@ from icecream import ic
 # Numerical arrays and more
 import numpy as np
 from pydantic import BaseModel
+
 # Praat textgrids
 import textgrids
 
-from satkit.constants import Datasource, SatkitSuffix
+from satkit.configuration import PathStructure, SessionConfig
+from satkit.constants import SatkitSuffix
 from satkit.errors import MissingDataError, ModalityError, OverWriteError
 from satkit.satgrid import SatGrid
 
@@ -68,8 +70,13 @@ class ModalityData:
     """
     Data passed from Modality generation into Modality.
 
-    None of the fields are optional. This class represents already
-    loaded data.
+    None of the fields are optional. This class represents already loaded data.
+
+    Axes order for the data field is [time, coordinate axes and datatypes,
+    datapoints] and further structure. For example stereo audio data would be
+    [time, channels] or just [time] for mono audio. For a more complex example,
+    splines from AAA have [time, x-y-confidende, spline points] or [time,
+    r-phi-confidence, spline points] for data in polar coordinates.
     """
     data: np.ndarray
     sampling_rate: float
@@ -88,8 +95,8 @@ class RecordingSession:
     The meta and Recordings of a recording session.
     """
     name: str
-    path: Path
-    datasource: Datasource
+    paths: PathStructure
+    config: SessionConfig
     recordings: list['Recording']
 
 
@@ -286,7 +293,7 @@ class Modality(abc.ABC):
     def __init__(self,
                  recording: Recording,
                  parsed_data: Optional[ModalityData] = None,
-                 meta_data: Optional[ModalityMetaData] = None,
+                 metadata: Optional[ModalityMetaData] = None,
                  data_path: Optional[Path] = None,
                  meta_path: Optional[Path] = None,
                  load_path: Optional[Path] = None,
@@ -322,7 +329,7 @@ class Modality(abc.ABC):
         self._meta_path = meta_path  # self.meta_path is a property
         self.load_path = load_path
 
-        self.meta_data = meta_data
+        self.metadata = metadata
 
         if parsed_data:
             self._data = parsed_data.data
@@ -341,6 +348,7 @@ class Modality(abc.ABC):
         # This is a property which when set to True will also set
         # parent.excluded to True.
         self.excluded = False
+        self._time_precision = None
 
     def _get_data(self) -> ModalityData:
         # TODO: Provide a way to force the data to be derived.
@@ -349,7 +357,7 @@ class Modality(abc.ABC):
             return self._read_data()
         elif self.load_path:
             return self._load_data()
-        elif self.meta_data.parent_name:
+        elif self.metadata.parent_name:
             return self._derive_data()
         else:
             raise MissingDataError(
@@ -415,8 +423,8 @@ class Modality(abc.ABC):
         the metric used to generate the instance in the name.
         """
         name_string = self.__class__.__name__
-        if self.meta_data and self.meta_data.parent_name:
-            name_string = name_string + " on " + self.meta_data.parent_name
+        if self.metadata and self.metadata.parent_name:
+            name_string = name_string + " on " + self.metadata.parent_name
         return name_string
 
     @property
@@ -489,7 +497,7 @@ class Modality(abc.ABC):
     @property
     def parent_name(self) -> str:
         """Name of the Modality this Modality was derived from, if any."""
-        return self.meta_data.parent_name
+        return self.metadata.parent_name
 
     @property
     def time_offset(self):
@@ -506,6 +514,21 @@ class Modality(abc.ABC):
         if not self._time_offset:
             self._set_data(self._get_data())
         return self._time_offset
+
+    @property
+    def time_precision(self) -> float:
+        """
+        Timevector precision: the maximum of absolute deviations.
+
+        Essentially this means that we are guestimating the timevector to be no
+        more precise than the largest deviation from the average timestep.
+        """
+        if not self._time_precision:
+            differences = np.diff(self.timevector)
+            average = np.average(differences)
+            deviations = np.abs(differences - average)
+            self._time_precision = np.max(deviations)
+        return self._time_precision
 
     @time_offset.setter
     def time_offset(self, time_offset):
@@ -587,7 +610,7 @@ class Modality(abc.ABC):
 
         This cannot be set from the outside.
         """
-        if self.meta_data and self.meta_data.parent_name:
+        if self.metadata and self.metadata.parent_name:
             return True
         else:
             return False

@@ -29,6 +29,10 @@
 # articles listed in README.markdown. They can also be found in
 # citations.bib in BibTeX format.
 #
+"""
+Functions for saving SATKIT data.
+"""
+
 from collections import OrderedDict
 import logging
 
@@ -37,10 +41,11 @@ import numpy as np
 from icecream import ic
 from satkit.constants import SATKIT_FILE_VERSION, SatkitSuffix
 from satkit.data_structures import Modality, Recording, RecordingSession
-from .save_and_load_helpers import nested_text_converters
 from satkit.ui_callbacks import UiCallbacks, OverwriteConfirmation
 
-_saver_logger = logging.getLogger('satkit._saver')
+from .save_and_load_helpers import nested_text_converters
+
+_logger = logging.getLogger('satkit._saver')
 
 
 def save_modality_data(
@@ -53,7 +58,7 @@ def save_modality_data(
 
     Returns the filename of the 
     """
-    _saver_logger.debug("Saving data for %s." % modality.name)
+    _logger.debug("Saving data for %s.", modality.name)
     suffix = modality.name.replace(" ", "_")
     filename = f"{modality.recording.basename}.{suffix}{SatkitSuffix.DATA}"
     filepath = modality.recording.path/filename
@@ -73,7 +78,7 @@ def save_modality_data(
             sampling_rate=modality.sampling_rate,
             timevector=modality.timevector)
 
-        _saver_logger.debug("Wrote file %s." % (filename))
+        _logger.debug("Wrote file %s.", filename)
 
     return filename, confirmation
 
@@ -87,7 +92,7 @@ def save_modality_meta(
     Saved data includes sampling frequency and any processing metadata that is
     needed to reconstruct the Modality. 
     """
-    _saver_logger.debug("Saving meta for %s." % modality.name)
+    _logger.debug("Saving meta for %s.", modality.name)
     suffix = modality.name.replace(" ", "_")
     filename = f"{modality.recording.basename}.{suffix}"
     filename += SatkitSuffix.META
@@ -113,11 +118,11 @@ def save_modality_meta(
             OverwriteConfirmation.YES, OverwriteConfirmation.YES_TO_ALL]:
         try:
             nestedtext.dump(meta, filepath, converters=nested_text_converters)
-            _saver_logger.debug("Wrote file %s." % (filename))
+            _logger.debug("Wrote file %s.", filename)
         # except nestedtext.NestedTextError as e:
         #     e.terminate()
         except OSError as e:
-            _saver_logger.critical(e)
+            _logger.critical(e)
 
     return filename, confirmation
 
@@ -130,11 +135,11 @@ def save_recording_meta(
     """
     Save Recording meta.
 
-    The meta dict should contain at least a list of the modalities this recording
-    has and their saving locations.
+    The meta dict should contain at least a list of the modalities this
+    recording has and their saving locations.
     """
-    _saver_logger.debug(
-        "Saving meta for recording %s." % recording.basename)
+    _logger.debug(
+        "Saving meta for recording %s.", recording.basename)
     filename = f"{recording.basename}{'.Recording'}{SatkitSuffix.META}"
     filepath = recording.path/filename
 
@@ -157,11 +162,11 @@ def save_recording_meta(
             OverwriteConfirmation.YES, OverwriteConfirmation.YES_TO_ALL]:
         try:
             nestedtext.dump(meta, filepath, converters=nested_text_converters)
-            _saver_logger.debug("Wrote file %s." % (filename))
+            _logger.debug("Wrote file %s.", filename)
         # except nestedtext.NestedTextError as e:
         #     e.terminate()
         except OSError as e:
-            _saver_logger.critical(e)
+            _logger.critical(e)
 
     return filename, confirmation
 
@@ -211,20 +216,21 @@ def save_recordings(
     return metafiles, confirmation
 
 
-def save_recording_session_meta(session: RecordingSession,
-                                recording_meta_files: list,
-                                confirmation: OverwriteConfirmation) -> [str,
-                                                                         OverwriteConfirmation]:
+def save_recording_session_meta(
+        session: RecordingSession,
+        recording_meta_files: list,
+        confirmation: OverwriteConfirmation
+) -> [str, OverwriteConfirmation]:
     """
     Save recording session metadata.
 
     The meta dict should contain at least a list of the recordings in this
     session and their saving locations.
     """
-    _saver_logger.debug(
-        "Saving meta for session %s." % session.name)
+    _logger.debug(
+        "Saving meta for session %s.", session.name)
     filename = f"{session.name}{'.RecordingSession'}{SatkitSuffix.META}"
-    filepath = session.path/filename
+    filepath = session.paths.root/filename
 
     if filepath.exists():
         if confirmation is OverwriteConfirmation.NO_TO_ALL:
@@ -240,8 +246,8 @@ def save_recording_session_meta(session: RecordingSession,
     meta['format_version'] = SATKIT_FILE_VERSION
 
     parameters = OrderedDict()
-    parameters['path'] = str(session.path)
-    parameters['datasource'] = session.datasource._value_
+    parameters['path'] = str(session.paths.root)
+    parameters['datasource'] = session.config.data_source.value
 
     meta['parameters'] = parameters
     meta['recordings'] = recording_meta_files
@@ -250,9 +256,9 @@ def save_recording_session_meta(session: RecordingSession,
             OverwriteConfirmation.YES, OverwriteConfirmation.YES_TO_ALL]:
         try:
             nestedtext.dump(meta, filepath, converters=nested_text_converters)
-            _saver_logger.debug("Wrote file %s." % (filename))
+            _logger.debug("Wrote file %s.", filename)
         except OSError as e:
-            _saver_logger.critical(e)
+            _logger.critical(e)
 
     return filename
 
@@ -261,8 +267,8 @@ def save_recording_session(session: RecordingSession):
     """
     Save a recording session.
     """
-    _saver_logger.debug(
-        "Saving recording session %s." % session.name)
+    _logger.debug(
+        "Saving recording session %s.", session.name)
     (recording_meta_files, confirmation) = save_recordings(
         session.recordings, confirmation=None)
     save_recording_session_meta(session, recording_meta_files, confirmation)

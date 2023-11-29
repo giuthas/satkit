@@ -42,11 +42,17 @@ from icecream import ic
 
 # Local packages
 from satkit.data_structures import Recording, RecordingMetaData
-from satkit.configuration import data_run_params, set_exclusions_from_csv_file
+from satkit.configuration import (data_run_params,
+                                  data_run_params, SessionConfig)
 
 from .three_dim_ultrasound import (add_rasl_3d_ultrasound,
                                    generate_meta,
                                    read_3d_meta_from_mat_file)
+
+from .exclusion_list import apply_exclusion_list
+from .three_dim_ultrasound import (add_rasl_3D_ultrasound,
+                                   generateMeta,
+                                   read_3D_meta_from_mat_file)
 from .audio import add_audio
 from .video import add_video
 
@@ -54,8 +60,7 @@ _3D4D_ultra_logger = logging.getLogger('satkit.ThreeD_ultrasound')
 
 
 def generate_rasl_recording_list(
-        directory: Path,
-        directory_structure: Optional[dict] = None):
+        directory: Path, config: Optional[SessionConfig] = None):
     """
     Produce an array of Recordings from a 3D4D ultrasound directory.
 
@@ -82,10 +87,7 @@ def generate_rasl_recording_list(
         of recording.
     """
 
-    # TODO 1.1.: Deal with directory structure specifications.
-    if directory_structure is not None:
-        raise NotImplementedError
-
+    # TODO: put these in the session_config.paths
     dicom_dir = directory / "DICOM"
     note_dir = directory / "NOTES"
     wav_dir = directory / 'WAV'
@@ -126,14 +128,16 @@ def generate_rasl_recording_list(
                 token['dat_filename'],
                 token,
                 directories)
+            # TODO: replace the call below with what ever is the new way of
+            # doing it. recording.addMeta(token)
             recordings.append(recording)
         else:
             _3D4D_ultra_logger.info(
-                'No DICOM file corresponding to number %s found in %s.',
-                token['trial_number'],
-                str(directory))
+                'No DICOM file corresponding to number %d found in %s.',
+                token['trial_number'], str(directory))
 
-    set_exclusions_from_csv_file(
+    # TODO: this call is wrong, but will get fixed later.
+    apply_exclusion_list(
         data_run_params['data properties']['exclusion list'],
         recordings)
 
@@ -143,6 +147,8 @@ def generate_rasl_recording_list(
 
     return sorted(recordings, key=lambda
                   token: token.meta_data.time_of_recording)
+
+    # return sorted(recordings, key=lambda token: token.meta['date_and_time'])
 
 
 def generate_recording_list_old_style(directory):

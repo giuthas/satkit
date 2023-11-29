@@ -31,16 +31,23 @@
 #
 """
 This module contains all sorts of constants used by SATKIT.
+
+Enums are used for constants that need to be instantiated from other variables.
+They maybe used as fields in other objects. Using an Enum limits the possible
+values and avoids typos and makes an IDE help in writing code.
+
+Frozen dataclasses are used for constants that only ever need to be accessed
+and never are stored. In effect, they function as look-up tables.
 """
 from dataclasses import dataclass
 from enum import Enum
 
 # TODO 1.0: Decouple program and file format versions at version 1.0.
-SATKIT_VERSION = '0.6'
+SATKIT_VERSION = '0.9.0'
 SATKIT_FILE_VERSION = SATKIT_VERSION
 
 
-class Coordinates(Enum):
+class CoordinateSystems(Enum):
     """
     Enum to differentiate coordinate systems.
     """
@@ -102,13 +109,12 @@ class SplineMetaColumn(Enum):
 
 
 @dataclass(frozen=True)
-class SatkitConfigFile():
+class SatkitConfigFile:
     """
-    Various configuration files used by SATKIT.
-
-    These exist as a convenient way of not needing to risk typos. 
+    Human written yaml files to control importing data.
     """
-    CSV_SPLINE_IMPORT = "csv_spline_import_config.yaml"
+    SESSION = 'session_config.yaml'
+    SPLINE = 'spline_config.yaml'
 
 
 @dataclass(frozen=True)
@@ -129,7 +135,7 @@ class SavedObjectTypes(Enum):
     """
     Represent type of a saved satkit object in .satkit_meta.
     """
-    # TODO 1.0: Check if this is actually in use.
+    # TODO 1.1: Check if this is actually in use.
     RECORDING_SESSION = "RecordingSession"
     RECORDING = "Recording"
     MODALITY = "Modality"
@@ -156,3 +162,4 @@ class SourceSuffix():
     AAA_PROMPT = ".txt"
     AAA_SPLINES = ".spl"
     AVI = ".avi"
+    CSV = ".csv"

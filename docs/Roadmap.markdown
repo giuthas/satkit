@@ -23,13 +23,13 @@ Items will only be marked as done, once clean up is also done.
   - [x] Pixel Difference
   - [ ] Optic flow
   - [ ] Principal component analysis (PCA) / dimensionality reduction
-  - [ ] Average Nearest Neighbour Distance and Median Point-by-point Distance
-  - [ ] Some or all of the metrics by [Kathtrine M. Dawson](https://github.com/kdawson2/tshape_analysis)
+  - [x] Average Nearest Neighbour Distance and Median Point-by-point Distance
+  - [x] Some or all of the metrics by [Kathtrine M. Dawson](https://github.com/kdawson2/tshape_analysis)
 - [ ] Saving and loading
   - [x] textgrids
     - [x] loading
     - [x] saving
-  - [x] loading data from AAA
+  - [x] loading ultrasound data from AAA
     - [x] old style
     - [x] new style
   - [ ] loading 3D/4D ultrasound data from RASL

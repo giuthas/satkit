@@ -54,6 +54,7 @@ dependencies:
   - pip:
     - nestedtext >= 3.5
     - opencv-python >= 4.5
+    - more_itertools
     # - praat-textgrids >= 1.4
     # Currently I install textgrids instead in devel mode with
     # pip install -e .

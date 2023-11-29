@@ -42,17 +42,17 @@ from icecream import ic
 
 # Local packages
 from satkit.data_structures import Recording, RecordingMetaData
-from satkit.configuration import (data_run_params,
-                                  data_run_params, SessionConfig)
+from satkit.configuration import (
+    data_run_params, SessionConfig)
 
 from .three_dim_ultrasound import (add_rasl_3d_ultrasound,
                                    generate_meta,
                                    read_3d_meta_from_mat_file)
 
 from .exclusion_list import apply_exclusion_list
-from .three_dim_ultrasound import (add_rasl_3D_ultrasound,
-                                   generateMeta,
-                                   read_3D_meta_from_mat_file)
+from .three_dim_ultrasound import (add_rasl_3d_ultrasound,
+                                   generate_meta,
+                                   read_3d_meta_from_mat_file)
 from .audio import add_audio
 from .video import add_video
 
@@ -363,7 +363,7 @@ def add_modalities(
     #     _3D4D_ultra_logger.info("Adding modalities to recording for "
     #                             + self.meta['basename'] + ".")
 
-    #     # TODO: need to make sure that beep detect is not run.
+    #     # need to make sure that beep detect is not run.
     #     waveform = MonoAudio(
     #         parent=self,
     #         preload=wavPreload,

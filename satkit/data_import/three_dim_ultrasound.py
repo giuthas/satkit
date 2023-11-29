@@ -127,3 +127,4 @@ def generate_meta(rows):
 def add_rasl_3d_ultrasound(recording: Recording, preload: bool,
                            path: Optional[Path] = None) -> None:
     """Create a RawUltrasound Modality and add it to the Recording."""
+    pass

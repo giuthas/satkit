@@ -4,17 +4,17 @@ Items will only be marked as done, once clean up is also done.
 
 - [ ] GUI
   - [ ] Boundaries and labels
+    - [x] selection of tier that will be displayed over the graphs
     - [x] movable single boundaries
     - [ ] shift+drag moving of all boundaries at the same time point
-    - [x] selection of tier that will be displayed over the graphs
     - [ ] label editing
     - [ ] adding boundaries
       - [ ] including interval selection and adding from that maybe
     - [ ] deleting boundaries
     - [ ] Viewing and selecting
       - [x] frame and time point  selection
-      - [ ] zooming
-      - [ ] with interval selection and Praat's shortcuts or something close
+      - [x] zooming with Praat's shortcuts or something close
+      - [ ] zooming with interval selection
       - [ ] toggle for displaying acoustic boundaries
       - [ ] toggles or similar for displaying different data modalities
       - [ ] note function for annotating individual tokens with free text
@@ -23,17 +23,20 @@ Items will only be marked as done, once clean up is also done.
   - [x] Pixel Difference
   - [ ] Optic flow
   - [ ] Principal component analysis (PCA) / dimensionality reduction
-  - [ ] Average Nearest Neighbour Distance and Median Point-by-point Distance
-  - [ ] Some or all of the metrics by [Kathtrine M. Dawson](https://github.com/kdawson2/tshape_analysis)
+  - [x] Average Nearest Neighbour Distance and Median Point-by-point Distance
+  - [x] Some or all of the metrics by [Kathtrine M. Dawson](https://github.com/kdawson2/tshape_analysis)
 - [ ] Saving and loading
-  - [x] loading textgrids
-  - [ ] loading data from AAA
+  - [x] textgrids
+    - [x] loading
+    - [x] saving
+  - [x] loading ultrasound data from AAA
     - [x] old style
-    - [ ] new style
-  - [ ] loading data from 3D/4D ultrasound
-  - [ ] saving results in
-    - [ ] implementation free, human readable if possible, formats
-    - [ ] textgrids
+    - [x] new style
+  - [ ] loading 3D/4D ultrasound data from RASL
+  - [x] load splines from .csv files exported by AAA
+  - [x] SATKIT native formats
+    - [x] saving results in implementation free, human readable if possible, formats
+    - [x] loading
 - [ ] Documentation
   - [ ] update README and other relevant files
   - [ ] update both references to tools SATKIT provides and tools it uses

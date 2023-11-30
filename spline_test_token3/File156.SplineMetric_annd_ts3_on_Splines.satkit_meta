@@ -1,0 +1,11 @@
+object_type: SplineMetric
+name: SplineMetric annd ts3 on Splines
+format_version: 0.7.0
+parameters:
+    parent_name: Splines
+    metric: annd
+    timestep: 3
+    release_data_memory: False
+    exclude_points:
+        - 11
+        - 0

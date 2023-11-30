@@ -1,0 +1,11 @@
+object_type: SplineMetric
+name: SplineMetric fourier on Splines
+format_version: 0.7.0
+parameters:
+    parent_name: Splines
+    metric: fourier
+    timestep: 3
+    release_data_memory: False
+    exclude_points:
+        - 11
+        - 0

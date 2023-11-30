@@ -1,0 +1,10 @@
+object_type: PD
+name: PD l1 top on RawUltrasound
+format_version: 0.7.0
+parameters:
+    parent_name: RawUltrasound
+    metric: l1
+    timestep: 1
+    image_mask: top
+    interpolated: False
+    release_data_memory: True

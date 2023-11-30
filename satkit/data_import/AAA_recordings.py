@@ -1,7 +1,8 @@
 #
-# Copyright (c) 2019-2023 Pertti Palo, Scott Moisik, Matthew Faytak, and Motoki Saito.
+# Copyright (c) 2019-2023
+# Pertti Palo, Scott Moisik, Matthew Faytak, and Motoki Saito.
 #
-# This file is part of Speech Articulation ToolKIT 
+# This file is part of Speech Articulation ToolKIT
 # (see https://github.com/giuthas/satkit/).
 #
 # This program is free software: you can redistribute it and/or modify
@@ -28,6 +29,9 @@
 # articles listed in README.markdown. They can also be found in
 # citations.bib in BibTeX format.
 #
+"""
+Import data exported by AAA.
+"""
 
 # Built in packages
 import logging
@@ -35,80 +39,69 @@ from pathlib import Path
 from typing import Optional
 
 # Local packages
-from satkit.audio_processing import MainsFilter
-from satkit.configuration import (config, data_run_params,
-                                  set_exclusions_from_csv_file)
-from satkit.data_import.add_AAA_raw_ultrasound import (add_aaa_raw_ultrasound,
-                                                       parse_aaa_promptfile)
-from satkit.data_import.add_audio import add_audio
-from satkit.data_import.add_video import add_video
+from satkit.configuration import (
+    PathStructure, SessionConfig)
+from satkit.constants import Datasource, SourceSuffix
 from satkit.data_structures import Recording
+
+from .AAA_raw_ultrasound import (
+    add_aaa_raw_ultrasound, parse_recording_meta_from_aaa_promptfile)
+from .exclusion_list import apply_exclusion_list
+from .AAA_splines import add_splines
+from .audio import add_audio
+from .video import add_video
 
 _AAA_logger = logging.getLogger('satkit.AAA')
 
-#
-# The logic here is to do a as much as we can with minimal arguments.
-# Therefore, generate_recording_list uses helpers to read all the meta
-# and all the Data that it can without using any other arguments.
-#
-# Next step is to decorate that list with single file passes
-# like the exclusion list and splines.
-#
 
 def generate_aaa_recording_list(
-    directory: Path, 
-    directory_structure: Optional[dict]=None):
+        directory: Path,
+        import_config: Optional[SessionConfig] = None,
+        paths: Optional[PathStructure] = None) -> list[Recording]:
     """
     Produce an array of Recordings from an AAA export directory.
 
-    Prepare a list of Recording objects from the files exported by AAA
-    into the named directory. File existence is tested for,
-    and if crucial files are missing from a given recording it will be
-    excluded.
+    Prepare a list of Recording objects from the files exported by AAA into the
+    named directory. File existence is tested for, and if crucial files are
+    missing from a given recording it will be excluded.
 
-    Each recording meta file (.txt, not US.txt) will
-    be represented by a Recording object regardless of whether a complete
-    set of files was found for the recording. Exclusion is marked with
-    recording.excluded rather than not listing the recording. Log
-    file will show reasons of exclusion.
+    Each recording meta file (.txt, not US.txt) will be represented by a
+    Recording object regardless of whether a complete set of files was found
+    for the recording. Exclusion is marked with recording.excluded rather than
+    not listing the recording. Log file will show reasons of exclusion.
 
-    The processed files are
-    recording meta: .txt,
-    ultrasound meta: US.txt or .param,
-    ultrasound: .ult, and
-    audio waveform: .wav.
+    The processed files are recording meta: .txt, ultrasound meta: US.txt or
+    .param, ultrasound: .ult, and audio waveform: .wav.
+
+    If there is a `satkit_spline_import_config.yaml` present Splines modalities
+    will be added to the Recordings, but any missing ones (or even all missing)
+    are considered non-fatal.
 
     Additionally these will be added, but missing files are considered
-    non-fatal
-    TextGrid: .textgrid, and
-    avi video: .avi.
+    non-fatal avi video: .avi, and TextGrid: .textgrid.
 
-    directory -- the path to the directory to be processed.
-    Returns an array of Recording objects sorted by date and time
+    directory -- the path to the directory to be processed. Returns an array of
+    Recording objects sorted by date and time
         of recording.
     """
 
-    # this is equivalent with the following:
-    # sorted(glob.glob(directory + '/.' +  '/*US.txt'))
-    ult_meta_files = sorted(directory.glob('*US.txt'))
-    if len(ult_meta_files) == 0:
-        ult_meta_files = sorted(directory.glob('*.param'))
+    # TODO 1.1.: Deal with directory structure specifications.
+    if paths and paths.wav:
+        raise NotImplementedError
 
-    if config['mains frequency']:
-        MainsFilter.generate_mains_filter(
-            44100, 
-            config['mains frequency'])
-    else:
-        MainsFilter.generate_mains_filter(44100, 50)
-    
+    ult_meta_files = sorted(directory.glob(
+        '*' + SourceSuffix.AAA_ULTRA_META_OLD))
+    if len(ult_meta_files) == 0:
+        ult_meta_files = sorted(directory.glob(
+            '*' + SourceSuffix.AAA_ULTRA_META_NEW))
 
     # this takes care of *.txt and *US.txt overlapping. Goal
     # here is to include also failed recordings with missing
     # ultrasound data in the list for completeness.
-    ult_prompt_files = [prompt_file
-                        for prompt_file in directory.glob('*.txt')
-                        if not prompt_file in ult_meta_files
-                        ]
+    ult_prompt_files = [
+        prompt_file
+        for prompt_file in directory.glob('*' + SourceSuffix.AAA_PROMPT)
+        if not prompt_file in ult_meta_files]
     ult_prompt_files = sorted(ult_prompt_files)
 
     # strip file extensions off of filepaths to get the base names
@@ -120,16 +113,13 @@ def generate_aaa_recording_list(
         for basename in basenames
     ]
 
-    set_exclusions_from_csv_file(
-        data_run_params['data properties']['exclusion list'], 
-        recordings)
+    if import_config and import_config.exclusion_list:
+        apply_exclusion_list(recordings, import_config.exclusion_list)
 
+    add_modalities(recordings, directory)
 
-    for recording in recordings: 
-        if not recording.excluded:
-            add_modalities(recording)
-
-    return sorted(recordings, key=lambda token: token.meta_data.time_of_recording)
+    return sorted(recordings, key=lambda
+                  token: token.meta_data.time_of_recording)
 
 
 def generate_ultrasound_recording(basename: str, directory: Path):
@@ -149,7 +139,8 @@ def generate_ultrasound_recording(basename: str, directory: Path):
     _AAA_logger.info(
         "Building Recording object for %s in %s.", basename, directory)
 
-    meta = parse_aaa_promptfile((directory/basename).with_suffix('.txt'))
+    meta = parse_recording_meta_from_aaa_promptfile(
+        (directory / basename).with_suffix('.txt'))
 
     textgrid = directory/basename
     textgrid = textgrid.with_suffix('.TextGrid')
@@ -157,22 +148,22 @@ def generate_ultrasound_recording(basename: str, directory: Path):
     if textgrid.is_file():
         recording = Recording(
             meta_data=meta,
-            path=directory,
-            basename=basename,
             textgrid_path=textgrid
         )
     else:
         recording = Recording(
             meta_data=meta,
-            path=directory,
-            basename=basename
         )
 
     return recording
 
 
-def add_modalities(recording: Recording, wav_preload: bool=True, ult_preload: bool=False,
-                    video_preload: bool=False):
+def add_modalities(
+        recording_list: list[Recording],
+        directory: Path,
+        wav_preload: bool = True,
+        ult_preload: bool = False,
+        video_preload: bool = False) -> None:
     """
     Add audio and raw ultrasound data to the recording.
 
@@ -191,13 +182,13 @@ def add_modalities(recording: Recording, wav_preload: bool=True, ult_preload: bo
     Throws KeyError if TimeInSecsOfFirstFrame is missing from the
     meta file: [directory]/basename + .txt.
     """
-    _AAA_logger.info("Adding modalities to recording for %s.",
-        recording.basename)
+    for recording in recording_list:
+        if not recording.excluded:
+            _AAA_logger.info("Adding modalities to recording for %s.",
+                             recording.basename)
 
-    add_audio(recording, wav_preload)
-    add_aaa_raw_ultrasound(recording, ult_preload)
-    add_video(recording, video_preload)
+            add_audio(recording, wav_preload)
+            add_aaa_raw_ultrasound(recording, ult_preload)
+            add_video(recording, video_preload, Datasource.AAA)
 
-
-
-
+    add_splines(recording_list, directory)

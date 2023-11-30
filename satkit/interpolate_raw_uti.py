@@ -1,7 +1,8 @@
 #
-# Copyright (c) 2019-2023 Pertti Palo, Scott Moisik, Matthew Faytak, and Motoki Saito.
+# Copyright (c) 2019-2023
+# Pertti Palo, Scott Moisik, Matthew Faytak, and Motoki Saito.
 #
-# This file is part of Speech Articulation ToolKIT 
+# This file is part of Speech Articulation ToolKIT
 # (see https://github.com/giuthas/satkit/).
 #
 # This program is free software: you can redistribute it and/or modify
@@ -35,6 +36,7 @@ import cv2
 import numpy as np
 from scipy import ndimage
 from tqdm import tqdm
+from icecream import ic
 
 from satkit.errors import UltrasoundInterpolationError
 
@@ -127,6 +129,7 @@ def to_fan_2d(img, angle=None, zero_offset=None, pix_per_mm=None,
             int(reserve // pix_per_mm),
             int((reserve * 0.80) // pix_per_mm),
             3)
+
     origin = (int(output_shape[0] // 2), 0)
 
     img = ndimage.geometric_transform(img,
@@ -160,7 +163,7 @@ def ult_cart2pol(
         theta = math.atan2(y, x)
         return r, theta
     (r, theta) = cart2pol(output_coordinates[0] - origin[0],
-                       output_coordinates[1] - origin[1])
+                          output_coordinates[1] - origin[1])
     r *= pix_per_mm
     cl = num_of_vectors // 2
     if grayscale:

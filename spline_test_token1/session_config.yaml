@@ -1,0 +1,19 @@
+# This tells SATKIT which metadata importer to use.
+data_source: AAA
+
+# Paths to data, metadata and instructions.
+paths:
+  # This is where we read the data and metadata from. Leave the data type
+  # specific directories empty if everything is in one directory. Dataset's
+  # root directory is determined at run time .
+  wav:
+  textgrid: 
+  ultrasound:
+
+  # Strict YAML file specifying recordings to be excluded based 
+  # on both prompts and file names.
+  exclusion_list: 
+
+  # Where to find the spline import data. This is assumed to be relative to data
+  # path.
+  spline_config: spline_config.yaml

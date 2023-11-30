@@ -1,7 +1,8 @@
 #
-# Copyright (c) 2019-2023 Pertti Palo, Scott Moisik, Matthew Faytak, and Motoki Saito.
+# Copyright (c) 2019-2023
+# Pertti Palo, Scott Moisik, Matthew Faytak, and Motoki Saito.
 #
-# This file is part of Speech Articulation ToolKIT 
+# This file is part of Speech Articulation ToolKIT
 # (see https://github.com/giuthas/satkit/).
 #
 # This program is free software: you can redistribute it and/or modify
@@ -28,14 +29,99 @@
 # articles listed in README.markdown. They can also be found in
 # citations.bib in BibTeX format.
 #
+"""
+This module contains all sorts of constants used by SATKIT.
+
+Enums are used for constants that need to be instantiated from other variables.
+They maybe used as fields in other objects. Using an Enum limits the possible
+values and avoids typos and makes an IDE help in writing code.
+
+Frozen dataclasses are used for constants that only ever need to be accessed
+and never are stored. In effect, they function as look-up tables.
+"""
 from dataclasses import dataclass
+from enum import Enum
+
+# TODO 1.0: Decouple program and file format versions at version 1.0.
+SATKIT_VERSION = '0.7.0'
+SATKIT_FILE_VERSION = SATKIT_VERSION
+
+
+class CoordinateSystems(Enum):
+    """
+    Enum to differentiate coordinate systems.
+    """
+    CARTESIAN = 'Cartesian'
+    POLAR = 'polar'
+
+
+class Datasource(Enum):
+    """
+    Data sources SATKIT can handle.
+
+    Used in saving and loading to identify the data source in config, as well
+    as in meta and skip the step of trying to figure the data source out from
+    the type of files present.
+    """
+    AAA = "AAA"
+    # EVA = "EVA"
+    RASL = "RASL"
+
+
+class SplineDataColumn(Enum):
+    """
+    Basic data columns that any Spline should reasonably have.
+
+    Accepted values: 'r' with 'phi', 'x' with 'y', and 'confidence'
+    """
+    R = "r"
+    PHI = "phi"
+    X = "x"
+    Y = "y"
+    CONFIDENCE = "confidence"
+
+
+class SplineMetaColumn(Enum):
+    """
+    Basic metadata that any Spline should reasonably have.
+
+    Accepted values:
+    - ignore: marks a column to be ignored, unlike the others below, 
+        can be used several times
+    - id: used to identify the speaker, 
+        often contained in a csv field called 'family name'
+    - given names: appended to 'id' if not marked 'ignore'
+    - date and time: dat3 and time of recording
+    - prompt: prompt of recording, used to identify the recording with 'id'
+    - annotation label: optional field containing annotation information
+    - time in recording: timestamp of the frame this spline belongs to
+    - number of spline points: number of sample points in the spline used 
+        to parse the coordinates and possible confidence information    
+    """
+    IGNORE = "ignore"
+    ID = "id"
+    GIVEN_NAMES = "given names"
+    DATE_AND_TIME = "date and time"
+    PROMPT = "prompt"
+    ANNOTATION_LABEL = "annotation label"
+    TIME_IN_RECORDING = "time in recording"
+    NUMBER_OF_SPLINE_POINTS = "number of spline points"
 
 
 @dataclass(frozen=True)
-class Suffix():
+class SatkitConfigFile:
+    """
+    Human written yaml files to control importing data.
+    """
+    SESSION = 'session_config.yaml'
+    SPLINE = 'spline_config.yaml'
+
+
+@dataclass(frozen=True)
+class SatkitSuffix():
     """
     Suffixes for files saved by SATKIT.
-    
+
     These exist as a convenient way of not needing to risk typos. To see the
     whole layered scheme SATKIT uses see the 'Saving and Loading Data' section
     in the documentation.
@@ -44,5 +130,36 @@ class Suffix():
     DATA = ".npz"
     META = ".satkit_meta"
 
-    def __str__(self):
-        return self.value
+
+class SavedObjectTypes(Enum):
+    """
+    Represent type of a saved satkit object in .satkit_meta.
+    """
+    # TODO 1.1: Check if this is actually in use.
+    RECORDING_SESSION = "RecordingSession"
+    RECORDING = "Recording"
+    MODALITY = "Modality"
+
+
+@dataclass(frozen=True)
+class SourceSuffix():
+    """
+    Suffixes for files imported by SATKIT.
+
+    These exist as a convenient way of not needing to risk typos and for
+    recognising what SATKIT is being asked to import.
+
+    Note that AAA_ULTRA_META_OLD is not a proper suffix and won't be recognised
+    by pathlib and Path as such. Instead do this
+    ```python
+    directory_path = Path(from_some_source)
+    directory_path/(name_string + SourceSuffix.AAA_ULTRA_META_OLD) 
+    ```
+    """
+    AAA_ULTRA = ".ult"
+    AAA_ULTRA_META_OLD = "US.txt"
+    AAA_ULTRA_META_NEW = ".param"
+    AAA_PROMPT = ".txt"
+    AAA_SPLINES = ".spl"
+    AVI = ".avi"
+    CSV = ".csv"

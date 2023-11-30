@@ -1,7 +1,8 @@
 #
-# Copyright (c) 2019-2023 Pertti Palo, Scott Moisik, Matthew Faytak, and Motoki Saito.
+# Copyright (c) 2019-2023
+# Pertti Palo, Scott Moisik, Matthew Faytak, and Motoki Saito.
 #
-# This file is part of Speech Articulation ToolKIT 
+# This file is part of Speech Articulation ToolKIT
 # (see https://github.com/giuthas/satkit/).
 #
 # This program is free software: you can redistribute it and/or modify
@@ -35,15 +36,16 @@ from copy import deepcopy
 from pathlib import Path
 from typing import Optional
 
-# Numpy
 import numpy as np
+
 # local modules
 from satkit.data_structures import Modality, ModalityData, Recording
-from satkit.formats import (read_3d_ultrasound_dicom, read_avi, read_ult,
-                            read_wav)
+from satkit.import_formats import (
+    read_3d_ultrasound_dicom, read_avi, read_ult, read_wav)
 from satkit.interpolate_raw_uti import to_fan, to_fan_2d
 
 _modalities_logger = logging.getLogger('satkit.modalities')
+
 
 class MonoAudio(Modality):
     """
@@ -59,15 +61,14 @@ class MonoAudio(Modality):
     # mains_frequency = None
     # filter = {}
 
-
-    def __init__(self, 
-                recording: Recording, 
-                data_path: Optional[Path]=None,
-                load_path: Optional[Path]=None,
-                parsed_data: Optional[ModalityData]=None,
-                time_offset: Optional[float]=None,
-                go_signal: Optional[float] = None, 
-                has_speech: Optional[bool] = None) -> None:
+    def __init__(self,
+                 recording: Recording,
+                 data_path: Optional[Path] = None,
+                 load_path: Optional[Path] = None,
+                 parsed_data: Optional[ModalityData] = None,
+                 time_offset: Optional[float] = None,
+                 go_signal: Optional[float] = None,
+                 has_speech: Optional[bool] = None) -> None:
         """
         Create a MonoAudio track.
 
@@ -89,12 +90,11 @@ class MonoAudio(Modality):
             audio in the sample.
         """
         super().__init__(
-                recording=recording, 
-                data_path=data_path,
-                load_path=load_path,
-                parent=None,
-                parsed_data=parsed_data,
-                time_offset=time_offset)
+            recording=recording,
+            data_path=data_path,
+            load_path=load_path,
+            parsed_data=parsed_data,
+            time_offset=time_offset)
 
         self.go_signal = go_signal
         self.has_speech = has_speech
@@ -111,12 +111,12 @@ class MonoAudio(Modality):
     # TODO: uncomment and implement when implementing the save features.
     # def _load_data(self):
         # """
-        # Call io functions to load wav data, and any wav related meta saved with it.
+        # Call io functions to load wav data, and any wav related meta
+        # saved with it.
 
-        # The wav data itself is just the original file, but along that a metadata
-        # save file will be read as well to recover any go-signal or speech detection
-        # results.
-        # """
+        # The wav data itself is just the original file, but along that a
+        # metadata save file will be read as well to recover any go-signal or
+        # speech detection results. """
 
     def get_meta(self) -> dict:
         return {'sampling_rate': self.sampling_rate}
@@ -137,15 +137,15 @@ class RawUltrasound(Modality):
         'ZeroOffset'
     ]
 
-    def __init__(self, 
-                recording: Recording, 
-                data_path: Optional[Path]=None,
-                meta_path: Optional[Path]=None,
-                load_path: Optional[Path]=None,
-                parsed_data: Optional[ModalityData]=None,
-                time_offset: Optional[float]=None,
-                meta: Optional[dict]=None 
-                ) -> None:
+    def __init__(self,
+                 recording: Recording,
+                 data_path: Optional[Path] = None,
+                 meta_path: Optional[Path] = None,
+                 load_path: Optional[Path] = None,
+                 parsed_data: Optional[ModalityData] = None,
+                 time_offset: Optional[float] = None,
+                 meta: Optional[dict] = None
+                 ) -> None:
         """
         Create a RawUltrasound Modality.
 
@@ -155,46 +155,48 @@ class RawUltrasound(Modality):
         Keyword arguments:
         data_path -- path of the ultrasound file
         load_path -- path of the saved data - both ultrasound and metadata
-        parsed_data -- ModalityData object containing raw ultrasound, sampling rate,
-            and either timevector and/or time_offset. Providing a timevector 
-            overrides any time_offset value given, but in absence of a 
-            timevector the time_offset will be applied on reading the data 
-            from file. 
+        parsed_data -- ModalityData object containing raw ultrasound,
+            sampling rate, and either timevector and/or time_offset.
+            Providing a timevector overrides any time_offset value given,
+            but in absence of a timevector the time_offset will be applied
+            on reading the data from file. 
         meta -- a dict with (at least) the keys listed in 
             RawUltrasound.requiredMetaKeys. Extra keys will be ignored. 
             Default is None.
         """
-        # Explicitly copy meta data fields to ensure that we have what we expected to get.
-        if meta != None:
+        # Explicitly copy meta data fields to ensure that we have what we
+        # expected to get.
+        if meta is not None:
             try:
                 wanted_meta = {key: meta[key]
                                for key in RawUltrasound.requiredMetaKeys}
                 self.meta = deepcopy(wanted_meta)
             except KeyError:
-                # Missing metadata for one recording may be ok and this could be handled with just
-                # a call to _recording_logger.critical and setting self.excluded = True
-                notFound = set(RawUltrasound.requiredMetaKeys) - set(meta)
+                # Missing metadata for one recording may be ok and this could
+                # be handled with just a call to _recording_logger.critical and
+                # setting self.excluded = True
+                not_found = set(RawUltrasound.requiredMetaKeys) - set(meta)
                 _modalities_logger.critical(
                     "Part of metadata missing when processing %s.",
                     self.meta['filename'])
                 _modalities_logger.critical(
-                    "Could not find %s.", str(notFound))
+                    "Could not find %s.", str(not_found))
                 _modalities_logger.critical('Exiting.')
                 sys.exit()
 
         # Initialise super only after ensuring meta is correct,
         # because latter may already end the run.
         super().__init__(
-                recording=recording, 
-                data_path=data_path,
-                meta_path=meta_path,
-                load_path=load_path,
-                parent=None,
-                parsed_data=parsed_data,
-                time_offset=time_offset)
+            recording=recording,
+            data_path=data_path,
+            meta_path=meta_path,
+            load_path=load_path,
+            parsed_data=parsed_data,
+            time_offset=time_offset)
 
-        # TODO: these are related to GUI and should really be in a decorator class and not here.
-        # State variables for fast retrieval of previously tagged ultrasound frames.
+        # TODO: these are related to GUI and should really be in a decorator
+        # class and not here. State variables for fast retrieval of previously
+        # tagged ultrasound frames.
         self._stored_index = None
         self._stored_image = None
         self.video_has_been_stored = False
@@ -216,26 +218,29 @@ class RawUltrasound(Modality):
     def interpolated_image(self, index):
         """
         Return an interpolated version of the ultrasound frame at index.
-        
-        A new interpolated image is calculated, if necessary. To avoid large memory overheads
-        only the current frame's interpolated version maybe stored in memory.
 
-        Arguments:
-        index - the index of the ultrasound frame to be returned
+        A new interpolated image is calculated, if necessary. To avoid large
+        memory overheads only the current frame's interpolated version maybe
+        stored in memory.
+
+        Arguments: index - the index of the ultrasound frame to be returned
         """
         _modalities_logger.debug(
-            "Getting interpolated image from ultrasound. index=%d"%(index))
+            "Getting interpolated image from ultrasound. index=%d", index)
         if self.video_has_been_stored:
-            _modalities_logger.debug("Returning interpolated image from stored video.")
+            _modalities_logger.debug(
+                "Returning interpolated image from stored video.")
             half_way = int(self.stored_video.shape[0]/2)
             return self.stored_video[half_way, :, :].copy()
         elif self._stored_index and self._stored_index == index:
-            _modalities_logger.debug("Returning previously stored interpolated image.")
+            _modalities_logger.debug(
+                "Returning previously stored interpolated image.")
             return self._stored_image
         else:
-            _modalities_logger.debug("Calculating interpolated image from scratch.")
+            _modalities_logger.debug(
+                "Calculating interpolated image from scratch.")
             self._stored_index = index
-            #frame = scipy_medfilt(self.data[index, :, :].copy(), [1,15])
+            # frame = scipy_medfilt(self.data[index, :, :].copy(), [1,15])
             frame = self.data[index, :, :].copy()
             # half = int(frame.shape[0]/2)
             # frame[:half,:] = 0
@@ -250,12 +255,12 @@ class RawUltrasound(Modality):
     def interpolated_frames(self) -> np.ndarray:
         """
         Return an interpolated version of the ultrasound frame at index.
-        
-        A new interpolated image is calculated, if necessary. To avoid large memory overheads
-        only the current frame's interpolated version maybe stored in memory.
 
-        Arguments:
-        index - the index of the ultrasound frame to be returned
+        A new interpolated image is calculated, if necessary. To avoid large
+        memory overheads only the current frame's interpolated version maybe
+        stored in memory.
+
+        Arguments: index - the index of the ultrasound frame to be returned
         """
         data = self.data.copy()
 
@@ -273,7 +278,6 @@ class RawUltrasound(Modality):
         return video
 
 
-
 class Video(Modality):
     """
     Video recording.    
@@ -283,14 +287,14 @@ class Video(Modality):
         'FramesPerSec'
     ]
 
-    def __init__(self, 
-                recording: Recording, 
-                data_path: Optional[Path]=None,
-                load_path: Optional[Path]=None,
-                parsed_data: Optional[ModalityData]=None,
-                time_offset: Optional[float]=None,
-                meta: Optional[dict]=None 
-                ) -> None:
+    def __init__(self,
+                 recording: Recording,
+                 data_path: Optional[Path] = None,
+                 load_path: Optional[Path] = None,
+                 parsed_data: Optional[ModalityData] = None,
+                 time_offset: Optional[float] = None,
+                 meta: Optional[dict] = None
+                 ) -> None:
         """
         Create a Video Modality.
 
@@ -331,18 +335,19 @@ class Video(Modality):
             self.meta.deepcopy(wanted_meta)
 
         super().__init__(
-                recording=recording, 
-                data_path=data_path,
-                load_path=load_path,
-                parent=None,
-                parsed_data=parsed_data,
-                time_offset=time_offset)
+            recording=recording,
+            data_path=data_path,
+            load_path=load_path,
+            parent=None,
+            parsed_data=parsed_data,
+            time_offset=time_offset)
 
     def _readData(self) -> ModalityData:
         return read_avi(self.data_path, self.meta, self._time_offset)
 
     def get_meta(self) -> dict:
         return {'sampling_rate': self.sampling_rate}
+
 
 class ThreeD_Ultrasound(Modality):
     """
@@ -359,15 +364,15 @@ class ThreeD_Ultrasound(Modality):
         'ZeroOffset'
     ]
 
-    def __init__(self, 
-                recording: Recording, 
-                data_path: Optional[Path]=None,
-                load_path: Optional[Path]=None,
-                meta_path: Optional[Path]=None,
-                parsed_data: Optional[ModalityData]=None,
-                time_offset: Optional[float]=None,
-                meta: Optional[dict]=None 
-                ) -> None:
+    def __init__(self,
+                 recording: Recording,
+                 data_path: Optional[Path] = None,
+                 load_path: Optional[Path] = None,
+                 meta_path: Optional[Path] = None,
+                 parsed_data: Optional[ModalityData] = None,
+                 time_offset: Optional[float] = None,
+                 meta: Optional[dict] = None
+                 ) -> None:
         """
         Create a RawUltrasound Modality.
 
@@ -407,13 +412,13 @@ class ThreeD_Ultrasound(Modality):
         # Initialise super only after ensuring meta is correct,
         # because latter may already end the run.
         super().__init__(
-                recording=recording, 
-                data_path=data_path,
-                meta_path=meta_path,
-                load_path=load_path,
-                parent=None,
-                parsed_data=parsed_data,
-                time_offset=time_offset)
+            recording=recording,
+            data_path=data_path,
+            meta_path=meta_path,
+            load_path=load_path,
+            parent=None,
+            parsed_data=parsed_data,
+            time_offset=time_offset)
 
         # TODO: these are related to GUI and should really be in a decorator class and not here.
         # State variables for fast retrieval of previously tagged ultrasound frames.
@@ -422,9 +427,9 @@ class ThreeD_Ultrasound(Modality):
 
     def _read_data(self) -> ModalityData:
         return read_3d_ultrasound_dicom(
-                self.data_path, 
-                self.meta, 
-                self._time_offset)
+            self.data_path,
+            self.meta,
+            self._time_offset)
 
     @property
     def data(self) -> np.ndarray:

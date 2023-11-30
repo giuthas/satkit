@@ -1,6 +1,0 @@
-# Generate docs with pdoc ...
-pdoc -o docs satkit
-
-# and some diagrams to be linked as well.
-# Needs Graphviz to work properly
-pyreverse -o png -p satkit -d docs satkit

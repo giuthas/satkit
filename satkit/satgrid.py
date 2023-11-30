@@ -1,5 +1,6 @@
 #
-# Copyright (c) 2019-2023 Pertti Palo, Scott Moisik, Matthew Faytak, and Motoki Saito.
+# Copyright (c) 2019-2023 
+# Pertti Palo, Scott Moisik, Matthew Faytak, and Motoki Saito.
 #
 # This file is part of Speech Articulation ToolKIT 
 # (see https://github.com/giuthas/satkit/).
@@ -31,7 +32,7 @@
 from collections import OrderedDict
 from typing import Union
 
-from satkit.configuration import config
+from satkit.configuration import config_dict
 from textgrids import Interval, TextGrid, Tier, Transcript
 from textgrids.templates import (long_header, long_interval, long_point,
                                  long_tier)
@@ -42,20 +43,20 @@ class SatInterval:
     """TextGrid Interval representation to enable editing with GUI."""
 
     @classmethod
-    def from_textgrid_interval(cls, 
-        interval: Interval, 
-        prev: Union[None, Self], 
-        next: Union[None, Self]=None) -> Self:
+    def from_textgrid_interval(cls,
+                               interval: Interval,
+                               prev: Union[None, Self],
+                               next: Union[None, Self] = None) -> Self:
         """
         Copy the info of a Python TextGrids Interval into a new SatInterval.
-        
+
         Only xmin and text are copied from the original Interval. xmax is
         assumed to be handled by either the next SatInterval or the constructing
         method if this is the last Interval. 
 
         Since SatIntervals are doubly linked, an attempt will be made to link
         prev and next to this interval. 
-        
+
         Returns the newly created SatInterval.
         """
         return cls(
@@ -64,11 +65,11 @@ class SatInterval:
             prev=prev,
             next=next)
 
-    def __init__(self, 
-            begin: float, 
-            text: Union[None, Transcript], 
-            prev: Union[None, Self]=None,
-            next: Union[None, Self]=None) -> None:
+    def __init__(self,
+                 begin: float,
+                 text: Union[None, Transcript],
+                 prev: Union[None, Self] = None,
+                 next: Union[None, Self] = None) -> None:
         self.begin = begin
         self.text = text
 
@@ -84,7 +85,7 @@ class SatInterval:
     def mid(self) -> Union[float, None]:
         """
         Middle time point of the interval.
-        
+
         This is a property that will return None
         if this Interval is the one that marks
         the last boundary.
@@ -94,10 +95,10 @@ class SatInterval:
         else:
             return None
 
-    def is_legal_value(self, time:float) -> bool:
+    def is_legal_value(self, time: float) -> bool:
         """
         Check if the given time is between the previous and next boundary.
-        
+
         Usual caveats about float testing don't apply, because each boundary is
         padded with SATKIT epsilon. Tests used do not include equality with
         either bounding boundary, and that may or may not be trusted to be the
@@ -105,8 +106,8 @@ class SatInterval:
 
         Returns True, if time is  between the previous and next boundary.
         """
-        return (time + config['epsilon'] < self.next.begin and 
-                time > config['epsilon'] + self.prev.begin)
+        return (time + config_dict['epsilon'] < self.next.begin and
+                time > config_dict['epsilon'] + self.prev.begin)
 
     def is_at_time(self, time):
         """
@@ -114,17 +115,17 @@ class SatInterval:
         begin values is < epsilon. Epsilon is a constant defined in SATKIT's
         configuration.
         """
-        return abs(self.begin - time) < config['epsilon']
+        return abs(self.begin - time) < config_dict['epsilon']
 
 
 class SatTier(list):
     """TextGrid Tier representation to enable editing with GUI."""
 
-    @classmethod 
-    def from_textgrid_tier(cls, tier:Tier) -> Self:
+    @classmethod
+    def from_textgrid_tier(cls, tier: Tier) -> Self:
         """
         Copy a Python TextGrids Tier as a SatTier.
-        
+
         Returns the newly created SatTier.
         """
         return cls(tier)
@@ -135,7 +136,7 @@ class SatTier(list):
         for interval in tier:
             current = SatInterval.from_textgrid_interval(interval, prev)
             self.append(current)
-            prev = current 
+            prev = current
             last_interval = interval
         self.append(SatInterval(last_interval.xmax, None, prev))
 
@@ -143,7 +144,7 @@ class SatTier(list):
     def begin(self) -> float:
         """
         Begin timestamp.
-        
+
         Corresponds to a TextGrid Interval's xmin.
 
         This is a property and the actual value is generated from the first
@@ -155,14 +156,14 @@ class SatTier(list):
     def end(self) -> float:
         """
         End timestamp.
-        
+
         Corresponds to a TextGrid Interval's xmin.
 
         This is a property and the actual value is generated from the last
         SatInterval of this SatTier.
         """
         # This is slightly counter intuitive, but the last interval is infact
-        # empty and only represents the final boundary. So its begin is 
+        # empty and only represents the final boundary. So its begin is
         # the final boundary.
         return self[-1].begin
 
@@ -174,22 +175,22 @@ class SatTier(list):
     def boundary_at_time(self, time) -> Union[SatInterval, None]:
         """
         If there is a boundary at time, return it.
-        
+
         Returns None, if there is no boundary at time. 
-        
+
         'Being at time' is defined as being within SATKIT epsilon of the given
         timestamp.
         """
         for interval in self:
             if interval.is_at_time(time):
                 return interval
-        return None 
+        return None
 
 
 class SatGrid(OrderedDict):
     """
     TextGrid representation which makes editing easier.
-    
+
     SatGrid is a OrderedDict very similar to Python textgrids TextGrid, but made
     up of SatTiers that in turn contain intervals or points as doubly linked
     lists instead of just lists. See there relevant classes for more details.
@@ -198,7 +199,7 @@ class SatGrid(OrderedDict):
     def __init__(self, textgrid: TextGrid) -> None:
         for tier_name in textgrid:
             self[tier_name] = SatTier.from_textgrid_tier(textgrid[tier_name])
-    
+
     def as_textgrid(self):
         pass
 
@@ -206,7 +207,7 @@ class SatGrid(OrderedDict):
     def begin(self) -> float:
         """
         Begin timestamp.
-        
+
         Corresponds to a TextGrids xmin.
 
         This is a property and the actual value is generated from the first
@@ -219,7 +220,7 @@ class SatGrid(OrderedDict):
     def end(self) -> float:
         """
         End timestamp.
-        
+
         Corresponds to a TextGrids xmax.
 
         This is a property and the actual value is generated from the first
@@ -229,7 +230,7 @@ class SatGrid(OrderedDict):
         key = list(self.keys())[0]
         # Return the end of the first Tier.
         return self[key].end
-        
+
     def format_long(self) -> str:
         '''Format self as long format TextGrid.'''
         global long_header, long_tier, long_point, long_interval
@@ -261,7 +262,7 @@ class SatGrid(OrderedDict):
                                                 elem.text)
                 else:
                     # The last interval does not contain anything.
-                    # It only marks the end of the file and final 
+                    # It only marks the end of the file and final
                     # interval's end. That info got already used by
                     # elem.next.begin above.
                     pass

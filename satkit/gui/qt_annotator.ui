@@ -286,7 +286,6 @@
      <string>File</string>
     </property>
     <addaction name="actionOpen"/>
-    <addaction name="actionSaveToPickle"/>
     <addaction name="actionSaveAll"/>
     <addaction name="separator"/>
     <addaction name="actionExport_analysis"/>
@@ -295,6 +294,9 @@
     <addaction name="actionQuit"/>
    </widget>
    <widget class="QMenu" name="menuImage">
+    <property name="enabled">
+     <bool>false</bool>
+    </property>
     <property name="title">
      <string>Image</string>
     </property>
@@ -302,6 +304,9 @@
     <addaction name="actionSave_as"/>
    </widget>
    <widget class="QMenu" name="menuScript">
+    <property name="enabled">
+     <bool>false</bool>
+    </property>
     <property name="title">
      <string>Script</string>
     </property>
@@ -332,6 +337,9 @@
   <action name="actionOpen">
    <property name="text">
     <string>Open...</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+O</string>
    </property>
   </action>
   <action name="actionSaveAll">
@@ -387,6 +395,9 @@
    </property>
   </action>
   <action name="actionExport_analysis">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
    <property name="text">
     <string>Export analysis...</string>
    </property>

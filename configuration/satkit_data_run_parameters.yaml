@@ -1,5 +1,6 @@
 ##
-## Copyright (c) 2019-2023 Pertti Palo, Scott Moisik, Matthew Faytak, and Motoki Saito.
+## Copyright (c) 2019-2023 
+## Pertti Palo, Scott Moisik, Matthew Faytak, and Motoki Saito.
 ##
 ## This file is part of Speech Articulation ToolKIT 
 ## (see https://github.com/giuthas/satkit/).
@@ -37,25 +38,10 @@ flags:
   detect beep: True # Should onset beep detection be run?
   test: False # Run on only the first 10 recordings.
 
-data properties:
-  # This tells SATKIT which metadata importer to use.
-  data source: AAA
-
-  # Strict YAML file specifying recordings to be excluded based 
-  # on both prompts and file names.
-  exclusion list: 
-
-  # This is where we read the data and metadata from. Leave the data type specific
-  # directories empty if everything is in one directory.
-  data path: local_data/icphs-2023-giulia
-  wav directory:
-  textgrid directory: 
-  ultrasound directory:
-
-  # This is where SATKIT will save results of data processing. Please note that
-  # once exclusion list or similar things can be edited in SATKIT, they will by
-  # default be saved at their original locations.
-  output directory : local_data/icphs-2023-giulia/satkit/
+# This is where SATKIT will save results of data processing. Please note that
+# once exclusion list or similar things can be edited in SATKIT, they will by
+# default be saved at their original locations.
+output directory:
 
 # Config for the yet-to-happen submodule CAST that is still a separate entity. 
 cast:

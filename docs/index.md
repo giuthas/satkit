@@ -1,5 +1,6 @@
 <!--
-Copyright (c) 2019-2023 Pertti Palo, Scott Moisik, Matthew Faytak, and Motoki Saito.
+Copyright (c) 2019-2023 
+Pertti Palo, Scott Moisik, Matthew Faytak, and Motoki Saito.
 
 This file is part of Speech Articulation ToolKIT 
 (see https://github.com/giuthas/satkit/).
@@ -54,10 +55,12 @@ SATKIT's class structure aims for efficiency without sacrificing clarity. Clarit
   - [Core Data Structures](CoreDataStructures.markdown)
   - [Modalities for Recorded Data](ModalitiesforRecordedData.markdown)
   - [Modalities for Derived Data](ModalitiesforDerivedData.markdown)
-  - [Modalities in Practice](ModalitiesinPractice.markdown)
+  - [Modalities in Practice](ModalitiesinPractice.markdown) including notes on
+    specific Modalities
+    - [Splines in SATKIT](Splines.markdown)
   - [Database Classes](DatabaseClasses.markdown)
 - Extending SATKIT
-  - Before starting, please read [SATKIT Coding Conventions](SATKIT_coding_conventions.markdown).
+  - Before starting, please read Coding conventions in [SATKIT development guide](SATKIT_development_guide.markdown).
   - Implementing a New Datasource
   - [Writing a New Modality](WritingNewModality.markdown)
 

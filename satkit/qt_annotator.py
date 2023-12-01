@@ -355,18 +355,19 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
         wav = audio.data
         wav_time = audio.timevector - stimulus_onset
 
-        # l0 = self.current.modalities['PD l0 on RawUltrasound']
-        # l0_01 = self.current.modalities['PD l0.01 on RawUltrasound']
-        # l0_1 = self.current.modalities['PD l0.1 on RawUltrasound']
-        # l0_5 = self.current.modalities['PD l0.5 on RawUltrasound']
-
-        # ic(self.current.modalities)
+        ic(self.current.modalities)
 
         l1 = self.current.modalities['PD l1 on RawUltrasound']
-        annd = self.current.modalities['SplineMetric annd ts3 on Splines']
-        mpbpd = self.current.modalities['SplineMetric mpbpd ts3 on Splines']
-        curvature = self.current.modalities['SplineMetric modified_curvature on Splines']
-        fourier = self.current.modalities['SplineMetric fourier on Splines']
+
+        plot_modality_names = [
+            (f"PD l1 ts{i+1} on RawUltrasound") for i in range(7)]
+        plot_modality_names[0] = "PD l1 on RawUltrasound"
+        ic(plot_modality_names)
+
+        # annd = self.current.modalities['SplineMetric annd ts3 on Splines']
+        # mpbpd = self.current.modalities['SplineMetric mpbpd ts3 on Splines']
+        # curvature = self.current.modalities['SplineMetric modified_curvature on Splines']
+        # fourier = self.current.modalities['SplineMetric fourier on Splines']
         # l1_top = self.current.modalities['PD l1 top on RawUltrasound']
         # l1_bottom = self.current.modalities['PD l1 bottom on RawUltrasound']
 
@@ -384,8 +385,8 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
         # l2_interpolated_top = self.current.modalities['Interpolated PD l2 top on RawUltrasound']
         # l2_interpolated_bottom = self.current.modalities['Interpolated PD l2 bottom on RawUltrasound']
         ultra_time = l1.timevector - stimulus_onset
-        annd_time = annd.timevector - stimulus_onset
-        curvature_time = curvature.timevector - stimulus_onset
+        # annd_time = annd.timevector - stimulus_onset
+        # curvature_time = curvature.timevector - stimulus_onset
         # l2_size = len(self.current.modalities['RawUltrasound'].data[0,:,:])
         # half = int(self.current.modalities['RawUltrasound'].data.shape[1]/2)
         # l2_top_size = len(self.current.modalities['RawUltrasound'].data[0,:half,:])
@@ -425,132 +426,26 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
 
         # plot_density(self.data_axes[0], frequencies.data)
 
-        # raw_l0 = plot_timeseries(self.data_axes[0], l0.data,
-        #     ultra_time, self.xlim, ylim, color='black', linestyle='--',
-        #     normalise=Normalisation('PEAK AND BOTTOM'))
-        # raw_l0_01 = plot_timeseries(self.data_axes[0], l0_01.data,
-        #     ultra_time, self.xlim, ylim, color='black',
-        #     normalise=Normalisation('PEAK AND BOTTOM'))
-        # raw_l0_1 = plot_timeseries(self.data_axes[0], l0_1.data,
-        #     ultra_time, self.xlim, ylim, color='dimgrey',
-        #     normalise=Normalisation('PEAK AND BOTTOM'))
-        # raw_l0_5 = plot_timeseries(self.data_axes[0], l0_5.data,
-        #     ultra_time, self.xlim, ylim, color='grey',
-        #     normalise=Normalisation('PEAK AND BOTTOM'))
-        raw_l1 = plot_timeseries(
-            self.data_axes[0],
-            l1.data, ultra_time, self.xlim, ylim, color='yellowgreen',
-            normalise=Normalisation('PEAK AND BOTTOM'),
-            find_peaks=False)
-        # annd_line = plot_timeseries(
-        #     self.data_axes[0],
-        #     annd.data, annd_time, self.xlim, ylim, color='blue',
-        #     normalise=Normalisation('PEAK AND BOTTOM'),
-        #     find_peaks=False)
-        mpbpd_line = plot_timeseries(
-            self.data_axes[0],
-            mpbpd.data, annd_time, self.xlim, ylim, color='orange',
-            normalise=Normalisation('PEAK AND BOTTOM'),
-            find_peaks=False)
-        curvature_line = plot_timeseries(
-            self.data_axes[0],
-            curvature.data, curvature_time, self.xlim, ylim, color='black',
-            normalise=Normalisation('PEAK AND BOTTOM'),
-            find_peaks=False)
-        fourier_line = plot_timeseries(
-            self.data_axes[0],
-            fourier.data[:, 0,
-                         0], curvature_time, self.xlim, ylim, color='gray',
-            normalise=Normalisation('PEAK AND BOTTOM'),
-            find_peaks=False)
-        # raw_l1_bottom = plot_timeseries(self.data_axes[0], l1_bottom.data,
-        #     ultra_time, self.xlim, ylim, color='gray', linestyle=':',
-        #     normalise=Normalisation('PEAK AND BOTTOM'))
-        # raw_l1_top = plot_timeseries(self.data_axes[0], l1_top.data,
-        #     ultra_time, self.xlim, ylim, color='blue', linestyle=':',
-        #     normalise=Normalisation('PEAK AND BOTTOM'))
-        # raw_top = plot_timeseries(self.data_axes[0], l2_top.data,
-        #     ultra_time, self.xlim, ylim, color='black',
-        #     normalise=Normalisation('PEAK'))
-        self.data_axes[0].set_ylabel("Pixel difference (PD)")
+        plots = []
+        labels = []
+        for i, name in enumerate(plot_modality_names):
+            modality = self.current.modalities[name]
+            new = plot_timeseries(
+                self.data_axes[0],
+                modality.data, modality.timevector-stimulus_onset,
+                self.xlim, ylim,
+                color=(0+i*.1, 0+i*.1, 0+i*.1),
+                linestyle=(0, (i+1, i+1)),
+                normalise=Normalisation('PEAK AND BOTTOM'),
+                find_peaks=False, sampling_step=i+1)
+            plots.append(new)
+            labels.append(f"{modality.sampling_rate/(i+1):.2f}")
+
         self.data_axes[0].legend(
-            (
-                # raw_l0, raw_l0_01,
-                # raw_l0_1, raw_l0_5,
-                raw_l1, mpbpd_line, curvature_line, fourier_line
-            ),
-            # , interp, interp_top, interp_bottom),
-            (
-                # 'l0', 'l0.01',
-                # 'l0.1', 'l0.5',
-                'PD l1', 'mpbpd', 'mci', 'fft real1'
-            ),
-            # , 'Interpolated', 'Interpolated top', 'Interpolated bottom'),
+            plots, labels,
             loc='upper left')
 
-        # raw_l1 = plot_timeseries(self.data_axes[1], l1.data,
-        #     ultra_time, self.xlim, ylim, color='gray', linestyle=':',
-        #     normalise=Normalisation('PEAK AND BOTTOM'))
-        # raw_l1_bottom = plot_timeseries(self.data_axes[1], l1_bottom.data,
-        #     ultra_time, self.xlim, ylim, color='black',
-        #     normalise=Normalisation('PEAK AND BOTTOM'), find_peaks=True)
-        # raw_l2 = plot_timeseries(self.data_axes[1], l2.data,
-        #     ultra_time, self.xlim, ylim, color='yellowgreen',
-        #     normalise=Normalisation('PEAK AND BOTTOM'))
-        # raw_l4 = plot_timeseries(self.data_axes[1], l4.data,
-        #     ultra_time, self.xlim, ylim, color='saddlebrown',
-        #     normalise=Normalisation('PEAK AND BOTTOM'))
-        # raw_l10 = plot_timeseries(self.data_axes[1], l10.data,
-        #     ultra_time, self.xlim, ylim, color='saddlebrown', linestyle='--',
-        #     normalise=Normalisation('PEAK AND BOTTOM'))
-        # raw_linf = plot_timeseries(self.data_axes[1], linf.data,
-        #     ultra_time, self.xlim, ylim, color='saddlebrown', linestyle=':',
-        #     normalise=Normalisation('PEAK AND BOTTOM'))
-        # self.data_axes[1].set_ylabel("Peaks from\nbottom of image")
-
-        # interp = plot_timeseries(self.data_axes[1], l2_interpolated.data,
-        #     ultra_time, self.xlim, ylim, color='black', linestyle="--", peak_normalise=True)
-        # interp_top = plot_timeseries(self.data_axes[1], l2_interpolated_top.data,
-        #     ultra_time, self.xlim, ylim, color='lime', linestyle="--", peak_normalise=True)
-        # interp_bottom = plot_timeseries(self.data_axes[1], l2_interpolated_bottom.data,
-        #     ultra_time, self.xlim, ylim, color='orange', linestyle="--", peak_normalise=True)
-        # self.data_axes[1].set_ylabel("Peak normalised PD")
-
-        # self.data_axes[0].legend(
-        #     (raw, raw_top, raw_bottom),
-        #     ('Raw', 'Raw upper', 'Raw lower'),
-        #     loc='upper right')
-        # self.data_axes[1].legend(
-        #     (
-        #         #raw_l0, raw_l0_01,
-        #         # raw_l0_1, raw_l0_5,
-        #         raw_l1, raw_l1_bottom
-        #     ),
-        #     # , interp, interp_top, interp_bottom),
-        #     (
-        #         # 'l0', 'l0.01',
-        #         # 'l0.1', 'l0.5',
-        #         'l1 whole', 'l1 bottom'
-        #     ),
-        #     #, 'Interpolated', 'Interpolated top', 'Interpolated bottom'),
-        #     loc='upper right')
-
-        # self.ylim = None
-        # plot_timeseries(self.data_axes[1], l2.data/l2_size,
-        #     ultra_time, self.xlim, self.ylim)
-        # plot_timeseries(self.data_axes[1], l2_top.data/l2_top_size,
-        #     ultra_time, self.xlim, self.ylim, color='green')
-        # plot_timeseries(self.data_axes[1], l2_bottom.data/l2_bottom_size,
-        #     ultra_time, self.xlim, self.ylim, color='red')
-        # self.data_axes[1].set_ylabel("Pixel normalised PD")
-
-        # plot_timeseries(self.data_axes[2], l2_interpolated.data/l2_interp_size,
-        #     ultra_time, self.xlim, self.ylim, color='black', linestyle="--")
-        # plot_timeseries(self.data_axes[2], l2_interpolated_top.data/l2_interp_size_top,
-        #     ultra_time, self.xlim, self.ylim, color='lime', linestyle="--")
-        # plot_timeseries(self.data_axes[2], l2_interpolated_bottom.data/l2_interp_size_bottom,
-        #     ultra_time, self.xlim, self.ylim, color='orange', linestyle="--")
-        # self.data_axes[2].set_ylabel("Pixel normalised PD")
+        self.data_axes[0].set_ylabel("Pixel difference (PD)")
 
         plot_wav(self.data_axes[2], wav, wav_time, self.xlim)
         plot_spectrogram(self.data_axes[1],
@@ -560,13 +455,15 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
                          xtent_on_x=[wav_time[0], wav_time[-1]])
 
         # TODO: the sync is out with this one, but plotting a pd spectrum is
-        # still a good idea.
-        # plot_spectrogram(self.data_axes[2],
-        #                 waveform=l2.data,
-        #                 ylim=(0,40),
-        #                 sampling_frequency=l2.sampling_rate,
-        #                 xtent_on_x=[-1.5812581, 1]) #,
-        #                 # xtent_on_x=[ultra_time[0], ultra_time[-1]]) #,
+        # still a good idea. Just need to get the FFT parameters tuned - if
+        # that's even possible.
+        # plot_spectrogram(self.data_axes[1],
+        #                  waveform=l1.data,
+        #                  ylim=(0, 60),
+        #                  sampling_frequency=l1.sampling_rate,
+        #                  noverlap=98, NFFT=100,
+        #                  #  xtent_on_x=[-1, 1])  # ,
+        #                  xtent_on_x=[ultra_time[0], ultra_time[-1]])  # ,
 
         segment_line = None
         self.animators = []

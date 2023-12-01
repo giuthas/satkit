@@ -67,26 +67,27 @@ def main():
     pd_arguments = {
         # 'norms': ['l0', 'l0.01', 'l0.1', 'l0.5', 'l1', 'l2',
         # 'l4', 'l10', 'l_inf', 'd'],
-        'norms': ['l1'],
-        'mask_images': True,
+        'norms': ['l0.5', 'l1', 'l2', 'l5'],
+        'timesteps': [1, 2, 3, 4, 5, 6, 7],
+        'mask_images': False,
         'pd_on_interpolated_data': False,
         'release_data_memory': True,
         'preload': True}
 
-    spline_metric_arguments = {
-        'metrics': ['annd', 'mpbpd', 'modified_curvature', 'fourier'],
-        'timesteps': [3],
-        'exclude_points': recording_session.config.spline_config.data_config.ignore_points,
-        'release_data_memory': False,
-        'preload': True}
+    # spline_metric_arguments = {
+    #     'metrics': ['annd', 'mpbpd', 'modified_curvature', 'fourier'],
+    #     'timesteps': [3],
+    #     'exclude_points': recording_session.config.spline_config.data_config.ignore_points,
+    #     'release_data_memory': False,
+    #     'preload': True}
 
     function_dict = {
         'PD': (add_pd,
                [RawUltrasound],
-               pd_arguments),
-        'SplineMetric': (add_spline_metric,
-                         [Splines],
-                         spline_metric_arguments)  # ,
+               pd_arguments)  # ,
+        # 'SplineMetric': (add_spline_metric,
+        #                  [Splines],
+        #                  spline_metric_arguments)  # ,
         # 'peaks': (peaks.time_series_peaks,
         # [RawUltrasound],
         # TODO: figure out if this will actually work because this should be

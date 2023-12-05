@@ -32,6 +32,7 @@
 """SATKIT plotting functions."""
 
 # Built in packages
+from dataclasses import dataclass
 import logging
 from enum import Enum
 from typing import List, Optional, Tuple, Union
@@ -41,13 +42,14 @@ import numpy as np
 from scipy import signal as scipy_signal
 from scipy import interpolate
 
-from icecream import ic
+# from icecream import ic
 
 # Scientific plotting
 from matplotlib.axes import Axes
 from matplotlib.lines import Line2D
 
 # Local packages
+from satkit.data_structures import Modality
 from satkit.gui.boundary_animation import AnimatableBoundary, BoundaryAnimator
 from satkit.satgrid import SatTier
 
@@ -60,13 +62,45 @@ class Normalisation(Enum):
 
     none: no normalisation
     peak: divide all data points y-values by the largest y-value
-    bottom: deduct the lowest y-value from all data poitns y-values
+    bottom: deduct the lowest y-value from all data points y-values
     both: do first bottom normalisation and then peak normalisation.
     """
     none = 'NONE'
     peak = 'PEAK'
     bottom = 'BOTTOM'
     both = 'PEAK AND BOTTOM'
+
+
+@dataclass
+class LegendItem:
+    line: Line2D
+    title: Optional[str] = None
+
+
+def plot_1d_modality(axes: Axes,
+                     modality: Modality,
+                     time_offset: float,
+                     **kwargs) -> LegendItem:
+    """
+    Plot a modality assuming its data is one dimensional.
+
+    Parameters
+    ----------
+    modality : Modality
+        _description_
+    time_offset : float
+        _description_
+
+    Returns
+    -------
+    LegendItem
+        _description_
+    """
+    data = modality.data
+    time = modality.timevector - time_offset
+
+    line = plot_timeseries(axes, data, time, **kwargs)
+    return LegendItem(line=line)
 
 
 def plot_timeseries(axes: Axes,
@@ -106,7 +140,8 @@ def plot_timeseries(axes: Axes,
     linestyle -- matplotlib linestyle.
     alpha -- alpha value for the line.
 
-    Returns None.
+    Returns Line2D which is not the plotted line but one that 
+    can be used for adding a legend to the plot.
     """
     plot_data = data[number_of_ignored_frames:]
     plot_time = time[number_of_ignored_frames:]

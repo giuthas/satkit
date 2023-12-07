@@ -571,16 +571,20 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
         if 'PD l1 on RawUltrasound' in self.current.modalities:
             pd_metrics = self.current.modalities['PD l1 on RawUltrasound']
             ultra_time = pd_metrics.timevector - stimulus_onset
-            self.current.annotations['selected_time'] = ultra_time[self.current.annotations['selection_index']]
+            index = self.current.annotations['selection_index']
+            self.current.annotations['selected_time'] = ultra_time[index]
 
     def next_frame(self):
         """
         Move the data cursor to the next frame.
         """
-        if (self.current.annotations['selection_index'] > -1 and
-            'PD l1 on RawUltrasound' in self.current.modalities and
-                self.current.annotations['selection_index'] < self.current.modalities['PD l1 on RawUltrasound'].data.size):
+        if not 'PD l1 on RawUltrasound' in self.current.modalities:
+            return
 
+        selection_index = self.current.annotations['selection_index']
+        pd = self.current.modalities['PD l1 on RawUltrasound']
+        data_length = pd.data.size
+        if -1 < selection_index < data_length:
             self.current.annotations['selection_index'] += 1
             _logger.debug(
                 "next frame: %d",
@@ -689,7 +693,8 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
                 self, 'Save file', directory='.',
                 filter="TextGrid files (*.TextGrid)")
         if self.current.textgrid_path and self.current.satgrid:
-            with open(self.current.textgrid_path, 'w', encoding='utf-8') as outfile:
+            file = self.current.textgrid_path
+            with open(file, 'w', encoding='utf-8') as outfile:
                 outfile.write(self.current.satgrid.format_long())
             _logger.info(
                 "Wrote TextGrid to file %s.", str(self.current.textgrid_path))
@@ -732,7 +737,8 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
             for recording in self.recordings:
                 annotations = recording.annotations.copy()
                 annotations['basename'] = recording.basename
-                annotations['date_and_time'] = recording.meta_data.time_of_recording
+                annotations['date_and_time'] = (
+                    recording.meta_data.time_of_recording)
                 annotations['prompt'] = recording.meta_data.prompt
                 annotations['word'] = recording.meta_data.prompt.split()[0]
 
@@ -751,7 +757,8 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
                         # purposefully the last non-empty first and taking the
                         # duration?
                         word_dur = interval.dur
-                        stimulus_onset = recording.modalities['MonoAudio'].go_signal
+                        stimulus_onset = (
+                            recording.modalities['MonoAudio'].go_signal)
                         acoustic_onset = interval.xmin - stimulus_onset
                         break
                     annotations['word_dur'] = word_dur
@@ -786,7 +793,7 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
 
     def pd_category_cb(self):
         """
-        Callback funtion for the RadioButton for catogorising
+        Callback function for the RadioButton for categorising
         the PD curve.
         """
         radio_button = self.sender()
@@ -795,7 +802,7 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
 
     def tongue_position_cb(self):
         """
-        Callback funtion for the RadioButton for catogorising
+        Callback function for the RadioButton for categorising
         the PD curve.
         """
         radio_button = self.sender()
@@ -828,7 +835,8 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
         audio = self.current.modalities['MonoAudio']
         stimulus_onset = audio.go_signal
 
-        timevector = self.current.modalities['PD l1 on RawUltrasound'].timevector
+        timevector = (
+            self.current.modalities['PD l1 on RawUltrasound'].timevector)
         distances = np.abs(timevector - stimulus_onset - event.xdata)
         self.current.annotations['selection_index'] = np.argmin(distances)
         self.current.annotations['selected_time'] = event.xdata

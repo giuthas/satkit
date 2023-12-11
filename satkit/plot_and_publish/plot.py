@@ -383,7 +383,8 @@ def plot_spline(
     data : np.ndarray
         the spline Cartesian coordinates in axes order x-y, splinepoints.
     limits : Optional[tuple[int, int]], optional
-        How many points to leave out from the (front, back) of the spline, by default None
+        How many points to leave out from the (front, back) of the spline, by
+        default None
     display_line : bool, optional
         should the interpolated spline line be drawn, by default True
     display_points : bool, optional
@@ -398,15 +399,16 @@ def plot_spline(
 
     if display_line:
         if limits:
-            interp_result = interpolate.splprep(data, s=0)
-            tck = interp_result[0]
+            interpolation_result = interpolate.splprep(data, s=0)
+            tck = interpolation_result[0]
             interpolation_points = np.arange(0, 1.01, 0.01)
             interpolated_spline = interpolate.splev(interpolation_points, tck)
             ax.plot(interpolated_spline[0],
-                    -interpolated_spline[1], color='orange', linewidth=1, alpha=.5)
+                    -interpolated_spline[1],
+                    color='orange', linewidth=1, alpha=.5)
 
-        interp_result = interpolate.splprep(solid_data, s=0)
-        tck = interp_result[0]
+        interpolation_result = interpolate.splprep(solid_data, s=0)
+        tck = interpolation_result[0]
         interpolation_points = np.arange(0, 1.01, 0.01)
         interpolated_spline = interpolate.splev(interpolation_points, tck)
         ax.plot(interpolated_spline[0],

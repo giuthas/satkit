@@ -40,9 +40,8 @@ import logging
 from contextlib import closing
 from copy import deepcopy
 
-import matplotlib
-# Numpy
 import numpy as np
+import matplotlib
 from matplotlib.backends.backend_qt5agg import \
     FigureCanvasQTAgg as FigureCanvas
 # Plotting functions and hooks for GUI

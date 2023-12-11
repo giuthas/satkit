@@ -30,3 +30,16 @@
 ## citations.bib in BibTeX format.
 ##
 
+output file: test.pdf
+
+subplot grid:
+  - 2
+  - 3
+
+subplots:
+  "1 1": "PD l0 on RawUltrasound"
+  "1 2": "PD l.5 on RawUltrasound"
+  "1 3": "PD l1 on RawUltrasound"
+  "2 1": "PD l2 on RawUltrasound"
+  "2 2": "PD l5 on RawUltrasound"
+  "2 3": "PD linf on RawUltrasound"

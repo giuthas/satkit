@@ -43,7 +43,7 @@ from matplotlib.figure import Figure
 from PyQt5.QtGui import QIntValidator
 from PyQt5.uic import loadUiType
 # Local modules
-from satkit.plot import plot_timeseries, plot_wav
+from satkit.plot_and_publish import plot_timeseries, plot_wav
 
 # Load the GUI layout generated with QtDesigner.
 Ui_MainWindow, QMainWindow = loadUiType('satkit/gui/qt_annotator.ui')

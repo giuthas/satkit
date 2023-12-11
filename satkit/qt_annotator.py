@@ -61,9 +61,9 @@ from icecream import ic
 from satkit.data_structures import RecordingSession
 from satkit.configuration import gui_params, config_dict
 from satkit.gui import BoundaryAnimator, ReplaceDialog
-from satkit.plot.plot import plot_spline
-from satkit.plot import (Normalisation, plot_satgrid_tier, plot_spectrogram,
-                         plot_timeseries, plot_wav)
+from satkit.plot_and_publish.plot import plot_spline
+from satkit.plot_and_publish import (Normalisation, plot_satgrid_tier, plot_spectrogram,
+                                     plot_timeseries, plot_wav)
 from satkit.save_and_load import (
     save_recording_session, load_recording_session)
 from satkit.ui_callbacks import UiCallbacks

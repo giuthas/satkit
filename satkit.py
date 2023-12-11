@@ -44,6 +44,7 @@ from PyQt5 import QtWidgets
 from satkit import log_elapsed_time, set_logging_level
 from satkit.metrics import add_pd, peaks, add_spline_metric
 from satkit.modalities import RawUltrasound, Splines
+from satkit.plot_and_publish import publish_pdf
 from satkit.qt_annotator import PdQtAnnotator
 from satkit.scripting_interface import (Operation, SatkitArgumentParser,
                                         load_data, multi_process_data,
@@ -119,6 +120,8 @@ def main():
         # TODO: implement a plotting executor kind of like the
         # analysis one above (process_data)
         print("implement plotting to get results")
+
+        publish_pdf()
 
     log_elapsed_time()
 

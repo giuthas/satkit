@@ -1,8 +1,8 @@
 #
-# Copyright (c) 2019-2023 
+# Copyright (c) 2019-2023
 # Pertti Palo, Scott Moisik, Matthew Faytak, and Motoki Saito.
 #
-# This file is part of Speech Articulation ToolKIT 
+# This file is part of Speech Articulation ToolKIT
 # (see https://github.com/giuthas/satkit/).
 #
 # This program is free software: you can redistribute it and/or modify
@@ -53,8 +53,8 @@ from PyQt5.QtWidgets import QFileDialog
 from PyQt5.uic import loadUiType
 from satkit.configuration.configuration import config_dict, data_run_params
 from satkit.gui.qt_annotator_window import QtAnnotatorWindow
-from satkit.plot import plot_timeseries, plot_wav
-from satkit.plot.plot import plot_satgrid_tier
+from satkit.plot_and_publish import plot_timeseries, plot_wav
+from satkit.plot_and_publish.plot import plot_satgrid_tier
 
 # Load the GUI layout generated with QtDesigner.
 Ui_MainWindow, QMainWindow = loadUiType('satkit/gui/qt_annotator.ui')

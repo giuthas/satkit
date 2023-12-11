@@ -31,9 +31,9 @@
 ##
 
 
-# Please note that empty file or directory fields are
-# interpeted as not available and represented by None. If you want to specify
-# current working directory, use '.'
+# Please note that empty file or directory fields are interpreted as not
+# available and represented by None. If you want to specify current working
+# directory, use '.'
 
 # What precision is treated as equal when comparing annotation boundaries.
 epsilon: 0.00001
@@ -48,3 +48,5 @@ data run parameter file: configuration/satkit_data_run_parameters.yaml
 
 # GUI setup parameters
 gui parameter file: configuration/satkit_gui_parameters.yaml
+
+plot parameter file: configuration/satkit_plot_parameters.yaml

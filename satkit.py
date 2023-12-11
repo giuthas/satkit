@@ -115,13 +115,16 @@ def main():
 
     # Plot the data into files if asked to.
     if cli.args.plot:
+        # TODO: make quick and dirty plotting params and read them
+        # TODO: implement a plotting executor kind of like the
+        # analysis one above (process_data)
         print("implement plotting to get results")
 
     log_elapsed_time()
 
     # Get the GUI running.
     app = QtWidgets.QApplication(sys.argv)
-    # Apparently the assigment to an unused variable is needed
+    # Apparently the assignment to an unused variable is needed
     # to avoid a segfault.
     annotator = PdQtAnnotator(recording_session, cli.args)
     sys.exit(app.exec_())

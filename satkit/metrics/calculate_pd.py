@@ -177,11 +177,6 @@ def calculate_pd(
     data = parent_modality.data
     sampling_rate = parent_modality.sampling_rate
 
-    # # TODO: Make this happen in processing LipVideo, not here.
-    # # Hacky hack to recognise LipVideo data and change the timestep for it.
-    # if len(data.shape) != 3:
-    #     timesteps[0] = 2
-
     # # Use this if we want to collapse e.g. rgb data without producing a
     # # PD contour for each colour or channel.
     # if raw_diff.ndim > 2:
@@ -264,7 +259,7 @@ def add_pd(recording: Recording,
     Keyword arguments:
     preload -- boolean indicating if PD should be calculated on creation 
         (preloaded) or only on access.
-    releaseDataMemor -- boolean indicating if the data attribute of the 
+    release_data_memory -- boolean indicating if the data attribute of the 
         data modality should be set to None after access. Only set this 
         to False, if you know that you have enough memory to hold all 
         of the data in RAM.

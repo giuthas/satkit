@@ -43,6 +43,7 @@ config_dict = {}
 data_run_params = {}
 gui_params = {}
 plot_params = {}
+publish_params = {}
 
 # This is where we store the metadata needed to write out the configuration and
 # possibly not mess up the comments in it.
@@ -50,6 +51,7 @@ _raw_config_dict = {}
 _raw_data_run_params_dict = {}
 _raw_gui_params_dict = {}
 _raw_plot_params_dict = {}
+_raw_publish_params_dict = {}
 
 _logger = logging.getLogger('satkit.configuration')
 
@@ -82,6 +84,7 @@ def load_config(filepath: Union[Path, str, None] = None) -> None:
     load_run_params(config_dict['data run parameter file'])
     load_gui_params(config_dict['gui parameter file'])
     # load_plot_params(config['plotting parameter file'])
+    load_publish_params(config_dict['publish parameter file'])
 
 
 def load_main_config(filepath: Union[Path, str, None] = None) -> None:
@@ -97,8 +100,8 @@ def load_main_config(filepath: Union[Path, str, None] = None) -> None:
     elif isinstance(filepath, str):
         filepath = Path(filepath)
 
-    global config_dict
-    global _raw_config_dict
+    # global config_dict
+    # global _raw_config_dict
 
     if filepath.is_file():
         with closing(open(filepath, 'r', encoding='utf-8')) as yaml_file:
@@ -106,7 +109,8 @@ def load_main_config(filepath: Union[Path, str, None] = None) -> None:
                 "epsilon": Float(),
                 "mains frequency": Float(),
                 "data run parameter file": PathValidator(),
-                "gui parameter file": PathValidator()
+                "gui parameter file": PathValidator(),
+                Optional("publish parameter file"): PathValidator()
             })
             try:
                 _raw_config_dict = load(yaml_file.read(), schema)
@@ -137,8 +141,8 @@ def load_run_params(filepath: Union[Path, str, None] = None) -> None:
     elif isinstance(filepath, str):
         filepath = Path(filepath)
 
-    global data_run_params
-    global _raw_data_run_params_dict
+    # global data_run_params
+    # global _raw_data_run_params_dict
 
     if filepath.is_file():
         with closing(open(filepath, 'r', encoding='utf-8')) as yaml_file:
@@ -187,8 +191,8 @@ def load_gui_params(filepath: Union[Path, str, None] = None) -> None:
     elif isinstance(filepath, str):
         filepath = Path(filepath)
 
-    global gui_params
-    global _raw_gui_params_dict
+    # global gui_params
+    # global _raw_gui_params_dict
 
     if filepath.is_file():
         with closing(open(filepath, 'r', encoding='utf-8')) as yaml_file:
@@ -232,6 +236,45 @@ def load_gui_params(filepath: Union[Path, str, None] = None) -> None:
     gui_params.update({'number of data axes': number_of_data_axes})
 
 
+def load_publish_params(filepath: Union[Path, str, None] = None) -> None:
+    """
+    Read the config file from filepath.
+
+    If filepath is None, read from the default file
+    'configuration/configuration.yaml'. In both cases if the file does not
+    exist, report this and exit.
+    """
+    if filepath is None:
+        print("Fatal error in loading run parameters: filepath is None")
+        sys.exit()
+    elif isinstance(filepath, str):
+        filepath = Path(filepath)
+
+    # global publish_params
+    # global _raw_publish_params_dict
+
+    if filepath.is_file():
+        with closing(open(filepath, 'r', encoding='utf-8')) as yaml_file:
+            schema = Map({
+                "output file": Str(),
+                "subplot grid": FixedSeq([Int(), Int()]),
+                "subplots": MapPattern(Str(), Str()),
+            })
+            try:
+                _raw_publish_params_dict = load(yaml_file.read(), schema)
+            except YAMLError as error:
+                _logger.fatal("Fatal error in reading %s.",
+                              str(filepath))
+                _logger.fatal(str(error))
+                raise
+    else:
+        _logger.fatal(
+            "Didn't find the publish parameter file at %s.", str(filepath))
+        sys.exit()
+
+    publish_params.update(_raw_publish_params_dict.data)
+
+
 def load_plot_params(filepath: Union[Path, str, None] = None) -> None:
     """
     Read the plot configuration file from filepath.
@@ -247,8 +290,8 @@ def load_plot_params(filepath: Union[Path, str, None] = None) -> None:
     elif isinstance(filepath, str):
         filepath = Path(filepath)
 
-    global plot_params
-    global _raw_plot_params_dict
+    # global plot_params
+    # global _raw_plot_params_dict
 
     if filepath.is_file():
         with closing(open(filepath, 'r', encoding='uft8')) as yaml_file:

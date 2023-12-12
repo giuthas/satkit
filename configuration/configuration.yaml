@@ -49,4 +49,4 @@ data run parameter file: configuration/satkit_data_run_parameters.yaml
 # GUI setup parameters
 gui parameter file: configuration/satkit_gui_parameters.yaml
 
-plot parameter file: configuration/satkit_plot_parameters.yaml
+publish parameter file: configuration/satkit_publish_parameters.yaml

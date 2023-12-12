@@ -30,5 +30,40 @@
 # citations.bib in BibTeX format.
 #
 
-def publish_pdf():
-    pass
+import logging
+
+import numpy as np
+
+from matplotlib.backends.backend_pdf import PdfPages
+import matplotlib.pyplot as plt
+
+# from matplotlib.figure import Figure
+# from matplotlib.axes import Axes
+# from matplotlib.lines import Line2D
+
+# from icecream import ic
+
+from satkit.data_structures import Recording, RecordingSession
+from satkit.configuration import publish_params
+
+from .plot import (Normalisation, plot_satgrid_tier,
+                   plot_spectrogram, plot_timeseries, plot_wav)
+
+_plot_logger = logging.getLogger('satkit.publish')
+
+
+def make_figure(recording: Recording, pdf: PdfPages):
+    plt.figure()
+    plt.clf()
+
+    # plt.plot()
+    graph = plt.title('y vs x')
+    plt.xlabel('x axis', fontsize=13)
+    plt.ylabel('y axis', fontsize=13)
+    pdf.savefig(plt.gcf())
+
+
+def publish_pdf(recording_session: RecordingSession):
+    with PdfPages('test.pdf') as pdf:
+        for recording in recording_session.recordings:
+            make_figure(recording, pdf)

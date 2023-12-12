@@ -32,10 +32,8 @@
 #
 
 # built-in modules
-import logging
 import sys
 from pathlib import Path
-from typing import Optional
 
 # For running a Qt GUI
 from PyQt5 import QtWidgets
@@ -68,17 +66,19 @@ def main():
     pd_arguments = {
         # 'norms': ['l0', 'l0.01', 'l0.1', 'l0.5', 'l1', 'l2',
         # 'l4', 'l10', 'l_inf', 'd'],
-        'norms': ['l0.5', 'l1', 'l2', 'l5'],
-        'timesteps': [1, 2, 3, 4, 5, 6, 7],
+        'norms': ['l0', 'l0.5', 'l1', 'l2', 'l5', 'l_inf'],
+        # 'timesteps': [1, 2, 3, 4, 5, 6, 7],
+        'timesteps': [1],
         'mask_images': False,
         'pd_on_interpolated_data': False,
         'release_data_memory': True,
         'preload': True}
 
+    # spline_config = recording_session.config.spline_config
     # spline_metric_arguments = {
     #     'metrics': ['annd', 'mpbpd', 'modified_curvature', 'fourier'],
     #     'timesteps': [3],
-    #     'exclude_points': recording_session.config.spline_config.data_config.ignore_points,
+    #     'exclude_points': spline_config.data_config.ignore_points,
     #     'release_data_memory': False,
     #     'preload': True}
 
@@ -116,12 +116,7 @@ def main():
 
     # Plot the data into files if asked to.
     if cli.args.plot:
-        # TODO: make quick and dirty plotting params and read them
-        # TODO: implement a plotting executor kind of like the
-        # analysis one above (process_data)
-        print("implement plotting to get results")
-
-        publish_pdf()
+        publish_pdf(recording_session)
 
     log_elapsed_time()
 
@@ -129,7 +124,7 @@ def main():
     app = QtWidgets.QApplication(sys.argv)
     # Apparently the assignment to an unused variable is needed
     # to avoid a segfault.
-    annotator = PdQtAnnotator(recording_session, cli.args)
+    app.annotator = PdQtAnnotator(recording_session, cli.args)
     sys.exit(app.exec_())
 
 

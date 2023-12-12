@@ -31,7 +31,7 @@
 #
 
 from satkit.configuration.configuration import (
-    config_dict, data_run_params, gui_params, PathValidator)
+    config_dict, data_run_params, gui_params, publish_params, PathValidator)
 from satkit.configuration.configuration_classes import (
     ExclusionList, PathStructure, SessionConfig,
     SplineConfig, SplineDataConfig, SplineImportConfig)

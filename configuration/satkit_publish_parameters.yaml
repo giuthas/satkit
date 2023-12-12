@@ -36,10 +36,11 @@ subplot grid:
   - 2
   - 3
 
+# How to pass normalisation etc into SATKIT?
 subplots:
   "1 1": "PD l0 on RawUltrasound"
   "1 2": "PD l.5 on RawUltrasound"
   "1 3": "PD l1 on RawUltrasound"
   "2 1": "PD l2 on RawUltrasound"
   "2 2": "PD l5 on RawUltrasound"
-  "2 3": "PD linf on RawUltrasound"
+  "2 3": "PD l_inf on RawUltrasound"

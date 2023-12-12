@@ -39,7 +39,7 @@ from copy import deepcopy
 # Numpy
 import numpy as np
 # Local modules
-import satkit.io as satkit_io
+# import satkit.io as satkit_io
 from matplotlib.backends.backend_qt5agg import \
     FigureCanvasQTAgg as FigureCanvas
 # from matplotlib.backends.backend_qt5agg import \
@@ -175,11 +175,11 @@ class Annotator():
             (self.pickle_filename, _) = QFileDialog.getSaveFileName(
                 self, 'Save file', directory='.', filter="Pickle files (*.pickle)")
         if self.pickle_filename:
-            satkit_io.save2pickle(
-                self.recordings,
-                self.pickle_filename)
+            # satkit_io.save2pickle(
+            #     self.recordings,
+            #     self.pickle_filename)
             _qt_annotator_logger.info(
-                "Wrote data to file {file}.", file=self.pickle_filename)
+                "Pickling is disabled. Did NOT write file {file}.", file=self.pickle_filename)
         self.has_been_saved = True
 
     def export_cb(self):

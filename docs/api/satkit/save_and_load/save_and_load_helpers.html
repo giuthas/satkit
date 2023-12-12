@@ -163,16 +163,18 @@
                     <h1 class="modulename">
 <a href="./../../satkit.html">satkit</a><wbr>.<a href="./../save_and_load.html">save_and_load</a><wbr>.save_and_load_helpers    </h1>
 
-                
+                        <div class="docstring"><p>Some general helpers and connectors for saving and loading.</p>
+</div>
+
                         <input id="mod-save_and_load_helpers-view-source" class="view-source-toggle-state" type="checkbox" aria-hidden="true" tabindex="-1">
 
                         <label class="view-source-button" for="mod-save_and_load_helpers-view-source"><span>View Source</span></label>
 
                         <div class="pdoc-code codehilite"><pre><span></span><span id="L-1"><a href="#L-1"><span class="linenos">  1</span></a><span class="c1">#</span>
-</span><span id="L-2"><a href="#L-2"><span class="linenos">  2</span></a><span class="c1"># Copyright (c) 2019-2023 </span>
+</span><span id="L-2"><a href="#L-2"><span class="linenos">  2</span></a><span class="c1"># Copyright (c) 2019-2023</span>
 </span><span id="L-3"><a href="#L-3"><span class="linenos">  3</span></a><span class="c1"># Pertti Palo, Scott Moisik, Matthew Faytak, and Motoki Saito.</span>
 </span><span id="L-4"><a href="#L-4"><span class="linenos">  4</span></a><span class="c1">#</span>
-</span><span id="L-5"><a href="#L-5"><span class="linenos">  5</span></a><span class="c1"># This file is part of Speech Articulation ToolKIT </span>
+</span><span id="L-5"><a href="#L-5"><span class="linenos">  5</span></a><span class="c1"># This file is part of Speech Articulation ToolKIT</span>
 </span><span id="L-6"><a href="#L-6"><span class="linenos">  6</span></a><span class="c1"># (see https://github.com/giuthas/satkit/).</span>
 </span><span id="L-7"><a href="#L-7"><span class="linenos">  7</span></a><span class="c1">#</span>
 </span><span id="L-8"><a href="#L-8"><span class="linenos">  8</span></a><span class="c1"># This program is free software: you can redistribute it and/or modify</span>
@@ -199,78 +201,86 @@
 </span><span id="L-29"><a href="#L-29"><span class="linenos"> 29</span></a><span class="c1"># articles listed in README.markdown. They can also be found in</span>
 </span><span id="L-30"><a href="#L-30"><span class="linenos"> 30</span></a><span class="c1"># citations.bib in BibTeX format.</span>
 </span><span id="L-31"><a href="#L-31"><span class="linenos"> 31</span></a><span class="c1">#</span>
-</span><span id="L-32"><a href="#L-32"><span class="linenos"> 32</span></a><span class="kn">from</span> <span class="nn">datetime</span> <span class="kn">import</span> <span class="n">datetime</span>
-</span><span id="L-33"><a href="#L-33"><span class="linenos"> 33</span></a><span class="kn">from</span> <span class="nn">pathlib</span> <span class="kn">import</span> <span class="n">Path</span><span class="p">,</span> <span class="n">PosixPath</span><span class="p">,</span> <span class="n">WindowsPath</span>
-</span><span id="L-34"><a href="#L-34"><span class="linenos"> 34</span></a><span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Union</span>
+</span><span id="L-32"><a href="#L-32"><span class="linenos"> 32</span></a><span class="sd">&quot;&quot;&quot;</span>
+</span><span id="L-33"><a href="#L-33"><span class="linenos"> 33</span></a><span class="sd">Some general helpers and connectors for saving and loading.</span>
+</span><span id="L-34"><a href="#L-34"><span class="linenos"> 34</span></a><span class="sd">&quot;&quot;&quot;</span>
 </span><span id="L-35"><a href="#L-35"><span class="linenos"> 35</span></a>
-</span><span id="L-36"><a href="#L-36"><span class="linenos"> 36</span></a><span class="kn">from</span> <span class="nn">pydantic</span> <span class="kn">import</span> <span class="n">BaseModel</span><span class="p">,</span> <span class="n">DirectoryPath</span>
-</span><span id="L-37"><a href="#L-37"><span class="linenos"> 37</span></a>
-</span><span id="L-38"><a href="#L-38"><span class="linenos"> 38</span></a><span class="kn">from</span> <span class="nn">satkit.constants</span> <span class="kn">import</span> <span class="n">Datasource</span><span class="p">,</span> <span class="n">SavedObjectTypes</span>
-</span><span id="L-39"><a href="#L-39"><span class="linenos"> 39</span></a><span class="kn">from</span> <span class="nn">satkit.data_structures</span> <span class="kn">import</span> <span class="n">RecordingMetaData</span>
-</span><span id="L-40"><a href="#L-40"><span class="linenos"> 40</span></a>
+</span><span id="L-36"><a href="#L-36"><span class="linenos"> 36</span></a><span class="kn">from</span> <span class="nn">datetime</span> <span class="kn">import</span> <span class="n">datetime</span>
+</span><span id="L-37"><a href="#L-37"><span class="linenos"> 37</span></a><span class="kn">from</span> <span class="nn">pathlib</span> <span class="kn">import</span> <span class="n">Path</span><span class="p">,</span> <span class="n">PosixPath</span><span class="p">,</span> <span class="n">WindowsPath</span>
+</span><span id="L-38"><a href="#L-38"><span class="linenos"> 38</span></a><span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Union</span>
+</span><span id="L-39"><a href="#L-39"><span class="linenos"> 39</span></a>
+</span><span id="L-40"><a href="#L-40"><span class="linenos"> 40</span></a><span class="kn">from</span> <span class="nn">pydantic</span> <span class="kn">import</span> <span class="n">BaseModel</span><span class="p">,</span> <span class="n">DirectoryPath</span>
 </span><span id="L-41"><a href="#L-41"><span class="linenos"> 41</span></a>
-</span><span id="L-42"><a href="#L-42"><span class="linenos"> 42</span></a><span class="n">nested_text_converters</span> <span class="o">=</span> <span class="p">{</span>
-</span><span id="L-43"><a href="#L-43"><span class="linenos"> 43</span></a>    <span class="n">datetime</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
-</span><span id="L-44"><a href="#L-44"><span class="linenos"> 44</span></a>    <span class="n">PosixPath</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
-</span><span id="L-45"><a href="#L-45"><span class="linenos"> 45</span></a>    <span class="n">WindowsPath</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
-</span><span id="L-46"><a href="#L-46"><span class="linenos"> 46</span></a>    <span class="n">Path</span><span class="p">:</span> <span class="nb">str</span>
-</span><span id="L-47"><a href="#L-47"><span class="linenos"> 47</span></a><span class="p">}</span>
-</span><span id="L-48"><a href="#L-48"><span class="linenos"> 48</span></a>
-</span><span id="L-49"><a href="#L-49"><span class="linenos"> 49</span></a>
-</span><span id="L-50"><a href="#L-50"><span class="linenos"> 50</span></a><span class="k">class</span> <span class="nc">ModalityLoadSchema</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">):</span>
-</span><span id="L-51"><a href="#L-51"><span class="linenos"> 51</span></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-</span><span id="L-52"><a href="#L-52"><span class="linenos"> 52</span></a><span class="sd">    Loading schema for a saved Modality.</span>
-</span><span id="L-53"><a href="#L-53"><span class="linenos"> 53</span></a>
-</span><span id="L-54"><a href="#L-54"><span class="linenos"> 54</span></a><span class="sd">    Modality is defined in the data_structures module.</span>
-</span><span id="L-55"><a href="#L-55"><span class="linenos"> 55</span></a><span class="sd">    &quot;&quot;&quot;</span>
-</span><span id="L-56"><a href="#L-56"><span class="linenos"> 56</span></a>    <span class="n">object_type</span><span class="p">:</span> <span class="nb">str</span>
-</span><span id="L-57"><a href="#L-57"><span class="linenos"> 57</span></a>    <span class="n">name</span><span class="p">:</span> <span class="nb">str</span>
-</span><span id="L-58"><a href="#L-58"><span class="linenos"> 58</span></a>    <span class="n">format_version</span><span class="p">:</span> <span class="nb">str</span>
-</span><span id="L-59"><a href="#L-59"><span class="linenos"> 59</span></a>    <span class="n">parameters</span><span class="p">:</span> <span class="nb">dict</span>
-</span><span id="L-60"><a href="#L-60"><span class="linenos"> 60</span></a>
+</span><span id="L-42"><a href="#L-42"><span class="linenos"> 42</span></a><span class="kn">from</span> <span class="nn">satkit.constants</span> <span class="kn">import</span> <span class="n">Datasource</span><span class="p">,</span> <span class="n">SavedObjectTypes</span>
+</span><span id="L-43"><a href="#L-43"><span class="linenos"> 43</span></a><span class="kn">from</span> <span class="nn">satkit.data_structures</span> <span class="kn">import</span> <span class="n">RecordingMetaData</span>
+</span><span id="L-44"><a href="#L-44"><span class="linenos"> 44</span></a><span class="kn">from</span> <span class="nn">satkit.metrics</span> <span class="kn">import</span> <span class="p">(</span><span class="n">SplineDiffsEnum</span><span class="p">,</span> <span class="n">SplineNNDsEnum</span><span class="p">,</span> <span class="n">SplineShapesEnum</span><span class="p">)</span>
+</span><span id="L-45"><a href="#L-45"><span class="linenos"> 45</span></a>
+</span><span id="L-46"><a href="#L-46"><span class="linenos"> 46</span></a>
+</span><span id="L-47"><a href="#L-47"><span class="linenos"> 47</span></a><span class="n">nested_text_converters</span> <span class="o">=</span> <span class="p">{</span>
+</span><span id="L-48"><a href="#L-48"><span class="linenos"> 48</span></a>    <span class="n">datetime</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+</span><span id="L-49"><a href="#L-49"><span class="linenos"> 49</span></a>    <span class="n">PosixPath</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+</span><span id="L-50"><a href="#L-50"><span class="linenos"> 50</span></a>    <span class="n">WindowsPath</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+</span><span id="L-51"><a href="#L-51"><span class="linenos"> 51</span></a>    <span class="n">Path</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+</span><span id="L-52"><a href="#L-52"><span class="linenos"> 52</span></a>    <span class="n">SplineDiffsEnum</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+</span><span id="L-53"><a href="#L-53"><span class="linenos"> 53</span></a>    <span class="n">SplineNNDsEnum</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+</span><span id="L-54"><a href="#L-54"><span class="linenos"> 54</span></a>    <span class="n">SplineShapesEnum</span><span class="p">:</span> <span class="nb">str</span>
+</span><span id="L-55"><a href="#L-55"><span class="linenos"> 55</span></a><span class="p">}</span>
+</span><span id="L-56"><a href="#L-56"><span class="linenos"> 56</span></a>
+</span><span id="L-57"><a href="#L-57"><span class="linenos"> 57</span></a>
+</span><span id="L-58"><a href="#L-58"><span class="linenos"> 58</span></a><span class="k">class</span> <span class="nc">ModalityLoadSchema</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">):</span>
+</span><span id="L-59"><a href="#L-59"><span class="linenos"> 59</span></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+</span><span id="L-60"><a href="#L-60"><span class="linenos"> 60</span></a><span class="sd">    Loading schema for a saved Modality.</span>
 </span><span id="L-61"><a href="#L-61"><span class="linenos"> 61</span></a>
-</span><span id="L-62"><a href="#L-62"><span class="linenos"> 62</span></a><span class="k">class</span> <span class="nc">ModalityListingLoadschema</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">):</span>
-</span><span id="L-63"><a href="#L-63"><span class="linenos"> 63</span></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-</span><span id="L-64"><a href="#L-64"><span class="linenos"> 64</span></a><span class="sd">    Loading schema for the Modality listing in a saved Rercording.</span>
-</span><span id="L-65"><a href="#L-65"><span class="linenos"> 65</span></a><span class="sd">    &quot;&quot;&quot;</span>
-</span><span id="L-66"><a href="#L-66"><span class="linenos"> 66</span></a>    <span class="n">data_name</span><span class="p">:</span> <span class="nb">str</span>
-</span><span id="L-67"><a href="#L-67"><span class="linenos"> 67</span></a>    <span class="n">meta_name</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="kc">None</span><span class="p">]</span>
+</span><span id="L-62"><a href="#L-62"><span class="linenos"> 62</span></a><span class="sd">    Modality is defined in the data_structures module.</span>
+</span><span id="L-63"><a href="#L-63"><span class="linenos"> 63</span></a><span class="sd">    &quot;&quot;&quot;</span>
+</span><span id="L-64"><a href="#L-64"><span class="linenos"> 64</span></a>    <span class="n">object_type</span><span class="p">:</span> <span class="nb">str</span>
+</span><span id="L-65"><a href="#L-65"><span class="linenos"> 65</span></a>    <span class="n">name</span><span class="p">:</span> <span class="nb">str</span>
+</span><span id="L-66"><a href="#L-66"><span class="linenos"> 66</span></a>    <span class="n">format_version</span><span class="p">:</span> <span class="nb">str</span>
+</span><span id="L-67"><a href="#L-67"><span class="linenos"> 67</span></a>    <span class="n">parameters</span><span class="p">:</span> <span class="nb">dict</span>
 </span><span id="L-68"><a href="#L-68"><span class="linenos"> 68</span></a>
 </span><span id="L-69"><a href="#L-69"><span class="linenos"> 69</span></a>
-</span><span id="L-70"><a href="#L-70"><span class="linenos"> 70</span></a><span class="k">class</span> <span class="nc">RecordingLoadSchema</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">):</span>
+</span><span id="L-70"><a href="#L-70"><span class="linenos"> 70</span></a><span class="k">class</span> <span class="nc">ModalityListingLoadschema</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">):</span>
 </span><span id="L-71"><a href="#L-71"><span class="linenos"> 71</span></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-</span><span id="L-72"><a href="#L-72"><span class="linenos"> 72</span></a><span class="sd">    Loading schema for a saved Recording.</span>
-</span><span id="L-73"><a href="#L-73"><span class="linenos"> 73</span></a>
-</span><span id="L-74"><a href="#L-74"><span class="linenos"> 74</span></a><span class="sd">    Recording is defined in the data_structures module.</span>
-</span><span id="L-75"><a href="#L-75"><span class="linenos"> 75</span></a><span class="sd">    &quot;&quot;&quot;</span>
-</span><span id="L-76"><a href="#L-76"><span class="linenos"> 76</span></a>    <span class="n">object_type</span><span class="p">:</span> <span class="n">SavedObjectTypes</span> <span class="o">=</span> <span class="n">SavedObjectTypes</span><span class="o">.</span><span class="n">RECORDING</span>
-</span><span id="L-77"><a href="#L-77"><span class="linenos"> 77</span></a>    <span class="n">name</span><span class="p">:</span> <span class="nb">str</span>
-</span><span id="L-78"><a href="#L-78"><span class="linenos"> 78</span></a>    <span class="n">format_version</span><span class="p">:</span> <span class="nb">str</span>
-</span><span id="L-79"><a href="#L-79"><span class="linenos"> 79</span></a>    <span class="n">parameters</span><span class="p">:</span> <span class="n">RecordingMetaData</span>
-</span><span id="L-80"><a href="#L-80"><span class="linenos"> 80</span></a>    <span class="n">modalities</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">ModalityListingLoadschema</span><span class="p">]</span>
+</span><span id="L-72"><a href="#L-72"><span class="linenos"> 72</span></a><span class="sd">    Loading schema for the Modality listing in a saved Rercording.</span>
+</span><span id="L-73"><a href="#L-73"><span class="linenos"> 73</span></a><span class="sd">    &quot;&quot;&quot;</span>
+</span><span id="L-74"><a href="#L-74"><span class="linenos"> 74</span></a>    <span class="n">data_name</span><span class="p">:</span> <span class="nb">str</span>
+</span><span id="L-75"><a href="#L-75"><span class="linenos"> 75</span></a>    <span class="n">meta_name</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="kc">None</span><span class="p">]</span>
+</span><span id="L-76"><a href="#L-76"><span class="linenos"> 76</span></a>
+</span><span id="L-77"><a href="#L-77"><span class="linenos"> 77</span></a>
+</span><span id="L-78"><a href="#L-78"><span class="linenos"> 78</span></a><span class="k">class</span> <span class="nc">RecordingLoadSchema</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">):</span>
+</span><span id="L-79"><a href="#L-79"><span class="linenos"> 79</span></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+</span><span id="L-80"><a href="#L-80"><span class="linenos"> 80</span></a><span class="sd">    Loading schema for a saved Recording.</span>
 </span><span id="L-81"><a href="#L-81"><span class="linenos"> 81</span></a>
-</span><span id="L-82"><a href="#L-82"><span class="linenos"> 82</span></a>
-</span><span id="L-83"><a href="#L-83"><span class="linenos"> 83</span></a><span class="k">class</span> <span class="nc">RecordingSessionParameterLoadSchema</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">):</span>
-</span><span id="L-84"><a href="#L-84"><span class="linenos"> 84</span></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-</span><span id="L-85"><a href="#L-85"><span class="linenos"> 85</span></a><span class="sd">    Loading schema for a saved RecordingSession.</span>
-</span><span id="L-86"><a href="#L-86"><span class="linenos"> 86</span></a>
-</span><span id="L-87"><a href="#L-87"><span class="linenos"> 87</span></a><span class="sd">    RecordingSession is defined in the data_structures module.</span>
-</span><span id="L-88"><a href="#L-88"><span class="linenos"> 88</span></a><span class="sd">    &quot;&quot;&quot;</span>
-</span><span id="L-89"><a href="#L-89"><span class="linenos"> 89</span></a>    <span class="n">path</span><span class="p">:</span> <span class="n">DirectoryPath</span>
-</span><span id="L-90"><a href="#L-90"><span class="linenos"> 90</span></a>    <span class="n">datasource</span><span class="p">:</span> <span class="n">Datasource</span>
-</span><span id="L-91"><a href="#L-91"><span class="linenos"> 91</span></a>
-</span><span id="L-92"><a href="#L-92"><span class="linenos"> 92</span></a>
-</span><span id="L-93"><a href="#L-93"><span class="linenos"> 93</span></a><span class="k">class</span> <span class="nc">RecordingSessionLoadSchema</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">):</span>
-</span><span id="L-94"><a href="#L-94"><span class="linenos"> 94</span></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-</span><span id="L-95"><a href="#L-95"><span class="linenos"> 95</span></a><span class="sd">    Loading schema for a saved RecordingSession.</span>
-</span><span id="L-96"><a href="#L-96"><span class="linenos"> 96</span></a>
-</span><span id="L-97"><a href="#L-97"><span class="linenos"> 97</span></a><span class="sd">    RecordingSession is defined in the data_structures module.</span>
-</span><span id="L-98"><a href="#L-98"><span class="linenos"> 98</span></a><span class="sd">    &quot;&quot;&quot;</span>
-</span><span id="L-99"><a href="#L-99"><span class="linenos"> 99</span></a>    <span class="n">object_type</span><span class="p">:</span> <span class="n">SavedObjectTypes</span> <span class="o">=</span> <span class="n">SavedObjectTypes</span><span class="o">.</span><span class="n">RECORDING_SESSION</span>
-</span><span id="L-100"><a href="#L-100"><span class="linenos">100</span></a>    <span class="n">name</span><span class="p">:</span> <span class="nb">str</span>
-</span><span id="L-101"><a href="#L-101"><span class="linenos">101</span></a>    <span class="n">format_version</span><span class="p">:</span> <span class="nb">str</span>
-</span><span id="L-102"><a href="#L-102"><span class="linenos">102</span></a>    <span class="n">parameters</span><span class="p">:</span> <span class="n">RecordingSessionParameterLoadSchema</span>
-</span><span id="L-103"><a href="#L-103"><span class="linenos">103</span></a>    <span class="n">recordings</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span>
+</span><span id="L-82"><a href="#L-82"><span class="linenos"> 82</span></a><span class="sd">    Recording is defined in the data_structures module.</span>
+</span><span id="L-83"><a href="#L-83"><span class="linenos"> 83</span></a><span class="sd">    &quot;&quot;&quot;</span>
+</span><span id="L-84"><a href="#L-84"><span class="linenos"> 84</span></a>    <span class="n">object_type</span><span class="p">:</span> <span class="n">SavedObjectTypes</span> <span class="o">=</span> <span class="n">SavedObjectTypes</span><span class="o">.</span><span class="n">RECORDING</span>
+</span><span id="L-85"><a href="#L-85"><span class="linenos"> 85</span></a>    <span class="n">name</span><span class="p">:</span> <span class="nb">str</span>
+</span><span id="L-86"><a href="#L-86"><span class="linenos"> 86</span></a>    <span class="n">format_version</span><span class="p">:</span> <span class="nb">str</span>
+</span><span id="L-87"><a href="#L-87"><span class="linenos"> 87</span></a>    <span class="n">parameters</span><span class="p">:</span> <span class="n">RecordingMetaData</span>
+</span><span id="L-88"><a href="#L-88"><span class="linenos"> 88</span></a>    <span class="n">modalities</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">ModalityListingLoadschema</span><span class="p">]</span>
+</span><span id="L-89"><a href="#L-89"><span class="linenos"> 89</span></a>
+</span><span id="L-90"><a href="#L-90"><span class="linenos"> 90</span></a>
+</span><span id="L-91"><a href="#L-91"><span class="linenos"> 91</span></a><span class="k">class</span> <span class="nc">RecordingSessionParameterLoadSchema</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">):</span>
+</span><span id="L-92"><a href="#L-92"><span class="linenos"> 92</span></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+</span><span id="L-93"><a href="#L-93"><span class="linenos"> 93</span></a><span class="sd">    Loading schema for a saved RecordingSession.</span>
+</span><span id="L-94"><a href="#L-94"><span class="linenos"> 94</span></a>
+</span><span id="L-95"><a href="#L-95"><span class="linenos"> 95</span></a><span class="sd">    RecordingSession is defined in the data_structures module.</span>
+</span><span id="L-96"><a href="#L-96"><span class="linenos"> 96</span></a><span class="sd">    &quot;&quot;&quot;</span>
+</span><span id="L-97"><a href="#L-97"><span class="linenos"> 97</span></a>    <span class="n">path</span><span class="p">:</span> <span class="n">DirectoryPath</span>
+</span><span id="L-98"><a href="#L-98"><span class="linenos"> 98</span></a>    <span class="n">datasource</span><span class="p">:</span> <span class="n">Datasource</span>
+</span><span id="L-99"><a href="#L-99"><span class="linenos"> 99</span></a>
+</span><span id="L-100"><a href="#L-100"><span class="linenos">100</span></a>
+</span><span id="L-101"><a href="#L-101"><span class="linenos">101</span></a><span class="k">class</span> <span class="nc">RecordingSessionLoadSchema</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">):</span>
+</span><span id="L-102"><a href="#L-102"><span class="linenos">102</span></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+</span><span id="L-103"><a href="#L-103"><span class="linenos">103</span></a><span class="sd">    Loading schema for a saved RecordingSession.</span>
+</span><span id="L-104"><a href="#L-104"><span class="linenos">104</span></a>
+</span><span id="L-105"><a href="#L-105"><span class="linenos">105</span></a><span class="sd">    RecordingSession is defined in the data_structures module.</span>
+</span><span id="L-106"><a href="#L-106"><span class="linenos">106</span></a><span class="sd">    &quot;&quot;&quot;</span>
+</span><span id="L-107"><a href="#L-107"><span class="linenos">107</span></a>    <span class="n">object_type</span><span class="p">:</span> <span class="n">SavedObjectTypes</span> <span class="o">=</span> <span class="n">SavedObjectTypes</span><span class="o">.</span><span class="n">RECORDING_SESSION</span>
+</span><span id="L-108"><a href="#L-108"><span class="linenos">108</span></a>    <span class="n">name</span><span class="p">:</span> <span class="nb">str</span>
+</span><span id="L-109"><a href="#L-109"><span class="linenos">109</span></a>    <span class="n">format_version</span><span class="p">:</span> <span class="nb">str</span>
+</span><span id="L-110"><a href="#L-110"><span class="linenos">110</span></a>    <span class="n">parameters</span><span class="p">:</span> <span class="n">RecordingSessionParameterLoadSchema</span>
+</span><span id="L-111"><a href="#L-111"><span class="linenos">111</span></a>    <span class="n">recordings</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span>
 </span></pre></div>
 
 
@@ -279,7 +289,7 @@
                     <div class="attr variable">
             <span class="name">nested_text_converters</span>        =
 <input id="nested_text_converters-view-value" class="view-value-toggle-state" type="checkbox" aria-hidden="true" tabindex="-1">
-            <label class="view-value-button pdoc-button" for="nested_text_converters-view-value"></label><span class="default_value">{&lt;class &#39;datetime.datetime&#39;&gt;: &lt;class &#39;str&#39;&gt;, &lt;class &#39;pathlib.PosixPath&#39;&gt;: &lt;class &#39;str&#39;&gt;, &lt;class &#39;pathlib.WindowsPath&#39;&gt;: &lt;class &#39;str&#39;&gt;, &lt;class &#39;pathlib.Path&#39;&gt;: &lt;class &#39;str&#39;&gt;}</span>
+            <label class="view-value-button pdoc-button" for="nested_text_converters-view-value"></label><span class="default_value">{&lt;class &#39;datetime.datetime&#39;&gt;: &lt;class &#39;str&#39;&gt;, &lt;class &#39;pathlib.PosixPath&#39;&gt;: &lt;class &#39;str&#39;&gt;, &lt;class &#39;pathlib.WindowsPath&#39;&gt;: &lt;class &#39;str&#39;&gt;, &lt;class &#39;pathlib.Path&#39;&gt;: &lt;class &#39;str&#39;&gt;, &lt;enum &#39;SplineDiffsEnum&#39;&gt;: &lt;class &#39;str&#39;&gt;, &lt;enum &#39;SplineNNDsEnum&#39;&gt;: &lt;class &#39;str&#39;&gt;, &lt;enum &#39;SplineShapesEnum&#39;&gt;: &lt;class &#39;str&#39;&gt;}</span>
 
         
     </div>
@@ -299,16 +309,16 @@
 
     </div>
     <a class="headerlink" href="#ModalityLoadSchema"></a>
-            <div class="pdoc-code codehilite"><pre><span></span><span id="ModalityLoadSchema-51"><a href="#ModalityLoadSchema-51"><span class="linenos">51</span></a><span class="k">class</span> <span class="nc">ModalityLoadSchema</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">):</span>
-</span><span id="ModalityLoadSchema-52"><a href="#ModalityLoadSchema-52"><span class="linenos">52</span></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-</span><span id="ModalityLoadSchema-53"><a href="#ModalityLoadSchema-53"><span class="linenos">53</span></a><span class="sd">    Loading schema for a saved Modality.</span>
-</span><span id="ModalityLoadSchema-54"><a href="#ModalityLoadSchema-54"><span class="linenos">54</span></a>
-</span><span id="ModalityLoadSchema-55"><a href="#ModalityLoadSchema-55"><span class="linenos">55</span></a><span class="sd">    Modality is defined in the data_structures module.</span>
-</span><span id="ModalityLoadSchema-56"><a href="#ModalityLoadSchema-56"><span class="linenos">56</span></a><span class="sd">    &quot;&quot;&quot;</span>
-</span><span id="ModalityLoadSchema-57"><a href="#ModalityLoadSchema-57"><span class="linenos">57</span></a>    <span class="n">object_type</span><span class="p">:</span> <span class="nb">str</span>
-</span><span id="ModalityLoadSchema-58"><a href="#ModalityLoadSchema-58"><span class="linenos">58</span></a>    <span class="n">name</span><span class="p">:</span> <span class="nb">str</span>
-</span><span id="ModalityLoadSchema-59"><a href="#ModalityLoadSchema-59"><span class="linenos">59</span></a>    <span class="n">format_version</span><span class="p">:</span> <span class="nb">str</span>
-</span><span id="ModalityLoadSchema-60"><a href="#ModalityLoadSchema-60"><span class="linenos">60</span></a>    <span class="n">parameters</span><span class="p">:</span> <span class="nb">dict</span>
+            <div class="pdoc-code codehilite"><pre><span></span><span id="ModalityLoadSchema-59"><a href="#ModalityLoadSchema-59"><span class="linenos">59</span></a><span class="k">class</span> <span class="nc">ModalityLoadSchema</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">):</span>
+</span><span id="ModalityLoadSchema-60"><a href="#ModalityLoadSchema-60"><span class="linenos">60</span></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+</span><span id="ModalityLoadSchema-61"><a href="#ModalityLoadSchema-61"><span class="linenos">61</span></a><span class="sd">    Loading schema for a saved Modality.</span>
+</span><span id="ModalityLoadSchema-62"><a href="#ModalityLoadSchema-62"><span class="linenos">62</span></a>
+</span><span id="ModalityLoadSchema-63"><a href="#ModalityLoadSchema-63"><span class="linenos">63</span></a><span class="sd">    Modality is defined in the data_structures module.</span>
+</span><span id="ModalityLoadSchema-64"><a href="#ModalityLoadSchema-64"><span class="linenos">64</span></a><span class="sd">    &quot;&quot;&quot;</span>
+</span><span id="ModalityLoadSchema-65"><a href="#ModalityLoadSchema-65"><span class="linenos">65</span></a>    <span class="n">object_type</span><span class="p">:</span> <span class="nb">str</span>
+</span><span id="ModalityLoadSchema-66"><a href="#ModalityLoadSchema-66"><span class="linenos">66</span></a>    <span class="n">name</span><span class="p">:</span> <span class="nb">str</span>
+</span><span id="ModalityLoadSchema-67"><a href="#ModalityLoadSchema-67"><span class="linenos">67</span></a>    <span class="n">format_version</span><span class="p">:</span> <span class="nb">str</span>
+</span><span id="ModalityLoadSchema-68"><a href="#ModalityLoadSchema-68"><span class="linenos">68</span></a>    <span class="n">parameters</span><span class="p">:</span> <span class="nb">dict</span>
 </span></pre></div>
 
 
@@ -405,6 +415,7 @@
                 <dd id="ModalityLoadSchema.model_rebuild" class="function">model_rebuild</dd>
                 <dd id="ModalityLoadSchema.model_validate" class="function">model_validate</dd>
                 <dd id="ModalityLoadSchema.model_validate_json" class="function">model_validate_json</dd>
+                <dd id="ModalityLoadSchema.model_validate_strings" class="function">model_validate_strings</dd>
                 <dd id="ModalityLoadSchema.dict" class="function">dict</dd>
                 <dd id="ModalityLoadSchema.json" class="function">json</dd>
                 <dd id="ModalityLoadSchema.parse_obj" class="function">parse_obj</dd>
@@ -433,12 +444,12 @@
 
     </div>
     <a class="headerlink" href="#ModalityListingLoadschema"></a>
-            <div class="pdoc-code codehilite"><pre><span></span><span id="ModalityListingLoadschema-63"><a href="#ModalityListingLoadschema-63"><span class="linenos">63</span></a><span class="k">class</span> <span class="nc">ModalityListingLoadschema</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">):</span>
-</span><span id="ModalityListingLoadschema-64"><a href="#ModalityListingLoadschema-64"><span class="linenos">64</span></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-</span><span id="ModalityListingLoadschema-65"><a href="#ModalityListingLoadschema-65"><span class="linenos">65</span></a><span class="sd">    Loading schema for the Modality listing in a saved Rercording.</span>
-</span><span id="ModalityListingLoadschema-66"><a href="#ModalityListingLoadschema-66"><span class="linenos">66</span></a><span class="sd">    &quot;&quot;&quot;</span>
-</span><span id="ModalityListingLoadschema-67"><a href="#ModalityListingLoadschema-67"><span class="linenos">67</span></a>    <span class="n">data_name</span><span class="p">:</span> <span class="nb">str</span>
-</span><span id="ModalityListingLoadschema-68"><a href="#ModalityListingLoadschema-68"><span class="linenos">68</span></a>    <span class="n">meta_name</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="kc">None</span><span class="p">]</span>
+            <div class="pdoc-code codehilite"><pre><span></span><span id="ModalityListingLoadschema-71"><a href="#ModalityListingLoadschema-71"><span class="linenos">71</span></a><span class="k">class</span> <span class="nc">ModalityListingLoadschema</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">):</span>
+</span><span id="ModalityListingLoadschema-72"><a href="#ModalityListingLoadschema-72"><span class="linenos">72</span></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+</span><span id="ModalityListingLoadschema-73"><a href="#ModalityListingLoadschema-73"><span class="linenos">73</span></a><span class="sd">    Loading schema for the Modality listing in a saved Rercording.</span>
+</span><span id="ModalityListingLoadschema-74"><a href="#ModalityListingLoadschema-74"><span class="linenos">74</span></a><span class="sd">    &quot;&quot;&quot;</span>
+</span><span id="ModalityListingLoadschema-75"><a href="#ModalityListingLoadschema-75"><span class="linenos">75</span></a>    <span class="n">data_name</span><span class="p">:</span> <span class="nb">str</span>
+</span><span id="ModalityListingLoadschema-76"><a href="#ModalityListingLoadschema-76"><span class="linenos">76</span></a>    <span class="n">meta_name</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="kc">None</span><span class="p">]</span>
 </span></pre></div>
 
 
@@ -511,6 +522,7 @@
                 <dd id="ModalityListingLoadschema.model_rebuild" class="function">model_rebuild</dd>
                 <dd id="ModalityListingLoadschema.model_validate" class="function">model_validate</dd>
                 <dd id="ModalityListingLoadschema.model_validate_json" class="function">model_validate_json</dd>
+                <dd id="ModalityListingLoadschema.model_validate_strings" class="function">model_validate_strings</dd>
                 <dd id="ModalityListingLoadschema.dict" class="function">dict</dd>
                 <dd id="ModalityListingLoadschema.json" class="function">json</dd>
                 <dd id="ModalityListingLoadschema.parse_obj" class="function">parse_obj</dd>
@@ -539,17 +551,17 @@
 
     </div>
     <a class="headerlink" href="#RecordingLoadSchema"></a>
-            <div class="pdoc-code codehilite"><pre><span></span><span id="RecordingLoadSchema-71"><a href="#RecordingLoadSchema-71"><span class="linenos">71</span></a><span class="k">class</span> <span class="nc">RecordingLoadSchema</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">):</span>
-</span><span id="RecordingLoadSchema-72"><a href="#RecordingLoadSchema-72"><span class="linenos">72</span></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-</span><span id="RecordingLoadSchema-73"><a href="#RecordingLoadSchema-73"><span class="linenos">73</span></a><span class="sd">    Loading schema for a saved Recording.</span>
-</span><span id="RecordingLoadSchema-74"><a href="#RecordingLoadSchema-74"><span class="linenos">74</span></a>
-</span><span id="RecordingLoadSchema-75"><a href="#RecordingLoadSchema-75"><span class="linenos">75</span></a><span class="sd">    Recording is defined in the data_structures module.</span>
-</span><span id="RecordingLoadSchema-76"><a href="#RecordingLoadSchema-76"><span class="linenos">76</span></a><span class="sd">    &quot;&quot;&quot;</span>
-</span><span id="RecordingLoadSchema-77"><a href="#RecordingLoadSchema-77"><span class="linenos">77</span></a>    <span class="n">object_type</span><span class="p">:</span> <span class="n">SavedObjectTypes</span> <span class="o">=</span> <span class="n">SavedObjectTypes</span><span class="o">.</span><span class="n">RECORDING</span>
-</span><span id="RecordingLoadSchema-78"><a href="#RecordingLoadSchema-78"><span class="linenos">78</span></a>    <span class="n">name</span><span class="p">:</span> <span class="nb">str</span>
-</span><span id="RecordingLoadSchema-79"><a href="#RecordingLoadSchema-79"><span class="linenos">79</span></a>    <span class="n">format_version</span><span class="p">:</span> <span class="nb">str</span>
-</span><span id="RecordingLoadSchema-80"><a href="#RecordingLoadSchema-80"><span class="linenos">80</span></a>    <span class="n">parameters</span><span class="p">:</span> <span class="n">RecordingMetaData</span>
-</span><span id="RecordingLoadSchema-81"><a href="#RecordingLoadSchema-81"><span class="linenos">81</span></a>    <span class="n">modalities</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">ModalityListingLoadschema</span><span class="p">]</span>
+            <div class="pdoc-code codehilite"><pre><span></span><span id="RecordingLoadSchema-79"><a href="#RecordingLoadSchema-79"><span class="linenos">79</span></a><span class="k">class</span> <span class="nc">RecordingLoadSchema</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">):</span>
+</span><span id="RecordingLoadSchema-80"><a href="#RecordingLoadSchema-80"><span class="linenos">80</span></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+</span><span id="RecordingLoadSchema-81"><a href="#RecordingLoadSchema-81"><span class="linenos">81</span></a><span class="sd">    Loading schema for a saved Recording.</span>
+</span><span id="RecordingLoadSchema-82"><a href="#RecordingLoadSchema-82"><span class="linenos">82</span></a>
+</span><span id="RecordingLoadSchema-83"><a href="#RecordingLoadSchema-83"><span class="linenos">83</span></a><span class="sd">    Recording is defined in the data_structures module.</span>
+</span><span id="RecordingLoadSchema-84"><a href="#RecordingLoadSchema-84"><span class="linenos">84</span></a><span class="sd">    &quot;&quot;&quot;</span>
+</span><span id="RecordingLoadSchema-85"><a href="#RecordingLoadSchema-85"><span class="linenos">85</span></a>    <span class="n">object_type</span><span class="p">:</span> <span class="n">SavedObjectTypes</span> <span class="o">=</span> <span class="n">SavedObjectTypes</span><span class="o">.</span><span class="n">RECORDING</span>
+</span><span id="RecordingLoadSchema-86"><a href="#RecordingLoadSchema-86"><span class="linenos">86</span></a>    <span class="n">name</span><span class="p">:</span> <span class="nb">str</span>
+</span><span id="RecordingLoadSchema-87"><a href="#RecordingLoadSchema-87"><span class="linenos">87</span></a>    <span class="n">format_version</span><span class="p">:</span> <span class="nb">str</span>
+</span><span id="RecordingLoadSchema-88"><a href="#RecordingLoadSchema-88"><span class="linenos">88</span></a>    <span class="n">parameters</span><span class="p">:</span> <span class="n">RecordingMetaData</span>
+</span><span id="RecordingLoadSchema-89"><a href="#RecordingLoadSchema-89"><span class="linenos">89</span></a>    <span class="n">modalities</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">ModalityListingLoadschema</span><span class="p">]</span>
 </span></pre></div>
 
 
@@ -657,6 +669,7 @@
                 <dd id="RecordingLoadSchema.model_rebuild" class="function">model_rebuild</dd>
                 <dd id="RecordingLoadSchema.model_validate" class="function">model_validate</dd>
                 <dd id="RecordingLoadSchema.model_validate_json" class="function">model_validate_json</dd>
+                <dd id="RecordingLoadSchema.model_validate_strings" class="function">model_validate_strings</dd>
                 <dd id="RecordingLoadSchema.dict" class="function">dict</dd>
                 <dd id="RecordingLoadSchema.json" class="function">json</dd>
                 <dd id="RecordingLoadSchema.parse_obj" class="function">parse_obj</dd>
@@ -685,14 +698,14 @@
 
     </div>
     <a class="headerlink" href="#RecordingSessionParameterLoadSchema"></a>
-            <div class="pdoc-code codehilite"><pre><span></span><span id="RecordingSessionParameterLoadSchema-84"><a href="#RecordingSessionParameterLoadSchema-84"><span class="linenos">84</span></a><span class="k">class</span> <span class="nc">RecordingSessionParameterLoadSchema</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">):</span>
-</span><span id="RecordingSessionParameterLoadSchema-85"><a href="#RecordingSessionParameterLoadSchema-85"><span class="linenos">85</span></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-</span><span id="RecordingSessionParameterLoadSchema-86"><a href="#RecordingSessionParameterLoadSchema-86"><span class="linenos">86</span></a><span class="sd">    Loading schema for a saved RecordingSession.</span>
-</span><span id="RecordingSessionParameterLoadSchema-87"><a href="#RecordingSessionParameterLoadSchema-87"><span class="linenos">87</span></a>
-</span><span id="RecordingSessionParameterLoadSchema-88"><a href="#RecordingSessionParameterLoadSchema-88"><span class="linenos">88</span></a><span class="sd">    RecordingSession is defined in the data_structures module.</span>
-</span><span id="RecordingSessionParameterLoadSchema-89"><a href="#RecordingSessionParameterLoadSchema-89"><span class="linenos">89</span></a><span class="sd">    &quot;&quot;&quot;</span>
-</span><span id="RecordingSessionParameterLoadSchema-90"><a href="#RecordingSessionParameterLoadSchema-90"><span class="linenos">90</span></a>    <span class="n">path</span><span class="p">:</span> <span class="n">DirectoryPath</span>
-</span><span id="RecordingSessionParameterLoadSchema-91"><a href="#RecordingSessionParameterLoadSchema-91"><span class="linenos">91</span></a>    <span class="n">datasource</span><span class="p">:</span> <span class="n">Datasource</span>
+            <div class="pdoc-code codehilite"><pre><span></span><span id="RecordingSessionParameterLoadSchema-92"><a href="#RecordingSessionParameterLoadSchema-92"><span class="linenos">92</span></a><span class="k">class</span> <span class="nc">RecordingSessionParameterLoadSchema</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">):</span>
+</span><span id="RecordingSessionParameterLoadSchema-93"><a href="#RecordingSessionParameterLoadSchema-93"><span class="linenos">93</span></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+</span><span id="RecordingSessionParameterLoadSchema-94"><a href="#RecordingSessionParameterLoadSchema-94"><span class="linenos">94</span></a><span class="sd">    Loading schema for a saved RecordingSession.</span>
+</span><span id="RecordingSessionParameterLoadSchema-95"><a href="#RecordingSessionParameterLoadSchema-95"><span class="linenos">95</span></a>
+</span><span id="RecordingSessionParameterLoadSchema-96"><a href="#RecordingSessionParameterLoadSchema-96"><span class="linenos">96</span></a><span class="sd">    RecordingSession is defined in the data_structures module.</span>
+</span><span id="RecordingSessionParameterLoadSchema-97"><a href="#RecordingSessionParameterLoadSchema-97"><span class="linenos">97</span></a><span class="sd">    &quot;&quot;&quot;</span>
+</span><span id="RecordingSessionParameterLoadSchema-98"><a href="#RecordingSessionParameterLoadSchema-98"><span class="linenos">98</span></a>    <span class="n">path</span><span class="p">:</span> <span class="n">DirectoryPath</span>
+</span><span id="RecordingSessionParameterLoadSchema-99"><a href="#RecordingSessionParameterLoadSchema-99"><span class="linenos">99</span></a>    <span class="n">datasource</span><span class="p">:</span> <span class="n">Datasource</span>
 </span></pre></div>
 
 
@@ -767,6 +780,7 @@
                 <dd id="RecordingSessionParameterLoadSchema.model_rebuild" class="function">model_rebuild</dd>
                 <dd id="RecordingSessionParameterLoadSchema.model_validate" class="function">model_validate</dd>
                 <dd id="RecordingSessionParameterLoadSchema.model_validate_json" class="function">model_validate_json</dd>
+                <dd id="RecordingSessionParameterLoadSchema.model_validate_strings" class="function">model_validate_strings</dd>
                 <dd id="RecordingSessionParameterLoadSchema.dict" class="function">dict</dd>
                 <dd id="RecordingSessionParameterLoadSchema.json" class="function">json</dd>
                 <dd id="RecordingSessionParameterLoadSchema.parse_obj" class="function">parse_obj</dd>
@@ -795,17 +809,17 @@
 
     </div>
     <a class="headerlink" href="#RecordingSessionLoadSchema"></a>
-            <div class="pdoc-code codehilite"><pre><span></span><span id="RecordingSessionLoadSchema-94"><a href="#RecordingSessionLoadSchema-94"><span class="linenos"> 94</span></a><span class="k">class</span> <span class="nc">RecordingSessionLoadSchema</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">):</span>
-</span><span id="RecordingSessionLoadSchema-95"><a href="#RecordingSessionLoadSchema-95"><span class="linenos"> 95</span></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-</span><span id="RecordingSessionLoadSchema-96"><a href="#RecordingSessionLoadSchema-96"><span class="linenos"> 96</span></a><span class="sd">    Loading schema for a saved RecordingSession.</span>
-</span><span id="RecordingSessionLoadSchema-97"><a href="#RecordingSessionLoadSchema-97"><span class="linenos"> 97</span></a>
-</span><span id="RecordingSessionLoadSchema-98"><a href="#RecordingSessionLoadSchema-98"><span class="linenos"> 98</span></a><span class="sd">    RecordingSession is defined in the data_structures module.</span>
-</span><span id="RecordingSessionLoadSchema-99"><a href="#RecordingSessionLoadSchema-99"><span class="linenos"> 99</span></a><span class="sd">    &quot;&quot;&quot;</span>
-</span><span id="RecordingSessionLoadSchema-100"><a href="#RecordingSessionLoadSchema-100"><span class="linenos">100</span></a>    <span class="n">object_type</span><span class="p">:</span> <span class="n">SavedObjectTypes</span> <span class="o">=</span> <span class="n">SavedObjectTypes</span><span class="o">.</span><span class="n">RECORDING_SESSION</span>
-</span><span id="RecordingSessionLoadSchema-101"><a href="#RecordingSessionLoadSchema-101"><span class="linenos">101</span></a>    <span class="n">name</span><span class="p">:</span> <span class="nb">str</span>
-</span><span id="RecordingSessionLoadSchema-102"><a href="#RecordingSessionLoadSchema-102"><span class="linenos">102</span></a>    <span class="n">format_version</span><span class="p">:</span> <span class="nb">str</span>
-</span><span id="RecordingSessionLoadSchema-103"><a href="#RecordingSessionLoadSchema-103"><span class="linenos">103</span></a>    <span class="n">parameters</span><span class="p">:</span> <span class="n">RecordingSessionParameterLoadSchema</span>
-</span><span id="RecordingSessionLoadSchema-104"><a href="#RecordingSessionLoadSchema-104"><span class="linenos">104</span></a>    <span class="n">recordings</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span>
+            <div class="pdoc-code codehilite"><pre><span></span><span id="RecordingSessionLoadSchema-102"><a href="#RecordingSessionLoadSchema-102"><span class="linenos">102</span></a><span class="k">class</span> <span class="nc">RecordingSessionLoadSchema</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">):</span>
+</span><span id="RecordingSessionLoadSchema-103"><a href="#RecordingSessionLoadSchema-103"><span class="linenos">103</span></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+</span><span id="RecordingSessionLoadSchema-104"><a href="#RecordingSessionLoadSchema-104"><span class="linenos">104</span></a><span class="sd">    Loading schema for a saved RecordingSession.</span>
+</span><span id="RecordingSessionLoadSchema-105"><a href="#RecordingSessionLoadSchema-105"><span class="linenos">105</span></a>
+</span><span id="RecordingSessionLoadSchema-106"><a href="#RecordingSessionLoadSchema-106"><span class="linenos">106</span></a><span class="sd">    RecordingSession is defined in the data_structures module.</span>
+</span><span id="RecordingSessionLoadSchema-107"><a href="#RecordingSessionLoadSchema-107"><span class="linenos">107</span></a><span class="sd">    &quot;&quot;&quot;</span>
+</span><span id="RecordingSessionLoadSchema-108"><a href="#RecordingSessionLoadSchema-108"><span class="linenos">108</span></a>    <span class="n">object_type</span><span class="p">:</span> <span class="n">SavedObjectTypes</span> <span class="o">=</span> <span class="n">SavedObjectTypes</span><span class="o">.</span><span class="n">RECORDING_SESSION</span>
+</span><span id="RecordingSessionLoadSchema-109"><a href="#RecordingSessionLoadSchema-109"><span class="linenos">109</span></a>    <span class="n">name</span><span class="p">:</span> <span class="nb">str</span>
+</span><span id="RecordingSessionLoadSchema-110"><a href="#RecordingSessionLoadSchema-110"><span class="linenos">110</span></a>    <span class="n">format_version</span><span class="p">:</span> <span class="nb">str</span>
+</span><span id="RecordingSessionLoadSchema-111"><a href="#RecordingSessionLoadSchema-111"><span class="linenos">111</span></a>    <span class="n">parameters</span><span class="p">:</span> <span class="n">RecordingSessionParameterLoadSchema</span>
+</span><span id="RecordingSessionLoadSchema-112"><a href="#RecordingSessionLoadSchema-112"><span class="linenos">112</span></a>    <span class="n">recordings</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span>
 </span></pre></div>
 
 
@@ -913,6 +927,7 @@
                 <dd id="RecordingSessionLoadSchema.model_rebuild" class="function">model_rebuild</dd>
                 <dd id="RecordingSessionLoadSchema.model_validate" class="function">model_validate</dd>
                 <dd id="RecordingSessionLoadSchema.model_validate_json" class="function">model_validate_json</dd>
+                <dd id="RecordingSessionLoadSchema.model_validate_strings" class="function">model_validate_strings</dd>
                 <dd id="RecordingSessionLoadSchema.dict" class="function">dict</dd>
                 <dd id="RecordingSessionLoadSchema.json" class="function">json</dd>
                 <dd id="RecordingSessionLoadSchema.parse_obj" class="function">parse_obj</dd>

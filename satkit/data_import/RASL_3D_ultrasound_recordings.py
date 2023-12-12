@@ -194,6 +194,9 @@ def generate_recording_list_old_style(directory):
             # print(row['Stimulus'])
             # print(row['DCM'])
 
+            # this marks if the recording should be disregarded
+            print(row['junkBox'])
+
             textgrid = list(wav_dir.glob(
                 "*" + row['DAT File Time Stamp'] + "*.TextGrid"))[0]
             wav = deepcopy(textgrid)

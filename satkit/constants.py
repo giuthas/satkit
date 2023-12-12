@@ -68,6 +68,21 @@ class Datasource(Enum):
     RASL = "RASL"
 
 
+class TimeseriesNormalisation(Enum):
+    """
+    An Enum for different kinds of plot normalisation in the y-direction.
+
+    none: no normalisation
+    peak: divide all data points y-values by the largest y-value
+    bottom: deduct the lowest y-value from all data points y-values
+    both: do first bottom normalisation and then peak normalisation.
+    """
+    none = 'NONE'
+    peak = 'PEAK'
+    bottom = 'BOTTOM'
+    both = 'PEAK AND BOTTOM'
+
+
 class SplineDataColumn(Enum):
     """
     Basic data columns that any Spline should reasonably have.

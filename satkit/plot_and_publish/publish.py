@@ -41,24 +41,58 @@ import matplotlib.pyplot as plt
 # from matplotlib.axes import Axes
 # from matplotlib.lines import Line2D
 
-# from icecream import ic
+from icecream import ic
 
 from satkit.data_structures import Recording, RecordingSession
 from satkit.configuration import publish_params
 
-from .plot import (Normalisation, plot_satgrid_tier,
-                   plot_spectrogram, plot_timeseries, plot_wav)
+from .plot import (plot_satgrid_tier,
+                   plot_spectrogram, plot_timeseries, plot_wav, plot_1d_modality)
 
 _plot_logger = logging.getLogger('satkit.publish')
 
 
 def make_figure(recording: Recording, pdf: PdfPages):
-    plt.figure()
-    plt.clf()
 
-    # plt.plot()
-    graph = plt.title('y vs x')
-    plt.xlabel('x axis', fontsize=13)
+    figure, axes = plt.subplots(nrows=publish_params['subplot grid'][0],
+                                ncols=publish_params['subplot grid'][1],
+                                layout='constrained')
+    # plt.clf()
+
+    keys = publish_params['subplots'].keys()
+    ic(keys)
+
+    if publish_params['use go signal']:
+        audio = recording.modalities['MonoAudio']
+        time_offset = audio.go_signal
+    else:
+        time_offset = 0
+
+    for key, ax in zip(keys, axes.flat):
+
+        modality = recording.modalities[publish_params['subplots'][key]]
+        plot_1d_modality(ax, modality, time_offset, publish_params['xlim'],
+                         normalise=publish_params['normalise'])
+        ax.set_title(publish_params['subplots'][key])
+
+    # main_grid_spec = figure.add_gridspec(
+    #     nrows=publish_params['subplot grid'][1],
+    #     ncols=publish_params['subplot grid'][0],
+    #     hspace=0,
+    #     wspace=0)  # ,
+    # height_ratios=height_ratios)
+
+    # data_grid_spec = main_grid_spec[0].subgridspec(
+    #     nro_data_modalities, 1, hspace=0, wspace=0)
+    # data_axes.append(figure.add_subplot(data_grid_spec[0]))
+    # for i in range(1, nro_data_modalities):
+    #     data_axes.append(
+    #         figure.add_subplot(
+    #             data_grid_spec[i],
+    #             sharex=data_axes[0]))
+
+    figure.suptitle(f"{recording.basename} {recording.meta_data.prompt}")
+    plt.xlabel('Time (s), go-signal at 0 s.)', fontsize=13)
     plt.ylabel('y axis', fontsize=13)
     pdf.savefig(plt.gcf())
 

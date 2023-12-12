@@ -1,8 +1,8 @@
 #
-# Copyright (c) 2019-2023 
+# Copyright (c) 2019-2023
 # Pertti Palo, Scott Moisik, Matthew Faytak, and Motoki Saito.
 #
-# This file is part of Speech Articulation ToolKIT 
+# This file is part of Speech Articulation ToolKIT
 # (see https://github.com/giuthas/satkit/).
 #
 # This program is free software: you can redistribute it and/or modify
@@ -43,14 +43,14 @@ from matplotlib.backends.backend_pdf import PdfPages
 from scipy import signal as scipy_signal
 
 from satkit.data_structures import Recording
+from satkit.constants import TimeseriesNormalisation
 
-
-# TODO: Move this somewhere else and joing with the same thing in plot.py.
-class Normalisation(Enum):
-    none = 'NONE'
-    peak = 'PEAK'
-    bottom = 'BOTTOM'
-    both = 'PEAK AND BOTTOM'
+# # TODO: Move this somewhere else and joing with the same thing in plot.py.
+# class TimeseriesNormalisation(Enum):
+#     none = 'NONE'
+#     peak = 'PEAK'
+#     bottom = 'BOTTOM'
+#     both = 'PEAK AND BOTTOM'
 
 
 @dataclass
@@ -65,7 +65,7 @@ def time_series_peaks(
         data: np.ndarray,
         time: np.ndarray,
         time_lim: Tuple[float, float],
-        normalise: Normalisation = 'NONE',
+        normalise: TimeseriesNormalisation = 'NONE',
         number_of_ignored_frames: int = 10,
         distance: Optional[int] = 10,
         prominence: Optional[float] = 0.05):
@@ -78,9 +78,9 @@ def time_series_peaks(
     search_data = search_data[indeces]
     search_time = search_time[indeces]
 
-    if normalise in (Normalisation.both, Normalisation.bottom):
+    if normalise in (TimeseriesNormalisation.both, TimeseriesNormalisation.bottom):
         search_data = search_data - np.min(search_data)
-    if normalise in [Normalisation.both, Normalisation.peak]:
+    if normalise in [TimeseriesNormalisation.both, TimeseriesNormalisation.peak]:
         search_data = search_data/np.max(search_data)
 
     peaks, properties = scipy_signal.find_peaks(

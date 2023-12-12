@@ -58,11 +58,12 @@ from icecream import ic
 # Local modules
 # import satkit.io as satkit_io
 from satkit.data_structures import RecordingSession
+from satkit.constants import TimeseriesNormalisation
 from satkit.configuration import gui_params, config_dict
 from satkit.gui import BoundaryAnimator, ReplaceDialog
 from satkit.plot_and_publish.plot import plot_spline
-from satkit.plot_and_publish import (Normalisation, plot_satgrid_tier, plot_spectrogram,
-                                     plot_timeseries, plot_wav)
+from satkit.plot_and_publish import (
+    plot_satgrid_tier, plot_spectrogram, plot_timeseries, plot_wav)
 from satkit.save_and_load import (
     save_recording_session, load_recording_session)
 from satkit.ui_callbacks import UiCallbacks
@@ -350,7 +351,7 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
         wav = audio.data
         wav_time = audio.timevector - stimulus_onset
 
-        ic(self.current.modalities)
+        # ic(self.current.modalities)
 
         l1 = self.current.modalities['PD l1 on RawUltrasound']
 
@@ -387,7 +388,7 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
                 self.xlim, ylim,
                 color=(0+i*.1, 0+i*.1, 0+i*.1),
                 linestyle=(0, (i+1, i+1)),
-                normalise=Normalisation('PEAK AND BOTTOM'),
+                normalise=TimeseriesNormalisation('PEAK AND BOTTOM'),
                 find_peaks=False, sampling_step=i+1)
             plots.append(new)
             labels.append(f"{modality.sampling_rate/(i+1):.2f}")

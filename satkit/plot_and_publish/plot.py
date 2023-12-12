@@ -34,7 +34,6 @@
 # Built in packages
 from dataclasses import dataclass
 import logging
-from enum import Enum
 from typing import List, Optional, Tuple, Union
 
 # Efficient array operations
@@ -50,25 +49,11 @@ from matplotlib.lines import Line2D
 
 # Local packages
 from satkit.data_structures import Modality
+from satkit.constants import TimeseriesNormalisation
 from satkit.gui.boundary_animation import AnimatableBoundary, BoundaryAnimator
 from satkit.satgrid import SatTier
 
 _plot_logger = logging.getLogger('satkit.plot')
-
-
-class Normalisation(Enum):
-    """
-    An Enum for different kinds of plot normalisation in the y-direction.
-
-    none: no normalisation
-    peak: divide all data points y-values by the largest y-value
-    bottom: deduct the lowest y-value from all data points y-values
-    both: do first bottom normalisation and then peak normalisation.
-    """
-    none = 'NONE'
-    peak = 'PEAK'
-    bottom = 'BOTTOM'
-    both = 'PEAK AND BOTTOM'
 
 
 @dataclass
@@ -80,6 +65,7 @@ class LegendItem:
 def plot_1d_modality(axes: Axes,
                      modality: Modality,
                      time_offset: float,
+                     xlim: Tuple[float, float],
                      **kwargs) -> LegendItem:
     """
     Plot a modality assuming its data is one dimensional.
@@ -99,7 +85,7 @@ def plot_1d_modality(axes: Axes,
     data = modality.data
     time = modality.timevector - time_offset
 
-    line = plot_timeseries(axes, data, time, **kwargs)
+    line = plot_timeseries(axes, data, time, xlim, **kwargs)
     return LegendItem(line=line)
 
 
@@ -108,7 +94,7 @@ def plot_timeseries(axes: Axes,
                     time: np.ndarray,
                     xlim: Tuple[float, float],
                     ylim: Optional[Tuple[float, float]] = None,
-                    normalise: Normalisation = 'NONE',
+                    normalise: TimeseriesNormalisation = 'NONE',
                     number_of_ignored_frames: int = 10,
                     ylabel: Optional[str] = None,
                     picker=None,
@@ -147,9 +133,9 @@ def plot_timeseries(axes: Axes,
     plot_time = time[number_of_ignored_frames:]
 
     _plot_logger.debug("Normalisation is %s.", normalise)
-    if normalise in (Normalisation.both, Normalisation.bottom):
+    if normalise in (TimeseriesNormalisation.both, TimeseriesNormalisation.bottom):
         plot_data = plot_data - np.min(plot_data)
-    if normalise in [Normalisation.both, Normalisation.peak]:
+    if normalise in [TimeseriesNormalisation.both, TimeseriesNormalisation.peak]:
         plot_data = plot_data/np.max(plot_data)
 
     if picker:
@@ -172,9 +158,9 @@ def plot_timeseries(axes: Axes,
 
     if ylim:
         axes.set_ylim(ylim)
-    elif normalise in [Normalisation.both]:
+    elif normalise in [TimeseriesNormalisation.both]:
         axes.set_ylim([-0.05, 1.05])
-    elif normalise in [Normalisation.peak]:
+    elif normalise in [TimeseriesNormalisation.peak]:
         axes.set_ylim([-0.05, 1.05])
         # axes.set_yscale('log')
 

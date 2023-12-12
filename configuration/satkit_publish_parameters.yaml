@@ -33,14 +33,23 @@
 output file: test.pdf
 
 subplot grid:
-  - 2
-  - 3
+  - 3 # rows
+  - 2 # columns
 
 # How to pass normalisation etc into SATKIT?
 subplots:
   "1 1": "PD l0 on RawUltrasound"
-  "1 2": "PD l.5 on RawUltrasound"
+  "1 2": "PD l0.5 on RawUltrasound"
   "1 3": "PD l1 on RawUltrasound"
   "2 1": "PD l2 on RawUltrasound"
   "2 2": "PD l5 on RawUltrasound"
   "2 3": "PD l_inf on RawUltrasound"
+
+# Limits for x-axis
+xlim: 
+  - -.25
+  - 1.5
+
+# Should we use the results of beep detection to align the time axes.
+use go signal: True
+normalise: "PEAK AND BOTTOM"

@@ -29,6 +29,6 @@
 # articles listed in README.markdown. They can also be found in
 # citations.bib in BibTeX format.
 #
-from .plot import (Normalisation, plot_satgrid_tier,
-                   plot_spectrogram, plot_timeseries, plot_wav)
+from .plot import (
+    plot_satgrid_tier, plot_spectrogram, plot_timeseries, plot_wav)
 from .publish import publish_pdf

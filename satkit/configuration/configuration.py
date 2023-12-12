@@ -39,6 +39,8 @@ from strictyaml import (Any, Bool, FixedSeq, Float, Int, Map, MapCombined,
                         MapPattern, Optional, ScalarValidator, Seq, Str,
                         YAMLError, load)
 
+from satkit.constants import TimeseriesNormalisation
+
 config_dict = {}
 data_run_params = {}
 gui_params = {}
@@ -60,7 +62,7 @@ class PathValidator(ScalarValidator):
     """
     Validate yaml representing a Path.
 
-    Please note that empty fields are interpeted as not available and
+    Please note that empty fields are interpreted as not available and
     represented by None. If you want to specify current working directory, use
     '.'
     """
@@ -68,6 +70,22 @@ class PathValidator(ScalarValidator):
     def validate_scalar(self, chunk):
         if chunk.contents:
             return Path(chunk.contents)
+        else:
+            return None
+
+
+class NormalisationValidator(ScalarValidator):
+    """
+    Validate yaml representing a Path.
+
+    Please note that empty fields are interpreted as not available and
+    represented by None. If you want to specify current working directory, use
+    '.'
+    """
+
+    def validate_scalar(self, chunk):
+        if chunk.contents:
+            return TimeseriesNormalisation(chunk.contents)
         else:
             return None
 
@@ -259,6 +277,9 @@ def load_publish_params(filepath: Union[Path, str, None] = None) -> None:
                 "output file": Str(),
                 "subplot grid": FixedSeq([Int(), Int()]),
                 "subplots": MapPattern(Str(), Str()),
+                "xlim": FixedSeq([Float(), Float()]),
+                "use go signal": Bool(),
+                "normalise": NormalisationValidator(),
             })
             try:
                 _raw_publish_params_dict = load(yaml_file.read(), schema)

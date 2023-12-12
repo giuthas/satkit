@@ -1,8 +1,8 @@
 #
-# Copyright (c) 2019-2023 
+# Copyright (c) 2019-2023
 # Pertti Palo, Scott Moisik, Matthew Faytak, and Motoki Saito.
 #
-# This file is part of Speech Articulation ToolKIT 
+# This file is part of Speech Articulation ToolKIT
 # (see https://github.com/giuthas/satkit/).
 #
 # This program is free software: you can redistribute it and/or modify
@@ -44,7 +44,8 @@ def widen_help_formatter(formatter, total_width=140, syntax_width=35):
         return lambda prog: formatter(prog, **kwargs)
     except TypeError:
         warnings.warn(
-            "Widening argparse help formatter failed. Falling back on default settings.")
+            "Widening argparse help formatter failed. "
+            "Falling back on default settings.")
     return formatter
 
 
@@ -60,8 +61,8 @@ class SatkitArgumentParser():
         """
         Setup a commandline interface with the given description.
 
-        Sets up the parsers and runs it, and also sets up logging.
-        Description is what this version will be called if called with -h or --help.
+        Sets up the parsers and runs it, and also sets up logging. Description
+        is what this version will be called if called with -h or --help.
         """
         self.description = description
         self._parse_args()
@@ -92,11 +93,12 @@ class SatkitArgumentParser():
                                  help=helptext, metavar="file")
 
         helptext = (
-            'Should we run plotting on the results.'
+            'Should we publish figures into a pdf file.'
         )
-        self.parser.add_argument("-p", "--plot", dest="plot",
-                                default=False, action=argparse.BooleanOptionalAction,
-                                help=helptext)
+        self.parser.add_argument("-p", "--publish", dest="publish",
+                                 default=False,
+                                 action=argparse.BooleanOptionalAction,
+                                 help=helptext)
 
         helptext = (
             'Destination directory for generated figures.'
@@ -109,10 +111,10 @@ class SatkitArgumentParser():
             'Should an ultrasound frame be displayed by the annotator.'
             'Set to False if the .ult files are not available.'
         )
-        self.parser.add_argument("--displayUltraFrame", dest="displayTongue", 
-                                default=True, action=argparse.BooleanOptionalAction,
-                                help=helptext)
-
+        self.parser.add_argument("--displayUltraFrame", dest="displayTongue",
+                                 default=True,
+                                 action=argparse.BooleanOptionalAction,
+                                 help=helptext)
 
     def _init_parser(self):
         """Setup basic commandline parsing and the file loading argument."""
@@ -130,10 +132,9 @@ class SatkitArgumentParser():
         self.parser.add_argument("load_path", help=helptext)
 
     def _parse_args(self):
-        """Create a parser for commandline arguments and parse the arguments."""
+        """
+        Create a parser for commandline arguments and parse the arguments.
+        """
         self._init_parser()
         self._add_optional_arguments()
         self.args = self.parser.parse_args()
-
-
-

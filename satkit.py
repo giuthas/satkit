@@ -115,7 +115,7 @@ def main():
         save_data(Path(cli.args.output_filename), recording_session)
 
     # Plot the data into files if asked to.
-    if cli.args.plot:
+    if cli.args.publish:
         publish_pdf(recording_session)
 
     log_elapsed_time()

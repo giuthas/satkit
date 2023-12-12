@@ -52,4 +52,7 @@ xlim:
 
 # Should we use the results of beep detection to align the time axes.
 use go signal: True
+
 normalise: "PEAK AND BOTTOM"
+
+plotted tier: segment

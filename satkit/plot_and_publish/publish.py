@@ -36,6 +36,7 @@ import numpy as np
 
 from matplotlib.backends.backend_pdf import PdfPages
 import matplotlib.pyplot as plt
+from matplotlib.gridspec import GridSpec
 
 # from matplotlib.figure import Figure
 # from matplotlib.axes import Axes
@@ -47,20 +48,22 @@ from satkit.data_structures import Recording, RecordingSession
 from satkit.configuration import publish_params
 
 from .plot import (plot_satgrid_tier,
-                   plot_spectrogram, plot_timeseries, plot_wav, plot_1d_modality)
+                   plot_spectrogram, plot_wav, plot_1d_modality)
 
 _plot_logger = logging.getLogger('satkit.publish')
 
 
 def make_figure(recording: Recording, pdf: PdfPages):
 
-    figure, axes = plt.subplots(nrows=publish_params['subplot grid'][0],
-                                ncols=publish_params['subplot grid'][1],
-                                layout='constrained')
-    # plt.clf()
+    figure = plt.figure()
+    height_ratios = [3 for i in range(publish_params['subplot grid'][0])]
+    height_ratios.append(1)
+    gridspec = GridSpec(nrows=publish_params['subplot grid'][0]+1,
+                        ncols=publish_params['subplot grid'][1],
+                        hspace=0, wspace=0,
+                        height_ratios=height_ratios)
 
-    keys = publish_params['subplots'].keys()
-    ic(keys)
+    keys = list(publish_params['subplots'].keys())
 
     if publish_params['use go signal']:
         audio = recording.modalities['MonoAudio']
@@ -68,32 +71,52 @@ def make_figure(recording: Recording, pdf: PdfPages):
     else:
         time_offset = 0
 
-    for key, ax in zip(keys, axes.flat):
+    for i, grid in enumerate(gridspec):
+        ax = plt.subplot(grid,)
 
-        modality = recording.modalities[publish_params['subplots'][key]]
-        plot_1d_modality(ax, modality, time_offset, publish_params['xlim'],
-                         normalise=publish_params['normalise'])
-        ax.set_title(publish_params['subplots'][key])
+        if i < len(keys):
+            key = keys[i]
+            ax.tick_params(
+                axis='x',          # changes apply to the x-axis
+                which='both',      # both major and minor ticks are affected
+                bottom=False,      # ticks along the bottom edge are off
+                top=False,         # ticks along the top edge are off
+                labelbottom=False)  # labels along the bottom edge are off
+            modality = recording.modalities[publish_params['subplots'][key]]
+            plot_1d_modality(ax, modality, time_offset, publish_params['xlim'],
+                             normalise=publish_params['normalise'])
 
-    # main_grid_spec = figure.add_gridspec(
-    #     nrows=publish_params['subplot grid'][1],
-    #     ncols=publish_params['subplot grid'][0],
-    #     hspace=0,
-    #     wspace=0)  # ,
-    # height_ratios=height_ratios)
+            if publish_params['plotted tier'] in recording.satgrid:
+                tier = recording.satgrid[publish_params['plotted tier']]
 
-    # data_grid_spec = main_grid_spec[0].subgridspec(
-    #     nro_data_modalities, 1, hspace=0, wspace=0)
-    # data_axes.append(figure.add_subplot(data_grid_spec[0]))
-    # for i in range(1, nro_data_modalities):
-    #     data_axes.append(
-    #         figure.add_subplot(
-    #             data_grid_spec[i],
-    #             sharex=data_axes[0]))
+                plot_satgrid_tier(
+                    ax, tier, time_offset=time_offset,
+                    draw_text=False)
+        else:
+            if publish_params['plotted tier'] in recording.satgrid:
+                tier = recording.satgrid[publish_params['plotted tier']]
+
+                ax.set_xlim(publish_params['xlim'])
+                ax.tick_params(
+                    axis='y',          # changes apply to the x-axis
+                    which='both',      # both major and minor ticks are affected
+                    left=False,      # ticks along the bottom edge are off
+                    right=False,         # ticks along the top edge are off
+                    labelleft=False)  # labels along the bottom edge are off
+                plot_satgrid_tier(
+                    ax, tier, time_offset=time_offset,
+                    draw_text=True, text_y=.45)
+
+        # ax.set_title(publish_params['subplots'][key])
+        ax.set_ylabel(modality.metadata.metric, fontsize=10)
+        if i % 2 != 0:
+            ax.yaxis.set_label_position("right")
+            ax.yaxis.tick_right()
+
+        # ic(i, key)
 
     figure.suptitle(f"{recording.basename} {recording.meta_data.prompt}")
-    plt.xlabel('Time (s), go-signal at 0 s.)', fontsize=13)
-    plt.ylabel('y axis', fontsize=13)
+    plt.xlabel('Time (s), go-signal at 0 s.)', fontsize=10)
     pdf.savefig(plt.gcf())
 
 

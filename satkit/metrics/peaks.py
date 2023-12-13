@@ -45,13 +45,6 @@ from scipy import signal as scipy_signal
 from satkit.data_structures import Recording
 from satkit.constants import TimeseriesNormalisation
 
-# # TODO: Move this somewhere else and joing with the same thing in plot.py.
-# class TimeseriesNormalisation(Enum):
-#     none = 'NONE'
-#     peak = 'PEAK'
-#     bottom = 'BOTTOM'
-#     both = 'PEAK AND BOTTOM'
-
 
 @dataclass
 class PeakData:

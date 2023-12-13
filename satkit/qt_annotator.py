@@ -358,7 +358,7 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
         plot_modality_names = [
             (f"PD l1 ts{i+1} on RawUltrasound") for i in range(7)]
         plot_modality_names[0] = "PD l1 on RawUltrasound"
-        ic(plot_modality_names)
+        # ic(plot_modality_names)
 
         ultra_time = l1.timevector - stimulus_onset
         ylim = None

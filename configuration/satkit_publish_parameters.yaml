@@ -48,7 +48,14 @@ subplots:
 # Limits for x-axis
 xlim: 
   - -.25
-  - 1.5
+  - 1.25
+xticks:
+  - 0.0
+  - 0.5
+  - 1.0
+yticks:
+  - 0.0
+  - 1.0
 
 # Should we use the results of beep detection to align the time axes.
 use go signal: True

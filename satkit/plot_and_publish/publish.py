@@ -82,9 +82,23 @@ def make_figure(recording: Recording, pdf: PdfPages):
                 bottom=False,      # ticks along the bottom edge are off
                 top=False,         # ticks along the top edge are off
                 labelbottom=False)  # labels along the bottom edge are off
+            ax.tick_params(
+                axis='y',         # changes apply to the x-axis
+                which='both',     # both major and minor ticks are affected
+                labelsize=8
+            )
+            if 'yticks' in publish_params:
+                ax.set_yticks(publish_params['yticks'])
+                ax.set_yticklabels(publish_params['yticklabels'])
+
             modality = recording.modalities[publish_params['subplots'][key]]
-            plot_1d_modality(ax, modality, time_offset, publish_params['xlim'],
-                             normalise=publish_params['normalise'])
+            line = plot_1d_modality(
+                ax, modality, time_offset, publish_params['xlim'],
+                normalise=publish_params['normalise'])
+
+            ax.legend(
+                [line], [modality.metadata.metric],
+                loc='upper left', handlelength=0, handletextpad=0)
 
             if publish_params['plotted tier'] in recording.satgrid:
                 tier = recording.satgrid[publish_params['plotted tier']]
@@ -92,31 +106,43 @@ def make_figure(recording: Recording, pdf: PdfPages):
                 plot_satgrid_tier(
                     ax, tier, time_offset=time_offset,
                     draw_text=False)
+
+            if i % 2 != 0:
+                ax.yaxis.set_label_position("right")
+                ax.yaxis.tick_right()
         else:
             if publish_params['plotted tier'] in recording.satgrid:
                 tier = recording.satgrid[publish_params['plotted tier']]
 
                 ax.set_xlim(publish_params['xlim'])
                 ax.tick_params(
-                    axis='y',          # changes apply to the x-axis
-                    which='both',      # both major and minor ticks are affected
-                    left=False,      # ticks along the bottom edge are off
-                    right=False,         # ticks along the top edge are off
+                    axis='y',         # changes apply to the x-axis
+                    which='both',     # both major and minor ticks are affected
+                    left=False,       # ticks along the bottom edge are off
+                    right=False,      # ticks along the top edge are off
                     labelleft=False)  # labels along the bottom edge are off
+                ax.tick_params(
+                    axis='x',         # changes apply to the x-axis
+                    which='both',     # both major and minor ticks are affected
+                    labelsize=8
+                )
+                if 'xticks' in publish_params:
+                    ax.set_xticks(publish_params['xticks'])
+                    ax.set_xticklabels(publish_params['xticklabels'])
+
                 plot_satgrid_tier(
                     ax, tier, time_offset=time_offset,
                     draw_text=True, text_y=.45)
 
-        # ax.set_title(publish_params['subplots'][key])
-        ax.set_ylabel(modality.metadata.metric, fontsize=10)
-        if i % 2 != 0:
-            ax.yaxis.set_label_position("right")
-            ax.yaxis.tick_right()
-
         # ic(i, key)
 
     figure.suptitle(f"{recording.basename} {recording.meta_data.prompt}")
-    plt.xlabel('Time (s), go-signal at 0 s.)', fontsize=10)
+    figure.text(0.5, 0.04, 'Time (s), go-signal at 0 s.',
+                ha='center', va='center', fontsize=10)
+    plt.xlabel(' ', fontsize=10)
+
+    plt.tight_layout()
+
     pdf.savefig(plt.gcf())
 
 

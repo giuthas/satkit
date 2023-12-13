@@ -35,6 +35,7 @@ from contextlib import closing
 from pathlib import Path
 from typing import Union
 
+import numpy as np
 from strictyaml import (Any, Bool, FixedSeq, Float, Int, Map, MapCombined,
                         MapPattern, Optional, ScalarValidator, Seq, Str,
                         YAMLError, load)
@@ -278,6 +279,8 @@ def load_publish_params(filepath: Union[Path, str, None] = None) -> None:
                 "subplot grid": FixedSeq([Int(), Int()]),
                 "subplots": MapPattern(Str(), Str()),
                 "xlim": FixedSeq([Float(), Float()]),
+                Optional("xticks"): Seq(Str()),
+                Optional("yticks"): Seq(Str()),
                 "use go signal": Bool(),
                 "normalise": NormalisationValidator(),
                 "plotted tier": Str(),
@@ -295,6 +298,16 @@ def load_publish_params(filepath: Union[Path, str, None] = None) -> None:
         sys.exit()
 
     publish_params.update(_raw_publish_params_dict.data)
+
+    if publish_params['xticks']:
+        publish_params['xticklabels'] = publish_params['xticks'].copy()
+        publish_params['xticks'] = np.asarray(
+            publish_params['xticks'], dtype=float)
+
+    if publish_params['yticks']:
+        publish_params['yticklabels'] = publish_params['yticks'].copy()
+        publish_params['yticks'] = np.asarray(
+            publish_params['yticks'], dtype=float)
 
 
 def load_plot_params(filepath: Union[Path, str, None] = None) -> None:

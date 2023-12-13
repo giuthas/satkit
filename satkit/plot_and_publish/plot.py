@@ -56,17 +56,11 @@ from satkit.satgrid import SatTier
 _plot_logger = logging.getLogger('satkit.plot')
 
 
-@dataclass
-class LegendItem:
-    line: Line2D
-    title: Optional[str] = None
-
-
 def plot_1d_modality(axes: Axes,
                      modality: Modality,
                      time_offset: float,
                      xlim: Tuple[float, float],
-                     **kwargs) -> LegendItem:
+                     **kwargs) -> Line2D:
     """
     Plot a modality assuming its data is one dimensional.
 
@@ -86,7 +80,7 @@ def plot_1d_modality(axes: Axes,
     time = modality.timevector - time_offset
 
     line = plot_timeseries(axes, data, time, xlim, **kwargs)
-    return LegendItem(line=line)
+    return line
 
 
 def plot_timeseries(axes: Axes,
@@ -102,7 +96,7 @@ def plot_timeseries(axes: Axes,
                     linestyle: str = "-",
                     alpha: float = 1.0,
                     sampling_step: int = 1,
-                    find_peaks: bool = False):
+                    find_peaks: bool = False) -> Line2D:
     """
     Plot a timeseries.
 

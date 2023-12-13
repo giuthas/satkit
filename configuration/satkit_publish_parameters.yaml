@@ -49,6 +49,8 @@ subplots:
 xlim: 
   - -.25
   - 1.25
+
+# The ticks will be interpreted as both the position and the label.
 xticks:
   - 0.0
   - 0.5
@@ -56,6 +58,10 @@ xticks:
 yticks:
   - 0.0
   - 1.0
+
+legend:
+  handlelength: 0
+  handletextpad: 0
 
 # Should we use the results of beep detection to align the time axes.
 use go signal: True

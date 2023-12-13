@@ -98,7 +98,9 @@ def make_figure(recording: Recording, pdf: PdfPages):
 
             ax.legend(
                 [line], [modality.metadata.metric],
-                loc='upper left', handlelength=0, handletextpad=0)
+                loc='upper left',
+                handlelength=publish_params["legend"]["handlelength"],
+                handletextpad=publish_params["legend"]["handletextpad"])
 
             if publish_params['plotted tier'] in recording.satgrid:
                 tier = recording.satgrid[publish_params['plotted tier']]

@@ -284,6 +284,10 @@ def load_publish_params(filepath: Union[Path, str, None] = None) -> None:
                 "use go signal": Bool(),
                 "normalise": NormalisationValidator(),
                 "plotted tier": Str(),
+                Optional("legend"): Map({
+                    Optional("handlelength"): Float(),
+                    Optional("handletextpad"): Float(),
+                }),
             })
             try:
                 _raw_publish_params_dict = load(yaml_file.read(), schema)

@@ -32,8 +32,6 @@
 
 import logging
 
-import numpy as np
-
 from matplotlib.backends.backend_pdf import PdfPages
 import matplotlib.pyplot as plt
 from matplotlib.gridspec import GridSpec
@@ -42,7 +40,7 @@ from matplotlib.gridspec import GridSpec
 # from matplotlib.axes import Axes
 # from matplotlib.lines import Line2D
 
-from icecream import ic
+# from icecream import ic
 
 from satkit.data_structures import Recording, RecordingSession
 from satkit.configuration import publish_params
@@ -135,8 +133,6 @@ def make_figure(recording: Recording, pdf: PdfPages):
                 plot_satgrid_tier(
                     ax, tier, time_offset=time_offset,
                     draw_text=True, text_y=.45)
-
-        # ic(i, key)
 
     figure.suptitle(f"{recording.basename} {recording.meta_data.prompt}")
     figure.text(0.5, 0.04, 'Time (s), go-signal at 0 s.',

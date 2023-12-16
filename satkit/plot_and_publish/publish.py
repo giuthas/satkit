@@ -45,13 +45,9 @@ from matplotlib.gridspec import GridSpec
 from satkit.data_structures import Recording, RecordingSession
 from satkit.configuration import publish_params
 
-from .plot import (plot_satgrid_tier,
-                   plot_spectrogram, plot_wav, plot_1d_modality)
+from .plot import (plot_1d_modality, plot_satgrid_tier)
 
 _plot_logger = logging.getLogger('satkit.publish')
-
-# TODO: write the docstrings before you forget
-# TODO: and then make the pictures you need for ISSP
 
 
 def make_figure(recording: Recording, pdf: PdfPages):

@@ -119,8 +119,7 @@ def load_main_config(filepath: Union[Path, str, None] = None) -> None:
     elif isinstance(filepath, str):
         filepath = Path(filepath)
 
-    # global config_dict
-    # global _raw_config_dict
+    _logger.debug("Loading main configuration from %s", str(filepath))
 
     if filepath.is_file():
         with closing(open(filepath, 'r', encoding='utf-8')) as yaml_file:
@@ -160,8 +159,7 @@ def load_run_params(filepath: Union[Path, str, None] = None) -> None:
     elif isinstance(filepath, str):
         filepath = Path(filepath)
 
-    # global data_run_params
-    # global _raw_data_run_params_dict
+    _logger.debug("Loading run configuration from %s", str(filepath))
 
     if filepath.is_file():
         with closing(open(filepath, 'r', encoding='utf-8')) as yaml_file:
@@ -210,8 +208,7 @@ def load_gui_params(filepath: Union[Path, str, None] = None) -> None:
     elif isinstance(filepath, str):
         filepath = Path(filepath)
 
-    # global gui_params
-    # global _raw_gui_params_dict
+    _logger.debug("Loading GUI configuration from %s", str(filepath))
 
     if filepath.is_file():
         with closing(open(filepath, 'r', encoding='utf-8')) as yaml_file:
@@ -269,13 +266,14 @@ def load_publish_params(filepath: Union[Path, str, None] = None) -> None:
     elif isinstance(filepath, str):
         filepath = Path(filepath)
 
-    # global publish_params
-    # global _raw_publish_params_dict
+    _logger.debug("Loading publish configuration from %s", str(filepath))
 
     if filepath.is_file():
         with closing(open(filepath, 'r', encoding='utf-8')) as yaml_file:
             schema = Map({
                 "output file": Str(),
+                Optional("figure size", default=[8.3, 11.7]): FixedSeq(
+                    [Float(), Float()]),
                 "subplot grid": FixedSeq([Int(), Int()]),
                 "subplots": MapPattern(Str(), Str()),
                 "xlim": FixedSeq([Float(), Float()]),
@@ -329,8 +327,7 @@ def load_plot_params(filepath: Union[Path, str, None] = None) -> None:
     elif isinstance(filepath, str):
         filepath = Path(filepath)
 
-    # global plot_params
-    # global _raw_plot_params_dict
+    _logger.debug("Loading plot configuration from %s", str(filepath))
 
     if filepath.is_file():
         with closing(open(filepath, 'r', encoding='uft8')) as yaml_file:

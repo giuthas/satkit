@@ -42,6 +42,10 @@ from strictyaml import (Any, Bool, FixedSeq, Float, Int, Map, MapCombined,
 
 from satkit.constants import TimeseriesNormalisation
 
+# TODO: Convert all the public members to UpdatableBaseModel from
+# satkit.helpers.base_model_extensions and implement an update method as well
+# as save functionality.
+
 config_dict = {}
 data_run_params = {}
 gui_params = {}

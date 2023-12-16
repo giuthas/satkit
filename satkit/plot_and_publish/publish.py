@@ -50,6 +50,8 @@ from .plot import (plot_satgrid_tier,
 
 _plot_logger = logging.getLogger('satkit.publish')
 
+# TODO: write the docstrings before you forget
+
 
 def make_figure(recording: Recording, pdf: PdfPages):
 

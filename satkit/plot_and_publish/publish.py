@@ -51,10 +51,24 @@ from .plot import (plot_satgrid_tier,
 _plot_logger = logging.getLogger('satkit.publish')
 
 # TODO: write the docstrings before you forget
+# TODO: and then make the pictures you need for ISSP
 
 
 def make_figure(recording: Recording, pdf: PdfPages):
+    """
+    Create a figure from the recording and write it out to the pdf.
 
+    Settings will have been read from satkit_publish_parameters.yaml in the
+    configuration folder unless another setting file has been specified either
+    on the commandline or in configuration/configuration.yaml.
+
+    Parameters
+    ----------
+    recording : Recording
+        The Recording to draw. 
+    pdf : PdfPages
+        A PdfPages instance to draw into.
+    """
     figure = plt.figure(figsize=publish_params['figure size'])
 
     height_ratios = [3 for i in range(publish_params['subplot grid'][0])]
@@ -148,6 +162,20 @@ def make_figure(recording: Recording, pdf: PdfPages):
 
 
 def publish_pdf(recording_session: RecordingSession):
+    """
+    Draw all Recordings in the RecordingSession into a pdf file.
+
+    The filename is read from configuration (likely satkit_publish_config.yaml
+    or similar specified in the main config file.)
+
+    Excluded Recordings are skipped.
+
+    Parameters
+    ----------
+    recording_session : RecordingSession
+        The RecordingSession containing the Recordings.
+    """
     with PdfPages(publish_params['output file']) as pdf:
         for recording in recording_session.recordings:
-            make_figure(recording, pdf)
+            if not recording.excluded:
+                make_figure(recording, pdf)

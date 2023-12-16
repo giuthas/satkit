@@ -31,7 +31,7 @@
 ##
 
 # Please note that empty file or directory fields are
-# interpeted as not available and represented by None. If you want to specify
+# interpreted as not available and represented by None. If you want to specify
 # current working directory, use '.'
 
 flags:

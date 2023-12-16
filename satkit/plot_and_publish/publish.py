@@ -53,7 +53,8 @@ _plot_logger = logging.getLogger('satkit.publish')
 
 def make_figure(recording: Recording, pdf: PdfPages):
 
-    figure = plt.figure()
+    figure = plt.figure(figsize=publish_params['figure size'])
+
     height_ratios = [3 for i in range(publish_params['subplot grid'][0])]
     height_ratios.append(1)
     gridspec = GridSpec(nrows=publish_params['subplot grid'][0]+1,
@@ -145,6 +146,6 @@ def make_figure(recording: Recording, pdf: PdfPages):
 
 
 def publish_pdf(recording_session: RecordingSession):
-    with PdfPages('test.pdf') as pdf:
+    with PdfPages(publish_params['output file']) as pdf:
         for recording in recording_session.recordings:
             make_figure(recording, pdf)

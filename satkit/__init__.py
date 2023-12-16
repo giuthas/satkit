@@ -49,7 +49,7 @@ import json
 import logging
 import logging.config
 
-import satkit.configuration.configuration as configuration
+# import satkit.configuration.configuration as configuration
 from satkit.helpers.logging_helpers import log_elapsed_time, set_logging_level
 
 # Load logging config from json file.
@@ -66,4 +66,9 @@ _satkit_logger.info('Completed configuring logger.')
 
 # Config should be loaded before parsing arguments, because it may affect
 # how arguments are parsed, and parsed arguments may change config variables.
-configuration.load_config()
+
+# TODO: later on make this more complex: parts of config that could be changed by
+# args first, args second, rest of config last. should probably be close to
+# where different commands will eventually be dealt with
+
+# configuration.load_config()

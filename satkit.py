@@ -40,6 +40,8 @@ from PyQt5 import QtWidgets
 
 # local modules
 from satkit import log_elapsed_time, set_logging_level
+from satkit.configuration import configuration
+
 from satkit.metrics import add_pd, peaks, add_spline_metric
 from satkit.modalities import RawUltrasound, Splines
 from satkit.plot_and_publish import publish_pdf
@@ -57,6 +59,10 @@ def main():
     cli = SatkitArgumentParser("SATKIT")
 
     logger = set_logging_level(cli.args.verbose)
+    if cli.args.configuration_filename:
+        configuration.load_config(cli.args.configuration_filename)
+    else:
+        configuration.load_config()
 
     recording_session = load_data(Path(cli.args.load_path))
 
@@ -120,12 +126,13 @@ def main():
 
     log_elapsed_time()
 
-    # Get the GUI running.
-    app = QtWidgets.QApplication(sys.argv)
-    # Apparently the assignment to an unused variable is needed
-    # to avoid a segfault.
-    app.annotator = PdQtAnnotator(recording_session, cli.args)
-    sys.exit(app.exec_())
+    if cli.args.annotator:
+        # Get the GUI running.
+        app = QtWidgets.QApplication(sys.argv)
+        # Apparently the assignment to an unused variable is needed
+        # to avoid a segfault.
+        app.annotator = PdQtAnnotator(recording_session, cli.args)
+        sys.exit(app.exec_())
 
 
 if __name__ == '__main__':

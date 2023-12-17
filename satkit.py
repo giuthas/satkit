@@ -82,6 +82,8 @@ def main():
     #     'preload': True}
     pd_arguments = configuration.data_run_params['pd_arguments']
 
+    # TODO: turn these commented out bits into an example script of how to do
+    # things programmatically.
     # spline_config = recording_session.config.spline_config
     # spline_metric_arguments = {
     #     'metrics': ['annd', 'mpbpd', 'modified_curvature', 'fourier'],

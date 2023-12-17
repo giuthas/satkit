@@ -35,6 +35,7 @@
 import sys
 from pathlib import Path
 
+# from icecream import ic
 # For running a Qt GUI
 from PyQt5 import QtWidgets
 
@@ -69,16 +70,17 @@ def main():
     log_elapsed_time()
 
     # function_dict = {'pd':pd.pd, 'annd':annd.annd}
-    pd_arguments = {
-        # 'norms': ['l0', 'l0.01', 'l0.1', 'l0.5', 'l1', 'l2',
-        # 'l4', 'l10', 'l_inf', 'd'],
-        'norms': ['l0', 'l0.5', 'l1', 'l2', 'l5', 'l_inf'],
-        # 'timesteps': [1, 2, 3, 4, 5, 6, 7],
-        'timesteps': [1],
-        'mask_images': False,
-        'pd_on_interpolated_data': False,
-        'release_data_memory': True,
-        'preload': True}
+    # pd_arguments = {
+    #     # 'norms': ['l0', 'l0.01', 'l0.1', 'l0.5', 'l1', 'l2',
+    #     # 'l4', 'l10', 'l_inf', 'd'],
+    #     'norms': ['l0', 'l0.5', 'l1', 'l2', 'l5', 'l_inf'],
+    #     'timesteps': [1, 2, 3, 4, 5, 6, 7],
+    #     # 'timesteps': [1],
+    #     'mask_images': False,
+    #     'pd_on_interpolated_data': False,
+    #     'release_data_memory': True,
+    #     'preload': True}
+    pd_arguments = configuration.data_run_params['pd_arguments']
 
     # spline_config = recording_session.config.spline_config
     # spline_metric_arguments = {
@@ -92,19 +94,21 @@ def main():
         'PD': (add_pd,
                [RawUltrasound],
                pd_arguments)  # ,
+
         # 'SplineMetric': (add_spline_metric,
         #                  [Splines],
         #                  spline_metric_arguments)  # ,
-        # 'peaks': (peaks.time_series_peaks,
-        # [RawUltrasound],
+
         # TODO: figure out if this will actually work because this should be
         # 'PD l1 on RawUltrasound' or something like that
+        # 'peaks': (peaks.time_series_peaks,
+        # [RawUltrasound],
         # peak_arguments)
     }
     process_data(recordings=recording_session.recordings,
                  processing_functions=function_dict)
 
-    # peaks.save_peaks('pd_l1', recordings)
+    # peaks.save_peaks('pd_l1', recording_session.recordings)
 
     # operation = Operation(processing_function=pd.add_pd,
     #                       modality=RawUltrasound,

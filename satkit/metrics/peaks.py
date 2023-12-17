@@ -71,6 +71,7 @@ def time_series_peaks(
     search_data = search_data[indeces]
     search_time = search_time[indeces]
 
+    # TODO: fix these long lines by using better enums
     if normalise in (TimeseriesNormalisation.both, TimeseriesNormalisation.bottom):
         search_data = search_data - np.min(search_data)
     if normalise in [TimeseriesNormalisation.both, TimeseriesNormalisation.peak]:
@@ -91,8 +92,8 @@ def save_peaks(
     """
     Save peak data to .csv files.
 
-    Save both numbers/recording for each recording and the peak times themselves
-    do this for unthresholded and thresholded peaks.
+    Save both numbers/recording for each recording and the peak times
+    themselves do this for unthresholded and thresholded peaks.
     """
     peak_ns = []
     unthresholded_peak_ns = np.zeros((len(recordings), 2))
@@ -105,7 +106,7 @@ def save_peaks(
     for i, recording in enumerate(recordings):
         if 'utterance' not in recording.satgrid:
             continue
-        id = recording.basename
+        basename = recording.basename
         prompt = recording.meta_data.prompt
 
         l1 = recording.modalities['PD l1 on RawUltrasound']
@@ -139,7 +140,7 @@ def save_peaks(
             normalise='PEAK AND BOTTOM')
 
         ns = {
-            'id': id,
+            'id': basename,
             'prompt': prompt,
             'l1': len(peak_data.peaks),
             'l1_bottom': len(bottom_peak_data.peaks),
@@ -158,14 +159,18 @@ def save_peaks(
             bottom_to_whole = get_nearest_neighbours(
                 bottom_peak_data.peak_times, peak_data.peak_times)
             whole_to_bottom_thresholded = get_nearest_neighbours(
-                peak_data_thresholded.peak_times, bottom_peak_data_thresholded.peak_times)
+                peak_data_thresholded.peak_times,
+                bottom_peak_data_thresholded.peak_times)
             bottom_to_whole_thresholded = get_nearest_neighbours(
-                bottom_peak_data_thresholded.peak_times, peak_data_thresholded.peak_times)
+                bottom_peak_data_thresholded.peak_times,
+                peak_data_thresholded.peak_times)
         else:
-            whole_to_bottom = np.append(whole_to_bottom, get_nearest_neighbours(
-                peak_data.peak_times, bottom_peak_data.peak_times), axis=0)
-            bottom_to_whole = np.append(bottom_to_whole, get_nearest_neighbours(
-                bottom_peak_data.peak_times, peak_data.peak_times), axis=0)
+            whole_to_bottom = np.append(
+                whole_to_bottom, get_nearest_neighbours(
+                    peak_data.peak_times, bottom_peak_data.peak_times), axis=0)
+            bottom_to_whole = np.append(
+                bottom_to_whole, get_nearest_neighbours(
+                    bottom_peak_data.peak_times, peak_data.peak_times), axis=0)
             whole_to_bottom_thresholded = np.append(
                 whole_to_bottom_thresholded,
                 get_nearest_neighbours(

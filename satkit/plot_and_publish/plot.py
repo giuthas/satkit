@@ -48,8 +48,9 @@ from matplotlib.axes import Axes
 from matplotlib.lines import Line2D
 
 # Local packages
-from satkit.data_structures import Modality
 from satkit.constants import TimeseriesNormalisation
+from satkit.configuration import gui_params
+from satkit.data_structures import Modality
 from satkit.gui.boundary_animation import AnimatableBoundary, BoundaryAnimator
 from satkit.satgrid import SatTier
 
@@ -191,7 +192,10 @@ def find_gesture_peaks(data: np.ndarray):
     search_data = search_data/np.max(search_data)
 
     peaks, properties = scipy_signal.find_peaks(
-        search_data)  # , distance=10, prominence=.05)
+        search_data, distance=gui_params['peaks']['distance'],
+        prominence=gui_params['peaks']['prominence'],
+        width=gui_params['peaks']['width']
+    )
     return peaks, properties
 
 

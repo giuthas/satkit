@@ -35,6 +35,8 @@ from contextlib import closing
 from pathlib import Path
 from typing import Union
 
+# from icecream import ic
+
 import numpy as np
 from strictyaml import (Any, Bool, FixedSeq, Float, Int, Map, MapCombined,
                         MapPattern, Optional, ScalarValidator, Seq, Str,
@@ -118,10 +120,10 @@ def load_main_config(filepath: Union[Path, str, None] = None) -> None:
     'configuration/configuration.yaml'. In both cases if the file does not
     exist, report this and exit.
     """
-    if filepath is None:
-        filepath = Path('configuration/configuration.yaml')
-    elif isinstance(filepath, str):
+    if isinstance(filepath, str):
         filepath = Path(filepath)
+    elif not isinstance(filepath, Path):
+        filepath = Path('configuration/configuration.yaml')
 
     _logger.debug("Loading main configuration from %s", str(filepath))
 
@@ -173,7 +175,15 @@ def load_run_params(filepath: Union[Path, str, None] = None) -> None:
                     "detect beep": Bool(),
                     "test": Bool()
                 }),
-                "cast": Map({
+                Optional("pd_arguments"): Map({
+                    "norms": Seq(Str()),
+                    "timesteps": Seq(Int()),
+                    Optional("mask_images", default=False): Bool(),
+                    Optional("pd_on_interpolated_data", default=False): Bool(),
+                    Optional("release_data_memory", default=True): Bool(),
+                    Optional("preload", default=True): Bool(),
+                }),
+                Optional("cast"): Map({
                     "pronunciation dictionary": PathValidator(),
                     "speaker id": Str(),
                     "cast flags": Map({
@@ -229,6 +239,13 @@ def load_gui_params(filepath: Union[Path, str, None] = None) -> None:
                         },
                         Str(), Any()
                     )),
+                Optional("peaks"): Map(
+                    {
+                        Optional("distance"): Int(),
+                        Optional("prominence"): Float(),
+                        Optional("width"): Int(),
+                    }
+                ),
                 "pervasive tiers": Seq(Str()),
                 Optional("xlim"): FixedSeq([Float(), Float()]),
                 "default font size": Int(),

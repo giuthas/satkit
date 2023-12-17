@@ -59,7 +59,7 @@ from icecream import ic
 # import satkit.io as satkit_io
 from satkit.data_structures import RecordingSession
 from satkit.constants import TimeseriesNormalisation
-from satkit.configuration import gui_params, config_dict
+from satkit.configuration import gui_params, config_dict, data_run_params
 from satkit.gui import BoundaryAnimator, ReplaceDialog
 from satkit.plot_and_publish.plot import plot_spline
 from satkit.plot_and_publish import (
@@ -355,10 +355,13 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
 
         l1 = self.current.modalities['PD l1 on RawUltrasound']
 
+        # plot_modality_names = [
+        #     (f"PD l1 ts{i+1} on RawUltrasound") for i in range(7)]
+        # plot_modality_names[0] = "PD l1 on RawUltrasound"
+
         plot_modality_names = [
-            (f"PD l1 ts{i+1} on RawUltrasound") for i in range(7)]
-        plot_modality_names[0] = "PD l1 on RawUltrasound"
-        # ic(plot_modality_names)
+            (f"PD {norm} on RawUltrasound")
+            for norm in data_run_params['pd_arguments']['norms'][1:-1]]
 
         ultra_time = l1.timevector - stimulus_onset
         ylim = None
@@ -383,24 +386,27 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
         for i, name in enumerate(plot_modality_names):
             modality = self.current.modalities[name]
             new = plot_timeseries(
-                self.data_axes[0],
+                self.data_axes[i],
                 modality.data, modality.timevector-stimulus_onset,
                 self.xlim, ylim,
                 color=(0+i*.1, 0+i*.1, 0+i*.1),
                 linestyle=(0, (i+1, i+1)),
                 normalise=TimeseriesNormalisation('PEAK AND BOTTOM'),
-                find_peaks=False, sampling_step=i+1)
+                find_peaks=True,
+                # sampling_step=i+1
+            )
             plots.append(new)
+            self.data_axes[i].set_ylabel(modality.metadata.metric)
             labels.append(f"{modality.sampling_rate/(i+1):.2f}")
 
-        self.data_axes[0].legend(
-            plots, labels,
-            loc='upper left')
+        # self.data_axes[0].legend(
+        #     plots, labels,
+        #     loc='upper left')
 
-        self.data_axes[0].set_ylabel("Pixel difference (PD)")
+        # self.data_axes[0].set_ylabel("Pixel difference (PD)")
 
-        plot_wav(self.data_axes[2], wav, wav_time, self.xlim)
-        plot_spectrogram(self.data_axes[1],
+        plot_wav(self.data_axes[-1], wav, wav_time, self.xlim)
+        plot_spectrogram(self.data_axes[-2],
                          waveform=wav,
                          ylim=(0, 10500),
                          sampling_frequency=audio.sampling_rate,

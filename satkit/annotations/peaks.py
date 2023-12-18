@@ -52,6 +52,43 @@ class PeakData:
     peak_times: np.ndarray
     properties: dict
 
+# TODO:
+# - write an exporter function
+# - write a mechanism for running this on data
+# -
+
+
+def find_gesture_peaks(data: np.ndarray, params: dict = None) -> Tuple[np.ndarray, dict]:
+    """
+    Find peaks in the data with `scipy_signal.find_peaks`.
+
+    Parameters
+    ----------
+    data : np.ndarray
+        The timeseries data. Should be a 1D array.
+    params : dict, optional
+        Parameters to pass to `scipy_signal.find_peaks`, by default None. The
+        parameter dictionary is taken as a subset argument, which may contain
+        extra keys which will be removed before calling `find_peaks`. 
+
+    Returns
+    -------
+    Tuple[np.ndarray, dict]
+        The peak array and a dictionary of their properties as returned by
+        `find_peak`.
+    """
+    if params:
+        accepted_keys = ['height', 'threshold', 'distance', 'prominence',
+                         'width', 'wlen', 'rel_height', 'plateau_size']
+        params = {k: params[k]
+                  for k in params if k in accepted_keys}
+        peaks, properties = scipy_signal.find_peaks(
+            data, **params
+        )
+    else:
+        peaks, properties = scipy_signal.find_peaks(data)
+    return peaks, properties
+
 
 def time_series_peaks(
         data: np.ndarray,

@@ -32,22 +32,20 @@
 """SATKIT plotting functions."""
 
 # Built in packages
-from dataclasses import dataclass
 import logging
-from typing import List, Optional, Tuple, Union
+from typing import List, Optional, Sequence, Tuple, Union
 
-# Efficient array operations
+from matplotlib.collections import LineCollection
+from matplotlib.typing import ColorType
+from matplotlib.axes import Axes
+from matplotlib.lines import Line2D
+
 import numpy as np
-from scipy import signal as scipy_signal
 from scipy import interpolate
 
 # from icecream import ic
 
-# Scientific plotting
-from matplotlib.axes import Axes
-from matplotlib.lines import Line2D
-
-# Local packages
+from satkit.annotations import find_gesture_peaks
 from satkit.constants import TimeseriesNormalisation
 from satkit.configuration import gui_params
 from satkit.data_structures import Modality
@@ -146,8 +144,8 @@ def plot_timeseries(axes: Axes,
     timeseries = Line2D([], [], color=color, lw=1, linestyle=linestyle)
 
     if find_peaks:
-        mark_gesture_peaks(axes, plot_data, plot_time)
-        # mark_gesture_boundaries(axes, plot_data, plot_time)
+        mark_peaks(axes, plot_data, plot_time,
+                   xlim=xlim)
 
     axes.set_xlim(xlim)
 
@@ -165,38 +163,65 @@ def plot_timeseries(axes: Axes,
     return timeseries
 
 
-def mark_gesture_peaks(axes, data, timevector) -> Line2D:
-    peaks, _ = find_gesture_peaks(data)
-    for peak in peaks:
-        line = axes.axvline(
-            x=timevector[peak],
-            color="crimson",
-            lw=1,
-            linestyle=':')
-    return line
+def mark_peaks(
+        axes: Axes,
+        data: np.ndarray,
+        timevector: np.ndarray,
+        xlim: Tuple[float, float] = None,
+        display_prominence_values: bool = False,
+        colors: ColorType | Sequence[ColorType] | None = 'sandybrown',
+) -> LineCollection:
+    """
+    Mark peaks in the data on the axes.
 
+    If valleys instead of peaks are wanted, just pass in -data.
 
-def mark_gesture_boundaries(axes, data, timevector) -> Line2D:
-    peaks, _ = find_gesture_peaks(-data)
-    for peak in peaks:
-        line = axes.axvline(
-            x=timevector[peak],
-            color="dodgerblue",
-            lw=1,
-            linestyle=':')
-    return line
+    Parameters
+    ----------
+    axes : Axes
+        Axes to draw on.
+    data : np.ndarray
+        Timeseries data, assumed to be a 1D array.
+    timevector : np.ndarray
+        Timevector corresponding to data.
+    xlim : Tuple[float, float], optional
+        Limits of drawing, by default None. This is useful in avoiding GUI
+        hiccups by not drawing outside of the current limits. 
+    display_prominence_values : bool, optional
+        If prominence values should be plotted next to the peaks, by default
+        False
+    colors : ColorType | Sequence[ColorType] | None, optional
+        Color to use in plotting the peak marker lines, by default 'sandybrown'
 
+    Returns
+    -------
+    LineCollection
+        _description_
+    """
+    # TODO: make the gesture peak and boundary functions take the peaks as an
+    # argument and move the below calls to the gui/publishing/processing
+    # because they aren't plotting commands.
+    if 'peaks' in gui_params:
+        peaks, properties = find_gesture_peaks(
+            data, gui_params['peaks'])
+    else:
+        peaks, properties = find_gesture_peaks(data)
 
-def find_gesture_peaks(data: np.ndarray):
-    search_data = data - np.min(data)
-    search_data = search_data/np.max(search_data)
+    prominences = properties['prominences']
+    contour_heights = data[peaks] - prominences
+    line_collection = axes.vlines(
+        x=timevector[peaks], ymin=contour_heights, ymax=data[peaks],
+        colors=colors, linestyles=':')
 
-    peaks, properties = scipy_signal.find_peaks(
-        search_data, distance=gui_params['peaks']['distance'],
-        prominence=gui_params['peaks']['prominence'],
-        width=gui_params['peaks']['width']
-    )
-    return peaks, properties
+    if display_prominence_values:
+        for i, peak in enumerate(peaks):
+            x = timevector[peak]
+            if not xlim or xlim[0] <= x <= xlim[1]:
+                axes.text(
+                    x=timevector[peak], y=data[peak],
+                    s=(f"{prominences[i]:,.3f}")
+                )
+    return line_collection
 
 
 def plot_satgrid_tier(axes: Axes,

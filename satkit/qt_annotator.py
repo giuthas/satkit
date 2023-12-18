@@ -389,8 +389,8 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
                 self.data_axes[i],
                 modality.data, modality.timevector-stimulus_onset,
                 self.xlim, ylim,
-                color=(0+i*.1, 0+i*.1, 0+i*.1),
-                linestyle=(0, (i+1, i+1)),
+                # color=(0+i*.1, 0+i*.1, 0+i*.1),
+                # linestyle=(0, (i+1, i+1)),
                 normalise=TimeseriesNormalisation('PEAK AND BOTTOM'),
                 find_peaks=True,
                 # sampling_step=i+1

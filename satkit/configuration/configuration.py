@@ -42,7 +42,7 @@ from strictyaml import (Any, Bool, FixedSeq, Float, Int, Map, MapCombined,
                         MapPattern, Optional, ScalarValidator, Seq, Str,
                         YAMLError, load)
 
-from satkit.constants import TimeseriesNormalisation
+from satkit.constants import DEFAULT_ENCODING, TimeseriesNormalisation
 
 # TODO: Convert all the public members to UpdatableBaseModel from
 # satkit.helpers.base_model_extensions and implement an update method as well
@@ -128,7 +128,8 @@ def load_main_config(filepath: Union[Path, str, None] = None) -> None:
     _logger.debug("Loading main configuration from %s", str(filepath))
 
     if filepath.is_file():
-        with closing(open(filepath, 'r', encoding='utf-8')) as yaml_file:
+        with closing(
+                open(filepath, 'r', encoding=DEFAULT_ENCODING)) as yaml_file:
             schema = Map({
                 "epsilon": Float(),
                 "mains frequency": Float(),
@@ -168,7 +169,8 @@ def load_run_params(filepath: Union[Path, str, None] = None) -> None:
     _logger.debug("Loading run configuration from %s", str(filepath))
 
     if filepath.is_file():
-        with closing(open(filepath, 'r', encoding='utf-8')) as yaml_file:
+        with closing(
+                open(filepath, 'r', encoding=DEFAULT_ENCODING)) as yaml_file:
             schema = Map({
                 Optional("output directory"): PathValidator(),
                 "flags": Map({
@@ -225,7 +227,8 @@ def load_gui_params(filepath: Union[Path, str, None] = None) -> None:
     _logger.debug("Loading GUI configuration from %s", str(filepath))
 
     if filepath.is_file():
-        with closing(open(filepath, 'r', encoding='utf-8')) as yaml_file:
+        with closing(
+                open(filepath, 'r', encoding=DEFAULT_ENCODING)) as yaml_file:
             schema = Map({
                 "data/tier height ratios": Map({
                     "data": Int(),
@@ -290,7 +293,8 @@ def load_publish_params(filepath: Union[Path, str, None] = None) -> None:
     _logger.debug("Loading publish configuration from %s", str(filepath))
 
     if filepath.is_file():
-        with closing(open(filepath, 'r', encoding='utf-8')) as yaml_file:
+        with closing(
+                open(filepath, 'r', encoding=DEFAULT_ENCODING)) as yaml_file:
             schema = Map({
                 "output file": Str(),
                 Optional("figure size", default=[8.3, 11.7]): FixedSeq(
@@ -351,7 +355,8 @@ def load_plot_params(filepath: Union[Path, str, None] = None) -> None:
     _logger.debug("Loading plot configuration from %s", str(filepath))
 
     if filepath.is_file():
-        with closing(open(filepath, 'r', encoding='uft8')) as yaml_file:
+        with closing(
+                open(filepath, 'r', encoding=DEFAULT_ENCODING)) as yaml_file:
             schema = Map({
                 "data/tier height ratios": Map({
                     "data": Int(),

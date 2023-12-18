@@ -32,8 +32,7 @@
 
 import csv
 from dataclasses import dataclass
-from enum import Enum
-from typing import List, Optional, Tuple, Union
+from typing import List, Optional, Tuple
 
 import numpy as np
 
@@ -43,7 +42,7 @@ from matplotlib.backends.backend_pdf import PdfPages
 from scipy import signal as scipy_signal
 
 from satkit.data_structures import Recording
-from satkit.constants import TimeseriesNormalisation
+from satkit.constants import DEFAULT_ENCODING, TimeseriesNormalisation
 
 
 @dataclass
@@ -186,7 +185,7 @@ def save_peaks(
 
     peak_n_file = filename + '_peak_n.csv'
 
-    with open(peak_n_file, "w") as csv_file:
+    with open(peak_n_file, "w", encoding=DEFAULT_ENCODING) as csv_file:
         writer = csv.DictWriter(csv_file, ns.keys(), delimiter=',')
         writer.writeheader()
         for line in peak_ns:

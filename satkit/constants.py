@@ -46,6 +46,8 @@ from enum import Enum
 SATKIT_VERSION = '0.7.0'
 SATKIT_FILE_VERSION = SATKIT_VERSION
 
+DEFAULT_ENCODING = 'utf-8'
+
 
 class CoordinateSystems(Enum):
     """

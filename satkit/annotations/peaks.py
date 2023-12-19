@@ -97,8 +97,7 @@ def add_peaks(
 def find_gesture_peaks(
         data: np.ndarray,
         timevector: np.ndarray,
-        scipy_params: dict = None,
-        normalise: TimeseriesNormalisation = 'NONE',
+        detection_parameters: dict = None,
 ) -> PointAnnotations:
     """
     Find peaks in the data with `scipy_signal.find_peaks`.
@@ -114,14 +113,13 @@ def find_gesture_peaks(
         parameter dictionary is taken as a subset of the argument, which may
         contain extra keys but these will be removed before calling
         `find_peaks`. 
-    normalise : TimeseriesNormalisation, optional
-        Which TimeseriesNormalisation to use, by default 'NONE'
 
     Returns
     -------
     PointAnnotations
         The gesture peaks asa PointAnnotations object.
     """
+    normalise = detection_parameters['normalisation']
     bottom = (TimeseriesNormalisation.both, TimeseriesNormalisation.bottom)
     if normalise in bottom:
         search_data = search_data - np.min(search_data)
@@ -129,21 +127,20 @@ def find_gesture_peaks(
     if normalise in peak:
         search_data = search_data/np.max(search_data)
 
-    if scipy_params:
+    if detection_parameters:
         accepted_keys = ['height', 'threshold', 'distance', 'prominence',
                          'width', 'wlen', 'rel_height', 'plateau_size']
-        scipy_params = {k: scipy_params[k]
-                        for k in scipy_params if k in accepted_keys}
+        scipy_parameters = {k: detection_parameters[k]
+                            for k in detection_parameters if k in accepted_keys}
         peaks, properties = scipy_signal.find_peaks(
-            data, **scipy_params
+            data, **scipy_parameters
         )
     else:
         peaks, properties = scipy_signal.find_peaks(data)
 
     peak_times = timevector[peaks]
-    scipy_params['normalisation'] = normalise
     annotations = PointAnnotations(
-        AnnotationType.PEAKS, peaks, peak_times, scipy_params, properties)
+        AnnotationType.PEAKS, peaks, peak_times, detection_parameters, properties)
     return annotations
 
 

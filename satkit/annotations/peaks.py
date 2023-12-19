@@ -47,18 +47,22 @@ from satkit.constants import DEFAULT_ENCODING, TimeseriesNormalisation
 
 @dataclass
 class PeakData:
-    """Peaks, their times, and properties as returned by scipy's find_peaks."""
+    """Peaks, their times, and properties as returned by `scipy.find_peaks`."""
     peaks: np.ndarray
     peak_times: np.ndarray
     properties: dict
 
 # TODO:
-# - write an exporter function
 # - write a mechanism for running this on data
-# -
+# - write an exporter function
+# - write a publishing plotter function for stats
 
 
-def find_gesture_peaks(data: np.ndarray, params: dict = None) -> Tuple[np.ndarray, dict]:
+def find_gesture_peaks(
+        data: np.ndarray,
+        scipy_params: dict = None,
+        normalise: TimeseriesNormalisation = 'NONE',
+) -> Tuple[np.ndarray, dict]:
     """
     Find peaks in the data with `scipy_signal.find_peaks`.
 
@@ -66,10 +70,13 @@ def find_gesture_peaks(data: np.ndarray, params: dict = None) -> Tuple[np.ndarra
     ----------
     data : np.ndarray
         The timeseries data. Should be a 1D array.
-    params : dict, optional
+    scipy_params : dict, optional
         Parameters to pass to `scipy_signal.find_peaks`, by default None. The
-        parameter dictionary is taken as a subset argument, which may contain
-        extra keys which will be removed before calling `find_peaks`. 
+        parameter dictionary is taken as a subset of the argument, which may
+        contain extra keys but these will be removed before calling
+        `find_peaks`. 
+    normalise : TimeseriesNormalisation, optional
+        Which TimeseriesNormalisation to use, by default 'NONE'
 
     Returns
     -------
@@ -77,16 +84,24 @@ def find_gesture_peaks(data: np.ndarray, params: dict = None) -> Tuple[np.ndarra
         The peak array and a dictionary of their properties as returned by
         `find_peak`.
     """
-    if params:
+    bottom = (TimeseriesNormalisation.both, TimeseriesNormalisation.bottom)
+    if normalise in bottom:
+        search_data = search_data - np.min(search_data)
+    peak = (TimeseriesNormalisation.both, TimeseriesNormalisation.peak)
+    if normalise in peak:
+        search_data = search_data/np.max(search_data)
+
+    if scipy_params:
         accepted_keys = ['height', 'threshold', 'distance', 'prominence',
                          'width', 'wlen', 'rel_height', 'plateau_size']
-        params = {k: params[k]
-                  for k in params if k in accepted_keys}
+        scipy_params = {k: scipy_params[k]
+                        for k in scipy_params if k in accepted_keys}
         peaks, properties = scipy_signal.find_peaks(
-            data, **params
+            data, **scipy_params
         )
     else:
         peaks, properties = scipy_signal.find_peaks(data)
+
     return peaks, properties
 
 

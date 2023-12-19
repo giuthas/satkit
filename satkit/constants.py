@@ -43,10 +43,19 @@ from dataclasses import dataclass
 from enum import Enum
 
 # TODO 1.0: Decouple program and file format versions at version 1.0.
-SATKIT_VERSION = '0.7.0'
+SATKIT_VERSION = '0.9.0'
 SATKIT_FILE_VERSION = SATKIT_VERSION
 
 DEFAULT_ENCODING = 'utf-8'
+
+
+class AnnotationType(Enum):
+    """
+    Enum to differentiate Modality annotation types
+    """
+    PEAKS = "peaks"
+    ARTICULATORY_ONSET = "articulatory_onset"
+    ACOUSTIC_ONSET = "acoustic_onset"
 
 
 class CoordinateSystems(Enum):

@@ -29,8 +29,15 @@
 # articles listed in README.markdown. They can also be found in
 # citations.bib in BibTeX format.
 #
+"""
+Generating and operating on peak annotations. 
+
+Currently contains also some legacy code that is not in use, but may provide a
+useful basis for writing future functionality.
+"""
 
 import csv
+import logging
 from dataclasses import dataclass
 from typing import List, Optional, Tuple
 
@@ -41,21 +48,50 @@ import matplotlib.pyplot as plt
 from matplotlib.backends.backend_pdf import PdfPages
 from scipy import signal as scipy_signal
 
-from satkit.data_structures import Recording
-from satkit.constants import DEFAULT_ENCODING, TimeseriesNormalisation
+from satkit.data_structures import Modality, Recording
+from satkit.constants import (
+    DEFAULT_ENCODING, AnnotationType, TimeseriesNormalisation)
+
+_logger = logging.getLogger('satkit.peak_detection')
 
 
-@dataclass
-class PeakData:
-    """Peaks, their times, and properties as returned by `scipy.find_peaks`."""
-    peaks: np.ndarray
-    peak_times: np.ndarray
-    properties: dict
+def add_peaks(
+    modality: Modality,
+    scipy_params: dict = None,
+    release_data_memory: bool = False,
+    normalise: TimeseriesNormalisation = 'NONE',
+) -> None:
+    """
+    Add peak annotation to a modality.
 
-# TODO:
-# - write a mechanism for running this on data
-# - write an exporter function
-# - write a publishing plotter function for stats
+    Parameters
+    ----------
+    modality : Modality
+        The annotated Modality. Assumed to be a 1D timeseries.
+    scipy_params : dict, optional
+        Parameters for `scipy_signal.find_peaks`, by default None
+    release_data_memory : bool, optional
+        Should the Modality's data memory be released after adding the
+        annotations, by default False
+    normalise : TimeseriesNormalisation, optional
+        Type of normalisation to use on the timeseries, by default 'NONE'
+    """
+    recording = modality.recording
+    if recording.excluded:
+        _logger.info(
+            "Recording %s excluded from processing. Not adding peaks.",
+            recording.basename)
+    else:
+        annotations = find_gesture_peaks(
+            modality.data, scipy_params, normalise)
+        modality.add_annotations(annotations)
+
+        if release_data_memory:
+            modality.data = None
+
+        _logger.debug(
+            "Added %s annotations to Modality %s.",
+            AnnotationType.PEAKS, modality.name)
 
 
 def find_gesture_peaks(
@@ -105,6 +141,14 @@ def find_gesture_peaks(
     return peaks, properties
 
 
+@dataclass
+class PeakData:
+    """Peaks, their times, and properties as returned by `scipy.find_peaks`."""
+    peaks: np.ndarray
+    peak_times: np.ndarray
+    properties: dict
+
+
 def time_series_peaks(
         data: np.ndarray,
         time: np.ndarray,
@@ -122,7 +166,6 @@ def time_series_peaks(
     search_data = search_data[indeces]
     search_time = search_time[indeces]
 
-    # TODO: fix these long lines by using better enums
     if normalise in (TimeseriesNormalisation.both, TimeseriesNormalisation.bottom):
         search_data = search_data - np.min(search_data)
     if normalise in [TimeseriesNormalisation.both, TimeseriesNormalisation.peak]:

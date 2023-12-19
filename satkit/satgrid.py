@@ -29,6 +29,11 @@
 # articles listed in README.markdown. They can also be found in
 # citations.bib in BibTeX format.
 #
+"""
+SatGrid and its components are a GUI friendly encapsulation of
+`textgrids.TextGrid`.
+"""
+
 from collections import OrderedDict
 from typing import Optional, Union
 
@@ -57,8 +62,8 @@ class SatInterval:
         Copy the info of a Python TextGrids Interval into a new SatInterval.
 
         Only xmin and text are copied from the original Interval. xmax is
-        assumed to be handled by either the next SatInterval or the constructing
-        method if this is the last Interval. 
+        assumed to be handled by either the next SatInterval or the
+        constructing method if this is the last Interval. 
 
         Since SatIntervals are doubly linked, an attempt will be made to link
         prev and next to this interval. 
@@ -219,6 +224,25 @@ class SatTier(list):
         interval_category: IntervalCategory,
         label: Optional[str] = None
     ) -> SatInterval:
+        """
+        Return the Interval matching the category in this Tier.
+
+        If interval_category is FIRST_LABELED or LAST_LABELED, the label should
+        be specified as well.
+
+        Parameters
+        ----------
+        interval_category : IntervalCategory
+            The category to search for.
+        label : Optional[str], optional
+            Label to search for when doing a label based category search, by
+            default None
+
+        Returns
+        -------
+        SatInterval
+            _description_
+        """
         if interval_category is IntervalCategory.FIRST_NON_EMPTY:
             for interval in self:
                 if interval.text:

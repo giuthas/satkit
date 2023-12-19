@@ -49,7 +49,7 @@ from pydantic import BaseModel
 import textgrids
 
 from satkit.configuration import PathStructure, SessionConfig
-from satkit.constants import SatkitSuffix
+from satkit.constants import AnnotationType, SatkitSuffix
 from satkit.errors import MissingDataError, ModalityError, OverWriteError
 from satkit.satgrid import SatGrid
 
@@ -83,8 +83,66 @@ class ModalityData:
     timevector: np.ndarray
 
 
+@dataclass
+class PointAnnotations():
+    """
+    Time point annotations for a Modality.
+
+    For each modality there should be only one of these for each kind of
+    annotation type. 
+
+    annotation_type : AnnotationType
+        unique identifier for the annotation type
+    indeces : np.ndarray
+        indeces of the annotation points. `modality_data.data[indeces[i]]` and
+        `modality_data.timevector[indeces[i]]` correspond to the annotation at
+        `i`.
+    times : np.ndarray 
+        timestamps of the annotation points
+    generating_parameters : dict 
+        the function call arguments and other parameters used in generating
+        these annotations.
+    properties : dict
+        a dictionary containing arrays of each of the annotation properties
+        expected for this annotation type.
+    """
+    annotation_type: AnnotationType
+    indeces: np.ndarray
+    times: np.ndarray
+    generating_parameters: dict
+    properties: dict
+
+    def add_annotation(
+            self, index: int, time: float, properties: dict) -> None:
+        """
+        This method has not been implemented yet.
+
+        Index and time should be mutually exclusive.
+
+        Parameters
+        ----------
+        index : int
+            index at which the annotation is to be added
+        time : float
+            time at which the annotation is to be added
+        properties : dict
+            the annotation properties that will be added to the arrays in this
+            PointAnnotations' properties dict.
+
+        Raises
+        ------
+        NotImplementedError
+            This method has not been implemented yet.
+        """
+        raise NotImplementedError(
+            "Adding annotations to "
+            "PointAnnotations hasn't been implemented yet.")
+
+
 class ModalityMetaData(BaseModel):
-    """Baseclass of Modalities' metadata classes."""
+    """
+    Baseclass of Modalities' metadata classes.
+    """
     parent_name: Optional[str] = None
 
 
@@ -297,7 +355,9 @@ class Modality(abc.ABC):
                  data_path: Optional[Path] = None,
                  meta_path: Optional[Path] = None,
                  load_path: Optional[Path] = None,
-                 time_offset: Optional[float] = None
+                 time_offset: Optional[float] = None,
+                 annotations: Optional[dict[AnnotationType,
+                                            PointAnnotations]] = None
                  ) -> None:
         """
         Modality constructor.
@@ -330,6 +390,7 @@ class Modality(abc.ABC):
         self.load_path = load_path
 
         self.metadata = metadata
+        self.annotations = annotations
 
         if parsed_data:
             self._data = parsed_data.data
@@ -409,6 +470,23 @@ class Modality(abc.ABC):
         self._data = data.data
         self._timevector = data.timevector
         self._sampling_rate = data.sampling_rate
+
+    def add_annotations(self, annotations: PointAnnotations) -> None:
+        """
+        Add the PointAnnotations object to this Modality.
+
+        If there were previous annotations in this Modality with the same
+        AnnotationType, they will be overwritten.
+
+        To add single annotation points, use the add_annotation method in
+        PointAnnotations.
+
+        Parameters
+        ----------
+        annotations : PointAnnotations
+            The annotations to be added.
+        """
+        self.annotations[annotations.annotation_type] = annotations
 
     @property
     def name(self) -> str:
@@ -520,8 +598,8 @@ class Modality(abc.ABC):
         """
         Timevector precision: the maximum of absolute deviations.
 
-        Essentially this means that we are guesstimating the timevector to be no
-        more precise than the largest deviation from the average timestep.
+        Essentially this means that we are guesstimating the timevector to be
+        no more precise than the largest deviation from the average timestep.
         """
         if not self._time_precision:
             differences = np.diff(self.timevector)
@@ -612,8 +690,7 @@ class Modality(abc.ABC):
         """
         if self.metadata and self.metadata.parent_name:
             return True
-        else:
-            return False
+        return False
 
     @property
     def meta_path(self) -> Path:

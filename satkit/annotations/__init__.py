@@ -30,4 +30,4 @@
 # citations.bib in BibTeX format.
 ##
 
-from .peaks import find_gesture_peaks
+from .peaks import add_peaks, find_gesture_peaks

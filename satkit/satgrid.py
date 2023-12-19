@@ -30,14 +30,16 @@
 # citations.bib in BibTeX format.
 #
 from collections import OrderedDict
-from typing import Union
+from typing import Optional, Union
 
-from satkit.configuration import config_dict
+from icecream import ic
+
 from textgrids import Interval, TextGrid, Tier, Transcript
 from textgrids.templates import (long_header, long_interval, long_point,
                                  long_tier)
 from typing_extensions import Self
 
+from satkit.configuration import config_dict
 from satkit.constants import IntervalCategory
 
 
@@ -133,6 +135,10 @@ class SatInterval:
         """
         return abs(self.begin - time) < config_dict['epsilon']
 
+    def __repr__(self) -> str:
+        return (f"{self.__class__.__name__}: text: '{self.text}'\t "
+                f"begin: {self.begin}, end: {self.end}")
+
 
 class SatTier(list):
     """TextGrid Tier representation to enable editing with GUI."""
@@ -188,6 +194,12 @@ class SatTier(list):
         """Is this Tier a PointTier."""
         return False
 
+    def __repr__(self) -> str:
+        representation = f"{self.__class__.__name__}:\n"
+        for interval in self:
+            representation += str(interval) + "\n"
+        return representation
+
     def boundary_at_time(self, time) -> Union[SatInterval, None]:
         """
         If there is a boundary at time, return it.
@@ -204,7 +216,8 @@ class SatTier(list):
 
     def get_interval_by_category(
         self,
-        interval_category: IntervalCategory
+        interval_category: IntervalCategory,
+        label: Optional[str] = None
     ) -> SatInterval:
         if interval_category is IntervalCategory.FIRST_NON_EMPTY:
             for interval in self:
@@ -214,6 +227,17 @@ class SatTier(list):
         if interval_category is IntervalCategory.LAST_NON_EMPTY:
             for interval in reversed(self):
                 if interval.text:
+                    return interval
+
+        if interval_category is IntervalCategory.FIRST_LABELED:
+            for interval in self:
+                ic(label)
+                if interval.text == label:
+                    return interval
+
+        if interval_category is IntervalCategory.LAST_LABELED:
+            for interval in reversed(self):
+                if interval.text == label:
                     return interval
 
 

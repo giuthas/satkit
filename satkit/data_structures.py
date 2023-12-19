@@ -390,7 +390,10 @@ class Modality(abc.ABC):
         self.load_path = load_path
 
         self.metadata = metadata
-        self.annotations = annotations
+        if annotations:
+            self.annotations = annotations
+        else:
+            self.annotations = {}
 
         if parsed_data:
             self._data = parsed_data.data

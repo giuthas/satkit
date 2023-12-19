@@ -61,9 +61,9 @@ from satkit.data_structures import RecordingSession
 from satkit.constants import TimeseriesNormalisation
 from satkit.configuration import gui_params, config_dict, data_run_params
 from satkit.gui import BoundaryAnimator, ReplaceDialog
-from satkit.plot_and_publish.plot import plot_spline
 from satkit.plot_and_publish import (
-    plot_satgrid_tier, plot_spectrogram, plot_timeseries, plot_wav)
+    mark_peaks, plot_spline, plot_satgrid_tier, plot_spectrogram,
+    plot_timeseries, plot_wav)
 from satkit.save_and_load import (
     save_recording_session, load_recording_session)
 from satkit.ui_callbacks import UiCallbacks
@@ -387,14 +387,19 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
             modality = self.current.modalities[name]
             new = plot_timeseries(
                 self.data_axes[i],
-                modality.data, modality.timevector-stimulus_onset,
+                modality.data,
+                modality.timevector-stimulus_onset,
                 self.xlim, ylim,
                 # color=(0+i*.1, 0+i*.1, 0+i*.1),
                 # linestyle=(0, (i+1, i+1)),
                 normalise=TimeseriesNormalisation('PEAK AND BOTTOM'),
-                find_peaks=True,
                 # sampling_step=i+1
             )
+            mark_peaks(self.data_axes[i],
+                       modality,
+                       self.xlim,
+                       display_prominence_values=True,
+                       time_offset=stimulus_onset)
             plots.append(new)
             self.data_axes[i].set_ylabel(modality.metadata.metric)
             labels.append(f"{modality.sampling_rate/(i+1):.2f}")

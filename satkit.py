@@ -41,7 +41,7 @@ from PyQt5 import QtWidgets
 
 # local modules
 from satkit import log_elapsed_time, set_logging_level
-from satkit.annotations import find_gesture_peaks
+from satkit.annotations import add_peaks
 from satkit.configuration import configuration
 
 from satkit.metrics import add_pd, add_spline_metric
@@ -118,6 +118,16 @@ def main():
     #                                  'release_data_memory': True,
     #                                  'preload': True})
     # multi_process_data(recordings, operation)
+
+    if 'peaks' in configuration.data_run_params:
+        modality_pattern = configuration.data_run_params['peaks']['modality_pattern']
+        for recording in recording_session.recordings:
+            for modality_name in recording.modalities:
+                if modality_pattern in modality_name:
+                    add_peaks(
+                        recording.modalities[modality_name],
+                        configuration.data_run_params['peaks'],
+                    )
 
     logger.info('Data run ended.')
 

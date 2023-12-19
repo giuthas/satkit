@@ -83,7 +83,7 @@ def add_peaks(
             recording.basename)
     else:
         annotations = find_gesture_peaks(
-            modality.data, scipy_params, normalise)
+            modality.data, modality.timevector, scipy_params)
         modality.add_annotations(annotations)
 
         if release_data_memory:
@@ -122,7 +122,7 @@ def find_gesture_peaks(
     normalise = detection_parameters['normalisation']
     bottom = (TimeseriesNormalisation.both, TimeseriesNormalisation.bottom)
     if normalise in bottom:
-        search_data = search_data - np.min(search_data)
+        search_data = data - np.min(data)
     peak = (TimeseriesNormalisation.both, TimeseriesNormalisation.peak)
     if normalise in peak:
         search_data = search_data/np.max(search_data)
@@ -134,14 +134,15 @@ def find_gesture_peaks(
                             for k in detection_parameters
                             if k in accepted_keys}
         peaks, properties = scipy_signal.find_peaks(
-            data, **scipy_parameters
+            search_data, **scipy_parameters
         )
     else:
-        peaks, properties = scipy_signal.find_peaks(data)
+        peaks, properties = scipy_signal.find_peaks(search_data)
 
     peak_times = timevector[peaks]
     annotations = PointAnnotations(
-        AnnotationType.PEAKS, peaks, peak_times, detection_parameters, properties)
+        AnnotationType.PEAKS, peaks, peak_times,
+        detection_parameters, properties)
     return annotations
 
 

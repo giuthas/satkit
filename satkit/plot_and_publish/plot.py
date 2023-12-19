@@ -43,7 +43,7 @@ from matplotlib.lines import Line2D
 import numpy as np
 from scipy import interpolate
 
-# from icecream import ic
+from icecream import ic
 
 from satkit.constants import AnnotationType, TimeseriesNormalisation
 from satkit.data_structures import Modality
@@ -162,6 +162,7 @@ def mark_peaks(
         xlim: Tuple[float, float] = None,
         display_prominence_values: bool = False,
         colors: ColorType | Sequence[ColorType] | None = 'sandybrown',
+        time_offset: float = 0.0
 ) -> LineCollection:
     """
     Mark peak annotations from the modality on the axes.
@@ -192,9 +193,17 @@ def mark_peaks(
         return None
 
     data = modality.data
-    timevector = modality.timevector
-    peaks = modality.annotations[AnnotationType.PEAKS].indeces
-    properties = modality.annotations[AnnotationType.PEAKS].properties
+    timevector = modality.timevector - time_offset
+    annotations = modality.annotations[AnnotationType.PEAKS]
+    peaks = annotations.indeces
+    properties = annotations.properties
+    normalise = annotations.generating_parameters['normalisation']
+
+    _plot_logger.debug("Normalisation is %s.", normalise)
+    if normalise in (TimeseriesNormalisation.both, TimeseriesNormalisation.bottom):
+        data = data - np.min(data)
+    if normalise in [TimeseriesNormalisation.both, TimeseriesNormalisation.peak]:
+        data = data/np.max(data)
 
     prominences = properties['prominences']
     contour_heights = data[peaks] - prominences

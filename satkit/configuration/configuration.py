@@ -185,6 +185,20 @@ def load_run_params(filepath: Union[Path, str, None] = None) -> None:
                     Optional("release_data_memory", default=True): Bool(),
                     Optional("preload", default=True): Bool(),
                 }),
+                Optional("peaks"): Map(
+                    {
+                        "modality_pattern": Str(),
+                        Optional("normalisation"): NormalisationValidator(),
+                        Optional('height'): Float(),
+                        Optional('threshold'): Float(),
+                        Optional("distance"): Int(),
+                        Optional("prominence"): Float(),
+                        Optional("width"): Int(),
+                        Optional('wlen'): Int(),
+                        Optional('rel_height'): Float(),
+                        Optional('plateau_size'): Float(),
+                    }
+                ),
                 Optional("cast"): Map({
                     "pronunciation dictionary": PathValidator(),
                     "speaker id": Str(),
@@ -208,6 +222,10 @@ def load_run_params(filepath: Union[Path, str, None] = None) -> None:
         sys.exit()
 
     data_run_params.update(_raw_data_run_params_dict.data)
+    if 'peaks' in data_run_params:
+        if 'normalisation' not in data_run_params['peaks']:
+            data_run_params['peaks']['normalisation'] = (
+                TimeseriesNormalisation.none)
 
 
 def load_gui_params(filepath: Union[Path, str, None] = None) -> None:
@@ -242,13 +260,6 @@ def load_gui_params(filepath: Union[Path, str, None] = None) -> None:
                         },
                         Str(), Any()
                     )),
-                Optional("peaks"): Map(
-                    {
-                        Optional("distance"): Int(),
-                        Optional("prominence"): Float(),
-                        Optional("width"): Int(),
-                    }
-                ),
                 "pervasive tiers": Seq(Str()),
                 Optional("xlim"): FixedSeq([Float(), Float()]),
                 "default font size": Int(),

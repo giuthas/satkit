@@ -41,6 +41,8 @@ import logging
 from dataclasses import dataclass
 from typing import List, Optional, Tuple
 
+from icecream import ic
+
 import numpy as np
 
 import matplotlib.gridspec as gridspec
@@ -50,16 +52,15 @@ from scipy import signal as scipy_signal
 
 from satkit.data_structures import Modality, PointAnnotations, Recording
 from satkit.constants import (
-    DEFAULT_ENCODING, AnnotationType, TimeseriesNormalisation)
+    DEFAULT_ENCODING, AnnotationType, IntervalBoundary, TimeseriesNormalisation)
 
 _logger = logging.getLogger('satkit.peak_detection')
 
 
 def add_peaks(
     modality: Modality,
-    scipy_params: dict = None,
+    detection_parameters: dict = None,
     release_data_memory: bool = False,
-    normalise: TimeseriesNormalisation = 'NONE',
 ) -> None:
     """
     Add peak annotation to a modality.
@@ -81,17 +82,53 @@ def add_peaks(
         _logger.info(
             "Recording %s excluded from processing. Not adding peaks.",
             recording.basename)
-    else:
-        annotations = find_gesture_peaks(
-            modality.data, modality.timevector, scipy_params)
-        modality.add_annotations(annotations)
+        return
 
-        if release_data_memory:
-            modality.data = None
+    annotations = find_gesture_peaks(
+        modality.data, modality.timevector, detection_parameters)
+    modality.add_annotations(annotations)
 
-        _logger.debug(
-            "Added %s annotations to Modality %s.",
-            AnnotationType.PEAKS, modality.name)
+    if 'time_min' in detection_parameters and recording.satgrid:
+        tier_name = detection_parameters['time_min']['tier']
+        tier = recording.satgrid[tier_name]
+
+        interval_category = detection_parameters['time_min']['interval']
+        interval = tier.get_interval_by_category(interval_category)
+
+        interval_boundary = detection_parameters['time_min']['boundary']
+        if interval_boundary is IntervalBoundary.BEGIN:
+            time_min = interval.begin
+        elif interval_boundary is IntervalBoundary.END:
+            time_min = interval.end
+        else:
+            raise NotImplementedError(
+                f"Unknown interval boundary type: {interval_boundary}")
+
+        annotations.apply_lower_time_limit(time_min)
+
+    if 'time_max' in detection_parameters and recording.satgrid:
+        tier_name = detection_parameters['time_max']['tier']
+        tier = recording.satgrid[tier_name]
+
+        interval_category = detection_parameters['time_max']['interval']
+        interval = tier.get_interval_by_category(interval_category)
+
+        interval_boundary = detection_parameters['time_max']['boundary']
+        if interval_boundary is IntervalBoundary.BEGIN:
+            time_max = interval.begin
+        elif interval_boundary is IntervalBoundary.END:
+            time_max = interval.end
+        else:
+            raise NotImplementedError(
+                f"Unknown interval boundary type: {interval_boundary}")
+        annotations.apply_upper_time_limit(time_max)
+
+    if release_data_memory:
+        modality.data = None
+
+    _logger.debug(
+        "Added %s annotations to Modality %s.",
+        AnnotationType.PEAKS, modality.name)
 
 
 def find_gesture_peaks(

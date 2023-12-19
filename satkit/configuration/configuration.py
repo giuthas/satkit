@@ -34,13 +34,16 @@ import sys
 from contextlib import closing
 from pathlib import Path
 from typing import Union
+# from ruamel.yaml import YAML
 
+# yaml=YAML()
 # from icecream import ic
 
 import numpy as np
 from strictyaml import (Any, Bool, FixedSeq, Float, Int, Map, MapCombined,
                         MapPattern, Optional, ScalarValidator, Seq, Str,
                         YAMLError, load)
+from .configuration_classes import IntervalBoundary, IntervalCategory
 
 from satkit.constants import DEFAULT_ENCODING, TimeseriesNormalisation
 
@@ -95,6 +98,44 @@ class NormalisationValidator(ScalarValidator):
             return TimeseriesNormalisation(chunk.contents)
         else:
             return None
+
+
+class IntervalCategoryValidator(ScalarValidator):
+    """
+    Validate yaml representing a Path.
+
+    Please note that empty fields are interpreted as not available and
+    represented by None. If you want to specify current working directory, use
+    '.'
+    """
+
+    def validate_scalar(self, chunk):
+        if chunk.contents:
+            return IntervalCategory(chunk.contents)
+        else:
+            return None
+
+
+class IntervalBoundaryValidator(ScalarValidator):
+    """
+    Validate yaml representing a Path.
+
+    Please note that empty fields are interpreted as not available and
+    represented by None. If you want to specify current working directory, use
+    '.'
+    """
+
+    def validate_scalar(self, chunk):
+        if chunk.contents:
+            return IntervalBoundary(chunk.contents)
+        else:
+            return None
+
+
+class TimeLimitValidator():
+    # TODO: this does not look workable. either just use a mapping and remap to
+    # TimeLimit after, or switch all of this to nested text or regular yaml and pydantic
+    pass
 
 
 def load_config(filepath: Union[Path, str, None] = None) -> None:
@@ -168,6 +209,12 @@ def load_run_params(filepath: Union[Path, str, None] = None) -> None:
 
     _logger.debug("Loading run configuration from %s", str(filepath))
 
+    time_limit_schema = Map({
+                            "tier": Str(),
+                            "interval": IntervalCategoryValidator(),
+                            "boundary": IntervalBoundaryValidator(),
+                            })
+
     if filepath.is_file():
         with closing(
                 open(filepath, 'r', encoding=DEFAULT_ENCODING)) as yaml_file:
@@ -185,19 +232,20 @@ def load_run_params(filepath: Union[Path, str, None] = None) -> None:
                     Optional("release_data_memory", default=True): Bool(),
                     Optional("preload", default=True): Bool(),
                 }),
-                Optional("peaks"): Map(
-                    {
-                        "modality_pattern": Str(),
-                        Optional("normalisation"): NormalisationValidator(),
-                        Optional('height'): Float(),
-                        Optional('threshold'): Float(),
-                        Optional("distance"): Int(),
-                        Optional("prominence"): Float(),
-                        Optional("width"): Int(),
-                        Optional('wlen'): Int(),
-                        Optional('rel_height'): Float(),
-                        Optional('plateau_size'): Float(),
-                    }
+                Optional("peaks"): Map({
+                    "modality_pattern": Str(),
+                    Optional("normalisation"): NormalisationValidator(),
+                    Optional("time_min"): time_limit_schema,
+                    Optional("time_max"): time_limit_schema,
+                    Optional('height'): Float(),
+                    Optional('threshold'): Float(),
+                    Optional("distance"): Int(),
+                    Optional("prominence"): Float(),
+                    Optional("width"): Int(),
+                    Optional('wlen'): Int(),
+                    Optional('rel_height'): Float(),
+                    Optional('plateau_size'): Float(),
+                }
                 ),
                 Optional("cast"): Map({
                     "pronunciation dictionary": PathValidator(),

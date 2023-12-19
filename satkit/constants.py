@@ -49,6 +49,16 @@ SATKIT_FILE_VERSION = SATKIT_VERSION
 DEFAULT_ENCODING = 'utf-8'
 
 
+class IntervalBoundary(Enum):
+    BEGIN = 'begin'
+    END = 'end'
+
+
+class IntervalCategory(Enum):
+    FIRST_NON_EMPTY = 'first non-empty'
+    LAST_NON_EMPTY = 'last non-empty'
+
+
 class AnnotationType(Enum):
     """
     Enum to differentiate Modality annotation types

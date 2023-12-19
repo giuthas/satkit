@@ -41,7 +41,15 @@ from dataclasses import dataclass
 from typing import Optional
 
 from satkit.constants import (
-    CoordinateSystems, Datasource, SplineDataColumn, SplineMetaColumn)
+    CoordinateSystems, Datasource, IntervalBoundary, IntervalCategory,
+    SplineDataColumn, SplineMetaColumn)
+
+
+@dataclass
+class TimeLimit:
+    tier: str
+    interval: IntervalCategory
+    boundary: IntervalBoundary
 
 
 @dataclass

@@ -1,8 +1,8 @@
 #
-# Copyright (c) 2019-2023 
+# Copyright (c) 2019-2023
 # Pertti Palo, Scott Moisik, Matthew Faytak, and Motoki Saito.
 #
-# This file is part of Speech Articulation ToolKIT 
+# This file is part of Speech Articulation ToolKIT
 # (see https://github.com/giuthas/satkit/).
 #
 # This program is free software: you can redistribute it and/or modify
@@ -38,15 +38,19 @@ from textgrids.templates import (long_header, long_interval, long_point,
                                  long_tier)
 from typing_extensions import Self
 
+from satkit.constants import IntervalCategory
+
 
 class SatInterval:
     """TextGrid Interval representation to enable editing with GUI."""
 
     @classmethod
-    def from_textgrid_interval(cls,
-                               interval: Interval,
-                               prev: Union[None, Self],
-                               next: Union[None, Self] = None) -> Self:
+    def from_textgrid_interval(
+        cls,
+        interval: Interval,
+        prev: Union[None, Self],
+        next_interval: Union[None, Self] = None
+    ) -> Self:
         """
         Copy the info of a Python TextGrids Interval into a new SatInterval.
 
@@ -63,23 +67,23 @@ class SatInterval:
             begin=interval.xmin,
             text=interval.text,
             prev=prev,
-            next=next)
+            next_interval=next_interval)
 
     def __init__(self,
                  begin: float,
                  text: Union[None, Transcript],
                  prev: Union[None, Self] = None,
-                 next: Union[None, Self] = None) -> None:
+                 next_interval: Union[None, Self] = None) -> None:
         self.begin = begin
         self.text = text
 
         self.prev = prev
         if self.prev:
-            self.prev.next = self
+            self.prev.next_interval = self
 
-        self.next = next
-        if self.next:
-            self.next.prev = self
+        self.next_interval = next_interval
+        if self.next_interval:
+            self.next_interval.prev = self
 
     @property
     def mid(self) -> Union[float, None]:
@@ -90,10 +94,22 @@ class SatInterval:
         if this Interval is the one that marks
         the last boundary.
         """
-        if self.text:
-            return (self.begin+self.next.begin)/2
-        else:
-            return None
+        if self.next_interval:
+            return (self.begin+self.next_interval.begin)/2
+        return None
+
+    @property
+    def end(self) -> Union[float, None]:
+        """
+        End time point of the interval.
+
+        This is a property that will return None
+        if this Interval is the one that marks
+        the last boundary.
+        """
+        if self.next_interval:
+            return self.next_interval.begin
+        return None
 
     def is_legal_value(self, time: float) -> bool:
         """
@@ -106,7 +122,7 @@ class SatInterval:
 
         Returns True, if time is  between the previous and next boundary.
         """
-        return (time + config_dict['epsilon'] < self.next.begin and
+        return (time + config_dict['epsilon'] < self.next_interval.begin and
                 time > config_dict['epsilon'] + self.prev.begin)
 
     def is_at_time(self, time):
@@ -162,9 +178,9 @@ class SatTier(list):
         This is a property and the actual value is generated from the last
         SatInterval of this SatTier.
         """
-        # This is slightly counter intuitive, but the last interval is infact
-        # empty and only represents the final boundary. So its begin is
-        # the final boundary.
+        # This is slightly counter intuitive, but the last interval is in fact
+        # empty and only represents the final boundary. So its begin is the
+        # final boundary.
         return self[-1].begin
 
     @property
@@ -185,6 +201,20 @@ class SatTier(list):
             if interval.is_at_time(time):
                 return interval
         return None
+
+    def get_interval_by_category(
+        self,
+        interval_category: IntervalCategory
+    ) -> SatInterval:
+        if interval_category is IntervalCategory.FIRST_NON_EMPTY:
+            for interval in self:
+                if interval.text:
+                    return interval
+
+        if interval_category is IntervalCategory.LAST_NON_EMPTY:
+            for interval in reversed(self):
+                if interval.text:
+                    return interval
 
 
 class SatGrid(OrderedDict):

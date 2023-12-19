@@ -51,6 +51,7 @@ import textgrids
 from satkit.configuration import PathStructure, SessionConfig
 from satkit.constants import AnnotationType, SatkitSuffix
 from satkit.errors import MissingDataError, ModalityError, OverWriteError
+from satkit.helpers import is_sequence_form
 from satkit.satgrid import SatGrid
 
 _datastructures_logger = logging.getLogger('satkit.data_structures')
@@ -137,6 +138,52 @@ class PointAnnotations():
         raise NotImplementedError(
             "Adding annotations to "
             "PointAnnotations hasn't been implemented yet.")
+
+    def apply_lower_time_limit(self, time_min: float) -> None:
+        """
+        Apply a lower time limit to the annotations.
+
+        This removes the annotation points before the given time limit.
+
+        Parameters
+        ----------
+        time_min : float
+            The time limit.
+        """
+        selected = np.nonzero(self.times >= time_min)
+        self.indeces = self.indeces[selected]
+        self.times = self.times[selected]
+        limit = selected[0]
+
+        for key in self.properties:
+            if is_sequence_form(self.properties[key]):
+                ic(key, self.properties[key])
+                self.properties[key] = self.properties[key][limit:]
+            elif isinstance(self.properties[key], np.ndarray):
+                self.properties[key] = self.properties[key][selected]
+
+    def apply_upper_time_limit(self, time_max: float) -> None:
+        """
+        Apply an upper time limit to the annotations.
+
+        This removes the annotation points after the given time limit.
+
+        Parameters
+        ----------
+        time_max : float
+            The time limit.
+        """
+        selected = np.nonzero(self.times <= time_max)
+        self.indeces = self.indeces[selected]
+        self.times = self.times[selected]
+        limit = selected[-1]
+
+        for key in self.properties:
+            if is_sequence_form(self.properties[key]):
+                ic(key, self.properties[key])
+                self.properties[key] = self.properties[key][:limit]
+            elif isinstance(self.properties[key], np.ndarray):
+                self.properties[key] = self.properties[key][selected]
 
 
 class ModalityMetaData(BaseModel):

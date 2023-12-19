@@ -1,4 +1,3 @@
-#!/usr/bin/env python3
 #
 # Copyright (c) 2019-2023
 # Pertti Palo, Scott Moisik, Matthew Faytak, and Motoki Saito.
@@ -31,14 +30,31 @@
 # citations.bib in BibTeX format.
 #
 """
-helpers is a module for various tools used by various parts of SATKIT.
-
-Anything that is generic and not specific to a given part of SATKIT lives here.
-So tools that relate to Modalities will be where Modalities are, but tools that
-relate to for example Python base modules -- like enum_union does -- are here. 
+Type processing helper functions.
 """
 
-from .base_model_extensions import UpdatableBaseModel
-from .computational import cartesian_to_polar, polar_to_cartesian
-from .enum_extensions import enum_union, ValueComparedEnumMeta
-from .types import is_sequence_form
+import collections.abc
+from typing import Any
+
+
+def is_sequence_form(obj: Any) -> bool:
+    """
+    Return True if the object is a sequence but not a string.
+
+    Note that this function returns False for numpy arrays which should be
+    identified with `isinstance` and treated separately because they can be
+    indexed with a different syntax. 
+
+    Parameters
+    ----------
+    object : Any
+        any object
+
+    Returns
+    -------
+    bool
+        True for sequences, False for strings and everything else.
+    """
+    if isinstance(obj, str):
+        return False
+    return isinstance(obj, collections.abc.Sequence)

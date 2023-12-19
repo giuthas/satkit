@@ -48,7 +48,7 @@ import matplotlib.pyplot as plt
 from matplotlib.backends.backend_pdf import PdfPages
 from scipy import signal as scipy_signal
 
-from satkit.data_structures import Modality, Recording
+from satkit.data_structures import Modality, PointAnnotations, Recording
 from satkit.constants import (
     DEFAULT_ENCODING, AnnotationType, TimeseriesNormalisation)
 
@@ -96,9 +96,10 @@ def add_peaks(
 
 def find_gesture_peaks(
         data: np.ndarray,
+        timevector: np.ndarray,
         scipy_params: dict = None,
         normalise: TimeseriesNormalisation = 'NONE',
-) -> Tuple[np.ndarray, dict]:
+) -> PointAnnotations:
     """
     Find peaks in the data with `scipy_signal.find_peaks`.
 
@@ -106,6 +107,8 @@ def find_gesture_peaks(
     ----------
     data : np.ndarray
         The timeseries data. Should be a 1D array.
+    timevector : np.ndarray
+        Timevector corresponding to the data.
     scipy_params : dict, optional
         Parameters to pass to `scipy_signal.find_peaks`, by default None. The
         parameter dictionary is taken as a subset of the argument, which may
@@ -116,9 +119,8 @@ def find_gesture_peaks(
 
     Returns
     -------
-    Tuple[np.ndarray, dict]
-        The peak array and a dictionary of their properties as returned by
-        `find_peak`.
+    PointAnnotations
+        The gesture peaks asa PointAnnotations object.
     """
     bottom = (TimeseriesNormalisation.both, TimeseriesNormalisation.bottom)
     if normalise in bottom:
@@ -138,7 +140,11 @@ def find_gesture_peaks(
     else:
         peaks, properties = scipy_signal.find_peaks(data)
 
-    return peaks, properties
+    peak_times = timevector[peaks]
+    scipy_params['normalisation'] = normalise
+    annotations = PointAnnotations(
+        AnnotationType.PEAKS, peaks, peak_times, scipy_params, properties)
+    return annotations
 
 
 @dataclass

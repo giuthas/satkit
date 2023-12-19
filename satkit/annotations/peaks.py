@@ -93,7 +93,10 @@ def add_peaks(
         tier = recording.satgrid[tier_name]
 
         interval_category = detection_parameters['time_min']['interval']
-        interval = tier.get_interval_by_category(interval_category)
+        label = None
+        if 'label' in detection_parameters['time_min']:
+            label = detection_parameters['time_min']['label']
+        interval = tier.get_interval_by_category(interval_category, label)
 
         interval_boundary = detection_parameters['time_min']['boundary']
         if interval_boundary is IntervalBoundary.BEGIN:
@@ -114,7 +117,10 @@ def add_peaks(
         tier = recording.satgrid[tier_name]
 
         interval_category = detection_parameters['time_max']['interval']
-        interval = tier.get_interval_by_category(interval_category)
+        label = None
+        if 'label' in detection_parameters['time_max']:
+            label = detection_parameters['time_max']['label']
+        interval = tier.get_interval_by_category(interval_category, label)
 
         interval_boundary = detection_parameters['time_max']['boundary']
         if interval_boundary is IntervalBoundary.BEGIN:

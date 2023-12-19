@@ -212,6 +212,7 @@ def load_run_params(filepath: Union[Path, str, None] = None) -> None:
     time_limit_schema = Map({
                             "tier": Str(),
                             "interval": IntervalCategoryValidator(),
+                            Optional("label"): Str(),
                             "boundary": IntervalBoundaryValidator(),
                             Optional("offset"): Float(),
                             })

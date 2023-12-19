@@ -50,6 +50,7 @@ class TimeLimit:
     tier: str
     interval: IntervalCategory
     boundary: IntervalBoundary
+    label: Optional[str]
 
 
 @dataclass

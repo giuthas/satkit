@@ -63,6 +63,8 @@ class IntervalCategory(Enum):
     """
     FIRST_NON_EMPTY = 'first non-empty'
     LAST_NON_EMPTY = 'last non-empty'
+    FIRST_LABELED = 'first labeled'
+    LAST_LABELED = 'last labeled'
 
 
 class AnnotationType(Enum):

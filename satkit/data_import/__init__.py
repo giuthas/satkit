@@ -49,12 +49,16 @@ from .AAA_raw_ultrasound import add_aaa_raw_ultrasound
 from .three_dim_ultrasound import add_rasl_3D_ultrasound
 from .AAA_splines import add_splines
 
+# TODO: Decide if it is worth it to use typing.Annotated to document this
+# modality_adders is a mapping between a modality name and a function to add
+# that modality to a single recording.
+#
+# This does not belong here because splines may be in a
+# single file for many recordings.
+# 'Splines': add_splines,
 modality_adders = {
     'MonoAudio': add_audio,
     'RawUltrasound': add_aaa_raw_ultrasound,
-    # This does not belong here because splines maybe in a
-    # single file for many recordings.
-    # 'Splines': add_splines,
     'ThreeD_Ultrasound': add_rasl_3D_ultrasound,
     'Video': add_video
 }

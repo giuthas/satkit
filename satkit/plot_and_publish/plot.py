@@ -45,9 +45,7 @@ from scipy import interpolate
 
 # from icecream import ic
 
-from satkit.annotations import find_gesture_peaks
-from satkit.constants import TimeseriesNormalisation
-from satkit.configuration import gui_params
+from satkit.constants import AnnotationType, TimeseriesNormalisation
 from satkit.data_structures import Modality
 from satkit.gui.boundary_animation import AnimatableBoundary, BoundaryAnimator
 from satkit.satgrid import SatTier
@@ -94,8 +92,7 @@ def plot_timeseries(axes: Axes,
                     color: str = "deepskyblue",
                     linestyle: str = "-",
                     alpha: float = 1.0,
-                    sampling_step: int = 1,
-                    find_peaks: bool = False) -> Line2D:
+                    sampling_step: int = 1) -> Line2D:
     """
     Plot a timeseries.
 
@@ -143,10 +140,6 @@ def plot_timeseries(axes: Axes,
     # The official fix for the above curve not showing up on the legend.
     timeseries = Line2D([], [], color=color, lw=1, linestyle=linestyle)
 
-    if find_peaks:
-        mark_peaks(axes, plot_data, plot_time,
-                   xlim=xlim)
-
     axes.set_xlim(xlim)
 
     if ylim:
@@ -165,14 +158,13 @@ def plot_timeseries(axes: Axes,
 
 def mark_peaks(
         axes: Axes,
-        data: np.ndarray,
-        timevector: np.ndarray,
+        modality: Modality,
         xlim: Tuple[float, float] = None,
         display_prominence_values: bool = False,
         colors: ColorType | Sequence[ColorType] | None = 'sandybrown',
 ) -> LineCollection:
     """
-    Mark peaks in the data on the axes.
+    Mark peak annotations from the modality on the axes.
 
     If valleys instead of peaks are wanted, just pass in -data.
 
@@ -180,10 +172,8 @@ def mark_peaks(
     ----------
     axes : Axes
         Axes to draw on.
-    data : np.ndarray
-        Timeseries data, assumed to be a 1D array.
-    timevector : np.ndarray
-        Timevector corresponding to data.
+    modality : Modality
+        A timeseries modality with peak annotations.
     xlim : Tuple[float, float], optional
         Limits of drawing, by default None. This is useful in avoiding GUI
         hiccups by not drawing outside of the current limits. 
@@ -198,14 +188,13 @@ def mark_peaks(
     LineCollection
         _description_
     """
-    # TODO: make the gesture peak and boundary functions take the peaks as an
-    # argument and move the below calls to the gui/publishing/processing
-    # because they aren't plotting commands.
-    if 'peaks' in gui_params:
-        peaks, properties = find_gesture_peaks(
-            data, gui_params['peaks'])
-    else:
-        peaks, properties = find_gesture_peaks(data)
+    if AnnotationType.PEAKS not in modality.annotations:
+        return None
+
+    data = modality.data
+    timevector = modality.timevector
+    peaks = modality.annotations[AnnotationType.PEAKS].indeces
+    properties = modality.annotations[AnnotationType.PEAKS].properties
 
     prominences = properties['prominences']
     contour_heights = data[peaks] - prominences

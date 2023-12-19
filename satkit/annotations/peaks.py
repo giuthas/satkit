@@ -131,7 +131,8 @@ def find_gesture_peaks(
         accepted_keys = ['height', 'threshold', 'distance', 'prominence',
                          'width', 'wlen', 'rel_height', 'plateau_size']
         scipy_parameters = {k: detection_parameters[k]
-                            for k in detection_parameters if k in accepted_keys}
+                            for k in detection_parameters
+                            if k in accepted_keys}
         peaks, properties = scipy_signal.find_peaks(
             data, **scipy_parameters
         )

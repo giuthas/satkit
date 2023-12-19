@@ -41,9 +41,10 @@ from PyQt5 import QtWidgets
 
 # local modules
 from satkit import log_elapsed_time, set_logging_level
+from satkit.annotations import find_gesture_peaks
 from satkit.configuration import configuration
 
-from satkit.metrics import add_pd, peaks, add_spline_metric
+from satkit.metrics import add_pd, add_spline_metric
 from satkit.modalities import RawUltrasound, Splines
 from satkit.plot_and_publish import publish_pdf
 from satkit.qt_annotator import PdQtAnnotator
@@ -100,17 +101,15 @@ def main():
         # 'SplineMetric': (add_spline_metric,
         #                  [Splines],
         #                  spline_metric_arguments)  # ,
-
-        # TODO: figure out if this will actually work because this should be
-        # 'PD l1 on RawUltrasound' or something like that
-        # 'peaks': (peaks.time_series_peaks,
-        # [RawUltrasound],
-        # peak_arguments)
     }
     process_data(recordings=recording_session.recordings,
                  processing_functions=function_dict)
 
-    # peaks.save_peaks('pd_l1', recording_session.recordings)
+    # if 'peaks' in configuration.data_run_params:
+    #     peaks, properties = find_gesture_peaks(
+    #         data, configuration.data_run_params['peaks'])
+    # else:
+    #     peaks, properties = find_gesture_peaks(data)
 
     # operation = Operation(processing_function=pd.add_pd,
     #                       modality=RawUltrasound,

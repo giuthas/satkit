@@ -73,9 +73,9 @@ class ModalityData:
     None of the fields are optional. This class represents already loaded data.
 
     Axes order for the data field is [time, coordinate axes and datatypes,
-    datapoints] and further structure. For example stereo audio data would be
+    data points] and further structure. For example stereo audio data would be
     [time, channels] or just [time] for mono audio. For a more complex example,
-    splines from AAA have [time, x-y-confidende, spline points] or [time,
+    splines from AAA have [time, x-y-confidence, spline points] or [time,
     r-phi-confidence, spline points] for data in polar coordinates.
     """
     data: np.ndarray
@@ -126,7 +126,7 @@ class Recording:
         Parameters
         ----------
         meta_data : RecordingMetaData
-            Some of the contents of the meta data are avaible as properties.
+            Some of the contents of the meta data are available as properties.
         excluded : bool, optional
             _description_, by default False
         textgrid_path : Union[str, Path], optional
@@ -223,7 +223,7 @@ class Recording:
         Keyword argument:
         filepath -- string specifying the path and name of the 
             file to be written. If filepath is not specified, this 
-            method will try to overwrite the textgrid speficied in 
+            method will try to overwrite the textgrid specified in 
             self.meta.
 
             If filepath is specified, subsequent calls to this 
@@ -520,7 +520,7 @@ class Modality(abc.ABC):
         """
         Timevector precision: the maximum of absolute deviations.
 
-        Essentially this means that we are guestimating the timevector to be no
+        Essentially this means that we are guesstimating the timevector to be no
         more precise than the largest deviation from the average timestep.
         """
         if not self._time_precision:
@@ -591,7 +591,7 @@ class Modality(abc.ABC):
         excluded by setting self.parent.excluded = True.
         """
         # TODO: decide if this actually needs to exist and if so,
-        # should the above doc string actaully be true?
+        # should the above doc string actually be true?
         return self._excluded
 
     @excluded.setter
@@ -633,7 +633,7 @@ class Modality(abc.ABC):
 def satkit_suffix(
         satkit_type: Union[Recording, RecordingSession, Modality]) -> str:
     """
-    Generate a suffix for the savefile of a SATKIT datastructure.
+    Generate a suffix for the save file of a SATKIT data structure.
 
     Parameters
     ----------

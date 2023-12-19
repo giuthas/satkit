@@ -107,7 +107,7 @@ class SplineMetricParameters(ModalityMetaData):
         A string specifying this Modality's metric. Defaults to the l1 norm.
     timestep : int 
         A  positive integer used as the timestep in calculating this Modality's
-        data. Defaults to 1, which means comparison of consequetive frames.
+        data. Defaults to 1, which means comparison of consecutive frames.
     release_data_memory : bool
         Wether to assign None to parent.data after deriving this Modality from
         the data. Currently has no effect as deriving SplineMetric at runtime
@@ -130,7 +130,7 @@ class SplineMetric(Modality):
         """
         Generate a SplineMetric name to be used as its unique identifier.
 
-        This statit method **defines** what the names are. This implementation
+        This static method **defines** what the names are. This implementation
         pattern (SplineMetric.name calls this and any where that needs to guess
         what a name would be calls this) is how all derived Modalities should
         work.
@@ -222,7 +222,7 @@ class SplineMetric(Modality):
         """
         Build a SplineMetric Modality.       
 
-        Positional arguments: recording -- the containing Recording. paremeters
+        Positional arguments: recording -- the containing Recording. parameters
         : SplineMetricParameters
             Parameters used in calculating this instance of SplineMetric.
         Keyword arguments: load_path -- path of the saved data - both

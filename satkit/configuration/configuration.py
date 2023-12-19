@@ -213,6 +213,7 @@ def load_run_params(filepath: Union[Path, str, None] = None) -> None:
                             "tier": Str(),
                             "interval": IntervalCategoryValidator(),
                             "boundary": IntervalBoundaryValidator(),
+                            Optional("offset"): Float(),
                             })
 
     if filepath.is_file():

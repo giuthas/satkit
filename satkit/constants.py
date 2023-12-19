@@ -50,11 +50,17 @@ DEFAULT_ENCODING = 'utf-8'
 
 
 class IntervalBoundary(Enum):
+    """
+    Begin and end for import type checking.
+    """
     BEGIN = 'begin'
     END = 'end'
 
 
 class IntervalCategory(Enum):
+    """
+    Rule-based interval selection categories for import type checking.
+    """
     FIRST_NON_EMPTY = 'first non-empty'
     LAST_NON_EMPTY = 'last non-empty'
 

@@ -104,6 +104,9 @@ def add_peaks(
             raise NotImplementedError(
                 f"Unknown interval boundary type: {interval_boundary}")
 
+        if 'offset' in detection_parameters['time_min']:
+            time_min += detection_parameters['time_min']['offset']
+
         annotations.apply_lower_time_limit(time_min)
 
     if 'time_max' in detection_parameters and recording.satgrid:
@@ -121,6 +124,10 @@ def add_peaks(
         else:
             raise NotImplementedError(
                 f"Unknown interval boundary type: {interval_boundary}")
+
+        if 'offset' in detection_parameters['time_max']:
+            time_max += detection_parameters['time_max']['offset']
+
         annotations.apply_upper_time_limit(time_max)
 
     if release_data_memory:

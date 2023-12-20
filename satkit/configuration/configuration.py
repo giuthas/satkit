@@ -80,8 +80,7 @@ class PathValidator(ScalarValidator):
     def validate_scalar(self, chunk):
         if chunk.contents:
             return Path(chunk.contents)
-        else:
-            return None
+        return None
 
 
 class NormalisationValidator(ScalarValidator):
@@ -96,8 +95,7 @@ class NormalisationValidator(ScalarValidator):
     def validate_scalar(self, chunk):
         if chunk.contents:
             return TimeseriesNormalisation(chunk.contents)
-        else:
-            return None
+        return None
 
 
 class IntervalCategoryValidator(ScalarValidator):
@@ -112,8 +110,7 @@ class IntervalCategoryValidator(ScalarValidator):
     def validate_scalar(self, chunk):
         if chunk.contents:
             return IntervalCategory(chunk.contents)
-        else:
-            return None
+        return None
 
 
 class IntervalBoundaryValidator(ScalarValidator):
@@ -128,8 +125,7 @@ class IntervalBoundaryValidator(ScalarValidator):
     def validate_scalar(self, chunk):
         if chunk.contents:
             return IntervalBoundary(chunk.contents)
-        else:
-            return None
+        return None
 
 
 class TimeLimitValidator():

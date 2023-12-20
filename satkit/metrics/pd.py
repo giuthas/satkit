@@ -33,7 +33,7 @@
 from enum import Enum
 import logging
 from pathlib import Path
-from typing import Optional, Tuple
+from typing import Optional, Tuple, Union
 
 import numpy as np
 
@@ -156,7 +156,7 @@ class PD(Modality):
 
     @staticmethod
     def get_names_and_meta(
-        modality: Modality,
+        modality: Union[Modality, str],
         norms: list[str] = None,
         timesteps: list[int] = None,
         pd_on_interpolated_data: bool = False,
@@ -193,7 +193,10 @@ class PD(Modality):
             Dictionary where the names of the PD Modalities index the 
             PdParameter objects.
         """
-        parent_name = modality.__name__
+        if isinstance(modality, str):
+            parent_name = modality
+        else:
+            parent_name = modality.__name__
 
         if not norms:
             norms = ['l2']

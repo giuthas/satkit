@@ -42,7 +42,7 @@ from PyQt5 import QtWidgets
 
 # local modules
 from satkit import log_elapsed_time, set_logging_level
-from satkit.annotations import add_peaks
+from satkit.annotations import add_peaks, count_number_of_peaks
 from satkit.configuration import configuration
 
 from satkit.metrics import (add_pd,  # add_spline_metric,
@@ -139,7 +139,10 @@ def main():
                         configuration.data_run_params['peaks'],
                     )
 
-    ic(recording.modalities)
+        number_of_peaks = count_number_of_peaks(
+            recording_session.recordings,
+            values_of_p=configuration.data_run_params['pd_arguments']['norms'],
+            downsampling_ratios=configuration.data_run_params['downsample']['downsampling_ratios'])
 
     logger.info('Data run ended.')
 

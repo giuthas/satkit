@@ -53,6 +53,7 @@ from scipy import signal as scipy_signal
 from satkit.data_structures import Modality, PointAnnotations, Recording
 from satkit.constants import (
     DEFAULT_ENCODING, AnnotationType, IntervalBoundary, TimeseriesNormalisation)
+from satkit.metrics import PD
 
 _logger = logging.getLogger('satkit.peak_detection')
 
@@ -194,6 +195,43 @@ def find_gesture_peaks(
         AnnotationType.PEAKS, peaks, peak_times,
         detection_parameters, properties)
     return annotations
+
+
+def count_number_of_peaks(
+        recordings: list[Recording],
+        values_of_p: tuple[str],
+        downsampling_ratios: tuple[int]
+) -> np.ndarray:
+    peak_numbers = np.zeros(
+        [len(recordings), len(values_of_p), 1+len(downsampling_ratios)])
+
+    modality_params = PD.get_names_and_meta(
+        modality="RawUltrasound",
+        norms=values_of_p,
+    )
+    modality_names = list(modality_params.keys())
+
+    for i, recording in enumerate(recordings):
+        for j, p in enumerate(values_of_p):
+            modality = recording.modalities[modality_names[j]]
+            peaks = modality.annotations[AnnotationType.PEAKS]
+            peak_numbers[i][j][0] = len(peaks.indeces)
+
+    for i, recording in enumerate(recordings):
+        modality_names = [key for key in recording.modalities.keys()
+                          if 'PD' in key and 'downsampled' in key]
+        for j, p in enumerate(values_of_p):
+            p_norm_names = [name for name in modality_names
+                            if p in name]
+            for k, ratio in enumerate(downsampling_ratios):
+                name = [name for name in p_norm_names
+                        if int(name[-1]) == ratio]
+                name = name[0]
+                modality = recording.modalities[name]
+                peaks = modality.annotations[AnnotationType.PEAKS]
+                peak_numbers[i][j][k+1] = len(peaks.indeces)
+
+    return peak_numbers
 
 
 @dataclass

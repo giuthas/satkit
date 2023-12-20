@@ -191,6 +191,9 @@ class ModalityMetaData(BaseModel):
     Baseclass of Modalities' metadata classes.
     """
     parent_name: Optional[str] = None
+    is_downsampled: Optional[bool] = False
+    downsampling_ratio: Optional[int] = None
+    timestep_matched_downsampling: Optional[bool] = True
 
 
 @dataclass

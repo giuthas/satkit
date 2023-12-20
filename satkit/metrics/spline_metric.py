@@ -157,6 +157,9 @@ class SplineMetric(Modality):
         if params.parent_name:
             name_string = name_string + " on " + params.parent_name
 
+        if params.is_downsampled:
+            name_string += " downsampled by " + params.downsampling_ratio
+
         return name_string
 
     @staticmethod

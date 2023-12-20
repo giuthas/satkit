@@ -43,9 +43,11 @@ import numpy as np
 from strictyaml import (Any, Bool, FixedSeq, Float, Int, Map, MapCombined,
                         MapPattern, Optional, ScalarValidator, Seq, Str,
                         YAMLError, load)
-from .configuration_classes import IntervalBoundary, IntervalCategory
 
 from satkit.constants import DEFAULT_ENCODING, TimeseriesNormalisation
+
+from .configuration_classes import IntervalBoundary, IntervalCategory
+
 
 # TODO: Convert all the public members to UpdatableBaseModel from
 # satkit.helpers.base_model_extensions and implement an update method as well
@@ -126,12 +128,6 @@ class IntervalBoundaryValidator(ScalarValidator):
         if chunk.contents:
             return IntervalBoundary(chunk.contents)
         return None
-
-
-class TimeLimitValidator():
-    # TODO: this does not look workable. either just use a mapping and remap to
-    # TimeLimit after, or switch all of this to nested text or regular yaml and pydantic
-    pass
 
 
 def load_config(filepath: Union[Path, str, None] = None) -> None:
@@ -245,6 +241,11 @@ def load_run_params(filepath: Union[Path, str, None] = None) -> None:
                     Optional('plateau_size'): Float(),
                 }
                 ),
+                Optional("downsample"): Map({
+                    "modality_pattern": Str(),
+                    "match_timestep": Bool(),
+                    "downsampling_ratios": Seq(Int()),
+                }),
                 Optional("cast"): Map({
                     "pronunciation dictionary": PathValidator(),
                     "speaker id": Str(),

@@ -94,7 +94,7 @@ def load_derived_modality(
             meta.parameters[key] = None
     parameters = parameter_schema(**meta.parameters)
     modality = metric(recording=recording,
-                      parsed_data=modality_data, parameters=parameters)
+                      parsed_data=modality_data, metadata=parameters)
 
     recording.add_modality(modality=modality)
 

@@ -44,13 +44,16 @@ from satkit import log_elapsed_time, set_logging_level
 from satkit.annotations import add_peaks
 from satkit.configuration import configuration
 
-from satkit.metrics import add_pd, add_spline_metric
-from satkit.modalities import RawUltrasound, Splines
+from satkit.metrics import (add_pd,  # add_spline_metric,
+                            downsample_metrics)
+from satkit.modalities import RawUltrasound  # , Splines
 from satkit.plot_and_publish import publish_pdf
 from satkit.qt_annotator import PdQtAnnotator
-from satkit.scripting_interface import (Operation, SatkitArgumentParser,
-                                        load_data, multi_process_data,
-                                        process_data, save_data)
+from satkit.scripting_interface import (
+    # Operation,
+    SatkitArgumentParser,
+    load_data,  # multi_process_data,
+    process_data, save_data)
 
 
 def main():
@@ -118,6 +121,12 @@ def main():
     #                                  'release_data_memory': True,
     #                                  'preload': True})
     # multi_process_data(recordings, operation)
+
+    if 'downsample' in configuration.data_run_params:
+        downsample_config = configuration.data_run_params['downsample']
+
+        for recording in recording_session.recordings:
+            downsample_metrics(recording, **downsample_config)
 
     if 'peaks' in configuration.data_run_params:
         modality_pattern = configuration.data_run_params['peaks']['modality_pattern']

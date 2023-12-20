@@ -217,7 +217,7 @@ class SplineMetric(Modality):
 
     def __init__(self,
                  recording: Recording,
-                 parameters: SplineMetricParameters,
+                 metadata: SplineMetricParameters,
                  load_path: Optional[Path] = None,
                  meta_path: Optional[Path] = None,
                  parsed_data: Optional[ModalityData] = None,
@@ -248,13 +248,13 @@ class SplineMetric(Modality):
 
         super().__init__(
             recording,
-            metadata=parameters,
+            metadata=metadata,
             data_path=None,
             load_path=load_path,
             meta_path=meta_path,
             parsed_data=parsed_data)
 
-        self.meta_data = parameters
+        self.meta_data = metadata
 
     def _derive_data(self) -> Tuple[np.ndarray, np.ndarray, float]:
         """

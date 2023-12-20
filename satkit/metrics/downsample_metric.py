@@ -42,11 +42,11 @@ from satkit.data_structures import Modality, ModalityData, Recording
 
 def downsample_modality(
         modality: Modality,
-        down_sampling_ratio: int
+        downsampling_ratio: int
 ) -> Modality:
-    data = modality.data[::down_sampling_ratio]
-    timevector = modality.timevector[::down_sampling_ratio]
-    sampling_rate = modality.sampling_rate/down_sampling_ratio
+    data = modality.data[::downsampling_ratio]
+    timevector = modality.timevector[::downsampling_ratio]
+    sampling_rate = modality.sampling_rate/downsampling_ratio
 
     modality_data = ModalityData(
         data=data, timevector=timevector, sampling_rate=sampling_rate)
@@ -63,7 +63,7 @@ def downsample_modality(
 def downsample_metrics(
         recording: Recording,
         modality_pattern: str,
-        down_sampling_ratios: tuple[int],
+        downsampling_ratios: tuple[int],
         match_timestep: bool = True
 ) -> None:
 
@@ -74,7 +74,7 @@ def downsample_metrics(
     if match_timestep:
         modalities = [
             modality for modality in modalities
-            if modality.metadata.timestep in down_sampling_ratios]
+            if modality.metadata.timestep in downsampling_ratios]
 
         for modality in modalities:
             downsampled = downsample_modality(

@@ -44,6 +44,25 @@ def downsample_modality(
         modality: Modality,
         downsampling_ratio: int
 ) -> Modality:
+    """
+    Downsample the Modality by the given ratio and return results as a new
+    Modality. 
+
+    Parameters
+    ----------
+    modality : Modality
+        The original Modality
+    downsampling_ratio : int
+        Ratio by which to downsample
+
+    Returns
+    -------
+    Modality
+        This Modality will match the type and metadata of the original, but
+        will have the metadata fields that describe downsampling updated
+        correctly. The Modality's data and timevector will have been
+        downsampled its and name will show the downsampling ratio used.
+    """
     data = modality.data[::downsampling_ratio]
     timevector = modality.timevector[::downsampling_ratio]
     sampling_rate = modality.sampling_rate/downsampling_ratio
@@ -51,10 +70,16 @@ def downsample_modality(
     modality_data = ModalityData(
         data=data, timevector=timevector, sampling_rate=sampling_rate)
 
+    metadata = modality.metadata.model_copy()
+    metadata.is_downsampled = True
+    metadata.downsampling_ratio = downsampling_ratio
+    metadata.timestep_matched_downsampling = (
+        downsampling_ratio == metadata.timestep)
+
     return modality.__class__(
         modality.recording,
         parsed_data=modality_data,
-        metadata=modality.metadata.model_copy(),
+        metadata=metadata,
         meta_path=modality.meta_path,
         load_path=modality.load_path,
         time_offset=modality.time_offset)
@@ -66,6 +91,29 @@ def downsample_metrics(
         downsampling_ratios: tuple[int],
         match_timestep: bool = True
 ) -> None:
+    """
+    Apply downsampling to Modalities matching the pattern and add them back to
+    the Recording.
+
+    Parameters
+    ----------
+    recording : Recording
+        The Recording which contains the Modalities and to which the new
+        downsampled modalities will be added.
+    modality_pattern : str
+        Simple search string to used to find the modalities.
+    downsampling_ratios : tuple[int]
+        Which downsampling ratios should be attempted. Depending on the next
+        parameter all might not actually be used.
+    match_timestep : bool, optional
+        If the timestep of the Modality to be downsampled should match the
+        downsampling_ratio, by default True
+
+    Raises
+    ------
+    NotImplementedError
+        For now only match_timestep = True is allowed.
+    """
 
     modalities = [recording.modalities[key]
                   for key in recording.modalities

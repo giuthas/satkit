@@ -150,7 +150,7 @@ class PD(Modality):
             name_string = name_string + " on " + params.parent_name
 
         if params.is_downsampled:
-            name_string += " downsampled by " + params.downsampling_ratio
+            name_string += " downsampled by " + str(params.downsampling_ratio)
 
         return name_string
 

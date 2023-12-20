@@ -35,7 +35,8 @@
 import sys
 from pathlib import Path
 
-# from icecream import ic
+from icecream import ic
+
 # For running a Qt GUI
 from PyQt5 import QtWidgets
 
@@ -137,6 +138,8 @@ def main():
                         recording.modalities[modality_name],
                         configuration.data_run_params['peaks'],
                     )
+
+    ic(recording.modalities)
 
     logger.info('Data run ended.')
 

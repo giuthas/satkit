@@ -32,6 +32,9 @@
 from .ofreg import of
 from .calculate_pd import add_pd
 from .calculate_spline_metric import add_spline_metric
+
+from .downsample_metric import downsample_metrics
+
 from .pd import PD, PdParameters, ImageMask
 from .spline_metric import (SplineMetric, SplineMetricParameters,
                             SplineDiffsEnum, SplineNNDsEnum, SplineShapesEnum)

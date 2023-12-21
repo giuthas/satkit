@@ -234,6 +234,7 @@ def load_run_params(filepath: Union[Path, str, None] = None) -> None:
                     Optional('height'): Float(),
                     Optional('threshold'): Float(),
                     Optional("distance"): Int(),
+                    Optional("distance_in_seconds"): Float(),
                     Optional("prominence"): Float(),
                     Optional("width"): Int(),
                     Optional('wlen'): Int(),

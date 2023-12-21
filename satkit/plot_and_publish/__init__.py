@@ -32,4 +32,4 @@
 from .plot import (
     mark_peaks, plot_satgrid_tier, plot_spectrogram, plot_spline,
     plot_timeseries, plot_wav)
-from .publish import publish_pdf
+from .publish import publish_pdf, publish_downsampling_data

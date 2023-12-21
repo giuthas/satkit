@@ -36,6 +36,9 @@ import sys
 from pathlib import Path
 
 from icecream import ic
+from matplotlib.backends.backend_pdf import PdfPages
+
+import numpy as np
 
 # For running a Qt GUI
 from PyQt5 import QtWidgets
@@ -48,7 +51,7 @@ from satkit.configuration import configuration
 from satkit.metrics import (add_pd,  # add_spline_metric,
                             downsample_metrics)
 from satkit.modalities import RawUltrasound  # , Splines
-from satkit.plot_and_publish import publish_pdf
+from satkit.plot_and_publish import publish_pdf, publish_downsampling_data
 from satkit.qt_annotator import PdQtAnnotator
 from satkit.scripting_interface import (
     # Operation,
@@ -129,9 +132,13 @@ def main():
         for recording in recording_session.recordings:
             downsample_metrics(recording, **downsample_config)
 
+    exclusion = ("water swallow", "bite plate")
     if 'peaks' in configuration.data_run_params:
         modality_pattern = configuration.data_run_params['peaks']['modality_pattern']
         for recording in recording_session.recordings:
+            if any(prompt in recording.meta_data.prompt for prompt in exclusion):
+                print(f"jumping over {recording.basename}")
+                continue
             for modality_name in recording.modalities:
                 if modality_pattern in modality_name:
                     add_peaks(
@@ -141,8 +148,49 @@ def main():
 
         number_of_peaks = count_number_of_peaks(
             recording_session.recordings,
-            values_of_p=configuration.data_run_params['pd_arguments']['norms'],
+            metrics=configuration.data_run_params['pd_arguments']['norms'],
             downsampling_ratios=configuration.data_run_params['downsample']['downsampling_ratios'])
+
+        reference = number_of_peaks[:, :, 0]
+
+        # reference = reference.reshape(list(reference.shape).append(1))
+        # ic(reference.shape)
+        referees = number_of_peaks.copy()
+        referees = np.moveaxis(referees, (0, 1, 2), (1, 2, 0))
+        peak_number_ratio = referees/reference
+        ic(peak_number_ratio.shape)
+        peak_number_ratio = np.moveaxis(
+            peak_number_ratio, (0, 1, 2), (2, 1, 0))
+        ic(peak_number_ratio.shape)
+
+        frequency_table = [recording.modalities['RawUltrasound'].sampling_rate
+                           for recording in recording_session.recordings
+                           if 'RawUltrasound' in recording.modalities]
+        frequency = np.average(frequency_table)
+        frequencies = [f"{frequency/(i+1):.2f}" for i in range(7)]
+        with PdfPages('peak_number_ratios.pdf') as pdf:
+            publish_downsampling_data(
+                peak_number_ratio,
+                values_of_p=configuration.data_run_params['pd_arguments']['norms'],
+                # peak_number_ratio[1:-1, :, :],
+                # values_of_p=configuration.data_run_params['pd_arguments']['norms'][1:-1],
+                downsampling_ratios=configuration.data_run_params['downsample']['downsampling_ratios'],
+                frequencies=frequencies,
+                pdf=pdf,
+                suptitle="Ratio of identified peaks")
+
+            number_of_peaks = np.moveaxis(
+                number_of_peaks, (0, 1, 2), (1, 0, 2))
+            ic(number_of_peaks.shape)
+            publish_downsampling_data(
+                number_of_peaks,
+                values_of_p=configuration.data_run_params['pd_arguments']['norms'],
+                # number_of_peaks[1:-1, :, :],
+                # values_of_p=configuration.data_run_params['pd_arguments']['norms'][1:-1],
+                downsampling_ratios=configuration.data_run_params['downsample']['downsampling_ratios'],
+                frequencies=frequencies,
+                pdf=pdf,
+                suptitle="Number of identified peaks")
 
     logger.info('Data run ended.')
 

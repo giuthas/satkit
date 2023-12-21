@@ -32,6 +32,8 @@
 
 import logging
 
+import numpy as np
+
 from matplotlib.backends.backend_pdf import PdfPages
 import matplotlib.pyplot as plt
 from matplotlib.gridspec import GridSpec
@@ -48,6 +50,74 @@ from satkit.configuration import publish_params
 from .plot import (plot_1d_modality, plot_satgrid_tier)
 
 _plot_logger = logging.getLogger('satkit.publish')
+
+
+def publish_downsampling_data(
+        peak_number_ratios,
+        values_of_p: tuple[str],
+        downsampling_ratios: tuple[int],
+        frequencies: tuple[float],
+        pdf: PdfPages,
+        suptitle: str,
+) -> None:
+    """
+
+    Order of axes is assumed to be norms, recordings, downsampling ratios (with
+    original (==1) in position 0)
+
+    Parameters
+    ----------
+    peak_number_ratios : _type_
+        _description_
+    values_of_p : tuple[str]
+        _description_
+    downsampling_ratios : tuple[int]
+        _description_
+    """
+    # figure = plt.figure(figsize=(10, 8))
+    # # height_ratios = [3 for i in range(publish_params['subplot grid'][0])]
+    # # height_ratios.append(1)
+    # gridspec = GridSpec(nrows=3,
+    #                     ncols=2,
+    #                     # hspace=0, wspace=0,
+    #                     # height_ratios=height_ratios
+    #                     )
+    figure, axes = plt.subplots(
+        nrows=3,
+        ncols=2,
+        sharey=True,
+        figsize=(10, 8),
+        gridspec_kw={'hspace': 0, 'wspace': 0}
+    )
+
+    for i, ax in enumerate(axes.flatten()):
+        plot_parts = ax.violinplot(
+            peak_number_ratios[i, :, :], showextrema=True, showmedians=True)
+        # for part in plot_parts['cmins']:
+        #     part.set(linewidth=1)
+        plot_parts['cmins'].set(lw=1)
+        plot_parts['cmaxes'].set(lw=1)
+        plot_parts['cbars'].set(lw=1)
+        plot_parts['cmedians'].set(color='k', lw=2)
+
+        if i in (4, 5):
+            ax.set_xticks(np.arange(1, len(frequencies) + 1),
+                          labels=frequencies)
+            ax.set_xlabel("Data sampling frequency")
+
+        ax.legend(
+            [plot_parts['cmins']], [values_of_p[i]],
+            loc='upper right',
+            handlelength=0,
+            handletextpad=0)
+
+    figure.suptitle(suptitle)
+    # figure.text(0.5, 0.04, 'Time (s), go-signal at 0 s.',
+    #             ha='center', va='center', fontsize=10)
+
+    plt.tight_layout()
+
+    pdf.savefig(plt.gcf())
 
 
 def make_figure(recording: Recording, pdf: PdfPages):

@@ -39,6 +39,7 @@ useful basis for writing future functionality.
 import csv
 import logging
 from dataclasses import dataclass
+import math
 from typing import List, Optional, Tuple
 
 from icecream import ic
@@ -85,6 +86,11 @@ def add_peaks(
             recording.basename)
         return
 
+    if 'distance_in_seconds' in detection_parameters:
+        distance = math.ceil(detection_parameters['distance_in_seconds'] *
+                             modality.sampling_rate)
+        detection_parameters['distance'] = distance
+
     annotations = find_gesture_peaks(
         modality.data, modality.timevector, detection_parameters)
     modality.add_annotations(annotations)
@@ -122,6 +128,8 @@ def add_peaks(
         if 'label' in detection_parameters['time_max']:
             label = detection_parameters['time_max']['label']
         interval = tier.get_interval_by_category(interval_category, label)
+        if not interval:
+            print(recording.basename)
 
         interval_boundary = detection_parameters['time_max']['boundary']
         if interval_boundary is IntervalBoundary.BEGIN:
@@ -199,20 +207,26 @@ def find_gesture_peaks(
 
 def count_number_of_peaks(
         recordings: list[Recording],
-        values_of_p: tuple[str],
+        metrics: tuple[str],
         downsampling_ratios: tuple[int]
 ) -> np.ndarray:
+    exclusion = ("water swallow", "bite plate")
+    recordings = [
+        recording for recording in recordings
+        if not any(prompt in recording.meta_data.prompt for prompt in exclusion)
+    ]
+
     peak_numbers = np.zeros(
-        [len(recordings), len(values_of_p), 1+len(downsampling_ratios)])
+        [len(recordings), len(metrics), 1+len(downsampling_ratios)])
 
     modality_params = PD.get_names_and_meta(
         modality="RawUltrasound",
-        norms=values_of_p,
+        norms=metrics,
     )
     modality_names = list(modality_params.keys())
 
     for i, recording in enumerate(recordings):
-        for j, p in enumerate(values_of_p):
+        for j, p in enumerate(metrics):
             modality = recording.modalities[modality_names[j]]
             peaks = modality.annotations[AnnotationType.PEAKS]
             peak_numbers[i][j][0] = len(peaks.indeces)
@@ -220,7 +234,7 @@ def count_number_of_peaks(
     for i, recording in enumerate(recordings):
         modality_names = [key for key in recording.modalities.keys()
                           if 'PD' in key and 'downsampled' in key]
-        for j, p in enumerate(values_of_p):
+        for j, p in enumerate(metrics):
             p_norm_names = [name for name in modality_names
                             if p in name]
             for k, ratio in enumerate(downsampling_ratios):
@@ -232,6 +246,33 @@ def count_number_of_peaks(
                 peak_numbers[i][j][k+1] = len(peaks.indeces)
 
     return peak_numbers
+
+
+def get_nearest_neighbours(
+        array1: np.ndarray, array2: np.ndarray) -> np.ndarray:
+    """
+    Get an array of nearest neighbours of elements of array1 in array2.
+
+    Parameters
+    ----------
+    array1 : np.ndarray
+        The first 1D array.
+    array2 : np.ndarray
+        The second 1D array where we search for the nearest neighbours.
+
+    Returns
+    -------
+    np.ndarray
+        An array containing each element of array1 paired with its nearest
+        neighbour from array2.
+    """
+    neighbours = np.zeros((array1.size, 2))
+    neighbours[:, 0] = array1
+    for i, element in enumerate(array1):
+        diff = np.abs(array2-element)
+        neighbours[i, 1] = array2[np.argmin(diff)]
+
+    return neighbours
 
 
 @dataclass
@@ -400,16 +441,6 @@ def save_peaks(
     plot_peak_comparison(whole_to_bottom, bottom_to_whole,
                          whole_to_bottom_thresholded,
                          bottom_to_whole_thresholded)
-
-
-def get_nearest_neighbours(array1: np.ndarray, array2: np.ndarray):
-    neighbours = np.zeros((array1.size, 2))
-    neighbours[:, 0] = array1
-    for i, element in enumerate(array1):
-        diff = np.abs(array2-element)
-        neighbours[i, 1] = array2[np.argmin(diff)]
-
-    return neighbours
 
 
 def plot_peak_ns(unthresholded_peak_ns, thresholded_peak_ns):

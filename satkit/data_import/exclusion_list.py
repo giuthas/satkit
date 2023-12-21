@@ -40,6 +40,8 @@ from contextlib import closing
 from pathlib import Path
 from typing import Union
 
+from icecream import ic
+
 from strictyaml import (Map, Optional, Seq, Str,
                         YAMLError, load)
 
@@ -75,7 +77,7 @@ def apply_exclusion_list(
 
         # The first condition sees if the whole prompt is excluded,
         # the second condition checks if any parts of the prompt
-        # match exclucion criteria (for example excluding 'foobar ...'
+        # match exclusion criteria (for example excluding 'foobar ...'
         # based on 'foobar').
         prompt = recording.meta_data.prompt
         partials = [element
@@ -141,6 +143,8 @@ def read_exclusion_list_from_yaml(filepath: Path) -> ExclusionList:
         _logger.warning(
             "Continuing regardless.")
         raw_exclusion_dict = {}
+
+    ic(raw_exclusion_dict)
 
     return ExclusionList(files=raw_exclusion_dict)
 

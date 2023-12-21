@@ -205,6 +205,57 @@ def find_gesture_peaks(
     return annotations
 
 
+def nearest_neighbours_in_downsampling(
+        recordings: list[Recording],
+        metrics: tuple[str],
+        downsampling_ratios: tuple[int]
+) -> np.ndarray:
+    exclusion = ("water swallow", "bite plate")
+    recordings = [
+        recording for recording in recordings
+        if not any(prompt in recording.meta_data.prompt for prompt in exclusion)
+    ]
+
+    modality_params = PD.get_names_and_meta(
+        modality="RawUltrasound",
+        norms=metrics,
+    )
+    reference_names = list(modality_params.keys())
+
+    average_distances = np.zeros(
+        [len(recordings), len(metrics), 1+len(downsampling_ratios)])
+
+    for i, recording in enumerate(recordings):
+        downsampled_names = [key for key in recording.modalities.keys()
+                             if 'PD' in key and 'downsampled' in key]
+        for j, p in enumerate(metrics):
+            reference_name = [name for name in reference_names
+                              if p in name]
+            reference_name = reference_name[0]
+            reference_modality = recording.modalities[reference_name]
+            reference_peaks = reference_modality.annotations[AnnotationType.PEAKS]
+
+            p_norm_names = [name for name in downsampled_names
+                            if p in name]
+
+            for k, ratio in enumerate(downsampling_ratios):
+                name = [name for name in p_norm_names
+                        if int(name[-1]) == ratio]
+                name = name[0]
+                modality = recording.modalities[name]
+                peaks = modality.annotations[AnnotationType.PEAKS]
+                neighbours = get_nearest_neighbours(
+                    reference_peaks.times, peaks.times)
+                distances = np.abs(np.diff(neighbours, axis=1))
+                # ic(name, reference_name, distances)
+                average_distances[i][j][k+1] = np.mean(distances)
+
+    average_distances = np.moveaxis(
+        average_distances, (0, 1, 2), (1, 0, 2))
+    ic(average_distances.shape)
+    return average_distances
+
+
 def count_number_of_peaks(
         recordings: list[Recording],
         metrics: tuple[str],

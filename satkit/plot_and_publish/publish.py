@@ -31,6 +31,7 @@
 #
 
 import logging
+from typing import Optional
 
 import numpy as np
 
@@ -54,11 +55,12 @@ _plot_logger = logging.getLogger('satkit.publish')
 
 def publish_downsampling_data(
         peak_number_ratios,
-        values_of_p: tuple[str],
+        metrics: tuple[str],
         downsampling_ratios: tuple[int],
         frequencies: tuple[float],
         pdf: PdfPages,
         suptitle: str,
+        hline: Optional[float] = None,
 ) -> None:
     """
 
@@ -100,13 +102,20 @@ def publish_downsampling_data(
         plot_parts['cbars'].set(lw=1)
         plot_parts['cmedians'].set(color='k', lw=2)
 
+        if hline:
+            ax.axhline(hline, color="black", linestyle="--", lw=1)
+            # x = range(len(downsampling_ratios)+1)
+            # hlines = np.ones(len(downsampling_ratios)+1) * hline
+            # # , linestyle="--")
+            # ax.scatter(x, hlines, marker='o', color="orange", s=30, zorder=3)
+
         if i in (4, 5):
             ax.set_xticks(np.arange(1, len(frequencies) + 1),
                           labels=frequencies)
             ax.set_xlabel("Data sampling frequency")
 
         ax.legend(
-            [plot_parts['cmins']], [values_of_p[i]],
+            [plot_parts['cmins']], [metrics[i]],
             loc='upper right',
             handlelength=0,
             handletextpad=0)

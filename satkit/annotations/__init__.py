@@ -30,4 +30,6 @@
 # citations.bib in BibTeX format.
 ##
 
-from .peaks import add_peaks, count_number_of_peaks, find_gesture_peaks
+from .peaks import (
+    add_peaks, count_number_of_peaks, find_gesture_peaks,
+    nearest_neighbours_in_downsampling)

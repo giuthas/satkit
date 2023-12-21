@@ -45,7 +45,8 @@ from PyQt5 import QtWidgets
 
 # local modules
 from satkit import log_elapsed_time, set_logging_level
-from satkit.annotations import add_peaks, count_number_of_peaks
+from satkit.annotations import (
+    add_peaks, count_number_of_peaks, nearest_neighbours_in_downsampling)
 from satkit.configuration import configuration
 
 from satkit.metrics import (add_pd,  # add_spline_metric,
@@ -146,10 +147,12 @@ def main():
                         configuration.data_run_params['peaks'],
                     )
 
+        metrics = configuration.data_run_params['pd_arguments']['norms']
+        downsampling_ratios = configuration.data_run_params['downsample']['downsampling_ratios']
         number_of_peaks = count_number_of_peaks(
             recording_session.recordings,
-            metrics=configuration.data_run_params['pd_arguments']['norms'],
-            downsampling_ratios=configuration.data_run_params['downsample']['downsampling_ratios'])
+            metrics=metrics,
+            downsampling_ratios=downsampling_ratios)
 
         reference = number_of_peaks[:, :, 0]
 
@@ -171,10 +174,10 @@ def main():
         with PdfPages('peak_number_ratios.pdf') as pdf:
             publish_downsampling_data(
                 peak_number_ratio,
-                values_of_p=configuration.data_run_params['pd_arguments']['norms'],
+                metrics=metrics,
                 # peak_number_ratio[1:-1, :, :],
                 # values_of_p=configuration.data_run_params['pd_arguments']['norms'][1:-1],
-                downsampling_ratios=configuration.data_run_params['downsample']['downsampling_ratios'],
+                downsampling_ratios=downsampling_ratios,
                 frequencies=frequencies,
                 pdf=pdf,
                 suptitle="Ratio of identified peaks")
@@ -184,13 +187,28 @@ def main():
             ic(number_of_peaks.shape)
             publish_downsampling_data(
                 number_of_peaks,
-                values_of_p=configuration.data_run_params['pd_arguments']['norms'],
+                metrics=metrics,
                 # number_of_peaks[1:-1, :, :],
                 # values_of_p=configuration.data_run_params['pd_arguments']['norms'][1:-1],
-                downsampling_ratios=configuration.data_run_params['downsample']['downsampling_ratios'],
+                downsampling_ratios=downsampling_ratios,
                 frequencies=frequencies,
                 pdf=pdf,
-                suptitle="Number of identified peaks")
+                suptitle="Number of identified peaks",
+            )
+
+            publish_downsampling_data(
+                nearest_neighbours_in_downsampling(
+                    recording_session.recordings,
+                    metrics=metrics,
+                    downsampling_ratios=downsampling_ratios,),
+                metrics=configuration.data_run_params['pd_arguments']['norms'],
+                # number_of_peaks[1:-1, :, :],
+                # values_of_p=configuration.data_run_params['pd_arguments']['norms'][1:-1],
+                downsampling_ratios=downsampling_ratios,
+                frequencies=frequencies,
+                pdf=pdf,
+                suptitle="Mean absolute distances of the original peaks to nearest neighbours",
+                hline=.075)
 
     logger.info('Data run ended.')
 

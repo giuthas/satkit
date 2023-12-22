@@ -170,8 +170,8 @@ def main():
                            for recording in recording_session.recordings
                            if 'RawUltrasound' in recording.modalities]
         frequency = np.average(frequency_table)
-        frequencies = [f"{frequency/(i+1):.2f}" for i in range(7)]
-        with PdfPages('peak_number_ratios.pdf') as pdf:
+        frequencies = [f"{frequency/(i+1):.0f}" for i in range(7)]
+        with PdfPages('figures/peak_number_ratios.pdf') as pdf:
             publish_downsampling_data(
                 peak_number_ratio,
                 metrics=metrics,
@@ -180,8 +180,11 @@ def main():
                 downsampling_ratios=downsampling_ratios,
                 frequencies=frequencies,
                 pdf=pdf,
-                suptitle="Ratio of identified peaks")
+                common_ylabel="Ratio of detected peaks",
+                # suptitle="Ratio of identified peaks"
+            )
 
+        with PdfPages('figures/peak_numbers.pdf') as pdf:
             number_of_peaks = np.moveaxis(
                 number_of_peaks, (0, 1, 2), (1, 0, 2))
             ic(number_of_peaks.shape)
@@ -193,9 +196,11 @@ def main():
                 downsampling_ratios=downsampling_ratios,
                 frequencies=frequencies,
                 pdf=pdf,
-                suptitle="Number of identified peaks",
+                common_ylabel="Number of peaks",
+                # suptitle="Number of identified peaks",
             )
 
+        with PdfPages('figures/peak_distances.pdf') as pdf:
             publish_downsampling_data(
                 nearest_neighbours_in_downsampling(
                     recording_session.recordings,
@@ -207,7 +212,9 @@ def main():
                 downsampling_ratios=downsampling_ratios,
                 frequencies=frequencies,
                 pdf=pdf,
-                suptitle="Mean absolute distances of the original peaks to nearest neighbours",
+                legend_loc="upper left",
+                common_ylabel="Mean absolute error of peak position",
+                # suptitle="Mean absolute distances of the original peaks to nearest neighbours",
                 hline=.075)
 
     logger.info('Data run ended.')

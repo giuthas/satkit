@@ -60,6 +60,7 @@ def publish_downsampling_data(
         frequencies: tuple[float],
         pdf: PdfPages,
         legend_loc: str = "upper right",
+        common_xlabel: Optional[str] = None,
         common_ylabel: Optional[str] = None,
         suptitle: Optional[str] = None,
         hline: Optional[float] = None,
@@ -78,14 +79,6 @@ def publish_downsampling_data(
     downsampling_ratios : tuple[int]
         _description_
     """
-    # figure = plt.figure(figsize=(10, 8))
-    # # height_ratios = [3 for i in range(publish_params['subplot grid'][0])]
-    # # height_ratios.append(1)
-    # gridspec = GridSpec(nrows=3,
-    #                     ncols=2,
-    #                     # hspace=0, wspace=0,
-    #                     # height_ratios=height_ratios
-    #                     )
     figure, axes = plt.subplots(
         nrows=3,
         ncols=2,
@@ -93,6 +86,9 @@ def publish_downsampling_data(
         figsize=(5, 4),
         gridspec_kw={'hspace': 0, 'wspace': 0}
     )
+
+    metrics = ["l$\infty$" if metric ==
+               "l_inf" else metric for metric in metrics]
 
     for i, ax in enumerate(axes.flatten()):
         plot_parts = ax.violinplot(
@@ -106,10 +102,6 @@ def publish_downsampling_data(
 
         if hline:
             ax.axhline(hline, color="black", linestyle="--", lw=1)
-            # x = range(len(downsampling_ratios)+1)
-            # hlines = np.ones(len(downsampling_ratios)+1) * hline
-            # # , linestyle="--")
-            # ax.scatter(x, hlines, marker='o', color="orange", s=30, zorder=3)
 
         if i in (4, 5):
             ax.set_xticks(np.arange(1, len(frequencies) + 1),
@@ -126,14 +118,9 @@ def publish_downsampling_data(
     if suptitle:
         figure.suptitle(suptitle)
     if common_ylabel:
-        # # add a big axis, hide frame
-        # figure.add_subplot(111, frameon=False)
-        # # hide tick and tick label of the big axis
-        # plt.tick_params(labelcolor='none', which='both',
-        #                 top=False, bottom=False, left=False, right=False)
-        # plt.ylabel(common_ylabel)
-        # plt.xlabel("Data sampling frequency (Hz)")
         figure.text(0, 0.5, common_ylabel, va='center', rotation='vertical')
+    if common_xlabel:
+        figure.text(0.5, 0, common_xlabel, va='center', rotation='vertical')
 
     # figure.text(0.5, 0.04, 'Time (s), go-signal at 0 s.',
     #             ha='center', va='center', fontsize=10)

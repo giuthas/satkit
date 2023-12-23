@@ -205,6 +205,57 @@ def find_gesture_peaks(
     return annotations
 
 
+def prominences_in_downsampling(
+        recordings: list[Recording],
+        metrics: tuple[str],
+        downsampling_ratios: tuple[int]
+) -> np.ndarray:
+    exclusion = ("water swallow", "bite plate")
+    recordings = [
+        recording for recording in recordings
+        if not any(prompt in recording.meta_data.prompt for prompt in exclusion)
+    ]
+
+    modality_params = PD.get_names_and_meta(
+        modality="RawUltrasound",
+        norms=metrics,
+    )
+    reference_names = list(modality_params.keys())
+
+    average_prominences = np.zeros(
+        [len(recordings), len(metrics), 1+len(downsampling_ratios)])
+
+    for i, recording in enumerate(recordings):
+        for j, p in enumerate(metrics):
+            modality = recording.modalities[reference_names[j]]
+            peaks = modality.annotations[AnnotationType.PEAKS]
+            average_prominences[i][j][0] = np.sum(
+                peaks.properties['prominences'])
+
+    for i, recording in enumerate(recordings):
+        downsampled_names = [key for key in recording.modalities.keys()
+                             if 'PD' in key and 'downsampled' in key]
+        for j, p in enumerate(metrics):
+            p_norm_names = [name for name in downsampled_names
+                            if p in name]
+
+            for k, ratio in enumerate(downsampling_ratios):
+                name = [name for name in p_norm_names
+                        if int(name[-1]) == ratio]
+                name = name[0]
+                modality = recording.modalities[name]
+                peaks = modality.annotations[AnnotationType.PEAKS]
+                average_prominences[i][j][k+1] = np.sum(
+                    peaks.properties['prominences'])
+
+    # TODO: https://stackoverflow.com/questions/62278350/matplotlib-seaborn-violin-plots-for-different-data-sizes
+
+    average_prominences = np.moveaxis(
+        average_prominences, (0, 1, 2), (1, 0, 2))
+    ic(average_prominences.shape)
+    return average_prominences
+
+
 def nearest_neighbours_in_downsampling(
         recordings: list[Recording],
         metrics: tuple[str],

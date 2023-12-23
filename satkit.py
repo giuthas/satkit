@@ -46,7 +46,8 @@ from PyQt5 import QtWidgets
 # local modules
 from satkit import log_elapsed_time, set_logging_level
 from satkit.annotations import (
-    add_peaks, count_number_of_peaks, nearest_neighbours_in_downsampling)
+    add_peaks, count_number_of_peaks, nearest_neighbours_in_downsampling,
+    prominences_in_downsampling)
 from satkit.configuration import configuration
 
 from satkit.metrics import (add_pd,  # add_spline_metric,
@@ -171,7 +172,7 @@ def main():
                            if 'RawUltrasound' in recording.modalities]
         frequency = np.average(frequency_table)
         frequencies = [f"{frequency/(i+1):.0f}" for i in range(7)]
-        with PdfPages('figures/peak_number_ratios.pdf') as pdf:
+        with PdfPages('figures/peak_number_ratios2.pdf') as pdf:
             publish_downsampling_data(
                 peak_number_ratio,
                 metrics=metrics,
@@ -184,7 +185,7 @@ def main():
                 # suptitle="Ratio of identified peaks"
             )
 
-        with PdfPages('figures/peak_numbers.pdf') as pdf:
+        with PdfPages('figures/peak_numbers2.pdf') as pdf:
             number_of_peaks = np.moveaxis(
                 number_of_peaks, (0, 1, 2), (1, 0, 2))
             ic(number_of_peaks.shape)
@@ -200,7 +201,7 @@ def main():
                 # suptitle="Number of identified peaks",
             )
 
-        with PdfPages('figures/peak_distances.pdf') as pdf:
+        with PdfPages('figures/peak_distances2.pdf') as pdf:
             publish_downsampling_data(
                 nearest_neighbours_in_downsampling(
                     recording_session.recordings,
@@ -217,6 +218,23 @@ def main():
                 # suptitle="Mean absolute distances of the original peaks to nearest neighbours",
                 hline=.075)
 
+        with PdfPages('figures/peak_prominences2.pdf') as pdf:
+            publish_downsampling_data(
+                prominences_in_downsampling(
+                    recording_session.recordings,
+                    metrics=metrics,
+                    downsampling_ratios=downsampling_ratios,),
+                metrics=configuration.data_run_params['pd_arguments']['norms'],
+                # number_of_peaks[1:-1, :, :],
+                # values_of_p=configuration.data_run_params['pd_arguments']['norms'][1:-1],
+                downsampling_ratios=downsampling_ratios,
+                frequencies=frequencies,
+                pdf=pdf,
+                legend_loc="upper left",
+                common_ylabel="Mean peak prominence",
+                # suptitle="Mean absolute distances of the original peaks to nearest neighbours",
+                # hline=.075
+            )
     logger.info('Data run ended.')
 
     # save before plotting just in case.

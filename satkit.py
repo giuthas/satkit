@@ -53,7 +53,7 @@ from satkit.configuration import configuration
 from satkit.metrics import (add_pd,  # add_spline_metric,
                             downsample_metrics)
 from satkit.modalities import RawUltrasound  # , Splines
-from satkit.plot_and_publish import publish_pdf, publish_downsampling_data
+from satkit.plot_and_publish import publish_pdf, publish_distribution_data
 from satkit.qt_annotator import PdQtAnnotator
 from satkit.scripting_interface import (
     # Operation,
@@ -173,67 +173,54 @@ def main():
         frequency = np.average(frequency_table)
         frequencies = [f"{frequency/(i+1):.0f}" for i in range(7)]
         with PdfPages('figures/peak_number_ratios2.pdf') as pdf:
-            publish_downsampling_data(
+            publish_distribution_data(
                 peak_number_ratio,
-                metrics=metrics,
-                # peak_number_ratio[1:-1, :, :],
-                # values_of_p=configuration.data_run_params['pd_arguments']['norms'][1:-1],
-                downsampling_ratios=downsampling_ratios,
-                frequencies=frequencies,
+                plot_categories=metrics,
+                within_plot_categories=frequencies,
                 pdf=pdf,
                 common_ylabel="Ratio of detected peaks",
-                # suptitle="Ratio of identified peaks"
+                common_xlabel="Data sampling frequency (Hz)",
             )
 
         with PdfPages('figures/peak_numbers2.pdf') as pdf:
             number_of_peaks = np.moveaxis(
                 number_of_peaks, (0, 1, 2), (1, 0, 2))
             ic(number_of_peaks.shape)
-            publish_downsampling_data(
+            publish_distribution_data(
                 number_of_peaks,
-                metrics=metrics,
-                # number_of_peaks[1:-1, :, :],
-                # values_of_p=configuration.data_run_params['pd_arguments']['norms'][1:-1],
-                downsampling_ratios=downsampling_ratios,
-                frequencies=frequencies,
+                plot_categories=metrics,
+                within_plot_categories=frequencies,
                 pdf=pdf,
                 common_ylabel="Number of peaks",
-                # suptitle="Number of identified peaks",
+                common_xlabel="Data sampling frequency (Hz)",
             )
 
         with PdfPages('figures/peak_distances2.pdf') as pdf:
-            publish_downsampling_data(
+            publish_distribution_data(
                 nearest_neighbours_in_downsampling(
                     recording_session.recordings,
                     metrics=metrics,
                     downsampling_ratios=downsampling_ratios,),
-                metrics=configuration.data_run_params['pd_arguments']['norms'],
-                # number_of_peaks[1:-1, :, :],
-                # values_of_p=configuration.data_run_params['pd_arguments']['norms'][1:-1],
-                downsampling_ratios=downsampling_ratios,
-                frequencies=frequencies,
+                plot_categories=configuration.data_run_params['pd_arguments']['norms'],
+                within_plot_categories=frequencies,
                 pdf=pdf,
                 legend_loc="upper left",
                 common_ylabel="Mean absolute error of peak position",
-                # suptitle="Mean absolute distances of the original peaks to nearest neighbours",
-                hline=.075)
+                common_xlabel="Data sampling frequency (Hz)",
+                horizontal_line=.075)
 
         with PdfPages('figures/peak_prominences2.pdf') as pdf:
-            publish_downsampling_data(
+            publish_distribution_data(
                 prominences_in_downsampling(
                     recording_session.recordings,
                     metrics=metrics,
                     downsampling_ratios=downsampling_ratios,),
-                metrics=configuration.data_run_params['pd_arguments']['norms'],
-                # number_of_peaks[1:-1, :, :],
-                # values_of_p=configuration.data_run_params['pd_arguments']['norms'][1:-1],
-                downsampling_ratios=downsampling_ratios,
-                frequencies=frequencies,
+                plot_categories=configuration.data_run_params['pd_arguments']['norms'],
+                within_plot_categories=frequencies,
                 pdf=pdf,
                 legend_loc="upper left",
                 common_ylabel="Mean peak prominence",
-                # suptitle="Mean absolute distances of the original peaks to nearest neighbours",
-                # hline=.075
+                common_xlabel="Data sampling frequency (Hz)",
             )
     logger.info('Data run ended.')
 

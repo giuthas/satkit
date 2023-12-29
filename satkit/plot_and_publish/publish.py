@@ -29,8 +29,15 @@
 # articles listed in README.markdown. They can also be found in
 # citations.bib in BibTeX format.
 #
+"""
+Functions for publishing results as images.
+
+These are essentially plotting functions, but with emphasis more on composite
+plots than atomic ones, and more on final results than graphs to be segmented
+"""
 
 import logging
+import math
 from typing import Optional
 
 import numpy as np
@@ -53,17 +60,18 @@ from .plot import (plot_1d_modality, plot_satgrid_tier)
 _plot_logger = logging.getLogger('satkit.publish')
 
 
-def publish_downsampling_data(
-        peak_number_ratios,
-        metrics: tuple[str],
-        downsampling_ratios: tuple[int],
-        frequencies: tuple[float],
+def publish_distribution_data(
+        data: np.ndarray,
+        plot_categories: tuple[str],
+        within_plot_categories: tuple[float],
         pdf: PdfPages,
+        figure_size: tuple[float, float] = None,
+        subplot_layout: tuple[int, int] = None,
         legend_loc: str = "upper right",
         common_xlabel: Optional[str] = None,
         common_ylabel: Optional[str] = None,
         suptitle: Optional[str] = None,
-        hline: Optional[float] = None,
+        horizontal_line: Optional[float] = None,
 ) -> None:
     """
 
@@ -79,20 +87,28 @@ def publish_downsampling_data(
     downsampling_ratios : tuple[int]
         _description_
     """
+    if not figure_size:
+        figure_size = (5, 4)
+
+    if not subplot_layout:
+        nrows = math.ceil(math.sqrt(len(plot_categories)))
+        ncols = math.ceil(len(plot_categories) / nrows)
+        subplot_layout = (nrows, ncols)
+
     figure, axes = plt.subplots(
-        nrows=3,
-        ncols=2,
-        sharey=True,
-        figsize=(5, 4),
+        nrows=subplot_layout[0],
+        ncols=subplot_layout[1],
+        sharey=True, sharex=True,
+        figsize=figure_size,
         gridspec_kw={'hspace': 0, 'wspace': 0}
     )
 
-    metrics = ["l$\infty$" if metric ==
-               "l_inf" else metric for metric in metrics]
+    plot_categories = ["l$\infty$" if metric ==
+                       "l_inf" else metric for metric in plot_categories]
 
     for i, ax in enumerate(axes.flatten()):
         plot_parts = ax.violinplot(
-            peak_number_ratios[i, :, :], showextrema=True, showmedians=True)
+            data[i, :, :], showextrema=True, showmedians=True)
         # for part in plot_parts['cmins']:
         #     part.set(linewidth=1)
         plot_parts['cmins'].set(lw=1)
@@ -100,16 +116,15 @@ def publish_downsampling_data(
         plot_parts['cbars'].set(lw=1)
         plot_parts['cmedians'].set(color='k', lw=2)
 
-        if hline:
-            ax.axhline(hline, color="black", linestyle="--", lw=1)
+        if horizontal_line:
+            ax.axhline(horizontal_line, color="black", linestyle="--", lw=1)
 
         if i in (4, 5):
-            ax.set_xticks(np.arange(1, len(frequencies) + 1),
-                          labels=frequencies)
-            ax.set_xlabel("Data sampling frequency (Hz)")
+            ax.set_xticks(np.arange(1, len(within_plot_categories) + 1),
+                          labels=within_plot_categories)
 
         ax.legend(
-            [plot_parts['cmins']], [metrics[i]],
+            [plot_parts['cmins']], [plot_categories[i]],
             prop={'family': 'serif', 'style': 'italic'},
             loc=legend_loc,
             handlelength=0,
@@ -120,10 +135,7 @@ def publish_downsampling_data(
     if common_ylabel:
         figure.text(0, 0.5, common_ylabel, va='center', rotation='vertical')
     if common_xlabel:
-        figure.text(0.5, 0, common_xlabel, va='center', rotation='vertical')
-
-    # figure.text(0.5, 0.04, 'Time (s), go-signal at 0 s.',
-    #             ha='center', va='center', fontsize=10)
+        figure.text(0.5, 0, common_xlabel, ha='center')
 
     plt.tight_layout()
 

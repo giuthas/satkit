@@ -36,6 +36,8 @@ These are essentially plotting functions, but with emphasis more on composite
 plots than atomic ones, and more on final results than graphs to be segmented
 """
 
+from dataclasses import dataclass
+from enum import Enum
 import logging
 import math
 from typing import Optional
@@ -50,14 +52,79 @@ from matplotlib.gridspec import GridSpec
 # from matplotlib.axes import Axes
 # from matplotlib.lines import Line2D
 
-# from icecream import ic
+import pandas as pd
+import seaborn as sns
+
+from icecream import ic
 
 from satkit.data_structures import Recording, RecordingSession
 from satkit.configuration import publish_params
+from satkit.helpers import product_dict
 
 from .plot import (plot_1d_modality, plot_satgrid_tier)
 
 _plot_logger = logging.getLogger('satkit.publish')
+
+
+@dataclass
+class PlotParameters:
+    plot_categories: tuple[str]
+    within_plot_categories: tuple[float]
+    legend_loc: str = "upper right"
+    common_xlabel: Optional[str] = None
+    common_ylabel: Optional[str] = None
+    suptitle: Optional[str] = None
+    horizontal_line: Optional[float] = None
+
+
+class AggregationMethod(Enum):
+    MEAN = 'mean'
+    MEDIAN = 'median'
+    NONE = 'none'
+
+
+class DistributionPlotParameters(PlotParameters):
+    method: AggregationMethod
+
+
+def publish_distribution_data_seaborn(
+        data: np.ndarray,
+        plot_categories: tuple[str],
+        within_plot_categories: tuple[float],
+        pdf: PdfPages,
+        figure_size: tuple[float, float] = None,
+        subplot_layout: tuple[int, int] = None,
+        legend_loc: str = "upper right",
+        common_xlabel: Optional[str] = None,
+        common_ylabel: Optional[str] = None,
+        suptitle: Optional[str] = None,
+        horizontal_line: Optional[float] = None,
+) -> None:
+    if not figure_size:
+        figure_size = (5, 4)
+
+    if not subplot_layout:
+        nrows = math.ceil(math.sqrt(len(plot_categories)))
+        ncols = math.ceil(len(plot_categories) / nrows)
+        subplot_layout = (nrows, ncols)
+
+    figure, axes = plt.subplots(
+        nrows=subplot_layout[0],
+        ncols=subplot_layout[1],
+        sharey=True, sharex=True,
+        figsize=figure_size,
+        gridspec_kw={'hspace': 0, 'wspace': 0}
+    )
+
+    plot_categories = ["l$\infty$" if metric ==
+                       "l_inf" else metric for metric in plot_categories]
+
+    for i, ax in enumerate(axes.flatten()):
+
+        plot_data = data[:, :, i].transpose()
+        sns.violinplot(plot_data, ax=ax)
+
+    pdf.savefig(plt.gcf())
 
 
 def publish_distribution_data(
@@ -75,8 +142,9 @@ def publish_distribution_data(
 ) -> None:
     """
 
-    Order of axes is assumed to be norms, recordings, downsampling ratios (with
-    original (==1) in position 0)
+    Order of axes is assumed to be plot_categories, recordings, within plot
+    categories. For example: norms, recordings, downsampling ratios (with
+    original (==1) in position 0).
 
     Parameters
     ----------

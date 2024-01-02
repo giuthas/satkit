@@ -229,7 +229,7 @@ def prominences_in_downsampling(
         for j, p in enumerate(metrics):
             modality = recording.modalities[reference_names[j]]
             peaks = modality.annotations[AnnotationType.PEAKS]
-            average_prominences[i][j][0] = np.sum(
+            average_prominences[i][j][0] = np.mean(
                 peaks.properties['prominences'])
 
     for i, recording in enumerate(recordings):
@@ -245,10 +245,8 @@ def prominences_in_downsampling(
                 name = name[0]
                 modality = recording.modalities[name]
                 peaks = modality.annotations[AnnotationType.PEAKS]
-                average_prominences[i][j][k+1] = np.sum(
+                average_prominences[i][j][k+1] = np.mean(
                     peaks.properties['prominences'])
-
-    # TODO: https://stackoverflow.com/questions/62278350/matplotlib-seaborn-violin-plots-for-different-data-sizes
 
     average_prominences = np.moveaxis(
         average_prominences, (0, 1, 2), (1, 0, 2))

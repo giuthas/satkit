@@ -54,6 +54,7 @@ from satkit.metrics import (add_pd,  # add_spline_metric,
                             downsample_metrics)
 from satkit.modalities import RawUltrasound  # , Splines
 from satkit.plot_and_publish import publish_pdf, publish_distribution_data
+from satkit.plot_and_publish.publish import publish_distribution_data_seaborn
 from satkit.qt_annotator import PdQtAnnotator
 from satkit.scripting_interface import (
     # Operation,
@@ -211,6 +212,19 @@ def main():
 
         with PdfPages('figures/peak_prominences2.pdf') as pdf:
             publish_distribution_data(
+                prominences_in_downsampling(
+                    recording_session.recordings,
+                    metrics=metrics,
+                    downsampling_ratios=downsampling_ratios,),
+                plot_categories=configuration.data_run_params['pd_arguments']['norms'],
+                within_plot_categories=frequencies,
+                pdf=pdf,
+                legend_loc="upper left",
+                common_ylabel="Mean peak prominence",
+                common_xlabel="Data sampling frequency (Hz)",
+            )
+        with PdfPages('figures/seaborn_test.pdf') as pdf:
+            publish_distribution_data_seaborn(
                 prominences_in_downsampling(
                     recording_session.recordings,
                     metrics=metrics,

@@ -41,7 +41,7 @@ from pydantic import PositiveInt
 
 from satkit.data_structures import (
     Modality, ModalityData, ModalityMetaData, Recording)
-from satkit.helpers.processing_helpers import product_dict
+from satkit.helpers import product_dict
 
 _pd_logger = logging.getLogger('satkit.pd')
 

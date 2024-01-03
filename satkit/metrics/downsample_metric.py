@@ -34,12 +34,14 @@
 Downsampling of metrics and possibly other timeseries data.
 """
 
-from satkit.data_structures import Modality, ModalityData, Recording
+from satkit.data_structures import (
+    Modality, ModalityData, ModalityMetaData, Recording)
 
 
 def downsample_modality(
         modality: Modality,
-        downsampling_ratio: int
+        downsampling_ratio: int,
+        metadata: ModalityMetaData
 ) -> Modality:
     """
     Downsample the Modality by the given ratio and return results as a new
@@ -66,12 +68,6 @@ def downsample_modality(
 
     modality_data = ModalityData(
         data=data, timevector=timevector, sampling_rate=sampling_rate)
-
-    metadata = modality.metadata.model_copy()
-    metadata.is_downsampled = True
-    metadata.downsampling_ratio = downsampling_ratio
-    metadata.timestep_matched_downsampling = (
-        downsampling_ratio == metadata.timestep)
 
     return modality.__class__(
         modality.recording,
@@ -122,9 +118,17 @@ def downsample_metrics(
             if modality.metadata.timestep in downsampling_ratios]
 
         for modality in modalities:
-            downsampled = downsample_modality(
-                modality, modality.metadata.timestep)
-            recording.add_modality(downsampled)
+            downsampling_ratio = modality.metadata.timestep
+            metadata = modality.metadata.model_copy()
+            metadata.is_downsampled = True
+            metadata.downsampling_ratio = downsampling_ratio
+            metadata.timestep_matched_downsampling = (
+                downsampling_ratio == metadata.timestep)
+            name = modality.__class__.generate_name(metadata)
+            if name not in recording:
+                downsampled = downsample_modality(
+                    modality, downsampling_ratio, metadata)
+                recording.add_modality(downsampled)
 
     else:
         raise NotImplementedError(

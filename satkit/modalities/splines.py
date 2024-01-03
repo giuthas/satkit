@@ -62,6 +62,10 @@ class Splines(Modality):
     Splines from 2D ultrasound data.
     """
 
+    @classmethod
+    def generate_name(cls, params: ModalityMetaData) -> str:
+        return cls.__name__
+
     def __init__(self,
                  recording: Recording,
                  metadata: SplineMetadata,

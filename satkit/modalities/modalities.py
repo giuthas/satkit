@@ -39,7 +39,8 @@ from typing import Optional
 import numpy as np
 
 # local modules
-from satkit.data_structures import Modality, ModalityData, Recording
+from satkit.data_structures import (
+    Modality, ModalityData, ModalityMetaData, Recording)
 from satkit.import_formats import (
     read_3d_ultrasound_dicom, read_avi, read_ult, read_wav)
 from satkit.interpolate_raw_uti import to_fan, to_fan_2d
@@ -60,6 +61,10 @@ class MonoAudio(Modality):
     # it from audio with a highpass filter.
     # mains_frequency = None
     # filter = {}
+
+    @classmethod
+    def generate_name(cls, params: ModalityMetaData) -> str:
+        return cls.__name__
 
     def __init__(self,
                  recording: Recording,
@@ -136,6 +141,10 @@ class RawUltrasound(Modality):
         'PixelsPerMm',
         'ZeroOffset'
     ]
+
+    @classmethod
+    def generate_name(cls, params: ModalityMetaData) -> str:
+        return cls.__name__
 
     def __init__(self,
                  recording: Recording,
@@ -287,6 +296,10 @@ class Video(Modality):
         'FramesPerSec'
     ]
 
+    @classmethod
+    def generate_name(cls, params: ModalityMetaData) -> str:
+        return cls.__name__
+
     def __init__(self,
                  recording: Recording,
                  data_path: Optional[Path] = None,
@@ -363,6 +376,10 @@ class ThreeD_Ultrasound(Modality):
         'PixelsPerMm',
         'ZeroOffset'
     ]
+
+    @classmethod
+    def generate_name(cls, params: ModalityMetaData) -> str:
+        return cls.__name__
 
     def __init__(self,
                  recording: Recording,

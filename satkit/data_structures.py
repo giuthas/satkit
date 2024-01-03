@@ -33,7 +33,7 @@
 
 # Built in packages
 import abc
-from collections import UserDict, UserList
+from collections import OrderedDict, UserDict, UserList
 import logging
 from dataclasses import dataclass
 from datetime import datetime
@@ -44,7 +44,7 @@ from icecream import ic
 
 # Numerical arrays and more
 import numpy as np
-from pydantic import BaseModel
+from pydantic import PositiveInt
 
 # Praat textgrids
 import textgrids
@@ -52,13 +52,13 @@ import textgrids
 from satkit.configuration import PathStructure, SessionConfig
 from satkit.constants import AnnotationType, SatkitSuffix
 from satkit.errors import MissingDataError, ModalityError, OverWriteError
-from satkit.helpers import is_sequence_form
+from satkit.helpers import EmptyStrAsNoneBaseModel, is_sequence_form
 from satkit.satgrid import SatGrid
 
 _datastructures_logger = logging.getLogger('satkit.data_structures')
 
 
-class RecordingMetaData(BaseModel):
+class RecordingMetaData(EmptyStrAsNoneBaseModel):
     """Basic metadata that any Recording should reasonably have."""
     prompt: str
     time_of_recording: datetime
@@ -187,13 +187,13 @@ class PointAnnotations():
                 self.properties[key] = self.properties[key][selected]
 
 
-class ModalityMetaData(BaseModel):
+class ModalityMetaData(EmptyStrAsNoneBaseModel):
     """
     Baseclass of Modalities' metadata classes.
     """
     parent_name: Optional[str] = None
     is_downsampled: Optional[bool] = False
-    downsampling_ratio: Optional[int] = None
+    downsampling_ratio: Union[None, PositiveInt, str] = None
     timestep_matched_downsampling: Optional[bool] = True
 
 
@@ -407,10 +407,13 @@ class Recording(UserDict):
         name = modality.name
 
         if name in self.modalities and not replace:
+            ic(modality.metadata)
+            ic(self[modality.name].metadata)
             raise ModalityError(
                 "A modality named " + name +
                 " already exists and replace flag was False.")
-        elif replace:
+
+        if replace:
             self.modalities[name] = modality
             _datastructures_logger.debug("Replaced modality %s.", name)
         else:
@@ -429,10 +432,15 @@ class Recording(UserDict):
         return f"Recording {self.basename}"
 
 
-class Modality(abc.ABC):
+class Modality(abc.ABC, OrderedDict):
     """
     Abstract superclass for all data Modality classes.
     """
+
+    @classmethod
+    @abc.abstractmethod
+    def generate_name(cls, params: ModalityMetaData) -> str:
+        pass
 
     def __init__(self,
                  recording: Recording,
@@ -477,15 +485,17 @@ class Modality(abc.ABC):
 
         self.metadata = metadata
         if annotations:
-            self.annotations = annotations
-        else:
-            self.annotations = {}
+            self.update(annotations)
+        # else:
+        #     self.annotations = {}
 
         if parsed_data:
+            self._modality_data = parsed_data
             self._data = parsed_data.data
             self._sampling_rate = parsed_data.sampling_rate
             self._timevector = parsed_data.timevector
         else:
+            self._modality_data = None
             self._data = None
             self._sampling_rate = None
             self._timevector = None
@@ -500,8 +510,22 @@ class Modality(abc.ABC):
         self.excluded = False
         self._time_precision = None
 
+    @property
+    def annotations(self) -> dict[AnnotationType, PointAnnotations]:
+        """
+        Property which is the annotations dictionary of this Modality.
+
+        This is currently the Modality itself.
+
+        Returns
+        -------
+        dict[AnnotationType, PointAnnotations]
+            The dictionary.
+        """
+        return self
+
     def _get_data(self) -> ModalityData:
-        # TODO: Provide a way to force the data to be derived.
+        # TODO: Provide a way to force the data to be derived or loaded.
         # this would be used when parent modality has updated in some way
         if self.data_path:
             return self._read_data()
@@ -556,6 +580,7 @@ class Modality(abc.ABC):
 
     def _set_data(self, data: ModalityData):
         """Set data from _get_data, _load_data, and _derive_data."""
+        self._modality_data = data
         self._data = data.data
         self._timevector = data.timevector
         self._sampling_rate = data.sampling_rate
@@ -575,6 +600,15 @@ class Modality(abc.ABC):
         annotations : PointAnnotations
             The annotations to be added.
         """
+        if annotations.annotation_type in self:
+            _datastructures_logger.debug(
+                "In Modality add_annotations. "
+                "Overwriting %s.", str(annotations.annotation_type))
+        else:
+            _datastructures_logger.debug(
+                "In Modality add_annotations. "
+                "Adding %s.", str(annotations.annotation_type))
+
         self.annotations[annotations.annotation_type] = annotations
 
     @property
@@ -595,9 +629,32 @@ class Modality(abc.ABC):
         return name_string
 
     @property
+    def modality_data(self) -> ModalityData:
+        """
+        The data of this Modality as a NumPy array. 
+
+        The data refers to the actual data this modality represents
+        and for DerivedModality it is the result of running the 
+        modality's algorithm on the original data.
+
+        The dimensions of the array are in the 
+        order of [time, others]
+
+        If this modality is not preloaded, accessing this property will
+        cause data to be loaded on the fly _and_ saved in memory. To 
+        release the memory, assign None to this Modality's data.
+        """
+        if self._modality_data is None:
+            _datastructures_logger.debug(
+                "In Modality modality_data getter. "
+                "self._modality_data was None.")
+            self._set_data(self._get_data())
+        return self._data
+
+    @property
     def data(self) -> np.ndarray:
         """
-        Abstract property: a NumPy array. 
+        The data of this Modality as a NumPy array. 
 
         The data refers to the actual data this modality represents
         and for DerivedModality it is the result of running the 
@@ -641,6 +698,7 @@ class Modality(abc.ABC):
                     data.size == self._data.size and
                     data.shape == self._data.shape):
                 self._data = data
+                self._modality_data.data = data
             else:
                 raise OverWriteError(
                     "Trying to write over raw ultrasound data with a numpy " +
@@ -649,6 +707,7 @@ class Modality(abc.ABC):
                     " self.data.shape = " + str(self._data.shape) + ".")
         else:
             self._data = data
+            self._modality_data.data = data
 
     @abc.abstractmethod
     def get_meta(self) -> dict:

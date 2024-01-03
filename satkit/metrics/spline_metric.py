@@ -125,8 +125,8 @@ class SplineMetric(Modality):
     Represent a SplineMetric as a Modality. 
     """
 
-    @staticmethod
-    def generate_name(params: SplineMetricParameters) -> str:
+    @classmethod
+    def generate_name(cls, params: SplineMetricParameters) -> str:
         """
         Generate a SplineMetric name to be used as its unique identifier.
 
@@ -149,7 +149,7 @@ class SplineMetric(Modality):
         str
             Name of the SplineMetric instance.
         """
-        name_string = 'SplineMetric' + " " + params.metric.value
+        name_string = cls.__name__ + " " + params.metric.value
 
         if params.timestep != 1 and params.metric not in SplineShapesEnum:
             name_string = name_string + " ts" + str(params.timestep)

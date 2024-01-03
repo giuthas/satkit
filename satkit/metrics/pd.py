@@ -113,8 +113,8 @@ class PD(Modality):
         'inf',
     ]
 
-    @staticmethod
-    def generate_name(params: PdParameters) -> str:
+    @classmethod
+    def generate_name(cls, params: PdParameters) -> str:
         """
         Generate a PD modality name to be used as its unique identifier.
 
@@ -124,8 +124,6 @@ class PD(Modality):
 
         Parameters
         ----------
-        modality : Modality
-            Parent Modality that PD is calculated on.
         params : PdParameters
             The parameters of the PD instance. Note that this PdParameters
             instance does not need to be attached to a PD instance.
@@ -135,7 +133,8 @@ class PD(Modality):
         str
             Name of the PD instance.
         """
-        name_string = 'PD' + " " + params.metric
+        # name_string = 'PD' + " " + params.metric
+        name_string = cls.__name__ + " " + params.metric
 
         if params.timestep != 1:
             name_string = name_string + " ts" + str(params.timestep)

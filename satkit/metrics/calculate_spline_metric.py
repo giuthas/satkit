@@ -37,7 +37,7 @@ import logging
 from typing import Optional
 
 import numpy as np
-from icecream import ic
+# from icecream import ic
 
 from satkit.data_structures import ModalityData, Recording
 from satkit.modalities import Splines

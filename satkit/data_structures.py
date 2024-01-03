@@ -435,6 +435,10 @@ class Recording(UserDict):
 class Modality(abc.ABC, OrderedDict):
     """
     Abstract superclass for all data Modality classes.
+
+    Any annotations associated with a Modality instance are accessible directly
+    by `modality[annotation_type]`, because a Modality is also a OrderedDict of
+    its Annotations.
     """
 
     @classmethod
@@ -491,19 +495,14 @@ class Modality(abc.ABC, OrderedDict):
 
         if parsed_data:
             self._modality_data = parsed_data
-            self._data = parsed_data.data
-            self._sampling_rate = parsed_data.sampling_rate
-            self._timevector = parsed_data.timevector
         else:
             self._modality_data = None
-            self._data = None
-            self._sampling_rate = None
-            self._timevector = None
 
-        if self._timevector is None:
+        if (self._modality_data is None or
+                self._modality_data.timevector is None):
             self._time_offset = time_offset
         else:
-            self._time_offset = self._timevector[0]
+            self._time_offset = self._modality_data.timevector[0]
 
         # This is a property which when set to True will also set
         # parent.excluded to True.
@@ -529,9 +528,11 @@ class Modality(abc.ABC, OrderedDict):
         # this would be used when parent modality has updated in some way
         if self.data_path:
             return self._read_data()
-        elif self.load_path:
+
+        if self.load_path:
             return self._load_data()
-        elif self.metadata.parent_name:
+
+        if self.metadata.parent_name:
             return self._derive_data()
         else:
             raise MissingDataError(
@@ -581,9 +582,6 @@ class Modality(abc.ABC, OrderedDict):
     def _set_data(self, data: ModalityData):
         """Set data from _get_data, _load_data, and _derive_data."""
         self._modality_data = data
-        self._data = data.data
-        self._timevector = data.timevector
-        self._sampling_rate = data.sampling_rate
 
     def add_annotations(self, annotations: PointAnnotations) -> None:
         """
@@ -623,6 +621,7 @@ class Modality(abc.ABC, OrderedDict):
         Subclasses may override this behaviour to, for example, include
         the metric used to generate the instance in the name.
         """
+        # TODO: this doesn't really mesh with the new way of dealing with names
         name_string = self.__class__.__name__
         if self.metadata and self.metadata.parent_name:
             name_string = name_string + " on " + self.metadata.parent_name
@@ -649,7 +648,7 @@ class Modality(abc.ABC, OrderedDict):
                 "In Modality modality_data getter. "
                 "self._modality_data was None.")
             self._set_data(self._get_data())
-        return self._data
+        return self._modality_data
 
     @property
     def data(self) -> np.ndarray:
@@ -667,11 +666,12 @@ class Modality(abc.ABC, OrderedDict):
         cause data to be loaded on the fly _and_ saved in memory. To 
         release the memory, assign None to this Modality's data.
         """
-        if self._data is None:
+        if self._modality_data is None or self._modality_data.data is None:
             _datastructures_logger.debug(
-                "In Modality data getter. self._data was None.")
+                "In Modality data getter. "
+                "self._modality_data or self._modality_data.data was None.")
             self._set_data(self._get_data())
-        return self._data
+        return self._modality_data.data
 
     @data.setter
     def data(self, data: np.ndarray) -> None:
@@ -694,19 +694,18 @@ class Modality(abc.ABC, OrderedDict):
     def _data_setter(self, data: np.ndarray) -> None:
         """Set the data property from this class and subclasses."""
         if self.data is not None and data is not None:
-            if (data.dtype == self._data.dtype and
-                    data.size == self._data.size and
-                    data.shape == self._data.shape):
-                self._data = data
+            if (data.dtype == self._modality_data.data.dtype and
+                    data.size == self._modality_data.data.size and
+                    data.shape == self._modality_data.data.shape):
                 self._modality_data.data = data
             else:
                 raise OverWriteError(
                     "Trying to write over raw ultrasound data with a numpy " +
                     "array that has non-matching dtype, size, or shape.\n" +
                     " data.shape = " + str(data.shape) + "\n" +
-                    " self.data.shape = " + str(self._data.shape) + ".")
+                    " self.data.shape = " +
+                    str(self._modality_data.data.shape) + ".")
         else:
-            self._data = data
             self._modality_data.data = data
 
     @abc.abstractmethod
@@ -716,9 +715,9 @@ class Modality(abc.ABC, OrderedDict):
     @property
     def sampling_rate(self) -> float:
         """Sampling rate of this Modality in Hz."""
-        if not self._sampling_rate:
+        if not self._modality_data or not self._modality_data.sampling_rate:
             self._set_data(self._get_data())
-        return self._sampling_rate
+        return self._modality_data.sampling_rate
 
     @property
     def parent_name(self) -> str:
@@ -778,15 +777,17 @@ class Modality(abc.ABC, OrderedDict):
         Assigning a value to this property is implemented so 
         that self._timevector[0] stays equal to self._timeOffset. 
         """
-        if self._timevector is None:
+        if (self._modality_data is None or
+                self._modality_data.timevector is None):
             self._set_data(self._get_data())
-        return self._timevector
+        return self._modality_data.timevector
 
     @timevector.setter
     def timevector(self, timevector):
-        if self._timevector is None:
+        if (self._modality_data is None or
+                self._modality_data.timevector is None):
             raise OverWriteError(
-                "Trying to overwrite the time vector when "
+                "Trying to overwrite the timevector when "
                 "it has not yet been initialised."
             )
         elif timevector is None:
@@ -795,10 +796,10 @@ class Modality(abc.ABC, OrderedDict):
                 "Freeing timevector memory is currently not implemented."
             )
         else:
-            if (timevector.dtype == self._timevector.dtype and
-                timevector.size == self._timevector.size and
-                    timevector.shape == self._timevector.shape):
-                self._timevector = timevector
+            if (timevector.dtype == self._modality_data.timevector.dtype and
+                    timevector.size == self._modality_data.timevector.size and
+                    timevector.shape == self._modality_data.timevector.shape):
+                self._modality_data.timevector = timevector
                 self.time_offset = timevector[0]
             else:
                 raise OverWriteError(

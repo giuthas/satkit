@@ -31,8 +31,9 @@
 ##
 
 import logging
+from typing import Optional
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, model_validator
 
 _logger = logging.getLogger('satkit.base_model_extensions')
 
@@ -42,7 +43,32 @@ _logger = logging.getLogger('satkit.base_model_extensions')
 # UpdatableBaseModel.
 
 
-class UpdatableBaseModel(BaseModel):
+class EmptyStrAsNoneBaseModel(BaseModel):
+    """
+    A Pydantic BaseModel extension which accepts empty strings for any field as None.
+    """
+    @model_validator(mode="before")
+    @classmethod
+    def empty_str_to_none(cls, input_string: str) -> Optional[str]:
+        """
+        Validate empty strings to None, but non-empties to themselves.
+
+        Parameters
+        ----------
+        input_string : str
+            String to be validated.
+
+        Returns
+        -------
+        Optional[str]
+            None for empty string, otherwise the string itself.
+        """
+        if input_string == '':
+            input_string = None
+        return input_string
+
+
+class UpdatableBaseModel(EmptyStrAsNoneBaseModel):
     """
     An extension of Pydantic BaseModel which can be updated with new data.
 

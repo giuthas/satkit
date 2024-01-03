@@ -38,7 +38,7 @@ So tools that relate to Modalities will be where Modalities are, but tools that
 relate to for example Python base modules -- like enum_union does -- are here. 
 """
 
-from .base_model_extensions import UpdatableBaseModel
+from .base_model_extensions import EmptyStrAsNoneBaseModel, UpdatableBaseModel
 from .computational import cartesian_to_polar, polar_to_cartesian
 from .enum_extensions import enum_union, ValueComparedEnumMeta
 from .processing_helpers import product_dict

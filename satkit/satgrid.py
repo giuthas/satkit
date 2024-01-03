@@ -271,7 +271,7 @@ class SatGrid(OrderedDict):
 
     SatGrid is a OrderedDict very similar to Python textgrids TextGrid, but
     made up of SatTiers that in turn contain intervals or points as doubly
-    linked lists instead of just lists. See there relevant classes for more
+    linked lists instead of just lists. See the relevant classes for more
     details.
     """
 

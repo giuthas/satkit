@@ -132,13 +132,13 @@ def main():
     if 'downsample' in configuration.data_run_params:
         downsample_config = configuration.data_run_params['downsample']
 
-        for recording in recording_session.recordings:
+        for recording in recording_session:
             downsample_metrics(recording, **downsample_config)
 
     exclusion = ("water swallow", "bite plate")
     if 'peaks' in configuration.data_run_params:
         modality_pattern = configuration.data_run_params['peaks']['modality_pattern']
-        for recording in recording_session.recordings:
+        for recording in recording_session:
             if any(prompt in recording.meta_data.prompt for prompt in exclusion):
                 print(f"jumping over {recording.basename}")
                 continue
@@ -169,7 +169,7 @@ def main():
         ic(peak_number_ratio.shape)
 
         frequency_table = [recording.modalities['RawUltrasound'].sampling_rate
-                           for recording in recording_session.recordings
+                           for recording in recording_session
                            if 'RawUltrasound' in recording.modalities]
         frequency = np.average(frequency_table)
         frequencies = [f"{frequency/(i+1):.0f}" for i in range(7)]

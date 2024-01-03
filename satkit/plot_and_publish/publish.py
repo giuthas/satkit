@@ -52,14 +52,12 @@ from matplotlib.gridspec import GridSpec
 # from matplotlib.axes import Axes
 # from matplotlib.lines import Line2D
 
-import pandas as pd
 import seaborn as sns
 
-from icecream import ic
+# from icecream import ic
 
 from satkit.data_structures import Recording, RecordingSession
 from satkit.configuration import publish_params
-from satkit.helpers import product_dict
 
 from .plot import (plot_1d_modality, plot_satgrid_tier)
 

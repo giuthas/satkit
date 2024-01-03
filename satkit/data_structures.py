@@ -33,6 +33,7 @@
 
 # Built in packages
 import abc
+from collections import OrderedDict, UserList
 import logging
 from dataclasses import dataclass
 from datetime import datetime
@@ -196,16 +197,29 @@ class ModalityMetaData(BaseModel):
     timestep_matched_downsampling: Optional[bool] = True
 
 
-@dataclass
-class RecordingSession:
-    # class RecordingSession(BaseModel):
+class RecordingSession(UserList):
     """
-    The meta and Recordings of a recording session.
+    The metadata and Recordings of a recording session.
+
+    This class behaves exactly like a list of Recordings with some extra
+    fields. While some legacy code may be left behind, the preferred idiom for
+    iterating over the recordings is `for recording in recording_session`.
     """
-    name: str
-    paths: PathStructure
-    config: SessionConfig
-    recordings: list['Recording']
+
+    def __init__(
+            self,
+            name: str,
+            paths: PathStructure,
+            config: SessionConfig,
+            recordings: list['Recording']) -> None:
+        super().__init__(recordings)
+        self.name = name
+        self.paths = paths
+        self.config = config
+
+    @property
+    def recordings(self) -> list['Recording']:
+        return self.data
 
 
 class Recording:

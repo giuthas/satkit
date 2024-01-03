@@ -227,13 +227,13 @@ def prominences_in_downsampling(
 
     for i, recording in enumerate(recordings):
         for j, p in enumerate(metrics):
-            modality = recording.modalities[reference_names[j]]
+            modality = recording[reference_names[j]]
             peaks = modality.annotations[AnnotationType.PEAKS]
             average_prominences[i][j][0] = np.mean(
                 peaks.properties['prominences'])
 
     for i, recording in enumerate(recordings):
-        downsampled_names = [key for key in recording.modalities.keys()
+        downsampled_names = [key for key in recording.keys()
                              if 'PD' in key and 'downsampled' in key]
         for j, p in enumerate(metrics):
             p_norm_names = [name for name in downsampled_names
@@ -243,7 +243,7 @@ def prominences_in_downsampling(
                 name = [name for name in p_norm_names
                         if int(name[-1]) == ratio]
                 name = name[0]
-                modality = recording.modalities[name]
+                modality = recording[name]
                 peaks = modality.annotations[AnnotationType.PEAKS]
                 average_prominences[i][j][k+1] = np.mean(
                     peaks.properties['prominences'])
@@ -275,13 +275,13 @@ def nearest_neighbours_in_downsampling(
         [len(recordings), len(metrics), 1+len(downsampling_ratios)])
 
     for i, recording in enumerate(recordings):
-        downsampled_names = [key for key in recording.modalities.keys()
+        downsampled_names = [key for key in recording.keys()
                              if 'PD' in key and 'downsampled' in key]
         for j, p in enumerate(metrics):
             reference_name = [name for name in reference_names
                               if p in name]
             reference_name = reference_name[0]
-            reference_modality = recording.modalities[reference_name]
+            reference_modality = recording[reference_name]
             reference_peaks = reference_modality.annotations[AnnotationType.PEAKS]
 
             p_norm_names = [name for name in downsampled_names
@@ -291,7 +291,7 @@ def nearest_neighbours_in_downsampling(
                 name = [name for name in p_norm_names
                         if int(name[-1]) == ratio]
                 name = name[0]
-                modality = recording.modalities[name]
+                modality = recording[name]
                 peaks = modality.annotations[AnnotationType.PEAKS]
                 neighbours = get_nearest_neighbours(
                     reference_peaks.times, peaks.times)
@@ -327,12 +327,12 @@ def count_number_of_peaks(
 
     for i, recording in enumerate(recordings):
         for j, p in enumerate(metrics):
-            modality = recording.modalities[modality_names[j]]
+            modality = recording[modality_names[j]]
             peaks = modality.annotations[AnnotationType.PEAKS]
             peak_numbers[i][j][0] = len(peaks.indeces)
 
     for i, recording in enumerate(recordings):
-        modality_names = [key for key in recording.modalities.keys()
+        modality_names = [key for key in recording.keys()
                           if 'PD' in key and 'downsampled' in key]
         for j, p in enumerate(metrics):
             p_norm_names = [name for name in modality_names
@@ -341,7 +341,7 @@ def count_number_of_peaks(
                 name = [name for name in p_norm_names
                         if int(name[-1]) == ratio]
                 name = name[0]
-                modality = recording.modalities[name]
+                modality = recording[name]
                 peaks = modality.annotations[AnnotationType.PEAKS]
                 peak_numbers[i][j][k+1] = len(peaks.indeces)
 
@@ -437,10 +437,10 @@ def save_peaks(
         basename = recording.basename
         prompt = recording.meta_data.prompt
 
-        l1 = recording.modalities['PD l1 on RawUltrasound']
-        l1_bottom = recording.modalities['PD l1 bottom on RawUltrasound']
+        l1 = recording['PD l1 on RawUltrasound']
+        l1_bottom = recording['PD l1 bottom on RawUltrasound']
 
-        audio = recording.modalities['MonoAudio']
+        audio = recording['MonoAudio']
         stimulus_onset = audio.go_signal
         ultra_time = l1.timevector - stimulus_onset
 

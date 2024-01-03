@@ -142,10 +142,10 @@ def main():
             if any(prompt in recording.meta_data.prompt for prompt in exclusion):
                 print(f"jumping over {recording.basename}")
                 continue
-            for modality_name in recording.modalities:
+            for modality_name in recording:
                 if modality_pattern in modality_name:
                     add_peaks(
-                        recording.modalities[modality_name],
+                        recording[modality_name],
                         configuration.data_run_params['peaks'],
                     )
 
@@ -168,9 +168,9 @@ def main():
             peak_number_ratio, (0, 1, 2), (2, 1, 0))
         ic(peak_number_ratio.shape)
 
-        frequency_table = [recording.modalities['RawUltrasound'].sampling_rate
+        frequency_table = [recording['RawUltrasound'].sampling_rate
                            for recording in recording_session
-                           if 'RawUltrasound' in recording.modalities]
+                           if 'RawUltrasound' in recording]
         frequency = np.average(frequency_table)
         frequencies = [f"{frequency/(i+1):.0f}" for i in range(7)]
         with PdfPages('figures/peak_number_ratios2.pdf') as pdf:

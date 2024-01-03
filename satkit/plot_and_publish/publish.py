@@ -235,7 +235,7 @@ def make_figure(recording: Recording, pdf: PdfPages):
     keys = list(publish_params['subplots'].keys())
 
     if publish_params['use go signal']:
-        audio = recording.modalities['MonoAudio']
+        audio = recording['MonoAudio']
         time_offset = audio.go_signal
     else:
         time_offset = 0
@@ -260,7 +260,7 @@ def make_figure(recording: Recording, pdf: PdfPages):
                 ax.set_yticks(publish_params['yticks'])
                 ax.set_yticklabels(publish_params['yticklabels'])
 
-            modality = recording.modalities[publish_params['subplots'][key]]
+            modality = recording[publish_params['subplots'][key]]
             line = plot_1d_modality(
                 ax, modality, time_offset, publish_params['xlim'],
                 normalise=publish_params['normalise'])

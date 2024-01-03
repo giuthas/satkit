@@ -33,7 +33,7 @@
 
 # Built in packages
 import abc
-from collections import OrderedDict, UserList
+from collections import UserDict, UserList
 import logging
 from dataclasses import dataclass
 from datetime import datetime
@@ -219,20 +219,29 @@ class RecordingSession(UserList):
 
     @property
     def recordings(self) -> list['Recording']:
+        """
+        Property to access the list of Recordings directly.
+
+        Returns
+        -------
+        list[Recording]
+            The list of this RecordingSessions's Recordings.
+        """
         return self.data
 
 
-class Recording:
+class Recording(UserDict):
     """
-    A Recording contains 0-n synchronised Modalities.
+    A Recording is a dictionary of 0-n synchronised Modalities.
 
-    The recording also contains the non-modality 
-    specific metadata (participant, speech content, etc) 
-    as a dictionary, as well as the textgrid for the whole recording.
+    The recording also contains the non-modality-specific metadata
+    (participant, speech content, etc) as a dictionary, as well as the textgrid
+    for the whole recording.
 
-    In inheriting classes call self._read_textgrid() after calling
-    super.__init__() (with correct arguments) and doing any updates
-    to self.meta['textgrid'] that are necessary.
+    In general, inheriting should not be necessary, but if it is,
+    inheriting classes should call self._read_textgrid() after calling
+    super.__init__() (with correct arguments) and doing any updates to
+    self.meta['textgrid'] that are necessary.
     """
 
     def __init__(self,
@@ -254,6 +263,8 @@ class Recording:
         textgrid_path : Union[str, Path], optional
             _description_, by default ""
         """
+        super().__init__()
+
         self.excluded = excluded
 
         self.meta_data = meta_data
@@ -265,8 +276,19 @@ class Recording:
         self.textgrid = self._read_textgrid()
         self.satgrid = SatGrid(self.textgrid)
 
-        self.modalities = {}
         self.annotations = {}
+
+    @property
+    def modalities(self) -> dict[str, 'Modality']:
+        """
+        Dictionary of the modalities of this Recording.
+
+        Returns
+        -------
+        dict[str, Modality]
+            The dictionary of the Modalities.
+        """
+        return self.data
 
     @property
     def path(self) -> Path:

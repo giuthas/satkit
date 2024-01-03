@@ -254,7 +254,7 @@ def add_pd(recording: Recording,
     Positional arguments:
     recording -- a Recording object
     modality -- the type of the Modality to be processed. The access will 
-        be by recording.modalities[modality.__name__]
+        be by recording[modality.__name__]
 
     Keyword arguments:
     preload -- boolean indicating if PD should be calculated on creation 
@@ -277,7 +277,7 @@ def add_pd(recording: Recording,
     if recording.excluded:
         _pd_logger.info(
             "Recording %s excluded from processing.", recording.basename)
-    elif not modality.__name__ in recording.modalities:
+    elif not modality.__name__ in recording:
         _pd_logger.info("Data modality '%s' not found in recording: %s.",
                         modality.__name__, recording.basename)
     else:
@@ -285,12 +285,12 @@ def add_pd(recording: Recording,
             modality, norms, timesteps, pd_on_interpolated_data, mask_images,
             release_data_memory)
         missing_keys = set(all_requested).difference(
-            recording.modalities.keys())
+            recording.keys())
         to_be_computed = dict((key, value) for key,
                               value in all_requested.items()
                               if key in missing_keys)
 
-        data_modality = recording.modalities[modality.__name__]
+        data_modality = recording[modality.__name__]
 
         if to_be_computed:
             pds = calculate_pd(data_modality, to_be_computed)

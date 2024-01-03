@@ -180,9 +180,9 @@ def save_modalities(
     Returns a dictionary of the data and meta paths of the Modalities.
     """
     recording_meta = {}
-    for modality_name in recording.modalities:
+    for modality_name in recording:
         modality_meta = {}
-        modality = recording.modalities[modality_name]
+        modality = recording[modality_name]
         if modality.is_derived_modality:
             (modality_meta['data_name'], confirmation) = save_modality_data(
                 modality, confirmation)

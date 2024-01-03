@@ -198,9 +198,9 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
         # over the whole data rather than on recording.
         max_pds = np.zeros(len(self.recordings))
         for i, recording in enumerate(self.recordings):
-            if 'PD l1 on RawUltrasound' in recording.modalities:
-                max_pds[i] = np.max(recording.modalities
-                                    ['PD l1 on RawUltrasound'].data[10:])
+            if 'PD l1 on RawUltrasound' in recording:
+                max_pds[i] = np.max(
+                    recording['PD l1 on RawUltrasound'].data[10:])
         self.ylim = (-50, np.max(max_pds)*1.05)
 
         height_ratios = [gui_params['data/tier height ratios']["data"],
@@ -769,7 +769,7 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
                         # duration?
                         word_dur = interval.dur
                         stimulus_onset = (
-                            recording.modalities['MonoAudio'].go_signal)
+                            recording['MonoAudio'].go_signal)
                         acoustic_onset = interval.xmin - stimulus_onset
                         break
                     annotations['word_dur'] = word_dur

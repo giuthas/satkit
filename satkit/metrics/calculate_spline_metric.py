@@ -272,7 +272,7 @@ def add_spline_metric(recording: Recording,
     Positional arguments:
     recording -- a Recording object
     modality -- the type of the Modality to be processed. The access will 
-        be by recording.modalities[modality.__name__]
+        be by recording[modality.__name__]
 
     Keyword arguments:
     preload -- boolean indicating if PD should be calculated on creation 
@@ -295,19 +295,19 @@ def add_spline_metric(recording: Recording,
     if recording.excluded:
         _logger.info(
             "Recording %s excluded from processing.", recording.basename)
-    elif not splines.__name__ in recording.modalities:
+    elif not splines.__name__ in recording:
         _logger.info("Data modality '%s' not found in recording: %s.",
                      splines.__name__, recording.basename)
     else:
         all_requested = SplineMetric.get_names_and_meta(
             splines, metrics, timesteps, exclude_points, release_data_memory)
         missing_keys = set(all_requested).difference(
-            recording.modalities.keys())
+            recording.keys())
         to_be_computed = dict((key, value)
                               for key, value in all_requested.items()
                               if key in missing_keys)
 
-        data_modality = recording.modalities[splines.__name__]
+        data_modality = recording[splines.__name__]
 
         if to_be_computed:
             spline_metrics = calculate_spline_metric(

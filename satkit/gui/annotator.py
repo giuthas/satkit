@@ -226,7 +226,7 @@ class Annotator():
                         # more intelligent by selecting purposefully the last non-empty first and
                         # taking the duration?
                         word_dur = interval.dur
-                        stimulus_onset = recording.modalities['MonoAudio'].meta['stimulus_onset']
+                        stimulus_onset = recording['MonoAudio'].meta['stimulus_onset']
                         acoustic_onset = interval.xmin - stimulus_onset
                         break
                     annotations['word_dur'] = word_dur

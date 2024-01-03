@@ -115,8 +115,8 @@ def downsample_metrics(
         For now only match_timestep = True is allowed.
     """
 
-    modalities = [recording.modalities[key]
-                  for key in recording.modalities
+    modalities = [recording[key]
+                  for key in recording
                   if modality_pattern in key]
 
     if match_timestep:

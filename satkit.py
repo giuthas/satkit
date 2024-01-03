@@ -48,7 +48,7 @@ from satkit import log_elapsed_time, set_logging_level
 from satkit.annotations import (
     add_peaks, count_number_of_peaks, nearest_neighbours_in_downsampling,
     prominences_in_downsampling)
-from satkit.configuration import configuration
+from satkit.configuration import configuration as config
 
 from satkit.metrics import (add_pd,  # add_spline_metric,
                             downsample_metrics)
@@ -72,9 +72,9 @@ def main():
 
     logger = set_logging_level(cli.args.verbose)
     if cli.args.configuration_filename:
-        configuration.load_config(cli.args.configuration_filename)
+        config.load_config(cli.args.configuration_filename)
     else:
-        configuration.load_config()
+        config.load_config()
 
     recording_session = load_data(Path(cli.args.load_path))
 
@@ -91,7 +91,7 @@ def main():
     #     'pd_on_interpolated_data': False,
     #     'release_data_memory': True,
     #     'preload': True}
-    pd_arguments = configuration.data_run_params['pd_arguments']
+    pd_arguments = config.data_run_params['pd_arguments']
 
     # TODO: turn these commented out bits into an example script of how to do
     # things programmatically.
@@ -129,15 +129,15 @@ def main():
     #                                  'preload': True})
     # multi_process_data(recordings, operation)
 
-    if 'downsample' in configuration.data_run_params:
-        downsample_config = configuration.data_run_params['downsample']
+    if 'downsample' in config.data_run_params:
+        downsample_config = config.data_run_params['downsample']
 
         for recording in recording_session:
             downsample_metrics(recording, **downsample_config)
 
     exclusion = ("water swallow", "bite plate")
-    if 'peaks' in configuration.data_run_params:
-        modality_pattern = configuration.data_run_params['peaks']['modality_pattern']
+    if 'peaks' in config.data_run_params:
+        modality_pattern = config.data_run_params['peaks']['modality_pattern']
         for recording in recording_session:
             if any(prompt in recording.meta_data.prompt for prompt in exclusion):
                 print(f"jumping over {recording.basename}")
@@ -146,11 +146,11 @@ def main():
                 if modality_pattern in modality_name:
                     add_peaks(
                         recording[modality_name],
-                        configuration.data_run_params['peaks'],
+                        config.data_run_params['peaks'],
                     )
 
-        metrics = configuration.data_run_params['pd_arguments']['norms']
-        downsampling_ratios = configuration.data_run_params['downsample']['downsampling_ratios']
+        metrics = config.data_run_params['pd_arguments']['norms']
+        downsampling_ratios = config.data_run_params['downsample']['downsampling_ratios']
         number_of_peaks = count_number_of_peaks(
             recording_session.recordings,
             metrics=metrics,
@@ -202,7 +202,7 @@ def main():
                     recording_session.recordings,
                     metrics=metrics,
                     downsampling_ratios=downsampling_ratios,),
-                plot_categories=configuration.data_run_params['pd_arguments']['norms'],
+                plot_categories=config.data_run_params['pd_arguments']['norms'],
                 within_plot_categories=frequencies,
                 pdf=pdf,
                 legend_loc="upper left",
@@ -216,7 +216,7 @@ def main():
                     recording_session.recordings,
                     metrics=metrics,
                     downsampling_ratios=downsampling_ratios,),
-                plot_categories=configuration.data_run_params['pd_arguments']['norms'],
+                plot_categories=config.data_run_params['pd_arguments']['norms'],
                 within_plot_categories=frequencies,
                 pdf=pdf,
                 legend_loc="upper left",
@@ -229,7 +229,7 @@ def main():
                     recording_session.recordings,
                     metrics=metrics,
                     downsampling_ratios=downsampling_ratios,),
-                plot_categories=configuration.data_run_params['pd_arguments']['norms'],
+                plot_categories=config.data_run_params['pd_arguments']['norms'],
                 within_plot_categories=frequencies,
                 pdf=pdf,
                 legend_loc="upper left",

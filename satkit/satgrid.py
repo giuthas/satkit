@@ -269,9 +269,10 @@ class SatGrid(OrderedDict):
     """
     TextGrid representation which makes editing easier.
 
-    SatGrid is a OrderedDict very similar to Python textgrids TextGrid, but made
-    up of SatTiers that in turn contain intervals or points as doubly linked
-    lists instead of just lists. See there relevant classes for more details.
+    SatGrid is a OrderedDict very similar to Python textgrids TextGrid, but
+    made up of SatTiers that in turn contain intervals or points as doubly
+    linked lists instead of just lists. See there relevant classes for more
+    details.
     """
 
     def __init__(self, textgrid: TextGrid) -> None:

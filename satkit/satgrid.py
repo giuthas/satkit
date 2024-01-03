@@ -279,8 +279,8 @@ class SatGrid(OrderedDict):
         for tier_name in textgrid:
             self[tier_name] = SatTier.from_textgrid_tier(textgrid[tier_name])
 
-    def as_textgrid(self):
-        pass
+    # def as_textgrid(self):
+    #     pass
 
     @property
     def begin(self) -> float:
@@ -312,7 +312,6 @@ class SatGrid(OrderedDict):
 
     def format_long(self) -> str:
         '''Format self as long format TextGrid.'''
-        global long_header, long_tier, long_point, long_interval
         out = long_header.format(self.begin, self.end, len(self))
         tier_count = 1
         for name, tier in self.items():

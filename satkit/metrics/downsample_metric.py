@@ -36,9 +36,6 @@ Downsampling of metrics and possibly other timeseries data.
 
 from satkit.data_structures import Modality, ModalityData, Recording
 
-# from .pd import PdParameters, PD
-# from .spline_metric import SplineMetric
-
 
 def downsample_modality(
         modality: Modality,

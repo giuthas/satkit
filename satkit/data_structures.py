@@ -234,14 +234,19 @@ class Recording(UserDict):
     """
     A Recording is a dictionary of 0-n synchronised Modalities.
 
+    Adding modalities can be done by `recording[name] = modality`, but
+    `recording.add_modality` is preferred as a safer way which checks for
+    overwriting. The reason Recording is a dictionary is to make it possible to
+    iterate with the idiom `for modality_name in recording`.
+
     The recording also contains the non-modality-specific metadata
     (participant, speech content, etc) as a dictionary, as well as the textgrid
     for the whole recording.
 
-    In general, inheriting should not be necessary, but if it is,
-    inheriting classes should call self._read_textgrid() after calling
-    super.__init__() (with correct arguments) and doing any updates to
-    self.meta['textgrid'] that are necessary.
+    In general, inheriting should not be necessary, but if it is, inheriting
+    classes should call self._read_textgrid() after calling super.__init__()
+    (with correct arguments) and doing any updates to self.meta['textgrid']
+    that are necessary.
     """
 
     def __init__(self,
@@ -386,7 +391,6 @@ class Recording(UserDict):
             _datastructures_logger.critical(
                 "TextGrid save failed with error: %s", str(exception))
 
-    # should the modalities dict be accessed as a property?
     def add_modality(
             self, modality: 'Modality', replace: bool = False) -> None:
         """

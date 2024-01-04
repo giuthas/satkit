@@ -100,7 +100,7 @@ def publish_distribution_data_seaborn(
         horizontal_line: Optional[float] = None,
 ) -> None:
     if not figure_size:
-        figure_size = (5, 4)
+        figure_size = (10, 8)
 
     if not subplot_layout:
         nrows = math.ceil(math.sqrt(len(plot_categories)))
@@ -123,7 +123,13 @@ def publish_distribution_data_seaborn(
             data_frame['metric'] == plot_categories[i]]
         sns.violinplot(plot_data, ax=ax,
                        x='downsampling_ratio', y='prominence',
-                       cut=0)
+                       cut=0,
+                       inner=None)
+
+        sns.swarmplot(data=plot_data,
+                      ax=ax,
+                      x="downsampling_ratio", y="prominence",
+                      size=1)
 
         # ax.legend(
         #     [plot_parts['cmins']], [plot_categories[i]],

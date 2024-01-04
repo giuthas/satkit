@@ -52,9 +52,10 @@ from matplotlib.gridspec import GridSpec
 # from matplotlib.axes import Axes
 # from matplotlib.lines import Line2D
 
+import pandas
 import seaborn as sns
 
-# from icecream import ic
+from icecream import ic
 
 from satkit.data_structures import Recording, RecordingSession
 from satkit.configuration import publish_params
@@ -65,7 +66,7 @@ _plot_logger = logging.getLogger('satkit.publish')
 
 
 @dataclass
-class PlotParameters:
+class PublishParameters:
     plot_categories: tuple[str]
     within_plot_categories: tuple[float]
     legend_loc: str = "upper right"
@@ -81,12 +82,12 @@ class AggregationMethod(Enum):
     NONE = 'none'
 
 
-class DistributionPlotParameters(PlotParameters):
+class DistributionPlotParameters(PublishParameters):
     method: AggregationMethod
 
 
 def publish_distribution_data_seaborn(
-        data: np.ndarray,
+        data_frame: pandas.DataFrame,
         plot_categories: tuple[str],
         within_plot_categories: tuple[float],
         pdf: PdfPages,
@@ -114,13 +115,22 @@ def publish_distribution_data_seaborn(
         gridspec_kw={'hspace': 0, 'wspace': 0}
     )
 
-    plot_categories = ["l$\infty$" if metric ==
-                       "l_inf" else metric for metric in plot_categories]
+    # plot_categories = ["l$\infty$" if metric ==
+    #                    "l_inf" else metric for metric in plot_categories]
 
     for i, ax in enumerate(axes.flatten()):
+        plot_data = data_frame.loc[
+            data_frame['metric'] == plot_categories[i]]
+        sns.violinplot(plot_data, ax=ax,
+                       x='downsampling_ratio', y='prominence',
+                       cut=0)
 
-        plot_data = data[:, :, i].transpose()
-        sns.violinplot(plot_data, ax=ax)
+        # ax.legend(
+        #     [plot_parts['cmins']], [plot_categories[i]],
+        #     prop={'family': 'serif', 'style': 'italic'},
+        #     loc=legend_loc,
+        #     handlelength=0,
+        #     handletextpad=0)
 
     pdf.savefig(plt.gcf())
 

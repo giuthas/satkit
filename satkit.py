@@ -48,6 +48,7 @@ from satkit import log_elapsed_time, set_logging_level
 from satkit.annotations import (
     add_peaks, count_number_of_peaks, nearest_neighbours_in_downsampling,
     prominences_in_downsampling)
+from satkit.annotations.peaks import extract_annotation_details
 from satkit.configuration import configuration as config
 
 from satkit.metrics import (add_pd,  # add_spline_metric,
@@ -223,12 +224,14 @@ def main():
                 common_ylabel="Mean peak prominence",
                 common_xlabel="Data sampling frequency (Hz)",
             )
+
         with PdfPages('figures/seaborn_test.pdf') as pdf:
+            dataframe = extract_annotation_details(
+                recording_session.recordings,
+                metrics=metrics,
+                downsampling_ratios=downsampling_ratios,)
             publish_distribution_data_seaborn(
-                prominences_in_downsampling(
-                    recording_session.recordings,
-                    metrics=metrics,
-                    downsampling_ratios=downsampling_ratios,),
+                dataframe,
                 plot_categories=config.data_run_params['pd_arguments']['norms'],
                 within_plot_categories=frequencies,
                 pdf=pdf,

@@ -45,6 +45,7 @@ from typing import List, Optional, Tuple
 from icecream import ic
 
 import numpy as np
+import pandas
 
 import matplotlib.gridspec as gridspec
 import matplotlib.pyplot as plt
@@ -205,6 +206,71 @@ def find_gesture_peaks(
         AnnotationType.PEAKS, peaks, peak_times,
         detection_parameters, properties)
     return annotations
+
+
+def extract_annotation_details(
+        recordings: list[Recording],
+        metrics: tuple[str],
+        downsampling_ratios: tuple[int]
+) -> pandas.DataFrame:
+    exclude = ("water swallow", "bite plate")
+    recordings = [
+        recording for recording in recordings
+        if not any(prompt in recording.meta_data.prompt for prompt in exclude)
+    ]
+
+    modality_params = PD.get_names_and_meta(
+        modality="RawUltrasound",
+        norms=metrics,
+    )
+    reference_names = list(modality_params.keys())
+
+    average_prominences = np.zeros(
+        [len(recordings), len(metrics), 1+len(downsampling_ratios)])
+
+    prominence_dicts = []
+
+    for i, recording in enumerate(recordings):
+        for j, metric in enumerate(metrics):
+            modality = recording[reference_names[j]]
+            peaks = modality.annotations[AnnotationType.PEAKS]
+            prominence_dicts.extend(
+                [
+                    {
+                        'metric': metric,
+                        'downsampling_ratio': 1,
+                        'prominence': prominence
+                    }
+                    for prominence in peaks.properties['prominences']
+                ]
+            )
+            average_prominences[i][j][0] = np.mean(
+                peaks.properties['prominences'])
+
+    for i, recording in enumerate(recordings):
+        downsampled_names = [key for key in recording.keys()
+                             if 'PD' in key and 'downsampled' in key]
+        for j, metric in enumerate(metrics):
+            p_norm_names = [name for name in downsampled_names
+                            if metric in name]
+
+            for k, ratio in enumerate(downsampling_ratios):
+                name = [name for name in p_norm_names
+                        if int(name[-1]) == ratio]
+                name = name[0]
+                modality = recording[name]
+                peaks = modality.annotations[AnnotationType.PEAKS]
+                prominence_dicts.extend(
+                    [
+                        {
+                            'metric': metric,
+                            'downsampling_ratio': ratio,
+                            'prominence': prominence
+                        }
+                        for prominence in peaks.properties['prominences']
+                    ]
+                )
+    return pandas.DataFrame(prominence_dicts)
 
 
 def prominences_in_downsampling(

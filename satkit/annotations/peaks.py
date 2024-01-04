@@ -209,6 +209,7 @@ def find_gesture_peaks(
 
 
 def extract_annotation_details(
+        # annotation_statistic:
         recordings: list[Recording],
         metrics: tuple[str],
         downsampling_ratios: tuple[int]

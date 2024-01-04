@@ -76,6 +76,11 @@ class PublishParameters:
     horizontal_line: Optional[float] = None
 
 
+class PeakStatistic(Enum):
+    NUMBER_OF_PEAKS = 'number_of_peaks'
+    NEAREST_NEIGHBOURS = 'nearest_neighbours'
+
+
 class AggregationMethod(Enum):
     MEAN = 'mean'
     MEDIAN = 'median'

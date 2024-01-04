@@ -46,18 +46,9 @@ from pydantic import PositiveInt
 from satkit.data_structures import (
     Modality, ModalityData, ModalityMetaData, Recording)
 from satkit.helpers import (
-    enum_union, product_dict, ValueComparedEnumMeta)
+    enum_union, product_dict, PrintableEnum, ValueComparedEnumMeta)
 
 _logger = logging.getLogger('satkit.spline_metric')
-
-
-class PrintableEnum(Enum):
-    """
-    Extension of the regular Enum that returns its value as a string.
-    """
-
-    def __str__(self) -> str:
-        return str(self.value)
 
 
 class SplineDiffsEnum(PrintableEnum, metaclass=ValueComparedEnumMeta):

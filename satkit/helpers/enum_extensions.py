@@ -67,9 +67,28 @@ from typing import Optional
 import more_itertools as mitt
 
 
+class PrintableEnum(Enum):
+    """
+    Extension of the regular Enum that returns its value as a string.
+    """
+
+    def __str__(self) -> str:
+        return str(self.value)
+
+
 class ValueComparedEnumMeta(EnumMeta):
     """
-    EnumMeta where `in` matches also value of member matching compared item. 
+    EnumMeta where `in` matches also value of member matching compared item.
+
+    Usage:
+    ``` 
+    class MyEnum(Enum, metaclass=ValueComparedEnumMeta):
+        FOO = 'bar'
+
+    search_value = 'bar'
+    if search_value in MyEnum:
+        print('It is!')
+    ``` 
     """
     def __contains__(cls, item):
         members_dict = dict(cls.__members__)

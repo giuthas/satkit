@@ -34,7 +34,6 @@ SplineMetric and supporting classes.
 """
 
 # Built in packages
-from enum import Enum
 import logging
 from pathlib import Path
 from typing import Optional, Tuple

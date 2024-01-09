@@ -72,7 +72,8 @@ $PYTHONPATH.
 
 ### Requisites
 
-SATKit has been tested with the following or more recent:
+SATKit should run with the following or more recent (see the `.yml` files in
+`environments/` for a more complete list):
 
 * Python 3.10
 * PyQt5 v5.12
@@ -184,11 +185,12 @@ repository](https://github.com/giuthas/satkit/tags).
 
 ## Authors
 
-* **Pertti Palo** - *Initial work on PD and the Python framework used
-  by the combined toolkit* - [giuthas](https://github.com/giuthas)
-* **Scott Moisik** - *Initial work on OF* - [ScottMoisik](https://github.com/ScottMoisik)
-* **Matthew Faytak** - [mfaytak](https://github.com/mfaytak)
-* **Motoki Saito** - *Producing interpolated ultrasound images from raw data* [msaito8623](https://github.com/msaito8623)
+* **Pertti Palo** - *The core of SATKIT* - [giuthas](https://github.com/giuthas)
+* **Scott Moisik** - *Optic flow* - [ScottMoisik](https://github.com/ScottMoisik)
+* **Matthew Faytak** - *Dimensionaliity reduction with PCA and LDA*
+  [mfaytak](https://github.com/mfaytak)
+* **Motoki Saito** - *Producing interpolated ultrasound images from raw data*
+  [msaito8623](https://github.com/msaito8623)
 
 List of [contributors](https://github.com/your/project/CONTRIBUTORS.markdown)
 will be updated once there are more people working on this project.

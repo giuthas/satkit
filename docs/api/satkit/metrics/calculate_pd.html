@@ -319,7 +319,7 @@
 </span><span id="L-254"><a href="#L-254"><span class="linenos">254</span></a><span class="sd">    Positional arguments:</span>
 </span><span id="L-255"><a href="#L-255"><span class="linenos">255</span></a><span class="sd">    recording -- a Recording object</span>
 </span><span id="L-256"><a href="#L-256"><span class="linenos">256</span></a><span class="sd">    modality -- the type of the Modality to be processed. The access will </span>
-</span><span id="L-257"><a href="#L-257"><span class="linenos">257</span></a><span class="sd">        be by recording.modalities[modality.__name__]</span>
+</span><span id="L-257"><a href="#L-257"><span class="linenos">257</span></a><span class="sd">        be by recording[modality.__name__]</span>
 </span><span id="L-258"><a href="#L-258"><span class="linenos">258</span></a>
 </span><span id="L-259"><a href="#L-259"><span class="linenos">259</span></a><span class="sd">    Keyword arguments:</span>
 </span><span id="L-260"><a href="#L-260"><span class="linenos">260</span></a><span class="sd">    preload -- boolean indicating if PD should be calculated on creation </span>
@@ -342,7 +342,7 @@
 </span><span id="L-277"><a href="#L-277"><span class="linenos">277</span></a>    <span class="k">if</span> <span class="n">recording</span><span class="o">.</span><span class="n">excluded</span><span class="p">:</span>
 </span><span id="L-278"><a href="#L-278"><span class="linenos">278</span></a>        <span class="n">_pd_logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
 </span><span id="L-279"><a href="#L-279"><span class="linenos">279</span></a>            <span class="s2">&quot;Recording </span><span class="si">%s</span><span class="s2"> excluded from processing.&quot;</span><span class="p">,</span> <span class="n">recording</span><span class="o">.</span><span class="n">basename</span><span class="p">)</span>
-</span><span id="L-280"><a href="#L-280"><span class="linenos">280</span></a>    <span class="k">elif</span> <span class="ow">not</span> <span class="n">modality</span><span class="o">.</span><span class="vm">__name__</span> <span class="ow">in</span> <span class="n">recording</span><span class="o">.</span><span class="n">modalities</span><span class="p">:</span>
+</span><span id="L-280"><a href="#L-280"><span class="linenos">280</span></a>    <span class="k">elif</span> <span class="ow">not</span> <span class="n">modality</span><span class="o">.</span><span class="vm">__name__</span> <span class="ow">in</span> <span class="n">recording</span><span class="p">:</span>
 </span><span id="L-281"><a href="#L-281"><span class="linenos">281</span></a>        <span class="n">_pd_logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Data modality &#39;</span><span class="si">%s</span><span class="s2">&#39; not found in recording: </span><span class="si">%s</span><span class="s2">.&quot;</span><span class="p">,</span>
 </span><span id="L-282"><a href="#L-282"><span class="linenos">282</span></a>                        <span class="n">modality</span><span class="o">.</span><span class="vm">__name__</span><span class="p">,</span> <span class="n">recording</span><span class="o">.</span><span class="n">basename</span><span class="p">)</span>
 </span><span id="L-283"><a href="#L-283"><span class="linenos">283</span></a>    <span class="k">else</span><span class="p">:</span>
@@ -350,12 +350,12 @@
 </span><span id="L-285"><a href="#L-285"><span class="linenos">285</span></a>            <span class="n">modality</span><span class="p">,</span> <span class="n">norms</span><span class="p">,</span> <span class="n">timesteps</span><span class="p">,</span> <span class="n">pd_on_interpolated_data</span><span class="p">,</span> <span class="n">mask_images</span><span class="p">,</span>
 </span><span id="L-286"><a href="#L-286"><span class="linenos">286</span></a>            <span class="n">release_data_memory</span><span class="p">)</span>
 </span><span id="L-287"><a href="#L-287"><span class="linenos">287</span></a>        <span class="n">missing_keys</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">all_requested</span><span class="p">)</span><span class="o">.</span><span class="n">difference</span><span class="p">(</span>
-</span><span id="L-288"><a href="#L-288"><span class="linenos">288</span></a>            <span class="n">recording</span><span class="o">.</span><span class="n">modalities</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
+</span><span id="L-288"><a href="#L-288"><span class="linenos">288</span></a>            <span class="n">recording</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
 </span><span id="L-289"><a href="#L-289"><span class="linenos">289</span></a>        <span class="n">to_be_computed</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">((</span><span class="n">key</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span> <span class="k">for</span> <span class="n">key</span><span class="p">,</span>
 </span><span id="L-290"><a href="#L-290"><span class="linenos">290</span></a>                              <span class="n">value</span> <span class="ow">in</span> <span class="n">all_requested</span><span class="o">.</span><span class="n">items</span><span class="p">()</span>
 </span><span id="L-291"><a href="#L-291"><span class="linenos">291</span></a>                              <span class="k">if</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">missing_keys</span><span class="p">)</span>
 </span><span id="L-292"><a href="#L-292"><span class="linenos">292</span></a>
-</span><span id="L-293"><a href="#L-293"><span class="linenos">293</span></a>        <span class="n">data_modality</span> <span class="o">=</span> <span class="n">recording</span><span class="o">.</span><span class="n">modalities</span><span class="p">[</span><span class="n">modality</span><span class="o">.</span><span class="vm">__name__</span><span class="p">]</span>
+</span><span id="L-293"><a href="#L-293"><span class="linenos">293</span></a>        <span class="n">data_modality</span> <span class="o">=</span> <span class="n">recording</span><span class="p">[</span><span class="n">modality</span><span class="o">.</span><span class="vm">__name__</span><span class="p">]</span>
 </span><span id="L-294"><a href="#L-294"><span class="linenos">294</span></a>
 </span><span id="L-295"><a href="#L-295"><span class="linenos">295</span></a>        <span class="k">if</span> <span class="n">to_be_computed</span><span class="p">:</span>
 </span><span id="L-296"><a href="#L-296"><span class="linenos">296</span></a>            <span class="n">pds</span> <span class="o">=</span> <span class="n">calculate_pd</span><span class="p">(</span><span class="n">data_modality</span><span class="p">,</span> <span class="n">to_be_computed</span><span class="p">)</span>
@@ -686,7 +686,7 @@ to_be_computed : dict[str, PdParameters]
 </span><span id="add_pd-255"><a href="#add_pd-255"><span class="linenos">255</span></a><span class="sd">    Positional arguments:</span>
 </span><span id="add_pd-256"><a href="#add_pd-256"><span class="linenos">256</span></a><span class="sd">    recording -- a Recording object</span>
 </span><span id="add_pd-257"><a href="#add_pd-257"><span class="linenos">257</span></a><span class="sd">    modality -- the type of the Modality to be processed. The access will </span>
-</span><span id="add_pd-258"><a href="#add_pd-258"><span class="linenos">258</span></a><span class="sd">        be by recording.modalities[modality.__name__]</span>
+</span><span id="add_pd-258"><a href="#add_pd-258"><span class="linenos">258</span></a><span class="sd">        be by recording[modality.__name__]</span>
 </span><span id="add_pd-259"><a href="#add_pd-259"><span class="linenos">259</span></a>
 </span><span id="add_pd-260"><a href="#add_pd-260"><span class="linenos">260</span></a><span class="sd">    Keyword arguments:</span>
 </span><span id="add_pd-261"><a href="#add_pd-261"><span class="linenos">261</span></a><span class="sd">    preload -- boolean indicating if PD should be calculated on creation </span>
@@ -709,7 +709,7 @@ to_be_computed : dict[str, PdParameters]
 </span><span id="add_pd-278"><a href="#add_pd-278"><span class="linenos">278</span></a>    <span class="k">if</span> <span class="n">recording</span><span class="o">.</span><span class="n">excluded</span><span class="p">:</span>
 </span><span id="add_pd-279"><a href="#add_pd-279"><span class="linenos">279</span></a>        <span class="n">_pd_logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
 </span><span id="add_pd-280"><a href="#add_pd-280"><span class="linenos">280</span></a>            <span class="s2">&quot;Recording </span><span class="si">%s</span><span class="s2"> excluded from processing.&quot;</span><span class="p">,</span> <span class="n">recording</span><span class="o">.</span><span class="n">basename</span><span class="p">)</span>
-</span><span id="add_pd-281"><a href="#add_pd-281"><span class="linenos">281</span></a>    <span class="k">elif</span> <span class="ow">not</span> <span class="n">modality</span><span class="o">.</span><span class="vm">__name__</span> <span class="ow">in</span> <span class="n">recording</span><span class="o">.</span><span class="n">modalities</span><span class="p">:</span>
+</span><span id="add_pd-281"><a href="#add_pd-281"><span class="linenos">281</span></a>    <span class="k">elif</span> <span class="ow">not</span> <span class="n">modality</span><span class="o">.</span><span class="vm">__name__</span> <span class="ow">in</span> <span class="n">recording</span><span class="p">:</span>
 </span><span id="add_pd-282"><a href="#add_pd-282"><span class="linenos">282</span></a>        <span class="n">_pd_logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Data modality &#39;</span><span class="si">%s</span><span class="s2">&#39; not found in recording: </span><span class="si">%s</span><span class="s2">.&quot;</span><span class="p">,</span>
 </span><span id="add_pd-283"><a href="#add_pd-283"><span class="linenos">283</span></a>                        <span class="n">modality</span><span class="o">.</span><span class="vm">__name__</span><span class="p">,</span> <span class="n">recording</span><span class="o">.</span><span class="n">basename</span><span class="p">)</span>
 </span><span id="add_pd-284"><a href="#add_pd-284"><span class="linenos">284</span></a>    <span class="k">else</span><span class="p">:</span>
@@ -717,12 +717,12 @@ to_be_computed : dict[str, PdParameters]
 </span><span id="add_pd-286"><a href="#add_pd-286"><span class="linenos">286</span></a>            <span class="n">modality</span><span class="p">,</span> <span class="n">norms</span><span class="p">,</span> <span class="n">timesteps</span><span class="p">,</span> <span class="n">pd_on_interpolated_data</span><span class="p">,</span> <span class="n">mask_images</span><span class="p">,</span>
 </span><span id="add_pd-287"><a href="#add_pd-287"><span class="linenos">287</span></a>            <span class="n">release_data_memory</span><span class="p">)</span>
 </span><span id="add_pd-288"><a href="#add_pd-288"><span class="linenos">288</span></a>        <span class="n">missing_keys</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">all_requested</span><span class="p">)</span><span class="o">.</span><span class="n">difference</span><span class="p">(</span>
-</span><span id="add_pd-289"><a href="#add_pd-289"><span class="linenos">289</span></a>            <span class="n">recording</span><span class="o">.</span><span class="n">modalities</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
+</span><span id="add_pd-289"><a href="#add_pd-289"><span class="linenos">289</span></a>            <span class="n">recording</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
 </span><span id="add_pd-290"><a href="#add_pd-290"><span class="linenos">290</span></a>        <span class="n">to_be_computed</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">((</span><span class="n">key</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span> <span class="k">for</span> <span class="n">key</span><span class="p">,</span>
 </span><span id="add_pd-291"><a href="#add_pd-291"><span class="linenos">291</span></a>                              <span class="n">value</span> <span class="ow">in</span> <span class="n">all_requested</span><span class="o">.</span><span class="n">items</span><span class="p">()</span>
 </span><span id="add_pd-292"><a href="#add_pd-292"><span class="linenos">292</span></a>                              <span class="k">if</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">missing_keys</span><span class="p">)</span>
 </span><span id="add_pd-293"><a href="#add_pd-293"><span class="linenos">293</span></a>
-</span><span id="add_pd-294"><a href="#add_pd-294"><span class="linenos">294</span></a>        <span class="n">data_modality</span> <span class="o">=</span> <span class="n">recording</span><span class="o">.</span><span class="n">modalities</span><span class="p">[</span><span class="n">modality</span><span class="o">.</span><span class="vm">__name__</span><span class="p">]</span>
+</span><span id="add_pd-294"><a href="#add_pd-294"><span class="linenos">294</span></a>        <span class="n">data_modality</span> <span class="o">=</span> <span class="n">recording</span><span class="p">[</span><span class="n">modality</span><span class="o">.</span><span class="vm">__name__</span><span class="p">]</span>
 </span><span id="add_pd-295"><a href="#add_pd-295"><span class="linenos">295</span></a>
 </span><span id="add_pd-296"><a href="#add_pd-296"><span class="linenos">296</span></a>        <span class="k">if</span> <span class="n">to_be_computed</span><span class="p">:</span>
 </span><span id="add_pd-297"><a href="#add_pd-297"><span class="linenos">297</span></a>            <span class="n">pds</span> <span class="o">=</span> <span class="n">calculate_pd</span><span class="p">(</span><span class="n">data_modality</span><span class="p">,</span> <span class="n">to_be_computed</span><span class="p">)</span>
@@ -743,7 +743,7 @@ to_be_computed : dict[str, PdParameters]
 <p>Positional arguments:
 recording -- a Recording object
 modality -- the type of the Modality to be processed. The access will 
-    be by recording.modalities[modality.__name__]</p>
+    be by recording[modality.__name__]</p>
 
 <p>Keyword arguments:
 preload -- boolean indicating if PD should be calculated on creation 

@@ -58,7 +58,7 @@
                     <a class="class" href="#Splines">Splines</a>
                             <ul class="memberlist">
                         <li>
-                                <a class="function" href="#Splines.__init__">Splines</a>
+                                <a class="function" href="#Splines.generate_name">generate_name</a>
                         </li>
                         <li>
                                 <a class="variable" href="#Splines.data">data</a>
@@ -163,96 +163,100 @@
 </span><span id="L-62"><a href="#L-62"><span class="linenos"> 62</span></a><span class="sd">    Splines from 2D ultrasound data.</span>
 </span><span id="L-63"><a href="#L-63"><span class="linenos"> 63</span></a><span class="sd">    &quot;&quot;&quot;</span>
 </span><span id="L-64"><a href="#L-64"><span class="linenos"> 64</span></a>
-</span><span id="L-65"><a href="#L-65"><span class="linenos"> 65</span></a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
-</span><span id="L-66"><a href="#L-66"><span class="linenos"> 66</span></a>                 <span class="n">recording</span><span class="p">:</span> <span class="n">Recording</span><span class="p">,</span>
-</span><span id="L-67"><a href="#L-67"><span class="linenos"> 67</span></a>                 <span class="n">metadata</span><span class="p">:</span> <span class="n">SplineMetadata</span><span class="p">,</span>
-</span><span id="L-68"><a href="#L-68"><span class="linenos"> 68</span></a>                 <span class="n">data_path</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Path</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-</span><span id="L-69"><a href="#L-69"><span class="linenos"> 69</span></a>                 <span class="n">meta_path</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Path</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-</span><span id="L-70"><a href="#L-70"><span class="linenos"> 70</span></a>                 <span class="n">load_path</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Path</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-</span><span id="L-71"><a href="#L-71"><span class="linenos"> 71</span></a>                 <span class="n">parsed_data</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">ModalityData</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-</span><span id="L-72"><a href="#L-72"><span class="linenos"> 72</span></a>                 <span class="n">time_offset</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
-</span><span id="L-73"><a href="#L-73"><span class="linenos"> 73</span></a>                 <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-</span><span id="L-74"><a href="#L-74"><span class="linenos"> 74</span></a>
-</span><span id="L-75"><a href="#L-75"><span class="linenos"> 75</span></a>        <span class="c1"># Initialise super only after ensuring meta is correct,</span>
-</span><span id="L-76"><a href="#L-76"><span class="linenos"> 76</span></a>        <span class="c1"># because latter may already end the run.</span>
-</span><span id="L-77"><a href="#L-77"><span class="linenos"> 77</span></a>        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span>
-</span><span id="L-78"><a href="#L-78"><span class="linenos"> 78</span></a>            <span class="n">recording</span><span class="o">=</span><span class="n">recording</span><span class="p">,</span>
-</span><span id="L-79"><a href="#L-79"><span class="linenos"> 79</span></a>            <span class="n">metadata</span><span class="o">=</span><span class="n">metadata</span><span class="p">,</span>
-</span><span id="L-80"><a href="#L-80"><span class="linenos"> 80</span></a>            <span class="n">data_path</span><span class="o">=</span><span class="n">data_path</span><span class="p">,</span>
-</span><span id="L-81"><a href="#L-81"><span class="linenos"> 81</span></a>            <span class="n">meta_path</span><span class="o">=</span><span class="n">meta_path</span><span class="p">,</span>
-</span><span id="L-82"><a href="#L-82"><span class="linenos"> 82</span></a>            <span class="n">load_path</span><span class="o">=</span><span class="n">load_path</span><span class="p">,</span>
-</span><span id="L-83"><a href="#L-83"><span class="linenos"> 83</span></a>            <span class="n">parsed_data</span><span class="o">=</span><span class="n">parsed_data</span><span class="p">,</span>
-</span><span id="L-84"><a href="#L-84"><span class="linenos"> 84</span></a>            <span class="n">time_offset</span><span class="o">=</span><span class="n">time_offset</span><span class="p">)</span>
-</span><span id="L-85"><a href="#L-85"><span class="linenos"> 85</span></a>
-</span><span id="L-86"><a href="#L-86"><span class="linenos"> 86</span></a>    <span class="k">def</span> <span class="nf">_read_data</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ModalityData</span><span class="p">:</span>
-</span><span id="L-87"><a href="#L-87"><span class="linenos"> 87</span></a>        <span class="k">return</span> <span class="n">read_splines</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">data_path</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">metadata</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_time_offset</span><span class="p">)</span>
-</span><span id="L-88"><a href="#L-88"><span class="linenos"> 88</span></a>
-</span><span id="L-89"><a href="#L-89"><span class="linenos"> 89</span></a>    <span class="nd">@property</span>
-</span><span id="L-90"><a href="#L-90"><span class="linenos"> 90</span></a>    <span class="k">def</span> <span class="nf">data</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
-</span><span id="L-91"><a href="#L-91"><span class="linenos"> 91</span></a>        <span class="k">return</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">data</span>
+</span><span id="L-65"><a href="#L-65"><span class="linenos"> 65</span></a>    <span class="nd">@classmethod</span>
+</span><span id="L-66"><a href="#L-66"><span class="linenos"> 66</span></a>    <span class="k">def</span> <span class="nf">generate_name</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">params</span><span class="p">:</span> <span class="n">ModalityMetaData</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+</span><span id="L-67"><a href="#L-67"><span class="linenos"> 67</span></a>        <span class="k">return</span> <span class="bp">cls</span><span class="o">.</span><span class="vm">__name__</span>
+</span><span id="L-68"><a href="#L-68"><span class="linenos"> 68</span></a>
+</span><span id="L-69"><a href="#L-69"><span class="linenos"> 69</span></a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
+</span><span id="L-70"><a href="#L-70"><span class="linenos"> 70</span></a>                 <span class="n">recording</span><span class="p">:</span> <span class="n">Recording</span><span class="p">,</span>
+</span><span id="L-71"><a href="#L-71"><span class="linenos"> 71</span></a>                 <span class="n">metadata</span><span class="p">:</span> <span class="n">SplineMetadata</span><span class="p">,</span>
+</span><span id="L-72"><a href="#L-72"><span class="linenos"> 72</span></a>                 <span class="n">data_path</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Path</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+</span><span id="L-73"><a href="#L-73"><span class="linenos"> 73</span></a>                 <span class="n">meta_path</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Path</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+</span><span id="L-74"><a href="#L-74"><span class="linenos"> 74</span></a>                 <span class="n">load_path</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Path</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+</span><span id="L-75"><a href="#L-75"><span class="linenos"> 75</span></a>                 <span class="n">parsed_data</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">ModalityData</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+</span><span id="L-76"><a href="#L-76"><span class="linenos"> 76</span></a>                 <span class="n">time_offset</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+</span><span id="L-77"><a href="#L-77"><span class="linenos"> 77</span></a>                 <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+</span><span id="L-78"><a href="#L-78"><span class="linenos"> 78</span></a>
+</span><span id="L-79"><a href="#L-79"><span class="linenos"> 79</span></a>        <span class="c1"># Initialise super only after ensuring meta is correct,</span>
+</span><span id="L-80"><a href="#L-80"><span class="linenos"> 80</span></a>        <span class="c1"># because latter may already end the run.</span>
+</span><span id="L-81"><a href="#L-81"><span class="linenos"> 81</span></a>        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span>
+</span><span id="L-82"><a href="#L-82"><span class="linenos"> 82</span></a>            <span class="n">recording</span><span class="o">=</span><span class="n">recording</span><span class="p">,</span>
+</span><span id="L-83"><a href="#L-83"><span class="linenos"> 83</span></a>            <span class="n">metadata</span><span class="o">=</span><span class="n">metadata</span><span class="p">,</span>
+</span><span id="L-84"><a href="#L-84"><span class="linenos"> 84</span></a>            <span class="n">data_path</span><span class="o">=</span><span class="n">data_path</span><span class="p">,</span>
+</span><span id="L-85"><a href="#L-85"><span class="linenos"> 85</span></a>            <span class="n">meta_path</span><span class="o">=</span><span class="n">meta_path</span><span class="p">,</span>
+</span><span id="L-86"><a href="#L-86"><span class="linenos"> 86</span></a>            <span class="n">load_path</span><span class="o">=</span><span class="n">load_path</span><span class="p">,</span>
+</span><span id="L-87"><a href="#L-87"><span class="linenos"> 87</span></a>            <span class="n">parsed_data</span><span class="o">=</span><span class="n">parsed_data</span><span class="p">,</span>
+</span><span id="L-88"><a href="#L-88"><span class="linenos"> 88</span></a>            <span class="n">time_offset</span><span class="o">=</span><span class="n">time_offset</span><span class="p">)</span>
+</span><span id="L-89"><a href="#L-89"><span class="linenos"> 89</span></a>
+</span><span id="L-90"><a href="#L-90"><span class="linenos"> 90</span></a>    <span class="k">def</span> <span class="nf">_read_data</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ModalityData</span><span class="p">:</span>
+</span><span id="L-91"><a href="#L-91"><span class="linenos"> 91</span></a>        <span class="k">return</span> <span class="n">read_splines</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">data_path</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">metadata</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_time_offset</span><span class="p">)</span>
 </span><span id="L-92"><a href="#L-92"><span class="linenos"> 92</span></a>
-</span><span id="L-93"><a href="#L-93"><span class="linenos"> 93</span></a>    <span class="nd">@data</span><span class="o">.</span><span class="n">setter</span>
-</span><span id="L-94"><a href="#L-94"><span class="linenos"> 94</span></a>    <span class="k">def</span> <span class="nf">data</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-</span><span id="L-95"><a href="#L-95"><span class="linenos"> 95</span></a>        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">_data_setter</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+</span><span id="L-93"><a href="#L-93"><span class="linenos"> 93</span></a>    <span class="nd">@property</span>
+</span><span id="L-94"><a href="#L-94"><span class="linenos"> 94</span></a>    <span class="k">def</span> <span class="nf">data</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+</span><span id="L-95"><a href="#L-95"><span class="linenos"> 95</span></a>        <span class="k">return</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">data</span>
 </span><span id="L-96"><a href="#L-96"><span class="linenos"> 96</span></a>
-</span><span id="L-97"><a href="#L-97"><span class="linenos"> 97</span></a>    <span class="k">def</span> <span class="nf">get_meta</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
-</span><span id="L-98"><a href="#L-98"><span class="linenos"> 98</span></a>        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">metadata</span>
-</span><span id="L-99"><a href="#L-99"><span class="linenos"> 99</span></a>
-</span><span id="L-100"><a href="#L-100"><span class="linenos">100</span></a>    <span class="nd">@property</span>
-</span><span id="L-101"><a href="#L-101"><span class="linenos">101</span></a>    <span class="k">def</span> <span class="nf">in_polar</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
-</span><span id="L-102"><a href="#L-102"><span class="linenos">102</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-</span><span id="L-103"><a href="#L-103"><span class="linenos">103</span></a><span class="sd">        Spline coordinates in polar coordiantes.</span>
-</span><span id="L-104"><a href="#L-104"><span class="linenos">104</span></a>
-</span><span id="L-105"><a href="#L-105"><span class="linenos">105</span></a><span class="sd">        Returns</span>
-</span><span id="L-106"><a href="#L-106"><span class="linenos">106</span></a><span class="sd">        -------</span>
-</span><span id="L-107"><a href="#L-107"><span class="linenos">107</span></a><span class="sd">        np.ndarray</span>
-</span><span id="L-108"><a href="#L-108"><span class="linenos">108</span></a><span class="sd">            The coordinates</span>
-</span><span id="L-109"><a href="#L-109"><span class="linenos">109</span></a><span class="sd">        &quot;&quot;&quot;</span>
-</span><span id="L-110"><a href="#L-110"><span class="linenos">110</span></a>        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">metadata</span><span class="o">.</span><span class="n">coordinates</span> <span class="ow">is</span> <span class="n">CoordinateSystems</span><span class="o">.</span><span class="n">POLAR</span><span class="p">:</span>
-</span><span id="L-111"><a href="#L-111"><span class="linenos">111</span></a>            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span>
-</span><span id="L-112"><a href="#L-112"><span class="linenos">112</span></a>        <span class="k">else</span><span class="p">:</span>
-</span><span id="L-113"><a href="#L-113"><span class="linenos">113</span></a>            <span class="n">cartesian</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">:</span><span class="mi">2</span><span class="p">,</span> <span class="p">:]</span>
-</span><span id="L-114"><a href="#L-114"><span class="linenos">114</span></a>            <span class="n">cartesian</span> <span class="o">=</span> <span class="n">cartesian</span><span class="o">.</span><span class="n">reshape</span><span class="p">([</span><span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="o">-</span><span class="mi">1</span><span class="p">])</span>
-</span><span id="L-115"><a href="#L-115"><span class="linenos">115</span></a>            <span class="n">coords</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">apply_along_axis</span><span class="p">(</span>
-</span><span id="L-116"><a href="#L-116"><span class="linenos">116</span></a>                <span class="n">cartesian_to_polar</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="n">cartesian</span><span class="p">)</span>
-</span><span id="L-117"><a href="#L-117"><span class="linenos">117</span></a>            <span class="n">polar</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">stack</span><span class="p">(</span>
-</span><span id="L-118"><a href="#L-118"><span class="linenos">118</span></a>                <span class="p">[</span><span class="n">coords</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">,</span> <span class="p">:],</span> <span class="n">coords</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">,</span> <span class="p">:],</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">[:,</span> <span class="mi">2</span><span class="p">,</span> <span class="p">:]],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
-</span><span id="L-119"><a href="#L-119"><span class="linenos">119</span></a>            <span class="k">return</span> <span class="n">polar</span>
-</span><span id="L-120"><a href="#L-120"><span class="linenos">120</span></a>
-</span><span id="L-121"><a href="#L-121"><span class="linenos">121</span></a>    <span class="k">def</span> <span class="nf">cartesian_spline</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">index</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
-</span><span id="L-122"><a href="#L-122"><span class="linenos">122</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-</span><span id="L-123"><a href="#L-123"><span class="linenos">123</span></a><span class="sd">        Spline coordinates in Cartesian coordiantes.</span>
+</span><span id="L-97"><a href="#L-97"><span class="linenos"> 97</span></a>    <span class="nd">@data</span><span class="o">.</span><span class="n">setter</span>
+</span><span id="L-98"><a href="#L-98"><span class="linenos"> 98</span></a>    <span class="k">def</span> <span class="nf">data</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+</span><span id="L-99"><a href="#L-99"><span class="linenos"> 99</span></a>        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">_data_setter</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+</span><span id="L-100"><a href="#L-100"><span class="linenos">100</span></a>
+</span><span id="L-101"><a href="#L-101"><span class="linenos">101</span></a>    <span class="k">def</span> <span class="nf">get_meta</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
+</span><span id="L-102"><a href="#L-102"><span class="linenos">102</span></a>        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">metadata</span>
+</span><span id="L-103"><a href="#L-103"><span class="linenos">103</span></a>
+</span><span id="L-104"><a href="#L-104"><span class="linenos">104</span></a>    <span class="nd">@property</span>
+</span><span id="L-105"><a href="#L-105"><span class="linenos">105</span></a>    <span class="k">def</span> <span class="nf">in_polar</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+</span><span id="L-106"><a href="#L-106"><span class="linenos">106</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+</span><span id="L-107"><a href="#L-107"><span class="linenos">107</span></a><span class="sd">        Spline coordinates in polar coordiantes.</span>
+</span><span id="L-108"><a href="#L-108"><span class="linenos">108</span></a>
+</span><span id="L-109"><a href="#L-109"><span class="linenos">109</span></a><span class="sd">        Returns</span>
+</span><span id="L-110"><a href="#L-110"><span class="linenos">110</span></a><span class="sd">        -------</span>
+</span><span id="L-111"><a href="#L-111"><span class="linenos">111</span></a><span class="sd">        np.ndarray</span>
+</span><span id="L-112"><a href="#L-112"><span class="linenos">112</span></a><span class="sd">            The coordinates</span>
+</span><span id="L-113"><a href="#L-113"><span class="linenos">113</span></a><span class="sd">        &quot;&quot;&quot;</span>
+</span><span id="L-114"><a href="#L-114"><span class="linenos">114</span></a>        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">metadata</span><span class="o">.</span><span class="n">coordinates</span> <span class="ow">is</span> <span class="n">CoordinateSystems</span><span class="o">.</span><span class="n">POLAR</span><span class="p">:</span>
+</span><span id="L-115"><a href="#L-115"><span class="linenos">115</span></a>            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span>
+</span><span id="L-116"><a href="#L-116"><span class="linenos">116</span></a>        <span class="k">else</span><span class="p">:</span>
+</span><span id="L-117"><a href="#L-117"><span class="linenos">117</span></a>            <span class="n">cartesian</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">:</span><span class="mi">2</span><span class="p">,</span> <span class="p">:]</span>
+</span><span id="L-118"><a href="#L-118"><span class="linenos">118</span></a>            <span class="n">cartesian</span> <span class="o">=</span> <span class="n">cartesian</span><span class="o">.</span><span class="n">reshape</span><span class="p">([</span><span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="o">-</span><span class="mi">1</span><span class="p">])</span>
+</span><span id="L-119"><a href="#L-119"><span class="linenos">119</span></a>            <span class="n">coords</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">apply_along_axis</span><span class="p">(</span>
+</span><span id="L-120"><a href="#L-120"><span class="linenos">120</span></a>                <span class="n">cartesian_to_polar</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="n">cartesian</span><span class="p">)</span>
+</span><span id="L-121"><a href="#L-121"><span class="linenos">121</span></a>            <span class="n">polar</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">stack</span><span class="p">(</span>
+</span><span id="L-122"><a href="#L-122"><span class="linenos">122</span></a>                <span class="p">[</span><span class="n">coords</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">,</span> <span class="p">:],</span> <span class="n">coords</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">,</span> <span class="p">:],</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">[:,</span> <span class="mi">2</span><span class="p">,</span> <span class="p">:]],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+</span><span id="L-123"><a href="#L-123"><span class="linenos">123</span></a>            <span class="k">return</span> <span class="n">polar</span>
 </span><span id="L-124"><a href="#L-124"><span class="linenos">124</span></a>
-</span><span id="L-125"><a href="#L-125"><span class="linenos">125</span></a><span class="sd">        Returns</span>
-</span><span id="L-126"><a href="#L-126"><span class="linenos">126</span></a><span class="sd">        -------</span>
-</span><span id="L-127"><a href="#L-127"><span class="linenos">127</span></a><span class="sd">        np.ndarray</span>
-</span><span id="L-128"><a href="#L-128"><span class="linenos">128</span></a><span class="sd">            The coordinates</span>
-</span><span id="L-129"><a href="#L-129"><span class="linenos">129</span></a><span class="sd">        &quot;&quot;&quot;</span>
-</span><span id="L-130"><a href="#L-130"><span class="linenos">130</span></a>        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">metadata</span><span class="o">.</span><span class="n">coordinates</span> <span class="ow">is</span> <span class="n">CoordinateSystems</span><span class="o">.</span><span class="n">CARTESIAN</span><span class="p">:</span>
-</span><span id="L-131"><a href="#L-131"><span class="linenos">131</span></a>            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="n">index</span><span class="p">,</span> <span class="p">:,</span> <span class="p">:]</span>
-</span><span id="L-132"><a href="#L-132"><span class="linenos">132</span></a>        <span class="k">else</span><span class="p">:</span>
-</span><span id="L-133"><a href="#L-133"><span class="linenos">133</span></a>            <span class="k">return</span> <span class="n">polar_to_cartesian</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="n">index</span><span class="p">,</span> <span class="p">:,</span> <span class="p">:],</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="o">/</span><span class="mi">2</span><span class="p">)</span>
-</span><span id="L-134"><a href="#L-134"><span class="linenos">134</span></a>
-</span><span id="L-135"><a href="#L-135"><span class="linenos">135</span></a>    <span class="nd">@property</span>
-</span><span id="L-136"><a href="#L-136"><span class="linenos">136</span></a>    <span class="k">def</span> <span class="nf">in_cartesian</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
-</span><span id="L-137"><a href="#L-137"><span class="linenos">137</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-</span><span id="L-138"><a href="#L-138"><span class="linenos">138</span></a><span class="sd">        Spline coordinates in Cartesian coordiantes.</span>
-</span><span id="L-139"><a href="#L-139"><span class="linenos">139</span></a>
-</span><span id="L-140"><a href="#L-140"><span class="linenos">140</span></a><span class="sd">        Returns</span>
-</span><span id="L-141"><a href="#L-141"><span class="linenos">141</span></a><span class="sd">        -------</span>
-</span><span id="L-142"><a href="#L-142"><span class="linenos">142</span></a><span class="sd">        np.ndarray</span>
-</span><span id="L-143"><a href="#L-143"><span class="linenos">143</span></a><span class="sd">            The coordinates</span>
-</span><span id="L-144"><a href="#L-144"><span class="linenos">144</span></a><span class="sd">        &quot;&quot;&quot;</span>
-</span><span id="L-145"><a href="#L-145"><span class="linenos">145</span></a>        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">metadata</span><span class="o">.</span><span class="n">coordinates</span> <span class="ow">is</span> <span class="n">CoordinateSystems</span><span class="o">.</span><span class="n">CARTESIAN</span><span class="p">:</span>
-</span><span id="L-146"><a href="#L-146"><span class="linenos">146</span></a>            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span>
-</span><span id="L-147"><a href="#L-147"><span class="linenos">147</span></a>        <span class="k">else</span><span class="p">:</span>
-</span><span id="L-148"><a href="#L-148"><span class="linenos">148</span></a>            <span class="n">r_phi</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">:</span><span class="mi">2</span><span class="p">,</span> <span class="p">:]</span>
-</span><span id="L-149"><a href="#L-149"><span class="linenos">149</span></a>            <span class="n">r_phi</span> <span class="o">=</span> <span class="n">r_phi</span><span class="o">.</span><span class="n">reshape</span><span class="p">([</span><span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="o">-</span><span class="mi">1</span><span class="p">])</span>
-</span><span id="L-150"><a href="#L-150"><span class="linenos">150</span></a>            <span class="n">coords</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">apply_along_axis</span><span class="p">(</span>
-</span><span id="L-151"><a href="#L-151"><span class="linenos">151</span></a>                <span class="n">polar_to_cartesian</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="n">r_phi</span><span class="p">)</span>
-</span><span id="L-152"><a href="#L-152"><span class="linenos">152</span></a>            <span class="n">cartesian</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">stack</span><span class="p">(</span>
-</span><span id="L-153"><a href="#L-153"><span class="linenos">153</span></a>                <span class="p">[</span><span class="n">coords</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">,</span> <span class="p">:],</span> <span class="n">coords</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">,</span> <span class="p">:],</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">[:,</span> <span class="mi">2</span><span class="p">,</span> <span class="p">:]],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
-</span><span id="L-154"><a href="#L-154"><span class="linenos">154</span></a>            <span class="k">return</span> <span class="n">cartesian</span>
+</span><span id="L-125"><a href="#L-125"><span class="linenos">125</span></a>    <span class="k">def</span> <span class="nf">cartesian_spline</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">index</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+</span><span id="L-126"><a href="#L-126"><span class="linenos">126</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+</span><span id="L-127"><a href="#L-127"><span class="linenos">127</span></a><span class="sd">        Spline coordinates in Cartesian coordiantes.</span>
+</span><span id="L-128"><a href="#L-128"><span class="linenos">128</span></a>
+</span><span id="L-129"><a href="#L-129"><span class="linenos">129</span></a><span class="sd">        Returns</span>
+</span><span id="L-130"><a href="#L-130"><span class="linenos">130</span></a><span class="sd">        -------</span>
+</span><span id="L-131"><a href="#L-131"><span class="linenos">131</span></a><span class="sd">        np.ndarray</span>
+</span><span id="L-132"><a href="#L-132"><span class="linenos">132</span></a><span class="sd">            The coordinates</span>
+</span><span id="L-133"><a href="#L-133"><span class="linenos">133</span></a><span class="sd">        &quot;&quot;&quot;</span>
+</span><span id="L-134"><a href="#L-134"><span class="linenos">134</span></a>        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">metadata</span><span class="o">.</span><span class="n">coordinates</span> <span class="ow">is</span> <span class="n">CoordinateSystems</span><span class="o">.</span><span class="n">CARTESIAN</span><span class="p">:</span>
+</span><span id="L-135"><a href="#L-135"><span class="linenos">135</span></a>            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="n">index</span><span class="p">,</span> <span class="p">:,</span> <span class="p">:]</span>
+</span><span id="L-136"><a href="#L-136"><span class="linenos">136</span></a>        <span class="k">else</span><span class="p">:</span>
+</span><span id="L-137"><a href="#L-137"><span class="linenos">137</span></a>            <span class="k">return</span> <span class="n">polar_to_cartesian</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="n">index</span><span class="p">,</span> <span class="p">:,</span> <span class="p">:],</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="o">/</span><span class="mi">2</span><span class="p">)</span>
+</span><span id="L-138"><a href="#L-138"><span class="linenos">138</span></a>
+</span><span id="L-139"><a href="#L-139"><span class="linenos">139</span></a>    <span class="nd">@property</span>
+</span><span id="L-140"><a href="#L-140"><span class="linenos">140</span></a>    <span class="k">def</span> <span class="nf">in_cartesian</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+</span><span id="L-141"><a href="#L-141"><span class="linenos">141</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+</span><span id="L-142"><a href="#L-142"><span class="linenos">142</span></a><span class="sd">        Spline coordinates in Cartesian coordiantes.</span>
+</span><span id="L-143"><a href="#L-143"><span class="linenos">143</span></a>
+</span><span id="L-144"><a href="#L-144"><span class="linenos">144</span></a><span class="sd">        Returns</span>
+</span><span id="L-145"><a href="#L-145"><span class="linenos">145</span></a><span class="sd">        -------</span>
+</span><span id="L-146"><a href="#L-146"><span class="linenos">146</span></a><span class="sd">        np.ndarray</span>
+</span><span id="L-147"><a href="#L-147"><span class="linenos">147</span></a><span class="sd">            The coordinates</span>
+</span><span id="L-148"><a href="#L-148"><span class="linenos">148</span></a><span class="sd">        &quot;&quot;&quot;</span>
+</span><span id="L-149"><a href="#L-149"><span class="linenos">149</span></a>        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">metadata</span><span class="o">.</span><span class="n">coordinates</span> <span class="ow">is</span> <span class="n">CoordinateSystems</span><span class="o">.</span><span class="n">CARTESIAN</span><span class="p">:</span>
+</span><span id="L-150"><a href="#L-150"><span class="linenos">150</span></a>            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span>
+</span><span id="L-151"><a href="#L-151"><span class="linenos">151</span></a>        <span class="k">else</span><span class="p">:</span>
+</span><span id="L-152"><a href="#L-152"><span class="linenos">152</span></a>            <span class="n">r_phi</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">:</span><span class="mi">2</span><span class="p">,</span> <span class="p">:]</span>
+</span><span id="L-153"><a href="#L-153"><span class="linenos">153</span></a>            <span class="n">r_phi</span> <span class="o">=</span> <span class="n">r_phi</span><span class="o">.</span><span class="n">reshape</span><span class="p">([</span><span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="o">-</span><span class="mi">1</span><span class="p">])</span>
+</span><span id="L-154"><a href="#L-154"><span class="linenos">154</span></a>            <span class="n">coords</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">apply_along_axis</span><span class="p">(</span>
+</span><span id="L-155"><a href="#L-155"><span class="linenos">155</span></a>                <span class="n">polar_to_cartesian</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="n">r_phi</span><span class="p">)</span>
+</span><span id="L-156"><a href="#L-156"><span class="linenos">156</span></a>            <span class="n">cartesian</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">stack</span><span class="p">(</span>
+</span><span id="L-157"><a href="#L-157"><span class="linenos">157</span></a>                <span class="p">[</span><span class="n">coords</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">,</span> <span class="p">:],</span> <span class="n">coords</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">,</span> <span class="p">:],</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">[:,</span> <span class="mi">2</span><span class="p">,</span> <span class="p">:]],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+</span><span id="L-158"><a href="#L-158"><span class="linenos">158</span></a>            <span class="k">return</span> <span class="n">cartesian</span>
 </span></pre></div>
 
 
@@ -343,7 +347,7 @@
                                 <div class="attr variable">
             <span class="name">model_fields</span>        =
 <input id="SplineMetadata.model_fields-view-value" class="view-value-toggle-state" type="checkbox" aria-hidden="true" tabindex="-1">
-            <label class="view-value-button pdoc-button" for="SplineMetadata.model_fields-view-value"></label><span class="default_value">{&#39;parent_name&#39;: FieldInfo(annotation=Union[str, NoneType], required=False), &#39;coordinates&#39;: FieldInfo(annotation=CoordinateSystems, required=True), &#39;number_of_sample_points&#39;: FieldInfo(annotation=int, required=True), &#39;confidence_exists&#39;: FieldInfo(annotation=bool, required=True), &#39;axisnames&#39;: FieldInfo(annotation=tuple[str], required=False, default=(&#39;time&#39;, &#39;x-y&#39;, &#39;splinepoint&#39;))}</span>
+            <label class="view-value-button pdoc-button" for="SplineMetadata.model_fields-view-value"></label><span class="default_value">{&#39;parent_name&#39;: FieldInfo(annotation=Union[str, NoneType], required=False), &#39;is_downsampled&#39;: FieldInfo(annotation=Union[bool, NoneType], required=False, default=False), &#39;downsampling_ratio&#39;: FieldInfo(annotation=Union[NoneType, Annotated[int, Gt], str], required=False), &#39;timestep_matched_downsampling&#39;: FieldInfo(annotation=Union[bool, NoneType], required=False, default=True), &#39;coordinates&#39;: FieldInfo(annotation=CoordinateSystems, required=True), &#39;number_of_sample_points&#39;: FieldInfo(annotation=int, required=True), &#39;confidence_exists&#39;: FieldInfo(annotation=bool, required=True), &#39;axisnames&#39;: FieldInfo(annotation=tuple[str], required=False, default=(&#39;time&#39;, &#39;x-y&#39;, &#39;splinepoint&#39;))}</span>
 
         
     </div>
@@ -387,6 +391,13 @@
             </div>
             <div><dt><a href="../data_structures.html#ModalityMetaData">satkit.data_structures.ModalityMetaData</a></dt>
                                 <dd id="SplineMetadata.parent_name" class="variable"><a href="../data_structures.html#ModalityMetaData.parent_name">parent_name</a></dd>
+                <dd id="SplineMetadata.is_downsampled" class="variable"><a href="../data_structures.html#ModalityMetaData.is_downsampled">is_downsampled</a></dd>
+                <dd id="SplineMetadata.downsampling_ratio" class="variable"><a href="../data_structures.html#ModalityMetaData.downsampling_ratio">downsampling_ratio</a></dd>
+                <dd id="SplineMetadata.timestep_matched_downsampling" class="variable"><a href="../data_structures.html#ModalityMetaData.timestep_matched_downsampling">timestep_matched_downsampling</a></dd>
+
+            </div>
+            <div><dt><a href="../helpers/base_model_extensions.html#EmptyStrAsNoneBaseModel">satkit.helpers.base_model_extensions.EmptyStrAsNoneBaseModel</a></dt>
+                                <dd id="SplineMetadata.empty_str_to_none" class="function"><a href="../helpers/base_model_extensions.html#EmptyStrAsNoneBaseModel.empty_str_to_none">empty_str_to_none</a></dd>
 
             </div>
                                 </dl>
@@ -408,96 +419,100 @@
 </span><span id="Splines-63"><a href="#Splines-63"><span class="linenos"> 63</span></a><span class="sd">    Splines from 2D ultrasound data.</span>
 </span><span id="Splines-64"><a href="#Splines-64"><span class="linenos"> 64</span></a><span class="sd">    &quot;&quot;&quot;</span>
 </span><span id="Splines-65"><a href="#Splines-65"><span class="linenos"> 65</span></a>
-</span><span id="Splines-66"><a href="#Splines-66"><span class="linenos"> 66</span></a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
-</span><span id="Splines-67"><a href="#Splines-67"><span class="linenos"> 67</span></a>                 <span class="n">recording</span><span class="p">:</span> <span class="n">Recording</span><span class="p">,</span>
-</span><span id="Splines-68"><a href="#Splines-68"><span class="linenos"> 68</span></a>                 <span class="n">metadata</span><span class="p">:</span> <span class="n">SplineMetadata</span><span class="p">,</span>
-</span><span id="Splines-69"><a href="#Splines-69"><span class="linenos"> 69</span></a>                 <span class="n">data_path</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Path</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-</span><span id="Splines-70"><a href="#Splines-70"><span class="linenos"> 70</span></a>                 <span class="n">meta_path</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Path</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-</span><span id="Splines-71"><a href="#Splines-71"><span class="linenos"> 71</span></a>                 <span class="n">load_path</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Path</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-</span><span id="Splines-72"><a href="#Splines-72"><span class="linenos"> 72</span></a>                 <span class="n">parsed_data</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">ModalityData</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-</span><span id="Splines-73"><a href="#Splines-73"><span class="linenos"> 73</span></a>                 <span class="n">time_offset</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
-</span><span id="Splines-74"><a href="#Splines-74"><span class="linenos"> 74</span></a>                 <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-</span><span id="Splines-75"><a href="#Splines-75"><span class="linenos"> 75</span></a>
-</span><span id="Splines-76"><a href="#Splines-76"><span class="linenos"> 76</span></a>        <span class="c1"># Initialise super only after ensuring meta is correct,</span>
-</span><span id="Splines-77"><a href="#Splines-77"><span class="linenos"> 77</span></a>        <span class="c1"># because latter may already end the run.</span>
-</span><span id="Splines-78"><a href="#Splines-78"><span class="linenos"> 78</span></a>        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span>
-</span><span id="Splines-79"><a href="#Splines-79"><span class="linenos"> 79</span></a>            <span class="n">recording</span><span class="o">=</span><span class="n">recording</span><span class="p">,</span>
-</span><span id="Splines-80"><a href="#Splines-80"><span class="linenos"> 80</span></a>            <span class="n">metadata</span><span class="o">=</span><span class="n">metadata</span><span class="p">,</span>
-</span><span id="Splines-81"><a href="#Splines-81"><span class="linenos"> 81</span></a>            <span class="n">data_path</span><span class="o">=</span><span class="n">data_path</span><span class="p">,</span>
-</span><span id="Splines-82"><a href="#Splines-82"><span class="linenos"> 82</span></a>            <span class="n">meta_path</span><span class="o">=</span><span class="n">meta_path</span><span class="p">,</span>
-</span><span id="Splines-83"><a href="#Splines-83"><span class="linenos"> 83</span></a>            <span class="n">load_path</span><span class="o">=</span><span class="n">load_path</span><span class="p">,</span>
-</span><span id="Splines-84"><a href="#Splines-84"><span class="linenos"> 84</span></a>            <span class="n">parsed_data</span><span class="o">=</span><span class="n">parsed_data</span><span class="p">,</span>
-</span><span id="Splines-85"><a href="#Splines-85"><span class="linenos"> 85</span></a>            <span class="n">time_offset</span><span class="o">=</span><span class="n">time_offset</span><span class="p">)</span>
-</span><span id="Splines-86"><a href="#Splines-86"><span class="linenos"> 86</span></a>
-</span><span id="Splines-87"><a href="#Splines-87"><span class="linenos"> 87</span></a>    <span class="k">def</span> <span class="nf">_read_data</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ModalityData</span><span class="p">:</span>
-</span><span id="Splines-88"><a href="#Splines-88"><span class="linenos"> 88</span></a>        <span class="k">return</span> <span class="n">read_splines</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">data_path</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">metadata</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_time_offset</span><span class="p">)</span>
-</span><span id="Splines-89"><a href="#Splines-89"><span class="linenos"> 89</span></a>
-</span><span id="Splines-90"><a href="#Splines-90"><span class="linenos"> 90</span></a>    <span class="nd">@property</span>
-</span><span id="Splines-91"><a href="#Splines-91"><span class="linenos"> 91</span></a>    <span class="k">def</span> <span class="nf">data</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
-</span><span id="Splines-92"><a href="#Splines-92"><span class="linenos"> 92</span></a>        <span class="k">return</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">data</span>
+</span><span id="Splines-66"><a href="#Splines-66"><span class="linenos"> 66</span></a>    <span class="nd">@classmethod</span>
+</span><span id="Splines-67"><a href="#Splines-67"><span class="linenos"> 67</span></a>    <span class="k">def</span> <span class="nf">generate_name</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">params</span><span class="p">:</span> <span class="n">ModalityMetaData</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+</span><span id="Splines-68"><a href="#Splines-68"><span class="linenos"> 68</span></a>        <span class="k">return</span> <span class="bp">cls</span><span class="o">.</span><span class="vm">__name__</span>
+</span><span id="Splines-69"><a href="#Splines-69"><span class="linenos"> 69</span></a>
+</span><span id="Splines-70"><a href="#Splines-70"><span class="linenos"> 70</span></a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
+</span><span id="Splines-71"><a href="#Splines-71"><span class="linenos"> 71</span></a>                 <span class="n">recording</span><span class="p">:</span> <span class="n">Recording</span><span class="p">,</span>
+</span><span id="Splines-72"><a href="#Splines-72"><span class="linenos"> 72</span></a>                 <span class="n">metadata</span><span class="p">:</span> <span class="n">SplineMetadata</span><span class="p">,</span>
+</span><span id="Splines-73"><a href="#Splines-73"><span class="linenos"> 73</span></a>                 <span class="n">data_path</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Path</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+</span><span id="Splines-74"><a href="#Splines-74"><span class="linenos"> 74</span></a>                 <span class="n">meta_path</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Path</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+</span><span id="Splines-75"><a href="#Splines-75"><span class="linenos"> 75</span></a>                 <span class="n">load_path</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Path</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+</span><span id="Splines-76"><a href="#Splines-76"><span class="linenos"> 76</span></a>                 <span class="n">parsed_data</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">ModalityData</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+</span><span id="Splines-77"><a href="#Splines-77"><span class="linenos"> 77</span></a>                 <span class="n">time_offset</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+</span><span id="Splines-78"><a href="#Splines-78"><span class="linenos"> 78</span></a>                 <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+</span><span id="Splines-79"><a href="#Splines-79"><span class="linenos"> 79</span></a>
+</span><span id="Splines-80"><a href="#Splines-80"><span class="linenos"> 80</span></a>        <span class="c1"># Initialise super only after ensuring meta is correct,</span>
+</span><span id="Splines-81"><a href="#Splines-81"><span class="linenos"> 81</span></a>        <span class="c1"># because latter may already end the run.</span>
+</span><span id="Splines-82"><a href="#Splines-82"><span class="linenos"> 82</span></a>        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span>
+</span><span id="Splines-83"><a href="#Splines-83"><span class="linenos"> 83</span></a>            <span class="n">recording</span><span class="o">=</span><span class="n">recording</span><span class="p">,</span>
+</span><span id="Splines-84"><a href="#Splines-84"><span class="linenos"> 84</span></a>            <span class="n">metadata</span><span class="o">=</span><span class="n">metadata</span><span class="p">,</span>
+</span><span id="Splines-85"><a href="#Splines-85"><span class="linenos"> 85</span></a>            <span class="n">data_path</span><span class="o">=</span><span class="n">data_path</span><span class="p">,</span>
+</span><span id="Splines-86"><a href="#Splines-86"><span class="linenos"> 86</span></a>            <span class="n">meta_path</span><span class="o">=</span><span class="n">meta_path</span><span class="p">,</span>
+</span><span id="Splines-87"><a href="#Splines-87"><span class="linenos"> 87</span></a>            <span class="n">load_path</span><span class="o">=</span><span class="n">load_path</span><span class="p">,</span>
+</span><span id="Splines-88"><a href="#Splines-88"><span class="linenos"> 88</span></a>            <span class="n">parsed_data</span><span class="o">=</span><span class="n">parsed_data</span><span class="p">,</span>
+</span><span id="Splines-89"><a href="#Splines-89"><span class="linenos"> 89</span></a>            <span class="n">time_offset</span><span class="o">=</span><span class="n">time_offset</span><span class="p">)</span>
+</span><span id="Splines-90"><a href="#Splines-90"><span class="linenos"> 90</span></a>
+</span><span id="Splines-91"><a href="#Splines-91"><span class="linenos"> 91</span></a>    <span class="k">def</span> <span class="nf">_read_data</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ModalityData</span><span class="p">:</span>
+</span><span id="Splines-92"><a href="#Splines-92"><span class="linenos"> 92</span></a>        <span class="k">return</span> <span class="n">read_splines</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">data_path</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">metadata</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_time_offset</span><span class="p">)</span>
 </span><span id="Splines-93"><a href="#Splines-93"><span class="linenos"> 93</span></a>
-</span><span id="Splines-94"><a href="#Splines-94"><span class="linenos"> 94</span></a>    <span class="nd">@data</span><span class="o">.</span><span class="n">setter</span>
-</span><span id="Splines-95"><a href="#Splines-95"><span class="linenos"> 95</span></a>    <span class="k">def</span> <span class="nf">data</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-</span><span id="Splines-96"><a href="#Splines-96"><span class="linenos"> 96</span></a>        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">_data_setter</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+</span><span id="Splines-94"><a href="#Splines-94"><span class="linenos"> 94</span></a>    <span class="nd">@property</span>
+</span><span id="Splines-95"><a href="#Splines-95"><span class="linenos"> 95</span></a>    <span class="k">def</span> <span class="nf">data</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+</span><span id="Splines-96"><a href="#Splines-96"><span class="linenos"> 96</span></a>        <span class="k">return</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">data</span>
 </span><span id="Splines-97"><a href="#Splines-97"><span class="linenos"> 97</span></a>
-</span><span id="Splines-98"><a href="#Splines-98"><span class="linenos"> 98</span></a>    <span class="k">def</span> <span class="nf">get_meta</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
-</span><span id="Splines-99"><a href="#Splines-99"><span class="linenos"> 99</span></a>        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">metadata</span>
-</span><span id="Splines-100"><a href="#Splines-100"><span class="linenos">100</span></a>
-</span><span id="Splines-101"><a href="#Splines-101"><span class="linenos">101</span></a>    <span class="nd">@property</span>
-</span><span id="Splines-102"><a href="#Splines-102"><span class="linenos">102</span></a>    <span class="k">def</span> <span class="nf">in_polar</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
-</span><span id="Splines-103"><a href="#Splines-103"><span class="linenos">103</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-</span><span id="Splines-104"><a href="#Splines-104"><span class="linenos">104</span></a><span class="sd">        Spline coordinates in polar coordiantes.</span>
-</span><span id="Splines-105"><a href="#Splines-105"><span class="linenos">105</span></a>
-</span><span id="Splines-106"><a href="#Splines-106"><span class="linenos">106</span></a><span class="sd">        Returns</span>
-</span><span id="Splines-107"><a href="#Splines-107"><span class="linenos">107</span></a><span class="sd">        -------</span>
-</span><span id="Splines-108"><a href="#Splines-108"><span class="linenos">108</span></a><span class="sd">        np.ndarray</span>
-</span><span id="Splines-109"><a href="#Splines-109"><span class="linenos">109</span></a><span class="sd">            The coordinates</span>
-</span><span id="Splines-110"><a href="#Splines-110"><span class="linenos">110</span></a><span class="sd">        &quot;&quot;&quot;</span>
-</span><span id="Splines-111"><a href="#Splines-111"><span class="linenos">111</span></a>        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">metadata</span><span class="o">.</span><span class="n">coordinates</span> <span class="ow">is</span> <span class="n">CoordinateSystems</span><span class="o">.</span><span class="n">POLAR</span><span class="p">:</span>
-</span><span id="Splines-112"><a href="#Splines-112"><span class="linenos">112</span></a>            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span>
-</span><span id="Splines-113"><a href="#Splines-113"><span class="linenos">113</span></a>        <span class="k">else</span><span class="p">:</span>
-</span><span id="Splines-114"><a href="#Splines-114"><span class="linenos">114</span></a>            <span class="n">cartesian</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">:</span><span class="mi">2</span><span class="p">,</span> <span class="p">:]</span>
-</span><span id="Splines-115"><a href="#Splines-115"><span class="linenos">115</span></a>            <span class="n">cartesian</span> <span class="o">=</span> <span class="n">cartesian</span><span class="o">.</span><span class="n">reshape</span><span class="p">([</span><span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="o">-</span><span class="mi">1</span><span class="p">])</span>
-</span><span id="Splines-116"><a href="#Splines-116"><span class="linenos">116</span></a>            <span class="n">coords</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">apply_along_axis</span><span class="p">(</span>
-</span><span id="Splines-117"><a href="#Splines-117"><span class="linenos">117</span></a>                <span class="n">cartesian_to_polar</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="n">cartesian</span><span class="p">)</span>
-</span><span id="Splines-118"><a href="#Splines-118"><span class="linenos">118</span></a>            <span class="n">polar</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">stack</span><span class="p">(</span>
-</span><span id="Splines-119"><a href="#Splines-119"><span class="linenos">119</span></a>                <span class="p">[</span><span class="n">coords</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">,</span> <span class="p">:],</span> <span class="n">coords</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">,</span> <span class="p">:],</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">[:,</span> <span class="mi">2</span><span class="p">,</span> <span class="p">:]],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
-</span><span id="Splines-120"><a href="#Splines-120"><span class="linenos">120</span></a>            <span class="k">return</span> <span class="n">polar</span>
-</span><span id="Splines-121"><a href="#Splines-121"><span class="linenos">121</span></a>
-</span><span id="Splines-122"><a href="#Splines-122"><span class="linenos">122</span></a>    <span class="k">def</span> <span class="nf">cartesian_spline</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">index</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
-</span><span id="Splines-123"><a href="#Splines-123"><span class="linenos">123</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-</span><span id="Splines-124"><a href="#Splines-124"><span class="linenos">124</span></a><span class="sd">        Spline coordinates in Cartesian coordiantes.</span>
+</span><span id="Splines-98"><a href="#Splines-98"><span class="linenos"> 98</span></a>    <span class="nd">@data</span><span class="o">.</span><span class="n">setter</span>
+</span><span id="Splines-99"><a href="#Splines-99"><span class="linenos"> 99</span></a>    <span class="k">def</span> <span class="nf">data</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+</span><span id="Splines-100"><a href="#Splines-100"><span class="linenos">100</span></a>        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">_data_setter</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+</span><span id="Splines-101"><a href="#Splines-101"><span class="linenos">101</span></a>
+</span><span id="Splines-102"><a href="#Splines-102"><span class="linenos">102</span></a>    <span class="k">def</span> <span class="nf">get_meta</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
+</span><span id="Splines-103"><a href="#Splines-103"><span class="linenos">103</span></a>        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">metadata</span>
+</span><span id="Splines-104"><a href="#Splines-104"><span class="linenos">104</span></a>
+</span><span id="Splines-105"><a href="#Splines-105"><span class="linenos">105</span></a>    <span class="nd">@property</span>
+</span><span id="Splines-106"><a href="#Splines-106"><span class="linenos">106</span></a>    <span class="k">def</span> <span class="nf">in_polar</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+</span><span id="Splines-107"><a href="#Splines-107"><span class="linenos">107</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+</span><span id="Splines-108"><a href="#Splines-108"><span class="linenos">108</span></a><span class="sd">        Spline coordinates in polar coordiantes.</span>
+</span><span id="Splines-109"><a href="#Splines-109"><span class="linenos">109</span></a>
+</span><span id="Splines-110"><a href="#Splines-110"><span class="linenos">110</span></a><span class="sd">        Returns</span>
+</span><span id="Splines-111"><a href="#Splines-111"><span class="linenos">111</span></a><span class="sd">        -------</span>
+</span><span id="Splines-112"><a href="#Splines-112"><span class="linenos">112</span></a><span class="sd">        np.ndarray</span>
+</span><span id="Splines-113"><a href="#Splines-113"><span class="linenos">113</span></a><span class="sd">            The coordinates</span>
+</span><span id="Splines-114"><a href="#Splines-114"><span class="linenos">114</span></a><span class="sd">        &quot;&quot;&quot;</span>
+</span><span id="Splines-115"><a href="#Splines-115"><span class="linenos">115</span></a>        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">metadata</span><span class="o">.</span><span class="n">coordinates</span> <span class="ow">is</span> <span class="n">CoordinateSystems</span><span class="o">.</span><span class="n">POLAR</span><span class="p">:</span>
+</span><span id="Splines-116"><a href="#Splines-116"><span class="linenos">116</span></a>            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span>
+</span><span id="Splines-117"><a href="#Splines-117"><span class="linenos">117</span></a>        <span class="k">else</span><span class="p">:</span>
+</span><span id="Splines-118"><a href="#Splines-118"><span class="linenos">118</span></a>            <span class="n">cartesian</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">:</span><span class="mi">2</span><span class="p">,</span> <span class="p">:]</span>
+</span><span id="Splines-119"><a href="#Splines-119"><span class="linenos">119</span></a>            <span class="n">cartesian</span> <span class="o">=</span> <span class="n">cartesian</span><span class="o">.</span><span class="n">reshape</span><span class="p">([</span><span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="o">-</span><span class="mi">1</span><span class="p">])</span>
+</span><span id="Splines-120"><a href="#Splines-120"><span class="linenos">120</span></a>            <span class="n">coords</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">apply_along_axis</span><span class="p">(</span>
+</span><span id="Splines-121"><a href="#Splines-121"><span class="linenos">121</span></a>                <span class="n">cartesian_to_polar</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="n">cartesian</span><span class="p">)</span>
+</span><span id="Splines-122"><a href="#Splines-122"><span class="linenos">122</span></a>            <span class="n">polar</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">stack</span><span class="p">(</span>
+</span><span id="Splines-123"><a href="#Splines-123"><span class="linenos">123</span></a>                <span class="p">[</span><span class="n">coords</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">,</span> <span class="p">:],</span> <span class="n">coords</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">,</span> <span class="p">:],</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">[:,</span> <span class="mi">2</span><span class="p">,</span> <span class="p">:]],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+</span><span id="Splines-124"><a href="#Splines-124"><span class="linenos">124</span></a>            <span class="k">return</span> <span class="n">polar</span>
 </span><span id="Splines-125"><a href="#Splines-125"><span class="linenos">125</span></a>
-</span><span id="Splines-126"><a href="#Splines-126"><span class="linenos">126</span></a><span class="sd">        Returns</span>
-</span><span id="Splines-127"><a href="#Splines-127"><span class="linenos">127</span></a><span class="sd">        -------</span>
-</span><span id="Splines-128"><a href="#Splines-128"><span class="linenos">128</span></a><span class="sd">        np.ndarray</span>
-</span><span id="Splines-129"><a href="#Splines-129"><span class="linenos">129</span></a><span class="sd">            The coordinates</span>
-</span><span id="Splines-130"><a href="#Splines-130"><span class="linenos">130</span></a><span class="sd">        &quot;&quot;&quot;</span>
-</span><span id="Splines-131"><a href="#Splines-131"><span class="linenos">131</span></a>        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">metadata</span><span class="o">.</span><span class="n">coordinates</span> <span class="ow">is</span> <span class="n">CoordinateSystems</span><span class="o">.</span><span class="n">CARTESIAN</span><span class="p">:</span>
-</span><span id="Splines-132"><a href="#Splines-132"><span class="linenos">132</span></a>            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="n">index</span><span class="p">,</span> <span class="p">:,</span> <span class="p">:]</span>
-</span><span id="Splines-133"><a href="#Splines-133"><span class="linenos">133</span></a>        <span class="k">else</span><span class="p">:</span>
-</span><span id="Splines-134"><a href="#Splines-134"><span class="linenos">134</span></a>            <span class="k">return</span> <span class="n">polar_to_cartesian</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="n">index</span><span class="p">,</span> <span class="p">:,</span> <span class="p">:],</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="o">/</span><span class="mi">2</span><span class="p">)</span>
-</span><span id="Splines-135"><a href="#Splines-135"><span class="linenos">135</span></a>
-</span><span id="Splines-136"><a href="#Splines-136"><span class="linenos">136</span></a>    <span class="nd">@property</span>
-</span><span id="Splines-137"><a href="#Splines-137"><span class="linenos">137</span></a>    <span class="k">def</span> <span class="nf">in_cartesian</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
-</span><span id="Splines-138"><a href="#Splines-138"><span class="linenos">138</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-</span><span id="Splines-139"><a href="#Splines-139"><span class="linenos">139</span></a><span class="sd">        Spline coordinates in Cartesian coordiantes.</span>
-</span><span id="Splines-140"><a href="#Splines-140"><span class="linenos">140</span></a>
-</span><span id="Splines-141"><a href="#Splines-141"><span class="linenos">141</span></a><span class="sd">        Returns</span>
-</span><span id="Splines-142"><a href="#Splines-142"><span class="linenos">142</span></a><span class="sd">        -------</span>
-</span><span id="Splines-143"><a href="#Splines-143"><span class="linenos">143</span></a><span class="sd">        np.ndarray</span>
-</span><span id="Splines-144"><a href="#Splines-144"><span class="linenos">144</span></a><span class="sd">            The coordinates</span>
-</span><span id="Splines-145"><a href="#Splines-145"><span class="linenos">145</span></a><span class="sd">        &quot;&quot;&quot;</span>
-</span><span id="Splines-146"><a href="#Splines-146"><span class="linenos">146</span></a>        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">metadata</span><span class="o">.</span><span class="n">coordinates</span> <span class="ow">is</span> <span class="n">CoordinateSystems</span><span class="o">.</span><span class="n">CARTESIAN</span><span class="p">:</span>
-</span><span id="Splines-147"><a href="#Splines-147"><span class="linenos">147</span></a>            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span>
-</span><span id="Splines-148"><a href="#Splines-148"><span class="linenos">148</span></a>        <span class="k">else</span><span class="p">:</span>
-</span><span id="Splines-149"><a href="#Splines-149"><span class="linenos">149</span></a>            <span class="n">r_phi</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">:</span><span class="mi">2</span><span class="p">,</span> <span class="p">:]</span>
-</span><span id="Splines-150"><a href="#Splines-150"><span class="linenos">150</span></a>            <span class="n">r_phi</span> <span class="o">=</span> <span class="n">r_phi</span><span class="o">.</span><span class="n">reshape</span><span class="p">([</span><span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="o">-</span><span class="mi">1</span><span class="p">])</span>
-</span><span id="Splines-151"><a href="#Splines-151"><span class="linenos">151</span></a>            <span class="n">coords</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">apply_along_axis</span><span class="p">(</span>
-</span><span id="Splines-152"><a href="#Splines-152"><span class="linenos">152</span></a>                <span class="n">polar_to_cartesian</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="n">r_phi</span><span class="p">)</span>
-</span><span id="Splines-153"><a href="#Splines-153"><span class="linenos">153</span></a>            <span class="n">cartesian</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">stack</span><span class="p">(</span>
-</span><span id="Splines-154"><a href="#Splines-154"><span class="linenos">154</span></a>                <span class="p">[</span><span class="n">coords</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">,</span> <span class="p">:],</span> <span class="n">coords</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">,</span> <span class="p">:],</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">[:,</span> <span class="mi">2</span><span class="p">,</span> <span class="p">:]],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
-</span><span id="Splines-155"><a href="#Splines-155"><span class="linenos">155</span></a>            <span class="k">return</span> <span class="n">cartesian</span>
+</span><span id="Splines-126"><a href="#Splines-126"><span class="linenos">126</span></a>    <span class="k">def</span> <span class="nf">cartesian_spline</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">index</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+</span><span id="Splines-127"><a href="#Splines-127"><span class="linenos">127</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+</span><span id="Splines-128"><a href="#Splines-128"><span class="linenos">128</span></a><span class="sd">        Spline coordinates in Cartesian coordiantes.</span>
+</span><span id="Splines-129"><a href="#Splines-129"><span class="linenos">129</span></a>
+</span><span id="Splines-130"><a href="#Splines-130"><span class="linenos">130</span></a><span class="sd">        Returns</span>
+</span><span id="Splines-131"><a href="#Splines-131"><span class="linenos">131</span></a><span class="sd">        -------</span>
+</span><span id="Splines-132"><a href="#Splines-132"><span class="linenos">132</span></a><span class="sd">        np.ndarray</span>
+</span><span id="Splines-133"><a href="#Splines-133"><span class="linenos">133</span></a><span class="sd">            The coordinates</span>
+</span><span id="Splines-134"><a href="#Splines-134"><span class="linenos">134</span></a><span class="sd">        &quot;&quot;&quot;</span>
+</span><span id="Splines-135"><a href="#Splines-135"><span class="linenos">135</span></a>        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">metadata</span><span class="o">.</span><span class="n">coordinates</span> <span class="ow">is</span> <span class="n">CoordinateSystems</span><span class="o">.</span><span class="n">CARTESIAN</span><span class="p">:</span>
+</span><span id="Splines-136"><a href="#Splines-136"><span class="linenos">136</span></a>            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="n">index</span><span class="p">,</span> <span class="p">:,</span> <span class="p">:]</span>
+</span><span id="Splines-137"><a href="#Splines-137"><span class="linenos">137</span></a>        <span class="k">else</span><span class="p">:</span>
+</span><span id="Splines-138"><a href="#Splines-138"><span class="linenos">138</span></a>            <span class="k">return</span> <span class="n">polar_to_cartesian</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="n">index</span><span class="p">,</span> <span class="p">:,</span> <span class="p">:],</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="o">/</span><span class="mi">2</span><span class="p">)</span>
+</span><span id="Splines-139"><a href="#Splines-139"><span class="linenos">139</span></a>
+</span><span id="Splines-140"><a href="#Splines-140"><span class="linenos">140</span></a>    <span class="nd">@property</span>
+</span><span id="Splines-141"><a href="#Splines-141"><span class="linenos">141</span></a>    <span class="k">def</span> <span class="nf">in_cartesian</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+</span><span id="Splines-142"><a href="#Splines-142"><span class="linenos">142</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+</span><span id="Splines-143"><a href="#Splines-143"><span class="linenos">143</span></a><span class="sd">        Spline coordinates in Cartesian coordiantes.</span>
+</span><span id="Splines-144"><a href="#Splines-144"><span class="linenos">144</span></a>
+</span><span id="Splines-145"><a href="#Splines-145"><span class="linenos">145</span></a><span class="sd">        Returns</span>
+</span><span id="Splines-146"><a href="#Splines-146"><span class="linenos">146</span></a><span class="sd">        -------</span>
+</span><span id="Splines-147"><a href="#Splines-147"><span class="linenos">147</span></a><span class="sd">        np.ndarray</span>
+</span><span id="Splines-148"><a href="#Splines-148"><span class="linenos">148</span></a><span class="sd">            The coordinates</span>
+</span><span id="Splines-149"><a href="#Splines-149"><span class="linenos">149</span></a><span class="sd">        &quot;&quot;&quot;</span>
+</span><span id="Splines-150"><a href="#Splines-150"><span class="linenos">150</span></a>        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">metadata</span><span class="o">.</span><span class="n">coordinates</span> <span class="ow">is</span> <span class="n">CoordinateSystems</span><span class="o">.</span><span class="n">CARTESIAN</span><span class="p">:</span>
+</span><span id="Splines-151"><a href="#Splines-151"><span class="linenos">151</span></a>            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span>
+</span><span id="Splines-152"><a href="#Splines-152"><span class="linenos">152</span></a>        <span class="k">else</span><span class="p">:</span>
+</span><span id="Splines-153"><a href="#Splines-153"><span class="linenos">153</span></a>            <span class="n">r_phi</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">:</span><span class="mi">2</span><span class="p">,</span> <span class="p">:]</span>
+</span><span id="Splines-154"><a href="#Splines-154"><span class="linenos">154</span></a>            <span class="n">r_phi</span> <span class="o">=</span> <span class="n">r_phi</span><span class="o">.</span><span class="n">reshape</span><span class="p">([</span><span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="o">-</span><span class="mi">1</span><span class="p">])</span>
+</span><span id="Splines-155"><a href="#Splines-155"><span class="linenos">155</span></a>            <span class="n">coords</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">apply_along_axis</span><span class="p">(</span>
+</span><span id="Splines-156"><a href="#Splines-156"><span class="linenos">156</span></a>                <span class="n">polar_to_cartesian</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="n">r_phi</span><span class="p">)</span>
+</span><span id="Splines-157"><a href="#Splines-157"><span class="linenos">157</span></a>            <span class="n">cartesian</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">stack</span><span class="p">(</span>
+</span><span id="Splines-158"><a href="#Splines-158"><span class="linenos">158</span></a>                <span class="p">[</span><span class="n">coords</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">,</span> <span class="p">:],</span> <span class="n">coords</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">,</span> <span class="p">:],</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">[:,</span> <span class="mi">2</span><span class="p">,</span> <span class="p">:]],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+</span><span id="Splines-159"><a href="#Splines-159"><span class="linenos">159</span></a>            <span class="k">return</span> <span class="n">cartesian</span>
 </span></pre></div>
 
 
@@ -505,64 +520,25 @@
 </div>
 
 
-                            <div id="Splines.__init__" class="classattr">
-                                        <input id="Splines.__init__-view-source" class="view-source-toggle-state" type="checkbox" aria-hidden="true" tabindex="-1">
+                            <div id="Splines.generate_name" class="classattr">
+                                        <input id="Splines.generate_name-view-source" class="view-source-toggle-state" type="checkbox" aria-hidden="true" tabindex="-1">
 <div class="attr function">
-            
-        <span class="name">Splines</span><span class="signature pdoc-code multiline">(<span class="param">	<span class="n">recording</span><span class="p">:</span> <span class="n"><a href="../data_structures.html#Recording">satkit.data_structures.Recording</a></span>,</span><span class="param">	<span class="n">metadata</span><span class="p">:</span> <span class="n"><a href="#SplineMetadata">SplineMetadata</a></span>,</span><span class="param">	<span class="n">data_path</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>,</span><span class="param">	<span class="n">meta_path</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>,</span><span class="param">	<span class="n">load_path</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>,</span><span class="param">	<span class="n">parsed_data</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n"><a href="../data_structures.html#ModalityData">satkit.data_structures.ModalityData</a></span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>,</span><span class="param">	<span class="n">time_offset</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span></span>)</span>
+                    <div class="decorator">@classmethod</div>
 
-                <label class="view-source-button" for="Splines.__init__-view-source"><span>View Source</span></label>
+        <span class="def">def</span>
+        <span class="name">generate_name</span><span class="signature pdoc-code condensed">(<span class="param"><span class="bp">cls</span>, </span><span class="param"><span class="n">params</span><span class="p">:</span> <span class="n"><a href="../data_structures.html#ModalityMetaData">satkit.data_structures.ModalityMetaData</a></span></span><span class="return-annotation">) -> <span class="nb">str</span>:</span></span>
+
+                <label class="view-source-button" for="Splines.generate_name-view-source"><span>View Source</span></label>
 
     </div>
-    <a class="headerlink" href="#Splines.__init__"></a>
-            <div class="pdoc-code codehilite"><pre><span></span><span id="Splines.__init__-66"><a href="#Splines.__init__-66"><span class="linenos">66</span></a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
-</span><span id="Splines.__init__-67"><a href="#Splines.__init__-67"><span class="linenos">67</span></a>                 <span class="n">recording</span><span class="p">:</span> <span class="n">Recording</span><span class="p">,</span>
-</span><span id="Splines.__init__-68"><a href="#Splines.__init__-68"><span class="linenos">68</span></a>                 <span class="n">metadata</span><span class="p">:</span> <span class="n">SplineMetadata</span><span class="p">,</span>
-</span><span id="Splines.__init__-69"><a href="#Splines.__init__-69"><span class="linenos">69</span></a>                 <span class="n">data_path</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Path</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-</span><span id="Splines.__init__-70"><a href="#Splines.__init__-70"><span class="linenos">70</span></a>                 <span class="n">meta_path</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Path</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-</span><span id="Splines.__init__-71"><a href="#Splines.__init__-71"><span class="linenos">71</span></a>                 <span class="n">load_path</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Path</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-</span><span id="Splines.__init__-72"><a href="#Splines.__init__-72"><span class="linenos">72</span></a>                 <span class="n">parsed_data</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">ModalityData</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-</span><span id="Splines.__init__-73"><a href="#Splines.__init__-73"><span class="linenos">73</span></a>                 <span class="n">time_offset</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
-</span><span id="Splines.__init__-74"><a href="#Splines.__init__-74"><span class="linenos">74</span></a>                 <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-</span><span id="Splines.__init__-75"><a href="#Splines.__init__-75"><span class="linenos">75</span></a>
-</span><span id="Splines.__init__-76"><a href="#Splines.__init__-76"><span class="linenos">76</span></a>        <span class="c1"># Initialise super only after ensuring meta is correct,</span>
-</span><span id="Splines.__init__-77"><a href="#Splines.__init__-77"><span class="linenos">77</span></a>        <span class="c1"># because latter may already end the run.</span>
-</span><span id="Splines.__init__-78"><a href="#Splines.__init__-78"><span class="linenos">78</span></a>        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span>
-</span><span id="Splines.__init__-79"><a href="#Splines.__init__-79"><span class="linenos">79</span></a>            <span class="n">recording</span><span class="o">=</span><span class="n">recording</span><span class="p">,</span>
-</span><span id="Splines.__init__-80"><a href="#Splines.__init__-80"><span class="linenos">80</span></a>            <span class="n">metadata</span><span class="o">=</span><span class="n">metadata</span><span class="p">,</span>
-</span><span id="Splines.__init__-81"><a href="#Splines.__init__-81"><span class="linenos">81</span></a>            <span class="n">data_path</span><span class="o">=</span><span class="n">data_path</span><span class="p">,</span>
-</span><span id="Splines.__init__-82"><a href="#Splines.__init__-82"><span class="linenos">82</span></a>            <span class="n">meta_path</span><span class="o">=</span><span class="n">meta_path</span><span class="p">,</span>
-</span><span id="Splines.__init__-83"><a href="#Splines.__init__-83"><span class="linenos">83</span></a>            <span class="n">load_path</span><span class="o">=</span><span class="n">load_path</span><span class="p">,</span>
-</span><span id="Splines.__init__-84"><a href="#Splines.__init__-84"><span class="linenos">84</span></a>            <span class="n">parsed_data</span><span class="o">=</span><span class="n">parsed_data</span><span class="p">,</span>
-</span><span id="Splines.__init__-85"><a href="#Splines.__init__-85"><span class="linenos">85</span></a>            <span class="n">time_offset</span><span class="o">=</span><span class="n">time_offset</span><span class="p">)</span>
+    <a class="headerlink" href="#Splines.generate_name"></a>
+            <div class="pdoc-code codehilite"><pre><span></span><span id="Splines.generate_name-66"><a href="#Splines.generate_name-66"><span class="linenos">66</span></a>    <span class="nd">@classmethod</span>
+</span><span id="Splines.generate_name-67"><a href="#Splines.generate_name-67"><span class="linenos">67</span></a>    <span class="k">def</span> <span class="nf">generate_name</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">params</span><span class="p">:</span> <span class="n">ModalityMetaData</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+</span><span id="Splines.generate_name-68"><a href="#Splines.generate_name-68"><span class="linenos">68</span></a>        <span class="k">return</span> <span class="bp">cls</span><span class="o">.</span><span class="vm">__name__</span>
 </span></pre></div>
 
 
-            <div class="docstring"><p>Modality constructor.</p>
-
-<p>Positional arguments:
-recording -- the containing Recording.</p>
-
-<p>Keyword arguments:
-data_path -- path of the data file
-load_path -- path of data when saved by SATKIT - both data and metadata
-parent -- the Modality this one was derived from. None means this 
-    is an underived data Modality.
-parsed_data -- ModalityData object containing waveform, sampling rate,
-    and either timevector and/or time_offset. 
-parsed_data -- a ModalityData object containing parsed data 
-    that's been either read from file, loaded from file 
-    (previously saved by SATKIT), or calculated from another modality.
-    Providing a timevector 
-    overrides any time_offset value given, but in absence of a 
-    timevector the time_offset will be applied on reading the data 
-    from file. 
-time_offset -- offset of this modality in relation to the Recordings
-    baseline - usually the audio track. This will be ignored if 
-    parsed_data exists and effectively overridden by 
-    parsed_data.timevector.</p>
-</div>
-
+    
 
                             </div>
                             <div id="Splines.data" class="classattr">
@@ -573,7 +549,7 @@ time_offset -- offset of this modality in relation to the Recordings
     </div>
     <a class="headerlink" href="#Splines.data"></a>
     
-            <div class="docstring"><p>Abstract property: a NumPy array. </p>
+            <div class="docstring"><p>The data of this Modality as a NumPy array. </p>
 
 <p>The data refers to the actual data this modality represents
 and for DerivedModality it is the result of running the 
@@ -600,8 +576,8 @@ release the memory, assign None to this Modality's data.</p>
 
     </div>
     <a class="headerlink" href="#Splines.get_meta"></a>
-            <div class="pdoc-code codehilite"><pre><span></span><span id="Splines.get_meta-98"><a href="#Splines.get_meta-98"><span class="linenos">98</span></a>    <span class="k">def</span> <span class="nf">get_meta</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
-</span><span id="Splines.get_meta-99"><a href="#Splines.get_meta-99"><span class="linenos">99</span></a>        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">metadata</span>
+            <div class="pdoc-code codehilite"><pre><span></span><span id="Splines.get_meta-102"><a href="#Splines.get_meta-102"><span class="linenos">102</span></a>    <span class="k">def</span> <span class="nf">get_meta</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
+</span><span id="Splines.get_meta-103"><a href="#Splines.get_meta-103"><span class="linenos">103</span></a>        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">metadata</span>
 </span></pre></div>
 
 
@@ -639,19 +615,19 @@ release the memory, assign None to this Modality's data.</p>
 
     </div>
     <a class="headerlink" href="#Splines.cartesian_spline"></a>
-            <div class="pdoc-code codehilite"><pre><span></span><span id="Splines.cartesian_spline-122"><a href="#Splines.cartesian_spline-122"><span class="linenos">122</span></a>    <span class="k">def</span> <span class="nf">cartesian_spline</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">index</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
-</span><span id="Splines.cartesian_spline-123"><a href="#Splines.cartesian_spline-123"><span class="linenos">123</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-</span><span id="Splines.cartesian_spline-124"><a href="#Splines.cartesian_spline-124"><span class="linenos">124</span></a><span class="sd">        Spline coordinates in Cartesian coordiantes.</span>
-</span><span id="Splines.cartesian_spline-125"><a href="#Splines.cartesian_spline-125"><span class="linenos">125</span></a>
-</span><span id="Splines.cartesian_spline-126"><a href="#Splines.cartesian_spline-126"><span class="linenos">126</span></a><span class="sd">        Returns</span>
-</span><span id="Splines.cartesian_spline-127"><a href="#Splines.cartesian_spline-127"><span class="linenos">127</span></a><span class="sd">        -------</span>
-</span><span id="Splines.cartesian_spline-128"><a href="#Splines.cartesian_spline-128"><span class="linenos">128</span></a><span class="sd">        np.ndarray</span>
-</span><span id="Splines.cartesian_spline-129"><a href="#Splines.cartesian_spline-129"><span class="linenos">129</span></a><span class="sd">            The coordinates</span>
-</span><span id="Splines.cartesian_spline-130"><a href="#Splines.cartesian_spline-130"><span class="linenos">130</span></a><span class="sd">        &quot;&quot;&quot;</span>
-</span><span id="Splines.cartesian_spline-131"><a href="#Splines.cartesian_spline-131"><span class="linenos">131</span></a>        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">metadata</span><span class="o">.</span><span class="n">coordinates</span> <span class="ow">is</span> <span class="n">CoordinateSystems</span><span class="o">.</span><span class="n">CARTESIAN</span><span class="p">:</span>
-</span><span id="Splines.cartesian_spline-132"><a href="#Splines.cartesian_spline-132"><span class="linenos">132</span></a>            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="n">index</span><span class="p">,</span> <span class="p">:,</span> <span class="p">:]</span>
-</span><span id="Splines.cartesian_spline-133"><a href="#Splines.cartesian_spline-133"><span class="linenos">133</span></a>        <span class="k">else</span><span class="p">:</span>
-</span><span id="Splines.cartesian_spline-134"><a href="#Splines.cartesian_spline-134"><span class="linenos">134</span></a>            <span class="k">return</span> <span class="n">polar_to_cartesian</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="n">index</span><span class="p">,</span> <span class="p">:,</span> <span class="p">:],</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="o">/</span><span class="mi">2</span><span class="p">)</span>
+            <div class="pdoc-code codehilite"><pre><span></span><span id="Splines.cartesian_spline-126"><a href="#Splines.cartesian_spline-126"><span class="linenos">126</span></a>    <span class="k">def</span> <span class="nf">cartesian_spline</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">index</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+</span><span id="Splines.cartesian_spline-127"><a href="#Splines.cartesian_spline-127"><span class="linenos">127</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+</span><span id="Splines.cartesian_spline-128"><a href="#Splines.cartesian_spline-128"><span class="linenos">128</span></a><span class="sd">        Spline coordinates in Cartesian coordiantes.</span>
+</span><span id="Splines.cartesian_spline-129"><a href="#Splines.cartesian_spline-129"><span class="linenos">129</span></a>
+</span><span id="Splines.cartesian_spline-130"><a href="#Splines.cartesian_spline-130"><span class="linenos">130</span></a><span class="sd">        Returns</span>
+</span><span id="Splines.cartesian_spline-131"><a href="#Splines.cartesian_spline-131"><span class="linenos">131</span></a><span class="sd">        -------</span>
+</span><span id="Splines.cartesian_spline-132"><a href="#Splines.cartesian_spline-132"><span class="linenos">132</span></a><span class="sd">        np.ndarray</span>
+</span><span id="Splines.cartesian_spline-133"><a href="#Splines.cartesian_spline-133"><span class="linenos">133</span></a><span class="sd">            The coordinates</span>
+</span><span id="Splines.cartesian_spline-134"><a href="#Splines.cartesian_spline-134"><span class="linenos">134</span></a><span class="sd">        &quot;&quot;&quot;</span>
+</span><span id="Splines.cartesian_spline-135"><a href="#Splines.cartesian_spline-135"><span class="linenos">135</span></a>        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">metadata</span><span class="o">.</span><span class="n">coordinates</span> <span class="ow">is</span> <span class="n">CoordinateSystems</span><span class="o">.</span><span class="n">CARTESIAN</span><span class="p">:</span>
+</span><span id="Splines.cartesian_spline-136"><a href="#Splines.cartesian_spline-136"><span class="linenos">136</span></a>            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="n">index</span><span class="p">,</span> <span class="p">:,</span> <span class="p">:]</span>
+</span><span id="Splines.cartesian_spline-137"><a href="#Splines.cartesian_spline-137"><span class="linenos">137</span></a>        <span class="k">else</span><span class="p">:</span>
+</span><span id="Splines.cartesian_spline-138"><a href="#Splines.cartesian_spline-138"><span class="linenos">138</span></a>            <span class="k">return</span> <span class="n">polar_to_cartesian</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="n">index</span><span class="p">,</span> <span class="p">:,</span> <span class="p">:],</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="o">/</span><span class="mi">2</span><span class="p">)</span>
 </span></pre></div>
 
 
@@ -692,7 +668,10 @@ release the memory, assign None to this Modality's data.</p>
                 <dd id="Splines.load_path" class="variable"><a href="../data_structures.html#Modality.load_path">load_path</a></dd>
                 <dd id="Splines.metadata" class="variable"><a href="../data_structures.html#Modality.metadata">metadata</a></dd>
                 <dd id="Splines.excluded" class="variable"><a href="../data_structures.html#Modality.excluded">excluded</a></dd>
+                <dd id="Splines.annotations" class="variable"><a href="../data_structures.html#Modality.annotations">annotations</a></dd>
+                <dd id="Splines.add_annotations" class="function"><a href="../data_structures.html#Modality.add_annotations">add_annotations</a></dd>
                 <dd id="Splines.name" class="variable"><a href="../data_structures.html#Modality.name">name</a></dd>
+                <dd id="Splines.modality_data" class="variable"><a href="../data_structures.html#Modality.modality_data">modality_data</a></dd>
                 <dd id="Splines.sampling_rate" class="variable"><a href="../data_structures.html#Modality.sampling_rate">sampling_rate</a></dd>
                 <dd id="Splines.parent_name" class="variable"><a href="../data_structures.html#Modality.parent_name">parent_name</a></dd>
                 <dd id="Splines.time_offset" class="variable"><a href="../data_structures.html#Modality.time_offset">time_offset</a></dd>
@@ -700,6 +679,24 @@ release the memory, assign None to this Modality's data.</p>
                 <dd id="Splines.timevector" class="variable"><a href="../data_structures.html#Modality.timevector">timevector</a></dd>
                 <dd id="Splines.is_derived_modality" class="variable"><a href="../data_structures.html#Modality.is_derived_modality">is_derived_modality</a></dd>
                 <dd id="Splines.meta_path" class="variable"><a href="../data_structures.html#Modality.meta_path">meta_path</a></dd>
+
+            </div>
+            <div><dt>collections.OrderedDict</dt>
+                                <dd id="Splines.clear" class="function">clear</dd>
+                <dd id="Splines.popitem" class="function">popitem</dd>
+                <dd id="Splines.move_to_end" class="function">move_to_end</dd>
+                <dd id="Splines.keys" class="function">keys</dd>
+                <dd id="Splines.items" class="function">items</dd>
+                <dd id="Splines.values" class="function">values</dd>
+                <dd id="Splines.pop" class="function">pop</dd>
+                <dd id="Splines.setdefault" class="function">setdefault</dd>
+                <dd id="Splines.copy" class="function">copy</dd>
+                <dd id="Splines.fromkeys" class="function">fromkeys</dd>
+                <dd id="Splines.update" class="function">update</dd>
+
+            </div>
+            <div><dt>builtins.dict</dt>
+                                <dd id="Splines.get" class="function">get</dd>
 
             </div>
                                 </dl>

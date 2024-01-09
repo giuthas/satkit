@@ -29,10 +29,12 @@
 
             <h2>Submodules</h2>
             <ul>
+                    <li><a href="helpers/base_model_extensions.html">base_model_extensions</a></li>
                     <li><a href="helpers/computational.html">computational</a></li>
                     <li><a href="helpers/enum_extensions.html">enum_extensions</a></li>
                     <li><a href="helpers/logging_helpers.html">logging_helpers</a></li>
                     <li><a href="helpers/processing_helpers.html">processing_helpers</a></li>
+                    <li><a href="helpers/types.html">types</a></li>
             </ul>
 
 
@@ -100,7 +102,11 @@ relate to for example Python base modules -- like enum_union does -- are here.</
 </span><span id="L-38"><a href="#L-38"><span class="linenos">38</span></a><span class="sd">relate to for example Python base modules -- like enum_union does -- are here. </span>
 </span><span id="L-39"><a href="#L-39"><span class="linenos">39</span></a><span class="sd">&quot;&quot;&quot;</span>
 </span><span id="L-40"><a href="#L-40"><span class="linenos">40</span></a>
-</span><span id="L-41"><a href="#L-41"><span class="linenos">41</span></a><span class="kn">from</span> <span class="nn">.enum_extensions</span> <span class="kn">import</span> <span class="n">enum_union</span><span class="p">,</span> <span class="n">ValueComparedEnumMeta</span>
+</span><span id="L-41"><a href="#L-41"><span class="linenos">41</span></a><span class="kn">from</span> <span class="nn">.base_model_extensions</span> <span class="kn">import</span> <span class="n">EmptyStrAsNoneBaseModel</span><span class="p">,</span> <span class="n">UpdatableBaseModel</span>
+</span><span id="L-42"><a href="#L-42"><span class="linenos">42</span></a><span class="kn">from</span> <span class="nn">.computational</span> <span class="kn">import</span> <span class="n">cartesian_to_polar</span><span class="p">,</span> <span class="n">polar_to_cartesian</span>
+</span><span id="L-43"><a href="#L-43"><span class="linenos">43</span></a><span class="kn">from</span> <span class="nn">.enum_extensions</span> <span class="kn">import</span> <span class="n">enum_union</span><span class="p">,</span> <span class="n">PrintableEnum</span><span class="p">,</span> <span class="n">ValueComparedEnumMeta</span>
+</span><span id="L-44"><a href="#L-44"><span class="linenos">44</span></a><span class="kn">from</span> <span class="nn">.processing_helpers</span> <span class="kn">import</span> <span class="n">product_dict</span>
+</span><span id="L-45"><a href="#L-45"><span class="linenos">45</span></a><span class="kn">from</span> <span class="nn">.types</span> <span class="kn">import</span> <span class="n">is_sequence_form</span>
 </span></pre></div>
 
 

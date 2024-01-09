@@ -38,20 +38,20 @@ from copy import deepcopy
 
 # Numpy
 import numpy as np
-# Local modules
-# import satkit.io as satkit_io
+
 from matplotlib.backends.backend_qt5agg import \
     FigureCanvasQTAgg as FigureCanvas
 # from matplotlib.backends.backend_qt5agg import \
 #     NavigationToolbar2QT as NavigationToolbar
 # Plotting functions and hooks for GUI
 from matplotlib.figure import Figure
+
 # GUI functionality
 from PyQt5.QtCore import QCoreApplication
 from PyQt5.QtGui import QIntValidator
 from PyQt5.QtWidgets import QFileDialog
 from PyQt5.uic import loadUiType
-from satkit.configuration.config import config_dict, data_run_params
+from satkit.configuration.configuration import config_dict, data_run_params
 from satkit.gui.qt_annotator_window import QtAnnotatorWindow
 from satkit.plot_and_publish import plot_timeseries, plot_wav
 from satkit.plot_and_publish.plot import plot_satgrid_tier

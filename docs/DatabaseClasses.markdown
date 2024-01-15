@@ -15,11 +15,12 @@ components **are** lists and dicts of those components:
   Annotations is also important.
 
 Accessing the components in a Pythonic manner is encouraged, but setting them
-that way, may lead to to problems.
+that way may lead to to problems. Use instead accessors like
+`Recording.add_modality`.
 
 At time of writing the existence of a Trial class is uncertain in 1.0. If there
-is no Trial class only type of Session will be RecordingSession, which will be
-a list of consist of Recordings.
+is no Trial class then the only type of Session will be RecordingSession, which
+will be a list of Recordings.
 
 ```mermaid
 classDiagram

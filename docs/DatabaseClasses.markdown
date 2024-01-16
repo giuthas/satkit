@@ -1,23 +1,6 @@
 
 # Database Classes
 
-For ease of use all classes containing a list or a dict of their major
-components **are** lists and dicts of those components:
-
-* Dataset is a list of Sessions (either RecordingSessions or TrialSessions).
-* RecordingSession is a list of Recordings, TrialSession is a list of Trials.
-  The difference between a Recording and a Trial is that a Recording involves
-  one participant, but a Trial may involve several and consists will have one
-  Recording for each Participant.
-* Recordings are dictionaries of Modalities.
-* Modalities are dictionaries of Annotations. This maybe slightly unintuitive,
-  since the 'beef' of a Modality is its data. However, accessing the
-  Annotations is also important.
-
-Accessing the components in a Pythonic manner is encouraged, but setting them
-that way may lead to to problems. Use instead accessors like
-`Recording.add_modality`.
-
 At time of writing the existence of a Trial class is uncertain in 1.0. If there
 is no Trial class then the only type of Session will be RecordingSession, which
 will be a list of Recordings.

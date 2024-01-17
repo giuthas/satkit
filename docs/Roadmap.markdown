@@ -1,7 +1,5 @@
 # SATKIT 1.0 Roadmap
 
-Items will only be marked as done, once clean up is also done.
-
 - [ ] GUI
   - [ ] Boundaries and labels
     - [x] selection of tier that will be displayed over the graphs
@@ -25,6 +23,7 @@ Items will only be marked as done, once clean up is also done.
   - [ ] Principal component analysis (PCA) / dimensionality reduction
   - [x] Average Nearest Neighbour Distance and Median Point-by-point Distance
   - [x] Some or all of the metrics by [Kathtrine M. Dawson](https://github.com/kdawson2/tshape_analysis)
+  - [x] automated peak and valley selection on time series
 - [ ] Saving and loading
   - [x] textgrids
     - [x] loading
@@ -34,6 +33,8 @@ Items will only be marked as done, once clean up is also done.
     - [x] new style
   - [ ] loading 3D/4D ultrasound data from RASL
   - [x] load splines from .csv files exported by AAA
+  - [ ] load BIOPAC EMG data
+  - [ ] load EVA flow data
   - [x] SATKIT native formats
     - [x] saving results in implementation free, human readable if possible, formats
     - [x] loading

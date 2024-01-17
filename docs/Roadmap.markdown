@@ -34,7 +34,7 @@
   - [ ] loading 3D/4D ultrasound data from RASL
   - [x] load splines from .csv files exported by AAA
   - [ ] load BIOPAC EMG data
-  - [ ] load EVA flow data
+  - [ ] load EVA and possibly other flow data
   - [x] SATKIT native formats
     - [x] saving results in implementation free, human readable if possible, formats
     - [x] loading

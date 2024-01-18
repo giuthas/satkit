@@ -164,10 +164,10 @@ def main():
         referees = number_of_peaks.copy()
         referees = np.moveaxis(referees, (0, 1, 2), (1, 2, 0))
         peak_number_ratio = referees/reference
-        ic(peak_number_ratio.shape)
+        # ic(peak_number_ratio.shape)
         peak_number_ratio = np.moveaxis(
             peak_number_ratio, (0, 1, 2), (2, 1, 0))
-        ic(peak_number_ratio.shape)
+        # ic(peak_number_ratio.shape)
 
         frequency_table = [recording['RawUltrasound'].sampling_rate
                            for recording in recording_session
@@ -187,7 +187,7 @@ def main():
         with PdfPages('figures/peak_numbers2.pdf') as pdf:
             number_of_peaks = np.moveaxis(
                 number_of_peaks, (0, 1, 2), (1, 0, 2))
-            ic(number_of_peaks.shape)
+            # ic(number_of_peaks.shape)
             publish_distribution_data(
                 number_of_peaks,
                 plot_categories=metrics,
@@ -232,10 +232,11 @@ def main():
                 downsampling_ratios=downsampling_ratios,)
             publish_distribution_data_seaborn(
                 dataframe,
-                plot_categories=config.data_run_params['pd_arguments']['norms'],
-                within_plot_categories=frequencies,
+                'prominence',
+                plot_categories='metric',
+                within_plot_categories='downsampling_ratio',
                 pdf=pdf,
-                legend_loc="upper left",
+                category_titles=frequencies,
                 common_ylabel="Mean peak prominence",
                 common_xlabel="Data sampling frequency (Hz)",
             )

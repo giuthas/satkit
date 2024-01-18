@@ -93,55 +93,41 @@ class DistributionPlotParameters(PublishParameters):
 
 def publish_distribution_data_seaborn(
         data_frame: pandas.DataFrame,
-        plot_categories: tuple[str],
-        within_plot_categories: tuple[float],
+        variable: str,
+        plot_categories: str,
+        within_plot_categories: str,
         pdf: PdfPages,
-        figure_size: tuple[float, float] = None,
-        subplot_layout: tuple[int, int] = None,
-        legend_loc: str = "upper right",
+        plot_titles: Optional[list[str]] = None,
+        category_titles: Optional[list[str]] = None,
+        panel_height: float = 2,
+        panel_aspect: float = 1.3,
+        row_length: int = 2,
         common_xlabel: Optional[str] = None,
         common_ylabel: Optional[str] = None,
         suptitle: Optional[str] = None,
-        horizontal_line: Optional[float] = None,
+        ref_line_y: Optional[float] = None,
 ) -> None:
-    if not figure_size:
-        figure_size = (10, 8)
-
-    if not subplot_layout:
-        nrows = math.ceil(math.sqrt(len(plot_categories)))
-        ncols = math.ceil(len(plot_categories) / nrows)
-        subplot_layout = (nrows, ncols)
-
-    figure, axes = plt.subplots(
-        nrows=subplot_layout[0],
-        ncols=subplot_layout[1],
-        sharey=True, sharex=True,
-        figsize=figure_size,
-        gridspec_kw={'hspace': 0, 'wspace': 0}
+    # sns.set(font='serif', style=None, rc={
+    #         'font.style': 'italic', 'text.usetex': True})
+    grid = sns.catplot(
+        data=data_frame, kind='violin',
+        x=within_plot_categories, y=variable,
+        col=plot_categories, col_wrap=2,
+        height=panel_height, aspect=panel_aspect,
+        cut=0, inner=None, native_scale=True
     )
+    grid.map_dataframe(sns.swarmplot, data=data_frame,
+                       x=within_plot_categories, y=variable,
+                       size=2, native_scale=True, color='orange')
+
+    if ref_line_y:
+        grid.refline(y=ref_line_y, linestyle=':')
+
+    if category_titles:
+        grid.set_xticklabels(category_titles, step=1)
 
     # plot_categories = ["l$\infty$" if metric ==
     #                    "l_inf" else metric for metric in plot_categories]
-
-    for i, ax in enumerate(axes.flatten()):
-        plot_data = data_frame.loc[
-            data_frame['metric'] == plot_categories[i]]
-        sns.violinplot(plot_data, ax=ax,
-                       x='downsampling_ratio', y='prominence',
-                       cut=0,
-                       inner=None)
-
-        sns.swarmplot(data=plot_data,
-                      ax=ax,
-                      x="downsampling_ratio", y="prominence",
-                      size=1)
-
-        # ax.legend(
-        #     [plot_parts['cmins']], [plot_categories[i]],
-        #     prop={'family': 'serif', 'style': 'italic'},
-        #     loc=legend_loc,
-        #     handlelength=0,
-        #     handletextpad=0)
 
     pdf.savefig(plt.gcf())
 

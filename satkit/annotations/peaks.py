@@ -271,7 +271,18 @@ def extract_annotation_details(
                         for prominence in peaks.properties['prominences']
                     ]
                 )
-    return pandas.DataFrame(prominence_dicts)
+    dataframe = pandas.DataFrame(prominence_dicts)
+
+    dataframe['metric'] = pandas.Categorical(dataframe['metric'])
+    categories = dataframe['metric'].unique()
+    categories = ["l$\infty$" if metric ==
+                  "l_inf" else metric for metric in categories]
+    dataframe['metric'] = dataframe['metric'].cat.rename_categories(categories)
+
+    values = dataframe['downsampling_ratio'].unique().sort()
+    dataframe['downsampling_ratio'] = pandas.Categorical(
+        dataframe['downsampling_ratio'], categories=values, ordered=True)
+    return dataframe
 
 
 def prominences_in_downsampling(
@@ -319,7 +330,8 @@ def prominences_in_downsampling(
 
     average_prominences = np.moveaxis(
         average_prominences, (0, 1, 2), (1, 0, 2))
-    ic(average_prominences.shape)
+    _logger.debug("average_prominences.shape = %s",
+                  str(average_prominences.shape))
     return average_prominences
 
 
@@ -365,12 +377,11 @@ def nearest_neighbours_in_downsampling(
                 neighbours = get_nearest_neighbours(
                     reference_peaks.times, peaks.times)
                 distances = np.abs(np.diff(neighbours, axis=1))
-                # ic(name, reference_name, distances)
                 average_distances[i][j][k+1] = np.mean(distances)
 
     average_distances = np.moveaxis(
         average_distances, (0, 1, 2), (1, 0, 2))
-    ic(average_distances.shape)
+    _logger.debug("average_distances.shape = %s", str(average_distances.shape))
     return average_distances
 
 

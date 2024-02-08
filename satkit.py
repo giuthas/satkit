@@ -48,7 +48,7 @@ from satkit import log_elapsed_time, set_logging_level
 from satkit.annotations import (
     add_peaks, count_number_of_peaks, nearest_neighbours_in_downsampling,
     prominences_in_downsampling)
-from satkit.annotations.peaks import extract_annotation_details
+from satkit.annotations.peaks import annotations_to_dataframe
 from satkit.configuration import configuration as config
 
 from satkit.metrics import (add_pd,  # add_spline_metric,
@@ -226,8 +226,9 @@ def main():
             )
 
         with PdfPages('figures/seaborn_test.pdf') as pdf:
-            dataframe = extract_annotation_details(
+            dataframe = annotations_to_dataframe(
                 recording_session.recordings,
+                modality_name="RawUltrasound",
                 metrics=metrics,
                 downsampling_ratios=downsampling_ratios,)
             publish_distribution_data_seaborn(

@@ -208,11 +208,13 @@ def find_gesture_peaks(
     return annotations
 
 
-def extract_annotation_details(
+def annotations_to_dataframe(
         # annotation_statistic:
         recordings: list[Recording],
+        modality_name: list[str],
         metrics: tuple[str],
-        downsampling_ratios: tuple[int]
+        downsampling_ratios: tuple[int],
+        annotations: dict[str, tuple[str]] = None
 ) -> pandas.DataFrame:
     exclude = ("water swallow", "bite plate")
     recordings = [
@@ -229,13 +231,13 @@ def extract_annotation_details(
     average_prominences = np.zeros(
         [len(recordings), len(metrics), 1+len(downsampling_ratios)])
 
-    prominence_dicts = []
+    annotation_dicts = []
 
     for i, recording in enumerate(recordings):
         for j, metric in enumerate(metrics):
             modality = recording[reference_names[j]]
             peaks = modality.annotations[AnnotationType.PEAKS]
-            prominence_dicts.extend(
+            annotation_dicts.extend(
                 [
                     {
                         'metric': metric,
@@ -261,7 +263,7 @@ def extract_annotation_details(
                 name = name[0]
                 modality = recording[name]
                 peaks = modality.annotations[AnnotationType.PEAKS]
-                prominence_dicts.extend(
+                annotation_dicts.extend(
                     [
                         {
                             'metric': metric,
@@ -271,7 +273,7 @@ def extract_annotation_details(
                         for prominence in peaks.properties['prominences']
                     ]
                 )
-    dataframe = pandas.DataFrame(prominence_dicts)
+    dataframe = pandas.DataFrame(annotation_dicts)
 
     dataframe['metric'] = pandas.Categorical(dataframe['metric'])
     categories = dataframe['metric'].unique()

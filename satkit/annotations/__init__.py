@@ -31,6 +31,6 @@
 ##
 
 from .peaks import (
-    add_peaks, count_number_of_peaks, extract_annotation_details,
+    add_peaks, count_number_of_peaks, annotations_to_dataframe,
     find_gesture_peaks, nearest_neighbours_in_downsampling,
     prominences_in_downsampling)

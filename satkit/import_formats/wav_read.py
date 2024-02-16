@@ -1,8 +1,8 @@
 #
-# Copyright (c) 2019-2023 
+# Copyright (c) 2019-2023
 # Pertti Palo, Scott Moisik, Matthew Faytak, and Motoki Saito.
 #
-# This file is part of Speech Articulation ToolKIT 
+# This file is part of Speech Articulation ToolKIT
 # (see https://github.com/giuthas/satkit/).
 #
 # This program is free software: you can redistribute it and/or modify
@@ -33,48 +33,86 @@
 from pathlib import Path
 
 import numpy as np
-import satkit.audio_processing as satkit_audio
-# wav file handling
 import scipy.io.wavfile as sio_wavfile
+
+import satkit.audio_processing as satkit_audio
 from satkit.data_structures import ModalityData
 
 
-# TODO: break into two different functions: one that runs beep detection and one that doesn't.
-def read_wav(path: Path, detect_beep: bool=False) -> ModalityData:
+# TODO: break into two different functions: one that runs beep detection and
+# one that doesn't.
+def read_wav(path: Path, detect_beep: bool = False) -> ModalityData:
     """
-    Read wavfile from path.
+    Read a wave file from path.
 
-    Positional argument:
-    path -- Path of the wav file
+    Positional argument: path -- Path of the wav file
 
-    Keyword argument:
-    detect_beep -- Should 1kHz beep detection be run. Changes return values (see below).
+    Keyword argument: detect_beep -- Should 1kHz beep detection be run. Changes
+    return values (see below).
 
-    Returns a ModalityData instance that contains the wav frames, a timevector, and
-    the sampling rate. 
+    Returns a ModalityData instance that contains the wav frames, a timevector,
+    and the sampling rate. 
 
-    Also returns the time of a 1kHz go-signal and a guess about if the file contains 
-    speech if detect_beep = True.
+    Also returns the time of a 1kHz go-signal and a guess about if the file
+    contains speech if detect_beep = True.
     """
     (wav_fs, wav_frames) = sio_wavfile.read(path)
 
     timevector = np.linspace(0, len(wav_frames),
-                                    len(wav_frames),
-                                    endpoint=False)
+                             len(wav_frames),
+                             endpoint=False)
     timevector = timevector/wav_fs
     data = ModalityData(wav_frames, wav_fs, timevector)
 
     if detect_beep:
-        # use a high-pass filter for removing the mains frequency (and anything below it)
-        # from the recorded sound.
+        # use a high-pass filter for removing the mains frequency (and anything
+        # below it) from the recorded sound.
         go_signal, has_speech = satkit_audio.detect_beep_and_speech(
-            wav_frames, 
-            wav_fs, 
+            wav_frames,
+            wav_fs,
             satkit_audio.MainsFilter.mains_filter['b'],
             satkit_audio.MainsFilter.mains_filter['a'],
             path
         )
 
         return data, go_signal, has_speech
-    else:
-        return data
+    return data
+
+
+def read_wav_and_detect_beep(
+        path: Path
+) -> tuple[ModalityData, float, bool]:
+    """
+    Read a wave file from path and detect beep on it.
+
+    Parameters
+    ----------
+    path : Path
+        Path of the wav file
+
+    Returns
+    -------
+    tuple[ModalityData, float, bool]
+        Tuple of a ModalityData instance that contains the wav frames, a timevector
+        and the sampling rate, the time of a 1kHz go-signal and a guess about if the file
+        contains speech.
+    """
+    (wav_fs, wav_frames) = sio_wavfile.read(path)
+
+    timevector = np.linspace(0, len(wav_frames),
+                             len(wav_frames),
+                             endpoint=False)
+    timevector = timevector/wav_fs
+    data = ModalityData(wav_frames, wav_fs, timevector)
+
+    # use a high-pass filter for removing the mains frequency (and anything
+    # below it) from the recorded sound.
+    go_signal, has_speech = satkit_audio.detect_beep_and_speech(
+        wav_frames,
+        wav_fs,
+        satkit_audio.MainsFilter.mains_filter['b'],
+        satkit_audio.MainsFilter.mains_filter['a'],
+        path
+    )
+
+    return data, go_signal, has_speech

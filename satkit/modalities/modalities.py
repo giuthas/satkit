@@ -1,8 +1,8 @@
 #
-# Copyright (c) 2019-2024 
+# Copyright (c) 2019-2024
 # Pertti Palo, Scott Moisik, Matthew Faytak, and Motoki Saito.
 #
-# This file is part of Speech Articulation ToolKIT 
+# This file is part of Speech Articulation ToolKIT
 # (see https://github.com/giuthas/satkit/).
 #
 # This program is free software: you can redistribute it and/or modify
@@ -193,7 +193,7 @@ class RawUltrasound(Modality):
                 not_found = set(RawUltrasound.requiredMetaKeys) - set(meta)
                 _modalities_logger.critical(
                     "Part of metadata missing when processing %s.",
-                    self.meta['filename'])
+                    meta['filename'])
                 _modalities_logger.critical(
                     "Could not find %s.", str(not_found))
                 _modalities_logger.critical('Exiting.')
@@ -341,26 +341,24 @@ class Video(Modality):
             try:
                 wanted_meta = {key: meta[key]
                                for key in Video.requiredMetaKeys}
+                self.meta = deepcopy(wanted_meta)
             except KeyError:
                 # Missing metadata for one recording may be ok and this could
                 # be handled with just a call to _recording_logger.critical and
                 # setting self.excluded = True
                 not_found = set(Video.requiredMetaKeys) - set(meta)
                 _modalities_logger.critical(
-                    "Part of metadata missing when processing "
-                    + self.meta['filename'] + ". ")
+                    "Part of metadata missing when processing %s. ",
+                    meta['filename'])
                 _modalities_logger.critical(
-                    "Could not find " + str(not_found) + ".")
+                    "Could not find %s.", str(not_found))
                 _modalities_logger.critical('Exiting.')
                 sys.exit()
-
-            self.meta.deepcopy(wanted_meta)
 
         super().__init__(
             recording=recording,
             data_path=data_path,
             load_path=load_path,
-            parent=None,
             parsed_data=parsed_data,
             time_offset=time_offset)
 
@@ -431,7 +429,7 @@ class ThreeD_Ultrasound(Modality):
                 not_found = set(RawUltrasound.requiredMetaKeys) - set(meta)
                 _modalities_logger.critical(
                     "Part of metadata missing when processing %s.",
-                    self.meta['filename'])
+                    meta['filename'])
                 _modalities_logger.critical(
                     "Could not find %s.", str(not_found))
                 _modalities_logger.critical('Exiting.')
@@ -444,7 +442,6 @@ class ThreeD_Ultrasound(Modality):
             data_path=data_path,
             meta_path=meta_path,
             load_path=load_path,
-            parent=None,
             parsed_data=parsed_data,
             time_offset=time_offset)
 

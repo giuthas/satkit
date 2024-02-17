@@ -1,8 +1,8 @@
 #
-# Copyright (c) 2019-2024 
+# Copyright (c) 2019-2024
 # Pertti Palo, Scott Moisik, Matthew Faytak, and Motoki Saito.
 #
-# This file is part of Speech Articulation ToolKIT 
+# This file is part of Speech Articulation ToolKIT
 # (see https://github.com/giuthas/satkit/).
 #
 # This program is free software: you can redistribute it and/or modify
@@ -29,6 +29,9 @@
 # articles listed in README.markdown. They can also be found in
 # citations.bib in BibTeX format.
 #
+"""
+Functions for reading wav files with or without some preprocessing.
+"""
 
 from pathlib import Path
 
@@ -39,22 +42,19 @@ import satkit.audio_processing as satkit_audio
 from satkit.data_structures import ModalityData
 
 
-# TODO: break into two different functions: one that runs beep detection and
-# one that doesn't.
-def read_wav(path: Path, detect_beep: bool = False) -> ModalityData:
+def read_wav(path: Path) -> ModalityData:
     """
     Read a wave file from path.
 
-    Positional argument: path -- Path of the wav file
+    Parameters
+    ----------
+    path : Path
+        Path of the wav file
 
-    Keyword argument: detect_beep -- Should 1kHz beep detection be run. Changes
-    return values (see below).
-
-    Returns a ModalityData instance that contains the wav frames, a timevector,
-    and the sampling rate. 
-
-    Also returns the time of a 1kHz go-signal and a guess about if the file
-    contains speech if detect_beep = True.
+    Returns
+    -------
+    ModalityData
+        The sound data, its timevector and sampling rate.
     """
     (wav_fs, wav_frames) = sio_wavfile.read(path)
 
@@ -64,18 +64,6 @@ def read_wav(path: Path, detect_beep: bool = False) -> ModalityData:
     timevector = timevector/wav_fs
     data = ModalityData(wav_frames, wav_fs, timevector)
 
-    if detect_beep:
-        # use a high-pass filter for removing the mains frequency (and anything
-        # below it) from the recorded sound.
-        go_signal, has_speech = satkit_audio.detect_beep_and_speech(
-            wav_frames,
-            wav_fs,
-            satkit_audio.MainsFilter.mains_filter['b'],
-            satkit_audio.MainsFilter.mains_filter['a'],
-            path
-        )
-
-        return data, go_signal, has_speech
     return data
 
 
@@ -93,9 +81,9 @@ def read_wav_and_detect_beep(
     Returns
     -------
     tuple[ModalityData, float, bool]
-        Tuple of a ModalityData instance that contains the wav frames, a timevector
-        and the sampling rate, the time of a 1kHz go-signal and a guess about if the file
-        contains speech.
+        Tuple of a ModalityData instance that contains the wav frames, a
+        timevector and the sampling rate, the time of a 1kHz go-signal and a
+        guess about if the file contains speech.
     """
     (wav_fs, wav_frames) = sio_wavfile.read(path)
 

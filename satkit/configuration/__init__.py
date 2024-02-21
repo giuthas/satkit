@@ -1,8 +1,8 @@
 #
-# Copyright (c) 2019-2024 
+# Copyright (c) 2019-2024
 # Pertti Palo, Scott Moisik, Matthew Faytak, and Motoki Saito.
 #
-# This file is part of Speech Articulation ToolKIT 
+# This file is part of Speech Articulation ToolKIT
 # (see https://github.com/giuthas/satkit/).
 #
 # This program is free software: you can redistribute it and/or modify
@@ -30,7 +30,7 @@
 # citations.bib in BibTeX format.
 #
 
-from .configuration import (
+from .configuration_parsers import (
     config_dict, data_run_params, gui_params, publish_params, PathValidator)
 from .configuration_classes import (
     ExclusionList, PathStructure, SessionConfig,

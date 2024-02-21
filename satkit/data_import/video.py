@@ -1,8 +1,8 @@
 #
-# Copyright (c) 2019-2024 
+# Copyright (c) 2019-2024
 # Pertti Palo, Scott Moisik, Matthew Faytak, and Motoki Saito.
 #
-# This file is part of Speech Articulation ToolKIT 
+# This file is part of Speech Articulation ToolKIT
 # (see https://github.com/giuthas/satkit/).
 #
 # This program is free software: you can redistribute it and/or modify
@@ -75,19 +75,18 @@ def add_video(recording: Recording, preload: bool = False,
     # written AAA.
     if datasource is Datasource.AAA:
         meta = {
-            'FramesPerSec': 59.94
+            'FramesPerSec': 59.94,
+            'preload': preload,
         }
     else:
-        message = "Trying to create a video Modality, "
-        message += "but don't know what to set as frame rate for non-AAA videos."
+        message = "Trying to create a video Modality, but don't "
+        message += "know what to set as frame rate for non-AAA videos."
         raise NotImplementedError(message)
 
     if video_file.is_file():
         video = Video(
             recording=recording,
-            preload=preload,
-            path=video_file,
-            parent=None,
+            data_path=video_file,
             meta=meta
         )
         recording.addModality(video)

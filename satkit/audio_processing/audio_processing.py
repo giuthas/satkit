@@ -1,8 +1,8 @@
 #
-# Copyright (c) 2019-2024 
+# Copyright (c) 2019-2024
 # Pertti Palo, Scott Moisik, Matthew Faytak, and Motoki Saito.
 #
-# This file is part of Speech Articulation ToolKIT 
+# This file is part of Speech Articulation ToolKIT
 # (see https://github.com/giuthas/satkit/).
 #
 # This program is free software: you can redistribute it and/or modify
@@ -177,7 +177,7 @@ def detect_beep_and_speech(frames, sampling_frequency, b, a, name):
     # Find the first properly rising edge in the 50 ms window.
     threshold = .1*min(frames[0:roi_end])
     candidates = np.where(frames[roi_beg:roi_end] < threshold)[0]
-    if not candidates:
+    if not len(candidates) > 0:
         _audio_logger.error("Found no beep in %s.", name)
         return (0, False)
     beep_approx_index = roi_beg + candidates[0]

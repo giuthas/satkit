@@ -1,8 +1,8 @@
 #
-# Copyright (c) 2019-2024 
+# Copyright (c) 2019-2024
 # Pertti Palo, Scott Moisik, Matthew Faytak, and Motoki Saito.
 #
-# This file is part of Speech Articulation ToolKIT 
+# This file is part of Speech Articulation ToolKIT
 # (see https://github.com/giuthas/satkit/).
 #
 # This program is free software: you can redistribute it and/or modify
@@ -51,7 +51,7 @@ from PyQt5.QtCore import QCoreApplication
 from PyQt5.QtGui import QIntValidator
 from PyQt5.QtWidgets import QFileDialog
 from PyQt5.uic import loadUiType
-from satkit.configuration.configuration import config_dict, data_run_params
+from satkit.configuration.configuration_parsers import config_dict, data_run_params
 from satkit.gui.qt_annotator_window import QtAnnotatorWindow
 from satkit.plot_and_publish import plot_timeseries, plot_wav
 from satkit.plot_and_publish.plot import plot_satgrid_tier

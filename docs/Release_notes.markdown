@@ -1,5 +1,19 @@
 # SATKIT Release Notes
 
+## Version 0.9.0
+
+- New functionality and configuration for extracting annotations and producing
+  plots out of them.
+- New two stage config model
+  - Started rolling out a model where configuration files are still parsed with
+    strictyaml to preserve comments in round tripping (which has not yet been
+    implemented), but get reinterpreted as pydantic classes to make coding
+    easier.
+
+Known issues:
+- Same as 0.8.0 plus
+- ?
+
 ## Version 0.8.0
 
 - Splines

@@ -200,7 +200,7 @@ def find_gesture_peaks(
         search_data = search_data/np.max(search_data)
 
     if detection_parameters:
-        # TODO: move these to a better place
+        # TODO: move these to a better place amd document them
         accepted_keys = ['height', 'threshold', 'distance', 'prominence',
                          'width', 'wlen', 'rel_height', 'plateau_size']
         scipy_parameters = {k: detection_parameters[k]

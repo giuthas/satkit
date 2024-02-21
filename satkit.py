@@ -49,7 +49,7 @@ from satkit.annotations import (
     add_peaks, count_number_of_peaks, nearest_neighbours_in_downsampling,
     prominences_in_downsampling)
 from satkit.annotations.peaks import annotations_to_dataframe
-from satkit.configuration import configuration as config
+import satkit.configuration as config
 
 from satkit.metrics import (add_pd,  # add_spline_metric,
                             downsample_metrics)

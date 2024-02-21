@@ -67,7 +67,7 @@ _raw_gui_params_dict = {}
 _raw_plot_params_dict = {}
 _raw_publish_params_dict = {}
 
-_logger = logging.getLogger('satkit.configuration')
+_logger = logging.getLogger('satkit.configuration_parsers')
 
 
 class PathValidator(ScalarValidator):
@@ -228,12 +228,12 @@ def load_run_params(filepath: Union[Path, str, None] = None) -> None:
                 }),
                 Optional("peaks"): Map({
                     "modality_pattern": Str(),
-                    Optional("normalisation"): NormalisationValidator(),
                     Optional("time_min"): time_limit_schema,
                     Optional("time_max"): time_limit_schema,
-                    Optional('height'): Float(),
-                    Optional('threshold'): Float(),
                     Optional("detection_params"): Map({
+                        Optional("normalisation"): NormalisationValidator(),
+                        Optional('height'): Float(),
+                        Optional('threshold'): Float(),
                         Optional("distance"): Int(),
                         Optional("distance_in_seconds"): Float(),
                         Optional("prominence"): Float(),

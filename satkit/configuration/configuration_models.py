@@ -39,8 +39,75 @@ into pydantic models that know what their fields actually are.
 This two level structure is maintained so that in some version after SATKIT 1.0
 we can implement configuration round tripping with preserved comments.
 """
+
 import logging
+from pathlib import Path
+from typing import Optional
 
 from satkit.helpers.base_model_extensions import UpdatableBaseModel
 
 _logger = logging.getLogger('satkit.configuration_models')
+
+
+class MainConfig(UpdatableBaseModel):
+    epsilon: float
+    mains_frequency: float
+    data_run_parameter_file: Path
+    gui_parameter_file: Path
+    publish_parameter_file: Optional[Path]
+
+# data run params
+    # time_limit_schema = Map({
+    #                         "tier": Str(),
+    #                         "interval": IntervalCategoryValidator(),
+    #                         Optional("label"): Str(),
+    #                         "boundary": IntervalBoundaryValidator(),
+    #                         Optional("offset"): Float(),
+    #                         })
+
+    # if filepath.is_file():
+    #     with closing(
+    #             open(filepath, 'r', encoding=DEFAULT_ENCODING)) as yaml_file:
+    #         schema = Map({
+    #             Optional("output directory"): PathValidator(),
+    #             "flags": Map({
+    #                 "detect beep": Bool(),
+    #                 "test": Bool()
+    #             }),
+    #             Optional("pd_arguments"): Map({
+    #                 "norms": Seq(Str()),
+    #                 "timesteps": Seq(Int()),
+    #                 Optional("mask_images", default=False): Bool(),
+    #                 Optional("pd_on_interpolated_data", default=False): Bool(),
+    #                 Optional("release_data_memory", default=True): Bool(),
+    #                 Optional("preload", default=True): Bool(),
+    #             }),
+    #             Optional("peaks"): Map({
+    #                 "modality_pattern": Str(),
+    #                 Optional("normalisation"): NormalisationValidator(),
+    #                 Optional("time_min"): time_limit_schema,
+    #                 Optional("time_max"): time_limit_schema,
+    #                 Optional("detection_params"): Map({
+    #                 Optional('height'): Float(),
+    #                 Optional('threshold'): Float(),
+    #                     Optional("distance"): Int(),
+    #                     Optional("distance_in_seconds"): Float(),
+    #                     Optional("prominence"): Float(),
+    #                     Optional("width"): Int(),
+    #                     Optional('wlen'): Int(),
+    #                     Optional('rel_height'): Float(),
+    #                     Optional('plateau_size'): Float(),
+    #                 }),
+    #             }),
+    #             Optional("downsample"): Map({
+    #                 "modality_pattern": Str(),
+    #                 "match_timestep": Bool(),
+    #                 "downsampling_ratios": Seq(Int()),
+    #             }),
+    #             Optional("cast"): Map({
+    #                 "pronunciation dictionary": PathValidator(),
+    #                 "speaker id": Str(),
+    #                 "cast flags": Map({
+    #                     "only words": Bool(),
+    #                     "file": Bool(),
+    #                     "utterance": Bool()

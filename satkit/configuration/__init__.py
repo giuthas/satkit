@@ -31,6 +31,7 @@
 #
 
 from .configuration_parsers import (
+    load_config,
     config_dict, data_run_params, gui_params, publish_params, PathValidator)
 from .configuration_classes import (
     ExclusionList, PathStructure, SessionConfig,

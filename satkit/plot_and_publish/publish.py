@@ -1,8 +1,8 @@
 #
-# Copyright (c) 2019-2024 
+# Copyright (c) 2019-2024
 # Pertti Palo, Scott Moisik, Matthew Faytak, and Motoki Saito.
 #
-# This file is part of Speech Articulation ToolKIT 
+# This file is part of Speech Articulation ToolKIT
 # (see https://github.com/giuthas/satkit/).
 #
 # This program is free software: you can redistribute it and/or modify
@@ -84,6 +84,9 @@ class PeakStatistic(Enum):
 class AggregationMethod(Enum):
     MEAN = 'mean'
     MEDIAN = 'median'
+    MODE = 'mode'
+    MSE = 'mse'
+    STD = 'std'
     NONE = 'none'
 
 

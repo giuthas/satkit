@@ -4,7 +4,7 @@
 
 - New functionality and configuration for extracting annotations and producing
   plots out of them.
-- New two stage config model
+- New two stage internal configuration model
   - Started rolling out a model where configuration files are still parsed with
     strictyaml to preserve comments in round tripping (which has not yet been
     implemented), but get reinterpreted as pydantic classes to make coding

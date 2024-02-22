@@ -43,7 +43,7 @@ from satkit.constants import SATKIT_FILE_VERSION, SatkitSuffix
 from satkit.data_structures import Modality, Recording, RecordingSession
 from satkit.ui_callbacks import UiCallbacks, OverwriteConfirmation
 
-from .save_and_load_helpers import nested_text_converters
+from .save_and_load_schemas import nested_text_converters
 
 _logger = logging.getLogger('satkit._saver')
 

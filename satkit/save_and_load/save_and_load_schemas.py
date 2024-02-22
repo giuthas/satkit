@@ -69,7 +69,7 @@ class ModalityLoadSchema(BaseModel):
 
 class ModalityListingLoadschema(BaseModel):
     """
-    Loading schema for the Modality listing in a saved Rercording.
+    Loading schema for the Modality listing in a saved Recording.
     """
     data_name: str
     meta_name: Union[str, None]

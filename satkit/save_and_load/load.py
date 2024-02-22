@@ -48,7 +48,7 @@ from satkit.data_import import (
 from satkit.data_structures import ModalityData, Recording, RecordingSession
 from satkit.metrics import metrics
 
-from .save_and_load_helpers import (
+from .save_and_load_schemas import (
     ModalityListingLoadschema, ModalityLoadSchema, RecordingLoadSchema,
     RecordingSessionLoadSchema)
 

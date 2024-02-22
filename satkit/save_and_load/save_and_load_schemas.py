@@ -30,7 +30,7 @@
 # citations.bib in BibTeX format.
 #
 """
-Some general helpers and connectors for saving and loading.
+Pydantic models and converters for saving and loading.
 """
 
 from datetime import datetime

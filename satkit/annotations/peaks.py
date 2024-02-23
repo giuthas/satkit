@@ -83,9 +83,7 @@ def add_peaks(
     Raises
     ------
     NotImplementedError
-        _description_
-    NotImplementedError
-        _description_
+        If IntervalBoundary is not either BEGIN or END
     """
 
     recording = modality.recording

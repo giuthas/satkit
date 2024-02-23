@@ -44,70 +44,146 @@ import logging
 from pathlib import Path
 from typing import Optional
 
+from satkit.constants import IntervalBoundary, IntervalCategory, TimeseriesNormalisation
 from satkit.helpers.base_model_extensions import UpdatableBaseModel
 
 _logger = logging.getLogger('satkit.configuration_models')
 
 
 class MainConfig(UpdatableBaseModel):
+    """
+    _summary_
+    """
     epsilon: float
     mains_frequency: float
     data_run_parameter_file: Path
     gui_parameter_file: Path
     publish_parameter_file: Optional[Path]
 
-# data run params
-    # time_limit_schema = Map({
-    #                         "tier": Str(),
-    #                         "interval": IntervalCategoryValidator(),
-    #                         Optional("label"): Str(),
-    #                         "boundary": IntervalBoundaryValidator(),
-    #                         Optional("offset"): Float(),
-    #                         })
 
-    # if filepath.is_file():
-    #     with closing(
-    #             open(filepath, 'r', encoding=DEFAULT_ENCODING)) as yaml_file:
-    #         schema = Map({
-    #             Optional("output directory"): PathValidator(),
-    #             "flags": Map({
-    #                 "detect beep": Bool(),
-    #                 "test": Bool()
-    #             }),
-    #             Optional("pd_arguments"): Map({
-    #                 "norms": Seq(Str()),
-    #                 "timesteps": Seq(Int()),
-    #                 Optional("mask_images", default=False): Bool(),
-    #                 Optional("pd_on_interpolated_data", default=False): Bool(),
-    #                 Optional("release_data_memory", default=True): Bool(),
-    #                 Optional("preload", default=True): Bool(),
-    #             }),
-    #             Optional("peaks"): Map({
-    #                 "modality_pattern": Str(),
-    #                 Optional("normalisation"): NormalisationValidator(),
-    #                 Optional("time_min"): time_limit_schema,
-    #                 Optional("time_max"): time_limit_schema,
-    #                 Optional("detection_params"): Map({
-    #                 Optional('height'): Float(),
-    #                 Optional('threshold'): Float(),
-    #                     Optional("distance"): Int(),
-    #                     Optional("distance_in_seconds"): Float(),
-    #                     Optional("prominence"): Float(),
-    #                     Optional("width"): Int(),
-    #                     Optional('wlen'): Int(),
-    #                     Optional('rel_height'): Float(),
-    #                     Optional('plateau_size'): Float(),
-    #                 }),
-    #             }),
-    #             Optional("downsample"): Map({
-    #                 "modality_pattern": Str(),
-    #                 "match_timestep": Bool(),
-    #                 "downsampling_ratios": Seq(Int()),
-    #             }),
-    #             Optional("cast"): Map({
-    #                 "pronunciation dictionary": PathValidator(),
-    #                 "speaker id": Str(),
-    #                 "cast flags": Map({
-    #                     "only words": Bool(),
-    #                     "file": Bool(),
-    #                     "utterance": Bool()
+class TimeLimit(UpdatableBaseModel):
+    tier: str
+    interval: IntervalCategory
+    label: Optional[str]
+    boundary: IntervalBoundary
+    offset: Optional[float]
+
+
+class PdArguments(UpdatableBaseModel):
+    norms: list[str]
+    timesteps: list[int]
+    mask_images: Optional[bool] = False
+    pd_on_interpolated_data: Optional[bool] = False
+    release_data_memory: Optional[bool] = True
+    preload: Optional[bool] = True
+
+# TODO following two need better names
+
+
+class PeakDetectionArguments(UpdatableBaseModel):
+    height: Optional[float]
+    threshold: Optional[float]
+    distance: Optional[int]
+    distance_in_seconds: Optional[float]
+    prominence: Optional[float]
+    width: Optional[int]
+    wlen: Optional[int]
+    rel_height: Optional[float]
+    plateau_size: Optional[float]
+
+
+class PeaksParams(UpdatableBaseModel):
+    modality_pattern: str
+    normalisation: Optional[TimeseriesNormalisation]
+    time_min: Optional[TimeLimit]
+    time_max: Optional[TimeLimit]
+    detection_params: Optional[PeakDetectionArguments]
+
+
+class DataRunFlags(UpdatableBaseModel):
+    detect_beep: Optional[bool] = False
+    test: Optional[bool] = False
+
+
+class DownsampleParams(UpdatableBaseModel):
+    modality_pattern: str
+    match_timestep: bool
+    downsampling_ratios: list[int]
+
+
+class CastFlags(UpdatableBaseModel):
+    only_words: bool
+    file: bool
+    utterance: bool
+
+
+class CastParams(UpdatableBaseModel):
+    pronunciation_dictionary: Path
+    speaker_id: str
+    cast_flags: CastFlags
+
+
+class DataRunConfig(UpdatableBaseModel):
+    output_directory: Optional[Path]
+    pd_arguments: Optional[PdArguments]
+    peaks: Optional[PeaksParams]
+    downsample: Optional[DownsampleParams]
+    cast: Optional[CastParams]
+
+# gui params
+#         data/tier height ratios: Map({
+#             data: int
+#             tier: int
+#         data axes: MapPattern(
+#             str, MapCombined(
+#                 {
+#                     sharex: Optional[bool
+#                     modalities: Optional[Seq(str)
+#                 },
+#                 str, Any()
+#             )),
+#         pervasive tiers: Seq(str),
+#         xlim: Optional[FixedSeq([float, float]),
+#         default font size: int
+#     number_of_data_axes = 0
+#     if 'data axes' in gui_params:
+#         if 'global' in gui_params['data axes']:
+#             number_of_data_axes = len(gui_params['data axes']) - 1
+#         else:
+#             number_of_data_axes = len(gui_params['data axes'])
+#     gui_params.update({'number of data axes': number_of_data_axes})
+
+
+# publish params
+#         output file: str
+#         figure size", default=[8.3, 11.7]: Optional[FixedSeq(
+#             [float, float]),
+#         subplot grid: FixedSeq([int(), int()]),
+#         subplots: MapPattern(str, str),
+#         xlim: FixedSeq([float, float]),
+#         xticks: Optional[Seq(str),
+#         yticks: Optional[Seq(str),
+#         use go signal: bool
+#         normalise: NormalisationValidator
+#         plotted tier: str
+#         legend: Optional[Map({
+#             handlelength: Optional[float]
+#             handletextpad: Optional[float]
+
+#     if publish_params['xticks']:
+#         publish_params['xticklabels'] = publish_params['xticks'].copy()
+#         publish_params['xticks'] = np.asarray(
+#             publish_params['xticks'], dtype=float)
+
+#     if publish_params['yticks']:
+#         publish_params['yticklabels'] = publish_params['yticks'].copy()
+#         publish_params['yticks'] = np.asarray(
+#             publish_params['yticks'], dtype=float)
+
+
+# plot params - not implemented
+#         data/tier height ratios: Map({
+#             data: int
+#             tier: int
+#         data axes: Seq(str),
+#         pervasive tiers: Seq(str)

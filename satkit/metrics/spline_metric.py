@@ -45,12 +45,12 @@ from pydantic import PositiveInt
 from satkit.data_structures import (
     Modality, ModalityData, ModalityMetaData, Recording)
 from satkit.helpers import (
-    enum_union, product_dict, PrintableEnum, ValueComparedEnumMeta)
+    enum_union, product_dict, ListablePrintableEnum, ValueComparedEnumMeta)
 
 _logger = logging.getLogger('satkit.spline_metric')
 
 
-class SplineDiffsEnum(PrintableEnum, metaclass=ValueComparedEnumMeta):
+class SplineDiffsEnum(ListablePrintableEnum, metaclass=ValueComparedEnumMeta):
     """
     Spline metrics that use distance between corresponding points.
     """
@@ -60,7 +60,7 @@ class SplineDiffsEnum(PrintableEnum, metaclass=ValueComparedEnumMeta):
     SPLINE_L2 = 'spline_l2'
 
 
-class SplineNNDsEnum(PrintableEnum, metaclass=ValueComparedEnumMeta):
+class SplineNNDsEnum(ListablePrintableEnum, metaclass=ValueComparedEnumMeta):
     """
     Spline metrics that use nearest neighbour distance.
     """
@@ -68,7 +68,7 @@ class SplineNNDsEnum(PrintableEnum, metaclass=ValueComparedEnumMeta):
     MNND = 'mnnd'
 
 
-class SplineShapesEnum(PrintableEnum, metaclass=ValueComparedEnumMeta):
+class SplineShapesEnum(ListablePrintableEnum, metaclass=ValueComparedEnumMeta):
     """
     Spline metrics that characterise shape.
     """

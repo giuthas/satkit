@@ -29,14 +29,19 @@
 # articles listed in README.markdown. They can also be found in
 # citations.bib in BibTeX format.
 #
+"""
+Configuration parsers import human written configuration files.
+
+This module uses strictyaml to make the files safer and to provide
+round tripping with mostly preserved comments.
+"""
+
 import logging
 import sys
 from contextlib import closing
 from pathlib import Path
 from typing import Union
-# from ruamel.yaml import YAML
 
-# yaml=YAML()
 # from icecream import ic
 
 import numpy as np
@@ -47,11 +52,6 @@ from strictyaml import (Any, Bool, FixedSeq, Float, Int, Map, MapCombined,
 from satkit.constants import DEFAULT_ENCODING, TimeseriesNormalisation
 
 from .configuration_classes import IntervalBoundary, IntervalCategory
-
-
-# TODO: Convert all the public members to UpdatableBaseModel from
-# satkit.helpers.base_model_extensions and implement an update method as well
-# as save functionality.
 
 config_dict = {}
 data_run_params = {}
@@ -130,7 +130,7 @@ class IntervalBoundaryValidator(ScalarValidator):
         return None
 
 
-def load_config(filepath: Union[Path, str, None] = None) -> None:
+def parse_config(filepath: Union[Path, str, None] = None) -> None:
     """
     Read the config file from filepath and recursively the other config files.
 

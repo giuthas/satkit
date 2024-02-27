@@ -29,11 +29,32 @@
 # articles listed in README.markdown. They can also be found in
 # citations.bib in BibTeX format.
 #
+import logging
+from pathlib import Path
+from typing import Union
+
+# TODO: implement an update method as well
+# as save functionality.
 
 from .configuration_parsers import (
-    parse_config,
-    config_dict, data_run_params, gui_params, publish_params, PathValidator)
-from .configuration_classes import (
-    ExclusionList, PathStructure, SessionConfig,
-    SplineConfig, SplineDataConfig, SplineImportConfig)
+    parse_config, config_dict, data_run_params, gui_params, publish_params
+)
 from .configuration_models import MainConfig
+
+_logger = logging.getLogger('satkit.configuration_setup')
+main_config = None
+data_run_config = None
+gui_config = None
+publish_config = None
+
+
+def setup_configuration(
+        configuration_file: Union[Path, str, None] = None) -> None:
+    parse_config(configuration_file)
+    global main_config
+    if main_config is None:
+        main_config = MainConfig(**config_dict)
+    else:
+        raise NotImplementedError(
+            "Updating configuration from a file has not yet been implemented.")
+        # main_config.update(**config_dict)

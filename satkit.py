@@ -72,10 +72,11 @@ def main():
     cli = SatkitArgumentParser("SATKIT")
 
     logger = set_logging_level(cli.args.verbose)
+
     if cli.args.configuration_filename:
-        config.load_config(cli.args.configuration_filename)
+        config.parse_config(cli.args.configuration_filename)
     else:
-        config.load_config()
+        config.parse_config()
     ic(config.config_dict)
     main_config = config.MainConfig(**config.config_dict)
     ic(main_config)

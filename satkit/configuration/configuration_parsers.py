@@ -139,10 +139,10 @@ def load_config(filepath: Union[Path, str, None] = None) -> None:
     exist, report this and exit.
     """
     load_main_config(filepath)
-    load_run_params(config_dict['data run parameter file'])
-    load_gui_params(config_dict['gui parameter file'])
-    # load_plot_params(config['plotting parameter file'])
-    load_publish_params(config_dict['publish parameter file'])
+    load_run_params(config_dict['data_run_parameter_file'])
+    load_gui_params(config_dict['gui_parameter_file'])
+    # load_plot_params(config['plotting_parameter_file'])
+    load_publish_params(config_dict['publish_parameter_file'])
 
 
 def load_main_config(filepath: Union[Path, str, None] = None) -> None:
@@ -165,10 +165,10 @@ def load_main_config(filepath: Union[Path, str, None] = None) -> None:
                 open(filepath, 'r', encoding=DEFAULT_ENCODING)) as yaml_file:
             schema = Map({
                 "epsilon": Float(),
-                "mains frequency": Float(),
-                "data run parameter file": PathValidator(),
-                "gui parameter file": PathValidator(),
-                Optional("publish parameter file"): PathValidator()
+                "mains_frequency": Float(),
+                "data_run_parameter_file": PathValidator(),
+                "gui_parameter_file": PathValidator(),
+                Optional("publish_parameter_file"): PathValidator()
             })
             try:
                 _raw_config_dict = load(yaml_file.read(), schema)

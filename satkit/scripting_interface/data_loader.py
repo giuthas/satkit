@@ -46,7 +46,7 @@ from satkit.save_and_load import load_recording_session
 logger = logging.getLogger('satkit.scripting')
 
 # TODO: change the name of this file to data_importer and move it to a more
-# appropriete submodule.
+# appropriate submodule.
 
 
 def load_data(path: Path) -> RecordingSession:
@@ -63,10 +63,10 @@ def load_data(path: Path) -> RecordingSession:
     RecordingSession
         The generated RecordingSession object with the exclusion list applied.
     """
-    if config_dict['mains frequency']:
+    if config_dict['mains_frequency']:
         MainsFilter.generate_mains_filter(
             44100,
-            config_dict['mains frequency'])
+            config_dict['mains_frequency'])
     else:
         MainsFilter.generate_mains_filter(44100, 50)
 

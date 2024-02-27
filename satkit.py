@@ -76,6 +76,9 @@ def main():
         config.load_config(cli.args.configuration_filename)
     else:
         config.load_config()
+    ic(config.config_dict)
+    main_config = config.MainConfig(**config.config_dict)
+    ic(main_config)
 
     recording_session = load_data(Path(cli.args.load_path))
 

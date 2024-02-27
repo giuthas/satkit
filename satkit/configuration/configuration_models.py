@@ -44,11 +44,15 @@ import logging
 from pathlib import Path
 from typing import Optional
 
-from satkit.constants import IntervalBoundary, IntervalCategory, TimeseriesNormalisation
+from satkit.constants import (
+    IntervalBoundary, IntervalCategory, TimeseriesNormalisation)
 from satkit.helpers.base_model_extensions import UpdatableBaseModel
 
 _logger = logging.getLogger('satkit.configuration_models')
 
+
+# TODO try parsing with something like main_config =
+# MainConfig(**main_config_dict)
 
 class MainConfig(UpdatableBaseModel):
     """
@@ -77,10 +81,8 @@ class PdArguments(UpdatableBaseModel):
     release_data_memory: Optional[bool] = True
     preload: Optional[bool] = True
 
-# TODO following two need better names
 
-
-class PeakDetectionArguments(UpdatableBaseModel):
+class FindPeaksArguments(UpdatableBaseModel):
     height: Optional[float]
     threshold: Optional[float]
     distance: Optional[int]
@@ -92,12 +94,12 @@ class PeakDetectionArguments(UpdatableBaseModel):
     plateau_size: Optional[float]
 
 
-class PeaksParams(UpdatableBaseModel):
+class PeakDetectionParams(UpdatableBaseModel):
     modality_pattern: str
     normalisation: Optional[TimeseriesNormalisation]
     time_min: Optional[TimeLimit]
     time_max: Optional[TimeLimit]
-    detection_params: Optional[PeakDetectionArguments]
+    detection_params: Optional[FindPeaksArguments]
 
 
 class DataRunFlags(UpdatableBaseModel):
@@ -126,7 +128,7 @@ class CastParams(UpdatableBaseModel):
 class DataRunConfig(UpdatableBaseModel):
     output_directory: Optional[Path]
     pd_arguments: Optional[PdArguments]
-    peaks: Optional[PeaksParams]
+    peaks: Optional[PeakDetectionParams]
     downsample: Optional[DownsampleParams]
     cast: Optional[CastParams]
 

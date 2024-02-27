@@ -74,7 +74,6 @@ class UpdatableBaseModel(EmptyStrAsNoneBaseModel):
 
     The update will trigger validation again.
     """
-    my_field: str = Field(None)
 
     def update(self, data: dict) -> 'UpdatableBaseModel':
         """

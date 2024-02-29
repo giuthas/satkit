@@ -100,7 +100,9 @@ def add_peaks(
         peak_parameters['detection_params']['distance'] = distance
 
     annotations = find_gesture_peaks(
-        modality.data, modality.timevector,
+        modality.data,
+        modality.timevector,
+        peak_parameters['normalisation'],
         peak_parameters['detection_params'])
     modality.add_annotations(annotations)
 
@@ -167,6 +169,7 @@ def add_peaks(
 def find_gesture_peaks(
         data: np.ndarray,
         timevector: np.ndarray,
+        normalisation: Optional[TimeseriesNormalisation],
         detection_parameters: dict = None,
 ) -> PointAnnotations:
     """
@@ -189,16 +192,15 @@ def find_gesture_peaks(
     PointAnnotations
         The gesture peaks asa PointAnnotations object.
     """
-    normalise = detection_parameters['normalisation']
     bottom = (TimeseriesNormalisation.both, TimeseriesNormalisation.bottom)
-    if normalise in bottom:
+    if normalisation in bottom:
         search_data = data - np.min(data)
     peak = (TimeseriesNormalisation.both, TimeseriesNormalisation.peak)
-    if normalise in peak:
+    if normalisation in peak:
         search_data = search_data/np.max(search_data)
 
     if detection_parameters:
-        # TODO: move these to a better place amd document them
+        # TODO: move these to a better place amd document them do this by asking PeakDetectionParams if the keys are members?
         accepted_keys = ['height', 'threshold', 'distance', 'prominence',
                          'width', 'wlen', 'rel_height', 'plateau_size']
         scipy_parameters = {k: detection_parameters[k]

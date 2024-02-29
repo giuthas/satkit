@@ -47,7 +47,7 @@ from typing import Union
 import numpy as np
 from strictyaml import (Any, Bool, FixedSeq, Float, Int, Map, MapCombined,
                         MapPattern, Optional, ScalarValidator, Seq, Str,
-                        YAMLError, load)
+                        YAML, YAMLError, load)
 
 from satkit.constants import DEFAULT_ENCODING, TimeseriesNormalisation
 
@@ -145,7 +145,7 @@ def parse_config(filepath: Union[Path, str, None] = None) -> None:
     load_publish_params(config_dict['publish_parameter_file'])
 
 
-def load_main_config(filepath: Union[Path, str, None] = None) -> None:
+def load_main_config(filepath: Union[Path, str, None] = None) -> YAML:
     """
     Read the config file from filepath.
 
@@ -183,9 +183,10 @@ def load_main_config(filepath: Union[Path, str, None] = None) -> None:
         sys.exit()
 
     config_dict.update(_raw_config_dict.data)
+    return _raw_config_dict
 
 
-def load_run_params(filepath: Union[Path, str, None] = None) -> None:
+def load_run_params(filepath: Union[Path, str, None] = None) -> YAML:
     """
     Read the config file from filepath.
 
@@ -213,9 +214,9 @@ def load_run_params(filepath: Union[Path, str, None] = None) -> None:
         with closing(
                 open(filepath, 'r', encoding=DEFAULT_ENCODING)) as yaml_file:
             schema = Map({
-                Optional("output directory"): PathValidator(),
+                Optional("output_directory"): PathValidator(),
                 "flags": Map({
-                    "detect beep": Bool(),
+                    "detect_beep": Bool(),
                     "test": Bool()
                 }),
                 Optional("pd_arguments"): Map({
@@ -230,8 +231,8 @@ def load_run_params(filepath: Union[Path, str, None] = None) -> None:
                     "modality_pattern": Str(),
                     Optional("time_min"): time_limit_schema,
                     Optional("time_max"): time_limit_schema,
+                    Optional("normalisation"): NormalisationValidator(),
                     Optional("detection_params"): Map({
-                        Optional("normalisation"): NormalisationValidator(),
                         Optional('height'): Float(),
                         Optional('threshold'): Float(),
                         Optional("distance"): Int(),
@@ -249,10 +250,10 @@ def load_run_params(filepath: Union[Path, str, None] = None) -> None:
                     "downsampling_ratios": Seq(Int()),
                 }),
                 Optional("cast"): Map({
-                    "pronunciation dictionary": PathValidator(),
-                    "speaker id": Str(),
-                    "cast flags": Map({
-                        "only words": Bool(),
+                    "pronunciation_dictionary": PathValidator(),
+                    "speaker_id": Str(),
+                    "cast_flags": Map({
+                        "only_words": Bool(),
                         "file": Bool(),
                         "utterance": Bool()
                     })
@@ -275,9 +276,10 @@ def load_run_params(filepath: Union[Path, str, None] = None) -> None:
         if 'normalisation' not in data_run_params['peaks']:
             data_run_params['peaks']['normalisation'] = (
                 TimeseriesNormalisation.none)
+    return _raw_data_run_params_dict
 
 
-def load_gui_params(filepath: Union[Path, str, None] = None) -> None:
+def load_gui_params(filepath: Union[Path, str, None] = None) -> YAML:
     """
     Read the config file from filepath.
 
@@ -297,21 +299,24 @@ def load_gui_params(filepath: Union[Path, str, None] = None) -> None:
         with closing(
                 open(filepath, 'r', encoding=DEFAULT_ENCODING)) as yaml_file:
             schema = Map({
-                "data/tier height ratios": Map({
+                "data_and_tier_height_ratios": Map({
                     "data": Int(),
                     "tier": Int()
                 }),
-                "data axes": MapPattern(
+                "data_axes": MapPattern(
                     Str(), MapCombined(
                         {
                             Optional("sharex"): Bool(),
                             Optional("modalities"): Seq(Str())
                         },
+                        # TODO The following looks to be a bad choice which
+                        # allows any string to be used as a key followed by any
+                        # value.
                         Str(), Any()
                     )),
-                "pervasive tiers": Seq(Str()),
+                "pervasive_tiers": Seq(Str()),
                 Optional("xlim"): FixedSeq([Float(), Float()]),
-                "default font size": Int(),
+                "default_font_size": Int(),
             })
             try:
                 _raw_gui_params_dict = load(yaml_file.read(), schema)
@@ -328,15 +333,16 @@ def load_gui_params(filepath: Union[Path, str, None] = None) -> None:
     gui_params.update(_raw_gui_params_dict.data)
 
     number_of_data_axes = 0
-    if 'data axes' in gui_params:
-        if 'global' in gui_params['data axes']:
-            number_of_data_axes = len(gui_params['data axes']) - 1
+    if 'data_axes' in gui_params:
+        if 'global' in gui_params['data_axes']:
+            number_of_data_axes = len(gui_params['data_axes']) - 1
         else:
-            number_of_data_axes = len(gui_params['data axes'])
-    gui_params.update({'number of data axes': number_of_data_axes})
+            number_of_data_axes = len(gui_params['data_axes'])
+    gui_params.update({'number_of_data_axes': number_of_data_axes})
+    return _raw_gui_params_dict
 
 
-def load_publish_params(filepath: Union[Path, str, None] = None) -> None:
+def load_publish_params(filepath: Union[Path, str, None] = None) -> YAML:
     """
     Read the config file from filepath.
 
@@ -356,17 +362,17 @@ def load_publish_params(filepath: Union[Path, str, None] = None) -> None:
         with closing(
                 open(filepath, 'r', encoding=DEFAULT_ENCODING)) as yaml_file:
             schema = Map({
-                "output file": Str(),
-                Optional("figure size", default=[8.3, 11.7]): FixedSeq(
+                "output_file": Str(),
+                Optional("figure_size", default=[8.3, 11.7]): FixedSeq(
                     [Float(), Float()]),
-                "subplot grid": FixedSeq([Int(), Int()]),
+                "subplot_grid": FixedSeq([Int(), Int()]),
                 "subplots": MapPattern(Str(), Str()),
                 "xlim": FixedSeq([Float(), Float()]),
                 Optional("xticks"): Seq(Str()),
                 Optional("yticks"): Seq(Str()),
-                "use go signal": Bool(),
+                "use_go_signal": Bool(),
                 "normalise": NormalisationValidator(),
-                "plotted tier": Str(),
+                "plotted_tier": Str(),
                 Optional("legend"): Map({
                     Optional("handlelength"): Float(),
                     Optional("handletextpad"): Float(),
@@ -395,9 +401,10 @@ def load_publish_params(filepath: Union[Path, str, None] = None) -> None:
         publish_params['yticklabels'] = publish_params['yticks'].copy()
         publish_params['yticks'] = np.asarray(
             publish_params['yticks'], dtype=float)
+    return _raw_publish_params_dict
 
 
-def load_plot_params(filepath: Union[Path, str, None] = None) -> None:
+def load_plot_params(filepath: Union[Path, str, None] = None) -> YAML:
     """
     Read the plot configuration file from filepath.
 
@@ -406,35 +413,36 @@ def load_plot_params(filepath: Union[Path, str, None] = None) -> None:
 
     raise NotImplementedError
 
-    if filepath is None:
-        print("Fatal error in loading run parameters: filepath is None")
-        sys.exit()
-    elif isinstance(filepath, str):
-        filepath = Path(filepath)
+    # if filepath is None:
+    #     print("Fatal error in loading run parameters: filepath is None")
+    #     sys.exit()
+    # elif isinstance(filepath, str):
+    #     filepath = Path(filepath)
 
-    _logger.debug("Loading plot configuration from %s", str(filepath))
+    # _logger.debug("Loading plot configuration from %s", str(filepath))
 
-    if filepath.is_file():
-        with closing(
-                open(filepath, 'r', encoding=DEFAULT_ENCODING)) as yaml_file:
-            schema = Map({
-                "data/tier height ratios": Map({
-                    "data": Int(),
-                    "tier": Int()
-                }),
-                "data axes": Seq(Str()),
-                "pervasive tiers": Seq(Str())
-            })
-            try:
-                _raw_plot_params_dict = load(yaml_file.read(), schema)
-            except YAMLError as error:
-                _logger.fatal("Fatal error in reading %s.",
-                              str(filepath))
-                _logger.fatal(str(error))
-                raise
-    else:
-        _logger.fatal(
-            "Didn't find plot parameter file at %s.", str(filepath))
-        sys.exit()
+    # if filepath.is_file():
+    #     with closing(
+    #             open(filepath, 'r', encoding=DEFAULT_ENCODING)) as yaml_file:
+    #         schema = Map({
+    #             "data_and_tier_height_ratios": Map({
+    #                 "data": Int(),
+    #                 "tier": Int()
+    #             }),
+    #             "data_axes": Seq(Str()),
+    #             "pervasive_tiers": Seq(Str())
+    #         })
+    #         try:
+    #             _raw_plot_params_dict = load(yaml_file.read(), schema)
+    #         except YAMLError as error:
+    #             _logger.fatal("Fatal error in reading %s.",
+    #                           str(filepath))
+    #             _logger.fatal(str(error))
+    #             raise
+    # else:
+    #     _logger.fatal(
+    #         "Didn't find plot parameter file at %s.", str(filepath))
+    #     sys.exit()
 
-    plot_params.update(_raw_plot_params_dict.data)
+    # plot_params.update(_raw_plot_params_dict.data)
+    # return _raw_plot_params_dict

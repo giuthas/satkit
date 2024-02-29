@@ -33,28 +33,70 @@ import logging
 from pathlib import Path
 from typing import Union
 
-# TODO: implement an update method as well
-# as save functionality.
+from icecream import ic
 
 from .configuration_parsers import (
-    parse_config, config_dict, data_run_params, gui_params, publish_params
+    load_main_config, load_gui_params, load_publish_params,
+    load_run_params  # , load_plot_params
 )
-from .configuration_models import MainConfig
+from .configuration_models import GuiConfig, MainConfig, DataRunConfig, PublishConfig
 
 _logger = logging.getLogger('satkit.configuration_setup')
-main_config = None
-data_run_config = None
-gui_config = None
-publish_config = None
 
 
-def setup_configuration(
-        configuration_file: Union[Path, str, None] = None) -> None:
-    parse_config(configuration_file)
-    global main_config
-    if main_config is None:
-        main_config = MainConfig(**config_dict)
-    else:
+class Configuration():
+    # TODO
+    # - internal state for storing the raw strictyaml things
+    # - externally accessible models for use by the rest of SATKIT
+    # - load on demand?
+
+    # TODO: implement an update method as well
+    # as save functionality.
+
+    def __init__(
+            self,
+            configuration_file: Union[Path, str, None] = None) -> None:
+
+        self._main_config_yaml = load_main_config(configuration_file)
+        self._main_config = MainConfig(**self._main_config_yaml.data)
+
+        self._data_run_yaml = load_run_params(
+            self._main_config.data_run_parameter_file)
+        self._data_run_config = DataRunConfig(**self._data_run_yaml.data)
+
+        self._gui_yaml = load_gui_params(self._main_config.gui_parameter_file)
+        self._gui_config = GuiConfig(**self._gui_yaml.data)
+
+        # self._plot_yaml = load_plot_params(config['plotting_parameter_file'])
+        # self._plot_config = PlotConfig(**self._plot_yaml.data)
+
+        self._publish_yaml = load_publish_params(
+            self._main_config.publish_parameter_file)
+        self._publish_config = PublishConfig(**self._publish_yaml.data)
+
+    @property
+    def main_config(self) -> MainConfig:
+        return self._main_config
+
+    @property
+    def data_run_config(self) -> DataRunConfig:
+        return self._data_run_config
+
+    @property
+    def gui_config(self) -> GuiConfig:
+        return self._gui_config
+
+    @property
+    def publish_config(self) -> PublishConfig:
+        return self._publish_config
+
+    def update_from_file(
+            self, configuration_file: Union[Path, str, None] = None) -> None:
         raise NotImplementedError(
             "Updating configuration from a file has not yet been implemented.")
         # main_config.update(**config_dict)
+
+    def save_to_file(
+            self, configuration_file: Union[Path, str, None] = None) -> None:
+        raise NotImplementedError(
+            "Saving configuration to a file has not yet been implemented.")

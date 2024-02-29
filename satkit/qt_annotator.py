@@ -189,7 +189,7 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
         #     'key_release_event', self.on_key_release)
 
         matplotlib.rcParams.update(
-            {'font.size': gui_params['default font size']})
+            {'font.size': gui_params['default_font_size']})
 
         self.xlim = xlim
 
@@ -203,8 +203,8 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
                     recording['PD l1 on RawUltrasound'].data[10:])
         self.ylim = (-50, np.max(max_pds)*1.05)
 
-        height_ratios = [gui_params['data/tier height ratios']["data"],
-                         gui_params['data/tier height ratios']["tier"]]
+        height_ratios = [gui_params['data_and_tier_height_ratios']["data"],
+                         gui_params['data_and_tier_height_ratios']["tier"]]
         self.main_grid_spec = self.figure.add_gridspec(
             nrows=2,
             ncols=1,
@@ -212,7 +212,7 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
             wspace=0,
             height_ratios=height_ratios)
 
-        nro_data_modalities = gui_params['number of data axes']
+        nro_data_modalities = gui_params['number_of_data_axes']
         self.data_grid_spec = self.main_grid_spec[0].subgridspec(
             nro_data_modalities, 1, hspace=0, wspace=0)
         self.data_axes.append(self.figure.add_subplot(self.data_grid_spec[0]))
@@ -366,7 +366,7 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
         ultra_time = l1.timevector - stimulus_onset
         ylim = None
 
-        if 'auto x' in gui_params and gui_params['auto x']:
+        if 'auto_x' in gui_params and gui_params['auto_x']:
             # TODO: find the minimum and maximum timestamp of all the
             # modalities being plotted. this can be really done only after
             # plotting is controlled by config instead of manual code
@@ -443,7 +443,7 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
                 name, rotation=0, horizontalalignment="right",
                 verticalalignment="center")
             axis.set_xlim(self.xlim)
-            if name in gui_params["pervasive tiers"]:
+            if name in gui_params["pervasive_tiers"]:
                 for axis in self.data_axes:
                     boundary_set = plot_satgrid_tier(
                         axis, tier, time_offset=stimulus_onset,
@@ -876,7 +876,7 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
         if event.key() == Qt.Key_Shift:
             self.shift_is_held = True
         if event.key() == Qt.Key_I:
-            gui_params['auto x'] = False
+            gui_params['auto_x'] = False
             if self.current.annotations['selection_index'] >= 0:
                 center = self.current.annotations['selected_time']
             else:
@@ -895,7 +895,7 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
                 gui_params['xlim'] = self.xlim
             self.update()
         elif event.key() == Qt.Key_A:
-            gui_params['auto x'] = True
+            gui_params['auto_x'] = True
             self.update()
         # else:
         #     print(event.key())

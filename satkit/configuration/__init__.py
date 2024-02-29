@@ -37,3 +37,4 @@ from .configuration_classes import (
     ExclusionList, PathStructure, SessionConfig,
     SplineConfig, SplineDataConfig, SplineImportConfig)
 from .configuration_models import MainConfig
+from .configuration_setup import Configuration

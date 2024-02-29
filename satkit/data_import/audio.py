@@ -65,7 +65,7 @@ def add_audio(
         ult_wav_file = path
 
     if ult_wav_file.is_file():
-        if preload and data_run_params['flags']['detect beep']:
+        if preload and data_run_params['flags']['detect_beep']:
             data, go_signal, has_speech = read_wav_and_detect_beep(
                 ult_wav_file)
             waveform = MonoAudio(

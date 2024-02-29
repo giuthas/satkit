@@ -42,7 +42,10 @@ we can implement configuration round tripping with preserved comments.
 
 import logging
 from pathlib import Path
-from typing import Optional
+from typing import NewType, Optional
+
+import numpy as np
+from pydantic import computed_field, conlist
 
 from satkit.constants import (
     IntervalBoundary, IntervalCategory, TimeseriesNormalisation)
@@ -50,9 +53,9 @@ from satkit.helpers.base_model_extensions import UpdatableBaseModel
 
 _logger = logging.getLogger('satkit.configuration_models')
 
+FloatPair = NewType('FloatPair', conlist(float, min_length=2, max_length=2))
+IntPair = NewType('IntPair', conlist(int, min_length=2, max_length=2))
 
-# TODO try parsing with something like main_config =
-# MainConfig(**main_config_dict)
 
 class MainConfig(UpdatableBaseModel):
     """
@@ -62,15 +65,15 @@ class MainConfig(UpdatableBaseModel):
     mains_frequency: float
     data_run_parameter_file: Path
     gui_parameter_file: Path
-    publish_parameter_file: Optional[Path]
+    publish_parameter_file: Optional[Path] = None
 
 
 class TimeLimit(UpdatableBaseModel):
     tier: str
     interval: IntervalCategory
-    label: Optional[str]
+    label: Optional[str] = None
     boundary: IntervalBoundary
-    offset: Optional[float]
+    offset: Optional[float] = None
 
 
 class PdArguments(UpdatableBaseModel):
@@ -83,23 +86,23 @@ class PdArguments(UpdatableBaseModel):
 
 
 class FindPeaksArguments(UpdatableBaseModel):
-    height: Optional[float]
-    threshold: Optional[float]
-    distance: Optional[int]
-    distance_in_seconds: Optional[float]
-    prominence: Optional[float]
-    width: Optional[int]
-    wlen: Optional[int]
-    rel_height: Optional[float]
-    plateau_size: Optional[float]
+    height: Optional[float] = None
+    threshold: Optional[float] = None
+    distance: Optional[int] = None
+    distance_in_seconds: Optional[float] = None
+    prominence: Optional[float] = None
+    width: Optional[int] = None
+    wlen: Optional[int] = None
+    rel_height: Optional[float] = None
+    plateau_size: Optional[float] = None
 
 
 class PeakDetectionParams(UpdatableBaseModel):
     modality_pattern: str
-    normalisation: Optional[TimeseriesNormalisation]
-    time_min: Optional[TimeLimit]
-    time_max: Optional[TimeLimit]
-    detection_params: Optional[FindPeaksArguments]
+    normalisation: Optional[TimeseriesNormalisation] = None
+    time_min: Optional[TimeLimit] = None
+    time_max: Optional[TimeLimit] = None
+    detection_params: Optional[FindPeaksArguments] = None
 
 
 class DataRunFlags(UpdatableBaseModel):
@@ -126,61 +129,67 @@ class CastParams(UpdatableBaseModel):
 
 
 class DataRunConfig(UpdatableBaseModel):
-    output_directory: Optional[Path]
-    pd_arguments: Optional[PdArguments]
-    peaks: Optional[PeakDetectionParams]
-    downsample: Optional[DownsampleParams]
-    cast: Optional[CastParams]
-
-# gui params
-#         data/tier height ratios: Map({
-#             data: int
-#             tier: int
-#         data axes: MapPattern(
-#             str, MapCombined(
-#                 {
-#                     sharex: Optional[bool
-#                     modalities: Optional[Seq(str)
-#                 },
-#                 str, Any()
-#             )),
-#         pervasive tiers: Seq(str),
-#         xlim: Optional[FixedSeq([float, float]),
-#         default font size: int
-#     number_of_data_axes = 0
-#     if 'data axes' in gui_params:
-#         if 'global' in gui_params['data axes']:
-#             number_of_data_axes = len(gui_params['data axes']) - 1
-#         else:
-#             number_of_data_axes = len(gui_params['data axes'])
-#     gui_params.update({'number of data axes': number_of_data_axes})
+    output_directory: Optional[Path] = None
+    pd_arguments: Optional[PdArguments] = None
+    peaks: Optional[PeakDetectionParams] = None
+    downsample: Optional[DownsampleParams] = None
+    cast: Optional[CastParams] = None
 
 
-# publish params
-#         output file: str
-#         figure size", default=[8.3, 11.7]: Optional[FixedSeq(
-#             [float, float]),
-#         subplot grid: FixedSeq([int(), int()]),
-#         subplots: MapPattern(str, str),
-#         xlim: FixedSeq([float, float]),
-#         xticks: Optional[Seq(str),
-#         yticks: Optional[Seq(str),
-#         use go signal: bool
-#         normalise: NormalisationValidator
-#         plotted tier: str
-#         legend: Optional[Map({
-#             handlelength: Optional[float]
-#             handletextpad: Optional[float]
+class HeightRatios(UpdatableBaseModel):
+    data: int
+    tier: int
 
-#     if publish_params['xticks']:
-#         publish_params['xticklabels'] = publish_params['xticks'].copy()
-#         publish_params['xticks'] = np.asarray(
-#             publish_params['xticks'], dtype=float)
 
-#     if publish_params['yticks']:
-#         publish_params['yticklabels'] = publish_params['yticks'].copy()
-#         publish_params['yticks'] = np.asarray(
-#             publish_params['yticks'], dtype=float)
+class AxesParams(UpdatableBaseModel):
+    sharex: Optional[bool] = None
+    modalities: Optional[list[str]] = None
+
+
+class GuiConfig(UpdatableBaseModel):
+    data_and_tier_height_ratios: HeightRatios
+    data_axes: dict[str, AxesParams]
+    pervasive_tiers: list[str]
+    xlim: Optional[FloatPair] = None
+    default_font_size: int
+
+    @computed_field
+    @property
+    def number_of_data_axes(self) -> int:
+        if self.data_axes:
+            if 'global' in self.data_axes:
+                return len(self.data_axes) - 1
+            return len(self.data_axes)
+        return 0
+
+
+class LegendParams(UpdatableBaseModel):
+    handlelength: Optional[float]
+    handletextpad: Optional[float]
+
+
+class PublishConfig(UpdatableBaseModel):
+    output_file: str
+    figure_size: Optional[FloatPair] = [8.3, 11.7]
+    subplot_grid: IntPair
+    subplots: dict[str, str]
+    xlim: FloatPair
+    xticks: list[str]
+    yticks: list[str]
+    use_go_signal: bool
+    normalise: TimeseriesNormalisation
+    plotted_tier: str
+    legend: Optional[LegendParams] = None
+
+    @computed_field
+    @property
+    def xtick_values(self) -> list[float]:
+        return np.asarray(self.xticks, dtype=float)
+
+    @computed_field
+    @property
+    def ytick_values(self) -> list[float]:
+        return np.asarray(self.yticks, dtype=float)
 
 
 # plot params - not implemented

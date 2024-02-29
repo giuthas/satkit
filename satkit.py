@@ -65,7 +65,7 @@ from satkit.scripting_interface import (
 
 
 def main():
-    """Simple main to run the CLI back end and start the QT front end."""
+    """Simple main to run the CLI and start the GUI."""
 
     # Arguments need to be parsed before setting up logging so that we have
     # access to the verbosity argument.
@@ -78,8 +78,8 @@ def main():
     else:
         config.parse_config()
     ic(config.config_dict)
-    main_config = config.MainConfig(**config.config_dict)
-    ic(main_config)
+    configuration = config.Configuration(cli.args.configuration_filename)
+    ic(configuration)
 
     recording_session = load_data(Path(cli.args.load_path))
 

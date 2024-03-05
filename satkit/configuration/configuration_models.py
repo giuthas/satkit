@@ -45,7 +45,7 @@ from pathlib import Path
 from typing import NewType, Optional
 
 import numpy as np
-from pydantic import computed_field, conlist
+from pydantic import conlist
 
 from satkit.constants import (
     IntervalBoundary, IntervalCategory, TimeseriesNormalisation)
@@ -85,11 +85,10 @@ class PdArguments(UpdatableBaseModel):
     preload: Optional[bool] = True
 
 
-class FindPeaksArguments(UpdatableBaseModel):
+class FindPeaksScipyArguments(UpdatableBaseModel):
     height: Optional[float] = None
     threshold: Optional[float] = None
     distance: Optional[int] = None
-    distance_in_seconds: Optional[float] = None
     prominence: Optional[float] = None
     width: Optional[int] = None
     wlen: Optional[int] = None
@@ -99,10 +98,11 @@ class FindPeaksArguments(UpdatableBaseModel):
 
 class PeakDetectionParams(UpdatableBaseModel):
     modality_pattern: str
-    normalisation: Optional[TimeseriesNormalisation] = None
     time_min: Optional[TimeLimit] = None
     time_max: Optional[TimeLimit] = None
-    detection_params: Optional[FindPeaksArguments] = None
+    normalisation: Optional[TimeseriesNormalisation] = None
+    distance_in_seconds: Optional[float] = None
+    find_peaks_args: Optional[FindPeaksScipyArguments] = None
 
 
 class DataRunFlags(UpdatableBaseModel):
@@ -153,7 +153,7 @@ class GuiConfig(UpdatableBaseModel):
     xlim: Optional[FloatPair] = None
     default_font_size: int
 
-    @computed_field
+    # @computed_field
     @property
     def number_of_data_axes(self) -> int:
         if self.data_axes:
@@ -181,12 +181,12 @@ class PublishConfig(UpdatableBaseModel):
     plotted_tier: str
     legend: Optional[LegendParams] = None
 
-    @computed_field
+    # @computed_field
     @property
     def xtick_values(self) -> list[float]:
         return np.asarray(self.xticks, dtype=float)
 
-    @computed_field
+    # @computed_field
     @property
     def ytick_values(self) -> list[float]:
         return np.asarray(self.yticks, dtype=float)

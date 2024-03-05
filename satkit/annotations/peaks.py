@@ -51,6 +51,7 @@ import matplotlib.gridspec as gridspec
 import matplotlib.pyplot as plt
 from matplotlib.backends.backend_pdf import PdfPages
 from scipy import signal as scipy_signal
+from satkit.configuration import FindPeaksScipyArguments, PeakDetectionParams
 
 from satkit.data_structures import Modality, PointAnnotations, Recording
 from satkit.constants import (
@@ -64,7 +65,7 @@ _logger = logging.getLogger('satkit.peak_detection')
 
 def add_peaks(
     modality: Modality,
-    peak_parameters: dict = None,
+    peak_parameters: PeakDetectionParams = None,
     release_data_memory: bool = False,
 ) -> None:
     """
@@ -93,30 +94,28 @@ def add_peaks(
             recording.basename)
         return
 
-    if 'distance_in_seconds' in peak_parameters['detection_params']:
+    if peak_parameters.distance_in_seconds:
         distance = math.ceil(
-            peak_parameters['detection_params']['distance_in_seconds'] *
+            peak_parameters.distance_in_seconds *
             modality.sampling_rate)
-        peak_parameters['detection_params']['distance'] = distance
+        peak_parameters.find_peaks_args.distance = distance
 
     annotations = find_gesture_peaks(
         modality.data,
         modality.timevector,
-        peak_parameters['normalisation'],
-        peak_parameters['detection_params'])
+        peak_parameters.normalisation,
+        peak_parameters.find_peaks_args)
     modality.add_annotations(annotations)
 
-    if 'time_min' in peak_parameters and recording.satgrid:
-        tier_name = peak_parameters['time_min']['tier']
+    if peak_parameters.time_min and recording.satgrid:
+        tier_name = peak_parameters.time_min.tier
         tier = recording.satgrid[tier_name]
 
-        interval_category = peak_parameters['time_min']['interval']
-        label = None
-        if 'label' in peak_parameters['time_min']:
-            label = peak_parameters['time_min']['label']
-        interval = tier.get_interval_by_category(interval_category, label)
+        interval_category = peak_parameters.time_min.interval
+        interval = tier.get_interval_by_category(
+            interval_category, peak_parameters.time_min.label)
 
-        interval_boundary = peak_parameters['time_min']['boundary']
+        interval_boundary = peak_parameters.time_min.boundary
         if interval_boundary is IntervalBoundary.BEGIN:
             time_min = interval.begin
         elif interval_boundary is IntervalBoundary.END:
@@ -125,26 +124,24 @@ def add_peaks(
             raise NotImplementedError(
                 f"Unknown interval boundary type: {interval_boundary}")
 
-        if 'offset' in peak_parameters['time_min']:
-            time_min += peak_parameters['time_min']['offset']
+        if peak_parameters.time_min.offset:
+            time_min += peak_parameters.time_min.offset
 
         annotations.apply_lower_time_limit(time_min)
 
-    if 'time_max' in peak_parameters and recording.satgrid:
+    if peak_parameters.time_max and recording.satgrid:
         time_max = None
-        tier_name = peak_parameters['time_max']['tier']
+        tier_name = peak_parameters.time_max.tier
         tier = recording.satgrid[tier_name]
 
-        interval_category = peak_parameters['time_max']['interval']
-        label = None
-        if 'label' in peak_parameters['time_max']:
-            label = peak_parameters['time_max']['label']
-        interval = tier.get_interval_by_category(interval_category, label)
+        interval_category = peak_parameters.time_max.interval
+        interval = tier.get_interval_by_category(
+            interval_category, peak_parameters.time_max.label)
         if interval is None:
             interval = tier.get_interval_by_category(
                 IntervalCategory.LAST_NON_EMPTY)
 
-        interval_boundary = peak_parameters['time_max']['boundary']
+        interval_boundary = peak_parameters.time_max.boundary
         if interval_boundary is IntervalBoundary.BEGIN:
             time_max = interval.begin
         elif interval_boundary is IntervalBoundary.END:
@@ -154,8 +151,8 @@ def add_peaks(
                 f"Unknown interval boundary type: {interval_boundary}")
 
         if time_max is not None:
-            if 'offset' in peak_parameters['time_max']:
-                time_max += peak_parameters['time_max']['offset']
+            if peak_parameters.time_max.offset:
+                time_max += peak_parameters.time_max.offset
             annotations.apply_upper_time_limit(time_max)
 
     if release_data_memory:
@@ -170,7 +167,7 @@ def find_gesture_peaks(
         data: np.ndarray,
         timevector: np.ndarray,
         normalisation: Optional[TimeseriesNormalisation],
-        detection_parameters: dict = None,
+        find_peaks_args: FindPeaksScipyArguments = None,
 ) -> PointAnnotations:
     """
     Find peaks in the data with `scipy_signal.find_peaks`.
@@ -192,22 +189,17 @@ def find_gesture_peaks(
     PointAnnotations
         The gesture peaks asa PointAnnotations object.
     """
+    search_data = data
     bottom = (TimeseriesNormalisation.both, TimeseriesNormalisation.bottom)
     if normalisation in bottom:
-        search_data = data - np.min(data)
+        search_data = search_data - np.min(data)
     peak = (TimeseriesNormalisation.both, TimeseriesNormalisation.peak)
     if normalisation in peak:
         search_data = search_data/np.max(search_data)
 
-    if detection_parameters:
-        # TODO: move these to a better place amd document them do this by asking PeakDetectionParams if the keys are members?
-        accepted_keys = ['height', 'threshold', 'distance', 'prominence',
-                         'width', 'wlen', 'rel_height', 'plateau_size']
-        scipy_parameters = {k: detection_parameters[k]
-                            for k in detection_parameters
-                            if k in accepted_keys}
+    if find_peaks_args:
         peaks, properties = scipy_signal.find_peaks(
-            search_data, **scipy_parameters
+            search_data, **find_peaks_args.model_dump()
         )
     else:
         peaks, properties = scipy_signal.find_peaks(search_data)
@@ -215,7 +207,7 @@ def find_gesture_peaks(
     peak_times = timevector[peaks]
     annotations = PointAnnotations(
         AnnotationType.PEAKS, peaks, peak_times,
-        detection_parameters, properties)
+        find_peaks_args, properties)
     return annotations
 
 

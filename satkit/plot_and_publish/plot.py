@@ -197,7 +197,8 @@ def mark_peaks(
     annotations = modality.annotations[AnnotationType.PEAKS]
     peaks = annotations.indeces
     properties = annotations.properties
-    normalise = annotations.generating_parameters['normalisation']
+    # TODO make the type annotations work with normalisation here
+    normalise = annotations.generating_parameters.normalisation
 
     _plot_logger.debug("Normalisation is %s.", normalise)
     if normalise in (TimeseriesNormalisation.both, TimeseriesNormalisation.bottom):

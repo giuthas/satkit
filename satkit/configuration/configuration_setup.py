@@ -39,19 +39,21 @@ from .configuration_parsers import (
     load_main_config, load_gui_params, load_publish_params,
     load_run_params  # , load_plot_params
 )
-from .configuration_models import GuiConfig, MainConfig, DataRunConfig, PublishConfig
+from .configuration_models import (
+    GuiConfig, MainConfig, DataRunConfig, PublishConfig
+)
 
 _logger = logging.getLogger('satkit.configuration_setup')
 
 
 class Configuration():
     # TODO
-    # - internal state for storing the raw strictyaml things
-    # - externally accessible models for use by the rest of SATKIT
-    # - load on demand?
+    # - reload
 
     # TODO: implement an update method as well
     # as save functionality.
+
+    # TODO: __repr__
 
     def __init__(
             self,

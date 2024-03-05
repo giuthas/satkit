@@ -232,11 +232,11 @@ def load_run_params(filepath: Union[Path, str, None] = None) -> YAML:
                     Optional("time_min"): time_limit_schema,
                     Optional("time_max"): time_limit_schema,
                     Optional("normalisation"): NormalisationValidator(),
-                    Optional("detection_params"): Map({
+                    Optional("distance_in_seconds"): Float(),
+                    Optional("find_peaks_args"): Map({
                         Optional('height'): Float(),
                         Optional('threshold'): Float(),
                         Optional("distance"): Int(),
-                        Optional("distance_in_seconds"): Float(),
                         Optional("prominence"): Float(),
                         Optional("width"): Int(),
                         Optional('wlen'): Int(),

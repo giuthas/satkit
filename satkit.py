@@ -77,9 +77,7 @@ def main():
         config.parse_config(cli.args.configuration_filename)
     else:
         config.parse_config()
-    ic(config.config_dict)
     configuration = config.Configuration(cli.args.configuration_filename)
-    ic(configuration)
 
     recording_session = load_data(Path(cli.args.load_path))
 
@@ -96,7 +94,7 @@ def main():
     #     'pd_on_interpolated_data': False,
     #     'release_data_memory': True,
     #     'preload': True}
-    pd_arguments = config.data_run_params['pd_arguments']
+    pd_arguments = configuration.data_run_config.pd_arguments
 
     # TODO: turn these commented out bits into an example script of how to do
     # things programmatically.
@@ -111,7 +109,7 @@ def main():
     function_dict = {
         'PD': (add_pd,
                [RawUltrasound],
-               pd_arguments)  # ,
+               pd_arguments.model_dump())  # ,
 
         # 'SplineMetric': (add_spline_metric,
         #                  [Splines],
@@ -134,15 +132,16 @@ def main():
     #                                  'preload': True})
     # multi_process_data(recordings, operation)
 
-    if 'downsample' in config.data_run_params:
-        downsample_config = config.data_run_params['downsample']
+    if configuration.data_run_config.downsample:
+        downsample_config = configuration.data_run_config.downsample
 
         for recording in recording_session:
-            downsample_metrics(recording, **downsample_config)
+            downsample_metrics(recording, **downsample_config.model_dump())
 
     exclusion = ("water swallow", "bite plate")
-    if 'peaks' in config.data_run_params:
-        modality_pattern = config.data_run_params['peaks']['modality_pattern']
+    data_run_config = configuration.data_run_config
+    if data_run_config.peaks:
+        modality_pattern = data_run_config.peaks.modality_pattern
         for recording in recording_session:
             if any(prompt in recording.meta_data.prompt for prompt in exclusion):
                 print(f"jumping over {recording.basename}")
@@ -151,11 +150,11 @@ def main():
                 if modality_pattern in modality_name:
                     add_peaks(
                         recording[modality_name],
-                        config.data_run_params['peaks'],
+                        configuration.data_run_config.peaks,
                     )
 
-        metrics = config.data_run_params['pd_arguments']['norms']
-        downsampling_ratios = config.data_run_params['downsample']['downsampling_ratios']
+        metrics = data_run_config.pd_arguments.norms
+        downsampling_ratios = data_run_config.downsample.downsampling_ratios
         number_of_peaks = count_number_of_peaks(
             recording_session.recordings,
             metrics=metrics,
@@ -207,7 +206,7 @@ def main():
                     recording_session.recordings,
                     metrics=metrics,
                     downsampling_ratios=downsampling_ratios,),
-                plot_categories=config.data_run_params['pd_arguments']['norms'],
+                plot_categories=metrics,
                 within_plot_categories=frequencies,
                 pdf=pdf,
                 legend_loc="upper left",
@@ -221,7 +220,7 @@ def main():
                     recording_session.recordings,
                     metrics=metrics,
                     downsampling_ratios=downsampling_ratios,),
-                plot_categories=config.data_run_params['pd_arguments']['norms'],
+                plot_categories=metrics,
                 within_plot_categories=frequencies,
                 pdf=pdf,
                 legend_loc="upper left",

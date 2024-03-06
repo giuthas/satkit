@@ -51,12 +51,13 @@ import matplotlib.gridspec as gridspec
 import matplotlib.pyplot as plt
 from matplotlib.backends.backend_pdf import PdfPages
 from scipy import signal as scipy_signal
-from satkit.configuration import FindPeaksScipyArguments, PeakDetectionParams
 
+from satkit.helpers import normalise_timeseries
+from satkit.configuration import (
+    FindPeaksScipyArguments, PeakDetectionParams, TimeseriesNormalisation)
 from satkit.data_structures import Modality, PointAnnotations, Recording
 from satkit.constants import (
-    DEFAULT_ENCODING, AnnotationType, IntervalBoundary, IntervalCategory,
-    TimeseriesNormalisation
+    DEFAULT_ENCODING, AnnotationType, IntervalBoundary, IntervalCategory
 )
 from satkit.metrics import PD
 
@@ -167,7 +168,7 @@ def find_gesture_peaks(
         data: np.ndarray,
         timevector: np.ndarray,
         normalisation: Optional[TimeseriesNormalisation],
-        find_peaks_args: FindPeaksScipyArguments = None,
+        peak_params: PeakDetectionParams = None,
 ) -> PointAnnotations:
     """
     Find peaks in the data with `scipy_signal.find_peaks`.
@@ -189,17 +190,11 @@ def find_gesture_peaks(
     PointAnnotations
         The gesture peaks asa PointAnnotations object.
     """
-    search_data = data
-    bottom = (TimeseriesNormalisation.both, TimeseriesNormalisation.bottom)
-    if normalisation in bottom:
-        search_data = search_data - np.min(data)
-    peak = (TimeseriesNormalisation.both, TimeseriesNormalisation.peak)
-    if normalisation in peak:
-        search_data = search_data/np.max(search_data)
+    search_data = normalise_timeseries(data, normalisation=normalisation)
 
-    if find_peaks_args:
+    if peak_params.find_peaks_args:
         peaks, properties = scipy_signal.find_peaks(
-            search_data, **find_peaks_args.model_dump()
+            search_data, **peak_params.find_peaks_args.model_dump()
         )
     else:
         peaks, properties = scipy_signal.find_peaks(search_data)
@@ -207,7 +202,7 @@ def find_gesture_peaks(
     peak_times = timevector[peaks]
     annotations = PointAnnotations(
         AnnotationType.PEAKS, peaks, peak_times,
-        find_peaks_args, properties)
+        peak_params, properties)
     return annotations
 
 
@@ -472,7 +467,7 @@ def time_series_peaks(
         data: np.ndarray,
         time: np.ndarray,
         time_lim: Tuple[float, float],
-        normalise: TimeseriesNormalisation = 'NONE',
+        normalise: Optional[TimeseriesNormalisation],
         number_of_ignored_frames: int = 10,
         distance: Optional[int] = 10,
         prominence: Optional[float] = 0.05):
@@ -485,10 +480,7 @@ def time_series_peaks(
     search_data = search_data[indeces]
     search_time = search_time[indeces]
 
-    if normalise in (TimeseriesNormalisation.both, TimeseriesNormalisation.bottom):
-        search_data = search_data - np.min(search_data)
-    if normalise in [TimeseriesNormalisation.both, TimeseriesNormalisation.peak]:
-        search_data = search_data/np.max(search_data)
+    search_data = normalise_timeseries(search_data, normalisation=normalise)
 
     peaks, properties = scipy_signal.find_peaks(
         search_data, distance=distance, prominence=prominence)

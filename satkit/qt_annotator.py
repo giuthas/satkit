@@ -58,8 +58,8 @@ from icecream import ic
 # Local modules
 # import satkit.io as satkit_io
 from satkit.data_structures import RecordingSession
-from satkit.constants import TimeseriesNormalisation
-from satkit.configuration import gui_params, config_dict, data_run_params
+from satkit.configuration import (
+    TimeseriesNormalisation, gui_params, config_dict, data_run_params)
 from satkit.gui import BoundaryAnimator, ReplaceDialog
 from satkit.plot_and_publish import (
     mark_peaks, plot_spline, plot_satgrid_tier, plot_spectrogram,
@@ -392,7 +392,7 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
                 self.xlim, ylim,
                 # color=(0+i*.1, 0+i*.1, 0+i*.1),
                 # linestyle=(0, (i+1, i+1)),
-                normalise=TimeseriesNormalisation('PEAK AND BOTTOM'),
+                normalise=TimeseriesNormalisation(peak=True, bottom=True),
                 # sampling_step=i+1
             )
             mark_peaks(self.data_axes[i],

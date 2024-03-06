@@ -88,7 +88,7 @@ import_config:
 data_config:
   # How many points should be ignored at the front and at the end of a spline.
   # All of the data is always read in, This setting is used in plotting and
-  # processing the splines. Defaultst to 0 at front and 0 at back if not specified:
+  # processing the splines. Defaults to 0 at front and 0 at back if not specified:
   # ignore_points:
   #   - 0
   #   - 0

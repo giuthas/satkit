@@ -74,6 +74,7 @@ class Configuration():
 
         self._publish_yaml = load_publish_params(
             self._main_config.publish_parameter_file)
+        ic(self._publish_yaml.data)
         self._publish_config = PublishConfig(**self._publish_yaml.data)
 
     @property

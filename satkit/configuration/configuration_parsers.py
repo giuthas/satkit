@@ -49,9 +49,10 @@ from strictyaml import (Any, Bool, FixedSeq, Float, Int, Map, MapCombined,
                         MapPattern, Optional, ScalarValidator, Seq, Str,
                         YAML, YAMLError, load)
 
-from satkit.constants import DEFAULT_ENCODING, TimeseriesNormalisation
+from satkit.constants import DEFAULT_ENCODING
 
 from .configuration_classes import IntervalBoundary, IntervalCategory
+from .configuration_models import SearchPattern, TimeseriesNormalisation
 
 config_dict = {}
 data_run_params = {}
@@ -96,7 +97,22 @@ class NormalisationValidator(ScalarValidator):
 
     def validate_scalar(self, chunk):
         if chunk.contents:
-            return TimeseriesNormalisation(chunk.contents)
+            return TimeseriesNormalisation.build(chunk.contents)
+        return None
+
+
+class SearchPatternValidator(ScalarValidator):
+    """
+    Validate yaml representing a Path.
+
+    Please note that empty fields are interpreted as not available and
+    represented by None. If you want to specify current working directory, use
+    '.'
+    """
+
+    def validate_scalar(self, chunk):
+        if chunk.contents:
+            return SearchPattern.build(chunk.contents)
         return None
 
 
@@ -158,7 +174,7 @@ def load_main_config(filepath: Union[Path, str, None] = None) -> YAML:
     elif not isinstance(filepath, Path):
         filepath = Path('configuration/configuration.yaml')
 
-    _logger.debug("Loading main configuration from %s", str(filepath))
+    _logger.info("Loading main configuration from %s", str(filepath))
 
     if filepath.is_file():
         with closing(
@@ -200,7 +216,7 @@ def load_run_params(filepath: Union[Path, str, None] = None) -> YAML:
     elif isinstance(filepath, str):
         filepath = Path(filepath)
 
-    _logger.debug("Loading run configuration from %s", str(filepath))
+    _logger.info("Loading run configuration from %s", str(filepath))
 
     time_limit_schema = Map({
                             "tier": Str(),
@@ -293,7 +309,7 @@ def load_gui_params(filepath: Union[Path, str, None] = None) -> YAML:
     elif isinstance(filepath, str):
         filepath = Path(filepath)
 
-    _logger.debug("Loading GUI configuration from %s", str(filepath))
+    _logger.info("Loading GUI configuration from %s", str(filepath))
 
     if filepath.is_file():
         with closing(
@@ -356,7 +372,7 @@ def load_publish_params(filepath: Union[Path, str, None] = None) -> YAML:
     elif isinstance(filepath, str):
         filepath = Path(filepath)
 
-    _logger.debug("Loading publish configuration from %s", str(filepath))
+    _logger.info("Loading publish configuration from %s", str(filepath))
 
     if filepath.is_file():
         with closing(
@@ -365,17 +381,26 @@ def load_publish_params(filepath: Union[Path, str, None] = None) -> YAML:
                 "output_file": Str(),
                 Optional("figure_size", default=[8.3, 11.7]): FixedSeq(
                     [Float(), Float()]),
-                "subplot_grid": FixedSeq([Int(), Int()]),
-                "subplots": MapPattern(Str(), Str()),
-                "xlim": FixedSeq([Float(), Float()]),
-                Optional("xticks"): Seq(Str()),
-                Optional("yticks"): Seq(Str()),
-                "use_go_signal": Bool(),
-                "normalise": NormalisationValidator(),
-                "plotted_tier": Str(),
                 Optional("legend"): Map({
                     Optional("handlelength"): Float(),
                     Optional("handletextpad"): Float(),
+                }),
+                Optional("timeseries_plot"): Map({
+                    "use_go_signal": Bool(),
+                    "normalise": NormalisationValidator(),
+                    "plotted_tier": Str(),
+                    "subplot_grid": FixedSeq([Int(), Int()]),
+                    "subplots": MapPattern(Str(), Str()),
+                    "xlim": FixedSeq([Float(), Float()]),
+                    Optional("xticks"): Seq(Str()),
+                    Optional("yticks"): Seq(Str()),
+                }),
+                Optional("annotation_stats_plot"): Map({
+                    "modality_pattern": SearchPatternValidator(),
+                    "plotted_annotation": Str(),
+                    "panel_by": Str(),
+                    "aggregate": Bool(),
+                    "aggregation_methods": Seq(Str()),
                 }),
             })
             try:
@@ -419,7 +444,7 @@ def load_plot_params(filepath: Union[Path, str, None] = None) -> YAML:
     # elif isinstance(filepath, str):
     #     filepath = Path(filepath)
 
-    # _logger.debug("Loading plot configuration from %s", str(filepath))
+    # _logger.info("Loading plot configuration from %s", str(filepath))
 
     # if filepath.is_file():
     #     with closing(

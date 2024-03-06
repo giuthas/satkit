@@ -42,13 +42,13 @@ we can implement configuration round tripping with preserved comments.
 
 import logging
 from pathlib import Path
-from typing import NewType, Optional
+from typing import Any, NewType, Optional, Union
 
 import numpy as np
 from pydantic import conlist
 
 from satkit.constants import (
-    IntervalBoundary, IntervalCategory, TimeseriesNormalisation)
+    IntervalBoundary, IntervalCategory)
 from satkit.helpers.base_model_extensions import UpdatableBaseModel
 
 _logger = logging.getLogger('satkit.configuration_models')
@@ -66,6 +66,71 @@ class MainConfig(UpdatableBaseModel):
     data_run_parameter_file: Path
     gui_parameter_file: Path
     publish_parameter_file: Optional[Path] = None
+
+
+class SearchPattern(UpdatableBaseModel):
+    pattern: str
+    is_regexp: Optional[bool] = False
+
+    @staticmethod
+    def build(value: Union[dict, str]) -> 'SearchPattern':
+
+        if isinstance(value, str):
+            return SearchPattern(pattern=value)
+
+        if isinstance(value, dict):
+            return SearchPattern(**value)
+
+        raise ValueError("Unrecognised input value type: "
+                         + type(value).__name__ + ".")
+
+
+class TimeseriesNormalisation(UpdatableBaseModel):
+    """
+
+    """
+    peak: Optional[bool] = False
+    bottom: Optional[bool] = False
+
+    # TODO: this class needs a special dumper to save things correctly.
+
+    @staticmethod
+    def build(
+            value: str) -> 'TimeseriesNormalisation':
+        """
+        Construct a TimeseriesNormalisation object from a string value.
+
+        The value usually comes from a config file.
+
+        Parameters
+        ----------
+        value : str
+            'none': no normalisation
+            'peak': divide all data points y-values by the largest y-value
+            'bottom': deduct the lowest y-value from all data points y-values
+            'both': do first bottom normalisation and then peak normalisation.
+
+        Returns
+        -------
+        TimeseriesNormalisation
+            The new TimeseriesNormalisation with fields set as expected.
+        """
+        print(value)
+        match value:
+            case 'none':
+                print(value)
+                return TimeseriesNormalisation()
+            case 'peak':
+                print(value)
+                return TimeseriesNormalisation(peak=True)
+            case 'bottom':
+                print(value)
+                return TimeseriesNormalisation(bottom=True)
+            case 'both':
+                print(value)
+                return TimeseriesNormalisation(peak=True, bottom=True)
+            case _:
+                raise ValueError("Unrecognised value: " + value + ".")
 
 
 class TimeLimit(UpdatableBaseModel):
@@ -97,7 +162,7 @@ class FindPeaksScipyArguments(UpdatableBaseModel):
 
 
 class PeakDetectionParams(UpdatableBaseModel):
-    modality_pattern: str
+    modality_pattern: SearchPattern
     time_min: Optional[TimeLimit] = None
     time_max: Optional[TimeLimit] = None
     normalisation: Optional[TimeseriesNormalisation] = None
@@ -111,7 +176,7 @@ class DataRunFlags(UpdatableBaseModel):
 
 
 class DownsampleParams(UpdatableBaseModel):
-    modality_pattern: str
+    modality_pattern: SearchPattern
     match_timestep: bool
     downsampling_ratios: list[int]
 
@@ -168,28 +233,58 @@ class LegendParams(UpdatableBaseModel):
     handletextpad: Optional[float]
 
 
-class PublishConfig(UpdatableBaseModel):
-    output_file: str
-    figure_size: Optional[FloatPair] = [8.3, 11.7]
-    subplot_grid: IntPair
-    subplots: dict[str, str]
-    xlim: FloatPair
-    xticks: list[str]
-    yticks: list[str]
+class PlotConfig(UpdatableBaseModel):
+    output_file: Optional[str]
+    figure_size: Optional[FloatPair] = None
+    legend: Optional[LegendParams] = None
+
+
+class TimeseriesPlotConfig(PlotConfig):
     use_go_signal: bool
     normalise: TimeseriesNormalisation
     plotted_tier: str
-    legend: Optional[LegendParams] = None
+    subplot_grid: IntPair
+    subplots: dict[str, str]
+    xlim: FloatPair
+    xticks: Optional[list[str]]
+    yticks: Optional[list[str]]
 
     # @computed_field
     @property
     def xtick_values(self) -> list[float]:
-        return np.asarray(self.xticks, dtype=float)
+        if self.xticks:
+            return np.asarray(self.xticks, dtype=float)
+        return None
 
     # @computed_field
     @property
     def ytick_values(self) -> list[float]:
-        return np.asarray(self.yticks, dtype=float)
+        if self.yticks:
+            return np.asarray(self.yticks, dtype=float)
+        return None
+
+
+class AnnotationStatsPlotConfig(PlotConfig):
+    modality_pattern: SearchPattern
+    plotted_annotation: str
+    aggregate: bool
+    aggregation_methods: list[str]
+    panel_by: str
+
+
+class PublishConfig(UpdatableBaseModel):
+    output_file: str
+    figure_size: Optional[FloatPair] = [8.3, 11.7]
+    legend: Optional[LegendParams] = None
+
+    def model_post_init(self, __context: Any) -> None:
+        if self.container:
+            if not self.output_file:
+                self.output_file = self.container.output_file
+            if not self.figure_size:
+                self.figure_size = self.container.figure_size
+            if not self.legend:
+                self.legend = self.container.legend
 
 
 # plot params - not implemented

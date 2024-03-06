@@ -45,9 +45,11 @@ from scipy import interpolate
 
 from icecream import ic
 
-from satkit.constants import AnnotationType, TimeseriesNormalisation
+from satkit.configuration import TimeseriesNormalisation
+from satkit.constants import AnnotationType
 from satkit.data_structures import Modality
 from satkit.gui.boundary_animation import AnimatableBoundary, BoundaryAnimator
+from satkit.helpers import normalise_timeseries
 from satkit.satgrid import SatTier
 
 _plot_logger = logging.getLogger('satkit.plot')
@@ -85,7 +87,7 @@ def plot_timeseries(axes: Axes,
                     time: np.ndarray,
                     xlim: Tuple[float, float],
                     ylim: Optional[Tuple[float, float]] = None,
-                    normalise: TimeseriesNormalisation = 'NONE',
+                    normalise: Optional[TimeseriesNormalisation] = None,
                     number_of_ignored_frames: int = 10,
                     ylabel: Optional[str] = None,
                     picker=None,
@@ -123,10 +125,7 @@ def plot_timeseries(axes: Axes,
     plot_time = time[number_of_ignored_frames:]
 
     _plot_logger.debug("Normalisation is %s.", normalise)
-    if normalise in (TimeseriesNormalisation.both, TimeseriesNormalisation.bottom):
-        plot_data = plot_data - np.min(plot_data)
-    if normalise in [TimeseriesNormalisation.both, TimeseriesNormalisation.peak]:
-        plot_data = plot_data/np.max(plot_data)
+    plot_data = normalise_timeseries(plot_data, normalisation=normalise)
 
     if picker:
         axes.plot(
@@ -144,11 +143,13 @@ def plot_timeseries(axes: Axes,
 
     if ylim:
         axes.set_ylim(ylim)
-    elif normalise in [TimeseriesNormalisation.both]:
-        axes.set_ylim([-0.05, 1.05])
-    elif normalise in [TimeseriesNormalisation.peak]:
-        axes.set_ylim([-0.05, 1.05])
-        # axes.set_yscale('log')
+    else:
+        y_limits = axes.get_ylim
+        if normalise.peak:
+            y_limits[1] = 1.05
+        elif normalise.bottom:
+            y_limits[0] = -0.05
+        axes.set_ylim(y_limits)
 
     if ylabel:
         axes.set_ylabel(ylabel)
@@ -201,10 +202,7 @@ def mark_peaks(
     normalise = annotations.generating_parameters.normalisation
 
     _plot_logger.debug("Normalisation is %s.", normalise)
-    if normalise in (TimeseriesNormalisation.both, TimeseriesNormalisation.bottom):
-        data = data - np.min(data)
-    if normalise in [TimeseriesNormalisation.both, TimeseriesNormalisation.peak]:
-        data = data/np.max(data)
+    data = normalise_timeseries(data, normalisation=normalise)
 
     prominences = properties['prominences']
     contour_heights = data[peaks] - prominences

@@ -53,6 +53,7 @@ from satkit.configuration import PathStructure, SessionConfig
 from satkit.constants import AnnotationType, SatkitSuffix
 from satkit.errors import MissingDataError, ModalityError, OverWriteError
 from satkit.helpers import EmptyStrAsNoneBaseModel, is_sequence_form
+from satkit.helpers import UpdatableBaseModel
 from satkit.satgrid import SatGrid
 
 _datastructures_logger = logging.getLogger('satkit.data_structures')
@@ -111,7 +112,7 @@ class PointAnnotations():
     annotation_type: AnnotationType
     indeces: np.ndarray
     times: np.ndarray
-    generating_parameters: dict
+    generating_parameters: UpdatableBaseModel
     properties: dict
 
     def add_annotation(

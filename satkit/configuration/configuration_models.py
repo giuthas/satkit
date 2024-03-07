@@ -150,6 +150,14 @@ class PdArguments(UpdatableBaseModel):
     preload: Optional[bool] = True
 
 
+class SplineMetricArguments(UpdatableBaseModel):
+    metrics: list[str]
+    timesteps: list[int]
+    exclude_points: Optional[IntPair] = None
+    release_data_memory: Optional[bool] = False
+    preload: Optional[bool] = True
+
+
 class FindPeaksScipyArguments(UpdatableBaseModel):
     height: Optional[float] = None
     threshold: Optional[float] = None
@@ -196,6 +204,7 @@ class CastParams(UpdatableBaseModel):
 class DataRunConfig(UpdatableBaseModel):
     output_directory: Optional[Path] = None
     pd_arguments: Optional[PdArguments] = None
+    spline_metric_arguments: Optional[SplineMetricArguments] = None
     peaks: Optional[PeakDetectionParams] = None
     downsample: Optional[DownsampleParams] = None
     cast: Optional[CastParams] = None
@@ -234,7 +243,7 @@ class LegendParams(UpdatableBaseModel):
 
 
 class PlotConfig(UpdatableBaseModel):
-    output_file: Optional[str]
+    output_file: Optional[str] = None
     figure_size: Optional[FloatPair] = None
     legend: Optional[LegendParams] = None
 
@@ -272,20 +281,26 @@ class AnnotationStatsPlotConfig(PlotConfig):
     panel_by: str
 
 
-class PublishConfig(UpdatableBaseModel):
-    output_file: str
-    figure_size: Optional[FloatPair] = [8.3, 11.7]
-    legend: Optional[LegendParams] = None
+class PublishConfig(PlotConfig):
+    timeseries_plot: Optional[TimeseriesPlotConfig] = None
+    annotation_stats_plot: Optional[TimeseriesPlotConfig] = None
 
     def model_post_init(self, __context: Any) -> None:
-        if self.container:
-            if not self.output_file:
-                self.output_file = self.container.output_file
-            if not self.figure_size:
-                self.figure_size = self.container.figure_size
-            if not self.legend:
-                self.legend = self.container.legend
+        if self.timeseries_plot:
+            if not self.timeseries_plot.output_file:
+                self.timeseries_plot.output_file = self.output_file
+            if not self.timeseries_plot.figure_size:
+                self.timeseries_plot.figure_size = self.figure_size
+            if not self.timeseries_plot.legend:
+                self.timeseries_plot.legend = self.legend
 
+        if self.annotation_stats_plot:
+            if not self.annotation_stats_plot.output_file:
+                self.annotation_stats_plot.output_file = self.output_file
+            if not self.annotation_stats_plot.figure_size:
+                self.annotation_stats_plot.figure_size = self.figure_size
+            if not self.annotation_stats_plot.legend:
+                self.annotation_stats_plot.legend = self.legend
 
 # plot params - not implemented
 #         data/tier height ratios: Map({

@@ -51,9 +51,9 @@ from satkit.annotations import (
 from satkit.annotations.peaks import annotations_to_dataframe
 import satkit.configuration as config
 
-from satkit.metrics import (add_pd,  # add_spline_metric,
+from satkit.metrics import (add_pd,  add_spline_metric,
                             downsample_metrics)
-from satkit.modalities import RawUltrasound  # , Splines
+from satkit.modalities import RawUltrasound, Splines
 from satkit.plot_and_publish import publish_pdf, publish_distribution_data
 from satkit.plot_and_publish.publish import publish_distribution_data_seaborn
 from satkit.qt_annotator import PdQtAnnotator
@@ -94,7 +94,25 @@ def main():
     #     'pd_on_interpolated_data': False,
     #     'release_data_memory': True,
     #     'preload': True}
-    pd_arguments = configuration.data_run_config.pd_arguments
+
+    data_run_config = configuration.data_run_config
+
+    function_dict = {}
+    if data_run_config.pd_arguments:
+        pd_arguments = data_run_config.pd_arguments
+        function_dict["PD"] = (
+            add_pd,
+            [RawUltrasound],
+            pd_arguments.model_dump()
+        )
+
+    if data_run_config.spline_metric_arguments:
+        spline_metric_args = data_run_config.spline_metric_arguments
+        function_dict["SplineMetric"] = (
+            add_spline_metric,
+            [Splines],
+            spline_metric_args.model_dump()
+        )
 
     # TODO: turn these commented out bits into an example script of how to do
     # things programmatically.
@@ -106,15 +124,16 @@ def main():
     #     'release_data_memory': False,
     #     'preload': True}
 
-    function_dict = {
-        'PD': (add_pd,
-               [RawUltrasound],
-               pd_arguments.model_dump())  # ,
+    # function_dict = {
+    #     'PD': (add_pd,
+    #            [RawUltrasound],
+    #            pd_arguments.model_dump()),
 
-        # 'SplineMetric': (add_spline_metric,
-        #                  [Splines],
-        #                  spline_metric_arguments)  # ,
-    }
+    #     'SplineMetric': (add_spline_metric,
+    #                      [Splines],
+    #                      spline_metric_args.model_dump())  # ,
+    # }
+
     process_data(recordings=recording_session.recordings,
                  processing_functions=function_dict)
 
@@ -132,14 +151,13 @@ def main():
     #                                  'preload': True})
     # multi_process_data(recordings, operation)
 
-    if configuration.data_run_config.downsample:
-        downsample_config = configuration.data_run_config.downsample
+    if data_run_config.downsample:
+        downsample_config = data_run_config.downsample
 
         for recording in recording_session:
             downsample_metrics(recording, **downsample_config.model_dump())
 
     exclusion = ("water swallow", "bite plate")
-    data_run_config = configuration.data_run_config
     if data_run_config.peaks:
         modality_pattern = data_run_config.peaks.modality_pattern
         for recording in recording_session:

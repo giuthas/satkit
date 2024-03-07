@@ -243,6 +243,13 @@ def load_run_params(filepath: Union[Path, str, None] = None) -> YAML:
                     Optional("release_data_memory", default=True): Bool(),
                     Optional("preload", default=True): Bool(),
                 }),
+                Optional("spline_metric_arguments"): Map({
+                    'metrics': Seq(Str()),
+                    'timesteps': Seq(Int()),
+                    Optional('exclude_points'): FixedSeq([Int(), Int()]),
+                    Optional('release_data_memory', default=False): Bool(),
+                    Optional('preload', default=True): Bool()
+                }),
                 Optional("peaks"): Map({
                     "modality_pattern": Str(),
                     Optional("time_min"): time_limit_schema,
@@ -378,14 +385,14 @@ def load_publish_params(filepath: Union[Path, str, None] = None) -> YAML:
         with closing(
                 open(filepath, 'r', encoding=DEFAULT_ENCODING)) as yaml_file:
             schema = Map({
-                "output_file": Str(),
-                Optional("figure_size", default=[8.3, 11.7]): FixedSeq(
-                    [Float(), Float()]),
-                Optional("legend"): Map({
-                    Optional("handlelength"): Float(),
-                    Optional("handletextpad"): Float(),
-                }),
                 Optional("timeseries_plot"): Map({
+                    "output_file": Str(),
+                    Optional("figure_size", default=[8.3, 11.7]): FixedSeq(
+                        [Float(), Float()]),
+                    Optional("legend"): Map({
+                        Optional("handlelength"): Float(),
+                        Optional("handletextpad"): Float(),
+                    }),
                     "use_go_signal": Bool(),
                     "normalise": NormalisationValidator(),
                     "plotted_tier": Str(),
@@ -396,6 +403,13 @@ def load_publish_params(filepath: Union[Path, str, None] = None) -> YAML:
                     Optional("yticks"): Seq(Str()),
                 }),
                 Optional("annotation_stats_plot"): Map({
+                    "output_file": Str(),
+                    Optional("figure_size", default=[8.3, 11.7]): FixedSeq(
+                        [Float(), Float()]),
+                    Optional("legend"): Map({
+                        Optional("handlelength"): Float(),
+                        Optional("handletextpad"): Float(),
+                    }),
                     "modality_pattern": SearchPatternValidator(),
                     "plotted_annotation": Str(),
                     "panel_by": Str(),
@@ -417,15 +431,15 @@ def load_publish_params(filepath: Union[Path, str, None] = None) -> YAML:
 
     publish_params.update(_raw_publish_params_dict.data)
 
-    if publish_params['xticks']:
-        publish_params['xticklabels'] = publish_params['xticks'].copy()
-        publish_params['xticks'] = np.asarray(
-            publish_params['xticks'], dtype=float)
+    # if publish_params['xticks']:
+    #     publish_params['xticklabels'] = publish_params['xticks'].copy()
+    #     publish_params['xticks'] = np.asarray(
+    #         publish_params['xticks'], dtype=float)
 
-    if publish_params['yticks']:
-        publish_params['yticklabels'] = publish_params['yticks'].copy()
-        publish_params['yticks'] = np.asarray(
-            publish_params['yticks'], dtype=float)
+    # if publish_params['yticks']:
+    #     publish_params['yticklabels'] = publish_params['yticks'].copy()
+    #     publish_params['yticks'] = np.asarray(
+    #         publish_params['yticks'], dtype=float)
     return _raw_publish_params_dict
 
 

@@ -53,7 +53,6 @@ _logger = logging.getLogger('satkit.gen_spline_metric')
 
 def spline_diff_metric(
         data: np.ndarray,
-        time_points: np.ndarray,
         metric: SplineMetricEnum,
         timestep: int,
         notice_base: str) -> np.ndarray:
@@ -78,7 +77,7 @@ def spline_diff_metric(
     np.ndarray
         an array of analysis values where array.shape[0] == time_points
     """
-
+    time_points = data.shape[0] - timestep
     result = np.zeros(time_points)
 
     for i in range(time_points):
@@ -107,7 +106,6 @@ def spline_diff_metric(
 
 def spline_nnd_metric(
         data: np.ndarray,
-        time_points: np.ndarray,
         metric: SplineMetricEnum,
         timestep: int,
         notice_base: str) -> np.ndarray:
@@ -132,6 +130,7 @@ def spline_nnd_metric(
     np.ndarray
         an array of analysis values where array.shape[0] == time_points
     """
+    time_points = data.shape[0] - timestep
     result = np.zeros(time_points)
     num_points = data.shape[2]
 
@@ -225,14 +224,13 @@ def calculate_spline_metric(
                             exclude_points[0]:-exclude_points[1]]
 
         timestep = param_set.timestep
-        time_points = data.shape[0] - timestep
 
         if metric in SplineDiffsEnum:
             metric_data = spline_diff_metric(
-                data, time_points, metric, timestep, notice_base)
+                data, metric, timestep, notice_base)
         elif metric in SplineNNDsEnum:
             metric_data = spline_nnd_metric(
-                data, time_points, metric, timestep, notice_base)
+                data, metric, timestep, notice_base)
         elif metric in SplineShapesEnum:
             metric_data = spline_shape_metric(
                 data, metric, notice_base)

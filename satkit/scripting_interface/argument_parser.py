@@ -71,7 +71,7 @@ class SatkitArgumentParser():
         self._parse_args()
 
     def _add_optional_arguments(self):
-        """Adds the optional verbosity argument."""
+        """Adds optional arguments."""
 
         helptext = (
             'Open the SATKIT annotator. '

@@ -68,7 +68,13 @@ class SatkitArgumentParser():
         is what this version will be called if called with -h or --help.
         """
         self.description = description
-        self._parse_args()
+        self.parser = argparse.ArgumentParser(
+            description=self.description,
+            formatter_class=widen_help_formatter(
+                argparse.HelpFormatter, total_width=80, syntax_width=35))
+        self._add_positional_arguments()
+        self._add_optional_arguments()
+        self.args = self.parser.parse_args()
 
     def _add_optional_arguments(self):
         """Adds optional arguments."""
@@ -137,13 +143,8 @@ class SatkitArgumentParser():
                                  help=helptext,
                                  metavar="verbosity")
 
-    def _init_parser(self):
+    def _add_positional_arguments(self):
         """Setup basic commandline parsing and the file loading argument."""
-        self.parser = argparse.ArgumentParser(
-            description=self.description,
-            formatter_class=widen_help_formatter(
-                argparse.HelpFormatter, total_width=80, syntax_width=35))
-
         # mutually exclusive with reading previous results from a file
         helptext = (
             'Path containing the data to be read.'
@@ -151,11 +152,3 @@ class SatkitArgumentParser():
             'containing files exported from AAA. '
             'Loading from .m, .json, and .csv are in the works.')
         self.parser.add_argument("load_path", help=helptext)
-
-    def _parse_args(self):
-        """
-        Create a parser for commandline arguments and parse the arguments.
-        """
-        self._init_parser()
-        self._add_optional_arguments()
-        self.args = self.parser.parse_args()

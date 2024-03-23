@@ -131,7 +131,8 @@ def display_fan(axes, contour: np.ndarray, color: Optional[str] = None) -> None:
                       0, contour[0, i]], color='lightgray')
 
 
-def make_contour_plot(contour_1: np.ndarray, contour_2: np.ndarray) -> None:
+def make_demonstration_contour_plot(
+        contour_1: np.ndarray, contour_2: np.ndarray) -> None:
     plt.style.use('tableau-colorblind10')
     main_color = plt.rcParams['axes.prop_cycle'].by_key()['color'][0]
     accent_color = plt.rcParams['axes.prop_cycle'].by_key()['color'][1]

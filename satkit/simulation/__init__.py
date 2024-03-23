@@ -46,6 +46,6 @@ from .metric_calculations import (
 
 from .simulation_plots import (
     display_contour, display_fan, display_text_on_contours,
-    draw_contour_segment, make_contour_plot,
+    draw_contour_segment, make_demonstration_contour_plot,
     plot_dyadic_metric_against_perturbation_point
 )

@@ -47,10 +47,25 @@ from .contour_tools import contour_point_perturbations
 def display_contour(
         axes: Axes,
         contour: np.ndarray,
-        text: Optional[bool] = False,
+        display_indeces: Optional[bool] = False,
         offset: Optional[float] = 0,
         color: Optional[str] = None) -> None:
+    """
+    Plot a contour.
 
+    Parameters
+    ----------
+    axes : Axes
+        Axes to plot.
+    contour : np.ndarray
+        The contour to plot
+    display_indeces : Optional[bool], optional
+        Should indeces be displayed, by default False
+    offset : Optional[float], optional
+        Radial offset of the index texts, by default 0
+    color : Optional[str], optional
+        Color to display both the contour and the indeces in, by default None
+    """
     contour = polar_to_cartesian(contour)
     if color:
         line = axes.plot(contour[1, :], contour[0, :], color=color)
@@ -58,20 +73,40 @@ def display_contour(
         line = axes.plot(contour[1, :], contour[0, :])
     color = line[0].get_color()
 
-    if text:
+    if display_indeces:
         for i in range(contour.shape[1]):
             axes.text(contour[1, i]-offset, contour[0, i],
                       str(i+1), color=color, fontsize=12)
 
 
-def display_text_on_contours(
+def display_indeces_on_contours(
         axes: Axes,
         contour1: np.ndarray,
         contour2: np.ndarray,
         outside: Optional[bool] = True,
         offset: Optional[float] = 0,
         color: Optional[str] = None) -> None:
+    """
+    Display indeces on two contours.
 
+    The indeces are displayed either on the inside or outside of both contours
+    to avoid overlapping between the text and the contours.
+
+    Parameters
+    ----------
+    axes : Axes
+        Axes to plot on.
+    contour1 : np.ndarray
+        First contour.
+    contour2 : np.ndarray
+        Second contour.
+    outside : Optional[bool], optional
+        Should the indeces be on the outside or the inside, by default True
+    offset : Optional[float], optional
+        Radial offset of the index text, by default 0
+    color : Optional[str], optional
+        Color to use for the text, by default None
+    """
     for i in range(contour1.shape[1]):
         if outside:
             r = max(contour1[0, i], contour2[0, i]) + offset
@@ -86,14 +121,39 @@ def display_text_on_contours(
                   horizontalalignment='center', verticalalignment='center')
 
 
-def draw_contour_segment(
+def plot_contour_segment(
         axes: Axes,
         contour: np.ndarray,
         index: int,
-        text: Optional[bool] = False,
+        show_index: Optional[bool] = False,
         offset: Optional[float] = 0,
         color: Optional[str] = None,) -> None:
+    """
+    Plot a segment of the contour.
 
+    Contour for [index-1:index+2] (two vertices +/-1 around the index) will be
+    plotted.
+
+    Parameters
+    ----------
+    axes : Axes
+        Axes to plot on.
+    contour : np.ndarray
+        Contour whose segment will be plotted.
+    index : int
+        Index around which to plot. 
+    show_index : Optional[bool], optional
+        Should the index number be displayed, by default False
+    offset : Optional[float], optional
+        Radial offset of the center of the segment, by default 0
+    color : Optional[str], optional
+        Color to plot the segment in, by default None
+
+    Raises
+    ------
+    IndexError
+        If index is out of bounds of the contour.
+    """
     if index == 0:
         contour_segment = polar_to_cartesian(contour[:, :2])
     elif index < contour.shape[1]:
@@ -101,7 +161,7 @@ def draw_contour_segment(
     elif index == contour.shape[1]:
         contour_segment = polar_to_cartesian(contour[:, index-1:])
     else:
-        raise ValueError("Index out of bounds index=" + str(index) +
+        raise IndexError("Index out of bounds index=" + str(index) +
                          ", shape=" + str(contour.shape))
 
     if color:
@@ -113,14 +173,28 @@ def draw_contour_segment(
                          contour_segment[0, :])
     color = line[0].get_color()
 
-    if text:
+    if show_index:
         text_coords = polar_to_cartesian(contour[:, index] + [offset, 0])
         axes.text(text_coords[1], text_coords[0],
                   str(index+1), color=color, fontsize=12,
                   horizontalalignment='center', verticalalignment='center')
 
 
-def display_fan(axes, contour: np.ndarray, color: Optional[str] = None) -> None:
+def display_fan(
+        axes: Axes, contour: np.ndarray, color: Optional[str] = None) -> None:
+    """
+    Display the radial fan for the contour.
+
+    Parameters
+    ----------
+    axes : Axes
+        Axes to plot on.
+    contour : np.ndarray
+        The contour whose fan will be plotted. However, the contour itself will
+        not be plotted.
+    color : Optional[str], optional
+        Color to plot the fan in, by default None
+    """
     contour = polar_to_cartesian(contour)
     if color:
         for i in range(contour.shape[1]):
@@ -133,6 +207,16 @@ def display_fan(axes, contour: np.ndarray, color: Optional[str] = None) -> None:
 
 def make_demonstration_contour_plot(
         contour_1: np.ndarray, contour_2: np.ndarray) -> None:
+    """
+    Demonstrate two contours and perturbations on the first contour.
+
+    Parameters
+    ----------
+    contour_1 : np.ndarray
+        Contour on both parts of the plot.
+    contour_2 : np.ndarray
+        Contour only on the first part of the plot.
+    """
     plt.style.use('tableau-colorblind10')
     main_color = plt.rcParams['axes.prop_cycle'].by_key()['color'][0]
     accent_color = plt.rcParams['axes.prop_cycle'].by_key()['color'][1]
@@ -152,23 +236,23 @@ def make_demonstration_contour_plot(
         ax.set_aspect('equal')
     display_fan(axes[0], contour_1)
     display_fan(axes[0], contour_2)
-    display_contour(axes[0], contour_1, text=False,
+    display_contour(axes[0], contour_1, display_indeces=False,
                     offset=3.5, color=main_color)
-    display_contour(axes[0], contour_2, text=False,
+    display_contour(axes[0], contour_2, display_indeces=False,
                     offset=-1, color=accent_color)
-    display_text_on_contours(
+    display_indeces_on_contours(
         axes[0], contour_1, contour_2, offset=4, color=accent_color2)
 
     display_contour(axes[1], contour_1, color=main_color)
     perturbed_positive = contour_point_perturbations(contour_1.copy(), 2)
     perturbed_negative = contour_point_perturbations(contour_1.copy(), -2)
     for i in range(perturbed_positive.shape[0]):
-        draw_contour_segment(
+        plot_contour_segment(
             axes[1], perturbed_positive[i, :, :], index=i,
-            text=True, offset=2, color=accent_color)
-        draw_contour_segment(
+            show_index=True, offset=2, color=accent_color)
+        plot_contour_segment(
             axes[1], perturbed_negative[i, :, :], index=i,
-            text=False, offset=2, color=accent_color2)
+            show_index=False, offset=2, color=accent_color2)
 
     axes[0].set_ylim((-10, 120))
     axes[1].set_ylim((-10, 120))

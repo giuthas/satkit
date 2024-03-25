@@ -39,7 +39,7 @@ def product_dict(**kwargs):
 
     ```python
     options = {"number": [1,2,3], "color": ["orange","blue"] }
-    print(list(product_dict(options)))
+    print(list(product_dict(**options)))
 
     [ {"number": 1, "color": "orange"},
     {"number": 1, "color": "blue"},

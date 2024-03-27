@@ -29,6 +29,9 @@
 # articles listed in README.markdown. They can also be found in
 # citations.bib in BibTeX format.
 #
+"""
+Plotting routines for simulation results.
+"""
 
 from typing import Optional
 
@@ -37,10 +40,11 @@ from typing import Optional
 import numpy as np
 
 from matplotlib.axes import Axes
+from matplotlib.collections import LineCollection
 from matplotlib.lines import Line2D
 import matplotlib.pyplot as plt
 
-from satkit.helpers import polar_to_cartesian
+from satkit.helpers import polar_to_cartesian, cartesian_to_polar
 from .contour_tools import contour_point_perturbations
 
 
@@ -49,7 +53,9 @@ def display_contour(
         contour: np.ndarray,
         display_indeces: Optional[bool] = False,
         offset: Optional[float] = 0,
-        color: Optional[str] = None) -> None:
+        origin_offset: Optional[tuple[float, float]] = (0.0, 0.0),
+        color: Optional[str] = None,
+        polar: Optional[bool] = True) -> None:
     """
     Plot a contour.
 
@@ -63,10 +69,18 @@ def display_contour(
         Should indeces be displayed, by default False
     offset : Optional[float], optional
         Radial offset of the index texts, by default 0
+    origin_offset: Optional[tuple[float, float]]
+        Offset of the contour origin in cartesian coordinates, 
+        by default (0.0, 0.0)
     color : Optional[str], optional
         Color to display both the contour and the indeces in, by default None
     """
-    contour = polar_to_cartesian(contour)
+    if polar:
+        contour = polar_to_cartesian(contour)
+
+    origin_offset = np.array(origin_offset).reshape((2, 1))
+    contour = np.add(origin_offset, contour)
+
     if color:
         line = axes.plot(contour[1, :], contour[0, :], color=color)
     else:
@@ -79,13 +93,132 @@ def display_contour(
                       str(i+1), color=color, fontsize=12)
 
 
+def contour_ray_plot(
+        axes: Axes,
+        contour: np.ndarray,
+        metric_values: dict[str, np.ndarray],
+        metric_reference_value: float,
+        scale: Optional[float] = 1,
+        origin_offset: Optional[tuple[float, float]] = (0.0, 0.0),
+        relative: Optional[bool] = False,
+) -> None:
+    """
+    Plot metric values as rays on a contour.
+
+    Parameters
+    ----------
+    axes : Axes
+        Axes to plot on.
+    contour : np.ndarray
+        Contour to plot on.
+    metric_values : dict[str, np.ndarray]
+        Metric values to plot by perturbation values.
+    metric_reference_value : float
+        Metric value to use as reference.
+    scale : Optional[float], optional
+        Scaling factor for the rays, by default 1
+    origin_offset : Optional[tuple[float, float]], optional
+        Cartesian offset for the origin, by default (0.0, 0.0)
+    relative : Optional[bool], optional
+        True for calculating the ray magnitude as ratio of metric value and
+        metric reference value; False for ray magnitude as difference between
+        metric value and reference., by default False
+    """
+    origin_offset = np.array(origin_offset).reshape((2, 1))
+
+    if relative:
+        metric_values = scale * metric_values / metric_reference_value
+    else:
+        metric_values = (metric_values - metric_reference_value)*scale
+
+    if relative:
+        ray_r = metric_values + contour[0, :]
+    else:
+        ray_r = metric_values + contour[0, :]
+    rays = np.stack([ray_r, contour[1, :]])
+
+    contour = polar_to_cartesian(contour)
+    rays = polar_to_cartesian(rays)
+    rays = np.add(origin_offset, rays)
+    contour = np.add(origin_offset, contour)
+
+    axes.plot(contour[1, :], contour[0, :], color='grey')
+
+    segments = [np.stack(
+        [contour[::-1, i], rays[::-1, i]], axis=0)
+        for i in range(contour.shape[1])
+    ]
+
+    line_segments = LineCollection(
+        segments,
+        linestyles='solid',
+    )
+    axes.add_collection(line_segments)
+
+    # # If the rays are to be coloured these maybe useful.
+    # ax_colorbar = fig.colorbar(line_segments)
+    # ax_colorbar.set_label('Line Number')
+    # ax.set_title('Line Collection with mapped colors')
+    # # This allows interactive changing of the colormap.
+    # plt.sci(line_segments)
+    # plt.show()
+
+
+def plot_metric_on_contour(
+        axes: Axes,
+        contour: np.ndarray,
+        metric_values: dict[str, np.ndarray],
+        origin_offset: Optional[tuple[float, float]] = (0.0, 0.0),
+        display_indeces: Optional[bool] = False,
+        index_offset: Optional[float] = 0,
+        color: Optional[str] = None) -> None:
+    """
+    Plot metric values on contour by changing colour of the markers.
+
+    Parameters
+    ----------
+    axes : Axes
+        Axes to plot on.
+    contour : np.ndarray
+        Contour to plot (on).
+    metric_values : dict[str, np.ndarray]
+        Metric values to plot.
+    origin_offset : Optional[tuple[float, float]], optional
+        Cartesian offset of the origin, by default (0.0, 0.0)
+    display_indeces : Optional[bool], optional
+        Should node indeces be displayed, by default False
+    index_offset : Optional[float], optional
+        Radial offset of the index texts, by default 0
+    color : Optional[str], optional
+        Color to display the indeces in, by default None
+    """
+    contour = polar_to_cartesian(contour)
+    origin_offset = np.array(origin_offset).reshape((2, 1))
+    contour = np.add(origin_offset, contour)
+
+    metric_values = metric_values - np.min(metric_values)
+    metric_values = metric_values/np.max(metric_values)
+
+    for i in range(contour.shape[1]):
+        axes.plot(contour[1, i], contour[0, i],
+                  marker='o',
+                  color=(metric_values[i], metric_values[i], metric_values[i]),
+                  markeredgecolor='grey')
+
+    if display_indeces:
+        for i in range(contour.shape[1]):
+            axes.text(contour[1, i]-index_offset, contour[0, i],
+                      str(i+1), color=color, fontsize=12)
+
+
 def display_indeces_on_contours(
         axes: Axes,
         contour1: np.ndarray,
         contour2: np.ndarray,
         outside: Optional[bool] = True,
         offset: Optional[float] = 0,
-        color: Optional[str] = None) -> None:
+        color: Optional[str] = None,
+        polar: Optional[bool] = True) -> None:
     """
     Display indeces on two contours.
 
@@ -107,6 +240,9 @@ def display_indeces_on_contours(
     color : Optional[str], optional
         Color to use for the text, by default None
     """
+    if not polar:
+        contour = cartesian_to_polar(contour)
+
     for i in range(contour1.shape[1]):
         if outside:
             r = max(contour1[0, i], contour2[0, i]) + offset
@@ -127,7 +263,8 @@ def plot_contour_segment(
         index: int,
         show_index: Optional[bool] = False,
         offset: Optional[float] = 0,
-        color: Optional[str] = None,) -> None:
+        color: Optional[str] = None,
+        polar: Optional[bool] = True,) -> None:
     """
     Plot a segment of the contour.
 
@@ -148,18 +285,23 @@ def plot_contour_segment(
         Radial offset of the center of the segment, by default 0
     color : Optional[str], optional
         Color to plot the segment in, by default None
+    polar : Optional[bool], optional
+        contour is in polar coordinates, by default True
 
     Raises
     ------
     IndexError
         If index is out of bounds of the contour.
     """
+    if polar:
+        contour = polar_to_cartesian(contour)
+
     if index == 0:
-        contour_segment = polar_to_cartesian(contour[:, :2])
+        contour_segment = contour[:, :2]
     elif index < contour.shape[1]:
-        contour_segment = polar_to_cartesian(contour[:, index-1:index+2])
+        contour_segment = contour[:, index-1:index+2]
     elif index == contour.shape[1]:
-        contour_segment = polar_to_cartesian(contour[:, index-1:])
+        contour_segment = contour[:, index-1:]
     else:
         raise IndexError("Index out of bounds index=" + str(index) +
                          ", shape=" + str(contour.shape))
@@ -181,7 +323,10 @@ def plot_contour_segment(
 
 
 def display_fan(
-        axes: Axes, contour: np.ndarray, color: Optional[str] = None) -> None:
+        axes: Axes,
+        contour: np.ndarray,
+        color: Optional[str] = None,
+        polar: Optional[bool] = True) -> None:
     """
     Display the radial fan for the contour.
 
@@ -194,8 +339,11 @@ def display_fan(
         not be plotted.
     color : Optional[str], optional
         Color to plot the fan in, by default None
+    polar : Optional[bool], optional
+        contour is in polar coordinates, by default True
     """
-    contour = polar_to_cartesian(contour)
+    if polar:
+        contour = polar_to_cartesian(contour)
     if color:
         for i in range(contour.shape[1]):
             axes.plot([0, contour[1, i]], [0, contour[0, i]], color=color)
@@ -228,10 +376,9 @@ def make_demonstration_contour_plot(
         # 'top': .95,
         # 'bottom': 0.05,
     }
-    #  top=1.-0.5/(nrow+1), bottom=0.5/(nrow+1),
-    #  left=0.5/(ncol+1), right=1-0.5/(ncol+1))
     _, axes = plt.subplots(1, 2, figsize=(6.4, 4.8), sharey=True,
                            gridspec_kw=gridspec_keywords)
+
     for ax in axes:
         ax.set_aspect('equal')
     display_fan(axes[0], contour_1)
@@ -262,7 +409,7 @@ def make_demonstration_contour_plot(
     plt.show()
 
 
-def plot_dyadic_metric_against_perturbation_point(
+def plot_distance_metric_against_perturbation_point(
         axes: list[Axes], data: dict[str, np.ndarray],
         label_stem: Optional[str] = 'perturbation=',
         colors: Optional[list[str]] = None

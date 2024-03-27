@@ -215,7 +215,7 @@ def spline_shape_metric(
         metric: SplineShapesEnum,
         notice_base: str) -> np.ndarray:
     """
-    Calculate nearest neighbour distance based spline metrics.
+    Calculate shape spline metrics.
 
     Parameters
     ----------

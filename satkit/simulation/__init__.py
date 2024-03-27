@@ -40,12 +40,16 @@ from .contour_tools import (
     generate_contour, contour_point_perturbations
 )
 from .metric_calculations import (
-    Comparison, MetricFunction, calculate_metric_series_for_comparisons,
-    calculate_metric_series_for_contours, get_dyadic_metric_baseline
+    Comparison, ComparisonMember, MetricFunction,
+    calculate_metric_series_for_comparisons,
+    calculate_metric_series_for_contours,
+    get_distance_metric_baselines,
+    get_shape_metric_baselines
 )
 
 from .simulation_plots import (
     display_contour, display_fan, display_indeces_on_contours,
     plot_contour_segment, make_demonstration_contour_plot,
-    plot_dyadic_metric_against_perturbation_point
+    plot_metric_on_contour, contour_ray_plot,
+    plot_distance_metric_against_perturbation_point
 )

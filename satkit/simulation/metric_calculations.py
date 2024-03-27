@@ -33,12 +33,14 @@
 This module contains functions used to apply metrics to simulated data.
 """
 
-from dataclasses import dataclass
 from typing import Annotated, Callable, Optional
 
 # from icecream import ic
 
 import numpy as np
+from pydantic import BaseModel
+
+from satkit.helpers import product_dict, ListablePrintableEnum
 
 from .contour_tools import contour_point_perturbations
 
@@ -49,45 +51,115 @@ MetricFunction = Annotated[
 ]
 
 
-@dataclass(frozen=True, eq=True)
-class Comparison:
+class ComparisonMember(ListablePrintableEnum):
     """
-    Defines a comparison between two contours: baseline and perturbed.
+    Which comparison member the perturbations should be applied to.
     """
-    baseline: str
-    perturbed: str
+    FIRST = "first"
+    SECOND = "second"
+
+
+class Comparison(BaseModel, frozen=True):
+    """
+    Defines a comparison between two contours, and which of them is perturbed.
+
+    First should be compared to second with the contour named in perturbed
+    being the one that gets perturbed.     
+    """
+    first: str
+    second: str
+    perturbed: ComparisonMember
+
+    @property
+    def perturbed_name(self) -> str:
+        """
+        Name of the perturbed contour.
+
+        Returns
+        -------
+        str
+            The name as a string.
+        """
+        if self.perturbed == ComparisonMember.FIRST:
+            return self.first
+        return self.second
 
     def __repr__(self) -> str:
-        return (f"Comparison: baseline={self.baseline}, "
-                f"perturbed={self.perturbed}")
+        return (f"Comparison: from first {self.first} "
+                f"to second {self.second}, perturbed is {self.perturbed}")
 
 
-def get_dyadic_metric_baseline(
+def get_distance_metric_baselines(
         metric: MetricFunction,
-        contour_1: np.ndarray,
-        contour_2: np.ndarray) -> np.ndarray:
+        contours: dict[str, np.ndarray]
+) -> dict[Comparison, float]:
     """
-    Get the metric comparing contour_1 to contour_2 and vice versa.
+    Get the metric evaluated between each pair of the contours.
+
+    The pairs are formed as the Cartesian product of the keys in the contours
+    dict.
 
     Parameters
     ----------
     metric : MetricFunction
-        The metric function. Should accept a 2D np.ndarray as its argument and
-        return an np.ndarray. This can be generated with functools.partial from
-        standard SATKIT metrics.        
-    contour_1 : np.ndarray
-        First contour.
-    contour_2 : np.ndarray
-        Second contour.
+        Callable which will be called on each pair of contours.
+    contours : dict[str, np.ndarray]
+        Contours in a dict indexed by contour names.
 
     Returns
     -------
-    np.ndarray
-        This array has only two values: the value of metric when comparing
-        contour_1 to contour_2, and vice versa.
+    dict[Comparison, float]
+        Comparisons formed from the contour names and the metric value for
+        performing the specified comparisons.
     """
-    baseline_stack = np.stack([contour_1, contour_2, contour_1])
-    return metric(baseline_stack)
+    contour_names = list(contours.keys())
+    combination_dict = {'first': contour_names,
+                        'second': contour_names,
+                        'perturbed': ComparisonMember.values()}
+    name_combinations = product_dict(**combination_dict)
+    comparisons = [
+        Comparison(first=combination['first'],
+                   second=combination['second'],
+                   perturbed=combination['perturbed'])
+        for combination in name_combinations
+    ]
+
+    results = {
+        comp: metric(
+            np.stack([contours[comp.first], contours[comp.second]]))
+        for comp in comparisons}
+    return results
+
+
+def get_shape_metric_baselines(
+        metric: MetricFunction,
+        contours: dict[str, np.ndarray]
+) -> dict[Comparison, float]:
+    """
+    Get the metric evaluated between each pair of the contours.
+
+    The pairs are formed as the Cartesian product of the keys in the contours
+    dict.
+
+    Parameters
+    ----------
+    metric : MetricFunction
+        Callable which will be called on each pair of contours.
+    contours : dict[str, np.ndarray]
+        Contours in a dict indexed by contour names.
+
+    Returns
+    -------
+    dict[str, float]
+        description
+    """
+    contour_names = list(contours.keys())
+
+    results = {
+        name: metric(np.expand_dims(contours[name], 0))
+        for name in contour_names
+    }
+    return results
 
 
 def calculate_perturbed_metric_series(
@@ -95,7 +167,8 @@ def calculate_perturbed_metric_series(
         contour_to_perturb: np.ndarray,
         reference_contour: Optional[np.ndarray] = None,
         perturbations: Optional[tuple[float]] = (1.0),
-        interleave: Optional[bool] = False
+        interleave: Optional[bool] = False,
+        return_even: Optional[bool] = True,
 ) -> dict[str, np.ndarray]:
     """
     Generate a series of perturbed contours and calculate the metric on them.
@@ -121,6 +194,10 @@ def calculate_perturbed_metric_series(
         Should the reference contour be interleaved with the perturbed
         contours. Use this for pairwise metrics like ANND or MPBPD when
         comparisons with baseline are wanted. By default False
+    return_even: Optional[bool] optional,
+        Whether the even or odd comparisons should be returned. True means
+        comparing reference to perturbed, False means comparing perturbed to
+        reference. By default True, Ignored if `interleave` is False.
 
     Returns
     -------
@@ -137,9 +214,13 @@ def calculate_perturbed_metric_series(
             perturbation,
             interleave=interleave
         )
-        results[perturbation] = metric(
-            perturbed
-        )
+        if interleave:
+            if return_even:
+                results[perturbation] = metric(perturbed)[::2]
+            else:
+                results[perturbation] = metric(perturbed)[1::2]
+        else:
+            results[perturbation] = metric(perturbed)
     return results
 
 
@@ -173,7 +254,7 @@ def calculate_metric_series_for_contours(
             contour_to_perturb=contours[contour_key],
             reference_contour=contours[contour_key],
             perturbations=perturbations,
-            interleave=True
+            interleave=False
         )
     return result_dicts
 
@@ -211,11 +292,22 @@ def calculate_metric_series_for_comparisons(
     """
     result_dicts = {}
     for comparison in comparisons:
-        result_dicts[comparison] = calculate_perturbed_metric_series(
-            metric=metric,
-            contour_to_perturb=contours[comparison.perturbed],
-            reference_contour=contours[comparison.baseline],
-            perturbations=perturbations,
-            interleave=interleave
-        )
+        if comparison.perturbed == ComparisonMember.FIRST:
+            result_dicts[comparison] = calculate_perturbed_metric_series(
+                metric=metric,
+                contour_to_perturb=contours[comparison.first],
+                reference_contour=contours[comparison.second],
+                perturbations=perturbations,
+                interleave=interleave,
+                return_even=False,
+            )
+        else:
+            result_dicts[comparison] = calculate_perturbed_metric_series(
+                metric=metric,
+                contour_to_perturb=contours[comparison.second],
+                reference_contour=contours[comparison.first],
+                perturbations=perturbations,
+                interleave=interleave,
+                return_even=True,
+            )
     return result_dicts

@@ -1,6 +1,6 @@
 # SATKIT Release Notes
 
-## Version 0.9.0
+## Foreshadowing the next release: Version 0.10.0
 
 - New functionality and configuration for extracting annotations and producing
   plots out of them.
@@ -11,8 +11,20 @@
     easier.
 
 Known issues:
-- Same as 0.8.0 plus
-- ?
+
+- To be determined
+
+## Version 0.9.0
+
+- Simulation
+  - Two contours for running sensitivity simulations for contour metrics.
+  - Perturbation generation for the contours.
+  - Functions for running metrics on the simulated data.
+  - Lots of plotting routines to look at the results.
+  
+Known issues:
+
+Same as in 0.8.0.
 
 ## Version 0.8.0
 

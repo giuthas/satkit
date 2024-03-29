@@ -233,6 +233,7 @@ def make_figure(recording: Recording, pdf: PdfPages):
     pdf : PdfPages
         A PdfPages instance to draw into.
     """
+    # TODO: rename this function!
     figure = plt.figure(figsize=publish_params['figure size'])
 
     height_ratios = [3 for i in range(publish_params['subplot grid'][0])]

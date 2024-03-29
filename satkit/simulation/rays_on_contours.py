@@ -309,11 +309,9 @@ def shape_metric_rays_on_contours(
             fontproperties=font_properties)
         ax.add_artist(scale_bar)
 
-    axes[0].set_ylabel(r"log$_{10}$(MCI baseline / MCI perturbed)")
-
     for j, contour_name in enumerate(metrics):
         reference = baselines[contour_name]
-        axes[j].set_title(contour_name)
+        axes[j].set_title(f"[{contour_name}]")
         axes[j].set_xlabel(f"{metric_name} = {reference[0]:.2f}")
         metric_dict = metrics[contour_name]
         baseline = baselines[contour_name]

@@ -49,7 +49,7 @@ class SimulationContourVowel(
     """
     Currently available simulated vowel contours.
     """
-    AE = 'ae'
+    AE = 'æ'
     I = 'i'
 
 

@@ -93,14 +93,66 @@ def display_contour(
                       str(i+1), color=color, fontsize=12)
 
 
-def contour_ray_plot(
-        axes: Axes,
+def _metric_values_to_rays(
         contour: np.ndarray,
         metric_values: dict[str, np.ndarray],
-        metric_reference_value: float,
-        scale: Optional[float] = 1,
         origin_offset: Optional[tuple[float, float]] = (0.0, 0.0),
         relative: Optional[bool] = False,
+) -> list[np.ndarray]:
+    """
+    Helper function to transform metric values to ray segments.
+
+    This implicitly is used by contour_ray_plot to generate the segments and is
+    not precisely meant for public use.
+
+    Parameters
+    ----------
+    contour : np.ndarray
+        Contour to plot on.
+    metric_values : dict[str, np.ndarray]
+        Metric values to plot by perturbation values.
+    origin_offset : Optional[tuple[float, float]], optional
+        Cartesian offset for the origin, by default (0.0, 0.0)
+    relative : Optional[bool], optional
+        True for calculating the ray magnitude as ratio of metric value and
+        metric reference value; False for ray magnitude as difference between
+        metric value and reference., by default False
+
+    Returns
+    -------
+    list[np.ndarray]
+        List of np.ndarrays to feed to LineCollection.
+    """
+    if relative:
+        ray_r = metric_values + contour[0, :]
+    else:
+        ray_r = metric_values + contour[0, :]
+    rays = np.stack([ray_r, contour[1, :]])
+
+    rays = polar_to_cartesian(rays)
+    rays_cart = np.add(origin_offset, rays)
+
+    contour_cart = polar_to_cartesian(contour)
+    contour_cart = np.add(origin_offset, contour_cart)
+
+    segments = [np.stack(
+        [contour_cart[::-1, i], rays_cart[::-1, i]], axis=0)
+        for i in range(contour_cart.shape[1])
+    ]
+
+    return segments
+
+
+def contour_ray_plot(
+    axes: Axes,
+    contour: np.ndarray,
+    metric_values: dict[str, np.ndarray],
+    metric_reference_value: float,
+    scale: Optional[float] = 1,
+    origin_offset: Optional[tuple[float, float]] = (0.0, 0.0),
+    relative: Optional[bool] = False,
+    color_threshold: Optional[tuple[float, float]] = None,
+    colors: Optional[list[tuple[float, float, float, float]]] = None
 ) -> None:
     """
     Plot metric values as rays on a contour.
@@ -123,45 +175,72 @@ def contour_ray_plot(
         True for calculating the ray magnitude as ratio of metric value and
         metric reference value; False for ray magnitude as difference between
         metric value and reference., by default False
+    color_threshold :  Optional[tuple(float, float)]
+        Threshold to switch from the first to the second color in plotting the
+        rays if a second color is specified (see below). Specified in metric's
+        units relative to the `metric_reference_value`. If only one float is
+        given instead of tuple of two, it will be used symmetrically as
+        +/-color_threshold. By default None
+    colors : Optional[list[tuple[float,float,float,float]]]
+        One or two RGB or RGBA tuples: e.g. [(0.1, 0.1, 0.1, 1.0)] to specify a
+        single color. Arbitrary color strings, etc, are not allowed, by default
+        None
     """
+    # making sure that array operations work as expected.
+    if color_threshold is not None:
+        color_threshold = np.array(color_threshold)
     origin_offset = np.array(origin_offset).reshape((2, 1))
 
     if relative:
-        metric_values = scale * metric_values / metric_reference_value
+        metric_values = np.log10(metric_values / metric_reference_value)
+        metric_values = scale * metric_values
+        if color_threshold is not None:
+            color_threshold = scale * color_threshold
     else:
         metric_values = (metric_values - metric_reference_value)*scale
+        if color_threshold is not None:
+            color_threshold = color_threshold*scale
 
-    if relative:
-        ray_r = metric_values + contour[0, :]
-    else:
-        ray_r = metric_values + contour[0, :]
-    rays = np.stack([ray_r, contour[1, :]])
+    contour_cart = polar_to_cartesian(contour)
+    contour_cart = np.add(origin_offset, contour_cart)
+    axes.plot(contour_cart[1, :], contour_cart[0, :], color='grey')
 
-    contour = polar_to_cartesian(contour)
-    rays = polar_to_cartesian(rays)
-    rays = np.add(origin_offset, rays)
-    contour = np.add(origin_offset, contour)
+    segments = _metric_values_to_rays(
+        contour=contour, metric_values=metric_values,
+        relative=relative, origin_offset=origin_offset)
 
-    axes.plot(contour[1, :], contour[0, :], color='grey')
+    if colors is None:
+        line_segments = LineCollection(segments, linestyles='solid')
+        axes.add_collection(line_segments)
+    elif color_threshold is None:
+        line_segments = LineCollection(
+            segments, linestyles='solid', colors=colors[0])
+        axes.add_collection(line_segments)
+    elif color_threshold is not None and len(colors) == 2:
+        if len(color_threshold) < 2:
+            if relative:
+                raise NotImplementedError(
+                    "For relative=True, you need to provide "
+                    "the upper and lower color_threshold")
+            color_threshold = (color_threshold, -color_threshold)
+        line_segments = LineCollection(
+            segments,
+            linestyles='solid',
+            colors=colors[1]
+        )
+        axes.add_collection(line_segments)
 
-    segments = [np.stack(
-        [contour[::-1, i], rays[::-1, i]], axis=0)
-        for i in range(contour.shape[1])
-    ]
-
-    line_segments = LineCollection(
-        segments,
-        linestyles='solid',
-    )
-    axes.add_collection(line_segments)
-
-    # # If the rays are to be coloured these maybe useful.
-    # ax_colorbar = fig.colorbar(line_segments)
-    # ax_colorbar.set_label('Line Number')
-    # ax.set_title('Line Collection with mapped colors')
-    # # This allows interactive changing of the colormap.
-    # plt.sci(line_segments)
-    # plt.show()
+        metric_values[metric_values > color_threshold[0]] = color_threshold[0]
+        metric_values[metric_values < color_threshold[1]] = color_threshold[1]
+        segments = _metric_values_to_rays(
+            contour=contour, metric_values=metric_values,
+            relative=relative, origin_offset=origin_offset)
+        line_segments = LineCollection(
+            segments,
+            linestyles='solid',
+            colors=colors[0]
+        )
+        axes.add_collection(line_segments)
 
 
 def plot_metric_on_contour(

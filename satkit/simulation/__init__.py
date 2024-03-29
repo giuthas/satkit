@@ -53,3 +53,8 @@ from .simulation_plots import (
     plot_metric_on_contour, contour_ray_plot,
     plot_distance_metric_against_perturbation_point
 )
+
+from .rays_on_contours import (
+    distance_metric_rays_on_contours,
+    shape_metric_rays_on_contours
+)

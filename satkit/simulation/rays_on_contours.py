@@ -171,6 +171,8 @@ def distance_metric_rays_on_contours(
                 origin_offset[1]-10, origin_offset[0]-15,
                 f"{perturbation} mm",
                 horizontalalignment='center',)
+            # ic(perturbation, comparison, np.max(
+            #     np.abs(metric_dict[perturbation]-baseline)))
             if comparison.first == comparison.second:
                 if comparison.perturbed == ComparisonMember.SECOND:
                     contour_ray_plot(
@@ -323,6 +325,8 @@ def shape_metric_rays_on_contours(
                 origin_offset[1]-10, origin_offset[0]+25,
                 f"{perturbation} mm",
                 horizontalalignment='center',)
+            # ic(j, perturbation, np.max(metric_dict[perturbation]), np.max(
+            #     metric_dict[perturbation]/baseline))
             contour_ray_plot(
                 axes=axes[j],
                 contour=contours[contour_name],

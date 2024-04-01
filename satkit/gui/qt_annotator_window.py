@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2019-2023
+# Copyright (c) 2019-2024
 # Pertti Palo, Scott Moisik, Matthew Faytak, and Motoki Saito.
 #
 # This file is part of Speech Articulation ToolKIT
@@ -43,7 +43,7 @@ from matplotlib.figure import Figure
 from PyQt5.QtGui import QIntValidator
 from PyQt5.uic import loadUiType
 # Local modules
-from satkit.plot import plot_timeseries, plot_wav
+from satkit.plot_and_publish import plot_timeseries, plot_wav
 
 # Load the GUI layout generated with QtDesigner.
 Ui_MainWindow, QMainWindow = loadUiType('satkit/gui/qt_annotator.ui')

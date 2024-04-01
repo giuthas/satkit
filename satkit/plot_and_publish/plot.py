@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2019-2023
+# Copyright (c) 2019-2024
 # Pertti Palo, Scott Moisik, Matthew Faytak, and Motoki Saito.
 #
 # This file is part of Speech Articulation ToolKIT
@@ -33,40 +33,53 @@
 
 # Built in packages
 import logging
-from enum import Enum
-from typing import List, Optional, Tuple, Union
+from typing import List, Optional, Sequence, Tuple, Union
 
-# Efficient array operations
+from matplotlib.collections import LineCollection
+from matplotlib.typing import ColorType
+from matplotlib.axes import Axes
+from matplotlib.lines import Line2D
+
 import numpy as np
-from scipy import signal as scipy_signal
 from scipy import interpolate
 
 from icecream import ic
 
-# Scientific plotting
-from matplotlib.axes import Axes
-from matplotlib.lines import Line2D
-
-# Local packages
+from satkit.configuration import TimeseriesNormalisation
+from satkit.constants import AnnotationType
+from satkit.data_structures import Modality
 from satkit.gui.boundary_animation import AnimatableBoundary, BoundaryAnimator
+from satkit.helpers import normalise_timeseries
 from satkit.satgrid import SatTier
 
 _plot_logger = logging.getLogger('satkit.plot')
 
 
-class Normalisation(Enum):
+def plot_1d_modality(axes: Axes,
+                     modality: Modality,
+                     time_offset: float,
+                     xlim: Tuple[float, float],
+                     **kwargs) -> Line2D:
     """
-    An Enum for different kinds of plot normalisation in the y-direction.
+    Plot a modality assuming its data is one dimensional.
 
-    none: no normalisation
-    peak: divide all data points y-values by the largest y-value
-    bottom: deduct the lowest y-value from all data poitns y-values
-    both: do first bottom normalisation and then peak normalisation.
+    Parameters
+    ----------
+    modality : Modality
+        _description_
+    time_offset : float
+        _description_
+
+    Returns
+    -------
+    LegendItem
+        _description_
     """
-    none = 'NONE'
-    peak = 'PEAK'
-    bottom = 'BOTTOM'
-    both = 'PEAK AND BOTTOM'
+    data = modality.data
+    time = modality.timevector - time_offset
+
+    line = plot_timeseries(axes, data, time, xlim, **kwargs)
+    return line
 
 
 def plot_timeseries(axes: Axes,
@@ -74,15 +87,14 @@ def plot_timeseries(axes: Axes,
                     time: np.ndarray,
                     xlim: Tuple[float, float],
                     ylim: Optional[Tuple[float, float]] = None,
-                    normalise: Normalisation = 'NONE',
+                    normalise: Optional[TimeseriesNormalisation] = None,
                     number_of_ignored_frames: int = 10,
                     ylabel: Optional[str] = None,
                     picker=None,
                     color: str = "deepskyblue",
                     linestyle: str = "-",
                     alpha: float = 1.0,
-                    sampling_step: int = 1,
-                    find_peaks: bool = False):
+                    sampling_step: int = 1) -> Line2D:
     """
     Plot a timeseries.
 
@@ -106,16 +118,14 @@ def plot_timeseries(axes: Axes,
     linestyle -- matplotlib linestyle.
     alpha -- alpha value for the line.
 
-    Returns None.
+    Returns Line2D which is not the plotted line but one that 
+    can be used for adding a legend to the plot.
     """
     plot_data = data[number_of_ignored_frames:]
     plot_time = time[number_of_ignored_frames:]
 
     _plot_logger.debug("Normalisation is %s.", normalise)
-    if normalise in (Normalisation.both, Normalisation.bottom):
-        plot_data = plot_data - np.min(plot_data)
-    if normalise in [Normalisation.both, Normalisation.peak]:
-        plot_data = plot_data/np.max(plot_data)
+    plot_data = normalise_timeseries(plot_data, normalisation=normalise)
 
     if picker:
         axes.plot(
@@ -129,19 +139,17 @@ def plot_timeseries(axes: Axes,
     # The official fix for the above curve not showing up on the legend.
     timeseries = Line2D([], [], color=color, lw=1, linestyle=linestyle)
 
-    if find_peaks:
-        mark_gesture_peaks(axes, plot_data, plot_time)
-        # mark_gesture_boundaries(axes, plot_data, plot_time)
-
     axes.set_xlim(xlim)
 
     if ylim:
         axes.set_ylim(ylim)
-    elif normalise in [Normalisation.both]:
-        axes.set_ylim([-0.05, 1.05])
-    elif normalise in [Normalisation.peak]:
-        axes.set_ylim([-0.05, 1.05])
-        # axes.set_yscale('log')
+    else:
+        y_limits = axes.get_ylim
+        if normalise.peak:
+            y_limits[1] = 1.05
+        elif normalise.bottom:
+            y_limits[0] = -0.05
+        axes.set_ylim(y_limits)
 
     if ylabel:
         axes.set_ylabel(ylabel)
@@ -149,35 +157,68 @@ def plot_timeseries(axes: Axes,
     return timeseries
 
 
-def mark_gesture_peaks(axes, data, timevector) -> Line2D:
-    peaks, _ = find_gesture_peaks(data)
-    for peak in peaks:
-        line = axes.axvline(
-            x=timevector[peak],
-            color="crimson",
-            lw=1,
-            linestyle=':')
-    return line
+def mark_peaks(
+        axes: Axes,
+        modality: Modality,
+        xlim: Tuple[float, float] = None,
+        display_prominence_values: bool = False,
+        colors: ColorType | Sequence[ColorType] | None = 'sandybrown',
+        time_offset: float = 0.0
+) -> LineCollection:
+    """
+    Mark peak annotations from the modality on the axes.
 
+    If valleys instead of peaks are wanted, just pass in -data.
 
-def mark_gesture_boundaries(axes, data, timevector) -> Line2D:
-    peaks, _ = find_gesture_peaks(-data)
-    for peak in peaks:
-        line = axes.axvline(
-            x=timevector[peak],
-            color="dodgerblue",
-            lw=1,
-            linestyle=':')
-    return line
+    Parameters
+    ----------
+    axes : Axes
+        Axes to draw on.
+    modality : Modality
+        A timeseries modality with peak annotations.
+    xlim : Tuple[float, float], optional
+        Limits of drawing, by default None. This is useful in avoiding GUI
+        hiccups by not drawing outside of the current limits. 
+    display_prominence_values : bool, optional
+        If prominence values should be plotted next to the peaks, by default
+        False
+    colors : ColorType | Sequence[ColorType] | None, optional
+        Color to use in plotting the peak marker lines, by default 'sandybrown'
 
+    Returns
+    -------
+    LineCollection
+        _description_
+    """
+    if AnnotationType.PEAKS not in modality.annotations:
+        return None
 
-def find_gesture_peaks(data: np.ndarray):
-    search_data = data - np.min(data)
-    search_data = search_data/np.max(search_data)
+    data = modality.data
+    timevector = modality.timevector - time_offset
+    annotations = modality.annotations[AnnotationType.PEAKS]
+    peaks = annotations.indeces
+    properties = annotations.properties
+    # TODO make the type annotations work with normalisation here
+    normalise = annotations.generating_parameters.normalisation
 
-    peaks, properties = scipy_signal.find_peaks(
-        search_data)  # , distance=10, prominence=.05)
-    return peaks, properties
+    _plot_logger.debug("Normalisation is %s.", normalise)
+    data = normalise_timeseries(data, normalisation=normalise)
+
+    prominences = properties['prominences']
+    contour_heights = data[peaks] - prominences
+    line_collection = axes.vlines(
+        x=timevector[peaks], ymin=contour_heights, ymax=data[peaks],
+        colors=colors, linestyles=':')
+
+    if display_prominence_values:
+        for i, peak in enumerate(peaks):
+            x = timevector[peak]
+            if not xlim or xlim[0] <= x <= xlim[1]:
+                axes.text(
+                    x=timevector[peak], y=data[peak],
+                    s=(f"{prominences[i]:,.3f}")
+                )
+    return line_collection
 
 
 def plot_satgrid_tier(axes: Axes,
@@ -348,7 +389,8 @@ def plot_spline(
     data : np.ndarray
         the spline Cartesian coordinates in axes order x-y, splinepoints.
     limits : Optional[tuple[int, int]], optional
-        How many points to leave out from the (front, back) of the spline, by default None
+        How many points to leave out from the (front, back) of the spline, by
+        default None
     display_line : bool, optional
         should the interpolated spline line be drawn, by default True
     display_points : bool, optional
@@ -363,15 +405,16 @@ def plot_spline(
 
     if display_line:
         if limits:
-            interp_result = interpolate.splprep(data, s=0)
-            tck = interp_result[0]
+            interpolation_result = interpolate.splprep(data, s=0)
+            tck = interpolation_result[0]
             interpolation_points = np.arange(0, 1.01, 0.01)
             interpolated_spline = interpolate.splev(interpolation_points, tck)
             ax.plot(interpolated_spline[0],
-                    -interpolated_spline[1], color='orange', linewidth=1, alpha=.5)
+                    -interpolated_spline[1],
+                    color='orange', linewidth=1, alpha=.5)
 
-        interp_result = interpolate.splprep(solid_data, s=0)
-        tck = interp_result[0]
+        interpolation_result = interpolate.splprep(solid_data, s=0)
+        tck = interpolation_result[0]
         interpolation_points = np.arange(0, 1.01, 0.01)
         interpolated_spline = interpolate.splev(interpolation_points, tck)
         ax.plot(interpolated_spline[0],

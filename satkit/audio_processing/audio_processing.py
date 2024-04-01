@@ -1,8 +1,8 @@
 #
-# Copyright (c) 2019-2023 
+# Copyright (c) 2019-2024
 # Pertti Palo, Scott Moisik, Matthew Faytak, and Motoki Saito.
 #
-# This file is part of Speech Articulation ToolKIT 
+# This file is part of Speech Articulation ToolKIT
 # (see https://github.com/giuthas/satkit/).
 #
 # This program is free software: you can redistribute it and/or modify
@@ -45,7 +45,7 @@ def high_pass_50(sampling_frequency):
     """Returns a high-pass filter with a 50Hz stop band. Used for
     filtering the mains frequency away from recorded sound."""
     _audio_logger.debug("Generating high-pass filter.")
-    stop = (50/(sampling_frequency/2))  # 50 Hz stop band
+    stop = 50/(sampling_frequency/2)  # 50 Hz stop band
     b, a = butter(10, stop, 'highpass')
     return (b, a)
 
@@ -54,7 +54,7 @@ def high_pass(sampling_frequency, stop_band):
     """Returns a high-pass filter with a stop band of sb. Used for
     filtering the mains frequency away from recorded sound."""
     _audio_logger.debug("Generating high-pass filter.")
-    stop = (stop_band/(sampling_frequency/2))
+    stop = stop_band/(sampling_frequency/2)
     b, a = butter(10, stop, 'highpass')
     return {'b': b, 'a': a}
 
@@ -66,15 +66,33 @@ def band_pass(sampling_frequency):
     low = 950.0 / nyq
     high = 1050.0 / nyq
     sos = butter(1, [low, high], btype='band', output='sos')
-    return (sos)
+    return sos
 
 
 class MainsFilter():
-    mains_frequency = None
-    mains_filter = None
+    """
+    Class for containing a general mains filter.
 
+    This exists so that the mains filter does not need to be regenerated every
+    time audio is read.
+    """
+    mains_frequency: float = None
+    mains_filter: dict = {'b': None, 'a': None}
+
+    @staticmethod
     def generate_mains_filter(sampling_frequency: float,
                               mains_frequency: float):
+        """
+        Generate a filter for removing the mains frequency from audio.
+
+        Parameters
+        ----------
+        sampling_frequency : float
+            Sampling frequency of the audio data.
+        mains_frequency : float
+            Mains frequency of the recording location. In Europe usually 50Hz,
+            in North America usually 60Hz.
+        """
         MainsFilter.mains_frequency = mains_frequency
         MainsFilter.mains_filter = high_pass(
             sampling_frequency, mains_frequency)
@@ -102,7 +120,7 @@ def detect_beep_and_speech(frames, sampling_frequency, b, a, name):
 1    """
 
     _audio_logger.debug(
-        "Detecting beep onset and presence of speech in %s." % (name))
+        "Detecting beep onset and presence of speech in %s.", name)
     hp_signal = filtfilt(b, a, frames)
     sos = band_pass(sampling_frequency)
     bp_signal = sosfilt(sos, frames)
@@ -159,7 +177,7 @@ def detect_beep_and_speech(frames, sampling_frequency, b, a, name):
     # Find the first properly rising edge in the 50 ms window.
     threshold = .1*min(frames[0:roi_end])
     candidates = np.where(frames[roi_beg:roi_end] < threshold)[0]
-    if not len(candidates):
+    if not len(candidates) > 0:
         _audio_logger.error("Found no beep in %s.", name)
         return (0, False)
     beep_approx_index = roi_beg + candidates[0]

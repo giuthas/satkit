@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2019-2023
+# Copyright (c) 2019-2024
 # Pertti Palo, Scott Moisik, Matthew Faytak, and Motoki Saito.
 #
 # This file is part of Speech Articulation ToolKIT
@@ -67,9 +67,40 @@ from typing import Optional
 import more_itertools as mitt
 
 
+class ListablePrintableEnum(Enum):
+    """
+    Enum whose values can be listed and which returns its value as a string.
+    """
+
+    @classmethod
+    def values(cls) -> list:
+        """
+        Classmethod which returns a list of the Enum's values.
+
+        Returns
+        -------
+        list
+            list of the Enum's values.
+        """
+        return list(map(lambda c: c.value, cls))
+
+    def __str__(self) -> str:
+        return str(self.value)
+
+
 class ValueComparedEnumMeta(EnumMeta):
     """
-    EnumMeta where `in` matches also value of member matching compared item. 
+    EnumMeta where `in` matches also value of member matching compared item.
+
+    Usage:
+    ``` 
+    class MyEnum(Enum, metaclass=ValueComparedEnumMeta):
+        FOO = 'bar'
+
+    search_value = 'bar'
+    if search_value in MyEnum:
+        print('It is!')
+    ``` 
     """
     def __contains__(cls, item):
         members_dict = dict(cls.__members__)

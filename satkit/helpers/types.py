@@ -1,8 +1,8 @@
 #
-# Copyright (c) 2019-2023 
+# Copyright (c) 2019-2024
 # Pertti Palo, Scott Moisik, Matthew Faytak, and Motoki Saito.
 #
-# This file is part of Speech Articulation ToolKIT 
+# This file is part of Speech Articulation ToolKIT
 # (see https://github.com/giuthas/satkit/).
 #
 # This program is free software: you can redistribute it and/or modify
@@ -29,5 +29,32 @@
 # articles listed in README.markdown. They can also be found in
 # citations.bib in BibTeX format.
 #
-from satkit.plot.plot import (Normalisation, plot_satgrid_tier,
-                              plot_spectrogram, plot_timeseries, plot_wav)
+"""
+Type processing helper functions.
+"""
+
+import collections.abc
+from typing import Any
+
+
+def is_sequence_form(obj: Any) -> bool:
+    """
+    Return True if the object is a sequence but not a string.
+
+    Note that this function returns False for numpy arrays which should be
+    identified with `isinstance` and treated separately because they can be
+    indexed with a different syntax. 
+
+    Parameters
+    ----------
+    object : Any
+        any object
+
+    Returns
+    -------
+    bool
+        True for sequences, False for strings and everything else.
+    """
+    if isinstance(obj, str):
+        return False
+    return isinstance(obj, collections.abc.Sequence)

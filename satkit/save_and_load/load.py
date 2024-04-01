@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2019-2023
+# Copyright (c) 2019-2024
 # Pertti Palo, Scott Moisik, Matthew Faytak, and Motoki Saito.
 #
 # This file is part of Speech Articulation ToolKIT
@@ -48,7 +48,7 @@ from satkit.data_import import (
 from satkit.data_structures import ModalityData, Recording, RecordingSession
 from satkit.metrics import metrics
 
-from .save_and_load_helpers import (
+from .save_and_load_schemas import (
     ModalityListingLoadschema, ModalityLoadSchema, RecordingLoadSchema,
     RecordingSessionLoadSchema)
 
@@ -88,13 +88,13 @@ def load_derived_modality(
         saved_data['data'], sampling_rate=saved_data['sampling_rate'],
         timevector=saved_data['timevector'])
 
-    metric, paremeter_schema = metrics[meta.object_type]
+    metric, parameter_schema = metrics[meta.object_type]
     for key in meta.parameters:
         if meta.parameters[key] == 'None':
             meta.parameters[key] = None
-    parameters = paremeter_schema(**meta.parameters)
+    parameters = parameter_schema(**meta.parameters)
     modality = metric(recording=recording,
-                      parsed_data=modality_data, parameters=parameters)
+                      parsed_data=modality_data, metadata=parameters)
 
     recording.add_modality(modality=modality)
 
@@ -143,14 +143,14 @@ def load_recording(filepath: Path) -> Recording:
     """
     # decide which loader we will be using based on either filepath.satkit_meta
     # or config[''] in that order and document this behaviour. this way if the
-    # data has previosly been loaded satkit can decide itself what to do with
+    # data has previously been loaded satkit can decide itself what to do with
     # it and there is an easy place where to add processing
     # session/participant/whatever specific config. could also add guessing
     # based on what is present as the final fall back or as the option tried if
     # no meta and config has the wrong guess.
 
-    metapath = filepath.with_suffix(SatkitSuffix.META)
-    if metapath.is_file():
+    meta_path = filepath.with_suffix(SatkitSuffix.META)
+    if meta_path.is_file():
         # this is a list of Modalities, each with a data path and meta path
         meta = read_recording_meta(filepath)
     else:

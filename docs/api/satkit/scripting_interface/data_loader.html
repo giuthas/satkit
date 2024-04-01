@@ -61,7 +61,7 @@
                         <label class="view-source-button" for="mod-data_loader-view-source"><span>View Source</span></label>
 
                         <div class="pdoc-code codehilite"><pre><span></span><span id="L-1"><a href="#L-1"><span class="linenos">  1</span></a><span class="c1">#</span>
-</span><span id="L-2"><a href="#L-2"><span class="linenos">  2</span></a><span class="c1"># Copyright (c) 2019-2023</span>
+</span><span id="L-2"><a href="#L-2"><span class="linenos">  2</span></a><span class="c1"># Copyright (c) 2019-2024</span>
 </span><span id="L-3"><a href="#L-3"><span class="linenos">  3</span></a><span class="c1"># Pertti Palo, Scott Moisik, Matthew Faytak, and Motoki Saito.</span>
 </span><span id="L-4"><a href="#L-4"><span class="linenos">  4</span></a><span class="c1">#</span>
 </span><span id="L-5"><a href="#L-5"><span class="linenos">  5</span></a><span class="c1"># This file is part of Speech Articulation ToolKIT</span>
@@ -108,7 +108,7 @@
 </span><span id="L-46"><a href="#L-46"><span class="linenos"> 46</span></a><span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="s1">&#39;satkit.scripting&#39;</span><span class="p">)</span>
 </span><span id="L-47"><a href="#L-47"><span class="linenos"> 47</span></a>
 </span><span id="L-48"><a href="#L-48"><span class="linenos"> 48</span></a><span class="c1"># TODO: change the name of this file to data_importer and move it to a more</span>
-</span><span id="L-49"><a href="#L-49"><span class="linenos"> 49</span></a><span class="c1"># appropriete submodule.</span>
+</span><span id="L-49"><a href="#L-49"><span class="linenos"> 49</span></a><span class="c1"># appropriate submodule.</span>
 </span><span id="L-50"><a href="#L-50"><span class="linenos"> 50</span></a>
 </span><span id="L-51"><a href="#L-51"><span class="linenos"> 51</span></a>
 </span><span id="L-52"><a href="#L-52"><span class="linenos"> 52</span></a><span class="k">def</span> <span class="nf">load_data</span><span class="p">(</span><span class="n">path</span><span class="p">:</span> <span class="n">Path</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">RecordingSession</span><span class="p">:</span>
@@ -125,10 +125,10 @@
 </span><span id="L-63"><a href="#L-63"><span class="linenos"> 63</span></a><span class="sd">    RecordingSession</span>
 </span><span id="L-64"><a href="#L-64"><span class="linenos"> 64</span></a><span class="sd">        The generated RecordingSession object with the exclusion list applied.</span>
 </span><span id="L-65"><a href="#L-65"><span class="linenos"> 65</span></a><span class="sd">    &quot;&quot;&quot;</span>
-</span><span id="L-66"><a href="#L-66"><span class="linenos"> 66</span></a>    <span class="k">if</span> <span class="n">config_dict</span><span class="p">[</span><span class="s1">&#39;mains frequency&#39;</span><span class="p">]:</span>
+</span><span id="L-66"><a href="#L-66"><span class="linenos"> 66</span></a>    <span class="k">if</span> <span class="n">config_dict</span><span class="p">[</span><span class="s1">&#39;mains_frequency&#39;</span><span class="p">]:</span>
 </span><span id="L-67"><a href="#L-67"><span class="linenos"> 67</span></a>        <span class="n">MainsFilter</span><span class="o">.</span><span class="n">generate_mains_filter</span><span class="p">(</span>
 </span><span id="L-68"><a href="#L-68"><span class="linenos"> 68</span></a>            <span class="mi">44100</span><span class="p">,</span>
-</span><span id="L-69"><a href="#L-69"><span class="linenos"> 69</span></a>            <span class="n">config_dict</span><span class="p">[</span><span class="s1">&#39;mains frequency&#39;</span><span class="p">])</span>
+</span><span id="L-69"><a href="#L-69"><span class="linenos"> 69</span></a>            <span class="n">config_dict</span><span class="p">[</span><span class="s1">&#39;mains_frequency&#39;</span><span class="p">])</span>
 </span><span id="L-70"><a href="#L-70"><span class="linenos"> 70</span></a>    <span class="k">else</span><span class="p">:</span>
 </span><span id="L-71"><a href="#L-71"><span class="linenos"> 71</span></a>        <span class="n">MainsFilter</span><span class="o">.</span><span class="n">generate_mains_filter</span><span class="p">(</span><span class="mi">44100</span><span class="p">,</span> <span class="mi">50</span><span class="p">)</span>
 </span><span id="L-72"><a href="#L-72"><span class="linenos"> 72</span></a>
@@ -235,10 +235,10 @@
 </span><span id="load_data-64"><a href="#load_data-64"><span class="linenos">64</span></a><span class="sd">    RecordingSession</span>
 </span><span id="load_data-65"><a href="#load_data-65"><span class="linenos">65</span></a><span class="sd">        The generated RecordingSession object with the exclusion list applied.</span>
 </span><span id="load_data-66"><a href="#load_data-66"><span class="linenos">66</span></a><span class="sd">    &quot;&quot;&quot;</span>
-</span><span id="load_data-67"><a href="#load_data-67"><span class="linenos">67</span></a>    <span class="k">if</span> <span class="n">config_dict</span><span class="p">[</span><span class="s1">&#39;mains frequency&#39;</span><span class="p">]:</span>
+</span><span id="load_data-67"><a href="#load_data-67"><span class="linenos">67</span></a>    <span class="k">if</span> <span class="n">config_dict</span><span class="p">[</span><span class="s1">&#39;mains_frequency&#39;</span><span class="p">]:</span>
 </span><span id="load_data-68"><a href="#load_data-68"><span class="linenos">68</span></a>        <span class="n">MainsFilter</span><span class="o">.</span><span class="n">generate_mains_filter</span><span class="p">(</span>
 </span><span id="load_data-69"><a href="#load_data-69"><span class="linenos">69</span></a>            <span class="mi">44100</span><span class="p">,</span>
-</span><span id="load_data-70"><a href="#load_data-70"><span class="linenos">70</span></a>            <span class="n">config_dict</span><span class="p">[</span><span class="s1">&#39;mains frequency&#39;</span><span class="p">])</span>
+</span><span id="load_data-70"><a href="#load_data-70"><span class="linenos">70</span></a>            <span class="n">config_dict</span><span class="p">[</span><span class="s1">&#39;mains_frequency&#39;</span><span class="p">])</span>
 </span><span id="load_data-71"><a href="#load_data-71"><span class="linenos">71</span></a>    <span class="k">else</span><span class="p">:</span>
 </span><span id="load_data-72"><a href="#load_data-72"><span class="linenos">72</span></a>        <span class="n">MainsFilter</span><span class="o">.</span><span class="n">generate_mains_filter</span><span class="p">(</span><span class="mi">44100</span><span class="p">,</span> <span class="mi">50</span><span class="p">)</span>
 </span><span id="load_data-73"><a href="#load_data-73"><span class="linenos">73</span></a>

@@ -156,7 +156,7 @@
                         <label class="view-source-button" for="mod-spline_metric-view-source"><span>View Source</span></label>
 
                         <div class="pdoc-code codehilite"><pre><span></span><span id="L-1"><a href="#L-1"><span class="linenos">  1</span></a><span class="c1">#</span>
-</span><span id="L-2"><a href="#L-2"><span class="linenos">  2</span></a><span class="c1"># Copyright (c) 2019-2023</span>
+</span><span id="L-2"><a href="#L-2"><span class="linenos">  2</span></a><span class="c1"># Copyright (c) 2019-2024</span>
 </span><span id="L-3"><a href="#L-3"><span class="linenos">  3</span></a><span class="c1"># Pertti Palo, Scott Moisik, Matthew Faytak, and Motoki Saito.</span>
 </span><span id="L-4"><a href="#L-4"><span class="linenos">  4</span></a><span class="c1">#</span>
 </span><span id="L-5"><a href="#L-5"><span class="linenos">  5</span></a><span class="c1"># This file is part of Speech Articulation ToolKIT</span>
@@ -202,12 +202,12 @@
 </span><span id="L-45"><a href="#L-45"><span class="linenos"> 45</span></a><span class="kn">from</span> <span class="nn">satkit.data_structures</span> <span class="kn">import</span> <span class="p">(</span>
 </span><span id="L-46"><a href="#L-46"><span class="linenos"> 46</span></a>    <span class="n">Modality</span><span class="p">,</span> <span class="n">ModalityData</span><span class="p">,</span> <span class="n">ModalityMetaData</span><span class="p">,</span> <span class="n">Recording</span><span class="p">)</span>
 </span><span id="L-47"><a href="#L-47"><span class="linenos"> 47</span></a><span class="kn">from</span> <span class="nn">satkit.helpers</span> <span class="kn">import</span> <span class="p">(</span>
-</span><span id="L-48"><a href="#L-48"><span class="linenos"> 48</span></a>    <span class="n">enum_union</span><span class="p">,</span> <span class="n">product_dict</span><span class="p">,</span> <span class="n">PrintableEnum</span><span class="p">,</span> <span class="n">ValueComparedEnumMeta</span><span class="p">)</span>
+</span><span id="L-48"><a href="#L-48"><span class="linenos"> 48</span></a>    <span class="n">enum_union</span><span class="p">,</span> <span class="n">product_dict</span><span class="p">,</span> <span class="n">ListablePrintableEnum</span><span class="p">,</span> <span class="n">ValueComparedEnumMeta</span><span class="p">)</span>
 </span><span id="L-49"><a href="#L-49"><span class="linenos"> 49</span></a>
 </span><span id="L-50"><a href="#L-50"><span class="linenos"> 50</span></a><span class="n">_logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="s1">&#39;satkit.spline_metric&#39;</span><span class="p">)</span>
 </span><span id="L-51"><a href="#L-51"><span class="linenos"> 51</span></a>
 </span><span id="L-52"><a href="#L-52"><span class="linenos"> 52</span></a>
-</span><span id="L-53"><a href="#L-53"><span class="linenos"> 53</span></a><span class="k">class</span> <span class="nc">SplineDiffsEnum</span><span class="p">(</span><span class="n">PrintableEnum</span><span class="p">,</span> <span class="n">metaclass</span><span class="o">=</span><span class="n">ValueComparedEnumMeta</span><span class="p">):</span>
+</span><span id="L-53"><a href="#L-53"><span class="linenos"> 53</span></a><span class="k">class</span> <span class="nc">SplineDiffsEnum</span><span class="p">(</span><span class="n">ListablePrintableEnum</span><span class="p">,</span> <span class="n">metaclass</span><span class="o">=</span><span class="n">ValueComparedEnumMeta</span><span class="p">):</span>
 </span><span id="L-54"><a href="#L-54"><span class="linenos"> 54</span></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 </span><span id="L-55"><a href="#L-55"><span class="linenos"> 55</span></a><span class="sd">    Spline metrics that use distance between corresponding points.</span>
 </span><span id="L-56"><a href="#L-56"><span class="linenos"> 56</span></a><span class="sd">    &quot;&quot;&quot;</span>
@@ -217,7 +217,7 @@
 </span><span id="L-60"><a href="#L-60"><span class="linenos"> 60</span></a>    <span class="n">SPLINE_L2</span> <span class="o">=</span> <span class="s1">&#39;spline_l2&#39;</span>
 </span><span id="L-61"><a href="#L-61"><span class="linenos"> 61</span></a>
 </span><span id="L-62"><a href="#L-62"><span class="linenos"> 62</span></a>
-</span><span id="L-63"><a href="#L-63"><span class="linenos"> 63</span></a><span class="k">class</span> <span class="nc">SplineNNDsEnum</span><span class="p">(</span><span class="n">PrintableEnum</span><span class="p">,</span> <span class="n">metaclass</span><span class="o">=</span><span class="n">ValueComparedEnumMeta</span><span class="p">):</span>
+</span><span id="L-63"><a href="#L-63"><span class="linenos"> 63</span></a><span class="k">class</span> <span class="nc">SplineNNDsEnum</span><span class="p">(</span><span class="n">ListablePrintableEnum</span><span class="p">,</span> <span class="n">metaclass</span><span class="o">=</span><span class="n">ValueComparedEnumMeta</span><span class="p">):</span>
 </span><span id="L-64"><a href="#L-64"><span class="linenos"> 64</span></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 </span><span id="L-65"><a href="#L-65"><span class="linenos"> 65</span></a><span class="sd">    Spline metrics that use nearest neighbour distance.</span>
 </span><span id="L-66"><a href="#L-66"><span class="linenos"> 66</span></a><span class="sd">    &quot;&quot;&quot;</span>
@@ -225,7 +225,7 @@
 </span><span id="L-68"><a href="#L-68"><span class="linenos"> 68</span></a>    <span class="n">MNND</span> <span class="o">=</span> <span class="s1">&#39;mnnd&#39;</span>
 </span><span id="L-69"><a href="#L-69"><span class="linenos"> 69</span></a>
 </span><span id="L-70"><a href="#L-70"><span class="linenos"> 70</span></a>
-</span><span id="L-71"><a href="#L-71"><span class="linenos"> 71</span></a><span class="k">class</span> <span class="nc">SplineShapesEnum</span><span class="p">(</span><span class="n">PrintableEnum</span><span class="p">,</span> <span class="n">metaclass</span><span class="o">=</span><span class="n">ValueComparedEnumMeta</span><span class="p">):</span>
+</span><span id="L-71"><a href="#L-71"><span class="linenos"> 71</span></a><span class="k">class</span> <span class="nc">SplineShapesEnum</span><span class="p">(</span><span class="n">ListablePrintableEnum</span><span class="p">,</span> <span class="n">metaclass</span><span class="o">=</span><span class="n">ValueComparedEnumMeta</span><span class="p">):</span>
 </span><span id="L-72"><a href="#L-72"><span class="linenos"> 72</span></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 </span><span id="L-73"><a href="#L-73"><span class="linenos"> 73</span></a><span class="sd">    Spline metrics that characterise shape.</span>
 </span><span id="L-74"><a href="#L-74"><span class="linenos"> 74</span></a><span class="sd">    &quot;&quot;&quot;</span>
@@ -436,13 +436,13 @@
 <div class="attr class">
             
     <span class="def">class</span>
-    <span class="name">SplineDiffsEnum</span><wbr>(<span class="base"><a href="../helpers/enum_extensions.html#PrintableEnum">satkit.helpers.enum_extensions.PrintableEnum</a></span>):
+    <span class="name">SplineDiffsEnum</span><wbr>(<span class="base"><a href="../helpers/enum_extensions.html#ListablePrintableEnum">satkit.helpers.enum_extensions.ListablePrintableEnum</a></span>):
 
                 <label class="view-source-button" for="SplineDiffsEnum-view-source"><span>View Source</span></label>
 
     </div>
     <a class="headerlink" href="#SplineDiffsEnum"></a>
-            <div class="pdoc-code codehilite"><pre><span></span><span id="SplineDiffsEnum-54"><a href="#SplineDiffsEnum-54"><span class="linenos">54</span></a><span class="k">class</span> <span class="nc">SplineDiffsEnum</span><span class="p">(</span><span class="n">PrintableEnum</span><span class="p">,</span> <span class="n">metaclass</span><span class="o">=</span><span class="n">ValueComparedEnumMeta</span><span class="p">):</span>
+            <div class="pdoc-code codehilite"><pre><span></span><span id="SplineDiffsEnum-54"><a href="#SplineDiffsEnum-54"><span class="linenos">54</span></a><span class="k">class</span> <span class="nc">SplineDiffsEnum</span><span class="p">(</span><span class="n">ListablePrintableEnum</span><span class="p">,</span> <span class="n">metaclass</span><span class="o">=</span><span class="n">ValueComparedEnumMeta</span><span class="p">):</span>
 </span><span id="SplineDiffsEnum-55"><a href="#SplineDiffsEnum-55"><span class="linenos">55</span></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 </span><span id="SplineDiffsEnum-56"><a href="#SplineDiffsEnum-56"><span class="linenos">56</span></a><span class="sd">    Spline metrics that use distance between corresponding points.</span>
 </span><span id="SplineDiffsEnum-57"><a href="#SplineDiffsEnum-57"><span class="linenos">57</span></a><span class="sd">    &quot;&quot;&quot;</span>
@@ -508,7 +508,11 @@
                             <div class="inherited">
                                 <h5>Inherited Members</h5>
                                 <dl>
-                                    <div><dt>enum.Enum</dt>
+                                    <div><dt><a href="../helpers/enum_extensions.html#ListablePrintableEnum">satkit.helpers.enum_extensions.ListablePrintableEnum</a></dt>
+                                <dd id="SplineDiffsEnum.values" class="function"><a href="../helpers/enum_extensions.html#ListablePrintableEnum.values">values</a></dd>
+
+            </div>
+            <div><dt>enum.Enum</dt>
                                 <dd id="SplineDiffsEnum.name" class="variable">name</dd>
                 <dd id="SplineDiffsEnum.value" class="variable">value</dd>
 
@@ -521,13 +525,13 @@
 <div class="attr class">
             
     <span class="def">class</span>
-    <span class="name">SplineNNDsEnum</span><wbr>(<span class="base"><a href="../helpers/enum_extensions.html#PrintableEnum">satkit.helpers.enum_extensions.PrintableEnum</a></span>):
+    <span class="name">SplineNNDsEnum</span><wbr>(<span class="base"><a href="../helpers/enum_extensions.html#ListablePrintableEnum">satkit.helpers.enum_extensions.ListablePrintableEnum</a></span>):
 
                 <label class="view-source-button" for="SplineNNDsEnum-view-source"><span>View Source</span></label>
 
     </div>
     <a class="headerlink" href="#SplineNNDsEnum"></a>
-            <div class="pdoc-code codehilite"><pre><span></span><span id="SplineNNDsEnum-64"><a href="#SplineNNDsEnum-64"><span class="linenos">64</span></a><span class="k">class</span> <span class="nc">SplineNNDsEnum</span><span class="p">(</span><span class="n">PrintableEnum</span><span class="p">,</span> <span class="n">metaclass</span><span class="o">=</span><span class="n">ValueComparedEnumMeta</span><span class="p">):</span>
+            <div class="pdoc-code codehilite"><pre><span></span><span id="SplineNNDsEnum-64"><a href="#SplineNNDsEnum-64"><span class="linenos">64</span></a><span class="k">class</span> <span class="nc">SplineNNDsEnum</span><span class="p">(</span><span class="n">ListablePrintableEnum</span><span class="p">,</span> <span class="n">metaclass</span><span class="o">=</span><span class="n">ValueComparedEnumMeta</span><span class="p">):</span>
 </span><span id="SplineNNDsEnum-65"><a href="#SplineNNDsEnum-65"><span class="linenos">65</span></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 </span><span id="SplineNNDsEnum-66"><a href="#SplineNNDsEnum-66"><span class="linenos">66</span></a><span class="sd">    Spline metrics that use nearest neighbour distance.</span>
 </span><span id="SplineNNDsEnum-67"><a href="#SplineNNDsEnum-67"><span class="linenos">67</span></a><span class="sd">    &quot;&quot;&quot;</span>
@@ -567,7 +571,11 @@
                             <div class="inherited">
                                 <h5>Inherited Members</h5>
                                 <dl>
-                                    <div><dt>enum.Enum</dt>
+                                    <div><dt><a href="../helpers/enum_extensions.html#ListablePrintableEnum">satkit.helpers.enum_extensions.ListablePrintableEnum</a></dt>
+                                <dd id="SplineNNDsEnum.values" class="function"><a href="../helpers/enum_extensions.html#ListablePrintableEnum.values">values</a></dd>
+
+            </div>
+            <div><dt>enum.Enum</dt>
                                 <dd id="SplineNNDsEnum.name" class="variable">name</dd>
                 <dd id="SplineNNDsEnum.value" class="variable">value</dd>
 
@@ -580,13 +588,13 @@
 <div class="attr class">
             
     <span class="def">class</span>
-    <span class="name">SplineShapesEnum</span><wbr>(<span class="base"><a href="../helpers/enum_extensions.html#PrintableEnum">satkit.helpers.enum_extensions.PrintableEnum</a></span>):
+    <span class="name">SplineShapesEnum</span><wbr>(<span class="base"><a href="../helpers/enum_extensions.html#ListablePrintableEnum">satkit.helpers.enum_extensions.ListablePrintableEnum</a></span>):
 
                 <label class="view-source-button" for="SplineShapesEnum-view-source"><span>View Source</span></label>
 
     </div>
     <a class="headerlink" href="#SplineShapesEnum"></a>
-            <div class="pdoc-code codehilite"><pre><span></span><span id="SplineShapesEnum-72"><a href="#SplineShapesEnum-72"><span class="linenos">72</span></a><span class="k">class</span> <span class="nc">SplineShapesEnum</span><span class="p">(</span><span class="n">PrintableEnum</span><span class="p">,</span> <span class="n">metaclass</span><span class="o">=</span><span class="n">ValueComparedEnumMeta</span><span class="p">):</span>
+            <div class="pdoc-code codehilite"><pre><span></span><span id="SplineShapesEnum-72"><a href="#SplineShapesEnum-72"><span class="linenos">72</span></a><span class="k">class</span> <span class="nc">SplineShapesEnum</span><span class="p">(</span><span class="n">ListablePrintableEnum</span><span class="p">,</span> <span class="n">metaclass</span><span class="o">=</span><span class="n">ValueComparedEnumMeta</span><span class="p">):</span>
 </span><span id="SplineShapesEnum-73"><a href="#SplineShapesEnum-73"><span class="linenos">73</span></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 </span><span id="SplineShapesEnum-74"><a href="#SplineShapesEnum-74"><span class="linenos">74</span></a><span class="sd">    Spline metrics that characterise shape.</span>
 </span><span id="SplineShapesEnum-75"><a href="#SplineShapesEnum-75"><span class="linenos">75</span></a><span class="sd">    &quot;&quot;&quot;</span>
@@ -652,7 +660,11 @@
                             <div class="inherited">
                                 <h5>Inherited Members</h5>
                                 <dl>
-                                    <div><dt>enum.Enum</dt>
+                                    <div><dt><a href="../helpers/enum_extensions.html#ListablePrintableEnum">satkit.helpers.enum_extensions.ListablePrintableEnum</a></dt>
+                                <dd id="SplineShapesEnum.values" class="function"><a href="../helpers/enum_extensions.html#ListablePrintableEnum.values">values</a></dd>
+
+            </div>
+            <div><dt>enum.Enum</dt>
                                 <dd id="SplineShapesEnum.name" class="variable">name</dd>
                 <dd id="SplineShapesEnum.value" class="variable">value</dd>
 

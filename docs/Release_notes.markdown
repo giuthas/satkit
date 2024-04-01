@@ -16,7 +16,7 @@ Known issues:
 
 ## Version 0.9.0
 
-- Simulation
+- Simulated data and sensitivity analysis for metrics
   - Two contours for running sensitivity simulations for contour metrics.
   - Perturbation generation for the contours.
   - Functions for running metrics on the simulated data.
@@ -25,6 +25,9 @@ Known issues:
 Known issues:
 
 Same as in 0.8.0.
+
+- Some perturbation related plotting functions have hard-coded subplot
+  divisions because Comparison is not yet sortable.
 
 ## Version 0.8.0
 

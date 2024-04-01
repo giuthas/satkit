@@ -10,7 +10,7 @@
       - [ ] including interval selection and adding from that maybe
     - [ ] deleting boundaries
     - [ ] Viewing and selecting
-      - [x] frame and time point  selection
+      - [x] frame and time point selection
       - [x] zooming with Praat's shortcuts or something close
       - [ ] zooming with interval selection
       - [ ] toggle for displaying acoustic boundaries
@@ -22,10 +22,12 @@
   - [ ] Optic flow
   - [ ] Principal component analysis (PCA) / dimensionality reduction
   - [x] Average Nearest Neighbour Distance and Median Point-by-point Distance
-  - [x] Some or all of the metrics by [Kathtrine M. Dawson](https://github.com/kdawson2/tshape_analysis)
+  - [x] Some or all of the metrics by [Kathtrine M.
+    Dawson](https://github.com/kdawson2/tshape_analysis)
   - [x] automated peak and valley selection on time series
+  - [x] Simulated data and sensitivity analysis framework for metrics
 - [ ] Saving and loading
-  - [x] textgrids
+  - [x] TextGrids
     - [x] loading
     - [x] saving
   - [x] loading ultrasound data from AAA
@@ -36,7 +38,7 @@
   - [ ] load BIOPAC EMG data
   - [ ] load EVA and possibly other flow data
   - [x] SATKIT native formats
-    - [x] saving results in implementation free, human readable if possible, formats
+    - [x] saving results in implementation free, human-readable if possible, formats
     - [x] loading
 - [ ] Documentation
   - [ ] update README and other relevant files

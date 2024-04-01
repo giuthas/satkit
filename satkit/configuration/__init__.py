@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2019-2023
+# Copyright (c) 2019-2024
 # Pertti Palo, Scott Moisik, Matthew Faytak, and Motoki Saito.
 #
 # This file is part of Speech Articulation ToolKIT
@@ -30,8 +30,13 @@
 # citations.bib in BibTeX format.
 #
 
-from satkit.configuration.configuration import (
-    config_dict, data_run_params, gui_params, PathValidator)
-from satkit.configuration.configuration_classes import (
+from .configuration_parsers import (
+    parse_config,
+    config_dict, data_run_params, gui_params, publish_params, PathValidator)
+from .configuration_classes import (
     ExclusionList, PathStructure, SessionConfig,
     SplineConfig, SplineDataConfig, SplineImportConfig)
+from .configuration_models import (
+    MainConfig, PeakDetectionParams, FindPeaksScipyArguments,
+    TimeseriesNormalisation)
+from .configuration_setup import Configuration

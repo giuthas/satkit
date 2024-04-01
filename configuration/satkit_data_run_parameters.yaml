@@ -1,8 +1,8 @@
 ##
-## Copyright (c) 2019-2023 
+## Copyright (c) 2019-2024
 ## Pertti Palo, Scott Moisik, Matthew Faytak, and Motoki Saito.
 ##
-## This file is part of Speech Articulation ToolKIT 
+## This file is part of Speech Articulation ToolKIT
 ## (see https://github.com/giuthas/satkit/).
 ##
 ## This program is free software: you can redistribute it and/or modify
@@ -31,27 +31,49 @@
 ##
 
 # Please note that empty file or directory fields are
-# interpeted as not available and represented by None. If you want to specify
+# interpreted as not available and represented by None. If you want to specify
 # current working directory, use '.'
 
 flags:
-  detect beep: True # Should onset beep detection be run?
+  detect_beep: True # Should onset beep detection be run?
   test: False # Run on only the first 10 recordings.
 
 # This is where SATKIT will save results of data processing. Please note that
 # once exclusion list or similar things can be edited in SATKIT, they will by
 # default be saved at their original locations.
-output directory:
+output_directory:
+
+pd_arguments: 
+  'norms':
+    - 'l1'
+    - 'l2'
+  'timesteps': 
+    - 1
+  mask_images: False
+  pd_on_interpolated_data: False
+  release_data_memory: True
+  preload: True
+
+spline_metric_arguments:
+  'metrics': 
+    - 'annd'
+    - 'mpbpd'
+    - 'modified_curvature'
+    - 'fourier'
+  'timesteps': 
+    - 3
+  'release_data_memory': False
+  'preload': True
 
 # Config for the yet-to-happen submodule CAST that is still a separate entity. 
 cast:
   # Consists of words followed by their segments in arbitrary transcription.  
-  pronunciation dictionary: local_data/gam_mono_and_disyllables_for_automatic_segmentation.csv
+  pronunciation_dictionary: local_data/gam_mono_and_disyllables_for_automatic_segmentation.csv
 
   # Speaker id is used in the output csv file.
-  speaker id: gam-1-2
+  speaker_id: gam-1-2
 
-  cast flags:
-    only words: False # Add only Utterance and Word Tiers.
+  cast_flags:
+    only_words: False # Add only Utterance and Word Tiers.
     utterance: True # Add Utterance Tier.
     file: False # Add File Tier.

@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2019-2023
+# Copyright (c) 2019-2024
 # Pertti Palo, Scott Moisik, Matthew Faytak, and Motoki Saito.
 #
 # This file is part of Speech Articulation ToolKIT
@@ -32,10 +32,16 @@
 from .ofreg import of
 from .calculate_pd import add_pd
 from .calculate_spline_metric import add_spline_metric
+
+from .downsample_metric import downsample_metrics
+
 from .pd import PD, PdParameters, ImageMask
 from .spline_metric import (SplineMetric, SplineMetricParameters,
                             SplineDiffsEnum, SplineNNDsEnum, SplineShapesEnum)
 
+# TODO: Decide if it is worth it to use typing.Annotated to document this
+# metrics is a mapping between a modality name and its actual type and the the
+# validator model for its parameters.
 metrics = {
     'PD': (PD, PdParameters),
     'SplineMetric': (SplineMetric, SplineMetricParameters)

@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2019-2023
+# Copyright (c) 2019-2024
 # Pertti Palo, Scott Moisik, Matthew Faytak, and Motoki Saito.
 #
 # This file is part of Speech Articulation ToolKIT
@@ -39,10 +39,14 @@ from typing import Optional
 import numpy as np
 
 # local modules
-from satkit.data_structures import Modality, ModalityData, Recording
+from satkit.data_structures import (
+    Modality, ModalityData, ModalityMetaData, Recording)
 from satkit.import_formats import (
-    read_3d_ultrasound_dicom, read_avi, read_ult, read_wav)
+    read_3d_ultrasound_dicom, read_avi, read_ult, read_wav,
+    read_wav_and_detect_beep
+)
 from satkit.interpolate_raw_uti import to_fan, to_fan_2d
+from satkit.configuration import data_run_params
 
 _modalities_logger = logging.getLogger('satkit.modalities')
 
@@ -60,6 +64,10 @@ class MonoAudio(Modality):
     # it from audio with a highpass filter.
     # mains_frequency = None
     # filter = {}
+
+    @classmethod
+    def generate_name(cls, params: ModalityMetaData) -> str:
+        return cls.__name__
 
     def __init__(self,
                  recording: Recording,
@@ -101,12 +109,15 @@ class MonoAudio(Modality):
 
     def _read_data(self) -> ModalityData:
         """
-        Call io functions to read wav data, and detecting go-signal & speech.
+        Read wav data, and possibly detect go-signal & speech.
         """
-        parsed_data, go_signal, has_speech = read_wav(self.data_path)
-        self.go_signal = go_signal
-        self.has_speech = has_speech
-        return parsed_data
+        if data_run_params['flags']['detect beep']:
+            parsed_data, go_signal, has_speech = read_wav_and_detect_beep(
+                self.data_path)
+            self.go_signal = go_signal
+            self.has_speech = has_speech
+            return parsed_data
+        return read_wav(self.data_path)
 
     # TODO: uncomment and implement when implementing the save features.
     # def _load_data(self):
@@ -136,6 +147,10 @@ class RawUltrasound(Modality):
         'PixelsPerMm',
         'ZeroOffset'
     ]
+
+    @classmethod
+    def generate_name(cls, params: ModalityMetaData) -> str:
+        return cls.__name__
 
     def __init__(self,
                  recording: Recording,
@@ -178,7 +193,7 @@ class RawUltrasound(Modality):
                 not_found = set(RawUltrasound.requiredMetaKeys) - set(meta)
                 _modalities_logger.critical(
                     "Part of metadata missing when processing %s.",
-                    self.meta['filename'])
+                    meta['filename'])
                 _modalities_logger.critical(
                     "Could not find %s.", str(not_found))
                 _modalities_logger.critical('Exiting.')
@@ -288,6 +303,10 @@ class Video(Modality):
         'FramesPerSec'
     ]
 
+    @classmethod
+    def generate_name(cls, params: ModalityMetaData) -> str:
+        return cls.__name__
+
     def __init__(self,
                  recording: Recording,
                  data_path: Optional[Path] = None,
@@ -305,11 +324,11 @@ class Video(Modality):
         -- path of the saved data - both ultrasound and metadata parent -- the
         Modality this one was derived from. Should be None 
             which means this is an underived data Modality.
-        parsed_data -- ModalityData object containing raw ultrasound, sampling
-            rate, and either timevector and/or time_offset. Providing a
-            timevector overrides any time_offset value given, but in absence of
-            a timevector the time_offset will be applied on reading the data
-            from file. 
+        parsed_data -- ModalityData object containing raw ultrasound, 
+            sampling rate, and either timevector and/or time_offset. Providing 
+            a timevector overrides any time_offset value given, but in absence
+            of a timevector the time_offset will be applied on reading the 
+            data from file. 
         meta -- a dict with (at least) the keys listed in 
             Video.requiredMetaKeys. Extra keys will be ignored. Default is
             None.
@@ -320,6 +339,7 @@ class Video(Modality):
             try:
                 wanted_meta = {key: meta[key]
                                for key in Video.requiredMetaKeys}
+                self.meta = deepcopy(wanted_meta)
             except KeyError:
                 # Missing metadata for one recording may be ok and this could
                 # be handled with just a call to _recording_logger.critical and
@@ -365,6 +385,10 @@ class ThreeDimUltrasound(Modality):
         'ZeroOffset'
     ]
 
+    @classmethod
+    def generate_name(cls, params: ModalityMetaData) -> str:
+        return cls.__name__
+
     def __init__(self,
                  recording: Recording,
                  data_path: Optional[Path] = None,
@@ -379,13 +403,14 @@ class ThreeDimUltrasound(Modality):
 
         Positional arguments: recording -- the containing Recording.        
 
-        Keyword arguments: data_path -- path of the ultrasound file load_path
-        -- path of the saved data - both ultrasound and metadata parsed_data --
-        ModalityData object containing raw ultrasound, 
-            sampling rate, and either timevector and/or time_offset. Providing
-            a timevector overrides any time_offset value given, but in absence
-            of a timevector the time_offset will be applied on reading the data
-            from file. 
+        Keyword arguments:
+        data_path -- path of the ultrasound file
+        load_path -- path of the saved data - both ultrasound and metadata
+        parsed_data -- ModalityData object containing raw ultrasound, 
+            sampling rate, and either timevector and/or time_offset. 
+            Providing a timevector overrides any time_offset value given, 
+            but in absence of a timevector the time_offset will be applied 
+            on reading the data from file. 
         meta -- a dict with (at least) the keys listed in 
             RawUltrasound.requiredMetaKeys. Extra keys will be ignored. Default
             is None.
@@ -404,7 +429,7 @@ class ThreeDimUltrasound(Modality):
                 not_found = set(RawUltrasound.requiredMetaKeys) - set(meta)
                 _modalities_logger.critical(
                     "Part of metadata missing when processing %s.",
-                    self.meta['filename'])
+                    meta['filename'])
                 _modalities_logger.critical(
                     "Could not find %s.", str(not_found))
                 _modalities_logger.critical('Exiting.')

@@ -27,7 +27,7 @@ the following additions:
   won't happen).
 - A module is the unit of reuse. Ideally, a module should do something that
   gets used time and time again, but it is good enough if it does something
-  which has a clear and self contained purpose. Prefer splitting to smaller
+  which has a clear and self-contained purpose. Prefer splitting to smaller
   modules over piles of unrelated code.
 
 ## Packages and modules
@@ -55,7 +55,7 @@ repository](https://github.com/giuthas/satkit/tags).
 SATKIT uses gitflow as the branching convention (until we have a reason for
 doing something else). This means we have the following kinds of branches:
 
-- `main` is the release branch. Any update here after 1.0 will get it's own
+- `main` is the release branch. Any update here after 1.0 will get its own
   version number and be considered a new version of SATKIT. See
   [Versioning](#versioning) above.
 - `devel` is the main development branch. New features are added by branching
@@ -78,36 +78,45 @@ doing something else). This means we have the following kinds of branches:
 
 A release of SATKIT is created as follows:
 
-1. If doing a major or minor release (first or second version number
-   increments), check that all features in the the current roadmap are either
-   done (implemented and merged to `devel`), or that all undone features are
+1. If planning a major or minor release (first or second version number
+   increments), check that all features in the current roadmap are either
+   done (implemented and merged to local `devel`), or that all undone features are
    moved to the next release's roadmap.
    - This applies from version 1.0. Before that the roadmap is for 1.0 and
      minor releases are done when significant parts have been updated without
      fulfilling all of the promises in the roadmap.
    - This is done in the `devel` branch.
-2. Update documentation and version numbers
-   - [Release notes](Release_notes.markdown)
-   - [Generated documentation](devel/doc_generation_commands)
-   - [License headers](devel/licenseheaders_command)
+2. Send a pull request to the main repo either before or after the next stage.
+   After the pull request has been processed rest of the release tasks are done
+   in the main repo.
+3. Update documentation and version numbers
    - Version number lives in at least README.md and constants.py. File version
      number will be different from program version number after 1.0.
-3. Create a new release candidate branch named 'vX.Y.Z' e.g. 'v0.7.0' from the
+     - [README](../README.md)
+     - [constants.py](../satkit/constants.py)
+     - Setuptools files
+       - [pyproject.toml](../pyproject.toml) and/or [setup.cfg](../setup.cfg)
+   - [Release notes](Release_notes.markdown)
+   - [Generated documentation](../devel/doc_generation_commands)
+   - [License headers](../devel/licenseheaders_command)
+4. Create a new release candidate branch named 'vX.Y.Z' e.g. 'v0.7.0' from the
    `devel` branch.
-4. Merge `main` to the release branch (not the other way around).
-5. Check that conda environments are up to date. It is especially possible that
+5. Merge `main` to the release branch (not the other way around).
+6. Check that conda environments are up-to-date. It is especially possible that
    satkit-stable is neither up to date with satkit-devel, nor tested.
    - While we are in the time before 1.0, satkit-stable most likely does not
      work.
-6. Run tests.
-   - These don't exist yet at the time of SATKIT 0.8.0.
-7. Fix any bugs that occur, run tests see that they pass, update the release
+7. Run tests.
+   - These don't exist yet at the time of SATKIT 0.9.0.
+8. Fix any bugs that occur, run tests see that they pass, update the release
    notes.
    - Check if [Release notes](Release_notes.markdown) need any final updates.
    - Rerun doc generation if there were any changes.
-8. Merge release branch to `main`.
-9. Tag the commit in main with the release title ('vX.Y.Z'), delete the now
-   defunct release branch (`git push -d <remote_name> <branchname>` and
-   `git branch -d <branchname`), if any commits were made to the release branch,
-   merge `main` into `devel`.
-10. Announce the release.
+9. Merge release branch to `main`.
+10. Release housekeeping: 
+    - Delete the now defunct release branch (`git push -d <remote_name>
+   <branchname>` and `git branch -d <branchname`)
+    - Tag the commit in main with the release title ('vX.Y.Z') and push it to
+      remote with `git push origin vX.Y.Z`
+    - If any commits were made to the release branch, merge `main` into `devel`.
+11. Announce the release.

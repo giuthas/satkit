@@ -1,5 +1,33 @@
 # SATKIT Release Notes
 
+## Foreshadowing the next release: Version 0.10.0
+
+- New functionality and configuration for extracting annotations and producing
+  plots out of them.
+- New two stage internal configuration model
+  - Started rolling out a model where configuration files are still parsed with
+    strictyaml to preserve comments in round tripping (which has not yet been
+    implemented), but get reinterpreted as pydantic classes to make coding
+    easier.
+
+Known issues:
+
+- To be determined
+
+## Version 0.9.0
+
+- Simulated data and sensitivity analysis for metrics
+  - Two contours for running sensitivity simulations for contour metrics.
+  - Perturbation generation for the contours.
+  - Functions for running metrics on the simulated data.
+  - Lots of plotting routines to look at the results.
+  
+Known issues:
+
+- Same as in 0.8.0 plus
+- Some perturbation related plotting functions have hard-coded subplot
+  divisions because Comparison is not yet sortable.
+
 ## Version 0.8.0
 
 - Splines
@@ -10,7 +38,7 @@
 
 Known issues:
 
-- Same as in 0.7.0. plus
+- Same as in 0.7.0 plus
 - Synchronising spline metrics and splines with ultrasound is currently
   unreliable. This is because the timestamps in spline files have proven to
   have either drift or just inaccuracies and testing why this is so is a job

@@ -1,8 +1,8 @@
 <!--
-Copyright (c) 2019-2023 
+Copyright (c) 2019-2024
 Pertti Palo, Scott Moisik, Matthew Faytak, and Motoki Saito.
 
-This file is part of Speech Articulation ToolKIT 
+This file is part of Speech Articulation ToolKIT
 (see https://github.com/giuthas/satkit/).
 
 This program is free software: you can redistribute it and/or modify
@@ -43,26 +43,26 @@ the flow field based on these.
 
 Pixel Difference and Scanline Based Pixel Difference -- work on raw,
 uniterpolated data and produce measures of change over the course of a
-recording. How they work is explained in Chapter 3 of Pertti Palo's
-[PhD
-thesis](https://eresearch.qmu.ac.uk/handle/20.500.12289/10163). The
-next stage is a automated reaction time measure, followed possibly by
-spline distance measures and optic flow.
+recording. How they work is explained in Chapter 3 of Pertti Palo's [PhD
+thesis](https://eresearch.qmu.ac.uk/handle/20.500.12289/10163).
 
 ## Major update -- version 1.0 -- coming up
 
-After ICPhS 2023 there will be incremental 0.x releases until the codebase
-reaches milestones for version 1.0 (See [Roadmap](docs/Roadmap.markdown)). While
-this notice is here in the main branch, that update is not yet complete. In the
-meanwhile, if you wish to try SATKIT or contribute to the code or as a beta
-tester, please contact Pertti for instructions.
+There will be incremental 0.x releases until the codebase reaches milestones
+for version 1.0 (See [Roadmap](docs/Roadmap.markdown)). While this notice is
+here in the main branch, that update is not yet complete. In the meanwhile, if
+you wish to try SATKIT or contribute to the code or as a beta tester, please
+contact Pertti for instructions.
 
 With version 1.0 getting closer a lot of the instructions below are outdated.
 More up-to-date information can be found in the
 [Documentation](https://giuthas.github.io/satkit/). See
 [Roadmap](docs/Roadmap.markdown) for updates on progress towards 1.0.
 
-See [Release notes](docs/Release_notes.markdown), for what's new.
+## Current version
+
+Current version is 0.9.0. See [Release notes](docs/Release_notes.markdown), for
+what's new.
 
 ## Getting Started
 
@@ -72,7 +72,8 @@ $PYTHONPATH.
 
 ### Requisites
 
-SATKit has been tested with the following or more recent:
+SATKit should run with the following or more recent (see the `.yml` files in
+`environments/` for a more complete list):
 
 * Python 3.10
 * PyQt5 v5.12
@@ -184,11 +185,12 @@ repository](https://github.com/giuthas/satkit/tags).
 
 ## Authors
 
-* **Pertti Palo** - *Initial work on PD and the Python framework used
-  by the combined toolkit* - [giuthas](https://github.com/giuthas)
-* **Scott Moisik** - *Initial work on OF* - [ScottMoisik](https://github.com/ScottMoisik)
-* **Matthew Faytak** - [mfaytak](https://github.com/mfaytak)
-* **Motoki Saito** - *Producing interpolated ultrasound images from raw data* [msaito8623](https://github.com/msaito8623)
+* **Pertti Palo** - *The core of SATKIT* - [giuthas](https://github.com/giuthas)
+* **Scott Moisik** - *Optic flow* - [ScottMoisik](https://github.com/ScottMoisik)
+* **Matthew Faytak** - *Dimensionaliity reduction with PCA and LDA*
+  [mfaytak](https://github.com/mfaytak)
+* **Motoki Saito** - *Producing interpolated ultrasound images from raw data*
+  [msaito8623](https://github.com/msaito8623)
 
 List of [contributors](https://github.com/your/project/CONTRIBUTORS.markdown)
 will be updated once there are more people working on this project.

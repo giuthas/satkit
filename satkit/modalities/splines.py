@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2019-2023
+# Copyright (c) 2019-2024
 # Pertti Palo, Scott Moisik, Matthew Faytak, and Motoki Saito.
 #
 # This file is part of Speech Articulation ToolKIT
@@ -61,6 +61,10 @@ class Splines(Modality):
     """
     Splines from 2D ultrasound data.
     """
+
+    @classmethod
+    def generate_name(cls, params: ModalityMetaData) -> str:
+        return cls.__name__
 
     def __init__(self,
                  recording: Recording,

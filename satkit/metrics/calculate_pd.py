@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2019-2023
+# Copyright (c) 2019-2024
 # Pertti Palo, Scott Moisik, Matthew Faytak, and Motoki Saito.
 #
 # This file is part of Speech Articulation ToolKIT
@@ -177,11 +177,6 @@ def calculate_pd(
     data = parent_modality.data
     sampling_rate = parent_modality.sampling_rate
 
-    # # TODO: Make this happen in processing LipVideo, not here.
-    # # Hacky hack to recognise LipVideo data and change the timestep for it.
-    # if len(data.shape) != 3:
-    #     timesteps[0] = 2
-
     # # Use this if we want to collapse e.g. rgb data without producing a
     # # PD contour for each colour or channel.
     # if raw_diff.ndim > 2:
@@ -259,12 +254,12 @@ def add_pd(recording: Recording,
     Positional arguments:
     recording -- a Recording object
     modality -- the type of the Modality to be processed. The access will 
-        be by recording.modalities[modality.__name__]
+        be by recording[modality.__name__]
 
     Keyword arguments:
     preload -- boolean indicating if PD should be calculated on creation 
         (preloaded) or only on access.
-    releaseDataMemor -- boolean indicating if the data attribute of the 
+    release_data_memory -- boolean indicating if the data attribute of the 
         data modality should be set to None after access. Only set this 
         to False, if you know that you have enough memory to hold all 
         of the data in RAM.
@@ -282,7 +277,7 @@ def add_pd(recording: Recording,
     if recording.excluded:
         _pd_logger.info(
             "Recording %s excluded from processing.", recording.basename)
-    elif not modality.__name__ in recording.modalities:
+    elif not modality.__name__ in recording:
         _pd_logger.info("Data modality '%s' not found in recording: %s.",
                         modality.__name__, recording.basename)
     else:
@@ -290,12 +285,12 @@ def add_pd(recording: Recording,
             modality, norms, timesteps, pd_on_interpolated_data, mask_images,
             release_data_memory)
         missing_keys = set(all_requested).difference(
-            recording.modalities.keys())
+            recording.keys())
         to_be_computed = dict((key, value) for key,
                               value in all_requested.items()
                               if key in missing_keys)
 
-        data_modality = recording.modalities[modality.__name__]
+        data_modality = recording[modality.__name__]
 
         if to_be_computed:
             pds = calculate_pd(data_modality, to_be_computed)

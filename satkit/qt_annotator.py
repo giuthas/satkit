@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2019-2023
+# Copyright (c) 2019-2024
 # Pertti Palo, Scott Moisik, Matthew Faytak, and Motoki Saito.
 #
 # This file is part of Speech Articulation ToolKIT
@@ -40,9 +40,8 @@ import logging
 from contextlib import closing
 from copy import deepcopy
 
-import matplotlib
-# Numpy
 import numpy as np
+import matplotlib
 from matplotlib.backends.backend_qt5agg import \
     FigureCanvasQTAgg as FigureCanvas
 # Plotting functions and hooks for GUI
@@ -59,11 +58,12 @@ from icecream import ic
 # Local modules
 # import satkit.io as satkit_io
 from satkit.data_structures import RecordingSession
-from satkit.configuration import gui_params, config_dict
+from satkit.configuration import (
+    TimeseriesNormalisation, gui_params, config_dict, data_run_params)
 from satkit.gui import BoundaryAnimator, ReplaceDialog
-from satkit.plot.plot import plot_density, plot_spline
-from satkit.plot import (Normalisation, plot_satgrid_tier, plot_spectrogram,
-                         plot_timeseries, plot_wav)
+from satkit.plot_and_publish import (
+    mark_peaks, plot_spline, plot_satgrid_tier, plot_spectrogram,
+    plot_timeseries, plot_wav)
 from satkit.save_and_load import (
     save_recording_session, load_recording_session)
 from satkit.ui_callbacks import UiCallbacks
@@ -75,7 +75,9 @@ _logger = logging.getLogger('satkit.qt_annotator')
 
 
 def setup_qtannotator_ui_callbacks():
-
+    """
+    Register UI callback functions.
+    """
     UiCallbacks.register_overwrite_confirmation_callback(
         ReplaceDialog.confirm_overwrite)
 
@@ -108,7 +110,7 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
         self.index = 0
         self.max_index = len(self.recordings)
 
-        self.commandlineargs = args
+        self.commandline_args = args
         self.display_tongue = args.displayTongue
 
         if categories is None:
@@ -168,6 +170,11 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
         self.positionRB_1.toggled.connect(self.tongue_position_cb)
         self.positionRB_2.toggled.connect(self.tongue_position_cb)
         self.positionRB_3.toggled.connect(self.tongue_position_cb)
+        self.position_rbs = {
+            self.positionRB_1.text(): self.positionRB_1,
+            self.positionRB_2.text(): self.positionRB_2,
+            self.positionRB_3.text(): self.positionRB_3
+        }
 
         self.figure = Figure()
         self.canvas = FigureCanvas(self.figure)
@@ -176,11 +183,13 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
         self.tier_axes = []
 
         self.shift_is_held = False
-        # self.cid_key_press = self.figure.canvas.mpl_connect('key_press_event', self.on_key_press)
-        # self.cid_key_release = self.figure.canvas.mpl_connect('key_release_event', self.on_key_release)
+        # self.cid_key_press = self.figure.canvas.mpl_connect(
+        #     'key_press_event', self.on_key_press)
+        # self.cid_key_release = self.figure.canvas.mpl_connect(
+        #     'key_release_event', self.on_key_release)
 
         matplotlib.rcParams.update(
-            {'font.size': gui_params['default font size']})
+            {'font.size': gui_params['default_font_size']})
 
         self.xlim = xlim
 
@@ -189,13 +198,13 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
         # over the whole data rather than on recording.
         max_pds = np.zeros(len(self.recordings))
         for i, recording in enumerate(self.recordings):
-            if 'PD l1 on RawUltrasound' in recording.modalities:
-                max_pds[i] = np.max(recording.modalities
-                                    ['PD l1 on RawUltrasound'].data[10:])
+            if 'PD l1 on RawUltrasound' in recording:
+                max_pds[i] = np.max(
+                    recording['PD l1 on RawUltrasound'].data[10:])
         self.ylim = (-50, np.max(max_pds)*1.05)
 
-        height_ratios = [gui_params['data/tier height ratios']["data"],
-                         gui_params['data/tier height ratios']["tier"]]
+        height_ratios = [gui_params['data_and_tier_height_ratios']["data"],
+                         gui_params['data_and_tier_height_ratios']["tier"]]
         self.main_grid_spec = self.figure.add_gridspec(
             nrows=2,
             ncols=1,
@@ -203,7 +212,7 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
             wspace=0,
             height_ratios=height_ratios)
 
-        nro_data_modalities = gui_params['number of data axes']
+        nro_data_modalities = gui_params['number_of_data_axes']
         self.data_grid_spec = self.main_grid_spec[0].subgridspec(
             nro_data_modalities, 1, hspace=0, wspace=0)
         self.data_axes.append(self.figure.add_subplot(self.data_grid_spec[0]))
@@ -298,26 +307,12 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
         """
         Updates parts of the UI outwith the graphs.
         """
-        # self.pdCategoryRB.set_active(self.current.annotations['pdCategory'])
-        # if self.categoryRB_1.text() == self.current.annotations['pdCategory']:
-        #     self.categoryRB_1.setChecked(True)
-        # if self.categoryRB_2.text() == self.current.annotations['pdCategory']:
-        #     self.categoryRB_2.setChecked(True)
-        # if self.categoryRB_3.text() == self.current.annotations['pdCategory']:
-        #     self.categoryRB_3.setChecked(True)
-        # if self.categoryRB_4.text() == self.current.annotations['pdCategory']:
-        #     self.categoryRB_4.setChecked(True)
-        # if self.categoryRB_5.text() == self.current.annotations['pdCategory']:
-        #     self.categoryRB_5.setChecked(True)
-
         # TODO: highlight current recording
 
-        if self.positionRB_1.text() == self.current.annotations['tonguePosition']:
-            self.positionRB_1.setChecked(True)
-        if self.positionRB_2.text() == self.current.annotations['tonguePosition']:
-            self.positionRB_2.setChecked(True)
-        if self.positionRB_3.text() == self.current.annotations['tonguePosition']:
-            self.positionRB_3.setChecked(True)
+        position_annotation = self.current.annotations['tonguePosition']
+        if position_annotation in self.position_rbs:
+            button_to_activate = self.position_rbs[position_annotation]
+            button_to_activate.setChecked(True)
 
         self.goLineEdit.setText(str(self.index + 1))
 
@@ -348,69 +343,30 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
             axes.xaxis.set_tick_params(bottom=False, labelbottom=False)
 
         # self.tier_axes[-1].xaxis.set_tick_params(labelbottom=True)
-        # ticks = self.tier_axes[-1].xaxis.set_tick_params(bottom=True, labelbottom=True)
+        # ticks = self.tier_axes[-1].xaxis.set_tick_params(bottom=True,
+        #                                                  labelbottom=True)
 
         audio = self.current.modalities['MonoAudio']
         stimulus_onset = audio.go_signal
         wav = audio.data
         wav_time = audio.timevector - stimulus_onset
 
-        # l0 = self.current.modalities['PD l0 on RawUltrasound']
-        # l0_01 = self.current.modalities['PD l0.01 on RawUltrasound']
-        # l0_1 = self.current.modalities['PD l0.1 on RawUltrasound']
-        # l0_5 = self.current.modalities['PD l0.5 on RawUltrasound']
-
         # ic(self.current.modalities)
 
         l1 = self.current.modalities['PD l1 on RawUltrasound']
-        annd = self.current.modalities['SplineMetric annd ts3 on Splines']
-        mpbpd = self.current.modalities['SplineMetric mpbpd ts3 on Splines']
-        curvature = self.current.modalities['SplineMetric modified_curvature on Splines']
-        fourier = self.current.modalities['SplineMetric fourier on Splines']
-        # l1_top = self.current.modalities['PD l1 top on RawUltrasound']
-        # l1_bottom = self.current.modalities['PD l1 bottom on RawUltrasound']
 
-        # l2 = self.current.modalities['PD l2 on RawUltrasound']
-        # l4 = self.current.modalities['PD l4 on RawUltrasound']
-        # l2_top = self.current.modalities['PD l2 top on RawUltrasound']
-        # l2_bottom = self.current.modalities['PD l2 bottom on RawUltrasound']
+        # plot_modality_names = [
+        #     (f"PD l1 ts{i+1} on RawUltrasound") for i in range(7)]
+        # plot_modality_names[0] = "PD l1 on RawUltrasound"
 
-        # l10 = self.current.modalities['PD l10 on RawUltrasound']
-        # linf = self.current.modalities['PD l_inf on RawUltrasound']
+        plot_modality_names = [
+            (f"PD {norm} on RawUltrasound")
+            for norm in data_run_params['pd_arguments']['norms'][1:-1]]
 
-        # frequencies = self.current.modalities['PD d on RawUltrasound']
-
-        # l2_interpolated = self.current.modalities['Interpolated PD l2 on RawUltrasound']
-        # l2_interpolated_top = self.current.modalities['Interpolated PD l2 top on RawUltrasound']
-        # l2_interpolated_bottom = self.current.modalities['Interpolated PD l2 bottom on RawUltrasound']
         ultra_time = l1.timevector - stimulus_onset
-        annd_time = annd.timevector - stimulus_onset
-        curvature_time = curvature.timevector - stimulus_onset
-        # l2_size = len(self.current.modalities['RawUltrasound'].data[0,:,:])
-        # half = int(self.current.modalities['RawUltrasound'].data.shape[1]/2)
-        # l2_top_size = len(self.current.modalities['RawUltrasound'].data[0,:half,:])
-        # l2_bottom_size = len(self.current.modalities['RawUltrasound'].data[0,half:,:])
-
-        # image = self.current.modalities['RawUltrasound'].interpolated_image(100)
-        # nonzero = np.nonzero(image==255)
-        # l2_interp_size = image.size-len(nonzero[0])
-        # half = int(image.shape[0]/2)
-        # nonzero_top = np.nonzero(image[:half,:]==255)
-        # l2_interp_size_top = image[:half,:].size -len(nonzero_top[0])
-        # nonzero_bottom = np.nonzero(image[half:,:]==255)
-        # l2_interp_size_bottom = image[half:,:].size-len(nonzero_bottom[0])
-
-        # self.xlim = [ultra_time[0] - 0.05, ultra_time[-1]+0.05]
-
-        # self.pd_boundaries = plot_pd(
-        # self.ax1, pd.data['pd'],
-        # ultra_time, self.xlim, textgrid, stimulus_onset,
-        # picker=PdQtAnnotator.line_xdirection_picker)
-        # plot_wav(self.ax3, wav, wav_time, self.xlim,
-        #          textgrid, stimulus_onset,
-        #          picker=PdQtAnnotator.line_xdirection_picker)
         ylim = None
-        if 'auto x' in gui_params and gui_params['auto x']:
+
+        if 'auto_x' in gui_params and gui_params['auto_x']:
             # TODO: find the minimum and maximum timestamp of all the
             # modalities being plotted. this can be really done only after
             # plotting is controlled by config instead of manual code
@@ -425,163 +381,69 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
 
         # plot_density(self.data_axes[0], frequencies.data)
 
-        # raw_l0 = plot_timeseries(self.data_axes[0], l0.data,
-        #     ultra_time, self.xlim, ylim, color='black', linestyle='--',
-        #     normalise=Normalisation('PEAK AND BOTTOM'))
-        # raw_l0_01 = plot_timeseries(self.data_axes[0], l0_01.data,
-        #     ultra_time, self.xlim, ylim, color='black',
-        #     normalise=Normalisation('PEAK AND BOTTOM'))
-        # raw_l0_1 = plot_timeseries(self.data_axes[0], l0_1.data,
-        #     ultra_time, self.xlim, ylim, color='dimgrey',
-        #     normalise=Normalisation('PEAK AND BOTTOM'))
-        # raw_l0_5 = plot_timeseries(self.data_axes[0], l0_5.data,
-        #     ultra_time, self.xlim, ylim, color='grey',
-        #     normalise=Normalisation('PEAK AND BOTTOM'))
-        raw_l1 = plot_timeseries(
-            self.data_axes[0],
-            l1.data, ultra_time, self.xlim, ylim, color='yellowgreen',
-            normalise=Normalisation('PEAK AND BOTTOM'),
-            find_peaks=False)
-        # annd_line = plot_timeseries(
-        #     self.data_axes[0],
-        #     annd.data, annd_time, self.xlim, ylim, color='blue',
-        #     normalise=Normalisation('PEAK AND BOTTOM'),
-        #     find_peaks=False)
-        mpbpd_line = plot_timeseries(
-            self.data_axes[0],
-            mpbpd.data, annd_time, self.xlim, ylim, color='orange',
-            normalise=Normalisation('PEAK AND BOTTOM'),
-            find_peaks=False)
-        curvature_line = plot_timeseries(
-            self.data_axes[0],
-            curvature.data, curvature_time, self.xlim, ylim, color='black',
-            normalise=Normalisation('PEAK AND BOTTOM'),
-            find_peaks=False)
-        fourier_line = plot_timeseries(
-            self.data_axes[0],
-            fourier.data[:, 0,
-                         0], curvature_time, self.xlim, ylim, color='gray',
-            normalise=Normalisation('PEAK AND BOTTOM'),
-            find_peaks=False)
-        # raw_l1_bottom = plot_timeseries(self.data_axes[0], l1_bottom.data,
-        #     ultra_time, self.xlim, ylim, color='gray', linestyle=':',
-        #     normalise=Normalisation('PEAK AND BOTTOM'))
-        # raw_l1_top = plot_timeseries(self.data_axes[0], l1_top.data,
-        #     ultra_time, self.xlim, ylim, color='blue', linestyle=':',
-        #     normalise=Normalisation('PEAK AND BOTTOM'))
-        # raw_top = plot_timeseries(self.data_axes[0], l2_top.data,
-        #     ultra_time, self.xlim, ylim, color='black',
-        #     normalise=Normalisation('PEAK'))
-        self.data_axes[0].set_ylabel("Pixel difference (PD)")
-        self.data_axes[0].legend(
-            (
-                # raw_l0, raw_l0_01,
-                # raw_l0_1, raw_l0_5,
-                raw_l1, mpbpd_line, curvature_line, fourier_line
-            ),
-            # , interp, interp_top, interp_bottom),
-            (
-                # 'l0', 'l0.01',
-                # 'l0.1', 'l0.5',
-                'PD l1', 'mpbpd', 'mci', 'fft real1'
-            ),
-            # , 'Interpolated', 'Interpolated top', 'Interpolated bottom'),
-            loc='upper left')
-
-        # raw_l1 = plot_timeseries(self.data_axes[1], l1.data,
-        #     ultra_time, self.xlim, ylim, color='gray', linestyle=':',
-        #     normalise=Normalisation('PEAK AND BOTTOM'))
-        # raw_l1_bottom = plot_timeseries(self.data_axes[1], l1_bottom.data,
-        #     ultra_time, self.xlim, ylim, color='black',
-        #     normalise=Normalisation('PEAK AND BOTTOM'), find_peaks=True)
-        # raw_l2 = plot_timeseries(self.data_axes[1], l2.data,
-        #     ultra_time, self.xlim, ylim, color='yellowgreen',
-        #     normalise=Normalisation('PEAK AND BOTTOM'))
-        # raw_l4 = plot_timeseries(self.data_axes[1], l4.data,
-        #     ultra_time, self.xlim, ylim, color='saddlebrown',
-        #     normalise=Normalisation('PEAK AND BOTTOM'))
-        # raw_l10 = plot_timeseries(self.data_axes[1], l10.data,
-        #     ultra_time, self.xlim, ylim, color='saddlebrown', linestyle='--',
-        #     normalise=Normalisation('PEAK AND BOTTOM'))
-        # raw_linf = plot_timeseries(self.data_axes[1], linf.data,
-        #     ultra_time, self.xlim, ylim, color='saddlebrown', linestyle=':',
-        #     normalise=Normalisation('PEAK AND BOTTOM'))
-        # self.data_axes[1].set_ylabel("Peaks from\nbottom of image")
-
-        # interp = plot_timeseries(self.data_axes[1], l2_interpolated.data,
-        #     ultra_time, self.xlim, ylim, color='black', linestyle="--", peak_normalise=True)
-        # interp_top = plot_timeseries(self.data_axes[1], l2_interpolated_top.data,
-        #     ultra_time, self.xlim, ylim, color='lime', linestyle="--", peak_normalise=True)
-        # interp_bottom = plot_timeseries(self.data_axes[1], l2_interpolated_bottom.data,
-        #     ultra_time, self.xlim, ylim, color='orange', linestyle="--", peak_normalise=True)
-        # self.data_axes[1].set_ylabel("Peak normalised PD")
+        plots = []
+        labels = []
+        for i, name in enumerate(plot_modality_names):
+            modality = self.current.modalities[name]
+            new = plot_timeseries(
+                self.data_axes[i],
+                modality.data,
+                modality.timevector-stimulus_onset,
+                self.xlim, ylim,
+                # color=(0+i*.1, 0+i*.1, 0+i*.1),
+                # linestyle=(0, (i+1, i+1)),
+                normalise=TimeseriesNormalisation(peak=True, bottom=True),
+                # sampling_step=i+1
+            )
+            mark_peaks(self.data_axes[i],
+                       modality,
+                       self.xlim,
+                       display_prominence_values=True,
+                       time_offset=stimulus_onset)
+            plots.append(new)
+            self.data_axes[i].set_ylabel(modality.metadata.metric)
+            labels.append(f"{modality.sampling_rate/(i+1):.2f}")
 
         # self.data_axes[0].legend(
-        #     (raw, raw_top, raw_bottom),
-        #     ('Raw', 'Raw upper', 'Raw lower'),
-        #     loc='upper right')
-        # self.data_axes[1].legend(
-        #     (
-        #         #raw_l0, raw_l0_01,
-        #         # raw_l0_1, raw_l0_5,
-        #         raw_l1, raw_l1_bottom
-        #     ),
-        #     # , interp, interp_top, interp_bottom),
-        #     (
-        #         # 'l0', 'l0.01',
-        #         # 'l0.1', 'l0.5',
-        #         'l1 whole', 'l1 bottom'
-        #     ),
-        #     #, 'Interpolated', 'Interpolated top', 'Interpolated bottom'),
-        #     loc='upper right')
+        #     plots, labels,
+        #     loc='upper left')
 
-        # self.ylim = None
-        # plot_timeseries(self.data_axes[1], l2.data/l2_size,
-        #     ultra_time, self.xlim, self.ylim)
-        # plot_timeseries(self.data_axes[1], l2_top.data/l2_top_size,
-        #     ultra_time, self.xlim, self.ylim, color='green')
-        # plot_timeseries(self.data_axes[1], l2_bottom.data/l2_bottom_size,
-        #     ultra_time, self.xlim, self.ylim, color='red')
-        # self.data_axes[1].set_ylabel("Pixel normalised PD")
+        # self.data_axes[0].set_ylabel("Pixel difference (PD)")
 
-        # plot_timeseries(self.data_axes[2], l2_interpolated.data/l2_interp_size,
-        #     ultra_time, self.xlim, self.ylim, color='black', linestyle="--")
-        # plot_timeseries(self.data_axes[2], l2_interpolated_top.data/l2_interp_size_top,
-        #     ultra_time, self.xlim, self.ylim, color='lime', linestyle="--")
-        # plot_timeseries(self.data_axes[2], l2_interpolated_bottom.data/l2_interp_size_bottom,
-        #     ultra_time, self.xlim, self.ylim, color='orange', linestyle="--")
-        # self.data_axes[2].set_ylabel("Pixel normalised PD")
-
-        plot_wav(self.data_axes[2], wav, wav_time, self.xlim)
-        plot_spectrogram(self.data_axes[1],
+        plot_wav(self.data_axes[-1], wav, wav_time, self.xlim)
+        plot_spectrogram(self.data_axes[-2],
                          waveform=wav,
                          ylim=(0, 10500),
                          sampling_frequency=audio.sampling_rate,
                          xtent_on_x=[wav_time[0], wav_time[-1]])
 
         # TODO: the sync is out with this one, but plotting a pd spectrum is
-        # still a good idea.
-        # plot_spectrogram(self.data_axes[2],
-        #                 waveform=l2.data,
-        #                 ylim=(0,40),
-        #                 sampling_frequency=l2.sampling_rate,
-        #                 xtent_on_x=[-1.5812581, 1]) #,
-        #                 # xtent_on_x=[ultra_time[0], ultra_time[-1]]) #,
+        # still a good idea. Just need to get the FFT parameters tuned - if
+        # that's even possible.
+        # plot_spectrogram(self.data_axes[1],
+        #                  waveform=l1.data,
+        #                  ylim=(0, 60),
+        #                  sampling_frequency=l1.sampling_rate,
+        #                  noverlap=98, NFFT=100,
+        #                  #  xtent_on_x=[-1, 1])  # ,
+        #                  xtent_on_x=[ultra_time[0], ultra_time[-1]])  # ,
 
-        segment_line = None
+        # segment_line = None
         self.animators = []
         iterator = zip(self.current.satgrid.items(),
                        self.tier_axes, strict=True)
         for (name, tier), axis in iterator:
             boundaries_by_axis = []
-            boundary_set, segment_line = plot_satgrid_tier(
+
+            # boundary_set, segment_line = plot_satgrid_tier(
+            boundary_set, _ = plot_satgrid_tier(
                 axis, tier, time_offset=stimulus_onset, text_y=.5)
             boundaries_by_axis.append(boundary_set)
             axis.set_ylabel(
                 name, rotation=0, horizontalalignment="right",
                 verticalalignment="center")
             axis.set_xlim(self.xlim)
-            if name in gui_params["pervasive tiers"]:
+            if name in gui_params["pervasive_tiers"]:
                 for axis in self.data_axes:
                     boundary_set = plot_satgrid_tier(
                         axis, tier, time_offset=stimulus_onset,
@@ -629,8 +491,9 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
         elif self.current.annotations['selection_index']:
             self.ultra_axes.clear()
             index = self.current.annotations['selection_index']
-            image = self.current.modalities['RawUltrasound'].interpolated_image(
-                index)
+
+            ultrasound = self.current.modalities['RawUltrasound']
+            image = ultrasound.interpolated_image(index)
 
             self.ultra_axes.imshow(
                 image, interpolation='nearest', cmap='gray',
@@ -648,7 +511,7 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
 
                 # TODO: move this to reading splines/end of loading and make
                 # the system warn the user when there is a creeping
-                # discprepancy. also make it a integration test where
+                # discrepancy. also make it a integration test where
                 # spline_test_token1 gets run and triggers this
                 # ic(splines.timevector)
                 # ic(ultra.timevector[:len(splines.timevector)])
@@ -657,8 +520,6 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
                 # ic(np.diff(time_diff, n=1))
                 # ic(np.max(np.abs(np.diff(time_diff, n=1))))
 
-                # TODO: make epsilon here maximum of config epsilon and the
-                # precision of the timevectors.
                 epsilon = max((config_dict['epsilon'], splines.time_precision))
                 min_difference = abs(
                     splines.timevector[spline_index] - timestamp)
@@ -668,9 +529,6 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
                 # ic(epsilon, splines.timevector[spline_index] - timestamp)
                 # ic(splines.timevector[spline_index], timestamp)
                 if min_difference > epsilon:
-                    # TODO: pass SplineMetricParameters or where ever
-                    # exclude_points ends up being stored to plot_spline
-                    # so that it can display only the analysed part.
                     _logger.info("Splines out of synch in %s.",
                                  self.current.basename)
                     _logger.info("Minimal difference: %f, epsilon: %f",
@@ -724,16 +582,20 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
         if 'PD l1 on RawUltrasound' in self.current.modalities:
             pd_metrics = self.current.modalities['PD l1 on RawUltrasound']
             ultra_time = pd_metrics.timevector - stimulus_onset
-            self.current.annotations['selected_time'] = ultra_time[self.current.annotations['selection_index']]
+            index = self.current.annotations['selection_index']
+            self.current.annotations['selected_time'] = ultra_time[index]
 
     def next_frame(self):
         """
         Move the data cursor to the next frame.
         """
-        if (self.current.annotations['selection_index'] > -1 and
-            'PD l1 on RawUltrasound' in self.current.modalities and
-                self.current.annotations['selection_index'] < self.current.modalities['PD l1 on RawUltrasound'].data.size):
+        if not 'PD l1 on RawUltrasound' in self.current.modalities:
+            return
 
+        selection_index = self.current.annotations['selection_index']
+        pd = self.current.modalities['PD l1 on RawUltrasound']
+        data_length = pd.data.size
+        if -1 < selection_index < data_length:
             self.current.annotations['selection_index'] += 1
             _logger.debug(
                 "next frame: %d",
@@ -761,7 +623,6 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
         Decreases cursor index, updates the view.
         """
         if self.index > 0:
-            # TODO: wrap in a data modalities accessor
             self.current.modalities['RawUltrasound'].data = None
             self.index -= 1
             self.update()
@@ -843,7 +704,8 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
                 self, 'Save file', directory='.',
                 filter="TextGrid files (*.TextGrid)")
         if self.current.textgrid_path and self.current.satgrid:
-            with open(self.current.textgrid_path, 'w', encoding='utf-8') as outfile:
+            file = self.current.textgrid_path
+            with open(file, 'w', encoding='utf-8') as outfile:
                 outfile.write(self.current.satgrid.format_long())
             _logger.info(
                 "Wrote TextGrid to file %s.", str(self.current.textgrid_path))
@@ -886,7 +748,8 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
             for recording in self.recordings:
                 annotations = recording.annotations.copy()
                 annotations['basename'] = recording.basename
-                annotations['date_and_time'] = recording.meta_data.time_of_recording
+                annotations['date_and_time'] = (
+                    recording.meta_data.time_of_recording)
                 annotations['prompt'] = recording.meta_data.prompt
                 annotations['word'] = recording.meta_data.prompt.split()[0]
 
@@ -905,7 +768,8 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
                         # purposefully the last non-empty first and taking the
                         # duration?
                         word_dur = interval.dur
-                        stimulus_onset = recording.modalities['MonoAudio'].go_signal
+                        stimulus_onset = (
+                            recording['MonoAudio'].go_signal)
                         acoustic_onset = interval.xmin - stimulus_onset
                         break
                     annotations['word_dur'] = word_dur
@@ -940,7 +804,7 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
 
     def pd_category_cb(self):
         """
-        Callback funtion for the RadioButton for catogorising
+        Callback function for the RadioButton for categorising
         the PD curve.
         """
         radio_button = self.sender()
@@ -949,7 +813,7 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
 
     def tongue_position_cb(self):
         """
-        Callback funtion for the RadioButton for catogorising
+        Callback function for the RadioButton for categorising
         the PD curve.
         """
         radio_button = self.sender()
@@ -982,7 +846,8 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
         audio = self.current.modalities['MonoAudio']
         stimulus_onset = audio.go_signal
 
-        timevector = self.current.modalities['PD l1 on RawUltrasound'].timevector
+        timevector = (
+            self.current.modalities['PD l1 on RawUltrasound'].timevector)
         distances = np.abs(timevector - stimulus_onset - event.xdata)
         self.current.annotations['selection_index'] = np.argmin(distances)
         self.current.annotations['selected_time'] = event.xdata
@@ -1011,14 +876,13 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
         if event.key() == Qt.Key_Shift:
             self.shift_is_held = True
         if event.key() == Qt.Key_I:
-            gui_params['auto x'] = False
+            gui_params['auto_x'] = False
             if self.current.annotations['selection_index'] >= 0:
                 center = self.current.annotations['selected_time']
             else:
                 center = (self.xlim[0] + self.xlim[1])/2.0
             length = (self.xlim[1] - self.xlim[0])*.25
             self.xlim = (center-length, center+length)
-            # TODO: create a way of storing this that isn't
             if 'xlim' in gui_params:
                 gui_params['xlim'] = self.xlim
             self.update()
@@ -1031,7 +895,7 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
                 gui_params['xlim'] = self.xlim
             self.update()
         elif event.key() == Qt.Key_A:
-            gui_params['auto x'] = True
+            gui_params['auto_x'] = True
             self.update()
         # else:
         #     print(event.key())

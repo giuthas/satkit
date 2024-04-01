@@ -24,8 +24,7 @@ Known issues:
   
 Known issues:
 
-Same as in 0.8.0.
-
+- Same as in 0.8.0 plus
 - Some perturbation related plotting functions have hard-coded subplot
   divisions because Comparison is not yet sortable.
 
@@ -39,7 +38,7 @@ Same as in 0.8.0.
 
 Known issues:
 
-- Same as in 0.7.0. plus
+- Same as in 0.7.0 plus
 - Synchronising spline metrics and splines with ultrasound is currently
   unreliable. This is because the timestamps in spline files have proven to
   have either drift or just inaccuracies and testing why this is so is a job

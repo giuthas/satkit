@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2019-2023
+# Copyright (c) 2019-2024
 # Pertti Palo, Scott Moisik, Matthew Faytak, and Motoki Saito.
 #
 # This file is part of Speech Articulation ToolKIT
@@ -43,8 +43,37 @@ from dataclasses import dataclass
 from enum import Enum
 
 # TODO 1.0: Decouple program and file format versions at version 1.0.
-SATKIT_VERSION = '0.7.0'
+SATKIT_VERSION = '0.9.0'
 SATKIT_FILE_VERSION = SATKIT_VERSION
+
+DEFAULT_ENCODING = 'utf-8'
+
+
+class IntervalBoundary(Enum):
+    """
+    Begin and end for import type checking.
+    """
+    BEGIN = 'begin'
+    END = 'end'
+
+
+class IntervalCategory(Enum):
+    """
+    Rule-based interval selection categories for import type checking.
+    """
+    FIRST_NON_EMPTY = 'first non-empty'
+    LAST_NON_EMPTY = 'last non-empty'
+    FIRST_LABELED = 'first labeled'
+    LAST_LABELED = 'last labeled'
+
+
+class AnnotationType(Enum):
+    """
+    Enum to differentiate Modality annotation types
+    """
+    PEAKS = "peaks"
+    ARTICULATORY_ONSET = "articulatory_onset"
+    ACOUSTIC_ONSET = "acoustic_onset"
 
 
 class CoordinateSystems(Enum):

@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2019-2023
+# Copyright (c) 2019-2024
 # Pertti Palo, Scott Moisik, Matthew Faytak, and Motoki Saito.
 #
 # This file is part of Speech Articulation ToolKIT
@@ -33,8 +33,40 @@
 Computation helper functions.
 """
 
+from typing import Optional
+
 import numpy as np
+
 # from icecream import ic
+
+from satkit.configuration import TimeseriesNormalisation
+
+
+def normalise_timeseries(
+        data: np.ndarray,
+        normalisation: Optional[TimeseriesNormalisation]) -> np.ndarray:
+    """
+    Apply the specified normalisation to the data and return it. 
+
+    Parameters
+    ----------
+    data : np.ndarray
+        The data to normalise. Currently assumed to be a 1D-array.
+    normalisation : Optional[TimeseriesNormalisation]
+        TimeseriesNormalisation object specifying the normalisation to apply.
+
+    Returns
+    -------
+    np.ndarray
+        Normalised data. Defaults to original data if no normalisation is
+        either specified or the normalisation argument is None.
+    """
+    if normalisation:
+        if normalisation.bottom:
+            data = data - np.min(data)
+        if normalisation.peak:
+            data = data/np.max(data)
+    return data
 
 
 def cartesian_to_polar(xy_array: np.ndarray) -> np.ndarray:

@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2019-2023
+# Copyright (c) 2019-2024
 # Pertti Palo, Scott Moisik, Matthew Faytak, and Motoki Saito.
 #
 # This file is part of Speech Articulation ToolKIT
@@ -43,7 +43,7 @@ from satkit.constants import SATKIT_FILE_VERSION, SatkitSuffix
 from satkit.data_structures import Modality, Recording, RecordingSession
 from satkit.ui_callbacks import UiCallbacks, OverwriteConfirmation
 
-from .save_and_load_helpers import nested_text_converters
+from .save_and_load_schemas import nested_text_converters
 
 _logger = logging.getLogger('satkit._saver')
 
@@ -180,9 +180,9 @@ def save_modalities(
     Returns a dictionary of the data and meta paths of the Modalities.
     """
     recording_meta = {}
-    for modality_name in recording.modalities:
+    for modality_name in recording:
         modality_meta = {}
-        modality = recording.modalities[modality_name]
+        modality = recording[modality_name]
         if modality.is_derived_modality:
             (modality_meta['data_name'], confirmation) = save_modality_data(
                 modality, confirmation)

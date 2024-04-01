@@ -1,8 +1,8 @@
 #
-# Copyright (c) 2019-2023 
+# Copyright (c) 2019-2024
 # Pertti Palo, Scott Moisik, Matthew Faytak, and Motoki Saito.
 #
-# This file is part of Speech Articulation ToolKIT 
+# This file is part of Speech Articulation ToolKIT
 # (see https://github.com/giuthas/satkit/).
 #
 # This program is free software: you can redistribute it and/or modify
@@ -29,30 +29,41 @@
 # articles listed in README.markdown. They can also be found in
 # citations.bib in BibTeX format.
 #
-from collections import OrderedDict
-from typing import Union
+"""
+SatGrid and its components are a GUI friendly encapsulation of
+`textgrids.TextGrid`.
+"""
 
-from satkit.configuration import config_dict
+from collections import OrderedDict
+from typing import Optional, Union
+
+from icecream import ic
+
 from textgrids import Interval, TextGrid, Tier, Transcript
 from textgrids.templates import (long_header, long_interval, long_point,
                                  long_tier)
 from typing_extensions import Self
+
+from satkit.configuration import config_dict
+from satkit.constants import IntervalCategory
 
 
 class SatInterval:
     """TextGrid Interval representation to enable editing with GUI."""
 
     @classmethod
-    def from_textgrid_interval(cls,
-                               interval: Interval,
-                               prev: Union[None, Self],
-                               next: Union[None, Self] = None) -> Self:
+    def from_textgrid_interval(
+        cls,
+        interval: Interval,
+        prev: Union[None, Self],
+        next_interval: Union[None, Self] = None
+    ) -> Self:
         """
         Copy the info of a Python TextGrids Interval into a new SatInterval.
 
         Only xmin and text are copied from the original Interval. xmax is
-        assumed to be handled by either the next SatInterval or the constructing
-        method if this is the last Interval. 
+        assumed to be handled by either the next SatInterval or the
+        constructing method if this is the last Interval. 
 
         Since SatIntervals are doubly linked, an attempt will be made to link
         prev and next to this interval. 
@@ -63,23 +74,23 @@ class SatInterval:
             begin=interval.xmin,
             text=interval.text,
             prev=prev,
-            next=next)
+            next_interval=next_interval)
 
     def __init__(self,
                  begin: float,
                  text: Union[None, Transcript],
                  prev: Union[None, Self] = None,
-                 next: Union[None, Self] = None) -> None:
+                 next_interval: Union[None, Self] = None) -> None:
         self.begin = begin
         self.text = text
 
         self.prev = prev
         if self.prev:
-            self.prev.next = self
+            self.prev.next_interval = self
 
-        self.next = next
-        if self.next:
-            self.next.prev = self
+        self.next_interval = next_interval
+        if self.next_interval:
+            self.next_interval.prev = self
 
     @property
     def mid(self) -> Union[float, None]:
@@ -90,10 +101,22 @@ class SatInterval:
         if this Interval is the one that marks
         the last boundary.
         """
-        if self.text:
-            return (self.begin+self.next.begin)/2
-        else:
-            return None
+        if self.next_interval:
+            return (self.begin+self.next_interval.begin)/2
+        return None
+
+    @property
+    def end(self) -> Union[float, None]:
+        """
+        End time point of the interval.
+
+        This is a property that will return None
+        if this Interval is the one that marks
+        the last boundary.
+        """
+        if self.next_interval:
+            return self.next_interval.begin
+        return None
 
     def is_legal_value(self, time: float) -> bool:
         """
@@ -106,7 +129,7 @@ class SatInterval:
 
         Returns True, if time is  between the previous and next boundary.
         """
-        return (time + config_dict['epsilon'] < self.next.begin and
+        return (time + config_dict['epsilon'] < self.next_interval.begin and
                 time > config_dict['epsilon'] + self.prev.begin)
 
     def is_at_time(self, time):
@@ -116,6 +139,10 @@ class SatInterval:
         configuration.
         """
         return abs(self.begin - time) < config_dict['epsilon']
+
+    def __repr__(self) -> str:
+        return (f"{self.__class__.__name__}: text: '{self.text}'\t "
+                f"begin: {self.begin}, end: {self.end}")
 
 
 class SatTier(list):
@@ -162,15 +189,21 @@ class SatTier(list):
         This is a property and the actual value is generated from the last
         SatInterval of this SatTier.
         """
-        # This is slightly counter intuitive, but the last interval is infact
-        # empty and only represents the final boundary. So its begin is
-        # the final boundary.
+        # This is slightly counter intuitive, but the last interval is in fact
+        # empty and only represents the final boundary. So its begin is the
+        # final boundary.
         return self[-1].begin
 
     @property
     def is_point_tier(self) -> bool:
         """Is this Tier a PointTier."""
         return False
+
+    def __repr__(self) -> str:
+        representation = f"{self.__class__.__name__}:\n"
+        for interval in self:
+            representation += str(interval) + "\n"
+        return representation
 
     def boundary_at_time(self, time) -> Union[SatInterval, None]:
         """
@@ -186,22 +219,68 @@ class SatTier(list):
                 return interval
         return None
 
+    def get_interval_by_category(
+        self,
+        interval_category: IntervalCategory,
+        label: Optional[str] = None
+    ) -> SatInterval:
+        """
+        Return the Interval matching the category in this Tier.
+
+        If interval_category is FIRST_LABELED or LAST_LABELED, the label should
+        be specified as well.
+
+        Parameters
+        ----------
+        interval_category : IntervalCategory
+            The category to search for.
+        label : Optional[str], optional
+            Label to search for when doing a label based category search, by
+            default None
+
+        Returns
+        -------
+        SatInterval
+            _description_
+        """
+        if interval_category is IntervalCategory.FIRST_NON_EMPTY:
+            for interval in self:
+                if interval.text:
+                    return interval
+
+        if interval_category is IntervalCategory.LAST_NON_EMPTY:
+            for interval in reversed(self):
+                if interval.text:
+                    return interval
+
+        if interval_category is IntervalCategory.FIRST_LABELED:
+            for interval in self:
+                ic(label)
+                if interval.text == label:
+                    return interval
+
+        if interval_category is IntervalCategory.LAST_LABELED:
+            for interval in reversed(self):
+                if interval.text == label:
+                    return interval
+
 
 class SatGrid(OrderedDict):
     """
     TextGrid representation which makes editing easier.
 
-    SatGrid is a OrderedDict very similar to Python textgrids TextGrid, but made
-    up of SatTiers that in turn contain intervals or points as doubly linked
-    lists instead of just lists. See there relevant classes for more details.
+    SatGrid is a OrderedDict very similar to Python textgrids TextGrid, but
+    made up of SatTiers that in turn contain intervals or points as doubly
+    linked lists instead of just lists. See the relevant classes for more
+    details.
     """
 
     def __init__(self, textgrid: TextGrid) -> None:
         for tier_name in textgrid:
             self[tier_name] = SatTier.from_textgrid_tier(textgrid[tier_name])
 
-    def as_textgrid(self):
-        pass
+    # def as_textgrid(self):
+    #     pass
 
     @property
     def begin(self) -> float:
@@ -233,7 +312,6 @@ class SatGrid(OrderedDict):
 
     def format_long(self) -> str:
         '''Format self as long format TextGrid.'''
-        global long_header, long_tier, long_point, long_interval
         out = long_header.format(self.begin, self.end, len(self))
         tier_count = 1
         for name, tier in self.items():

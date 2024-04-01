@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2019-2023
+# Copyright (c) 2019-2024
 # Pertti Palo, Scott Moisik, Matthew Faytak, and Motoki Saito.
 #
 # This file is part of Speech Articulation ToolKIT
@@ -30,7 +30,7 @@
 # citations.bib in BibTeX format.
 #
 """
-Some general helpers and connectors for saving and loading.
+Pydantic models and converters for saving and loading.
 """
 
 from datetime import datetime
@@ -69,7 +69,7 @@ class ModalityLoadSchema(BaseModel):
 
 class ModalityListingLoadschema(BaseModel):
     """
-    Loading schema for the Modality listing in a saved Rercording.
+    Loading schema for the Modality listing in a saved Recording.
     """
     data_name: str
     meta_name: Union[str, None]

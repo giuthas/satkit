@@ -52,6 +52,8 @@ of_results/
 
 # Publication and conference datasets 
 local_data/
+# in case it's a symlink
+local_data
 
 # Figure output files
 figures/

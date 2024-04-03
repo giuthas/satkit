@@ -40,7 +40,6 @@ from typing import Optional
 
 import numpy as np
 
-from matplotlib.backends.backend_pdf import PdfPages
 import matplotlib.pyplot as plt
 
 from satkit.metrics.spline_metric import SplineShapesEnum
@@ -48,26 +47,28 @@ from satkit.metrics.tongue_shape_analysis import spline_shape_metric
 from satkit.plot_and_publish.plot_utilities import get_colors_in_sequence
 
 from .contour_tools import contour_point_perturbations
-from .metric_calculations import Comparison
+from .metric_calculations import Comparison, SoundPair
 from .simulation_plots import plot_distance_metric_against_perturbation_point
 
 
-def make_annd_perturbation_series_plot(
+def annd_perturbation_series_like_to_like_plot(
         annd_dict: dict[Comparison, dict[str, np.ndarray]],
-        pdf: PdfPages
+        columns: list[str],
 ) -> None:
     """
     Make the first part of the perturbation series plot for ANND.
+
+    This part is the like-to-like plots: each contour to its own perturbed
+    version or vice versa.
 
     Parameters
     ----------
     annd_dict : dict[Comparison, dict[str, np.ndarray]]
         ANND analysis results by Comparisons and perturbations.
-    pdf : PdfPages
-        pdf to write the plot into.
+    columns : list[str]
+        Order of contours to go through. Used to access the results from
+        annd_dict.
     """
-    # TODO Comparisons need to be sortable so that this and the second plot can
-    # be cleaned to be more generic.
     plt.style.use('tableau-colorblind10')
     colors = get_colors_in_sequence(6)
 
@@ -77,44 +78,34 @@ def make_annd_perturbation_series_plot(
         # 'top': .95,
         # 'bottom': 0.05,
     }
-    _, axes = plt.subplots(2, 2, figsize=(12, 3),
+    _, axes = plt.subplots(nrows=2, ncols=len(columns),
+                           figsize=(12, 3),
                            sharex=True, sharey='row',
                            gridspec_kw=gridspec_keywords)
 
-    for comparison in annd_dict:
-        if comparison.first == 'æ' and comparison.second == 'æ':
-            (lines, labels) = plot_distance_metric_against_perturbation_point(
-                axes[0:2, 0], annd_dict[comparison], colors=colors)
-        elif comparison.first == 'i' and comparison.second == 'i':
-            plot_distance_metric_against_perturbation_point(
-                axes[0:2, 1], annd_dict[comparison], colors=colors)
-    axes[0, 0].set_title("ANND: [æ] to itself")
+    filtered_annd_dict = {key.first: annd_dict[key]
+                          for key in annd_dict if key.first == key.second}
+
+    for i, sound in enumerate(columns):
+        (lines, labels) = plot_distance_metric_against_perturbation_point(
+            axes[0:2, i], filtered_annd_dict[sound], colors=colors)
+
+        axes[0, i].set_title(f"ANND: [{sound}] to itself")
+        axes[1, i].set_xlabel("Point of perturbation")
+        axes[0, i].axhline(0, linestyle=":", color="lightgray")
+        axes[1, i].axhline(0, linestyle=":", color="lightgray")
+
     axes[0, 0].set_ylabel("Baseline\nto perturbed")
     axes[1, 0].set_ylabel("Perturbed\nto baseline")
 
-    axes[0, 1].set_title("ANND: [i] to itself")
-
-    axes[1, 0].set_xlabel("Point of perturbation")
-    axes[1, 1].set_xlabel("Point of perturbation")
-
-    axes[0, 0].axhline(0, linestyle=":", color="lightgray")
-    axes[1, 0].axhline(0, linestyle=":", color="lightgray")
-    axes[0, 1].axhline(0, linestyle=":", color="lightgray")
-    axes[1, 1].axhline(0, linestyle=":", color="lightgray")
-
-    axes[0, 1].legend(lines, labels, bbox_to_anchor=(
+    axes[0, len(columns)-1].legend(lines, labels, bbox_to_anchor=(
         1, 0.6), loc="upper left")
 
-    # plt.show()
 
-    plt.tight_layout()
-    pdf.savefig(plt.gcf())
-
-
-def make_annd_perturbation_series_plot_2(
-        annd_dict: dict[Comparison, dict[str, np.ndarray]],
-        annd_baseline: np.ndarray,
-        pdf: PdfPages
+def annd_perturbation_series_crosswise_plot(
+    annd_dict: dict[Comparison, dict[str, np.ndarray]],
+    annd_baseline: np.ndarray,
+    columns: list[SoundPair]
 ) -> None:
     """
     Make the first part of the perturbation series plot for ANND.
@@ -125,8 +116,9 @@ def make_annd_perturbation_series_plot_2(
         ANND analysis results by Comparisons and perturbations.
     annd_baseline : np.ndarray
         baselines for the ANND comparisons.
-    pdf : PdfPages
-        pdf to write the plot into.
+    columns : list[SoundPair]
+        Order of contour pairs to go through. Used to access the results from
+        annd_dict.
     """
     plt.style.use('tableau-colorblind10')
     colors = get_colors_in_sequence(6)
@@ -141,37 +133,29 @@ def make_annd_perturbation_series_plot_2(
                            sharex=True, sharey='row',
                            gridspec_kw=gridspec_keywords)
 
-    for comparison in annd_dict:
-        if comparison.first == 'æ' and comparison.second == 'i':
-            (lines, labels) = plot_distance_metric_against_perturbation_point(
-                axes[::-1, 1], annd_dict[comparison], colors=colors)
-        elif comparison.first == 'i' and comparison.second == 'æ':
-            plot_distance_metric_against_perturbation_point(
-                axes[:, 0], annd_dict[comparison], colors=colors)
+    filtered_annd_dict = {
+        SoundPair(first=key.first, second=key.second): annd_dict[key]
+        for key in annd_dict if key.first != key.second}
 
-    axes[0, 0].set_ylabel("[æ] to [i]")
-    axes[1, 0].set_ylabel("[i] to [æ]")
+    for i, sound_pair in enumerate(columns):
+        (lines, labels) = plot_distance_metric_against_perturbation_point(
+            axes[:, i], filtered_annd_dict[sound_pair], colors=colors)
 
-    axes[0, 0].set_title("ANND: perturbed [æ]")
-    axes[0, 1].set_title("ANND: Perturbed [i]")
+        axes[0, i].set_ylabel(
+            f"ANND: [{sound_pair.first}] to [{sound_pair.second}]")
+        axes[1, i].set_xlabel("Point of perturbation")
+        axes[0, i].axhline(annd_baseline[1], linestyle=":", color="lightgray")
+        axes[1, i].axhline(annd_baseline[0], linestyle=":", color="lightgray")
 
-    axes[1, 0].set_xlabel("Point of perturbation")
-    axes[1, 1].set_xlabel("Point of perturbation")
+    axes[0, 0].set_ylabel("Baseline\nto perturbed")
+    axes[1, 0].set_ylabel("Perturbed\nto baseline")
 
-    axes[0, 0].axhline(annd_baseline[1], linestyle=":", color="lightgray")
-    axes[1, 0].axhline(annd_baseline[0], linestyle=":", color="lightgray")
-    axes[0, 1].axhline(annd_baseline[1], linestyle=":", color="lightgray")
-    axes[1, 1].axhline(annd_baseline[0], linestyle=":", color="lightgray")
-
-    axes[0, 1].legend(lines, labels, bbox_to_anchor=(
+    axes[0, len(columns)-1].legend(lines, labels, bbox_to_anchor=(
         1, 0.6), loc="upper left")
-    plt.tight_layout()
-    pdf.savefig(plt.gcf())
 
 
-def make_mci_perturbation_series_plot(
+def mci_perturbation_series_plot(
         contours: dict[str, np.ndarray],
-        pdf: PdfPages,
         figsize: tuple[float, float],
         perturbations: Optional[list[float]] = (1.0),
 ) -> None:
@@ -182,8 +166,6 @@ def make_mci_perturbation_series_plot(
     ----------
     contours : dict[str, np.ndarray]
         Contours by name to plot the metrics on.
-    pdf : PdfPages
-        pdf to plot into.
     figsize : tuple[float, float]
         size of the figure
     perturbations : Optional[list[float]], optional
@@ -246,6 +228,3 @@ def make_mci_perturbation_series_plot(
         ax.axhline(2, linestyle="--", color="lightgray")
         ax.axhline(.5, linestyle="--", color="lightgray")
         ax.axhline(1, linestyle=":", color="lightgray")
-
-    # plt.tight_layout()
-    pdf.savefig(plt.gcf())

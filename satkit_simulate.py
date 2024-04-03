@@ -43,6 +43,7 @@ from pathlib import Path
 
 import numpy as np
 
+import matplotlib.pyplot as plt
 from matplotlib.backends.backend_pdf import PdfPages
 
 from satkit.metrics import (
@@ -54,17 +55,16 @@ from satkit.metrics.calculate_spline_metric import (
 )
 
 from satkit.simulation import (
-    Comparison,
+    Comparison, SoundPair,
     generate_contour,
     calculate_metric_series_for_comparisons,
     calculate_metric_series_for_contours,
     get_distance_metric_baselines,
     get_shape_metric_baselines,
     distance_metric_rays_on_contours,
-    shape_metric_rays_on_contours
+    shape_metric_rays_on_contours,
+    mci_perturbation_series_plot
 )
-from satkit.simulation.perturbation_series_plots import (
-    make_mci_perturbation_series_plot)
 
 
 def main() -> None:
@@ -100,6 +100,12 @@ def main() -> None:
         Comparison(first='i', second='æ', perturbed='second'),
         Comparison(first='i', second='æ', perturbed='first'),
     ]
+    sound_pairs = [
+        SoundPair(first='æ', second='æ'),
+        SoundPair(first='i', second='i'),
+        SoundPair(first='æ', second='i'),
+        SoundPair(first='i', second='æ'),
+    ]
     annd_results = calculate_metric_series_for_comparisons(
         metric=annd_call,
         contours=contours,
@@ -131,10 +137,13 @@ def main() -> None:
                                          baselines=annd_baselines,
                                          number_of_perturbations=len(
                                              perturbations),
-                                         pdf=pdf,
                                          figsize=(10.1, 4.72),
+                                         columns=sound_pairs,
                                          scale=200,
                                          color_threshold=[.1, -.1])
+        # plt.show()
+        plt.tight_layout()
+        pdf.savefig(plt.gcf())
 
     with PdfPages(save_path/"mci_contours.pdf") as pdf:
         shape_metric_rays_on_contours(contours=contours,
@@ -143,10 +152,12 @@ def main() -> None:
                                       baselines=mci_baselines,
                                       number_of_perturbations=len(
                                           perturbations),
-                                      pdf=pdf,
                                       figsize=(7, 3.35),
                                       scale=20,
                                       color_threshold=np.log10([2, .5]))
+        # plt.show()
+        plt.tight_layout()
+        pdf.savefig(plt.gcf())
 
     # with PdfPages(save_path/"annd_1.pdf") as pdf:
     #     make_annd_perturbation_series_plot(annd_dict=annd_results, pdf=pdf)
@@ -160,10 +171,12 @@ def main() -> None:
 
     with PdfPages(save_path/"mci_timeseries.pdf") as pdf:
         perturbations = [-2, -1, -.5, .5, 1, 2]
-        make_mci_perturbation_series_plot(contours=contours,
-                                          perturbations=perturbations,
-                                          figsize=(12, 8),
-                                          pdf=pdf)
+        mci_perturbation_series_plot(contours=contours,
+                                     perturbations=perturbations,
+                                     figsize=(12, 8))
+        # plt.show()
+        # plt.tight_layout()
+        pdf.savefig(plt.gcf())
 
 
 if __name__ == '__main__':

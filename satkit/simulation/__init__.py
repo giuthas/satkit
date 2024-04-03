@@ -40,7 +40,7 @@ from .contour_tools import (
     generate_contour, contour_point_perturbations
 )
 from .metric_calculations import (
-    Comparison, ComparisonMember, MetricFunction,
+    Comparison, ComparisonMember, SoundPair, MetricFunction,
     calculate_metric_series_for_comparisons,
     calculate_metric_series_for_contours,
     get_distance_metric_baselines,
@@ -57,4 +57,10 @@ from .simulation_plots import (
 from .rays_on_contours import (
     distance_metric_rays_on_contours,
     shape_metric_rays_on_contours
+)
+
+from .perturbation_series_plots import (
+    annd_perturbation_series_like_to_like_plot,
+    annd_perturbation_series_crosswise_plot,
+    mci_perturbation_series_plot
 )

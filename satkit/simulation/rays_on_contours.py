@@ -40,14 +40,13 @@ from typing import Optional
 
 import numpy as np
 
-from matplotlib.backends.backend_pdf import PdfPages
 import matplotlib.font_manager as fm
 import matplotlib.pyplot as plt
 from mpl_toolkits.axes_grid1.anchored_artists import AnchoredSizeBar
 
 from satkit.plot_and_publish.plot_utilities import get_colors_in_sequence
 from satkit.simulation import (
-    Comparison, ComparisonMember,
+    Comparison, ComparisonMember, SoundPair,
     display_contour,
     contour_ray_plot,
 )
@@ -59,8 +58,8 @@ def distance_metric_rays_on_contours(
     metric_name: str,
     baselines: dict[Comparison, float],
     number_of_perturbations: int,
-    pdf: PdfPages,
-    figsize=tuple[float, float],
+    figsize: tuple[float, float],
+    columns: list[SoundPair],
     nrows: Optional[int] = 2,
     contour_rows: Optional[int] = 2,
     scale: Optional[float] = 1,
@@ -81,10 +80,10 @@ def distance_metric_rays_on_contours(
         Baseline values for each contour.
     number_of_perturbations : int
         How many perturbation values there are.
-    pdf : PdfPages
-        pdf to plot into.
     figsize : tuple[float, float]
         size of the figure
+    columns : list[SoundPair]
+        Order of contours to go through. 
     nrows : Optional[int], optional
         number of subplot rows in the plot, by default 1
     contour_rows : Optional[int], optional
@@ -96,7 +95,6 @@ def distance_metric_rays_on_contours(
         rays. Specified in metric's units relative to the
         `metric_reference_value`, by default None
     """
-    # TODO once Comparisons are sortable, clean this function.
     plt.style.use('tableau-colorblind10')
     if color_threshold is not None:
         colors = get_colors_in_sequence(2)
@@ -108,8 +106,7 @@ def distance_metric_rays_on_contours(
         # 'bottom': 0.05,
     }
 
-    comparisons = metrics.keys()
-    ncols = len(comparisons)//nrows
+    ncols = len(columns)
     _, axes = plt.subplots(nrows=nrows,
                            ncols=ncols,
                            figsize=figsize,
@@ -133,32 +130,33 @@ def distance_metric_rays_on_contours(
             label_top=True,
             fontproperties=font_properties)
         ax.add_artist(scale_bar)
-        # ax.set_xlim([-80, 250])
-        # ax.set_ylim([-10, 250])
 
-    # axes[0, 0].set_title(f"[æ] to [æ], {metric_name} = 0")
-    axes[0, 0].set_title("[æ] to [æ]")
-    axes[1, 0].set_xlabel(f"{metric_name} = 0")
-    # axes[0, 1].set_title(f"[i] to [i], {metric_name} = 0")
-    axes[0, 1].set_title("[i] to [i]")
-    axes[1, 1].set_xlabel(f"{metric_name} = 0")
+    for i, sound_pair in enumerate(columns):
+        axes[0, i].set_title(f"[{sound_pair.first}] to [{sound_pair.second}]")
 
-    reference = baselines[Comparison(
-        first='æ', second='i', perturbed=ComparisonMember.FIRST)]
-    # axes[0, 2].set_title(f"[æ] to [i], {metric_name} = {reference[0]:.2f}")
-    axes[0, 2].set_title("[æ] to [i]")
-    axes[1, 2].set_xlabel(f"{metric_name} = {reference[0]:.2f}")
+        if sound_pair.first == sound_pair.second:
+            axes[1, i].set_xlabel(f"{metric_name} = 0")
+        else:
+            reference = baselines[Comparison(
+                first=sound_pair.first, second=sound_pair.second,
+                perturbed=ComparisonMember.FIRST)]
+            axes[1, i].set_xlabel(f"{metric_name} = {reference[0]:.2f}")
 
-    reference = baselines[Comparison(
-        first='i', second='æ', perturbed=ComparisonMember.FIRST)]
-    # axes[0, 3].set_title(f"[i] to [æ], {metric_name} = {reference[0]:.2f}")
-    axes[0, 3].set_title("[i] to [æ]")
-    axes[1, 3].set_xlabel(f"{metric_name} = {reference[0]:.2f}")
+    axes[0, 0].set_ylabel("Baseline to perturbed")
+    axes[1, 0].set_ylabel("Perturbed to baseline")
 
-    axes[0, 0].set_ylabel("baseline to perturbed")
-    axes[1, 0].set_ylabel("perturbed to baseline")
+    comparisons = []
+    for sound_pair in columns:
+        comparisons.append(
+            Comparison(first=sound_pair.first,
+                       second=sound_pair.second,
+                       perturbed=ComparisonMember.SECOND))
+        comparisons.append(
+            Comparison(first=sound_pair.first,
+                       second=sound_pair.second,
+                       perturbed=ComparisonMember.FIRST))
 
-    for j, comparison in enumerate(metrics):
+    for j, comparison in enumerate(comparisons):
         row = j % nrows
         column = j//nrows
         metric_dict = metrics[comparison]
@@ -174,26 +172,15 @@ def distance_metric_rays_on_contours(
             # ic(perturbation, comparison, np.max(
             #     np.abs(metric_dict[perturbation]-baseline)))
             if comparison.first == comparison.second:
-                if comparison.perturbed == ComparisonMember.SECOND:
-                    contour_ray_plot(
-                        axes=axes[row, column],
-                        contour=contours[comparison.first],
-                        metric_values=metric_dict[perturbation],
-                        metric_reference_value=baseline,
-                        scale=scale,
-                        origin_offset=origin_offset,
-                        color_threshold=color_threshold,
-                        colors=colors,)
-                else:
-                    contour_ray_plot(
-                        axes=axes[row, column],
-                        contour=contours[comparison.first],
-                        metric_values=metric_dict[perturbation],
-                        metric_reference_value=baseline,
-                        scale=scale,
-                        origin_offset=origin_offset,
-                        color_threshold=color_threshold,
-                        colors=colors,)
+                contour_ray_plot(
+                    axes=axes[row, column],
+                    contour=contours[comparison.first],
+                    metric_values=metric_dict[perturbation],
+                    metric_reference_value=baseline,
+                    scale=scale,
+                    origin_offset=origin_offset,
+                    color_threshold=color_threshold,
+                    colors=colors,)
             else:
                 if comparison.perturbed == ComparisonMember.SECOND:
                     display_contour(
@@ -227,10 +214,6 @@ def distance_metric_rays_on_contours(
                         relative=False,
                         color_threshold=color_threshold,
                         colors=colors,)
-    # plt.colorbar()
-    # plt.show()
-    plt.tight_layout()
-    pdf.savefig(plt.gcf())
 
 
 def shape_metric_rays_on_contours(
@@ -239,7 +222,6 @@ def shape_metric_rays_on_contours(
     metric_name: str,
     baselines: dict[str, float],
     number_of_perturbations: int,
-    pdf: PdfPages,
     figsize: tuple[float, float],
     nrows: Optional[int] = 1,
     contour_rows: Optional[int] = 2,
@@ -261,8 +243,6 @@ def shape_metric_rays_on_contours(
         Baseline values for each contour.
     number_of_perturbations : int
         How many perturbation values there are.
-    pdf : PdfPages
-        pdf to plot into.
     figsize : tuple[float, float]
         size of the figure
     nrows : Optional[int], optional
@@ -337,5 +317,3 @@ def shape_metric_rays_on_contours(
                 relative=True,
                 color_threshold=color_threshold,
                 colors=colors,)
-    plt.tight_layout()
-    pdf.savefig(plt.gcf())

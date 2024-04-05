@@ -157,11 +157,13 @@ def main():
         for recording in recording_session:
             downsample_metrics(recording, **downsample_config.model_dump())
 
-    exclusion = ("water swallow", "bite plate")
+    exclusion_list = ("water swallow", "bite plate")
     if data_run_config.peaks:
         modality_pattern = data_run_config.peaks.modality_pattern
         for recording in recording_session:
-            if any(prompt in recording.meta_data.prompt for prompt in exclusion):
+            excluded = [prompt in recording.meta_data.prompt
+                        for prompt in exclusion_list]
+            if any(excluded):
                 print(f"jumping over {recording.basename}")
                 continue
             for modality_name in recording:

@@ -21,11 +21,10 @@ maintainers = [
 name = "satkit"
 readme = "README.md"
 requires-python = ">=3.9"
-version = "0.9"
+version = "0.10"
 
 dependencies = [
-  "httpx",
-  "gidgethub[httpx]>4.0.0",
+  # To be added
 ]
 
 [project.urls]

@@ -665,9 +665,9 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
         filename = QFileDialog.getOpenFileName(
             self, caption="Open file", directory='.',
             filter="SATKIT files (*.satkit_meta)")
-        print(
-            f"Don't yet know how to open a file "
-            f"even though I know the name is {filename}.")
+        _logger.warning(
+            "Don't yet know how to open a file "
+            "even though I know the name is %s.", filename)
 
     def save_all(self):
         """
@@ -897,8 +897,6 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
         elif event.key() == Qt.Key_A:
             gui_params['auto_x'] = True
             self.update()
-        # else:
-        #     print(event.key())
 
     def keyReleaseEvent(self, event):
         """
@@ -908,5 +906,3 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
         """
         if event.key() == Qt.Key_Shift:
             self.shift_is_held = False
-        # else:
-        #     print(event.key)

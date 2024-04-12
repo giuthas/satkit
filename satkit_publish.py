@@ -164,7 +164,8 @@ def main():
             excluded = [prompt in recording.meta_data.prompt
                         for prompt in exclusion_list]
             if any(excluded):
-                print(f"jumping over {recording.basename}")
+                print(
+                    f"in satkit_publish.py: jumping over {recording.basename}")
                 continue
             for modality_name in recording:
                 if modality_pattern in modality_name:

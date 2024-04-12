@@ -34,9 +34,11 @@
 Downsampling of metrics and possibly other timeseries data.
 """
 
-from icecream import ic
+import re
 
-from configuration import SearchPattern
+# from icecream import ic
+
+from satkit.configuration import SearchPattern, DownsampleParams
 from satkit.data_structures import (
     Modality, ModalityData, ModalityMetaData, Recording)
 
@@ -83,6 +85,37 @@ def downsample_modality(
 
 def downsample_metrics(
         recording: Recording,
+        downsampling_parameters: DownsampleParams
+) -> None:
+    """
+    Apply downsampling to Modalities matching the pattern and add them back to
+    the Recording.
+
+    Parameters
+    ----------
+    recording : Recording
+        The Recording which contains the Modalities and to which the new
+        downsampled modalities will be added.
+    downsampling_parameters : DownsampleParams
+        Parameters for the downsampling. See the DownsampleParams class for
+        details.
+
+    Raises
+    ------
+    NotImplementedError
+        For now only match_timestep = True is allowed.
+    """
+    # TODO either expose the original interface in the next function or merge
+    # it into this one
+    _downsample_metrics(
+        recording=recording,
+        modality_pattern=downsampling_parameters.modality_pattern,
+        downsampling_ratios=downsampling_parameters.downsampling_ratios,
+        match_timestep=downsampling_parameters.match_timestep)
+
+
+def _downsample_metrics(
+        recording: Recording,
         modality_pattern: SearchPattern,
         downsampling_ratios: tuple[int],
         match_timestep: bool = True
@@ -110,9 +143,11 @@ def downsample_metrics(
     NotImplementedError
         For now only match_timestep = True is allowed.
     """
-
     if modality_pattern.is_regexp:
-        ic("regexp!")
+        pattern = re.compile(modality_pattern.pattern)
+        modalities = [recording[key]
+                      for key in recording
+                      if pattern.match(key)]
     else:
         pattern = modality_pattern.pattern
         modalities = [recording[key]

@@ -35,7 +35,7 @@
 import sys
 from pathlib import Path
 
-from icecream import ic
+# from icecream import ic
 
 # For running a Qt GUI
 from PyQt5 import QtWidgets

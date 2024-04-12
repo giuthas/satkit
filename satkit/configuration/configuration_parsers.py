@@ -251,7 +251,7 @@ def load_run_params(filepath: Union[Path, str, None] = None) -> YAML:
                     Optional('preload', default=True): Bool()
                 }),
                 Optional("peaks"): Map({
-                    "modality_pattern": Str(),
+                    "modality_pattern": SearchPatternValidator(),
                     Optional("time_min"): time_limit_schema,
                     Optional("time_max"): time_limit_schema,
                     Optional("normalisation"): NormalisationValidator(),
@@ -268,7 +268,7 @@ def load_run_params(filepath: Union[Path, str, None] = None) -> YAML:
                     }),
                 }),
                 Optional("downsample"): Map({
-                    "modality_pattern": Str(),
+                    "modality_pattern": SearchPatternValidator(),
                     "match_timestep": Bool(),
                     "downsampling_ratios": Seq(Int()),
                 }),

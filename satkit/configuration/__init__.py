@@ -38,5 +38,5 @@ from .configuration_classes import (
     SplineConfig, SplineDataConfig, SplineImportConfig)
 from .configuration_models import (
     MainConfig, PeakDetectionParams, FindPeaksScipyArguments,
-    TimeseriesNormalisation)
+    SearchPattern, TimeseriesNormalisation)
 from .configuration_setup import Configuration

@@ -43,7 +43,7 @@ from matplotlib.lines import Line2D
 import numpy as np
 from scipy import interpolate
 
-from icecream import ic
+# from icecream import ic
 
 from satkit.configuration import TimeseriesNormalisation
 from satkit.constants import AnnotationType
@@ -52,7 +52,7 @@ from satkit.gui.boundary_animation import AnimatableBoundary, BoundaryAnimator
 from satkit.helpers import normalise_timeseries
 from satkit.satgrid import SatTier
 
-_plot_logger = logging.getLogger('satkit.plot')
+_logger = logging.getLogger('satkit.plot')
 
 
 def plot_1d_modality(axes: Axes,
@@ -124,7 +124,7 @@ def plot_timeseries(axes: Axes,
     plot_data = data[number_of_ignored_frames:]
     plot_time = time[number_of_ignored_frames:]
 
-    _plot_logger.debug("Normalisation is %s.", normalise)
+    _logger.debug("Normalisation is %s.", normalise)
     plot_data = normalise_timeseries(plot_data, normalisation=normalise)
 
     if picker:
@@ -144,7 +144,7 @@ def plot_timeseries(axes: Axes,
     if ylim:
         axes.set_ylim(ylim)
     else:
-        y_limits = axes.get_ylim
+        y_limits = list(axes.get_ylim())
         if normalise.peak:
             y_limits[1] = 1.05
         elif normalise.bottom:
@@ -201,7 +201,7 @@ def mark_peaks(
     # TODO make the type annotations work with normalisation here
     normalise = annotations.generating_parameters.normalisation
 
-    _plot_logger.debug("Normalisation is %s.", normalise)
+    _logger.debug("Normalisation is %s.", normalise)
     data = normalise_timeseries(data, normalisation=normalise)
 
     prominences = properties['prominences']

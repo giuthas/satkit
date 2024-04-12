@@ -87,7 +87,9 @@ class SearchPattern(UpdatableBaseModel):
 
 class TimeseriesNormalisation(UpdatableBaseModel):
     """
+    Selection between peak normalised, bottom normalised or both.
 
+    Contains a boolean for each peak and bottom normalisation.
     """
     peak: Optional[bool] = False
     bottom: Optional[bool] = False
@@ -115,19 +117,14 @@ class TimeseriesNormalisation(UpdatableBaseModel):
         TimeseriesNormalisation
             The new TimeseriesNormalisation with fields set as expected.
         """
-        print(value)
         match value:
             case 'none':
-                print(value)
                 return TimeseriesNormalisation()
             case 'peak':
-                print(value)
                 return TimeseriesNormalisation(peak=True)
             case 'bottom':
-                print(value)
                 return TimeseriesNormalisation(bottom=True)
             case 'both':
-                print(value)
                 return TimeseriesNormalisation(peak=True, bottom=True)
             case _:
                 raise ValueError("Unrecognised value: " + value + ".")

@@ -35,7 +35,7 @@
 import sys
 from pathlib import Path
 
-# from icecream import ic
+from icecream import ic
 
 # For running a Qt GUI
 from PyQt5 import QtWidgets
@@ -100,10 +100,8 @@ def main():
                  processing_functions=function_dict)
 
     if data_run_config.downsample:
-        downsample_config = data_run_config.downsample
-
         for recording in recording_session:
-            downsample_metrics(recording, **downsample_config.model_dump())
+            downsample_metrics(recording, data_run_config.downsample)
 
     logger.info('Data run ended.')
 

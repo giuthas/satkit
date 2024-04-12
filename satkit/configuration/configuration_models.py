@@ -184,9 +184,23 @@ class DataRunFlags(UpdatableBaseModel):
 
 
 class DownsampleParams(UpdatableBaseModel):
+    """
+    Parameters for downsampling metrics.
+
+    Members
+    ----------
+    modality_pattern : str
+        Simple search string to used to find the modalities.
+    downsampling_ratios : tuple[int]
+        Which downsampling ratios should be attempted. Depending on the next
+        parameter all might not actually be used.
+    match_timestep : bool, optional
+        If the timestep of the Modality to be downsampled should match the
+        downsampling_ratio, by default True
+    """
     modality_pattern: SearchPattern
-    match_timestep: bool
     downsampling_ratios: list[int]
+    match_timestep: Optional[bool] = True
 
 
 class CastFlags(UpdatableBaseModel):

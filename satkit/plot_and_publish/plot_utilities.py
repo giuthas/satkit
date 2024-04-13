@@ -54,10 +54,11 @@ def get_colors_in_sequence(number: int) -> list[str]:
         Names of the colors.
     """
     colors = plt.rcParams['axes.prop_cycle'].by_key()['color'][0:number]
-    if number == 2:
-        colors = sorted(colors)
-    if number == 6:
-        colors = sorted(colors)
-        colors = [colors[0], colors[2], colors[1],
-                  colors[3], colors[5], colors[4]]
+    match number:
+        case 6:
+            colors = sorted(colors)
+            colors = [colors[0], colors[2], colors[1],
+                      colors[3], colors[5], colors[4]]
+        case _:
+            colors = sorted(colors)
     return colors

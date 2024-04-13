@@ -39,9 +39,10 @@ import matplotlib.pyplot as plt
 
 def get_colors_in_sequence(number: int) -> list[str]:
     """
-    Not fully implemented!
-
     Get colors in a perceptual sequence.
+
+    NOTE: This may or may not end up working for color lists of length other
+    than 6.
 
     Parameters
     ----------

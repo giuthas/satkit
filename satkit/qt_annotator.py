@@ -39,9 +39,11 @@ import csv
 import logging
 from contextlib import closing
 from copy import deepcopy
+from typing import Optional
 
 import numpy as np
 import matplotlib
+import matplotlib.pyplot as plt
 from matplotlib.backends.backend_qt5agg import \
     FigureCanvasQTAgg as FigureCanvas
 # Plotting functions and hooks for GUI
@@ -176,6 +178,8 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
             self.positionRB_3.text(): self.positionRB_3
         }
 
+        # plt.style.use('dark_background')
+        plt.style.use('tableau-colorblind10')
         self.figure = Figure()
         self.canvas = FigureCanvas(self.figure)
         self.mplWindowVerticalLayout.addWidget(self.canvas)
@@ -316,6 +320,48 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
 
         self.goLineEdit.setText(str(self.index + 1))
 
+    def plot_modality_axes(
+        self, axes_number: int, axes_name: str,
+        stimulus_onset: Optional[float] = 0,
+        ylim: Optional[list[float, float]] = None
+    ) -> None:
+
+        plot_modality_names = gui_params['data_axes'][axes_name]['modalities']
+
+        if ylim is None:
+            ylim = [-0.05, 1.05]
+
+        y_offset = 0
+        if 'y_offset' in gui_params['data_axes'][axes_name]:
+            y_offset = gui_params['data_axes'][axes_name]['y_offset']
+            if y_offset > 0:
+                ylim[1] = ylim[1] + y_offset*(len(plot_modality_names)-1)
+            else:
+                ylim[0] = ylim[0] + y_offset*(len(plot_modality_names)-1)
+
+        for i, name in enumerate(plot_modality_names):
+            modality = self.current.modalities[name]
+            plot_timeseries(
+                self.data_axes[axes_number],
+                modality.data,
+                modality.timevector-stimulus_onset,
+                self.xlim, ylim,
+                color='rotation',
+                linestyle=(0, (i+1, i+1)),
+                normalise=TimeseriesNormalisation(peak=True, bottom=True),
+                y_offset=i*y_offset,
+                sampling_step=i+1,
+                label=f"{modality.sampling_rate/(i+1):.2f}"
+            )
+            if (mark_peaks in gui_params['data_axes'][axes_name] and
+                    gui_params['data_axes'][axes_name]['mark_peaks']):
+                mark_peaks(self.data_axes[i],
+                           modality,
+                           self.xlim,
+                           display_prominence_values=True,
+                           time_offset=stimulus_onset)
+            self.data_axes[axes_number].set_ylabel(axes_name)
+
     def draw_plots(self):
         """
         Updates title and graphs. Called by self.update().
@@ -351,20 +397,9 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
         wav = audio.data
         wav_time = audio.timevector - stimulus_onset
 
-        # ic(self.current.modalities)
-
+        # TODO find a less hacky way of setting the xlim for auto_x
         l1 = self.current.modalities['PD l1 on RawUltrasound']
-
-        # plot_modality_names = [
-        #     (f"PD l1 ts{i+1} on RawUltrasound") for i in range(7)]
-        # plot_modality_names[0] = "PD l1 on RawUltrasound"
-
-        plot_modality_names = [
-            (f"PD {norm} on RawUltrasound")
-            for norm in data_run_params['pd_arguments']['norms'][1:-1]]
-
         ultra_time = l1.timevector - stimulus_onset
-        ylim = None
 
         if 'auto_x' in gui_params and gui_params['auto_x']:
             # TODO: find the minimum and maximum timestamp of all the
@@ -379,43 +414,31 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
         else:
             self.xlim = (-.25, 1.5)
 
-        # plot_density(self.data_axes[0], frequencies.data)
+        i = 0
+        for axes_name in gui_params['data_axes']:
+            match axes_name:
+                case "global":
+                    continue
+                case "spectrogram":
+                    plot_spectrogram(self.data_axes[i],
+                                     waveform=wav,
+                                     ylim=(0, 10500),
+                                     sampling_frequency=audio.sampling_rate,
+                                     xtent_on_x=[wav_time[0], wav_time[-1]])
+                case "wav":
+                    plot_wav(ax=self.data_axes[i],
+                             waveform=wav,
+                             wav_time=wav_time,
+                             xlim=self.xlim)
+                case _:
+                    self.plot_modality_axes(
+                        axes_number=i,
+                        axes_name=axes_name,
+                        stimulus_onset=stimulus_onset)
+            i += 1
 
-        plots = []
-        labels = []
-        for i, name in enumerate(plot_modality_names):
-            modality = self.current.modalities[name]
-            new = plot_timeseries(
-                self.data_axes[i],
-                modality.data,
-                modality.timevector-stimulus_onset,
-                self.xlim, ylim,
-                # color=(0+i*.1, 0+i*.1, 0+i*.1),
-                # linestyle=(0, (i+1, i+1)),
-                normalise=TimeseriesNormalisation(peak=True, bottom=True),
-                # sampling_step=i+1
-            )
-            mark_peaks(self.data_axes[i],
-                       modality,
-                       self.xlim,
-                       display_prominence_values=True,
-                       time_offset=stimulus_onset)
-            plots.append(new)
-            self.data_axes[i].set_ylabel(modality.metadata.metric)
-            labels.append(f"{modality.sampling_rate/(i+1):.2f}")
-
-        # self.data_axes[0].legend(
-        #     plots, labels,
-        #     loc='upper left')
-
-        # self.data_axes[0].set_ylabel("Pixel difference (PD)")
-
-        plot_wav(self.data_axes[-1], wav, wav_time, self.xlim)
-        plot_spectrogram(self.data_axes[-2],
-                         waveform=wav,
-                         ylim=(0, 10500),
-                         sampling_frequency=audio.sampling_rate,
-                         xtent_on_x=[wav_time[0], wav_time[-1]])
+        self.data_axes[0].legend(
+            loc='upper left')
 
         # TODO: the sync is out with this one, but plotting a pd spectrum is
         # still a good idea. Just need to get the FFT parameters tuned - if
@@ -476,10 +499,6 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
             for axes in self.tier_axes:
                 axes.axvline(x=self.current.annotations['selected_time'],
                              linestyle=':', color="deepskyblue", lw=1)
-
-        # if self.display_tongue:
-        #     _qt_annotator_logger.debug("Drawing ultra frame in plots")
-        #     self.draw_ultra_frame()
 
     def draw_ultra_frame(self):
         """

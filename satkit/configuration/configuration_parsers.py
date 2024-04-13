@@ -330,6 +330,8 @@ def load_gui_params(filepath: Union[Path, str, None] = None) -> YAML:
                     Str(), MapCombined(
                         {
                             Optional("sharex"): Bool(),
+                            Optional("mark_peaks"): Bool(),
+                            Optional("y_offset"): Float(),
                             Optional("modalities"): Seq(Str())
                         },
                         # TODO The following looks to be a bad choice which

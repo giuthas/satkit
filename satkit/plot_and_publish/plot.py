@@ -88,53 +88,85 @@ def plot_timeseries(axes: Axes,
                     xlim: Tuple[float, float],
                     ylim: Optional[Tuple[float, float]] = None,
                     normalise: Optional[TimeseriesNormalisation] = None,
+                    y_offset: Optional[float] = 0.0,
                     number_of_ignored_frames: int = 10,
                     ylabel: Optional[str] = None,
                     picker=None,
                     color: str = "deepskyblue",
                     linestyle: str = "-",
+                    label: Optional[str] = None,
                     alpha: float = 1.0,
                     sampling_step: int = 1) -> Line2D:
     """
     Plot a timeseries.
 
-    The timeseries most likely comes from a Modality, but 
-    that is left up to the caller. 
+    The timeseries most likely comes from a Modality, but that is left up to
+    the caller. 
 
-    Arguments:
-    axis -- matplotlib axes to plot on.
-    pd -- the timeseries - NOT the PD data object.
-    time -- timestamps for the timeseries.
-    xlim -- limits for the x-axis in seconds.
+    Parameters
+    ----------
+    axes : Axes
+        matplotlib axes to plot on.
+    data : np.ndarray
+        the timeseries.
+    time : np.ndarray
+        timestamps for the timeseries
+    xlim : Tuple[float, float]
+        limits for the x-axis in seconds.
+    ylim : Optional[Tuple[float, float]], optional
+        _description_, by default None
+    normalise : Optional[TimeseriesNormalisation], optional
+        Should minimum value be scaled to 0 ('bottom') and/or maximum to 1
+        ('peak'), by default None
+    y_offset : Optional[float], optional
+        y-direction offset for to be applied to the whole timeseries, by
+        default 0.0
+    number_of_ignored_frames : int, optional
+        how many values to ignore from the beginning of data when normalising,
+        by default 10
+    ylabel : Optional[str], optional
+        label for this axes, by default None
+    picker : _type_, optional
+        a picker tied to the plotted PD curve to facilitate annotation, by
+        default None
+    color : str, optional
+        matplotlib color for the line, by default "deepskyblue"
+    linestyle : str, optional
+        _description_, by default "-"
+    label : Optional[str], optional
+        label for the series, by default None
+    alpha : float, optional
+        alpha value for the line, by default 1.0
+    sampling_step : int, optional
+        Length of step to use in plotting, by default 1 This is used in e.g.
+        plotting downsampled series.
 
-    Keyword arguments:
-    peak_normalise -- if True, scale the data maximum to equal 1.
-    peak_normalisation_offset -- how many values to ignore from 
-        the beginning of data when calculating maximum. 
-    ylabel -- label for this axes. 
-    picker -- a picker tied to the plotted PD curve to facilitate
-        annotation.
-    color -- matplotlib color for the line.
-    linestyle -- matplotlib linestyle.
-    alpha -- alpha value for the line.
-
-    Returns Line2D which is not the plotted line but one that 
-    can be used for adding a legend to the plot.
+    Returns
+    -------
+    Line2D
+        Not the plotted line but one that can be used for adding a legend to
+        the plot.
     """
     plot_data = data[number_of_ignored_frames:]
     plot_time = time[number_of_ignored_frames:]
 
     _logger.debug("Normalisation is %s.", normalise)
     plot_data = normalise_timeseries(plot_data, normalisation=normalise)
+    plot_data = plot_data + y_offset
+
+    if color == "rotation":
+        color = None
 
     if picker:
         axes.plot(
             plot_time[:: sampling_step],
             plot_data[:: sampling_step],
-            color=color, lw=1, linestyle=linestyle, picker=picker, alpha=alpha)
+            color=color, lw=1, linestyle=linestyle, picker=picker,
+            alpha=alpha, label=label)
     else:
         axes.plot(plot_time[::sampling_step], plot_data[::sampling_step],
-                  color=color, lw=1, linestyle=linestyle, alpha=alpha)
+                  color=color, lw=1, linestyle=linestyle, alpha=alpha,
+                  label=label)
 
     # The official fix for the above curve not showing up on the legend.
     timeseries = Line2D([], [], color=color, lw=1, linestyle=linestyle)

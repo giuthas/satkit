@@ -29,6 +29,13 @@
 # articles listed in README.markdown. They can also be found in
 # citations.bib in BibTeX format.
 #
+"""
+This is the configuration interface for reading and saving configuration data.
+
+Direct use of config_dict, data_run_params, gui_params, and publish_params
+(from configuration_parsers) is deprecated since v0.8. Instead use the
+interface provided by Configuration.
+"""
 
 from .configuration_parsers import (
     parse_config,
@@ -38,6 +45,7 @@ from .configuration_classes import (
     SplineConfig, SplineDataConfig, SplineImportConfig)
 from .configuration_models import (
     DownsampleParams, FindPeaksScipyArguments,
+    GuiConfig,
     MainConfig, PeakDetectionParams,
     SearchPattern, TimeseriesNormalisation)
 from .configuration_setup import Configuration

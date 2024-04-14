@@ -35,11 +35,13 @@ This is the main GUI class for SATKIT.
 
 
 # Built in packages
+from argparse import Namespace
 import csv
 import logging
 from contextlib import closing
 from copy import deepcopy
-from typing import Optional
+from pathlib import Path
+from typing import Optional, Union
 
 import numpy as np
 import matplotlib
@@ -61,9 +63,10 @@ from icecream import ic
 # import satkit.io as satkit_io
 from satkit.data_structures import RecordingSession
 from satkit.configuration import (
-    TimeseriesNormalisation, gui_params, config_dict, data_run_params)
+    GuiConfig, TimeseriesNormalisation, gui_params, config_dict)
 from satkit.gui import BoundaryAnimator, ReplaceDialog
 from satkit.plot_and_publish import (
+    get_colors_in_sequence,
     mark_peaks, plot_spline, plot_satgrid_tier, plot_spectrogram,
     plot_timeseries, plot_wav)
 from satkit.save_and_load import (
@@ -99,9 +102,13 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
 
     default_tongue_positions = ['High', 'Low', 'Other / Not visible']
 
-    def __init__(self, recording_session: RecordingSession, args,
-                 xlim=(-0.25, 1.5),
-                 categories=None, pickle_filename=None):
+    def __init__(self,
+                 recording_session: RecordingSession,
+                 args: Namespace,
+                 gui_config: GuiConfig,
+                 xlim: list[float] = (-0.25, 1.5),
+                 categories: Optional[list[str]] = None,
+                 pickle_filename: Optional[Union[Path, str]] = None):
         super().__init__()
         self.setupUi(self)
 
@@ -114,6 +121,8 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
 
         self.commandline_args = args
         self.display_tongue = args.displayTongue
+
+        self.gui_config = gui_config
 
         if categories is None:
             self.categories = PdQtAnnotator.default_categories
@@ -321,24 +330,30 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
         self.goLineEdit.setText(str(self.index + 1))
 
     def plot_modality_axes(
-        self, axes_number: int, axes_name: str,
+        self, axes_number: int,
+        axes_name: str,
         stimulus_onset: Optional[float] = 0,
         ylim: Optional[list[float, float]] = None
     ) -> None:
 
-        plot_modality_names = gui_params['data_axes'][axes_name]['modalities']
+        axes_params = gui_params['data_axes'][axes_name]
+        plot_modality_names = axes_params['modalities']
 
         if ylim is None:
             ylim = [-0.05, 1.05]
 
         y_offset = 0
-        if 'y_offset' in gui_params['data_axes'][axes_name]:
-            y_offset = gui_params['data_axes'][axes_name]['y_offset']
+        if 'y_offset' in axes_params:
+            y_offset = axes_params['y_offset'] * \
+                self.gui_config.number_of_data_axes
             if y_offset > 0:
-                ylim[1] = ylim[1] + y_offset*(len(plot_modality_names)-1)
+                ylim[1] = ylim[1] + y_offset
             else:
-                ylim[0] = ylim[0] + y_offset*(len(plot_modality_names)-1)
+                ylim[0] = ylim[0] + y_offset
 
+        if axes_params['colors_in_sequence']:
+            colors = get_colors_in_sequence(
+                self.gui_config.number_of_data_axes)
         for i, name in enumerate(plot_modality_names):
             modality = self.current.modalities[name]
             plot_timeseries(
@@ -346,15 +361,14 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
                 modality.data,
                 modality.timevector-stimulus_onset,
                 self.xlim, ylim,
-                color='rotation',
+                color=colors[i],
                 linestyle=(0, (i+1, i+1)),
                 normalise=TimeseriesNormalisation(peak=True, bottom=True),
                 y_offset=i*y_offset,
                 sampling_step=i+1,
                 label=f"{modality.sampling_rate/(i+1):.2f}"
             )
-            if (mark_peaks in gui_params['data_axes'][axes_name] and
-                    gui_params['data_axes'][axes_name]['mark_peaks']):
+            if mark_peaks in axes_params and axes_params['mark_peaks']:
                 mark_peaks(self.data_axes[i],
                            modality,
                            self.xlim,

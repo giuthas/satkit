@@ -227,7 +227,32 @@ class HeightRatios(UpdatableBaseModel):
 
 
 class AxesParams(UpdatableBaseModel):
+    """
+    Parameters for an axes pair in a plot.
+
+    Parameters
+    ----------
+    colors_in_sequence : Optional[bool] 
+        Should the line color rotation be ordered into a perceptual sequence,
+        by default True
+    mark_peaks: Optional[bool] 
+        Should peak detection peaks (if available) be marked on the plot. This
+        might get confusing if there is more than one timeseries on this axes.
+        By default None
+    sharex: Optional[bool]  
+        Does this axes share x limits with other axes, by default None
+    y_offset: Optional[float]  
+        y_offset between the modalities timeseries, by default None
+    modalities: Optional[list[str]]  
+        List of the modalities to be plotted on this axes, by default None
+    """
+    # TODO: these docstrings should contain links to full, simple examples of
+    # the corresponding yaml files
+
+    colors_in_sequence: Optional[bool] = True
+    mark_peaks: Optional[bool] = None
     sharex: Optional[bool] = None
+    y_offset: Optional[float] = None
     modalities: Optional[list[str]] = None
 
 
@@ -237,6 +262,18 @@ class GuiConfig(UpdatableBaseModel):
     pervasive_tiers: list[str]
     xlim: Optional[FloatPair] = None
     default_font_size: int
+
+    # TODO make a computed callback for getting params for a given axes so that
+    # globals don't need to be copied over TODO implement general_axes_params
+    # from
+    # local_data/ISSP_2024_paper_config/satkit_gui_parameters.yaml
+
+    # def model_post_init(self, __context: Any) -> None:
+    #     if 'global' in self.data_axes:
+    #         for axes in self.data_axes:
+    #             update axes params with global
+    #         delete global? or move it to a different place?
+    #     return super().model_post_init(__context)
 
     # @computed_field
     @property

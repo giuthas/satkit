@@ -116,7 +116,10 @@ def main():
         app = QtWidgets.QApplication(sys.argv)
         # Apparently the assignment to an unused variable is needed
         # to avoid a segfault.
-        app.annotator = PdQtAnnotator(recording_session, cli.args)
+        app.annotator = PdQtAnnotator(
+            recording_session=recording_session,
+            args=cli.args,
+            gui_config=configuration.gui_config)
         sys.exit(app.exec_())
 
 

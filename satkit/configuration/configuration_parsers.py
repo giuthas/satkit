@@ -329,6 +329,7 @@ def load_gui_params(filepath: Union[Path, str, None] = None) -> YAML:
                 "data_axes": MapPattern(
                     Str(), MapCombined(
                         {
+                            Optional("colors_in_sequence", default=True): Bool(),
                             Optional("sharex"): Bool(),
                             Optional("mark_peaks"): Bool(),
                             Optional("y_offset"): Float(),

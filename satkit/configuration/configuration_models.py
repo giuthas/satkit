@@ -228,7 +228,7 @@ class HeightRatios(UpdatableBaseModel):
 
 class AxesParams(UpdatableBaseModel):
     """
-    Parameters for an axes pair in a plot.
+    Parameters for an axes in a plot.
 
     Parameters
     ----------
@@ -243,8 +243,6 @@ class AxesParams(UpdatableBaseModel):
         Does this axes share x limits with other axes, by default None
     y_offset: Optional[float]  
         y_offset between the modalities timeseries, by default None
-    modalities: Optional[list[str]]  
-        List of the modalities to be plotted on this axes, by default None
     """
     # TODO: these docstrings should contain links to full, simple examples of
     # the corresponding yaml files
@@ -253,20 +251,30 @@ class AxesParams(UpdatableBaseModel):
     mark_peaks: Optional[bool] = None
     sharex: Optional[bool] = None
     y_offset: Optional[float] = None
+
+
+class AxesDefinition(AxesParams):
+    """
+    Parameters and plotted modalities for a an axes in a plot.
+
+    Parameters
+    ----------
+    modalities: Optional[list[str]]  
+        List of the modalities to be plotted on this axes, by default None
+    """
     modalities: Optional[list[str]] = None
 
 
 class GuiConfig(UpdatableBaseModel):
     data_and_tier_height_ratios: HeightRatios
-    data_axes: dict[str, AxesParams]
+    general_axes_params: AxesParams
+    data_axes: dict[str, AxesDefinition]
     pervasive_tiers: list[str]
     xlim: Optional[FloatPair] = None
     default_font_size: int
 
     # TODO make a computed callback for getting params for a given axes so that
-    # globals don't need to be copied over TODO implement general_axes_params
-    # from
-    # local_data/ISSP_2024_paper_config/satkit_gui_parameters.yaml
+    # globals don't need to be copied over
 
     # def model_post_init(self, __context: Any) -> None:
     #     if 'global' in self.data_axes:

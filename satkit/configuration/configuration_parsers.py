@@ -318,6 +318,17 @@ def load_gui_params(filepath: Union[Path, str, None] = None) -> YAML:
 
     _logger.info("Loading GUI configuration from %s", str(filepath))
 
+    axes_params_dict = {
+        Optional(
+            "colors_in_sequence", default=True): Bool(),
+        Optional("sharex"): Bool(),
+        Optional("mark_peaks"): Bool(),
+        Optional("y_offset"): Float(),
+    }
+
+    axes_definition_dict = axes_params_dict | {
+        Optional("modalities"): Seq(Str())}
+
     if filepath.is_file():
         with closing(
                 open(filepath, 'r', encoding=DEFAULT_ENCODING)) as yaml_file:
@@ -326,20 +337,13 @@ def load_gui_params(filepath: Union[Path, str, None] = None) -> YAML:
                     "data": Int(),
                     "tier": Int()
                 }),
+                "general_axes_params": Map({
+                    "data_axes": Map(axes_params_dict),
+                    "tier_axes": Map(axes_params_dict),
+                }),
                 "data_axes": MapPattern(
-                    Str(), MapCombined(
-                        {
-                            Optional("colors_in_sequence", default=True): Bool(),
-                            Optional("sharex"): Bool(),
-                            Optional("mark_peaks"): Bool(),
-                            Optional("y_offset"): Float(),
-                            Optional("modalities"): Seq(Str())
-                        },
-                        # TODO The following looks to be a bad choice which
-                        # allows any string to be used as a key followed by any
-                        # value.
-                        Str(), Any()
-                    )),
+                    Str(), Map(axes_definition_dict)
+                ),
                 "pervasive_tiers": Seq(Str()),
                 Optional("xlim"): FixedSeq([Float(), Float()]),
                 "default_font_size": Int(),

@@ -44,8 +44,8 @@ from typing import Union
 
 # from icecream import ic
 
-import numpy as np
-from strictyaml import (Any, Bool, FixedSeq, Float, Int, Map, MapCombined,
+# import numpy as np
+from strictyaml import (Bool, FixedSeq, Float, Int, Map,
                         MapPattern, Optional, ScalarValidator, Seq, Str,
                         YAML, YAMLError, load)
 

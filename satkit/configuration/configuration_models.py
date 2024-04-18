@@ -155,6 +155,12 @@ class SplineMetricArguments(UpdatableBaseModel):
     preload: Optional[bool] = True
 
 
+class PointAnnotationParams(UpdatableBaseModel):
+    normalisation: Optional[TimeseriesNormalisation] = None
+    time_min: Optional[TimeLimit] = None
+    time_max: Optional[TimeLimit] = None
+
+
 class FindPeaksScipyArguments(UpdatableBaseModel):
     height: Optional[float] = None
     threshold: Optional[float] = None
@@ -166,11 +172,8 @@ class FindPeaksScipyArguments(UpdatableBaseModel):
     plateau_size: Optional[float] = None
 
 
-class PeakDetectionParams(UpdatableBaseModel):
+class PeakDetectionParams(PointAnnotationParams):
     modality_pattern: SearchPattern
-    time_min: Optional[TimeLimit] = None
-    time_max: Optional[TimeLimit] = None
-    normalisation: Optional[TimeseriesNormalisation] = None
     distance_in_seconds: Optional[float] = None
     find_peaks_args: Optional[FindPeaksScipyArguments] = None
 

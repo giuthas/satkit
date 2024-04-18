@@ -46,6 +46,6 @@ from .configuration_classes import (
 from .configuration_models import (
     DownsampleParams, FindPeaksScipyArguments,
     GuiConfig,
-    MainConfig, PeakDetectionParams,
+    MainConfig, PeakDetectionParams, PointAnnotationParams,
     SearchPattern, TimeseriesNormalisation)
 from .configuration_setup import Configuration

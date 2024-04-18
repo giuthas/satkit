@@ -201,8 +201,11 @@ def find_gesture_peaks(
 
     peak_times = timevector[peaks]
     annotations = PointAnnotations(
-        AnnotationType.PEAKS, peaks, peak_times,
-        peak_params, properties)
+        annotation_type=AnnotationType.PEAKS,
+        indeces=peaks,
+        times=peak_times,
+        generating_parameters=peak_params,
+        properties=properties)
     return annotations
 
 

@@ -42,7 +42,7 @@ def get_colors_in_sequence(number: int) -> list[str]:
     Get colors in a perceptual sequence.
 
     NOTE: This may or may not end up working for color lists of length other
-    than 6.
+    than 6 and 7.
 
     Parameters
     ----------
@@ -60,6 +60,10 @@ def get_colors_in_sequence(number: int) -> list[str]:
             colors = sorted(colors)
             colors = [colors[0], colors[2], colors[1],
                       colors[3], colors[5], colors[4]]
+        case 7:
+            colors = sorted(colors)
+            colors = [colors[0], colors[2], colors[4],
+                      colors[3], colors[1], colors[5], colors[6]]
         case _:
             colors = sorted(colors)
     return colors

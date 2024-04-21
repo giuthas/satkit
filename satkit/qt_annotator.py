@@ -330,12 +330,26 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
         self.goLineEdit.setText(str(self.index + 1))
 
     def plot_modality_axes(
-        self, axes_number: int,
+        self,
+        axes_number: int,
         axes_name: str,
-        stimulus_onset: Optional[float] = 0,
+        zero_offset: Optional[float] = 0,
         ylim: Optional[list[float, float]] = None
     ) -> None:
+        """
+        Plot modalities on a data_axes.
 
+        Parameters
+        ----------
+        axes_number : int
+            Which axes, counting from top.
+        axes_name : str
+            What should the axes be called. This will be the y_label.
+        zero_offset : Optional[float], optional
+            Where do we set 0 in time in relation to the audio, by default 0
+        ylim : Optional[list[float, float]], optional
+            y limits, by default None
+        """
         axes_params = gui_params['data_axes'][axes_name]
         plot_modality_names = axes_params['modalities']
 
@@ -344,36 +358,35 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
 
         y_offset = 0
         if 'y_offset' in axes_params:
-            y_offset = axes_params['y_offset'] * \
-                self.gui_config.number_of_data_axes
+            y_offset = axes_params['y_offset']
+            ylim_adjustment = y_offset * len(plot_modality_names)
             if y_offset > 0:
-                ylim[1] = ylim[1] + y_offset
+                ylim[1] = ylim[1] + ylim_adjustment
             else:
-                ylim[0] = ylim[0] + y_offset
+                ylim[0] = ylim[0] + ylim_adjustment
 
         if axes_params['colors_in_sequence']:
-            colors = get_colors_in_sequence(
-                self.gui_config.number_of_data_axes)
+            colors = get_colors_in_sequence(len(plot_modality_names))
         for i, name in enumerate(plot_modality_names):
             modality = self.current.modalities[name]
             plot_timeseries(
                 self.data_axes[axes_number],
                 modality.data,
-                modality.timevector-stimulus_onset,
+                modality.timevector-zero_offset,
                 self.xlim, ylim,
                 color=colors[i],
                 linestyle=(0, (i+1, i+1)),
                 normalise=TimeseriesNormalisation(peak=True, bottom=True),
                 y_offset=i*y_offset,
                 sampling_step=i+1,
-                label=f"{modality.sampling_rate/(i+1):.2f}"
+                label=f"{modality.sampling_rate/(i+1):.2f} Hz"
             )
-            if mark_peaks in axes_params and axes_params['mark_peaks']:
+            if 'mark_peaks' in axes_params and axes_params['mark_peaks']:
                 mark_peaks(self.data_axes[i],
                            modality,
                            self.xlim,
                            display_prominence_values=True,
-                           time_offset=stimulus_onset)
+                           time_offset=zero_offset)
             self.data_axes[axes_number].set_ylabel(axes_name)
 
     def draw_plots(self):
@@ -448,7 +461,7 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
                     self.plot_modality_axes(
                         axes_number=i,
                         axes_name=axes_name,
-                        stimulus_onset=stimulus_onset)
+                        zero_offset=stimulus_onset)
             i += 1
 
         self.data_axes[0].legend(

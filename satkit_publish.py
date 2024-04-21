@@ -35,7 +35,7 @@
 import sys
 from pathlib import Path
 
-from icecream import ic
+# from icecream import ic
 from matplotlib.backends.backend_pdf import PdfPages
 
 import numpy as np
@@ -65,7 +65,7 @@ from satkit.scripting_interface import (
 
 
 def main():
-    """Simple main to run the CLI and start the GUI."""
+    """Simple main to run some publishing functions."""
 
     # Arguments need to be parsed before setting up logging so that we have
     # access to the verbosity argument.
@@ -282,7 +282,10 @@ def main():
         app = QtWidgets.QApplication(sys.argv)
         # Apparently the assignment to an unused variable is needed
         # to avoid a segfault.
-        app.annotator = PdQtAnnotator(recording_session, cli.args)
+        app.annotator = PdQtAnnotator(
+            recording_session=recording_session,
+            args=cli.args,
+            gui_config=configuration.gui_config)
         sys.exit(app.exec_())
 
 

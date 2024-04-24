@@ -10,7 +10,7 @@ authors = [
 classifiers = [
   "Development Status :: 3 - Alpha",
   "Programming Language :: Python",
-  "Intended Audience :: Speech researchers",
+  "Intended Audience :: Speech researchers and students",
 ]
 description = "Speech Articulation ToolKit: tools for processing ultrasound speech data"
 keywords = ["speech", "articulation", "textgrid", "ultrasound", "splines"]
@@ -30,7 +30,7 @@ dependencies = [
 [project.urls]
 bug_tracker = "https://github.com/giuthas/satkit/issues"
 changelog = "https://github.com/giuthas/satkit/blob/main/docs/Release_notes.markdown"
-documentation = "https://github.com/giuthas/satkit/blob/main/docs/index.md"
+documentation = "https://giuthas.github.io/satkit/"
 homepage = "github.com/giuthas/satkit"
 repository = "github.com"
 

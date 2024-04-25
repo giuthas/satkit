@@ -35,7 +35,8 @@ import logging
 
 # Numpy and scipy
 import numpy as np
-from scipy.signal import butter, filtfilt, kaiser, sosfilt
+from scipy.signal import butter, filtfilt, sosfilt
+from scipy.signal.windows import kaiser
 from icecream import ic
 
 _audio_logger = logging.getLogger('satkit.audio')

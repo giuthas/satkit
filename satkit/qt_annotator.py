@@ -553,7 +553,7 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
         self.figure.tight_layout()
 
         if self.current.annotations['selected_time'] > -1:
-            for axes in self.data_axes[:-1]:
+            for axes in self.data_axes:
                 axes.axvline(x=self.current.annotations['selected_time'],
                              linestyle=':', color="deepskyblue", lw=1)
             self.data_axes[-1].axvline(x=self.current.annotations

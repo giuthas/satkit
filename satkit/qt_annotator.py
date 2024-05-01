@@ -69,6 +69,7 @@ from satkit.plot_and_publish import (
     get_colors_in_sequence,
     mark_peaks, plot_spline, plot_satgrid_tier, plot_spectrogram,
     plot_timeseries, plot_wav)
+from satkit.plot_and_publish.plot import plot_spectrogram2
 from satkit.save_and_load import (
     save_recording_session, load_recording_session)
 from satkit.ui_callbacks import UiCallbacks
@@ -225,15 +226,36 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
             wspace=0,
             height_ratios=height_ratios)
 
-        nro_data_modalities = gui_params['number_of_data_axes']
+        number_of_data_axes = gui_params['number_of_data_axes']
         self.data_grid_spec = self.main_grid_spec[0].subgridspec(
-            nro_data_modalities, 1, hspace=0, wspace=0)
-        self.data_axes.append(self.figure.add_subplot(self.data_grid_spec[0]))
-        for i in range(1, nro_data_modalities):
-            self.data_axes.append(
-                self.figure.add_subplot(
-                    self.data_grid_spec[i],
-                    sharex=self.data_axes[0]))
+            number_of_data_axes, 1, hspace=0, wspace=0)
+
+        data_axes_params = None
+        if 'general_axes_params' in gui_params:
+            general_axes_params = gui_params['general_axes_params']
+            if 'data_axes' in general_axes_params:
+                data_axes_params = general_axes_params['data_axes']
+
+        i = 0
+        for axes_name in gui_params['data_axes']:
+            sharex = False
+            if 'sharex' in gui_params['data_axes'][axes_name]:
+                sharex = gui_params['data_axes'][axes_name]['sharex']
+            elif (data_axes_params is not None and
+                  'sharex' in data_axes_params):
+                sharex = data_axes_params['sharex']
+
+            if i != 0 and sharex:
+                self.data_axes.append(
+                    self.figure.add_subplot(
+                        self.data_grid_spec[i],
+                        sharex=self.data_axes[0]))
+            else:
+                self.data_axes.append(
+                    self.figure.add_subplot(
+                        self.data_grid_spec[i]))
+            # incrementation here, because 'global' is not an actual axes
+            i += 1
 
         self.ultra_fig = Figure()
         self.ultra_canvas = FigureCanvas(self.ultra_fig)
@@ -382,7 +404,7 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
                 label=f"{modality.sampling_rate/(i+1):.2f} Hz"
             )
             if 'mark_peaks' in axes_params and axes_params['mark_peaks']:
-                mark_peaks(self.data_axes[i],
+                mark_peaks(self.data_axes[axes_number],
                            modality,
                            self.xlim,
                            display_prominence_values=True,
@@ -403,9 +425,10 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
             nro_tiers = len(self.current.satgrid)
             self.tier_grid_spec = self.main_grid_spec[1].subgridspec(
                 nro_tiers, 1, hspace=0, wspace=0)
-            for i, tier in enumerate(self.current.textgrid):
-                axes = self.figure.add_subplot(self.tier_grid_spec[i],
-                                               sharex=self.data_axes[0])
+            for axes_counter, tier in enumerate(self.current.textgrid):
+                axes = self.figure.add_subplot(
+                    self.tier_grid_spec[axes_counter],
+                    sharex=self.data_axes[0])
                 axes.set_yticks([])
                 self.tier_axes.append(axes)
 
@@ -441,28 +464,41 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
         else:
             self.xlim = (-.25, 1.5)
 
-        i = 0
+        axes_counter = 0
+        image = None
         for axes_name in gui_params['data_axes']:
             match axes_name:
-                case "global":
-                    continue
                 case "spectrogram":
-                    plot_spectrogram(self.data_axes[i],
+                    plot_spectrogram(self.data_axes[axes_counter],
                                      waveform=wav,
                                      ylim=(0, 10500),
                                      sampling_frequency=audio.sampling_rate,
-                                     xtent_on_x=[wav_time[0], wav_time[-1]])
+                                     extent_on_x=[wav_time[0], wav_time[-1]])
+                case "spectrogram2":
+                    image = plot_spectrogram2(
+                        self.data_axes[axes_counter],
+                        waveform=wav,
+                        ylim=(0, 10500),
+                        sampling_frequency=audio.sampling_rate,
+                        extent_on_x=[wav_time[0], wav_time[-1]])
+                case "spectrogram distro":
+                    spectrum_data = image.get_array().flatten()
+                    ic(np.min(spectrum_data), np.max(spectrum_data))
+                    self.data_axes[axes_counter].hist(
+                        spectrum_data, bins=200)
+                    ic(np.quantile(spectrum_data,
+                       [.3, .4, .5, .6, .7, .8, .9, 1]))
                 case "wav":
-                    plot_wav(ax=self.data_axes[i],
+                    plot_wav(ax=self.data_axes[axes_counter],
                              waveform=wav,
                              wav_time=wav_time,
                              xlim=self.xlim)
                 case _:
                     self.plot_modality_axes(
-                        axes_number=i,
+                        axes_number=axes_counter,
                         axes_name=axes_name,
                         zero_offset=stimulus_onset)
-            i += 1
+            axes_counter += 1
 
         self.data_axes[0].legend(
             loc='upper left')

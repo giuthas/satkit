@@ -42,6 +42,9 @@ from matplotlib.lines import Line2D
 
 import numpy as np
 from scipy import interpolate
+from scipy.signal import ShortTimeFFT
+from scipy.signal.windows import kaiser
+
 
 # from icecream import ic
 
@@ -352,13 +355,56 @@ def plot_wav(
     return line
 
 
+def plot_spectrogram2(
+        ax: Axes,
+        waveform: np.ndarray,
+        sampling_frequency: float,
+        extent_on_x: Tuple[float, float],
+        NFFT: int = 220,
+        n_overlap: int = 215,
+        cmap: str = 'Greys',
+        ylim: Tuple[float, float] = (0, 10000),
+        ylabel: str = "Spectrogram",
+        picker=None):
+
+    normalised_wav = waveform / np.amax(np.abs(waveform))
+
+    # g_std = 8  # standard deviation for Gaussian window in samples
+    # w = gaussian(50, std=g_std, sym=True)  # symmetric Gaussian window
+    intensity_window = kaiser(NFFT, beta=20)  # copied from praat
+    short_time_fft = ShortTimeFFT(
+        intensity_window, hop=NFFT-n_overlap, fs=sampling_frequency,
+        mfft=NFFT, scale_to='psd')
+    spectrogram = short_time_fft.stft(normalised_wav)
+    extent = list(short_time_fft.extent(len(normalised_wav)))
+    extent[0:2] = extent_on_x
+
+    spectrogram = 20*np.log(abs(spectrogram))
+    # Make the median white/background colour.
+    vmin = np.median(spectrogram)
+    image = ax.imshow(spectrogram, origin='lower', aspect='auto',
+                      extent=extent, cmap=cmap, vmin=vmin)
+
+    # Pxx, freqs, bins, im = ax.specgram(
+    #     normalised_wav, NFFT=NFFT, Fs=sampling_frequency, noverlap=n_overlap,
+    #     cmap=cmap, xextent=extent_on_x, picker=picker)
+    # (bottom, top) = im.get_extent()[2:]
+    # im.set_extent(
+    #     (extent_on_x[0]+bins[0], extent_on_x[0]+bins[-1], bottom, top))
+
+    ax.set_ylim(ylim)
+    ax.set_ylabel(ylabel)
+
+    return image
+
+
 def plot_spectrogram(
         ax: Axes,
         waveform: np.ndarray,
         sampling_frequency: float,
-        xtent_on_x: Tuple[float, float],
+        extent_on_x: Tuple[float, float],
         NFFT: int = 220,
-        noverlap: int = 215,
+        n_overlap: int = 215,
         cmap: str = 'Greys',
         ylim: Tuple[float, float] = (0, 10000),
         ylabel: str = "Spectrogram",
@@ -368,10 +414,11 @@ def plot_spectrogram(
     # xlim = [xlim[0]+time_offset, xlim[1]+time_offset]
     # the length of the windowing segments
     Pxx, freqs, bins, im = ax.specgram(
-        normalised_wav, NFFT=NFFT, Fs=sampling_frequency, noverlap=noverlap,
-        cmap=cmap, xextent=xtent_on_x, picker=picker)
+        normalised_wav, NFFT=NFFT, Fs=sampling_frequency, noverlap=n_overlap,
+        cmap=cmap, xextent=extent_on_x, picker=picker)
     (bottom, top) = im.get_extent()[2:]
-    im.set_extent((xtent_on_x[0]+bins[0], xtent_on_x[0]+bins[-1], bottom, top))
+    im.set_extent(
+        (extent_on_x[0]+bins[0], extent_on_x[0]+bins[-1], bottom, top))
 
     ax.set_ylim(ylim)
     ax.set_ylabel(ylabel)

@@ -360,7 +360,7 @@ def plot_spectrogram2(
         waveform: np.ndarray,
         sampling_frequency: float,
         extent_on_x: Tuple[float, float],
-        NFFT: int = 220,
+        window_length: int = 220,
         n_overlap: int = 215,
         cmap: str = 'Greys',
         ylim: Tuple[float, float] = (0, 10000),
@@ -383,7 +383,7 @@ def plot_spectrogram2(
         Sampling frequency of the signal
     extent_on_x : Tuple[float, float]
         Time minimum and maximum values.
-    NFFT : int, optional
+    window_length : int, optional
         Length of the fast fourier transform window, by default 220
     n_overlap : int, optional
         How many samples to overlap consecutive windows by, by default 215
@@ -406,10 +406,10 @@ def plot_spectrogram2(
 
     # g_std = 8  # standard deviation for Gaussian window in samples
     # w = gaussian(50, std=g_std, sym=True)  # symmetric Gaussian window
-    intensity_window = kaiser(NFFT, beta=20)  # copied from praat
+    intensity_window = kaiser(window_length, beta=20)  # copied from praat
     short_time_fft = ShortTimeFFT(
-        intensity_window, hop=NFFT-n_overlap, fs=sampling_frequency,
-        mfft=NFFT, scale_to='psd')
+        intensity_window, hop=window_length-n_overlap, fs=sampling_frequency,
+        mfft=window_length, scale_to='psd')
     spectrogram = short_time_fft.stft(normalised_wav)
     extent = list(short_time_fft.extent(len(normalised_wav)))
     extent[0:2] = extent_on_x
@@ -432,18 +432,52 @@ def plot_spectrogram(
         waveform: np.ndarray,
         sampling_frequency: float,
         extent_on_x: Tuple[float, float],
-        NFFT: int = 220,
+        window_length: int = 220,
         n_overlap: int = 215,
         cmap: str = 'Greys',
         ylim: Tuple[float, float] = (0, 10000),
         ylabel: str = "Spectrogram",
-        picker=None):
+        picker=None) -> tuple:
+    """
+    Plot a spectrogram.
+
+    Background noise is not removed. If that is needed try spectrogram2.
+
+    Parameters
+    ----------
+    axes : Axes
+        Axes to plot on.
+    waveform : np.ndarray
+        Waveform to calculate the spectrogram on.
+    sampling_frequency : float
+        Sampling frequency of the signal
+    extent_on_x : Tuple[float, float]
+        Time minimum and maximum values.
+    window_length : int, optional
+        Length of the fast fourier transform window, by default 220
+    n_overlap : int, optional
+        How many samples to overlap consecutive windows by, by default 215
+    cmap : str, optional
+        The colormap, by default 'Greys'
+    ylim : Tuple[float, float], optional
+        Y limits, by default (0, 10000)
+    ylabel : str, optional
+        Y label, by default "Spectrogram"
+    picker : _type_, optional
+        The picker for selecting points, by default None
+
+    Returns
+    -------
+    tuple
+        Pxx, freqs, bins, im as returned by Axes.specgram.
+    """
+
     normalised_wav = waveform / np.amax(np.abs(waveform))
 
     # xlim = [xlim[0]+time_offset, xlim[1]+time_offset]
     # the length of the windowing segments
     Pxx, freqs, bins, im = ax.specgram(
-        normalised_wav, NFFT=NFFT, Fs=sampling_frequency, noverlap=n_overlap,
+        normalised_wav, NFFT=window_length, Fs=sampling_frequency, noverlap=n_overlap,
         cmap=cmap, xextent=extent_on_x, picker=picker)
     (bottom, top) = im.get_extent()[2:]
     im.set_extent(

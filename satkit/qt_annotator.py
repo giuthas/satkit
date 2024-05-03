@@ -141,9 +141,9 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
             QKeySequence(self.tr("Ctrl+W", "File|Quit")), self)
         self.close_window_shortcut.activated.connect(self.quit)
 
-        self.export_figure_shortcut = QShortcut(QKeySequence(
-            self.tr("Ctrl+E", "File|Export figure...")), self)
-        self.export_figure_shortcut.activated.connect(self.export_figure)
+        # self.export_figure_shortcut = QShortcut(QKeySequence(
+        #     self.tr("Ctrl+E", "File|Export figure...")), self)
+        # self.export_figure_shortcut.activated.connect(self.export_figure)
 
         self.actionOpen.triggered.connect(self.open)
         self.actionSaveAll.triggered.connect(self.save_all)

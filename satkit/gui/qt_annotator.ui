@@ -431,7 +431,7 @@
     <string>Export figure...</string>
    </property>
    <property name="shortcut">
-    <string/>
+    <string>Ctrl+E</string>
    </property>
   </action>
  </widget>

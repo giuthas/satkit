@@ -42,11 +42,13 @@ from PyQt5 import QtWidgets
 
 # local modules
 from satkit import log_elapsed_time, set_logging_level
-# from satkit.annotations import (
-#     add_peaks, count_number_of_peaks, nearest_neighbours_in_downsampling,
-#     prominences_in_downsampling)
+from satkit.annotations import (
+    add_peaks, count_number_of_peaks, nearest_neighbours_in_downsampling,
+    prominences_in_downsampling)
 import satkit.configuration as config
 
+from satkit.configuration import DataRunConfig
+from satkit.data_structures import RecordingSession
 from satkit.metrics import (add_pd,  add_spline_metric,
                             downsample_metrics)
 from satkit.modalities import RawUltrasound, Splines
@@ -58,25 +60,17 @@ from satkit.scripting_interface import (
     process_data, save_data)
 
 
-def main():
-    """Simple main to run the CLI and start the GUI."""
+def downsample(
+        recording_session: RecordingSession,
+        data_run_config: DataRunConfig) -> None:
+    for recording in recording_session:
+        downsample_metrics(recording, data_run_config.downsample)
 
-    # Arguments need to be parsed before setting up logging so that we have
-    # access to the verbosity argument.
-    cli = SatkitArgumentParser("SATKIT")
 
-    logger = set_logging_level(cli.args.verbose)
-
-    if cli.args.configuration_filename:
-        config.parse_config(cli.args.configuration_filename)
-    else:
-        config.parse_config()
-    configuration = config.Configuration(cli.args.configuration_filename)
-
-    recording_session = load_data(Path(cli.args.load_path))
-
-    log_elapsed_time()
-
+def data_run(
+        recording_session: RecordingSession,
+        configuration: config.Configuration,
+        exclusion_list: list[str]) -> None:
     data_run_config = configuration.data_run_config
 
     function_dict = {}
@@ -100,8 +94,51 @@ def main():
                  processing_functions=function_dict)
 
     if data_run_config.downsample:
+        downsample(recording_session=recording_session,
+                   data_run_config=data_run_config)
+
+    if data_run_config.peaks:
+        modality_pattern = data_run_config.peaks.modality_pattern
         for recording in recording_session:
-            downsample_metrics(recording, data_run_config.downsample)
+            excluded = [prompt in recording.meta_data.prompt
+                        for prompt in exclusion_list]
+            if any(excluded):
+                print(
+                    f"in satkit_publish.py: jumping over {recording.basename}")
+                continue
+            for modality_name in recording:
+                if modality_pattern in modality_name:
+                    add_peaks(
+                        recording[modality_name],
+                        configuration.data_run_config.peaks,
+                    )
+
+
+def main():
+    """Simple main to run the CLI and start the GUI."""
+
+    # Arguments need to be parsed before setting up logging so that we have
+    # access to the verbosity argument.
+    cli = SatkitArgumentParser("SATKIT")
+
+    logger = set_logging_level(cli.args.verbose)
+
+    if cli.args.configuration_filename:
+        config.parse_config(cli.args.configuration_filename)
+    else:
+        config.parse_config()
+    configuration = config.Configuration(cli.args.configuration_filename)
+
+    # TODO read the actual exclusion list and apply it
+    exclusion_list = ("water swallow", "bite plate")
+
+    recording_session = load_data(Path(cli.args.load_path))
+
+    log_elapsed_time()
+
+    data_run(recording_session=recording_session,
+             configuration=configuration,
+             exclusion_list=exclusion_list)
 
     logger.info('Data run ended.')
 

@@ -44,7 +44,7 @@ from .configuration_classes import (
     ExclusionList, PathStructure, SessionConfig,
     SplineConfig, SplineDataConfig, SplineImportConfig)
 from .configuration_models import (
-    DownsampleParams, FindPeaksScipyArguments,
+    DataRunConfig, DownsampleParams, FindPeaksScipyArguments,
     GuiConfig,
     MainConfig, PeakDetectionParams, PointAnnotationParams,
     SearchPattern, TimeseriesNormalisation)

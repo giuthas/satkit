@@ -54,7 +54,7 @@ from scipy import signal as scipy_signal
 
 from satkit.helpers import normalise_timeseries
 from satkit.configuration import (
-    FindPeaksScipyArguments, PeakDetectionParams, TimeseriesNormalisation)
+    PeakDetectionParams, TimeseriesNormalisation)
 from satkit.data_structures import Modality, PointAnnotations, Recording
 from satkit.constants import (
     DEFAULT_ENCODING, AnnotationType, IntervalBoundary, IntervalCategory

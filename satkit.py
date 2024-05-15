@@ -107,7 +107,9 @@ def data_run(
                     f"in satkit_publish.py: jumping over {recording.basename}")
                 continue
             for modality_name in recording:
-                if modality_pattern in modality_name:
+                # TODO make this deal with both strings and regexps as the
+                # modality pattern
+                if modality_pattern.pattern in modality_name:
                     add_peaks(
                         recording[modality_name],
                         configuration.data_run_config.peaks,

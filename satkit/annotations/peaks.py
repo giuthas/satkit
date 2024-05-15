@@ -104,8 +104,7 @@ def add_peaks(
     annotations = find_gesture_peaks(
         modality.data,
         modality.timevector,
-        peak_parameters.normalisation,
-        peak_parameters.find_peaks_args)
+        peak_parameters)
     modality.add_annotations(annotations)
 
     if peak_parameters.time_min and recording.satgrid:
@@ -167,7 +166,6 @@ def add_peaks(
 def find_gesture_peaks(
         data: np.ndarray,
         timevector: np.ndarray,
-        normalisation: Optional[TimeseriesNormalisation],
         peak_params: PeakDetectionParams = None,
 ) -> PointAnnotations:
     """
@@ -190,6 +188,7 @@ def find_gesture_peaks(
     PointAnnotations
         The gesture peaks asa PointAnnotations object.
     """
+    normalisation = peak_params.normalisation
     search_data = normalise_timeseries(data, normalisation=normalisation)
 
     if peak_params.find_peaks_args:
@@ -200,6 +199,7 @@ def find_gesture_peaks(
         peaks, properties = scipy_signal.find_peaks(search_data)
 
     peak_times = timevector[peaks]
+
     annotations = PointAnnotations(
         annotation_type=AnnotationType.PEAKS,
         indeces=peaks,

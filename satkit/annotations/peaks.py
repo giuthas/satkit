@@ -177,11 +177,9 @@ def find_gesture_peaks(
         The timeseries data. Should be a 1D array.
     timevector : np.ndarray
         Timevector corresponding to the data.
-    scipy_params : dict, optional
-        Parameters to pass to `scipy_signal.find_peaks`, by default None. The
-        parameter dictionary is taken as a subset of the argument, which may
-        contain extra keys but these will be removed before calling
-        `find_peaks`. 
+    peak_params : PeakDetectionParams, optional
+        An object containing normalisation and parameters to pass to
+        `scipy_signal.find_peaks`, by default None. 
 
     Returns
     -------

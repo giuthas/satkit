@@ -187,20 +187,24 @@ def find_gesture_peaks(
         The gesture peaks asa PointAnnotations object.
     """
     normalisation = peak_params.normalisation
-    search_data = normalise_timeseries(data, normalisation=normalisation)
+    search_data = data[peak_params.number_of_ignored_frames:]
+    search_data = normalise_timeseries(
+        search_data, normalisation=normalisation)
 
     if peak_params.find_peaks_args:
-        peaks, properties = scipy_signal.find_peaks(
+        peak_indeces, properties = scipy_signal.find_peaks(
             search_data, **peak_params.find_peaks_args.model_dump()
         )
     else:
-        peaks, properties = scipy_signal.find_peaks(search_data)
+        peak_indeces, properties = scipy_signal.find_peaks(search_data)
 
-    peak_times = timevector[peaks]
+    peak_indeces = peak_indeces + peak_params.number_of_ignored_frames
+
+    peak_times = timevector[peak_indeces]
 
     annotations = PointAnnotations(
         annotation_type=AnnotationType.PEAKS,
-        indeces=peaks,
+        indeces=peak_indeces,
         times=peak_times,
         generating_parameters=peak_params,
         properties=properties)

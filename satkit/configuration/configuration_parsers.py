@@ -255,6 +255,7 @@ def load_run_params(filepath: Union[Path, str, None] = None) -> YAML:
                     Optional("time_min"): time_limit_schema,
                     Optional("time_max"): time_limit_schema,
                     Optional("normalisation"): NormalisationValidator(),
+                    Optional("number_of_ignored_frames"): Int(),
                     Optional("distance_in_seconds"): Float(),
                     Optional("find_peaks_args"): Map({
                         Optional('height'): Float(),

@@ -174,6 +174,7 @@ class FindPeaksScipyArguments(UpdatableBaseModel):
 
 class PeakDetectionParams(PointAnnotationParams):
     modality_pattern: SearchPattern
+    number_of_ignored_frames: Optional[int] = 10
     distance_in_seconds: Optional[float] = None
     find_peaks_args: Optional[FindPeaksScipyArguments] = None
 

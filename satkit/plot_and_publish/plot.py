@@ -45,8 +45,7 @@ from scipy import interpolate
 from scipy.signal import ShortTimeFFT
 from scipy.signal.windows import kaiser
 
-
-# from icecream import ic
+from icecream import ic
 
 from satkit.configuration import TimeseriesNormalisation
 from satkit.constants import AnnotationType
@@ -196,6 +195,7 @@ def mark_peaks(
         axes: Axes,
         modality: Modality,
         xlim: Tuple[float, float] = None,
+        number_of_ignored_frames: int = 10,
         display_prominence_values: bool = False,
         colors: ColorType | Sequence[ColorType] | None = 'sandybrown',
         time_offset: float = 0.0
@@ -228,10 +228,12 @@ def mark_peaks(
     if AnnotationType.PEAKS not in modality.annotations:
         return None
 
-    data = modality.data
-    timevector = modality.timevector - time_offset
+    data = modality.data[number_of_ignored_frames:]
+    timevector = modality.timevector[number_of_ignored_frames:]
+
+    timevector = timevector - time_offset
     annotations = modality.annotations[AnnotationType.PEAKS]
-    peaks = annotations.indeces
+    peak_indeces = annotations.indeces - number_of_ignored_frames
     properties = annotations.properties
     normalise = annotations.generating_parameters.normalisation
 
@@ -239,13 +241,15 @@ def mark_peaks(
     data = normalise_timeseries(data, normalisation=normalise)
 
     prominences = properties['prominences']
-    contour_heights = data[peaks] - prominences
+    contour_heights = data[peak_indeces] - prominences
     line_collection = axes.vlines(
-        x=timevector[peaks], ymin=contour_heights, ymax=data[peaks],
+        x=timevector[peak_indeces],
+        ymin=contour_heights,
+        ymax=data[peak_indeces],
         colors=colors, linestyles=':')
 
     if display_prominence_values:
-        for i, peak in enumerate(peaks):
+        for i, peak in enumerate(peak_indeces):
             x = timevector[peak]
             if not xlim or xlim[0] <= x <= xlim[1]:
                 axes.text(

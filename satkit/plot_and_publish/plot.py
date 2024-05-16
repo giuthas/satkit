@@ -45,7 +45,7 @@ from scipy import interpolate
 from scipy.signal import ShortTimeFFT
 from scipy.signal.windows import kaiser
 
-from icecream import ic
+# from icecream import ic
 
 from satkit.configuration import TimeseriesNormalisation
 from satkit.constants import AnnotationType
@@ -195,7 +195,6 @@ def mark_peaks(
         axes: Axes,
         modality: Modality,
         xlim: Tuple[float, float] = None,
-        number_of_ignored_frames: int = 10,
         display_prominence_values: bool = False,
         colors: ColorType | Sequence[ColorType] | None = 'sandybrown',
         time_offset: float = 0.0
@@ -228,11 +227,14 @@ def mark_peaks(
     if AnnotationType.PEAKS not in modality.annotations:
         return None
 
+    annotations = modality.annotations[AnnotationType.PEAKS]
+    generating_parameters = annotations.generating_parameters
+    number_of_ignored_frames = generating_parameters.number_of_ignored_frames
+
     data = modality.data[number_of_ignored_frames:]
     timevector = modality.timevector[number_of_ignored_frames:]
-
     timevector = timevector - time_offset
-    annotations = modality.annotations[AnnotationType.PEAKS]
+
     peak_indeces = annotations.indeces - number_of_ignored_frames
     properties = annotations.properties
     normalise = annotations.generating_parameters.normalisation

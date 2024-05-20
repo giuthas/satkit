@@ -52,7 +52,7 @@ from strictyaml import (Bool, FixedSeq, Float, Int, Map,
 from satkit.constants import DEFAULT_ENCODING
 
 from .configuration_classes import IntervalBoundary, IntervalCategory
-from .configuration_models import SearchPattern, TimeseriesNormalisation
+from .configuration_models import TimeseriesNormalisation
 
 config_dict = {}
 data_run_params = {}
@@ -101,21 +101,6 @@ class NormalisationValidator(ScalarValidator):
         return None
 
 
-class SearchPatternValidator(ScalarValidator):
-    """
-    Validate yaml representing a Path.
-
-    Please note that empty fields are interpreted as not available and
-    represented by None. If you want to specify current working directory, use
-    '.'
-    """
-
-    def validate_scalar(self, chunk):
-        if chunk.contents:
-            return SearchPattern.build(chunk.contents)
-        return None
-
-
 class IntervalCategoryValidator(ScalarValidator):
     """
     Validate yaml representing a Path.
@@ -144,6 +129,20 @@ class IntervalBoundaryValidator(ScalarValidator):
         if chunk.contents:
             return IntervalBoundary(chunk.contents)
         return None
+
+
+_search_pattern_schema = Map({
+    "pattern": Str(),
+    Optional("is_regexp", default=False): Bool()
+})
+
+_time_limit_schema = Map({
+    "tier": Str(),
+    "interval": IntervalCategoryValidator(),
+    Optional("label"): Str(),
+    "boundary": IntervalBoundaryValidator(),
+    Optional("offset"): Float(),
+})
 
 
 def parse_config(filepath: Union[Path, str, None] = None) -> None:
@@ -218,14 +217,6 @@ def load_run_params(filepath: Union[Path, str, None] = None) -> YAML:
 
     _logger.info("Loading run configuration from %s", str(filepath))
 
-    time_limit_schema = Map({
-                            "tier": Str(),
-                            "interval": IntervalCategoryValidator(),
-                            Optional("label"): Str(),
-                            "boundary": IntervalBoundaryValidator(),
-                            Optional("offset"): Float(),
-                            })
-
     if filepath.is_file():
         with closing(
                 open(filepath, 'r', encoding=DEFAULT_ENCODING)) as yaml_file:
@@ -251,9 +242,9 @@ def load_run_params(filepath: Union[Path, str, None] = None) -> YAML:
                     Optional('preload', default=True): Bool()
                 }),
                 Optional("peaks"): Map({
-                    "modality_pattern": SearchPatternValidator(),
-                    Optional("time_min"): time_limit_schema,
-                    Optional("time_max"): time_limit_schema,
+                    "modality_pattern": _search_pattern_schema,
+                    Optional("time_min"): _time_limit_schema,
+                    Optional("time_max"): _time_limit_schema,
                     Optional("normalisation"): NormalisationValidator(),
                     Optional("number_of_ignored_frames"): Int(),
                     Optional("distance_in_seconds"): Float(),
@@ -269,7 +260,7 @@ def load_run_params(filepath: Union[Path, str, None] = None) -> YAML:
                     }),
                 }),
                 Optional("downsample"): Map({
-                    "modality_pattern": SearchPatternValidator(),
+                    "modality_pattern": _search_pattern_schema,
                     "match_timestep": Bool(),
                     "downsampling_ratios": Seq(Int()),
                 }),
@@ -418,7 +409,7 @@ def load_publish_params(filepath: Union[Path, str, None] = None) -> YAML:
                         Optional("handlelength"): Float(),
                         Optional("handletextpad"): Float(),
                     }),
-                    "modality_pattern": SearchPatternValidator(),
+                    "modality_pattern": _search_pattern_schema,
                     "plotted_annotation": Str(),
                     "panel_by": Str(),
                     "aggregate": Bool(),

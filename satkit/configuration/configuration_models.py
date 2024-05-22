@@ -42,6 +42,7 @@ we can implement configuration round tripping with preserved comments.
 
 import logging
 from pathlib import Path
+import re
 from typing import Any, NewType, Optional, Union
 
 import numpy as np
@@ -69,8 +70,40 @@ class MainConfig(UpdatableBaseModel):
 
 
 class SearchPattern(UpdatableBaseModel):
+    """
+    Representation for simple and regexp search patterns.
+
+    Members
+    ----------
+    pattern : str
+        The pattern to search for
+    is_regexp : bool, optional
+        If the pattern should be treated as a regexp or not. Defaults to False.
+    """
     pattern: str
     is_regexp: Optional[bool] = False
+
+    def match(self, string: str) -> bool:
+        """
+        Match this pattern to the argument string.
+
+        If this pattern is not a regexp then this method will return True only
+        when the pattern is found verbatim in the argument string.
+
+        Parameters
+        ----------
+        string : str
+            The string to match to.
+
+        Returns
+        -------
+        bool
+            True if this pattern matches the argument.
+        """
+        if self.is_regexp:
+            return re.match(self.pattern, string)
+
+        return self.pattern in string
 
     @staticmethod
     def build(value: Union[dict, str]) -> 'SearchPattern':

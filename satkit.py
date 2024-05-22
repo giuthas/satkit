@@ -43,8 +43,9 @@ from PyQt5 import QtWidgets
 # local modules
 from satkit import log_elapsed_time, set_logging_level
 from satkit.annotations import (
-    add_peaks, count_number_of_peaks, nearest_neighbours_in_downsampling,
-    prominences_in_downsampling)
+    add_peaks  # , count_number_of_peaks, nearest_neighbours_in_downsampling,
+    # prominences_in_downsampling
+)
 import satkit.configuration as config
 
 from satkit.configuration import DataRunConfig
@@ -109,7 +110,7 @@ def data_run(
             for modality_name in recording:
                 # TODO make this deal with both strings and regexps as the
                 # modality pattern
-                if modality_pattern.pattern in modality_name:
+                if modality_pattern.match(modality_name):
                     add_peaks(
                         recording[modality_name],
                         configuration.data_run_config.peaks,

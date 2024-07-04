@@ -59,6 +59,20 @@ class ComparisonMember(ListablePrintableEnum):
     SECOND = "second"
 
 
+class SoundPair(BaseModel, frozen=True):
+    """
+    Defines a comparison between two contours.
+
+    First should be compared to second.     
+    """
+    first: str
+    second: str
+
+    def __repr__(self) -> str:
+        return (f"Comparison: from first {self.first} "
+                f"to second {self.second}.")
+
+
 class Comparison(BaseModel, frozen=True):
     """
     Defines a comparison between two contours, and which of them is perturbed.

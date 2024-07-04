@@ -42,8 +42,10 @@ from matplotlib.lines import Line2D
 
 import numpy as np
 from scipy import interpolate
+from scipy.signal import ShortTimeFFT
+from scipy.signal.windows import kaiser
 
-from icecream import ic
+# from icecream import ic
 
 from satkit.configuration import TimeseriesNormalisation
 from satkit.constants import AnnotationType
@@ -52,7 +54,7 @@ from satkit.gui.boundary_animation import AnimatableBoundary, BoundaryAnimator
 from satkit.helpers import normalise_timeseries
 from satkit.satgrid import SatTier
 
-_plot_logger = logging.getLogger('satkit.plot')
+_logger = logging.getLogger('satkit.plot')
 
 
 def plot_1d_modality(axes: Axes,
@@ -88,53 +90,85 @@ def plot_timeseries(axes: Axes,
                     xlim: Tuple[float, float],
                     ylim: Optional[Tuple[float, float]] = None,
                     normalise: Optional[TimeseriesNormalisation] = None,
+                    y_offset: Optional[float] = 0.0,
                     number_of_ignored_frames: int = 10,
                     ylabel: Optional[str] = None,
                     picker=None,
                     color: str = "deepskyblue",
                     linestyle: str = "-",
+                    label: Optional[str] = None,
                     alpha: float = 1.0,
                     sampling_step: int = 1) -> Line2D:
     """
     Plot a timeseries.
 
-    The timeseries most likely comes from a Modality, but 
-    that is left up to the caller. 
+    The timeseries most likely comes from a Modality, but that is left up to
+    the caller. 
 
-    Arguments:
-    axis -- matplotlib axes to plot on.
-    pd -- the timeseries - NOT the PD data object.
-    time -- timestamps for the timeseries.
-    xlim -- limits for the x-axis in seconds.
+    Parameters
+    ----------
+    axes : Axes
+        matplotlib axes to plot on.
+    data : np.ndarray
+        the timeseries.
+    time : np.ndarray
+        timestamps for the timeseries
+    xlim : Tuple[float, float]
+        limits for the x-axis in seconds.
+    ylim : Optional[Tuple[float, float]], optional
+        _description_, by default None
+    normalise : Optional[TimeseriesNormalisation], optional
+        Should minimum value be scaled to 0 ('bottom') and/or maximum to 1
+        ('peak'), by default None
+    y_offset : Optional[float], optional
+        y-direction offset for to be applied to the whole timeseries, by
+        default 0.0
+    number_of_ignored_frames : int, optional
+        how many values to ignore from the beginning of data when normalising,
+        by default 10
+    ylabel : Optional[str], optional
+        label for this axes, by default None
+    picker : _type_, optional
+        a picker tied to the plotted PD curve to facilitate annotation, by
+        default None
+    color : str, optional
+        matplotlib color for the line, by default "deepskyblue"
+    linestyle : str, optional
+        _description_, by default "-"
+    label : Optional[str], optional
+        label for the series, by default None
+    alpha : float, optional
+        alpha value for the line, by default 1.0
+    sampling_step : int, optional
+        Length of step to use in plotting, by default 1 This is used in e.g.
+        plotting downsampled series.
 
-    Keyword arguments:
-    peak_normalise -- if True, scale the data maximum to equal 1.
-    peak_normalisation_offset -- how many values to ignore from 
-        the beginning of data when calculating maximum. 
-    ylabel -- label for this axes. 
-    picker -- a picker tied to the plotted PD curve to facilitate
-        annotation.
-    color -- matplotlib color for the line.
-    linestyle -- matplotlib linestyle.
-    alpha -- alpha value for the line.
-
-    Returns Line2D which is not the plotted line but one that 
-    can be used for adding a legend to the plot.
+    Returns
+    -------
+    Line2D
+        Not the plotted line but one that can be used for adding a legend to
+        the plot.
     """
     plot_data = data[number_of_ignored_frames:]
     plot_time = time[number_of_ignored_frames:]
 
-    _plot_logger.debug("Normalisation is %s.", normalise)
+    _logger.debug("Normalisation is %s.", normalise)
     plot_data = normalise_timeseries(plot_data, normalisation=normalise)
+    plot_data = plot_data + y_offset
+
+    if color == "rotation":
+        color = None
 
     if picker:
         axes.plot(
             plot_time[:: sampling_step],
             plot_data[:: sampling_step],
-            color=color, lw=1, linestyle=linestyle, picker=picker, alpha=alpha)
+            color=color, lw=1, linestyle=linestyle, picker=picker,
+            alpha=alpha, label=label)
     else:
         axes.plot(plot_time[::sampling_step], plot_data[::sampling_step],
-                  color=color, lw=1, linestyle=linestyle, alpha=alpha)
+                  color=color, lw=1, linestyle=linestyle, alpha=alpha,
+                  label=label)
 
     # The official fix for the above curve not showing up on the legend.
     timeseries = Line2D([], [], color=color, lw=1, linestyle=linestyle)
@@ -144,7 +178,7 @@ def plot_timeseries(axes: Axes,
     if ylim:
         axes.set_ylim(ylim)
     else:
-        y_limits = axes.get_ylim
+        y_limits = list(axes.get_ylim())
         if normalise.peak:
             y_limits[1] = 1.05
         elif normalise.bottom:
@@ -193,25 +227,31 @@ def mark_peaks(
     if AnnotationType.PEAKS not in modality.annotations:
         return None
 
-    data = modality.data
-    timevector = modality.timevector - time_offset
     annotations = modality.annotations[AnnotationType.PEAKS]
-    peaks = annotations.indeces
+    generating_parameters = annotations.generating_parameters
+    number_of_ignored_frames = generating_parameters.number_of_ignored_frames
+
+    data = modality.data[number_of_ignored_frames:]
+    timevector = modality.timevector[number_of_ignored_frames:]
+    timevector = timevector - time_offset
+
+    peak_indeces = annotations.indeces - number_of_ignored_frames
     properties = annotations.properties
-    # TODO make the type annotations work with normalisation here
     normalise = annotations.generating_parameters.normalisation
 
-    _plot_logger.debug("Normalisation is %s.", normalise)
+    _logger.debug("Normalisation is %s.", normalise)
     data = normalise_timeseries(data, normalisation=normalise)
 
     prominences = properties['prominences']
-    contour_heights = data[peaks] - prominences
+    contour_heights = data[peak_indeces] - prominences
     line_collection = axes.vlines(
-        x=timevector[peaks], ymin=contour_heights, ymax=data[peaks],
+        x=timevector[peak_indeces],
+        ymin=contour_heights,
+        ymax=data[peak_indeces],
         colors=colors, linestyles=':')
 
     if display_prominence_values:
-        for i, peak in enumerate(peaks):
+        for i, peak in enumerate(peak_indeces):
             x = timevector[peak]
             if not xlim or xlim[0] <= x <= xlim[1]:
                 axes.text(
@@ -321,26 +361,133 @@ def plot_wav(
     return line
 
 
+def plot_spectrogram2(
+        axes: Axes,
+        waveform: np.ndarray,
+        sampling_frequency: float,
+        extent_on_x: Tuple[float, float],
+        window_length: int = 220,
+        n_overlap: int = 215,
+        cmap: str = 'Greys',
+        ylim: Tuple[float, float] = (0, 10000),
+        ylabel: str = "Spectrogram",
+        picker=None) -> np.ndarray:
+    """
+    Plot a spectrogram with background noise removal.
+
+    The background noise is removed by setting the colormap's vmin (minimum
+    value) to the median of the spectrogram values. This may not work for all
+    samples especially if there is very little silence.
+
+    Parameters
+    ----------
+    axes : Axes
+        Axes to plot on.
+    waveform : np.ndarray
+        Waveform to calculate the spectrogram on.
+    sampling_frequency : float
+        Sampling frequency of the signal
+    extent_on_x : Tuple[float, float]
+        Time minimum and maximum values.
+    window_length : int, optional
+        Length of the fast fourier transform window, by default 220
+    n_overlap : int, optional
+        How many samples to overlap consecutive windows by, by default 215
+    cmap : str, optional
+        The colormap, by default 'Greys'
+    ylim : Tuple[float, float], optional
+        Y limits, by default (0, 10000)
+    ylabel : str, optional
+        Y label, by default "Spectrogram"
+    picker : _type_, optional
+        The picker for selecting points, by default None
+
+    Returns
+    -------
+    np.ndarray
+        The spectrogram as an 2d array.
+    """
+
+    normalised_wav = waveform / np.amax(np.abs(waveform))
+
+    # g_std = 8  # standard deviation for Gaussian window in samples
+    # w = gaussian(50, std=g_std, sym=True)  # symmetric Gaussian window
+    intensity_window = kaiser(window_length, beta=20)  # copied from praat
+    short_time_fft = ShortTimeFFT(
+        intensity_window, hop=window_length-n_overlap, fs=sampling_frequency,
+        mfft=window_length, scale_to='psd')
+    spectrogram = short_time_fft.stft(normalised_wav)
+    extent = list(short_time_fft.extent(len(normalised_wav)))
+    extent[0:2] = extent_on_x
+
+    spectrogram = 20*np.log(abs(spectrogram))
+    # Make the median white/background colour.
+    min_value = np.median(spectrogram)
+    image = axes.imshow(spectrogram, origin='lower', aspect='auto',
+                        extent=extent, cmap=cmap, vmin=min_value,
+                        picker=picker)
+
+    axes.set_ylim(ylim)
+    axes.set_ylabel(ylabel)
+
+    return image
+
+
 def plot_spectrogram(
         ax: Axes,
         waveform: np.ndarray,
         sampling_frequency: float,
-        xtent_on_x: Tuple[float, float],
-        NFFT: int = 220,
-        noverlap: int = 215,
+        extent_on_x: Tuple[float, float],
+        window_length: int = 220,
+        n_overlap: int = 215,
         cmap: str = 'Greys',
         ylim: Tuple[float, float] = (0, 10000),
         ylabel: str = "Spectrogram",
-        picker=None):
+        picker=None) -> tuple:
+    """
+    Plot a spectrogram.
+
+    Background noise is not removed. If that is needed try spectrogram2.
+
+    Parameters
+    ----------
+    axes : Axes
+        Axes to plot on.
+    waveform : np.ndarray
+        Waveform to calculate the spectrogram on.
+    sampling_frequency : float
+        Sampling frequency of the signal
+    extent_on_x : Tuple[float, float]
+        Time minimum and maximum values.
+    window_length : int, optional
+        Length of the fast fourier transform window, by default 220
+    n_overlap : int, optional
+        How many samples to overlap consecutive windows by, by default 215
+    cmap : str, optional
+        The colormap, by default 'Greys'
+    ylim : Tuple[float, float], optional
+        Y limits, by default (0, 10000)
+    ylabel : str, optional
+        Y label, by default "Spectrogram"
+    picker : _type_, optional
+        The picker for selecting points, by default None
+
+    Returns
+    -------
+    tuple
+        Pxx, freqs, bins, im as returned by Axes.specgram.
+    """
+
     normalised_wav = waveform / np.amax(np.abs(waveform))
 
     # xlim = [xlim[0]+time_offset, xlim[1]+time_offset]
     # the length of the windowing segments
     Pxx, freqs, bins, im = ax.specgram(
-        normalised_wav, NFFT=NFFT, Fs=sampling_frequency, noverlap=noverlap,
-        cmap=cmap, xextent=xtent_on_x, picker=picker)
+        normalised_wav, NFFT=window_length, Fs=sampling_frequency, noverlap=n_overlap,
+        cmap=cmap, xextent=extent_on_x, picker=picker)
     (bottom, top) = im.get_extent()[2:]
-    im.set_extent((xtent_on_x[0]+bins[0], xtent_on_x[0]+bins[-1], bottom, top))
+    im.set_extent(
+        (extent_on_x[0]+bins[0], extent_on_x[0]+bins[-1], bottom, top))
 
     ax.set_ylim(ylim)
     ax.set_ylabel(ylabel)

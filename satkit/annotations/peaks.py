@@ -42,7 +42,7 @@ from dataclasses import dataclass
 import math
 from typing import List, Optional, Tuple
 
-from icecream import ic
+# from icecream import ic
 
 import numpy as np
 import pandas
@@ -54,7 +54,7 @@ from scipy import signal as scipy_signal
 
 from satkit.helpers import normalise_timeseries
 from satkit.configuration import (
-    FindPeaksScipyArguments, PeakDetectionParams, TimeseriesNormalisation)
+    PeakDetectionParams, TimeseriesNormalisation)
 from satkit.data_structures import Modality, PointAnnotations, Recording
 from satkit.constants import (
     DEFAULT_ENCODING, AnnotationType, IntervalBoundary, IntervalCategory
@@ -104,8 +104,7 @@ def add_peaks(
     annotations = find_gesture_peaks(
         modality.data,
         modality.timevector,
-        peak_parameters.normalisation,
-        peak_parameters.find_peaks_args)
+        peak_parameters)
     modality.add_annotations(annotations)
 
     if peak_parameters.time_min and recording.satgrid:
@@ -167,7 +166,6 @@ def add_peaks(
 def find_gesture_peaks(
         data: np.ndarray,
         timevector: np.ndarray,
-        normalisation: Optional[TimeseriesNormalisation],
         peak_params: PeakDetectionParams = None,
 ) -> PointAnnotations:
     """
@@ -179,30 +177,37 @@ def find_gesture_peaks(
         The timeseries data. Should be a 1D array.
     timevector : np.ndarray
         Timevector corresponding to the data.
-    scipy_params : dict, optional
-        Parameters to pass to `scipy_signal.find_peaks`, by default None. The
-        parameter dictionary is taken as a subset of the argument, which may
-        contain extra keys but these will be removed before calling
-        `find_peaks`. 
+    peak_params : PeakDetectionParams, optional
+        An object containing normalisation and parameters to pass to
+        `scipy_signal.find_peaks`, by default None. 
 
     Returns
     -------
     PointAnnotations
         The gesture peaks asa PointAnnotations object.
     """
-    search_data = normalise_timeseries(data, normalisation=normalisation)
+    normalisation = peak_params.normalisation
+    search_data = data[peak_params.number_of_ignored_frames:]
+    search_data = normalise_timeseries(
+        search_data, normalisation=normalisation)
 
     if peak_params.find_peaks_args:
-        peaks, properties = scipy_signal.find_peaks(
+        peak_indeces, properties = scipy_signal.find_peaks(
             search_data, **peak_params.find_peaks_args.model_dump()
         )
     else:
-        peaks, properties = scipy_signal.find_peaks(search_data)
+        peak_indeces, properties = scipy_signal.find_peaks(search_data)
 
-    peak_times = timevector[peaks]
+    peak_indeces = peak_indeces + peak_params.number_of_ignored_frames
+
+    peak_times = timevector[peak_indeces]
+
     annotations = PointAnnotations(
-        AnnotationType.PEAKS, peaks, peak_times,
-        peak_params, properties)
+        annotation_type=AnnotationType.PEAKS,
+        indeces=peak_indeces,
+        times=peak_times,
+        generating_parameters=peak_params,
+        properties=properties)
     return annotations
 
 

@@ -49,7 +49,8 @@ from pydantic import PositiveInt
 # Praat textgrids
 import textgrids
 
-from satkit.configuration import PathStructure, SessionConfig
+from satkit.configuration import (
+    PathStructure, PointAnnotationParams, SessionConfig)
 from satkit.constants import AnnotationType, SatkitSuffix
 from satkit.errors import MissingDataError, ModalityError, OverWriteError
 from satkit.helpers import EmptyStrAsNoneBaseModel, is_sequence_form
@@ -112,7 +113,7 @@ class PointAnnotations():
     annotation_type: AnnotationType
     indeces: np.ndarray
     times: np.ndarray
-    generating_parameters: UpdatableBaseModel
+    generating_parameters: PointAnnotationParams
     properties: dict
 
     def add_annotation(
@@ -449,7 +450,7 @@ class Modality(abc.ABC, OrderedDict):
     @classmethod
     @abc.abstractmethod
     def generate_name(cls, params: ModalityMetaData) -> str:
-        pass
+        """Abstract version of generating a Modality name."""
 
     def __init__(self,
                  recording: Recording,

@@ -29,11 +29,13 @@
 # articles listed in README.markdown. They can also be found in
 # citations.bib in BibTeX format.
 #
+"""Main configuration for SATKIT."""
+
 import logging
 from pathlib import Path
 from typing import Union
 
-from icecream import ic
+# from icecream import ic
 
 from .configuration_parsers import (
     load_main_config, load_gui_params, load_publish_params,
@@ -47,6 +49,9 @@ _logger = logging.getLogger('satkit.configuration_setup')
 
 
 class Configuration():
+    """
+    Main configuration class of SATKIT.    
+    """
     # TODO
     # - reload
 
@@ -58,6 +63,16 @@ class Configuration():
     def __init__(
             self,
             configuration_file: Union[Path, str, None] = None) -> None:
+        """
+        Init the main configuration object. 
+
+        Run only once. Updates should be done with methods of the class.
+
+        Parameters
+        -------
+        configuration_file : Union[Path, str, None]
+            Path to the main configuration file.
+        """
 
         self._main_config_yaml = load_main_config(configuration_file)
         self._main_config = MainConfig(**self._main_config_yaml.data)
@@ -74,32 +89,62 @@ class Configuration():
 
         self._publish_yaml = load_publish_params(
             self._main_config.publish_parameter_file)
-        ic(self._publish_yaml.data)
+        # ic(self._publish_yaml.data)
         self._publish_config = PublishConfig(**self._publish_yaml.data)
 
     @property
     def main_config(self) -> MainConfig:
+        """Main config options."""
         return self._main_config
 
     @property
     def data_run_config(self) -> DataRunConfig:
+        """Config options for a data run."""
         return self._data_run_config
 
     @property
     def gui_config(self) -> GuiConfig:
+        """Gui config options."""
         return self._gui_config
 
     @property
     def publish_config(self) -> PublishConfig:
+        """Result publishing configuration options."""
         return self._publish_config
 
     def update_from_file(
-            self, configuration_file: Union[Path, str, None] = None) -> None:
+            self, configuration_file: Union[Path, str]) -> None:
+        """
+        Update the configuration from a file.
+
+        Parameters
+        ----------
+        configuration_file : Union[Path, str]
+            File to read the new options from.
+
+        Raises
+        ------
+        NotImplementedError
+            This hasn't been implemented yet.
+        """
         raise NotImplementedError(
             "Updating configuration from a file has not yet been implemented.")
         # main_config.update(**config_dict)
 
     def save_to_file(
-            self, configuration_file: Union[Path, str, None] = None) -> None:
+            self, file: Union[Path, str]) -> None:
+        """
+        Save configuration to a file.
+
+        Parameters
+        ----------
+        file : Union[Path, str]
+            File to save to.
+
+        Raises
+        ------
+        NotImplementedError
+            This hasn't been implemented yet.
+        """
         raise NotImplementedError(
             "Saving configuration to a file has not yet been implemented.")

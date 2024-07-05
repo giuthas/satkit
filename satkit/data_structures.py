@@ -199,13 +199,35 @@ class ModalityMetaData(EmptyStrAsNoneBaseModel):
     timestep_matched_downsampling: Optional[bool] = True
 
 
+class SessionMetricMetaData(EmptyStrAsNoneBaseModel):
+    """
+    Baseclass of SessionMetrics' metadata classes.
+    """
+    parent_name: Optional[str] = None
+
+
+class SessionMetric(abc.ABC):
+    """
+    Abstract baseclass for metrics generated from all recordings of a session. 
+    """
+    data: np.ndarray
+
+    @classmethod
+    @abc.abstractmethod
+    def generate_name(cls, params: SessionMetricMetaData) -> str:
+        """Abstract version of generating a SessionMetric name."""
+
+
 class RecordingSession(UserList):
     """
     The metadata and Recordings of a recording session.
 
     This class behaves exactly like a list of Recordings with some extra
     fields. While some legacy code may be left behind, the preferred idiom for
-    iterating over the recordings is `for recording in recording_session`.
+    iterating over the recordings is `for recording in recording_session:`.
+
+    RecordingSessions can also hold aggregate data in the form of
+    SessionMetrics.
     """
 
     def __init__(
@@ -213,11 +235,13 @@ class RecordingSession(UserList):
             name: str,
             paths: PathStructure,
             config: SessionConfig,
-            recordings: list['Recording']) -> None:
+            recordings: list['Recording'],
+            metrics: Optional[dict[str, SessionMetric]]) -> None:
         super().__init__(recordings)
         self.name = name
         self.paths = paths
         self.config = config
+        self.metrics = metrics
 
     @property
     def recordings(self) -> list['Recording']:

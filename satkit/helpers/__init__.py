@@ -40,7 +40,8 @@ relate to for example Python base modules -- like enum_union does -- are here.
 
 from .base_model_extensions import EmptyStrAsNoneBaseModel, UpdatableBaseModel
 from .computational import (
-    cartesian_to_polar, polar_to_cartesian, normalise_timeseries)
+    cartesian_to_polar, polar_to_cartesian, mean_squared_error,
+    normalise_timeseries)
 from .enum_extensions import (
     enum_union, ListablePrintableEnum, ValueComparedEnumMeta)
 from .processing_helpers import product_dict

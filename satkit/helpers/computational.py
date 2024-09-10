@@ -124,3 +124,22 @@ def polar_to_cartesian(
     x = r_phi_array[0, :] * np.cos(r_phi_array[1, :]-angle_offset)
     y = r_phi_array[0, :] * np.sin(r_phi_array[1, :]-angle_offset)
     return np.stack((x, y))
+
+
+def mean_squared_error(array_like_1, array_like_2) -> float:
+    """
+    Compute the mean squared error of the two arrays.
+
+    Parameters
+    ----------
+    array_like_1 : array_like
+        First array.
+    array_like_2 : array_like
+        Second array.
+
+    Returns
+    -------
+    float
+        The mean squared error.
+    """
+    return np.square(array_like_1 - array_like_2).mean()

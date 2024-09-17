@@ -125,10 +125,6 @@ def main():
 
         metrics = data_run_config.pd_arguments.norms
         downsampling_ratios = data_run_config.downsample.downsampling_ratios
-        number_of_peaks = count_number_of_peaks(
-            recording_session.recordings,
-            metrics=metrics,
-            downsampling_ratios=downsampling_ratios)
 
         reference = number_of_peaks[:, :, 0]
 

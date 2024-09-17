@@ -256,6 +256,25 @@ class RecordingSession(UserList):
         return self.data
 
 
+class RecordingMetricMetaData(EmptyStrAsNoneBaseModel):
+    """
+    Baseclass of SessionMetrics' metadata classes.
+    """
+    parent_name: Optional[str] = None
+
+
+class RecordingMetric(abc.ABC):
+    """
+    Abstract baseclass for metrics generated from all recordings of a session. 
+    """
+    data: np.ndarray
+
+    @classmethod
+    @abc.abstractmethod
+    def generate_name(cls, params: RecordingMetricMetaData) -> str:
+        """Abstract version of generating a SessionMetric name."""
+
+
 class Recording(UserDict):
     """
     A Recording is a dictionary of 0-n synchronised Modalities.

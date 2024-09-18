@@ -38,7 +38,7 @@ from typing import Optional, Tuple, Union
 import numpy as np
 
 from satkit.data_structures import (
-    Modality, ModalityData, Recording, RecordingMetric, RecordingMetricMetaData)
+    Modality, Recording, RecordingMetric, RecordingMetricMetaData)
 from satkit.helpers import product_dict
 
 _logger = logging.getLogger('satkit.mean_image')
@@ -54,12 +54,12 @@ class MeanImageParameters(RecordingMetricMetaData):
         Name of the Modality this instance of MeanImage was calculated on.
     release_data_memory : bool
         Wether to assign None to parent.data after deriving this Metric from
-        the data. Currently has no effect as deriving MeanImage at runtime is not yet
-        supported.
+        the data. Currently has no effect as deriving MeanImage at runtime is
+        not yet supported.
     interpolated : bool
-        Should this MeanImage be calculated on interpolated images. Defaults to False
-        for calculating MeanImage on raw data. This one really can only be used on 2D
-        ultrasound data. For other data raw data is the regular data.
+        Should this MeanImage be calculated on interpolated images. Defaults to
+        False for calculating MeanImage on raw data. This one really can only
+        be used on 2D ultrasound data. 
     """
     parent_name: str
     interpolated: bool = False
@@ -77,14 +77,16 @@ class MeanImage(RecordingMetric):
         Generate a MeanImage metric name to be used as its unique identifier.
 
         This static method **defines** what the names are. This implementation
-        pattern (MeanImage.name calls this and any where that needs to guess what a
-        name would be calls this) is how all derived Modalities should work.
+        pattern (MeanImage.name calls this and any where that needs to guess
+        what a name would be calls this) is how all derived Modalities should
+        work.
 
         Parameters
         ----------
         params : MeanImageParameters
-            The parameters of the MeanImage instance. Note that this MeanImageParameters
-            instance does not need to be attached to a MeanImage instance.
+            The parameters of the MeanImage instance. Note that this
+            MeanImageParameters instance does not need to be attached to a
+            MeanImage instance.
 
         Returns
         -------
@@ -123,14 +125,14 @@ class MeanImage(RecordingMetric):
             indicates if interpolated data should be used for instead of
             RawUltrasound, by default False
         release_data_memory: bool
-            Should parent Modality's data be assigned to None after calculations
-            are complete, by default True.
+            Should parent Modality's data be assigned to None after
+            calculations are complete, by default True.
 
         Returns
         -------
         dict[str: MeanImageParameters]
-            Dictionary where the names of the MeanImage RecordingMetrics index the 
-            MeanImageParameter objects.
+            Dictionary where the names of the MeanImage RecordingMetrics index
+            the MeanImageParameter objects.
         """
         if isinstance(modality, str):
             parent_name = modality
@@ -145,40 +147,32 @@ class MeanImage(RecordingMetric):
         mean_image_params = [MeanImageParameters(**item)
                              for item in product_dict(**param_dict)]
 
-        return {MeanImage.generate_name(params): params for params in mean_image_params}
+        return {MeanImage.generate_name(params): params
+                for params in mean_image_params}
 
     def __init__(self,
                  recording: Recording,
                  metadata: MeanImageParameters,
                  load_path: Optional[Path] = None,
                  meta_path: Optional[Path] = None,
-                 parsed_data: Optional[ModalityData] = None,
-                 time_offset: Optional[float] = None) -> None:
+                 parsed_data: Optional[np.ndarray] = None,
+                 ) -> None:
         """
         Build a MeanImage RecordingMetric.       
 
-        Positional arguments:
-        recording -- the containing Recording.   
-        parameters : MeanImageParameters
+        Parameters
+        ----------
+        recording : Recording
+            the containing Recording.
+        metadata : MeanImageParameters
             Parameters used in calculating this instance of MeanImage.
-        Keyword arguments:
-        load_path -- path of the saved data - both ultrasound and metadata
-        parent -- the Modality this one was derived from. None means this 
-            is an underived data Modality.
-            If parent is None, it will be copied from dataModality.
-        parsed_data -- ModalityData object containing raw ultrasound, 
-            sampling rate, and either timevector and/or time_offset. Providing 
-            a timevector overrides any time_offset value given, but in absence
-            of a timevector the time_offset will be applied on reading the data 
-            from file. 
-        timeoffset -- timeoffset in seconds against the Recordings baseline.
-            If not specified or 0, timeOffset will be copied from dataModality.
+        load_path : Optional[Path], optional
+            path of the saved data, by default None
+        meta_path : Optional[Path], optional
+            path of the saved meta data, by default None
+        parsed_data : Optional[np.ndarray], optional
+            the actual mean image, by default None
         """
-        # This allows the caller to be lazy.
-        if not time_offset:
-            if parsed_data:
-                time_offset = parsed_data.timevector[0]
-
         super().__init__(
             recording,
             metadata=metadata,
@@ -191,14 +185,24 @@ class MeanImage(RecordingMetric):
 
     def _derive_data(self) -> Tuple[np.ndarray, np.ndarray, float]:
         """
-        Calculate MeanImage on the data of the parent Modality.       
+        Calculate MeanImage on the data of the parent Modality.  
         """
         raise NotImplementedError(
             "Currently MeanImage Modalities have to be "
             "calculated at instantiation time.")
 
     def get_meta(self) -> dict:
-        # This conversion is done to keep nestedtext working.
+        """
+        Get meta data as a dict.
+
+        This is a helper method for saving as nested text. Allows for rewriting
+        any fields that need a simpler representation.
+
+        Returns
+        -------
+        dict
+            The meta data in a dict.
+        """
         return self.meta_data.model_dump()
 
     @property

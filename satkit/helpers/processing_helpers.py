@@ -35,7 +35,7 @@ import itertools
 
 def product_dict(**kwargs):
     """
-    Produce a list of dicts of the cartesian product of lists in a dict.
+    Produce a list of dicts of the Cartesian product of lists in a dict.
 
     ```python
     options = {"number": [1,2,3], "color": ["orange","blue"] }

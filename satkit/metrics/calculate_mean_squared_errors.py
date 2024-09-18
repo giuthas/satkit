@@ -29,6 +29,9 @@
 # articles listed in README.markdown. They can also be found in
 # citations.bib in BibTeX format.
 #
+"""
+Calculate DistanceMatrices between a RecordingSession's Recordings.
+"""
 
 import logging
 from typing import Optional
@@ -39,7 +42,7 @@ import numpy as np
 from satkit.data_structures import Modality, RecordingSession
 from satkit.helpers import mean_squared_error
 
-from .mean_squared_errors import MSE
+from .session_distance_matrix import DistanceMatrix
 
 _logger = logging.getLogger('satkit.session_mse')
 
@@ -59,13 +62,14 @@ def calculate_mse(session: RecordingSession) -> np.ndarray:
     return mean_squared_errors
 
 
-def add_mse(session: RecordingSession,
-            modality: Modality,
-            preload: bool = True,
-            norms: Optional[list[str]] = None,
-            release_data_memory: bool = True,
-            run_on_interpolated_data: bool = False,
-            ) -> None:
+def add_distance_matrices(
+    session: RecordingSession,
+    modality: Modality,
+    preload: bool = True,
+    metrics: Optional[list[str]] = None,
+    release_data_memory: bool = True,
+    run_on_interpolated_data: bool = False,
+) -> None:
     """
     Calculate PD on dataModality and add it to recording.
 
@@ -87,8 +91,8 @@ def add_mse(session: RecordingSession,
                    "calculated on the fly. This is not yet supported.")
         raise NotImplementedError(message)
 
-    if not norms:
-        norms = ['l2']
+    if not metrics:
+        metrics = ['mean_squared_error']
 
     if session.excluded:
         _logger.info(
@@ -97,9 +101,9 @@ def add_mse(session: RecordingSession,
         _logger.info("Data modality '%s' not found in session: %s.",
                      modality.__name__, session.basename)
     else:
-        all_requested = MSE.get_names_and_meta(
-            modality=modality, norms=norms,
-            mse_on_interpolated_data=run_on_interpolated_data,
+        all_requested = DistanceMatrix.get_names_and_meta(
+            modality=modality, metric=metrics,
+            distance_matrix_on_interpolated_data=run_on_interpolated_data,
             release_data_memory=release_data_memory)
         missing_keys = set(all_requested).difference(
             session.keys())
@@ -110,12 +114,12 @@ def add_mse(session: RecordingSession,
         data_modality = session[modality.__name__]
 
         if to_be_computed:
-            pds = calculate_mse(data_modality, to_be_computed)
+            matrices = calculate_mse(data_modality, to_be_computed)
 
-            for pd in pds:
-                session.add_modality(pd)
+            for matrix in matrices:
+                session.add_modality(matrix)
                 _logger.info("Added '%s' to recording: %s.",
-                             pd.name, session.basename)
+                             matrix.name, session.basename)
         else:
             _logger.info(
                 "Nothing to compute in PD for recording: %s.",

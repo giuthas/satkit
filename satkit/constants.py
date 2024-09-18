@@ -192,3 +192,31 @@ class SourceSuffix():
     AAA_SPLINES = ".spl"
     AVI = ".avi"
     CSV = ".csv"
+
+
+# def satkit_suffix(
+#         satkit_type: Union[Recording, RecordingSession, Modality]) -> str:
+#     """
+#     Generate a suffix for the save file of a SATKIT data structure.
+
+#     Parameters
+#     ----------
+#     satkit_type : Union[Recording, RecordingSession, Modality]
+#         The datastructures type.
+
+#     Returns
+#     -------
+#     str
+#         The suffix.
+#     """
+#     # TODO 1.1: This is one possibility for not having hardcoded file suffixes.
+#     # Another is to let all the classes take care of it themselves and make it
+#     # into a Protocol (Python version of an interface).
+#     suffix = SatkitSuffix.META
+#     if satkit_type == Recording:
+#         suffix = '.Recording' + suffix
+#     elif satkit_type == RecordingSession:
+#         suffix = '.RecordingSession' + suffix
+#     elif satkit_type == Modality:
+#         suffix = ''
+#     return suffix

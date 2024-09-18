@@ -258,8 +258,14 @@ class RecordingSession(UserList):
 class RecordingMetricMetaData(EmptyStrAsNoneBaseModel):
     """
     Baseclass of SessionMetrics' metadata classes.
+
+    Parameters
+    ----------
+    modality_name: Optional[str]
+        Name of the modality this RecordingMetric is derived from, defaults to
+        None.
     """
-    parent_name: Optional[str] = None
+    modality_name: Optional[str] = None
 
 
 class RecordingMetric(abc.ABC):
@@ -271,7 +277,34 @@ class RecordingMetric(abc.ABC):
     @classmethod
     @abc.abstractmethod
     def generate_name(cls, params: RecordingMetricMetaData) -> str:
-        """Abstract version of generating a SessionMetric name."""
+        """Abstract version of generating a RecordingMetric name."""
+
+    def __init__(self,
+                 recording: 'Recording',
+                 meta_data: RecordingMetricMetaData,
+                 load_path: Optional[Path] = None,
+                 meta_path: Optional[Path] = None,
+                 parsed_data: Optional[np.ndarray] = None,
+                 ) -> None:
+        self.recording = recording
+        self.meta_data = meta_data
+        self.load_path = load_path
+        self.meta_path = meta_path
+        self.data = parsed_data
+
+    def get_meta(self) -> dict:
+        """
+        Get meta data as a dict.
+
+        This is a helper method for saving as nested text. Allows for rewriting
+        any fields that need a simpler representation.
+
+        Returns
+        -------
+        dict
+            The meta data in a dict.
+        """
+        return self.meta_data.model_dump()
 
 
 class Recording(UserDict):
@@ -587,9 +620,6 @@ class Modality(abc.ABC, OrderedDict):
                 "Asked to get data but have no path and no parent Modality.\n"
                 + "Don't know how to solve this.")
 
-    # TODO: should these really return a value rather than
-    # just write the fields? And if return a value, why not
-    # ModalityData?
     def _derive_data(self) -> ModalityData:
         """
         Derive data from another modality -- overridden by inheriting classes.
@@ -865,8 +895,6 @@ class Modality(abc.ABC, OrderedDict):
         Setting this to True will result in the whole Recording being 
         excluded by setting self.parent.excluded = True.
         """
-        # TODO: decide if this actually needs to exist and if so,
-        # should the above doc string actually be true?
         return self._excluded
 
     @excluded.setter
@@ -874,9 +902,8 @@ class Modality(abc.ABC, OrderedDict):
         self._excluded = excluded
 
         if excluded:
-            pass
-            # TODO 1.O: find a workaround for self.parent not existing
-            # currently self.parent.excluded = excluded
+            if self.recording:
+                self.recording.excluded = True
 
     @property
     def is_derived_modality(self) -> bool:
@@ -902,31 +929,3 @@ class Modality(abc.ABC, OrderedDict):
                 "." + self.name.replace(" ", "_"))
             path.with_suffix(SatkitSuffix.META)
         return self._meta_path
-
-
-def satkit_suffix(
-        satkit_type: Union[Recording, RecordingSession, Modality]) -> str:
-    """
-    Generate a suffix for the save file of a SATKIT data structure.
-
-    Parameters
-    ----------
-    satkit_type : Union[Recording, RecordingSession, Modality]
-        The datastructures type.
-
-    Returns
-    -------
-    str
-        The suffix.
-    """
-    # TODO 1.1: This is one possibility for not having hardcoded file suffixes.
-    # Another is to let all the classes take care of it themselves and make it
-    # into a Protocol (Python version of an interface).
-    suffix = SatkitSuffix.META
-    if satkit_type == Recording:
-        suffix = '.Recording' + suffix
-    elif satkit_type == RecordingSession:
-        suffix = '.RecordingSession' + suffix
-    elif satkit_type == Modality:
-        suffix = ''
-    return suffix

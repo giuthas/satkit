@@ -39,6 +39,8 @@ import numpy as np
 from satkit.data_structures import Modality, RecordingSession
 from satkit.helpers import mean_squared_error
 
+from .mean_squared_errors import MSE
+
 _logger = logging.getLogger('satkit.session_mse')
 
 
@@ -63,7 +65,7 @@ def add_mse(session: RecordingSession,
             norms: Optional[list[str]] = None,
             release_data_memory: bool = True,
             run_on_interpolated_data: bool = False,
-            mask_images: bool = False):
+            ) -> None:
     """
     Calculate PD on dataModality and add it to recording.
 
@@ -90,14 +92,15 @@ def add_mse(session: RecordingSession,
 
     if session.excluded:
         _logger.info(
-            "Recording %s excluded from processing.", session.basename)
+            "Session %s excluded from processing.", session.basename)
     elif not modality.__name__ in session:
-        _logger.info("Data modality '%s' not found in recording: %s.",
+        _logger.info("Data modality '%s' not found in session: %s.",
                      modality.__name__, session.basename)
     else:
-        all_requested = PD.get_names_and_meta(
-            modality, norms, timesteps, run_on_interpolated_data, mask_images,
-            release_data_memory)
+        all_requested = MSE.get_names_and_meta(
+            modality=modality, norms=norms,
+            mse_on_interpolated_data=run_on_interpolated_data,
+            release_data_memory=release_data_memory)
         missing_keys = set(all_requested).difference(
             session.keys())
         to_be_computed = dict((key, value) for key,
@@ -107,7 +110,7 @@ def add_mse(session: RecordingSession,
         data_modality = session[modality.__name__]
 
         if to_be_computed:
-            pds = calculate_pd(data_modality, to_be_computed)
+            pds = calculate_mse(data_modality, to_be_computed)
 
             for pd in pds:
                 session.add_modality(pd)

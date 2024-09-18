@@ -154,7 +154,7 @@ class MeanImage(RecordingMetric):
 
     def __init__(self,
                  recording: Recording,
-                 metadata: MeanImageParameters,
+                 meta_data: MeanImageParameters,
                  load_path: Optional[Path] = None,
                  meta_path: Optional[Path] = None,
                  parsed_data: Optional[np.ndarray] = None,
@@ -177,13 +177,12 @@ class MeanImage(RecordingMetric):
         """
         super().__init__(
             recording,
-            metadata=metadata,
-            data_path=None,
+            meta_data=meta_data,
             load_path=load_path,
             meta_path=meta_path,
             parsed_data=parsed_data)
 
-        self.meta_data = metadata
+        self.meta_data = meta_data
 
     def _derive_data(self) -> Tuple[np.ndarray, np.ndarray, float]:
         """
@@ -192,20 +191,6 @@ class MeanImage(RecordingMetric):
         raise NotImplementedError(
             "Currently MeanImage Modalities have to be "
             "calculated at instantiation time.")
-
-    def get_meta(self) -> dict:
-        """
-        Get meta data as a dict.
-
-        This is a helper method for saving as nested text. Allows for rewriting
-        any fields that need a simpler representation.
-
-        Returns
-        -------
-        dict
-            The meta data in a dict.
-        """
-        return self.meta_data.model_dump()
 
     @property
     def name(self) -> str:

@@ -50,16 +50,16 @@ class MseParameters(SessionMetricMetaData):
     Parameters
     ----------
     parent_name: str
-        Name of the Modality this instance of PD was calculated on.
+        Name of the Modality this instance of MSE was calculated on.
     metric : str
         A string specifying this Modality's metric. Defaults to the l2 norm.
     release_data_memory : bool
         Wether to assign None to parent.data after deriving this Modality from
-        the data. Currently has no effect as deriving PD at runtime is not yet
+        the data. Currently has no effect as deriving MSE at runtime is not yet
         supported.
     interpolated : bool
-        Should this PD be calculated on interpolated images. Defaults to False
-        for calculating PD on raw data. This one really can only be used on 2D
+        Should this MSE be calculated on interpolated images. Defaults to False
+        for calculating MSE on raw data. This one really can only be used on 2D
         ultrasound data. For other data raw data is the regular data.
     """
     parent_name: str
@@ -70,7 +70,7 @@ class MseParameters(SessionMetricMetaData):
 
 class MSE(SessionMetric):
     """
-    Represent Pixel Difference (PD) as a Modality. 
+    Represent Mean Squared Error (MSE) as a SessionMetric. 
     """
 
     accepted_metrics = [
@@ -80,24 +80,24 @@ class MSE(SessionMetric):
     @classmethod
     def generate_name(cls, params: MseParameters) -> str:
         """
-        Generate a PD modality name to be used as its unique identifier.
+        Generate a MSE modality name to be used as its unique identifier.
 
         This static method **defines** what the names are. This implementation
-        pattern (PD.name calls this and any where that needs to guess what a
+        pattern (MSE.name calls this and any where that needs to guess what a
         name would be calls this) is how all derived Modalities should work.
 
         Parameters
         ----------
-        params : PdParameters
-            The parameters of the PD instance. Note that this PdParameters
-            instance does not need to be attached to a PD instance.
+        params : MSEParameters
+            The parameters of the MSE instance. Note that this MSEParameters
+            instance does not need to be attached to a MSE instance.
 
         Returns
         -------
         str
-            Name of the PD instance.
+            Name of the MSE instance.
         """
-        # name_string = 'PD' + " " + params.metric
+        # name_string = 'MSE' + " " + params.metric
         name_string = cls.__name__ + " " + params.metric
 
         if params.timestep != 1:
@@ -125,7 +125,7 @@ class MSE(SessionMetric):
         release_data_memory: bool = True
     ) -> dict[str: MseParameters]:
         """
-        Generate PD modality names and metadata.
+        Generate MSE modality names and metadata.
 
         This method will generate the full cartesian product of the possible
         combinations. If only some of them are needed, make more than one call
@@ -134,12 +134,12 @@ class MSE(SessionMetric):
         Parameters
         ----------
         modality : Modality
-            parent modality that PD would be derived from
+            parent modality that MSE would be derived from
         norms : List[str], optional
             list of norms to be calculated, defaults to 'l2'.
         timesteps : List[int], optional
             list of timesteps to be used, defaults to 1.
-        pd_on_interpolated_data : bool, optional
+        mse_on_interpolated_data : bool, optional
             indicates if interpolated data should be used for instead of
             RawUltrasound, by default False
         mask_images : bool, optional
@@ -150,9 +150,9 @@ class MSE(SessionMetric):
 
         Returns
         -------
-        dict[str: PdParameters]
-            Dictionary where the names of the PD Modalities index the 
-            PdParameter objects.
+        dict[str: MSEParameters]
+            Dictionary where the names of the MSE Modalities index the 
+            MSEParameter objects.
         """
         if isinstance(modality, str):
             parent_name = modality
@@ -168,10 +168,10 @@ class MSE(SessionMetric):
             'interpolated': [mse_on_interpolated_data],
             'release_data_memory': [release_data_memory]}
 
-        pdparams = [MseParameters(**item)
-                    for item in product_dict(**param_dict)]
+        mseparams = [MseParameters(**item)
+                     for item in product_dict(**param_dict)]
 
-        return {MSE.generate_name(params): params for params in pdparams}
+        return {MSE.generate_name(params): params for params in mseparams}
 
     def __init__(self,
                  recording: Recording,
@@ -181,12 +181,12 @@ class MSE(SessionMetric):
                  parsed_data: Optional[ModalityData] = None,
                  time_offset: Optional[float] = None) -> None:
         """
-        Build a Pixel Difference (PD) Modality       
+        Build a Pixel Difference (MSE) Modality       
 
         Positional arguments:
         recording -- the containing Recording.   
-        parameters : PdParameters
-            Parameters used in calculating this instance of PD.
+        parameters : MSEParameters
+            Parameters used in calculating this instance of MSE.
         Keyword arguments:
         load_path -- path of the saved data - both ultrasound and metadata
         parent -- the Modality this one was derived from. None means this 
@@ -217,10 +217,10 @@ class MSE(SessionMetric):
 
     def _derive_data(self) -> Tuple[np.ndarray, np.ndarray, float]:
         """
-        Calculate Pixel Difference (PD) on the data Modality parent.       
+        Calculate Pixel Difference (MSE) on the data Modality parent.       
         """
         raise NotImplementedError(
-            "Currently PD Modalities have to be "
+            "Currently MSE Modalities have to be "
             "calculated at instantiation time.")
 
     def get_meta(self) -> dict:
@@ -234,7 +234,7 @@ class MSE(SessionMetric):
         Identity, metric, and parent data class.
 
         The name will be of the form
-        'PD [metric name] on [data modality class name]'.
+        'MSE [metric name] on [data modality class name]'.
 
         This overrides the default behaviour of Modality.name.
         """

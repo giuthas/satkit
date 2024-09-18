@@ -29,6 +29,9 @@
 # articles listed in README.markdown. They can also be found in
 # citations.bib in BibTeX format.
 #
+"""
+DistanceMatrix RecordingSessionMetric and its Parameter class.
+"""
 
 import logging
 from pathlib import Path
@@ -37,67 +40,73 @@ from typing import Optional, Tuple, Union
 import numpy as np
 
 from satkit.data_structures import (
-    Modality, ModalityData, Recording, SessionMetric, SessionMetricMetaData)
+    Modality, RecordingSession, SessionMetric, SessionMetricMetaData)
 from satkit.helpers import product_dict
 
 _logger = logging.getLogger('satkit.mse')
 
 
-class MseParameters(SessionMetricMetaData):
+class DistanceMatrixParameters(SessionMetricMetaData):
     """
-    Parameters used in generating the parent MSE metric.
+    Parameters used in generating the parent DistanceMatrix.
 
     Parameters
     ----------
     parent_name: str
-        Name of the Modality this instance of MSE was calculated on.
+        Name of the Modality this instance of DistanceMatrix was calculated on.
     metric : str
-        A string specifying this Modality's metric. Defaults to the l2 norm.
+        A string specifying this DistanceMatrix's metric. Defaults to mean
+        squared error.
     release_data_memory : bool
         Wether to assign None to parent.data after deriving this Modality from
-        the data. Currently has no effect as deriving MSE at runtime is not yet
-        supported.
+        the data. Currently has no effect as deriving a DistanceMatrix at
+        runtime is not yet supported.
     interpolated : bool
-        Should this MSE be calculated on interpolated images. Defaults to False
-        for calculating MSE on raw data. This one really can only be used on 2D
-        ultrasound data. For other data raw data is the regular data.
+        Should this DistanceMatrix be calculated on interpolated images.
+        Defaults to False for calculating DistanceMatrix on raw data. This one
+        really can only be used on 2D ultrasound data. For other data raw data
+        is the regular data.
     """
     parent_name: str
-    metric: str = 'l2'
+    metric: str = 'mean_squared_error'
     interpolated: bool = False
     release_data_memory: bool = True
 
 
-class MSE(SessionMetric):
+class DistanceMatrix(SessionMetric):
     """
-    Represent Mean Squared Error (MSE) as a SessionMetric. 
+    DistanceMatrix gives the distances between the Recordings.
+
+    The distances can be e.g. mean squared errors between mean ultrasound
+    images, same for a selected period, etc.
     """
 
     accepted_metrics = [
-        'l2',
+        'mean_squared_error',
     ]
 
     @classmethod
-    def generate_name(cls, params: MseParameters) -> str:
+    def generate_name(cls, params: DistanceMatrixParameters) -> str:
         """
-        Generate a MSE modality name to be used as its unique identifier.
+        Generate a DistanceMatrix name to be used as its unique identifier.
 
         This static method **defines** what the names are. This implementation
-        pattern (MSE.name calls this and any where that needs to guess what a
-        name would be calls this) is how all derived Modalities should work.
+        pattern (DistanceMatrix.name calls this and any where that needs to
+        guess what a name would be calls this) is how all derived Modalities
+        should work.
 
         Parameters
         ----------
-        params : MSEParameters
-            The parameters of the MSE instance. Note that this MSEParameters
-            instance does not need to be attached to a MSE instance.
+        params : DistanceMatrixParameters
+            The parameters of the DistanceMatrix instance. Note that this
+            DistanceMatrixParameters instance does not need to be attached to a
+            DistanceMatrix instance.
 
         Returns
         -------
         str
-            Name of the MSE instance.
+            Name of the DistanceMatrix instance.
         """
-        # name_string = 'MSE' + " " + params.metric
         name_string = cls.__name__ + " " + params.metric
 
         if params.timestep != 1:
@@ -120,12 +129,12 @@ class MSE(SessionMetric):
     @staticmethod
     def get_names_and_meta(
         modality: Union[Modality, str],
-        norms: list[str] = None,
-        mse_on_interpolated_data: bool = False,
+        metric: list[str] = None,
+        distance_matrix_on_interpolated_data: bool = False,
         release_data_memory: bool = True
-    ) -> dict[str: MseParameters]:
+    ) -> dict[str: DistanceMatrixParameters]:
         """
-        Generate MSE modality names and metadata.
+        Generate DistanceMatrix names and metadata.
 
         This method will generate the full cartesian product of the possible
         combinations. If only some of them are needed, make more than one call
@@ -134,9 +143,9 @@ class MSE(SessionMetric):
         Parameters
         ----------
         modality : Modality
-            parent modality that MSE would be derived from
+            parent modality that DistanceMatrix would be derived from
         norms : List[str], optional
-            list of norms to be calculated, defaults to 'l2'.
+            list of norms to be calculated, defaults to 'mean_squared_error'.
         timesteps : List[int], optional
             list of timesteps to be used, defaults to 1.
         mse_on_interpolated_data : bool, optional
@@ -150,63 +159,55 @@ class MSE(SessionMetric):
 
         Returns
         -------
-        dict[str: MSEParameters]
-            Dictionary where the names of the MSE Modalities index the 
-            MSEParameter objects.
+        dict[str: DistanceMatrixParameters]
+            Dictionary where the names of the DistanceMatrices index the 
+            DistanceMatrixParameter objects.
         """
         if isinstance(modality, str):
             parent_name = modality
         else:
             parent_name = modality.__name__
 
-        if not norms:
-            norms = ['l2']
+        if not metric:
+            metric = ['mean_squared_error']
 
         param_dict = {
             'parent_name': [parent_name],
-            'metric': norms,
-            'interpolated': [mse_on_interpolated_data],
+            'metric': metric,
+            'interpolated': [distance_matrix_on_interpolated_data],
             'release_data_memory': [release_data_memory]}
 
-        mseparams = [MseParameters(**item)
-                     for item in product_dict(**param_dict)]
+        distance_matrix_params = [DistanceMatrixParameters(**item)
+                                  for item in product_dict(**param_dict)]
 
-        return {MSE.generate_name(params): params for params in mseparams}
+        return {DistanceMatrix.generate_name(params): params
+                for params in distance_matrix_params}
 
     def __init__(self,
-                 recording: Recording,
-                 metadata: MseParameters,
+                 session: RecordingSession,
+                 metadata: DistanceMatrixParameters,
                  load_path: Optional[Path] = None,
                  meta_path: Optional[Path] = None,
-                 parsed_data: Optional[ModalityData] = None,
-                 time_offset: Optional[float] = None) -> None:
+                 parsed_data: Optional[np.ndarray] = None,
+                 ) -> None:
         """
-        Build a Pixel Difference (MSE) Modality       
+        Build a DistanceMatrix.
 
-        Positional arguments:
-        recording -- the containing Recording.   
-        parameters : MSEParameters
-            Parameters used in calculating this instance of MSE.
-        Keyword arguments:
-        load_path -- path of the saved data - both ultrasound and metadata
-        parent -- the Modality this one was derived from. None means this 
-            is an underived data Modality.
-            If parent is None, it will be copied from dataModality.
-        parsed_data -- ModalityData object containing raw ultrasound, 
-            sampling rate, and either timevector and/or time_offset. Providing 
-            a timevector overrides any time_offset value given, but in absence
-            of a timevector the time_offset will be applied on reading the data 
-            from file. 
-        timeoffset -- timeoffset in seconds against the Recordings baseline.
-            If not specified or 0, timeOffset will be copied from dataModality.
+        Parameters
+        ----------
+        session : RecordingSession
+            Containing RecordingSession.
+        metadata : DistanceMatrixParameters
+            Parameters used in calculating this instance of DistanceMatrix.
+        load_path : Optional[Path], optional
+            path of the saved data, by default None
+        meta_path : Optional[Path], optional
+            path of the saved meta data, by default None
+        parsed_data : Optional[np.ndarray], optional
+            The distance matrix itself, by default None
         """
-        # This allows the caller to be lazy.
-        if not time_offset:
-            if parsed_data:
-                time_offset = parsed_data.timevector[0]
-
         super().__init__(
-            recording,
+            session,
             metadata=metadata,
             data_path=None,
             load_path=load_path,
@@ -217,16 +218,25 @@ class MSE(SessionMetric):
 
     def _derive_data(self) -> Tuple[np.ndarray, np.ndarray, float]:
         """
-        Calculate Pixel Difference (MSE) on the data Modality parent.       
+        Calculate the distance matrix on the data RecordingSession parent.       
         """
         raise NotImplementedError(
             "Currently MSE Modalities have to be "
             "calculated at instantiation time.")
 
     def get_meta(self) -> dict:
-        # This conversion is done to keep nestedtext working.
-        meta = self.meta_data.model_dump()
-        return meta
+        """
+        Get meta data as a dict.
+
+        This is a helper method for saving as nested text. Allows for rewriting
+        any fields that need a simpler representation.
+
+        Returns
+        -------
+        dict
+            The meta data in a dict.
+        """
+        return self.meta_data.model_dump()
 
     @property
     def name(self) -> str:
@@ -234,8 +244,8 @@ class MSE(SessionMetric):
         Identity, metric, and parent data class.
 
         The name will be of the form
-        'MSE [metric name] on [data modality class name]'.
+        'DistanceMatrix [metric name] on [data modality class name]'.
 
         This overrides the default behaviour of Modality.name.
         """
-        return MSE.generate_name(self.meta_data)
+        return DistanceMatrix.generate_name(self.meta_data)

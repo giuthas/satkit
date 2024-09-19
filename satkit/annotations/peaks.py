@@ -88,6 +88,8 @@ def add_peaks(
         If IntervalBoundary is not either BEGIN or END
     """
 
+    # TODO: if easily possible move this decision to a where we loop over
+    # recordings
     recording = modality.recording
     if recording.excluded:
         _logger.info(

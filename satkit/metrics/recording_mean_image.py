@@ -30,7 +30,7 @@
 # citations.bib in BibTeX format.
 #
 """
-MeanImage RecordingMetric and its Parameter class.
+MeanImage Statistic and its Parameter class.
 """
 
 import logging

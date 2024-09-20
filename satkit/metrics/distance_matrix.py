@@ -30,7 +30,7 @@
 # citations.bib in BibTeX format.
 #
 """
-DistanceMatrix RecordingSessionMetric and its Parameter class.
+DistanceMatrix Statistic and its Parameter class.
 """
 
 import logging

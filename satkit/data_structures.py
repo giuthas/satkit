@@ -59,6 +59,88 @@ from satkit.satgrid import SatGrid
 _datastructures_logger = logging.getLogger('satkit.data_structures')
 
 
+class AbstractDataContainer(abc.ABC):
+    """
+    Abstract baseclass for all of SATKIT's data containers. 
+
+    Container classes include Modality, Recording, RecordingSession, and in
+    general any class in satkit/data_structures, which has a meta_data
+    field or any class which is derived from those classes.
+
+    This class exists only for SATKIT internal use.
+    """
+    @classmethod
+    @abc.abstractmethod
+    def generate_name(cls, params: EmptyStrAsNoneBaseModel) -> str:
+        """Abstract version of generating a RecordingMetric name."""
+
+    def __init__(self,
+                 owner,
+                 meta_data: EmptyStrAsNoneBaseModel,
+                 parsed_data: Optional[np.ndarray] = None,
+                 load_path: Optional[Path] = None,
+                 meta_path: Optional[Path] = None,
+                 ) -> None:
+        self.owner = owner
+        self.meta_data = meta_data
+        self.data = parsed_data
+        self.load_path = load_path
+        self.meta_path = meta_path
+
+    def __getstate__(self) -> dict:
+        """
+        Return this DataContainer's pickle compatible state.
+
+        To achieve pickle compatibility, subclasses should take care to delete
+        any cyclical references, like is done with self.owner here.
+
+        NOTE! This also requires them to be reset after unpickling by the
+        owners.
+
+        Returns
+        -------
+        dict
+            The state without cyclical references.
+        """
+        state = self.__dict__.copy()
+        del state['owner']
+
+    @property
+    def is_fully_initialised(self) -> bool:
+        """
+        Check if this DataContainer has been fully initialised.
+
+        This property will be false, if any required fields of the
+        DataContainer are None.
+
+        Returns
+        -------
+        bool
+            True if this DataContainer is fully initialised.
+        """
+        if self.owner:
+            return True
+        return False
+
+    def get_meta(self) -> dict:
+        """
+        Get meta data as a dict.
+
+        This is a helper method for saving as nested text. Allows for rewriting
+        any fields that need a simpler representation. 
+
+        Subclasses should override this method if any of their fields require
+        special handling such as derived Enums needing to be converted to plain
+        text etc. 
+
+        Returns
+        -------
+        dict
+            The meta data in a dict.
+        """
+        return self.meta_data.model_dump()
+
+
 class RecordingMetaData(EmptyStrAsNoneBaseModel):
     """Basic metadata that any Recording should reasonably have."""
     prompt: str
@@ -66,6 +148,23 @@ class RecordingMetaData(EmptyStrAsNoneBaseModel):
     participant_id: str
     basename: str
     path: Path
+
+
+class StatisticMetaData(EmptyStrAsNoneBaseModel):
+    """
+    Baseclass of SessionMetrics' metadata classes.
+    """
+    parent_name: Optional[str] = None
+
+
+class ModalityMetaData(EmptyStrAsNoneBaseModel):
+    """
+    Baseclass of Modalities' metadata classes.
+    """
+    parent_name: Optional[str] = None
+    is_downsampled: Optional[bool] = False
+    downsampling_ratio: Union[None, PositiveInt, str] = None
+    timestep_matched_downsampling: Optional[bool] = True
 
 
 @dataclass
@@ -188,24 +287,7 @@ class PointAnnotations():
                 self.properties[key] = self.properties[key][selected]
 
 
-class ModalityMetaData(EmptyStrAsNoneBaseModel):
-    """
-    Baseclass of Modalities' metadata classes.
-    """
-    parent_name: Optional[str] = None
-    is_downsampled: Optional[bool] = False
-    downsampling_ratio: Union[None, PositiveInt, str] = None
-    timestep_matched_downsampling: Optional[bool] = True
-
-
-class SessionMetricMetaData(EmptyStrAsNoneBaseModel):
-    """
-    Baseclass of SessionMetrics' metadata classes.
-    """
-    parent_name: Optional[str] = None
-
-
-class SessionMetric(abc.ABC):
+class Statistic(AbstractDataContainer):
     """
     Abstract baseclass for metrics generated from all recordings of a session. 
     """
@@ -213,8 +295,40 @@ class SessionMetric(abc.ABC):
 
     @classmethod
     @abc.abstractmethod
-    def generate_name(cls, params: SessionMetricMetaData) -> str:
+    def generate_name(cls, params: StatisticMetaData) -> str:
         """Abstract version of generating a SessionMetric name."""
+
+    def __init__(
+            self,
+            owner,
+            meta_data: EmptyStrAsNoneBaseModel,
+            parsed_data: Optional[np.ndarray] = None,
+            load_path: Optional[Path] = None,
+            meta_path: Optional[Path] = None,
+    ) -> None:
+        """
+        Build a Statistic.       
+
+        Parameters
+        ----------
+        owner : 
+            The owner of this Statistic. Usually this will be the object whose
+            contents this Statistic was calculated on.
+        metadata : EmptyStrAsNoneBaseModel
+            Parameters used in calculating this Statistic.
+        parsed_data : Optional[np.ndarray], optional
+            the actual statistic, by default None
+        load_path : Optional[Path], optional
+            path of the saved data, by default None
+        meta_path : Optional[Path], optional
+            path of the saved meta data, by default None
+        """
+        # TODO: just call super instead
+        self.owner = owner
+        self.meta_data = meta_data
+        self.data = parsed_data
+        self.load_path = load_path
+        self.meta_path = meta_path
 
 
 class RecordingSession(UserList):
@@ -235,7 +349,7 @@ class RecordingSession(UserList):
             paths: PathStructure,
             config: SessionConfig,
             recordings: list['Recording'],
-            metrics: Optional[dict[str, SessionMetric]]) -> None:
+            metrics: Optional[dict[str, Statistic]]) -> None:
         super().__init__(recordings)
         self.name = name
         self.paths = paths
@@ -253,58 +367,6 @@ class RecordingSession(UserList):
             The list of this RecordingSessions's Recordings.
         """
         return self.data
-
-
-class RecordingMetricMetaData(EmptyStrAsNoneBaseModel):
-    """
-    Baseclass of SessionMetrics' metadata classes.
-
-    Parameters
-    ----------
-    modality_name: Optional[str]
-        Name of the modality this RecordingMetric is derived from, defaults to
-        None.
-    """
-    modality_name: Optional[str] = None
-
-
-class RecordingMetric(abc.ABC):
-    """
-    Abstract baseclass for metrics generated from all recordings of a session. 
-    """
-    data: np.ndarray
-
-    @classmethod
-    @abc.abstractmethod
-    def generate_name(cls, params: RecordingMetricMetaData) -> str:
-        """Abstract version of generating a RecordingMetric name."""
-
-    def __init__(self,
-                 recording: 'Recording',
-                 meta_data: RecordingMetricMetaData,
-                 load_path: Optional[Path] = None,
-                 meta_path: Optional[Path] = None,
-                 parsed_data: Optional[np.ndarray] = None,
-                 ) -> None:
-        self.recording = recording
-        self.meta_data = meta_data
-        self.load_path = load_path
-        self.meta_path = meta_path
-        self.data = parsed_data
-
-    def get_meta(self) -> dict:
-        """
-        Get meta data as a dict.
-
-        This is a helper method for saving as nested text. Allows for rewriting
-        any fields that need a simpler representation.
-
-        Returns
-        -------
-        dict
-            The meta data in a dict.
-        """
-        return self.meta_data.model_dump()
 
 
 class Recording(UserDict):

@@ -40,13 +40,13 @@ from typing import Optional, Tuple, Union
 import numpy as np
 
 from satkit.data_structures import (
-    Modality, Recording, RecordingMetric, RecordingMetricMetaData)
+    Modality, Recording, RecordingSession, Statistic, StatisticMetaData)
 from satkit.helpers import product_dict
 
 _logger = logging.getLogger('satkit.mean_image')
 
 
-class MeanImageParameters(RecordingMetricMetaData):
+class MeanImageParameters(StatisticMetaData):
     """
     Parameters used in generating the parent MeanImage modality.
 
@@ -68,7 +68,7 @@ class MeanImageParameters(RecordingMetricMetaData):
     release_data_memory: bool = True
 
 
-class MeanImage(RecordingMetric):
+class MeanImage(Statistic):
     """
     Represent Mean Image of a Recording as a RecordingMetric. 
     """
@@ -153,36 +153,35 @@ class MeanImage(RecordingMetric):
                 for params in mean_image_params}
 
     def __init__(self,
-                 recording: Recording,
+                 owner: Union[Recording, RecordingSession],
                  meta_data: MeanImageParameters,
+                 parsed_data: Optional[np.ndarray] = None,
                  load_path: Optional[Path] = None,
                  meta_path: Optional[Path] = None,
-                 parsed_data: Optional[np.ndarray] = None,
                  ) -> None:
         """
-        Build a MeanImage RecordingMetric.       
+        Build a MeanImage Statistic.       
 
         Parameters
         ----------
-        recording : Recording
-            the containing Recording.
+        owner : Union[Recording, RecordingSession]
+            the Recording or RecordingSession that this MeanImage was
+            calculated on.
         metadata : MeanImageParameters
             Parameters used in calculating this instance of MeanImage.
+        parsed_data : Optional[np.ndarray], optional
+            the actual mean image, by default None
         load_path : Optional[Path], optional
             path of the saved data, by default None
         meta_path : Optional[Path], optional
             path of the saved meta data, by default None
-        parsed_data : Optional[np.ndarray], optional
-            the actual mean image, by default None
         """
         super().__init__(
-            recording,
+            owner=owner,
             meta_data=meta_data,
+            parsed_data=parsed_data,
             load_path=load_path,
-            meta_path=meta_path,
-            parsed_data=parsed_data)
-
-        self.meta_data = meta_data
+            meta_path=meta_path)
 
     def _derive_data(self) -> Tuple[np.ndarray, np.ndarray, float]:
         """

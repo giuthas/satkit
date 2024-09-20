@@ -40,13 +40,13 @@ from typing import Optional, Tuple, Union
 import numpy as np
 
 from satkit.data_structures import (
-    Modality, RecordingSession, SessionMetric, SessionMetricMetaData)
+    Modality, RecordingSession, Statistic, StatisticMetaData)
 from satkit.helpers import product_dict
 
 _logger = logging.getLogger('satkit.mse')
 
 
-class DistanceMatrixParameters(SessionMetricMetaData):
+class DistanceMatrixParameters(StatisticMetaData):
     """
     Parameters used in generating the parent DistanceMatrix.
 
@@ -73,7 +73,7 @@ class DistanceMatrixParameters(SessionMetricMetaData):
     release_data_memory: bool = True
 
 
-class DistanceMatrix(SessionMetric):
+class DistanceMatrix(Statistic):
     """
     DistanceMatrix gives the distances between the Recordings.
 
@@ -184,8 +184,8 @@ class DistanceMatrix(SessionMetric):
                 for params in distance_matrix_params}
 
     def __init__(self,
-                 session: RecordingSession,
-                 metadata: DistanceMatrixParameters,
+                 owner: RecordingSession,
+                 meta_data: DistanceMatrixParameters,
                  load_path: Optional[Path] = None,
                  meta_path: Optional[Path] = None,
                  parsed_data: Optional[np.ndarray] = None,
@@ -207,14 +207,13 @@ class DistanceMatrix(SessionMetric):
             The distance matrix itself, by default None
         """
         super().__init__(
-            session,
-            metadata=metadata,
-            data_path=None,
+            owner=owner,
+            meta_data=meta_data,
+            parsed_data=parsed_data,
             load_path=load_path,
-            meta_path=meta_path,
-            parsed_data=parsed_data)
+            meta_path=meta_path)
 
-        self.meta_data = metadata
+        self.meta_data = meta_data
 
     def _derive_data(self) -> Tuple[np.ndarray, np.ndarray, float]:
         """

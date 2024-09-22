@@ -323,12 +323,9 @@ class Statistic(AbstractDataContainer):
         meta_path : Optional[Path], optional
             path of the saved meta data, by default None
         """
-        # TODO: just call super instead
-        self.owner = owner
-        self.meta_data = meta_data
-        self.data = parsed_data
-        self.load_path = load_path
-        self.meta_path = meta_path
+        super().__init__(owner=owner, meta_data=meta_data,
+                         parsed_data=parsed_data,
+                         load_path=load_path, meta_path=meta_path)
 
 
 class RecordingSession(UserList):

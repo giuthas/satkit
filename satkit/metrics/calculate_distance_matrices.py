@@ -42,13 +42,16 @@ import numpy as np
 from satkit.data_structures import Modality, RecordingSession
 from satkit.helpers import mean_squared_error
 
-from .session_distance_matrix import DistanceMatrix
+from .distance_matrix import DistanceMatrix
 
 _logger = logging.getLogger('satkit.session_mse')
 
 
-def calculate_mse(session: RecordingSession) -> np.ndarray:
-    average_images = [recording['AverageUltrasoundImage']
+def calculate_mse(
+        session: RecordingSession,
+        modality_name: str
+) -> np.ndarray:
+    average_images = [recording[modality_name]
                       for recording in session.recordings]
     mean_squared_errors = np.zeros([len(average_images), len(average_images)])
 
@@ -111,10 +114,9 @@ def add_distance_matrices(
                               value in all_requested.items()
                               if key in missing_keys)
 
-        data_modality = session[modality.__name__]
-
         if to_be_computed:
-            matrices = calculate_mse(data_modality, to_be_computed)
+            matrices = calculate_mse(session=session,
+                                     modality_name=modality.__name__)
 
             for matrix in matrices:
                 session.add_modality(matrix)

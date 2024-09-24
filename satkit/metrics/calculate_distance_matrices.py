@@ -47,17 +47,26 @@ from .distance_matrix import DistanceMatrix
 _logger = logging.getLogger('satkit.session_mse')
 
 
-def calculate_mse(
-        session: RecordingSession,
-        modality_name: str
-) -> np.ndarray:
-    average_images = [recording[modality_name]
-                      for recording in session.recordings]
-    mean_squared_errors = np.zeros([len(average_images), len(average_images)])
+def calculate_mse(images: list[np.ndarray]) -> np.ndarray:
+    """
+    Calculate mean squared errors between all pairs in the list.
 
-    for i, image1 in enumerate(average_images):
-        for j in range(i+1, len(average_images)):
-            image2 = average_images[j]
+    Parameters
+    ----------
+    images : list[np.ndarray]
+        Images of some sort as plain 2D np.ndarrays.
+
+    Returns
+    -------
+    np.ndarray
+        Matrix where matrix[i,j] is the MSE between the ith and jth image in
+        the list. The matrix is symmetric: matrix[i,j] = matrix[j,i].
+    """
+    mean_squared_errors = np.zeros([len(images), len(images)])
+
+    for i, image1 in enumerate(images):
+        for j in range(i+1, len(images)):
+            image2 = images[j]
             mse = mean_squared_error(image1, image2)
             mean_squared_errors[i, j] = mse
             mean_squared_errors[j, i] = mse
@@ -115,8 +124,9 @@ def add_distance_matrices(
                               if key in missing_keys)
 
         if to_be_computed:
-            matrices = calculate_mse(session=session,
-                                     modality_name=modality.__name__)
+            images = [recording[modality.__name__].data
+                      for recording in session.recordings]
+            matrices = calculate_mse(images)
 
             for matrix in matrices:
                 session.add_modality(matrix)

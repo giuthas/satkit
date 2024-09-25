@@ -56,12 +56,12 @@ def load_data(path: Path) -> Session:
     Parameters
     ----------
     path : Path
-        Directory or SATKIT metafile to read the RecordingSession from.
+        Directory or SATKIT metafile to read the Session from.
 
     Returns
     -------
-    RecordingSession
-        The generated RecordingSession object with the exclusion list applied.
+    Session
+        The generated Session object with the exclusion list applied.
     """
     if config_dict['mains_frequency']:
         MainsFilter.generate_mains_filter(
@@ -101,7 +101,7 @@ def read_recording_session_from_dir(
     containing_dir = path.parts[-1]
 
     session_config_path = path / SatkitConfigFile.SESSION
-    session_meta_path = path / (containing_dir + '.RecordingSession' +
+    session_meta_path = path / (containing_dir + '.Session' +
                                 SatkitSuffix.META)
     if session_meta_path.is_file():
         return load_recording_session(path, session_config_path)

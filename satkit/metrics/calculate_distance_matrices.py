@@ -30,7 +30,7 @@
 # citations.bib in BibTeX format.
 #
 """
-Calculate DistanceMatrices between a RecordingSession's Recordings.
+Calculate DistanceMatrices between a Session's Recordings.
 """
 
 import logging

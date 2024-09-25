@@ -88,24 +88,24 @@ class RecordingLoadSchema(BaseModel):
     modalities: dict[str, ModalityListingLoadschema]
 
 
-class RecordingSessionParameterLoadSchema(BaseModel):
+class SessionParameterLoadSchema(BaseModel):
     """
-    Loading schema for a saved RecordingSession.
+    Loading schema for a saved Session.
 
-    RecordingSession is defined in the data_structures module.
+    Session is defined in the data_structures module.
     """
     path: DirectoryPath
     datasource: Datasource
 
 
-class RecordingSessionLoadSchema(BaseModel):
+class SessionLoadSchema(BaseModel):
     """
-    Loading schema for a saved RecordingSession.
+    Loading schema for a saved Session.
 
-    RecordingSession is defined in the data_structures module.
+    Session is defined in the data_structures module.
     """
-    object_type: SavedObjectTypes = SavedObjectTypes.RECORDING_SESSION
+    object_type: SavedObjectTypes = SavedObjectTypes.SESSION
     name: str
     format_version: str
-    parameters: RecordingSessionParameterLoadSchema
+    parameters: SessionParameterLoadSchema
     recordings: list[str]

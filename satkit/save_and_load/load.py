@@ -50,7 +50,7 @@ from satkit.metrics import metrics
 
 from .save_and_load_schemas import (
     ModalityListingLoadschema, ModalityLoadSchema, RecordingLoadSchema,
-    RecordingSessionLoadSchema)
+    SessionLoadSchema)
 
 _recording_loader_logger = logging.getLogger('satkit.recording_loader')
 
@@ -219,7 +219,7 @@ def load_recording_session(
     Returns
     -------
     Session
-        The loaded RecordingSession object.
+        The loaded Session object.
     """
     if isinstance(directory, str):
         directory = Path(directory)
@@ -227,11 +227,11 @@ def load_recording_session(
     if not session_config_path:
         session_config_path = directory / SatkitConfigFile.SESSION
 
-    filename = f"{directory.parts[-1]}{'.RecordingSession'}{SatkitSuffix.META}"
+    filename = f"{directory.parts[-1]}{'.Session'}{SatkitSuffix.META}"
     filepath = directory/filename
 
     raw_input = nestedtext.load(filepath)
-    meta = RecordingSessionLoadSchema.model_validate(raw_input)
+    meta = SessionLoadSchema.model_validate(raw_input)
 
     if session_config_path.is_file():
         paths, session_config = load_session_config(

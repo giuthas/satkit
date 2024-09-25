@@ -335,7 +335,7 @@ def recording_timeseries_figure(recording: Recording, pdf: PdfPages):
 
 def publish_pdf(recording_session: Session):
     """
-    Draw all Recordings in the RecordingSession into a pdf file.
+    Draw all Recordings in the Session into a pdf file.
 
     The filename is read from configuration (likely satkit_publish_config.yaml
     or similar specified in the main config file.)
@@ -344,8 +344,8 @@ def publish_pdf(recording_session: Session):
 
     Parameters
     ----------
-    recording_session : RecordingSession
-        The RecordingSession containing the Recordings.
+    recording_session : Session
+        The Session containing the Recordings.
     """
     with PdfPages(publish_params['output file']) as pdf:
         for recording in recording_session.recordings:

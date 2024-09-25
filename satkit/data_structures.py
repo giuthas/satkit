@@ -63,7 +63,7 @@ class DataContainer(abc.ABC):
     """
     Abstract baseclass for all of SATKIT's data containers. 
 
-    Container classes include Modality, Recording, RecordingSession, and in
+    Container classes include Modality, Recording, Session, and in
     general any class in satkit/data_structures, which has a meta_data
     field or any class which is derived from those classes.
 
@@ -361,8 +361,7 @@ class Session(UserList):
     fields. While some legacy code may be left behind, the preferred idiom for
     iterating over the recordings is `for recording in recording_session:`.
 
-    RecordingSessions can also hold aggregate data in the form of
-    SessionMetrics.
+    Sessions can also hold aggregate data in the form of Statistics.
     """
 
     def __init__(
@@ -390,7 +389,7 @@ class Session(UserList):
         Returns
         -------
         list[Recording]
-            The list of this RecordingSessions's Recordings.
+            The list of this Sessions's Recordings.
         """
         return self.data
 

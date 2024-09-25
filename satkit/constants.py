@@ -165,7 +165,7 @@ class SavedObjectTypes(Enum):
     Represent type of a saved satkit object in .satkit_meta.
     """
     # TODO 1.1: Check if this is actually in use.
-    RECORDING_SESSION = "RecordingSession"
+    SESSION = "Session"
     RECORDING = "Recording"
     MODALITY = "Modality"
 
@@ -195,13 +195,13 @@ class SourceSuffix():
 
 
 # def satkit_suffix(
-#         satkit_type: Union[Recording, RecordingSession, Modality]) -> str:
+#         satkit_type: Union[Recording, Session, Modality]) -> str:
 #     """
 #     Generate a suffix for the save file of a SATKIT data structure.
 
 #     Parameters
 #     ----------
-#     satkit_type : Union[Recording, RecordingSession, Modality]
+#     satkit_type : Union[Recording, Session, Modality]
 #         The datastructures type.
 
 #     Returns
@@ -215,8 +215,8 @@ class SourceSuffix():
 #     suffix = SatkitSuffix.META
 #     if satkit_type == Recording:
 #         suffix = '.Recording' + suffix
-#     elif satkit_type == RecordingSession:
-#         suffix = '.RecordingSession' + suffix
+#     elif satkit_type == Session:
+#         suffix = '.Session' + suffix
 #     elif satkit_type == Modality:
 #         suffix = ''
 #     return suffix

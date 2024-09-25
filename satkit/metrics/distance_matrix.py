@@ -195,8 +195,8 @@ class DistanceMatrix(Statistic):
 
         Parameters
         ----------
-        session : RecordingSession
-            Containing RecordingSession.
+        session : Session
+            Containing Session.
         metadata : DistanceMatrixParameters
             Parameters used in calculating this instance of DistanceMatrix.
         load_path : Optional[Path], optional
@@ -217,7 +217,7 @@ class DistanceMatrix(Statistic):
 
     def _derive_data(self) -> Tuple[np.ndarray, np.ndarray, float]:
         """
-        Calculate the distance matrix on the data RecordingSession parent.       
+        Calculate the distance matrix on the data Session parent.       
         """
         raise NotImplementedError(
             "Currently MSE Modalities have to be "

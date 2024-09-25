@@ -164,9 +164,8 @@ class MeanImage(Statistic):
 
         Parameters
         ----------
-        owner : Union[Recording, RecordingSession]
-            the Recording or RecordingSession that this MeanImage was
-            calculated on.
+        owner : Union[Recording, Session]
+            the Recording or Session that this MeanImage was calculated on.
         metadata : MeanImageParameters
             Parameters used in calculating this instance of MeanImage.
         parsed_data : Optional[np.ndarray], optional

@@ -121,7 +121,7 @@ class PathStructure:
 @dataclass
 class SessionConfig:
     """
-    Description of a RecordingSession for import into SATKIT.
+    Description of a Session for import into SATKIT.
     """
     data_source: Datasource
     exclusion_list: Optional[ExclusionList] = None

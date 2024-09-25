@@ -234,7 +234,7 @@ def save_recording_session_meta(
     """
     _logger.debug(
         "Saving meta for session %s.", session.name)
-    filename = f"{session.name}{'.RecordingSession'}{SatkitSuffix.META}"
+    filename = f"{session.name}{'.Session'}{SatkitSuffix.META}"
     filepath = session.paths.root/filename
 
     if filepath.exists():

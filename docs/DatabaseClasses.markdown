@@ -2,7 +2,7 @@
 # Database Classes
 
 At time of writing the existence of a Trial class is uncertain in 1.0. If there
-is no Trial class then the only type of Session will be RecordingSession, which
+is no Trial class then the only type of Session will be Session, which
 will be a list of Recordings.
 
 ```mermaid
@@ -19,7 +19,7 @@ classDiagram
         metadata: ParticipantMetadata
     }
 
-    class RecordingSession{
+    class Session{
         recordings: list[Recording]
         metadata: SessionMetadata
     }
@@ -47,9 +47,9 @@ classDiagram
     }
 
     Dataset o-- "1.n" Participant
-    Dataset o-- "1.n" RecordingSession
-    RecordingSession o-- "1.n" Participant
-    RecordingSession o-- "1.n" Recording
+    Dataset o-- "1.n" Session
+    Session o-- "1.n" Participant
+    Session o-- "1.n" Recording
     Recording o-- "1.n" Modality
     Modality o-- "1" ModalityData
     Modality o-- "1.n" Annotation

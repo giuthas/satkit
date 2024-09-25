@@ -93,16 +93,16 @@
             <mxPoint x="20" as="offset" />
           </mxGeometry>
         </mxCell>
-        <mxCell id="dw-5MU0nXrqIQdTcudcJ-2" value="RecordingSession" style="swimlane;fontStyle=0;childLayout=stackLayout;horizontal=1;startSize=26;fillColor=none;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;labelBorderColor=none;fontColor=#CC6600;strokeColor=#999999;" vertex="1" parent="1">
+        <mxCell id="dw-5MU0nXrqIQdTcudcJ-2" value="Session" style="swimlane;fontStyle=0;childLayout=stackLayout;horizontal=1;startSize=26;fillColor=none;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;labelBorderColor=none;fontColor=#CC6600;strokeColor=#999999;" vertex="1" parent="1">
           <mxGeometry x="380" y="270" width="220" height="102" as="geometry" />
         </mxCell>
         <mxCell id="dw-5MU0nXrqIQdTcudcJ-39" value="+ participant: Participant" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;labelBorderColor=none;fontColor=#CC6600;" vertex="1" parent="dw-5MU0nXrqIQdTcudcJ-2">
           <mxGeometry y="26" width="220" height="26" as="geometry" />
         </mxCell>
-        <mxCell id="dw-5MU0nXrqIQdTcudcJ-4" value="+ meta: RecordingSessionMetadata" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;labelBorderColor=none;fontColor=#CC6600;" vertex="1" parent="dw-5MU0nXrqIQdTcudcJ-2">
+        <mxCell id="dw-5MU0nXrqIQdTcudcJ-4" value="+ meta: SessionMetadata" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;labelBorderColor=none;fontColor=#CC6600;" vertex="1" parent="dw-5MU0nXrqIQdTcudcJ-2">
           <mxGeometry y="52" width="220" height="26" as="geometry" />
         </mxCell>
-        <mxCell id="dw-5MU0nXrqIQdTcudcJ-3" value="+ recordngs: list[Recording]" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;labelBorderColor=none;fontColor=#CC6600;" vertex="1" parent="dw-5MU0nXrqIQdTcudcJ-2">
+        <mxCell id="dw-5MU0nXrqIQdTcudcJ-3" value="+ recordings: list[Recording]" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;labelBorderColor=none;fontColor=#CC6600;" vertex="1" parent="dw-5MU0nXrqIQdTcudcJ-2">
           <mxGeometry y="78" width="220" height="24" as="geometry" />
         </mxCell>
         <mxCell id="dw-5MU0nXrqIQdTcudcJ-9" value="" style="endArrow=open;html=1;endSize=12;startArrow=diamondThin;startSize=14;startFill=0;edgeStyle=orthogonalEdgeStyle;rounded=0;fontColor=#CC6600;entryX=0.5;entryY=0;entryDx=0;entryDy=0;strokeColor=#999999;" edge="1" parent="1" source="dw-5MU0nXrqIQdTcudcJ-2" target="EE9BV4YBEMpnvcACtNnI-5">
@@ -125,10 +125,10 @@
         <mxCell id="dw-5MU0nXrqIQdTcudcJ-30" value="+ participants: dict[str, Participant]" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;labelBorderColor=none;fontColor=#CC6600;" vertex="1" parent="dw-5MU0nXrqIQdTcudcJ-11">
           <mxGeometry y="52" width="220" height="26" as="geometry" />
         </mxCell>
-        <mxCell id="dw-5MU0nXrqIQdTcudcJ-12" value="+ sessions: list[RecordingSession]" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;labelBorderColor=none;fontColor=#CC6600;" vertex="1" parent="dw-5MU0nXrqIQdTcudcJ-11">
+        <mxCell id="dw-5MU0nXrqIQdTcudcJ-12" value="+ sessions: list[Session]" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;labelBorderColor=none;fontColor=#CC6600;" vertex="1" parent="dw-5MU0nXrqIQdTcudcJ-11">
           <mxGeometry y="78" width="220" height="24" as="geometry" />
         </mxCell>
-        <mxCell id="dw-5MU0nXrqIQdTcudcJ-14" value="RecordingSessionMetaData" style="swimlane;fontStyle=0;childLayout=stackLayout;horizontal=1;startSize=26;fillColor=none;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;labelBorderColor=none;strokeColor=#999999;fontColor=#CC6600;" vertex="1" parent="1">
+        <mxCell id="dw-5MU0nXrqIQdTcudcJ-14" value="SessionMetaData" style="swimlane;fontStyle=0;childLayout=stackLayout;horizontal=1;startSize=26;fillColor=none;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;labelBorderColor=none;strokeColor=#999999;fontColor=#CC6600;" vertex="1" parent="1">
           <mxGeometry x="688.5" y="321" width="180" height="78" as="geometry" />
         </mxCell>
         <mxCell id="dw-5MU0nXrqIQdTcudcJ-16" value="+ time_of_recording: datetime" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;labelBorderColor=none;fontColor=#CC6600;" vertex="1" parent="dw-5MU0nXrqIQdTcudcJ-14">

@@ -49,7 +49,7 @@ from satkit.annotations import (
 import satkit.configuration as config
 
 from satkit.configuration import DataRunConfig
-from satkit.data_structures import RecordingSession
+from satkit.data_structures import Session
 from satkit.metrics import (add_pd,  add_spline_metric,
                             downsample_metrics)
 from satkit.modalities import RawUltrasound, Splines
@@ -62,14 +62,14 @@ from satkit.scripting_interface import (
 
 
 def downsample(
-        recording_session: RecordingSession,
+        recording_session: Session,
         data_run_config: DataRunConfig) -> None:
     for recording in recording_session:
         downsample_metrics(recording, data_run_config.downsample)
 
 
 def data_run(
-        recording_session: RecordingSession,
+        recording_session: Session,
         configuration: config.Configuration,
         exclusion_list: list[str]) -> None:
     data_run_config = configuration.data_run_config

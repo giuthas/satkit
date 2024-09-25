@@ -39,7 +39,7 @@ from typing import Optional
 import numpy as np
 
 # local modules
-from satkit.data_structures import Modality, RecordingSession
+from satkit.data_structures import Modality, Session
 from satkit.helpers import mean_squared_error
 
 from .distance_matrix import DistanceMatrix
@@ -75,7 +75,7 @@ def calculate_mse(images: list[np.ndarray]) -> np.ndarray:
 
 
 def add_distance_matrices(
-    session: RecordingSession,
+    session: Session,
     modality: Modality,
     preload: bool = True,
     metrics: Optional[list[str]] = None,

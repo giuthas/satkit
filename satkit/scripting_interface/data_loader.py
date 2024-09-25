@@ -40,7 +40,7 @@ from satkit.constants import (
     Datasource, SourceSuffix, SatkitSuffix, SatkitConfigFile)
 from satkit.data_import import (
     generate_aaa_recording_list, load_session_config)
-from satkit.data_structures import RecordingSession
+from satkit.data_structures import Session
 from satkit.save_and_load import load_recording_session
 
 logger = logging.getLogger('satkit.scripting')
@@ -49,7 +49,7 @@ logger = logging.getLogger('satkit.scripting')
 # appropriate submodule.
 
 
-def load_data(path: Path) -> RecordingSession:
+def load_data(path: Path) -> Session:
     """
     Handle loading data from individual files or a previously saved session.
 
@@ -87,7 +87,7 @@ def load_data(path: Path) -> RecordingSession:
 
 
 def read_recording_session_from_dir(
-        path: Path) -> RecordingSession:
+        path: Path) -> Session:
     """
     Wrapper for reading data from a directory full of files.
 
@@ -113,7 +113,7 @@ def read_recording_session_from_dir(
 
             recordings = generate_aaa_recording_list(path, session_config)
 
-            return RecordingSession(
+            return Session(
                 name=containing_dir, paths=paths, config=session_config,
                 recordings=recordings)
 
@@ -126,7 +126,7 @@ def read_recording_session_from_dir(
 
         paths = PathStructure(root=path)
         session_config = SessionConfig(data_source=Datasource.AAA)
-        return RecordingSession(
+        return Session(
             name=containing_dir, paths=paths, config=session_config,
             recordings=recordings)
 

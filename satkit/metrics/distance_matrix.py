@@ -40,7 +40,7 @@ from typing import Optional, Tuple, Union
 import numpy as np
 
 from satkit.data_structures import (
-    Modality, RecordingSession, Statistic, StatisticMetaData)
+    Modality, Session, Statistic, StatisticMetaData)
 from satkit.helpers import product_dict
 
 _logger = logging.getLogger('satkit.mse')
@@ -184,7 +184,7 @@ class DistanceMatrix(Statistic):
                 for params in distance_matrix_params}
 
     def __init__(self,
-                 owner: RecordingSession,
+                 owner: Session,
                  meta_data: DistanceMatrixParameters,
                  load_path: Optional[Path] = None,
                  meta_path: Optional[Path] = None,

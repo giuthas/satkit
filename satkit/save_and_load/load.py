@@ -45,7 +45,7 @@ from satkit.configuration import PathStructure, SessionConfig
 from satkit.constants import SatkitConfigFile, SatkitSuffix
 from satkit.data_import import (
     modality_adders, add_splines, load_session_config)
-from satkit.data_structures import ModalityData, Recording, RecordingSession
+from satkit.data_structures import ModalityData, Recording, Session
 from satkit.metrics import metrics
 
 from .save_and_load_schemas import (
@@ -207,7 +207,7 @@ def load_recordings(directory: Path, recording_metafiles: Optional
 def load_recording_session(
     directory: Union[Path, str],
     session_config_path: Optional[Path] = None
-) -> RecordingSession:
+) -> Session:
     """
     Load a recording session from a directory.
 
@@ -242,7 +242,7 @@ def load_recording_session(
 
     recordings = load_recordings(directory, meta.recordings)
 
-    session = RecordingSession(
+    session = Session(
         name=meta.name, paths=paths,
         config=session_config,
         recordings=recordings)

@@ -40,7 +40,7 @@ from typing import Optional, Tuple, Union
 import numpy as np
 
 from satkit.data_structures import (
-    Modality, Recording, RecordingSession, Statistic, StatisticMetaData)
+    Modality, Recording, Session, Statistic, StatisticMetaData)
 from satkit.helpers import product_dict
 
 _logger = logging.getLogger('satkit.mean_image')
@@ -153,7 +153,7 @@ class MeanImage(Statistic):
                 for params in mean_image_params}
 
     def __init__(self,
-                 owner: Union[Recording, RecordingSession],
+                 owner: Union[Recording, Session],
                  meta_data: MeanImageParameters,
                  parsed_data: Optional[np.ndarray] = None,
                  load_path: Optional[Path] = None,

@@ -52,14 +52,14 @@ import textgrids
 from satkit.configuration import (
     PathStructure, PointAnnotationParams, SessionConfig)
 from satkit.constants import AnnotationType, SatkitSuffix
-from satkit.errors import MissingDataError, ModalityError, OverWriteError
+from satkit.errors import MissingDataError, OverwriteError, OverWriteError
 from satkit.helpers import EmptyStrAsNoneBaseModel, is_sequence_form
 from satkit.satgrid import SatGrid
 
 _datastructures_logger = logging.getLogger('satkit.data_structures')
 
 
-class AbstractDataContainer(abc.ABC):
+class DataContainer(abc.ABC):
     """
     Abstract baseclass for all of SATKIT's data containers. 
 
@@ -104,6 +104,28 @@ class AbstractDataContainer(abc.ABC):
         """
         state = self.__dict__.copy()
         del state['owner']
+
+    @abc.abstractmethod
+    @property
+    def name(self) -> str:
+        """
+        Name of this instance.
+
+        In most cases name is supposed to be implemented with the following
+        idiom:
+        ```python
+        return NAME_OF_THIS_CLASS.generate_name(self.meta_data)
+        ```
+        For example, for PD:
+        ```python
+        return PD.generate_name(self.meta_data)
+        ```
+
+        Returns
+        -------
+        str
+            Name of this instance.
+        """
 
     @property
     def is_fully_initialised(self) -> bool:
@@ -287,16 +309,19 @@ class PointAnnotations():
                 self.properties[key] = self.properties[key][selected]
 
 
-class Statistic(AbstractDataContainer):
+class Statistic(DataContainer):
     """
-    Abstract baseclass for metrics generated from all recordings of a session. 
+    Abstract baseclass for statistics generated from members of a container. 
+
+    Specifically Statistics are time independent data while Modalities are time
+    dependent data.
     """
     data: np.ndarray
 
     @classmethod
     @abc.abstractmethod
     def generate_name(cls, params: StatisticMetaData) -> str:
-        """Abstract version of generating a SessionMetric name."""
+        """Abstract version of generating a Statistic name."""
 
     def __init__(
             self,
@@ -328,7 +353,7 @@ class Statistic(AbstractDataContainer):
                          load_path=load_path, meta_path=meta_path)
 
 
-class RecordingSession(UserList):
+class Session(UserList):
     """
     The metadata and Recordings of a recording session.
 
@@ -346,12 +371,16 @@ class RecordingSession(UserList):
             paths: PathStructure,
             config: SessionConfig,
             recordings: list['Recording'],
-            metrics: Optional[dict[str, Statistic]]) -> None:
+            statistics: Optional[dict[str, Statistic]] = None
+    ) -> None:
         super().__init__(recordings)
         self.name = name
         self.paths = paths
         self.config = config
-        self.metrics = metrics
+
+        self.statistics = {}
+        if statistics:
+            self.statistics.update(statistics)
 
     @property
     def recordings(self) -> list['Recording']:
@@ -364,6 +393,9 @@ class RecordingSession(UserList):
             The list of this RecordingSessions's Recordings.
         """
         return self.data
+
+    def add_statistic(self, statistic: Statistic, replace: bool = False) -> None:
+        self.statistics[statistic.name] = statistic
 
 
 class Recording(UserDict):
@@ -547,9 +579,9 @@ class Recording(UserDict):
         name = modality.name
 
         if name in self.modalities and not replace:
-            ic(modality.metadata)
-            ic(self[modality.name].metadata)
-            raise ModalityError(
+            # ic(modality.metadata)
+            # ic(self[modality.name].metadata)
+            raise OverwriteError(
                 "A modality named " + name +
                 " already exists and replace flag was False.")
 

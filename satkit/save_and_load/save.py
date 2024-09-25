@@ -42,7 +42,7 @@ import numpy as np
 # from icecream import ic
 
 from satkit.constants import SATKIT_FILE_VERSION, SatkitSuffix
-from satkit.data_structures import Modality, Recording, RecordingSession
+from satkit.data_structures import Modality, Recording, Session
 from satkit.ui_callbacks import UiCallbacks, OverwriteConfirmation
 
 from .save_and_load_schemas import nested_text_converters
@@ -222,7 +222,7 @@ def save_recordings(
 
 
 def save_recording_session_meta(
-        session: RecordingSession,
+        session: Session,
         recording_meta_files: list,
         confirmation: OverwriteConfirmation
 ) -> Tuple[str, OverwriteConfirmation]:
@@ -268,7 +268,7 @@ def save_recording_session_meta(
     return filename
 
 
-def save_recording_session(session: RecordingSession) -> None:
+def save_recording_session(session: Session) -> None:
     """
     Save a recording session.
     """

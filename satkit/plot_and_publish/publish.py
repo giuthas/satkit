@@ -57,7 +57,7 @@ import seaborn as sns
 
 from icecream import ic
 
-from satkit.data_structures import Recording, RecordingSession
+from satkit.data_structures import Recording, Session
 from satkit.configuration import publish_params
 
 from .plot import (plot_1d_modality, plot_satgrid_tier)
@@ -333,7 +333,7 @@ def recording_timeseries_figure(recording: Recording, pdf: PdfPages):
     pdf.savefig(plt.gcf())
 
 
-def publish_pdf(recording_session: RecordingSession):
+def publish_pdf(recording_session: Session):
     """
     Draw all Recordings in the RecordingSession into a pdf file.
 

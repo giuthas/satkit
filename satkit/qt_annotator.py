@@ -61,7 +61,7 @@ from icecream import ic
 
 # Local modules
 # import satkit.io as satkit_io
-from satkit.data_structures import RecordingSession
+from satkit.data_structures import Session
 from satkit.configuration import (
     GuiConfig, TimeseriesNormalisation, gui_params, config_dict)
 from satkit.gui import BoundaryAnimator, ReplaceDialog
@@ -104,7 +104,7 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
     default_tongue_positions = ['High', 'Low', 'Other / Not visible']
 
     def __init__(self,
-                 recording_session: RecordingSession,
+                 recording_session: Session,
                  args: Namespace,
                  gui_config: GuiConfig,
                  xlim: list[float] = (-0.25, 1.5),

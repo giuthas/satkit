@@ -54,7 +54,7 @@ class OverwriteError(SatkitError):
     """
 
 
-class OverWriteError(SatkitError):
+class DimensionMismatchError(SatkitError):
     """
     Trying to replace the data or timevector in a Modality with non-matching dtype, size, or shape.
     """

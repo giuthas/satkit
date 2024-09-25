@@ -52,7 +52,7 @@ import textgrids
 from satkit.configuration import (
     PathStructure, PointAnnotationParams, SessionConfig)
 from satkit.constants import AnnotationType, SatkitSuffix
-from satkit.errors import MissingDataError, OverwriteError, OverWriteError
+from satkit.errors import MissingDataError, OverwriteError, DimensionMismatchError
 from satkit.helpers import EmptyStrAsNoneBaseModel, is_sequence_form
 from satkit.satgrid import SatGrid
 
@@ -868,7 +868,7 @@ class Modality(abc.ABC, OrderedDict):
                     data.shape == self._modality_data.data.shape):
                 self._modality_data.data = data
             else:
-                raise OverWriteError(
+                raise DimensionMismatchError(
                     "Trying to write over raw ultrasound data with a numpy " +
                     "array that has non-matching dtype, size, or shape.\n" +
                     " data.shape = " + str(data.shape) + "\n" +
@@ -955,7 +955,7 @@ class Modality(abc.ABC, OrderedDict):
     def timevector(self, timevector):
         if (self._modality_data is None or
                 self._modality_data.timevector is None):
-            raise OverWriteError(
+            raise DimensionMismatchError(
                 "Trying to overwrite the timevector when "
                 "it has not yet been initialised."
             )
@@ -971,7 +971,7 @@ class Modality(abc.ABC, OrderedDict):
                 self._modality_data.timevector = timevector
                 self.time_offset = timevector[0]
             else:
-                raise OverWriteError(
+                raise DimensionMismatchError(
                     "Trying to write over raw ultrasound data with a numpy " +
                     "array that has non-matching dtype, size, or shape.\n" +
                     " timevector.shape = " + str(timevector.shape) + "\n" +

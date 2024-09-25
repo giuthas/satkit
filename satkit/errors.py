@@ -29,37 +29,40 @@
 # articles listed in README.markdown. They can also be found in
 # citations.bib in BibTeX format.
 #
+"""
+Error classes for SATKIT.
+"""
+
 
 class SatkitError(Exception):
     """Base class of SATKIT Errors."""
-    pass
+
 
 class MissingDataError(SatkitError):
     """
     Data requested from Modality but is unavailable.
-    
+
     This Error signifies that a Modality was created without providing either a
     path to files to load or an algorithm for deriving the Modality from another
     Modality.
     """
-    pass
 
-class ModalityError(SatkitError):
+
+class OverwriteError(SatkitError):
     """
-    Modality already exists in Recording.
+    Modality or Statistic already exists in container.
     """
-    pass
+
 
 class OverWriteError(SatkitError):
     """
     Trying to replace the data or timevector in a Modality with non-matching dtype, size, or shape.
     """
-    pass
+
 
 class UnrecognisedNormError(SatkitError):
     """Did not have an implementation for requested norm."""
-    pass
+
 
 class UltrasoundInterpolationError(SatkitError):
-    """Interpolatated ultrasound image could not be produced."""
-    pass
+    """Interpolated ultrasound image could not be produced."""

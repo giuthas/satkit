@@ -70,7 +70,7 @@ class MeanImageParameters(StatisticMetaData):
 
 class MeanImage(Statistic):
     """
-    Represent Mean Image of a Recording as a RecordingMetric. 
+    Represent Mean Image of a Recording as a Statistic. 
     """
 
     @classmethod
@@ -133,8 +133,8 @@ class MeanImage(Statistic):
         Returns
         -------
         dict[str: MeanImageParameters]
-            Dictionary where the names of the MeanImage RecordingMetrics index
-            the MeanImageParameter objects.
+            Dictionary where the names of the MeanImage Statistics index the
+            MeanImageParameter objects.
         """
         if isinstance(modality, str):
             parent_name = modality

@@ -39,7 +39,7 @@ from typing import Optional, TextIO, Union
 
 import numpy as np
 import nestedtext
-from icecream import ic
+# from icecream import ic
 
 from satkit.configuration import PathStructure, SessionConfig
 from satkit.constants import SatkitConfigFile, SatkitSuffix

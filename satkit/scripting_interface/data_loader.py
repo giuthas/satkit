@@ -119,7 +119,7 @@ def read_recording_session_from_dir(
 
         if session_config.data_source == Datasource.RASL:
             raise NotImplementedError(
-                "Loading RASL data hasn't been impmelented yet.")
+                "Loading RASL data hasn't been implemented yet.")
 
     if list(path.glob('*' + SourceSuffix.AAA_ULTRA)):
         recordings = generate_aaa_recording_list(path)

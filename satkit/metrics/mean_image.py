@@ -71,7 +71,10 @@ class AverageImageParameters(StatisticMetaData):
 
 class AverageImage(Statistic):
     """
-    Represent Mean Image of a Recording as a Statistic. 
+    Represent an AverageImage as a Statistic. 
+
+    Currently only allowed metric is mean, but median, mode and others could be
+    added.
     """
 
     @classmethod
@@ -94,9 +97,8 @@ class AverageImage(Statistic):
         Returns
         -------
         str
-            Name of the MeanImage instance.
+            Name of the AverageImage instance.
         """
-        # name_string = 'MeanImage' + " " + params.metric
         name_string = cls.__name__ + " " + params.metric
 
         if params.interpolated and params.parent_name:

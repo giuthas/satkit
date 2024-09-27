@@ -109,20 +109,11 @@ class DistanceMatrix(Statistic):
         """
         name_string = cls.__name__ + " " + params.metric
 
-        if params.timestep != 1:
-            name_string = name_string + " ts" + str(params.timestep)
-
-        if params.image_mask:
-            name_string = name_string + " " + params.image_mask.value
-
         if params.interpolated and params.parent_name:
             name_string = ("Interpolated " + name_string + " on " +
                            params.parent_name)
         elif params.parent_name:
             name_string = name_string + " on " + params.parent_name
-
-        if params.is_downsampled:
-            name_string += " downsampled by " + str(params.downsampling_ratio)
 
         return name_string
 

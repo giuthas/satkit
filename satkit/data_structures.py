@@ -52,7 +52,8 @@ import textgrids
 from satkit.configuration import (
     PathStructure, PointAnnotationParams, SessionConfig)
 from satkit.constants import AnnotationType, SatkitSuffix
-from satkit.errors import MissingDataError, OverwriteError, DimensionMismatchError
+from satkit.errors import (
+    MissingDataError, OverwriteError, DimensionMismatchError)
 from satkit.helpers import EmptyStrAsNoneBaseModel, is_sequence_form
 from satkit.satgrid import SatGrid
 
@@ -393,8 +394,39 @@ class Session(UserList):
         """
         return self.data
 
-    def add_statistic(self, statistic: Statistic, replace: bool = False) -> None:
+    def add_statistic(
+            self, statistic: Statistic, replace: bool = False) -> None:
+        """
+        Add a Statistic to this Session.
+
+        Parameters
+        ----------
+        statistic : Statistic
+            Statistic to be added.
+        replace : bool, optional
+            Should we replace any existing Statistic by the same name, by
+            default False
+
+        Raises
+        ------
+        OverwriteError
+            In case replace was False and there exists already a Statistic with
+            the same name in this Session.
+        """
         self.statistics[statistic.name] = statistic
+        name = statistic.name
+
+        if name in self.statistics and not replace:
+            raise OverwriteError(
+                "A modality named " + name +
+                " already exists and replace flag was False.")
+
+        if replace:
+            self.statistics[name] = statistic
+            _datastructures_logger.debug("Replaced statistic %s.", name)
+        else:
+            self.statistics[name] = statistic
+            _datastructures_logger.debug("Added new statistic %s.", name)
 
 
 class Recording(UserDict):

@@ -46,7 +46,7 @@ from satkit.helpers import product_dict
 _logger = logging.getLogger('satkit.mean_image')
 
 
-class MeanImageParameters(StatisticMetaData):
+class AverageImageParameters(StatisticMetaData):
     """
     Parameters used in generating the parent MeanImage modality.
 
@@ -64,17 +64,18 @@ class MeanImageParameters(StatisticMetaData):
         be used on 2D ultrasound data. 
     """
     parent_name: str
+    metric: str = 'mean'
     interpolated: bool = False
     release_data_memory: bool = True
 
 
-class MeanImage(Statistic):
+class AverageImage(Statistic):
     """
     Represent Mean Image of a Recording as a Statistic. 
     """
 
     @classmethod
-    def generate_name(cls, params: MeanImageParameters) -> str:
+    def generate_name(cls, params: AverageImageParameters) -> str:
         """
         Generate a MeanImage metric name to be used as its unique identifier.
 
@@ -109,9 +110,10 @@ class MeanImage(Statistic):
     @staticmethod
     def get_names_and_meta(
         modality: Union[Modality, str],
+        metric: list[str] = None,
         mean_image_on_interpolated_data: bool = False,
         release_data_memory: bool = True
-    ) -> dict[str: MeanImageParameters]:
+    ) -> dict[str: AverageImageParameters]:
         """
         Generate MeanImage modality names and metadata.
 
@@ -141,20 +143,23 @@ class MeanImage(Statistic):
         else:
             parent_name = modality.__name__
 
+        if not metric:
+            metric = ['mean']
+
         param_dict = {
             'parent_name': [parent_name],
             'interpolated': [mean_image_on_interpolated_data],
             'release_data_memory': [release_data_memory]}
 
-        mean_image_params = [MeanImageParameters(**item)
+        mean_image_params = [AverageImageParameters(**item)
                              for item in product_dict(**param_dict)]
 
-        return {MeanImage.generate_name(params): params
+        return {AverageImage.generate_name(params): params
                 for params in mean_image_params}
 
     def __init__(self,
                  owner: Union[Recording, Session],
-                 meta_data: MeanImageParameters,
+                 meta_data: AverageImageParameters,
                  parsed_data: Optional[np.ndarray] = None,
                  load_path: Optional[Path] = None,
                  meta_path: Optional[Path] = None,
@@ -198,4 +203,4 @@ class MeanImage(Statistic):
         The name will be of the form
         'MeanImage [metric name] on [data modality class name]'.
         """
-        return MeanImage.generate_name(self.meta_data)
+        return AverageImage.generate_name(self.meta_data)

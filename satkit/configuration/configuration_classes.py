@@ -32,7 +32,7 @@
 """
 Classes for dealing with configuration.
 
-This file exist to remove a namespace conflict between typing.Optional and
+This module exist to remove a namespace conflict between typing.Optional and
 strictyaml.Optional.
 """
 
@@ -74,8 +74,8 @@ class SplineImportConfig:
     headers: bool
     coordinates: CoordinateSystems
     interleaved_coords: bool
-    meta_columns: tuple(SplineMetaColumn)
-    data_columns: tuple(SplineDataColumn)
+    meta_columns: tuple[SplineMetaColumn]
+    data_columns: tuple[SplineDataColumn]
     spline_file: Optional[Path]
     spline_file_extension: Optional[str]
     delimiter: Optional[str] = '\t'

@@ -76,7 +76,7 @@ def calculate_average_image(
         modality.recording, meta_data=params, parsed_data=average_image)
 
 
-def add_mean_images(
+def add_average_images(
     recording: Recording,
     modality: Modality,
     preload: bool = True,

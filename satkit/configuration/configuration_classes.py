@@ -116,13 +116,3 @@ class PathStructure:
     textgrid: Optional[Path] = None
     ultrasound: Optional[Path] = None
     spline_config: Optional[Path] = None
-
-
-@dataclass
-class SessionConfig:
-    """
-    Description of a Session for import into SATKIT.
-    """
-    data_source: Datasource
-    exclusion_list: Optional[ExclusionList] = None
-    spline_config: Optional[SplineConfig] = None

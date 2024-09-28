@@ -52,41 +52,6 @@ from satkit.helpers import EmptyStrAsNoneBaseModel, is_sequence_form
 _datastructures_logger = logging.getLogger('satkit.data_structures')
 
 
-class SessionConfig(EmptyStrAsNoneBaseModel):
-    """
-    Description of a Session for import into SATKIT.
-    """
-    data_source: Datasource
-    exclusion_list: Optional[ExclusionList] = None
-    spline_config: Optional[SplineConfig] = None
-
-
-class RecordingMetaData(EmptyStrAsNoneBaseModel):
-    """Basic metadata that any Recording should reasonably have."""
-    prompt: str
-    time_of_recording: datetime
-    participant_id: str
-    basename: str
-    path: Path
-
-
-class StatisticMetaData(EmptyStrAsNoneBaseModel):
-    """
-    Baseclass of Statistics' metadata classes.
-    """
-    parent_name: Optional[str] = None
-
-
-class ModalityMetaData(EmptyStrAsNoneBaseModel):
-    """
-    Baseclass of Modalities' metadata classes.
-    """
-    parent_name: Optional[str] = None
-    is_downsampled: Optional[bool] = False
-    downsampling_ratio: Union[None, PositiveInt, str] = None
-    timestep_matched_downsampling: Optional[bool] = True
-
-
 @dataclass
 class ModalityData:
     """
@@ -103,6 +68,16 @@ class ModalityData:
     data: np.ndarray
     sampling_rate: float
     timevector: np.ndarray
+
+
+class ModalityMetaData(EmptyStrAsNoneBaseModel):
+    """
+    Baseclass of Modalities' metadata classes.
+    """
+    parent_name: Optional[str] = None
+    is_downsampled: Optional[bool] = False
+    downsampling_ratio: Union[None, PositiveInt, str] = None
+    timestep_matched_downsampling: Optional[bool] = True
 
 
 @dataclass
@@ -205,3 +180,28 @@ class PointAnnotations():
                 self.properties[key] = self.properties[key][:limit]
             elif isinstance(self.properties[key], np.ndarray):
                 self.properties[key] = self.properties[key][selected]
+
+
+class RecordingMetaData(EmptyStrAsNoneBaseModel):
+    """Basic metadata that any Recording should reasonably have."""
+    prompt: str
+    time_of_recording: datetime
+    participant_id: str
+    basename: str
+    path: Path
+
+
+class SessionConfig(EmptyStrAsNoneBaseModel):
+    """
+    Description of a Session for import into SATKIT.
+    """
+    data_source: Datasource
+    exclusion_list: Optional[ExclusionList] = None
+    spline_config: Optional[SplineConfig] = None
+
+
+class StatisticMetaData(EmptyStrAsNoneBaseModel):
+    """
+    Baseclass of Statistics' metadata classes.
+    """
+    parent_name: Optional[str] = None

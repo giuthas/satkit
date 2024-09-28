@@ -29,332 +29,40 @@
 # articles listed in README.markdown. They can also be found in
 # citations.bib in BibTeX format.
 #
-"""SATKIT's core datastructures."""
+"""SATKIT's main datastructures."""
 
 # Built in packages
 import abc
 from collections import OrderedDict, UserDict, UserList
 import logging
-from dataclasses import dataclass
-from datetime import datetime
 from pathlib import Path
 from typing import Optional, Union
 
-from icecream import ic
+# from icecream import ic
 
 # Numerical arrays and more
 import numpy as np
-from pydantic import PositiveInt
 
 # Praat textgrids
 import textgrids
 
-from satkit.configuration import (
-    PathStructure, PointAnnotationParams, SessionConfig)
+from satkit.configuration import PathStructure
 from satkit.constants import AnnotationType, SatkitSuffix
 from satkit.errors import (
     MissingDataError, OverwriteError, DimensionMismatchError)
-from satkit.helpers import EmptyStrAsNoneBaseModel, is_sequence_form
 from satkit.satgrid import SatGrid
+
+from .base_classes import DataContainer, DataAggregator, Statistic
+from .meta_data_classes import (
+    ModalityData, ModalityMetaData, PointAnnotations, RecordingMetaData,
+    SessionConfig
+)
+
 
 _datastructures_logger = logging.getLogger('satkit.data_structures')
 
 
-class DataContainer(abc.ABC):
-    """
-    Abstract baseclass for all of SATKIT's data containers. 
-
-    Container classes include Modality, Recording, Session, and in
-    general any class in satkit/data_structures, which has a meta_data
-    field or any class which is derived from those classes.
-
-    This class exists only for SATKIT internal use.
-    """
-    @classmethod
-    @abc.abstractmethod
-    def generate_name(cls, params: EmptyStrAsNoneBaseModel) -> str:
-        """Abstract version of generating a RecordingMetric name."""
-
-    def __init__(self,
-                 owner,
-                 meta_data: EmptyStrAsNoneBaseModel,
-                 parsed_data: Optional[np.ndarray] = None,
-                 load_path: Optional[Path] = None,
-                 meta_path: Optional[Path] = None,
-                 ) -> None:
-        self.owner = owner
-        self.meta_data = meta_data
-        self.data = parsed_data
-        self.load_path = load_path
-        self.meta_path = meta_path
-
-    def __getstate__(self) -> dict:
-        """
-        Return this DataContainer's pickle compatible state.
-
-        To achieve pickle compatibility, subclasses should take care to delete
-        any cyclical references, like is done with self.owner here.
-
-        NOTE! This also requires them to be reset after unpickling by the
-        owners.
-
-        Returns
-        -------
-        dict
-            The state without cyclical references.
-        """
-        state = self.__dict__.copy()
-        del state['owner']
-
-    @abc.abstractmethod
-    @property
-    def name(self) -> str:
-        """
-        Name of this instance.
-
-        In most cases name is supposed to be implemented with the following
-        idiom:
-        ```python
-        return NAME_OF_THIS_CLASS.generate_name(self.meta_data)
-        ```
-        For example, for PD:
-        ```python
-        return PD.generate_name(self.meta_data)
-        ```
-
-        Returns
-        -------
-        str
-            Name of this instance.
-        """
-
-    @property
-    def is_fully_initialised(self) -> bool:
-        """
-        Check if this DataContainer has been fully initialised.
-
-        This property will be false, if any required fields of the
-        DataContainer are None.
-
-        Returns
-        -------
-        bool
-            True if this DataContainer is fully initialised.
-        """
-        if self.owner:
-            return True
-        return False
-
-    def get_meta(self) -> dict:
-        """
-        Get meta data as a dict.
-
-        This is a helper method for saving as nested text. Allows for rewriting
-        any fields that need a simpler representation. 
-
-        Subclasses should override this method if any of their fields require
-        special handling such as derived Enums needing to be converted to plain
-        text etc. 
-
-        Returns
-        -------
-        dict
-            The meta data in a dict.
-        """
-        return self.meta_data.model_dump()
-
-
-class RecordingMetaData(EmptyStrAsNoneBaseModel):
-    """Basic metadata that any Recording should reasonably have."""
-    prompt: str
-    time_of_recording: datetime
-    participant_id: str
-    basename: str
-    path: Path
-
-
-class StatisticMetaData(EmptyStrAsNoneBaseModel):
-    """
-    Baseclass of SessionMetrics' metadata classes.
-    """
-    parent_name: Optional[str] = None
-
-
-class ModalityMetaData(EmptyStrAsNoneBaseModel):
-    """
-    Baseclass of Modalities' metadata classes.
-    """
-    parent_name: Optional[str] = None
-    is_downsampled: Optional[bool] = False
-    downsampling_ratio: Union[None, PositiveInt, str] = None
-    timestep_matched_downsampling: Optional[bool] = True
-
-
-@dataclass
-class ModalityData:
-    """
-    Data passed from Modality generation into Modality.
-
-    None of the fields are optional. This class represents already loaded data.
-
-    Axes order for the data field is [time, coordinate axes and datatypes,
-    data points] and further structure. For example stereo audio data would be
-    [time, channels] or just [time] for mono audio. For a more complex example,
-    splines from AAA have [time, x-y-confidence, spline points] or [time,
-    r-phi-confidence, spline points] for data in polar coordinates.
-    """
-    data: np.ndarray
-    sampling_rate: float
-    timevector: np.ndarray
-
-
-@dataclass
-class PointAnnotations():
-    """
-    Time point annotations for a Modality.
-
-    For each modality there should be only one of these for each kind of
-    annotation type. 
-
-    annotation_type : AnnotationType
-        unique identifier for the annotation type
-    indeces : np.ndarray
-        indeces of the annotation points. `modality_data.data[indeces[i]]` and
-        `modality_data.timevector[indeces[i]]` correspond to the annotation at
-        `i`.
-    times : np.ndarray 
-        timestamps of the annotation points
-    generating_parameters : dict 
-        the function call arguments and other parameters used in generating
-        these annotations.
-    properties : dict
-        a dictionary containing arrays of each of the annotation properties
-        expected for this annotation type.
-    """
-    annotation_type: AnnotationType
-    indeces: np.ndarray
-    times: np.ndarray
-    generating_parameters: PointAnnotationParams
-    properties: dict
-
-    def add_annotation(
-            self, index: int, time: float, properties: dict) -> None:
-        """
-        This method has not been implemented yet.
-
-        Index and time should be mutually exclusive.
-
-        Parameters
-        ----------
-        index : int
-            index at which the annotation is to be added
-        time : float
-            time at which the annotation is to be added
-        properties : dict
-            the annotation properties that will be added to the arrays in this
-            PointAnnotations' properties dict.
-
-        Raises
-        ------
-        NotImplementedError
-            This method has not been implemented yet.
-        """
-        raise NotImplementedError(
-            "Adding annotations to "
-            "PointAnnotations hasn't been implemented yet.")
-
-    def apply_lower_time_limit(self, time_min: float) -> None:
-        """
-        Apply a lower time limit to the annotations.
-
-        This removes the annotation points before the given time limit.
-
-        Parameters
-        ----------
-        time_min : float
-            The time limit.
-        """
-        selected = np.nonzero(self.times >= time_min)
-        self.indeces = self.indeces[selected]
-        self.times = self.times[selected]
-        limit = selected[0]
-
-        for key in self.properties:
-            if is_sequence_form(self.properties[key]):
-                ic(key, self.properties[key])
-                self.properties[key] = self.properties[key][limit:]
-            elif isinstance(self.properties[key], np.ndarray):
-                self.properties[key] = self.properties[key][selected]
-
-    def apply_upper_time_limit(self, time_max: float) -> None:
-        """
-        Apply an upper time limit to the annotations.
-
-        This removes the annotation points after the given time limit.
-
-        Parameters
-        ----------
-        time_max : float
-            The time limit.
-        """
-        selected = np.nonzero(self.times <= time_max)
-        self.indeces = self.indeces[selected]
-        self.times = self.times[selected]
-        limit = selected[-1]
-
-        for key in self.properties:
-            if is_sequence_form(self.properties[key]):
-                ic(key, self.properties[key])
-                self.properties[key] = self.properties[key][:limit]
-            elif isinstance(self.properties[key], np.ndarray):
-                self.properties[key] = self.properties[key][selected]
-
-
-class Statistic(DataContainer):
-    """
-    Abstract baseclass for statistics generated from members of a container. 
-
-    Specifically Statistics are time independent data while Modalities are time
-    dependent data.
-    """
-    data: np.ndarray
-
-    @classmethod
-    @abc.abstractmethod
-    def generate_name(cls, params: StatisticMetaData) -> str:
-        """Abstract version of generating a Statistic name."""
-
-    def __init__(
-            self,
-            owner,
-            meta_data: EmptyStrAsNoneBaseModel,
-            parsed_data: Optional[np.ndarray] = None,
-            load_path: Optional[Path] = None,
-            meta_path: Optional[Path] = None,
-    ) -> None:
-        """
-        Build a Statistic.       
-
-        Parameters
-        ----------
-        owner : 
-            The owner of this Statistic. Usually this will be the object whose
-            contents this Statistic was calculated on.
-        metadata : EmptyStrAsNoneBaseModel
-            Parameters used in calculating this Statistic.
-        parsed_data : Optional[np.ndarray], optional
-            the actual statistic, by default None
-        load_path : Optional[Path], optional
-            path of the saved data, by default None
-        meta_path : Optional[Path], optional
-            path of the saved meta data, by default None
-        """
-        super().__init__(owner=owner, meta_data=meta_data,
-                         parsed_data=parsed_data,
-                         load_path=load_path, meta_path=meta_path)
-
-
-class Session(UserList):
+class Session(DataAggregator, UserList):
     """
     The metadata and Recordings of a recording session.
 
@@ -365,22 +73,19 @@ class Session(UserList):
     Sessions can also hold aggregate data in the form of Statistics.
     """
 
-    def __init__(
-            self,
-            name: str,
-            paths: PathStructure,
-            config: SessionConfig,
-            recordings: list['Recording'],
-            statistics: Optional[dict[str, Statistic]] = None
-    ) -> None:
-        super().__init__(recordings)
-        self.name = name
+    def __init__(self,
+                 name: str,
+                 paths: PathStructure,
+                 config: SessionConfig,
+                 recordings: list['Recording'],
+                 statistics: Optional[dict[str, Statistic]] = None
+                 ) -> None:
+        super().__init__(owner=None, name=name, meta_data=config,
+                         statistics=statistics)
+        self.append(recordings)
+
         self.paths = paths
         self.config = config
-
-        self.statistics = {}
-        if statistics:
-            self.statistics.update(statistics)
 
     @property
     def recordings(self) -> list['Recording']:
@@ -394,42 +99,8 @@ class Session(UserList):
         """
         return self.data
 
-    def add_statistic(
-            self, statistic: Statistic, replace: bool = False) -> None:
-        """
-        Add a Statistic to this Session.
 
-        Parameters
-        ----------
-        statistic : Statistic
-            Statistic to be added.
-        replace : bool, optional
-            Should we replace any existing Statistic by the same name, by
-            default False
-
-        Raises
-        ------
-        OverwriteError
-            In case replace was False and there exists already a Statistic with
-            the same name in this Session.
-        """
-        self.statistics[statistic.name] = statistic
-        name = statistic.name
-
-        if name in self.statistics and not replace:
-            raise OverwriteError(
-                "A modality named " + name +
-                " already exists and replace flag was False.")
-
-        if replace:
-            self.statistics[name] = statistic
-            _datastructures_logger.debug("Replaced statistic %s.", name)
-        else:
-            self.statistics[name] = statistic
-            _datastructures_logger.debug("Added new statistic %s.", name)
-
-
-class Recording(UserDict):
+class Recording(DataAggregator, UserDict):
     """
     A Recording is a dictionary of 0-n synchronised Modalities.
 
@@ -449,6 +120,7 @@ class Recording(UserDict):
     """
 
     def __init__(self,
+                 owner: Session,
                  meta_data: RecordingMetaData,
                  excluded: bool = False,
                  textgrid_path: Union[str, Path] = "") -> None:
@@ -467,7 +139,7 @@ class Recording(UserDict):
         textgrid_path : Union[str, Path], optional
             _description_, by default ""
         """
-        super().__init__()
+        super().__init__(owner=owner, name=meta_data.basename, meta_data=meta_data)
 
         self.excluded = excluded
 
@@ -635,7 +307,7 @@ class Recording(UserDict):
         return f"Recording {self.basename}"
 
 
-class Modality(abc.ABC, OrderedDict):
+class Modality(DataContainer, OrderedDict):
     """
     Abstract superclass for all data Modality classes.
 
@@ -685,6 +357,9 @@ class Modality(abc.ABC, OrderedDict):
             parsed_data exists and effectively overridden by 
             parsed_data.timevector.
         """
+        super().__init__(
+            owner=recording, meta_data=metadata, load_path=load_path, meta_path=meta_path,
+            load_path=load_path)
         self.recording = recording
         self.data_path = data_path
         self._meta_path = meta_path  # self.meta_path is a property
@@ -725,6 +400,10 @@ class Modality(abc.ABC, OrderedDict):
             The dictionary.
         """
         return self
+
+    @property
+    def recording(self) -> Recording:
+        return self.owner
 
     def _get_data(self) -> ModalityData:
         # TODO: Provide a way to force the data to be derived or loaded.

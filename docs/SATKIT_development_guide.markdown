@@ -119,4 +119,6 @@ A release of SATKIT is created as follows:
     - Tag the commit in main with the release title ('vX.Y.Z') and push it to
       remote with `git push origin vX.Y.Z`
     - If any commits were made to the release branch, merge `main` into `devel`.
-11. Announce the release.
+11. Make the tagged version a release on github to show it correctly as
+    'latest' in the sidebar. 
+12. Announce the release.

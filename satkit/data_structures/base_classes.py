@@ -74,7 +74,7 @@ class DataObject(abc.ABC):
         self.owner = owner
         self._meta_data = meta_data
         self.load_path = load_path
-        self.meta_path = meta_path
+        self._meta_path = meta_path
 
     def __getstate__(self) -> dict:
         """
@@ -250,6 +250,28 @@ class DataContainer(DataObject):
         super().__init__(
             owner=owner, meta_data=meta_data,
             load_path=load_path, meta_path=meta_path)
+
+    @property
+    def name(self) -> str:
+        """
+        Name of this instance.
+
+        In most cases name is supposed to be overridden with the following
+        idiom:
+        ```python
+        return NAME_OF_THIS_CLASS.generate_name(self.meta_data)
+        ```
+        For example, for PD:
+        ```python
+        return PD.generate_name(self.meta_data)
+        ```
+
+        Returns
+        -------
+        str
+            Name of this instance.
+        """
+        return self.__class__.generate_name(self._meta_data)
 
 
 class Statistic(DataContainer):

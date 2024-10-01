@@ -88,7 +88,7 @@ class Splines(Modality):
             time_offset=time_offset)
 
     def _read_data(self) -> ModalityData:
-        return read_splines(self.data_path, self.metadata, self._time_offset)
+        return read_splines(self.data_path, self._meta_data, self._time_offset)
 
     @property
     def data(self) -> np.ndarray:
@@ -99,7 +99,7 @@ class Splines(Modality):
         super()._data_setter(data)
 
     def get_meta(self) -> dict:
-        return self.metadata
+        return self._meta_data
 
     @property
     def in_polar(self) -> np.ndarray:
@@ -111,7 +111,7 @@ class Splines(Modality):
         np.ndarray
             The coordinates
         """
-        if self.metadata.coordinates is CoordinateSystems.POLAR:
+        if self._meta_data.coordinates is CoordinateSystems.POLAR:
             return self.data
         else:
             cartesian = self.data[:, 0:2, :]
@@ -131,7 +131,7 @@ class Splines(Modality):
         np.ndarray
             The coordinates
         """
-        if self.metadata.coordinates is CoordinateSystems.CARTESIAN:
+        if self._meta_data.coordinates is CoordinateSystems.CARTESIAN:
             return self.data[index, :, :]
         else:
             return polar_to_cartesian(self.data[index, :, :], np.pi/2)
@@ -146,7 +146,7 @@ class Splines(Modality):
         np.ndarray
             The coordinates
         """
-        if self.metadata.coordinates is CoordinateSystems.CARTESIAN:
+        if self._meta_data.coordinates is CoordinateSystems.CARTESIAN:
             return self.data
         else:
             r_phi = self.data[:, 0:2, :]

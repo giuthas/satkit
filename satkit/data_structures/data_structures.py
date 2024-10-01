@@ -139,7 +139,8 @@ class Recording(DataAggregator, UserDict):
         textgrid_path : Union[str, Path], optional
             _description_, by default ""
         """
-        super().__init__(owner=owner, name=meta_data.basename, meta_data=meta_data)
+        super().__init__(
+            owner=owner, name=meta_data.basename, meta_data=meta_data)
 
         self.excluded = excluded
 
@@ -358,18 +359,12 @@ class Modality(DataContainer, OrderedDict):
             parsed_data.timevector.
         """
         super().__init__(
-            owner=recording, meta_data=metadata, load_path=load_path, meta_path=meta_path,
-            load_path=load_path)
-        self.recording = recording
+            owner=recording, meta_data=metadata,
+            load_path=load_path, meta_path=meta_path)
         self.data_path = data_path
-        self._meta_path = meta_path  # self.meta_path is a property
-        self.load_path = load_path
 
-        self.metadata = metadata
         if annotations:
             self.update(annotations)
-        # else:
-        #     self.annotations = {}
 
         if parsed_data:
             self._modality_data = parsed_data
@@ -403,6 +398,14 @@ class Modality(DataContainer, OrderedDict):
 
     @property
     def recording(self) -> Recording:
+        """
+        This modality's owner available also with this alias for ease of use.
+
+        Returns
+        -------
+        Recording
+            The Recording which contains this Modality.
+        """
         return self.owner
 
     def _get_data(self) -> ModalityData:
@@ -414,7 +417,7 @@ class Modality(DataContainer, OrderedDict):
         if self.load_path:
             return self._load_data()
 
-        if self.metadata.parent_name:
+        if self._meta_data.parent_name:
             return self._derive_data()
         else:
             raise MissingDataError(
@@ -487,24 +490,6 @@ class Modality(DataContainer, OrderedDict):
                 "Adding %s.", str(annotations.annotation_type))
 
         self.annotations[annotations.annotation_type] = annotations
-
-    @property
-    def name(self) -> str:
-        """
-        Identity and possible parent data class.
-
-        This will be just the class name if this is a data Modality instance.
-        For derived Modalities the name will be of the form
-        '[own class name] on [data modality class name]'.
-
-        Subclasses may override this behaviour to, for example, include
-        the metric used to generate the instance in the name.
-        """
-        # TODO: this doesn't really mesh with the new way of dealing with names
-        name_string = self.__class__.__name__
-        if self.metadata and self.metadata.parent_name:
-            name_string = name_string + " on " + self.metadata.parent_name
-        return name_string
 
     @property
     def modality_data(self) -> ModalityData:
@@ -587,10 +572,6 @@ class Modality(DataContainer, OrderedDict):
         else:
             self._modality_data.data = data
 
-    @abc.abstractmethod
-    def get_meta(self) -> dict:
-        """Return this Modality's metadata as a dictionary."""
-
     @property
     def sampling_rate(self) -> float:
         """Sampling rate of this Modality in Hz."""
@@ -601,7 +582,7 @@ class Modality(DataContainer, OrderedDict):
     @property
     def parent_name(self) -> str:
         """Name of the Modality this Modality was derived from, if any."""
-        return self.metadata.parent_name
+        return self._meta_data.parent_name
 
     @property
     def time_offset(self):
@@ -713,7 +694,7 @@ class Modality(DataContainer, OrderedDict):
 
         This cannot be set from the outside.
         """
-        if self.metadata and self.metadata.parent_name:
+        if self._meta_data and self._meta_data.parent_name:
             return True
         return False
 

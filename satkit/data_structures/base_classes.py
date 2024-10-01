@@ -50,6 +50,15 @@ _datastructures_logger = logging.getLogger('satkit.data_structures')
 
 
 class DataObject(abc.ABC):
+    """
+    Abstract base class for SATKIT data objects.
+
+    Almost no class should directly inherit from this class. Exceptions are
+    DataAggregator and DataContainer. The latter is the abstract baseclass for
+    Modality and Statistic and the former for all data base classes: Recording,
+    Session, DataSet and any others that contain either DataContainers and/or
+    DataAggregators.
+    """
 
     def __init__(self,
                  owner,
@@ -63,7 +72,7 @@ class DataObject(abc.ABC):
         super().__init__()
 
         self.owner = owner
-        self.meta_data = meta_data
+        self._meta_data = meta_data
         self.load_path = load_path
         self.meta_path = meta_path
 
@@ -84,6 +93,22 @@ class DataObject(abc.ABC):
         """
         state = self.__dict__.copy()
         del state['owner']
+
+    @property
+    def meta_data(self) -> EmptyStrAsNoneBaseModel:
+        """
+        Meta data of this DataObject.
+
+        This will be of appropriate type for the subclasses and has been hidden
+        behind a property to make it possible to change the internal
+        representation without breaking the API.
+
+        Returns
+        -------
+        EmptyStrAsNoneBaseModel
+            The meta data as a Pydantic model.
+        """
+        return self._meta_data
 
     @abc.abstractmethod
     @property
@@ -144,6 +169,12 @@ class DataObject(abc.ABC):
 
 
 class DataAggregator(DataObject):
+    """
+    Abstract baseclass for Recording, Session, and DataSet. 
+
+    This class collects behaviors that are shared by the data base classes i.e.
+    classes which collect DataContainers and/or DataAggregators.
+    """
 
     def __init__(self,
                  owner: 'DataAggregator',
@@ -199,13 +230,11 @@ class DataAggregator(DataObject):
 
 class DataContainer(DataObject):
     """
-    Abstract baseclass for all of SATKIT's data containers. 
+    Abstract baseclass for Modality and Statistic. 
 
-    Container classes include Modality, Recording, Session, and in
-    general any class in satkit/data_structures, which has a meta_data
-    field or any class which is derived from those classes.
-
-    This class exists only for SATKIT internal use.
+    This class collects behaviors shared by the classes that contain data:
+    Modalities contain time varying data and Statistics contain time
+    independent data.
     """
     @classmethod
     @abc.abstractmethod

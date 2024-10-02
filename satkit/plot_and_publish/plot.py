@@ -534,7 +534,7 @@ def plot_spline(
     ax : Axes
         matplotlib axes
     data : np.ndarray
-        the spline Cartesian coordinates in axes order x-y, splinepoints.
+        the spline Cartesian coordinates in axes order x-y, spline points.
     limits : Optional[tuple[int, int]], optional
         How many points to leave out from the (front, back) of the spline, by
         default None

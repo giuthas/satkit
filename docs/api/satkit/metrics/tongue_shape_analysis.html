@@ -204,7 +204,7 @@ Available at <a href="https://github.com/kdawson2/tshape_analysis/">https://gith
 </span><span id="L-131"><a href="#L-131"><span class="linenos">131</span></a><span class="sd">    Parameters</span>
 </span><span id="L-132"><a href="#L-132"><span class="linenos">132</span></a><span class="sd">    ----------</span>
 </span><span id="L-133"><a href="#L-133"><span class="linenos">133</span></a><span class="sd">    data : np.ndarray</span>
-</span><span id="L-134"><a href="#L-134"><span class="linenos">134</span></a><span class="sd">        one spline with axes ordered: x-y, splinepoints </span>
+</span><span id="L-134"><a href="#L-134"><span class="linenos">134</span></a><span class="sd">        one spline with axes ordered: x-y, spline points </span>
 </span><span id="L-135"><a href="#L-135"><span class="linenos">135</span></a><span class="sd">    run_filter : bool</span>
 </span><span id="L-136"><a href="#L-136"><span class="linenos">136</span></a><span class="sd">        Should the curvature be filtered before integration.</span>
 </span><span id="L-137"><a href="#L-137"><span class="linenos">137</span></a>
@@ -262,7 +262,7 @@ Available at <a href="https://github.com/kdawson2/tshape_analysis/">https://gith
 </span><span id="L-189"><a href="#L-189"><span class="linenos">189</span></a><span class="sd">    Parameters</span>
 </span><span id="L-190"><a href="#L-190"><span class="linenos">190</span></a><span class="sd">    ----------</span>
 </span><span id="L-191"><a href="#L-191"><span class="linenos">191</span></a><span class="sd">    tongue_data : np.ndarray</span>
-</span><span id="L-192"><a href="#L-192"><span class="linenos">192</span></a><span class="sd">        one spline with axes ordered: x-y, splinepoints </span>
+</span><span id="L-192"><a href="#L-192"><span class="linenos">192</span></a><span class="sd">        one spline with axes ordered: x-y, spline points </span>
 </span><span id="L-193"><a href="#L-193"><span class="linenos">193</span></a>
 </span><span id="L-194"><a href="#L-194"><span class="linenos">194</span></a><span class="sd">    Returns</span>
 </span><span id="L-195"><a href="#L-195"><span class="linenos">195</span></a><span class="sd">    -------</span>
@@ -435,7 +435,7 @@ Available at <a href="https://github.com/kdawson2/tshape_analysis/">https://gith
 </span><span id="L-362"><a href="#L-362"><span class="linenos">362</span></a>                    <span class="s2">&quot;Found </span><span class="si">%d</span><span class="s2"> shapes for </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">num_reps</span><span class="p">,</span> <span class="n">symbol</span><span class="p">)</span>
 </span><span id="L-363"><a href="#L-363"><span class="linenos">363</span></a>
 </span><span id="L-364"><a href="#L-364"><span class="linenos">364</span></a>                <span class="c1"># This transforms the test data into the axes</span>
-</span><span id="L-365"><a href="#L-365"><span class="linenos">365</span></a>                <span class="c1"># time, x-y, splinepoint</span>
+</span><span id="L-365"><a href="#L-365"><span class="linenos">365</span></a>                <span class="c1"># time, x-y, spline point</span>
 </span><span id="L-366"><a href="#L-366"><span class="linenos">366</span></a>                <span class="n">data</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">stack</span><span class="p">((</span><span class="n">data</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">::</span><span class="mi">2</span><span class="p">],</span> <span class="n">data</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">::</span><span class="mi">2</span><span class="p">]))</span>
 </span><span id="L-367"><a href="#L-367"><span class="linenos">367</span></a>                <span class="n">data</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">moveaxis</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">))</span>
 </span><span id="L-368"><a href="#L-368"><span class="linenos">368</span></a>
@@ -599,7 +599,7 @@ compared_shape : np.ndarray
 </span><span id="modified_curvature_index-132"><a href="#modified_curvature_index-132"><span class="linenos">132</span></a><span class="sd">    Parameters</span>
 </span><span id="modified_curvature_index-133"><a href="#modified_curvature_index-133"><span class="linenos">133</span></a><span class="sd">    ----------</span>
 </span><span id="modified_curvature_index-134"><a href="#modified_curvature_index-134"><span class="linenos">134</span></a><span class="sd">    data : np.ndarray</span>
-</span><span id="modified_curvature_index-135"><a href="#modified_curvature_index-135"><span class="linenos">135</span></a><span class="sd">        one spline with axes ordered: x-y, splinepoints </span>
+</span><span id="modified_curvature_index-135"><a href="#modified_curvature_index-135"><span class="linenos">135</span></a><span class="sd">        one spline with axes ordered: x-y, spline points </span>
 </span><span id="modified_curvature_index-136"><a href="#modified_curvature_index-136"><span class="linenos">136</span></a><span class="sd">    run_filter : bool</span>
 </span><span id="modified_curvature_index-137"><a href="#modified_curvature_index-137"><span class="linenos">137</span></a><span class="sd">        Should the curvature be filtered before integration.</span>
 </span><span id="modified_curvature_index-138"><a href="#modified_curvature_index-138"><span class="linenos">138</span></a>
@@ -650,7 +650,7 @@ Linguistics &amp; Phonetics, 30:3-5, 328-344, DOI:
 <h2 id="parameters">Parameters</h2>
 
 <p>data : np.ndarray
-    one spline with axes ordered: x-y, splinepoints 
+    one spline with axes ordered: x-y, spline points 
 run_filter : bool
     Should the curvature be filtered before integration.</p>
 
@@ -696,7 +696,7 @@ run_filter : bool
 </span><span id="fourier_tongue_shape_analysis-190"><a href="#fourier_tongue_shape_analysis-190"><span class="linenos">190</span></a><span class="sd">    Parameters</span>
 </span><span id="fourier_tongue_shape_analysis-191"><a href="#fourier_tongue_shape_analysis-191"><span class="linenos">191</span></a><span class="sd">    ----------</span>
 </span><span id="fourier_tongue_shape_analysis-192"><a href="#fourier_tongue_shape_analysis-192"><span class="linenos">192</span></a><span class="sd">    tongue_data : np.ndarray</span>
-</span><span id="fourier_tongue_shape_analysis-193"><a href="#fourier_tongue_shape_analysis-193"><span class="linenos">193</span></a><span class="sd">        one spline with axes ordered: x-y, splinepoints </span>
+</span><span id="fourier_tongue_shape_analysis-193"><a href="#fourier_tongue_shape_analysis-193"><span class="linenos">193</span></a><span class="sd">        one spline with axes ordered: x-y, spline points </span>
 </span><span id="fourier_tongue_shape_analysis-194"><a href="#fourier_tongue_shape_analysis-194"><span class="linenos">194</span></a>
 </span><span id="fourier_tongue_shape_analysis-195"><a href="#fourier_tongue_shape_analysis-195"><span class="linenos">195</span></a><span class="sd">    Returns</span>
 </span><span id="fourier_tongue_shape_analysis-196"><a href="#fourier_tongue_shape_analysis-196"><span class="linenos">196</span></a><span class="sd">    -------</span>
@@ -739,7 +739,7 @@ Linguistics &amp; Phonetics, 30:3-5, 328-344, DOI:
 <h2 id="parameters">Parameters</h2>
 
 <p>tongue_data : np.ndarray
-    one spline with axes ordered: x-y, splinepoints </p>
+    one spline with axes ordered: x-y, spline points </p>
 
 <h2 id="returns">Returns</h2>
 
@@ -952,7 +952,7 @@ NotImplementedError
 </span><span id="run_analysis-363"><a href="#run_analysis-363"><span class="linenos">363</span></a>                    <span class="s2">&quot;Found </span><span class="si">%d</span><span class="s2"> shapes for </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">num_reps</span><span class="p">,</span> <span class="n">symbol</span><span class="p">)</span>
 </span><span id="run_analysis-364"><a href="#run_analysis-364"><span class="linenos">364</span></a>
 </span><span id="run_analysis-365"><a href="#run_analysis-365"><span class="linenos">365</span></a>                <span class="c1"># This transforms the test data into the axes</span>
-</span><span id="run_analysis-366"><a href="#run_analysis-366"><span class="linenos">366</span></a>                <span class="c1"># time, x-y, splinepoint</span>
+</span><span id="run_analysis-366"><a href="#run_analysis-366"><span class="linenos">366</span></a>                <span class="c1"># time, x-y, spline point</span>
 </span><span id="run_analysis-367"><a href="#run_analysis-367"><span class="linenos">367</span></a>                <span class="n">data</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">stack</span><span class="p">((</span><span class="n">data</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">::</span><span class="mi">2</span><span class="p">],</span> <span class="n">data</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">::</span><span class="mi">2</span><span class="p">]))</span>
 </span><span id="run_analysis-368"><a href="#run_analysis-368"><span class="linenos">368</span></a>                <span class="n">data</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">moveaxis</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">))</span>
 </span><span id="run_analysis-369"><a href="#run_analysis-369"><span class="linenos">369</span></a>

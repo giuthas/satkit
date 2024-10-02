@@ -76,7 +76,7 @@ def cartesian_to_polar(xy_array: np.ndarray) -> np.ndarray:
     Parameters
     ----------
     xy_array : np.ndarray
-        axes order is x-y, splinepoints
+        axes order is x-y, spline points
 
         This maybe passed in as 1D array which will then be reshaped into a 2*x
         array. This makes it possible to apply the transformation with
@@ -85,7 +85,7 @@ def cartesian_to_polar(xy_array: np.ndarray) -> np.ndarray:
     Returns
     -------
     np.ndarray
-        axes order is r-phi, splinepoints
+        axes order is r-phi, spline points
     """
     if xy_array.ndim == 1 and xy_array.shape[0] % 2 == 0:
         xy_array = xy_array.reshape((2, xy_array.shape[0]//2))
@@ -104,7 +104,7 @@ def polar_to_cartesian(
     Parameters
     ----------
     r_phi_array : np.ndarray
-        axes order is r-phi, splinepoints 
+        axes order is r-phi, spline points 
 
         This maybe passed in as 1D array which will then be reshaped into a 2*x
         array. This makes it possible to apply the transformation with 
@@ -116,7 +116,7 @@ def polar_to_cartesian(
     Returns
     -------
     np.ndarray
-        axes order is x-y, splinepoints
+        axes order is x-y, spline points
     """
     if r_phi_array.ndim == 1 and r_phi_array.shape[0] % 2 == 0:
         r_phi_array = r_phi_array.reshape((2, r_phi_array.shape[0]//2))

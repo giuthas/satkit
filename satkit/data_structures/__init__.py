@@ -39,6 +39,7 @@ SATKIT's datastructures and are not meant to be directly inherited from.
 from .base_classes import Statistic
 from .data_structures import Modality, Recording, Session
 from .meta_data_classes import (
+    FileInformation,
     ModalityData, ModalityMetaData, PointAnnotations,
     RecordingMetaData, SessionConfig, StatisticMetaData
 )

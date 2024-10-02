@@ -47,15 +47,15 @@ import numpy as np
 import textgrids
 
 from satkit.configuration import PathStructure
-from satkit.constants import AnnotationType, SatkitSuffix
+from satkit.constants import AnnotationType
 from satkit.errors import (
     MissingDataError, OverwriteError, DimensionMismatchError)
 from satkit.satgrid import SatGrid
 
 from .base_classes import DataContainer, DataAggregator, Statistic
 from .meta_data_classes import (
-    ModalityData, ModalityMetaData, PointAnnotations, RecordingMetaData,
-    SessionConfig
+    FileInformation, ModalityData, ModalityMetaData, PointAnnotations,
+    RecordingMetaData, SessionConfig
 )
 
 
@@ -77,15 +77,19 @@ class Session(DataAggregator, UserList):
                  name: str,
                  paths: PathStructure,
                  config: SessionConfig,
+                 file_info: FileInformation,
                  recordings: list['Recording'],
                  statistics: Optional[dict[str, Statistic]] = None
                  ) -> None:
-        super().__init__(owner=None, name=name, meta_data=config,
-                         statistics=statistics)
+        super().__init__(
+            owner=None, name=name, meta_data=config,
+            file_info=file_info, statistics=statistics)
         self.append(recordings)
 
         self.paths = paths
-        self.config = config
+        # This was commented out in data structures 4.0, and left here to
+        # explain what session.config was. Remove if nothing broke.
+        # self.config = config
 
     @property
     def recordings(self) -> list['Recording']:
@@ -122,6 +126,7 @@ class Recording(DataAggregator, UserDict):
     def __init__(self,
                  owner: Session,
                  meta_data: RecordingMetaData,
+                 file_info: FileInformation,
                  excluded: bool = False,
                  textgrid_path: Union[str, Path] = "") -> None:
         """
@@ -140,11 +145,10 @@ class Recording(DataAggregator, UserDict):
             _description_, by default ""
         """
         super().__init__(
-            owner=owner, name=meta_data.basename, meta_data=meta_data)
+            owner=owner, name=meta_data.basename,
+            meta_data=meta_data, file_info=file_info)
 
         self.excluded = excluded
-
-        self.meta_data = meta_data
 
         self.textgrid_path = textgrid_path
         if not self.textgrid_path:
@@ -324,11 +328,9 @@ class Modality(DataContainer, OrderedDict):
 
     def __init__(self,
                  recording: Recording,
+                 file_info: FileInformation,
                  parsed_data: Optional[ModalityData] = None,
-                 metadata: Optional[ModalityMetaData] = None,
-                 data_path: Optional[Path] = None,
-                 meta_path: Optional[Path] = None,
-                 load_path: Optional[Path] = None,
+                 meta_data: Optional[ModalityMetaData] = None,
                  time_offset: Optional[float] = None,
                  annotations: Optional[dict[AnnotationType,
                                             PointAnnotations]] = None
@@ -359,9 +361,8 @@ class Modality(DataContainer, OrderedDict):
             parsed_data.timevector.
         """
         super().__init__(
-            owner=recording, meta_data=metadata,
-            load_path=load_path, meta_path=meta_path)
-        self.data_path = data_path
+            owner=recording, meta_data=meta_data,
+            file_info=file_info)
 
         if annotations:
             self.update(annotations)
@@ -409,20 +410,22 @@ class Modality(DataContainer, OrderedDict):
         return self.owner
 
     def _get_data(self) -> ModalityData:
-        # TODO: Provide a way to force the data to be derived or loaded.
-        # this would be used when parent modality has updated in some way
-        if self.data_path:
+        # TODO: Provide a way to force the data to be derived or loaded. this
+        # would be used when parent modality has updated in some way. If this
+        # is actually necessary to implement, a call back would be probably the
+        # way to go.
+        if self._file_info.recorded_data_file:
             return self._read_data()
 
-        if self.load_path:
+        if self._file_info.satkit_data_file:
             return self._load_data()
 
         if self._meta_data.parent_name:
             return self._derive_data()
-        else:
-            raise MissingDataError(
-                "Asked to get data but have no path and no parent Modality.\n"
-                + "Don't know how to solve this.")
+
+        raise MissingDataError(
+            "Asked to get data but have no path and no parent Modality.\n"
+            + "Don't know how to solve this.")
 
     def _derive_data(self) -> ModalityData:
         """
@@ -697,17 +700,3 @@ class Modality(DataContainer, OrderedDict):
         if self._meta_data and self._meta_data.parent_name:
             return True
         return False
-
-    @property
-    def meta_path(self) -> Path:
-        """
-        Path to meta data file if any, None otherwise.
-
-        Only external data might have per Modality meta files before being
-        first saved by SATKIT.
-        """
-        if not self._meta_path:
-            path = Path(self.recording.basename).with_suffix(
-                "." + self.name.replace(" ", "_"))
-            path.with_suffix(SatkitSuffix.META)
-        return self._meta_path

@@ -44,7 +44,7 @@ import numpy as np
 from satkit.errors import OverwriteError
 from satkit.helpers import EmptyStrAsNoneBaseModel
 
-from .meta_data_classes import StatisticMetaData
+from .meta_data_classes import FileInformation, StatisticMetaData
 
 _datastructures_logger = logging.getLogger('satkit.data_structures')
 
@@ -61,8 +61,9 @@ class DataObject(abc.ABC):
     """
 
     def __init__(self,
-                 owner,
+                 owner: 'DataObject',
                  meta_data: EmptyStrAsNoneBaseModel,
+                 file_info: Optional[FileInformation],
                  load_path: Optional[Path] = None,
                  meta_path: Optional[Path] = None,
                  ) -> None:
@@ -73,6 +74,8 @@ class DataObject(abc.ABC):
 
         self.owner = owner
         self._meta_data = meta_data
+        self._file_info = file_info
+
         self.load_path = load_path
         self._meta_path = meta_path
 
@@ -93,22 +96,6 @@ class DataObject(abc.ABC):
         """
         state = self.__dict__.copy()
         del state['owner']
-
-    @property
-    def meta_data(self) -> EmptyStrAsNoneBaseModel:
-        """
-        Meta data of this DataObject.
-
-        This will be of appropriate type for the subclasses and has been hidden
-        behind a property to make it possible to change the internal
-        representation without breaking the API.
-
-        Returns
-        -------
-        EmptyStrAsNoneBaseModel
-            The meta data as a Pydantic model.
-        """
-        return self._meta_data
 
     @abc.abstractmethod
     @property
@@ -131,6 +118,52 @@ class DataObject(abc.ABC):
         str
             Name of this instance.
         """
+
+    @property
+    def meta_data(self) -> EmptyStrAsNoneBaseModel:
+        """
+        Meta data of this DataObject.
+
+        This will be of appropriate type for the subclasses and has been hidden
+        behind a property to make it possible to change the internal
+        representation without breaking the API.
+
+        Returns
+        -------
+        EmptyStrAsNoneBaseModel
+            The meta data as a Pydantic model.
+        """
+        return self._meta_data
+
+    @property
+    def satkit_path(self) -> Path:
+        """
+        Path to the SATKIT files of this DataObject.
+
+        Returns
+        -------
+        Path
+            _description_
+        """
+        if self.owner:
+            return self.owner.satkit_path() / self._file_info.satkit_path
+        return self._file_info.satkit_path
+
+    @property
+    def satkit_meta_file(self) -> Path | None:
+        return self.satkit_path / self._file_info.satkit_meta_file
+
+    @property
+    def recorded_path(self) -> Path:
+        if self.owner:
+            return self.owner.recorded_path() / self._file_info.recorded_path
+        return self._file_info.recorded_path
+
+    @property
+    def recorded_file(self) -> Path | None:
+        if self._file_info.satkit_meta_file:
+            return self.recorded_path / self._file_info.recorded_file
+        return None
 
     @property
     def is_fully_initialised(self) -> bool:

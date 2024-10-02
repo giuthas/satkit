@@ -35,7 +35,6 @@ SplineMetric and supporting classes.
 
 # Built in packages
 import logging
-from pathlib import Path
 from typing import Optional, Tuple
 
 # Numpy and scipy
@@ -43,7 +42,7 @@ import numpy as np
 from pydantic import PositiveInt
 
 from satkit.data_structures import (
-    Modality, ModalityData, ModalityMetaData, Recording)
+    FileInformation, Modality, ModalityData, ModalityMetaData, Recording)
 from satkit.helpers import (
     enum_union, product_dict, ListablePrintableEnum, ValueComparedEnumMeta)
 
@@ -208,28 +207,30 @@ class SplineMetric(Modality):
     def __init__(self,
                  recording: Recording,
                  metadata: SplineMetricParameters,
-                 load_path: Optional[Path] = None,
-                 meta_path: Optional[Path] = None,
+                 file_info: FileInformation,
                  parsed_data: Optional[ModalityData] = None,
                  time_offset: Optional[float] = None) -> None:
         """
         Build a SplineMetric Modality.       
 
-        Positional arguments: recording -- the containing Recording. parameters
-        : SplineMetricParameters
+        Parameters
+        ----------
+        recording : Recording
+            the containing Recording.
+        metadata : SplineMetricParameters
             Parameters used in calculating this instance of SplineMetric.
-        Keyword arguments: load_path -- path of the saved data - both
-        ultrasound and metadata parent -- the Modality this one was derived
-        from. None means this 
-            is an underived data Modality. If parent is None, it will be copied
-            from dataModality.
-        parsed_data -- ModalityData object containing raw ultrasound, 
+        file_info : FileInformation
+            _description_
+        parsed_data : Optional[ModalityData], optional
+            ModalityData object, by default None. Contains SplineMetric values,
             sampling rate,and either timevector and/or time_offset. Providing a
             timevector overrides any time_offset value given, but in absence of
             a timevector the time_offset will be applied on reading the data
-            from file. 
-        timeoffset -- timeoffset in seconds against the Recordings baseline.
-            If not specified or 0, timeOffset will be copied from dataModality.
+            from file.
+        time_offset : Optional[float], optional
+            timeoffset in seconds against the Recordings baseline. If not
+            specified or 0, timeOffset will be copied from dataModality, by
+            default None
         """
         # This allows the caller to be lazy.
         if not time_offset:
@@ -238,11 +239,10 @@ class SplineMetric(Modality):
 
         super().__init__(
             recording,
-            metadata=metadata,
-            data_path=None,
-            load_path=load_path,
-            meta_path=meta_path,
-            parsed_data=parsed_data)
+            meta_data=metadata,
+            file_info=file_info,
+            parsed_data=parsed_data,
+            time_offset=time_offset)
 
         self.meta_data = metadata
 

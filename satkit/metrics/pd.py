@@ -227,7 +227,7 @@ class PD(Modality):
         file_info : FileInformation
             Save paths for numerical and meta data.
         parsed_data : Optional[ModalityData], optional
-            ModalityData object, by default None. Contains raw ultrasound,
+            ModalityData object, by default None. Contains PD values,
             sampling rate, and either timevector and/or time_offset. Providing
             a timevector overrides any time_offset value given, but in absence
             of a timevector the time_offset will be applied on reading the data

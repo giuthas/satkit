@@ -35,6 +35,7 @@ Downsampling of metrics and possibly other timeseries data.
 """
 
 import re
+import dataclasses
 
 # from icecream import ic
 
@@ -46,7 +47,7 @@ from satkit.data_structures import (
 def downsample_modality(
         modality: Modality,
         downsampling_ratio: int,
-        metadata: ModalityMetaData
+        meta_data: ModalityMetaData
 ) -> Modality:
     """
     Downsample the Modality by the given ratio and return results as a new
@@ -74,12 +75,14 @@ def downsample_modality(
     modality_data = ModalityData(
         data=data, timevector=timevector, sampling_rate=sampling_rate)
 
+    # replace makes a shallow copy when nothing is marked for replacing.
+    file_info = dataclasses.replace(modality.file_info)
+
     return modality.__class__(
         modality.recording,
         parsed_data=modality_data,
-        metadata=metadata,
-        meta_path=modality.meta_path,
-        load_path=modality.load_path,
+        meta_data=meta_data,
+        file_info=file_info,
         time_offset=modality.time_offset)
 
 

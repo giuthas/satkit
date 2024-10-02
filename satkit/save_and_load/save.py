@@ -178,7 +178,7 @@ def save_modalities(
         recording: Recording, confirmation: OverwriteConfirmation
 ) -> Tuple[str, OverwriteConfirmation]:
     """
-    Save derived data Modalities for a single Recording.
+    Save derived Modalities and gather meta for all Modalities.
 
     Returns a dictionary of the data and meta paths of the Modalities.
     """
@@ -192,9 +192,10 @@ def save_modalities(
             (modality_meta['meta_name'], confirmation) = save_modality_meta(
                 modality, confirmation)
         else:
-            modality_meta['data_name'] = str(modality.data_path.name)
-            if modality.meta_path:
-                modality_meta['meta_name'] = str(modality.meta_path.name)
+            modality_meta['data_name'] = str(modality.recorded_data_file.name)
+            if modality.recorded_meta_file:
+                modality_meta['meta_name'] = str(
+                    modality.recorded_meta_file.name)
             else:
                 modality_meta['meta_name'] = None
         recording_meta[modality_name] = modality_meta

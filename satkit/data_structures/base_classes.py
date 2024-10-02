@@ -64,8 +64,6 @@ class DataObject(abc.ABC):
                  owner: 'DataObject',
                  meta_data: EmptyStrAsNoneBaseModel,
                  file_info: Optional[FileInformation],
-                 load_path: Optional[Path] = None,
-                 meta_path: Optional[Path] = None,
                  ) -> None:
         # The super().__init__() call below is needed to make sure that
         # inheriting classes which also inherit from UserDict and UserList are
@@ -75,9 +73,6 @@ class DataObject(abc.ABC):
         self.owner = owner
         self._meta_data = meta_data
         self._file_info = file_info
-
-        self.load_path = load_path
-        self._meta_path = meta_path
 
     def __getstate__(self) -> dict:
         """
@@ -136,34 +131,96 @@ class DataObject(abc.ABC):
         return self._meta_data
 
     @property
-    def satkit_path(self) -> Path:
+    def recorded_data_file(self) -> Path | None:
+        """
+        Path to the recorded raw data file of this DataObject.
+
+        Returns
+        -------
+        Path
+            The path or None if no path was set.
+        """
+        if self._file_info.satkit_meta_file:
+            return self.recorded_path / self._file_info.recorded_data_file
+        return None
+
+    @property
+    def recorded_meta_file(self) -> Path | None:
+        """
+        Path to the recorded meta data file of this DataObject.
+
+        This file will exists only for some recorded data. For example, wav
+        files do not have a corresponding recorded meta data file. 
+
+        This file may also cover more than one recorded data file - usually a
+        whole Session if not just a single recorded data file.
+
+        Returns
+        -------
+        Path
+            The path or None if no path was set.
+        """
+        if self._file_info.satkit_meta_file:
+            return self.recorded_path / self._file_info.recorded_meta_file
+        return None
+
+    @property
+    def recorded_path(self) -> Path | None:
+        """
+        Path to the recorded raw data files of this DataObject.
+
+        This file will exists only for recorded data.
+
+        Returns
+        -------
+        Path
+            The path or None if no path was set.
+        """
+        if self.owner:
+            return self.owner.recorded_path() / self._file_info.recorded_path
+        return self._file_info.recorded_path
+
+    @property
+    def satkit_data_file(self) -> Path | None:
+        """
+        Path to the SATKIT (derived) data file of this DataObject.
+
+        This file will exist only for saved derived data.
+
+        Returns
+        -------
+        Path
+            The path or None if no path was set.
+        """
+        return self.satkit_path / self._file_info.satkit_data_file
+
+    @property
+    def satkit_meta_file(self) -> Path | None:
+        """
+        Path to the SATKIT meta data file of this DataObject.
+
+        After saving this file will exists even for recorded data.
+
+        Returns
+        -------
+        Path
+            The path or None if no path was set.
+        """
+        return self.satkit_path / self._file_info.satkit_meta_file
+
+    @property
+    def satkit_path(self) -> Path | None:
         """
         Path to the SATKIT files of this DataObject.
 
         Returns
         -------
         Path
-            _description_
+            The path or None if no path was set.
         """
         if self.owner:
             return self.owner.satkit_path() / self._file_info.satkit_path
         return self._file_info.satkit_path
-
-    @property
-    def satkit_meta_file(self) -> Path | None:
-        return self.satkit_path / self._file_info.satkit_meta_file
-
-    @property
-    def recorded_path(self) -> Path:
-        if self.owner:
-            return self.owner.recorded_path() / self._file_info.recorded_path
-        return self._file_info.recorded_path
-
-    @property
-    def recorded_file(self) -> Path | None:
-        if self._file_info.satkit_meta_file:
-            return self.recorded_path / self._file_info.recorded_file
-        return None
 
     @property
     def is_fully_initialised(self) -> bool:
@@ -213,18 +270,32 @@ class DataAggregator(DataObject):
                  owner: 'DataAggregator',
                  name: str,
                  meta_data: EmptyStrAsNoneBaseModel,
-                 load_path: Optional[Path] = None,
-                 meta_path: Optional[Path] = None,
+                 file_info: Optional[FileInformation],
                  statistics: Optional[dict[str, 'Statistic']] = None
                  ) -> None:
         super().__init__(
-            owner=owner, meta_data=meta_data,
-            load_path=load_path, meta_path=meta_path)
+            owner=owner, meta_data=meta_data, file_info=file_info)
 
-        self.name = name
+        self._name = name
         self.statistics = {}
         if statistics:
             self.statistics.update(statistics)
+
+    @property
+    def name(self) -> str:
+        """
+        Name of this instance.
+
+        DataAggregators get their names mainly from the file system. DataSets
+        are named after the root directory name, Sessions for the session
+        directories and Trials for the trial file names. 
+
+        Returns
+        -------
+        str
+            The name as string.
+        """
+        return self._name
 
     def add_statistic(
             self, statistic: 'Statistic', replace: bool = False) -> None:
@@ -277,12 +348,10 @@ class DataContainer(DataObject):
     def __init__(self,
                  owner: DataAggregator,
                  meta_data: EmptyStrAsNoneBaseModel,
-                 load_path: Optional[Path] = None,
-                 meta_path: Optional[Path] = None,
+                 file_info: FileInformation
                  ) -> None:
         super().__init__(
-            owner=owner, meta_data=meta_data,
-            load_path=load_path, meta_path=meta_path)
+            owner=owner, meta_data=meta_data, file_info=file_info)
 
     @property
     def name(self) -> str:
@@ -323,18 +392,17 @@ class Statistic(DataContainer):
 
     def __init__(
             self,
-            owner,
+            owner: DataAggregator,
             meta_data: EmptyStrAsNoneBaseModel,
+            file_info: FileInformation,
             parsed_data: Optional[np.ndarray] = None,
-            load_path: Optional[Path] = None,
-            meta_path: Optional[Path] = None,
     ) -> None:
         """
         Build a Statistic.       
 
         Parameters
         ----------
-        owner : 
+        owner : DataAggregator
             The owner of this Statistic. Usually this will be the object whose
             contents this Statistic was calculated on.
         metadata : EmptyStrAsNoneBaseModel
@@ -346,6 +414,6 @@ class Statistic(DataContainer):
         meta_path : Optional[Path], optional
             path of the saved meta data, by default None
         """
-        super().__init__(owner=owner, meta_data=meta_data,
-                         load_path=load_path, meta_path=meta_path)
+        super().__init__(
+            owner=owner, meta_data=meta_data, file_info=file_info)
         self.data = parsed_data

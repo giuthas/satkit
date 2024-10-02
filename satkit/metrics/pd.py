@@ -29,36 +29,24 @@
 # articles listed in README.markdown. They can also be found in
 # citations.bib in BibTeX format.
 #
+"""
+Modality for PD (Pixel Difference) and its parameter class.
+"""
 
-from enum import Enum
 import logging
-from pathlib import Path
 from typing import Optional, Tuple, Union
 
 import numpy as np
 
 from pydantic import PositiveInt
 
+from satkit.constants import ImageMask
 from satkit.data_structures import (
-    Modality, ModalityData, ModalityMetaData, Recording)
+    FileInformation, Modality, ModalityData,
+    ModalityMetaData, Recording)
 from satkit.helpers import product_dict
 
 _pd_logger = logging.getLogger('satkit.pd')
-
-
-class ImageMask(Enum):
-    """
-    Accepted image masking options in calculating PD.
-
-    If both imagemask and interpolated data are chosen, the masking will happen
-    before interpolation.
-    """
-    TOP = "top"
-    BOTTOM = "bottom"
-    WHOLE = "whole"
-
-    def __str__(self):
-        return self.value
 
 
 class PdParameters(ModalityMetaData):
@@ -223,30 +211,30 @@ class PD(Modality):
 
     def __init__(self,
                  recording: Recording,
-                 metadata: PdParameters,
-                 load_path: Optional[Path] = None,
-                 meta_path: Optional[Path] = None,
+                 meta_data: PdParameters,
+                 file_info: FileInformation,
                  parsed_data: Optional[ModalityData] = None,
                  time_offset: Optional[float] = None) -> None:
         """
         Build a Pixel Difference (PD) Modality       
 
-        Positional arguments:
-        recording -- the containing Recording.   
-        parameters : PdParameters
+        Parameters
+        ----------
+        recording : Recording
+            the containing Recording.
+        meta_data : PdParameters
             Parameters used in calculating this instance of PD.
-        Keyword arguments:
-        load_path -- path of the saved data - both ultrasound and metadata
-        parent -- the Modality this one was derived from. None means this 
-            is an underived data Modality.
-            If parent is None, it will be copied from dataModality.
-        parsed_data -- ModalityData object containing raw ultrasound, 
-            sampling rate, and either timevector and/or time_offset. Providing 
+        file_info : FileInformation
+            Save paths for numerical and meta data.
+        parsed_data : Optional[ModalityData], optional
+            ModalityData object, by default None. Contains raw ultrasound,
+            sampling rate, and either timevector and/or time_offset. Providing
             a timevector overrides any time_offset value given, but in absence
-            of a timevector the time_offset will be applied on reading the data 
-            from file. 
-        timeoffset -- timeoffset in seconds against the Recordings baseline.
-            If not specified or 0, timeOffset will be copied from dataModality.
+            of a timevector the time_offset will be applied on reading the data
+            from file.
+        time_offset : Optional[float], optional
+            If not specified or 0, timeOffset will be copied from dataModality,
+            by default None
         """
         # This allows the caller to be lazy.
         if not time_offset:
@@ -255,13 +243,12 @@ class PD(Modality):
 
         super().__init__(
             recording,
-            metadata=metadata,
-            data_path=None,
-            load_path=load_path,
-            meta_path=meta_path,
-            parsed_data=parsed_data)
+            meta_data=meta_data,
+            file_info=file_info,
+            parsed_data=parsed_data,
+            time_offset=time_offset)
 
-        self.meta_data = metadata
+        self.meta_data = meta_data
 
     def _derive_data(self) -> Tuple[np.ndarray, np.ndarray, float]:
         """

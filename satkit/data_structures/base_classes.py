@@ -115,6 +115,10 @@ class DataObject(abc.ABC):
         """
 
     @property
+    def file_info(self) -> FileInformation:
+        return self._file_info
+
+    @property
     def meta_data(self) -> EmptyStrAsNoneBaseModel:
         """
         Meta data of this DataObject.

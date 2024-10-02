@@ -53,6 +53,34 @@ _datastructures_logger = logging.getLogger('satkit.data_structures')
 
 
 @dataclass
+class FileInformation:
+    """
+    File and Path information for SATKIT DataObjects. 
+
+    satkit_meta_file : Optional[str]
+        Name of the SATKIT save file, if it exists, defaults to None. This is
+        the SATKIT meta file which in turn contains the name of the data
+        branch.
+    satkit_path : Optional[Path] 
+        Path to the saved SATKIT data, if it exists, defaults to None.
+        Generally this will mostly be equivalent to the recorded_path, except
+        for the root level DataAggregator which contains the paths to the
+        SATKIT and recorded data root directories.
+    recorded_file: Optional[str] = None
+        Name of the file containing the raw recorded data.
+    recorded_path : Optional[Path] = None
+        Path to the recorded data of this DataObject - if there is original
+        recorded data associated with this instance/type, defaults to None
+    """
+    satkit_meta_file: Optional[str] = None
+    satkit_data_file: Optional[str] = None
+    satkit_path: Optional[Path] = None
+    recorded_meta_file: Optional[str] = None
+    recorded_data_file: Optional[str] = None
+    recorded_path: Optional[Path] = None
+
+
+@dataclass
 class ModalityData:
     """
     Data passed from Modality generation into Modality.

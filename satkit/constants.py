@@ -43,10 +43,25 @@ from dataclasses import dataclass
 from enum import Enum
 
 # TODO 1.0: Decouple program and file format versions at version 1.0.
-SATKIT_VERSION = '0.9.0'
+SATKIT_VERSION = '0.10.0'
 SATKIT_FILE_VERSION = SATKIT_VERSION
 
 DEFAULT_ENCODING = 'utf-8'
+
+
+class ImageMask(Enum):
+    """
+    Accepted image masking options in calculating PD.
+
+    If both imagemask and interpolated data are chosen, the masking will happen
+    before interpolation.
+    """
+    TOP = "top"
+    BOTTOM = "bottom"
+    WHOLE = "whole"
+
+    def __str__(self):
+        return self.value
 
 
 class IntervalBoundary(Enum):

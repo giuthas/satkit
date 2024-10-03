@@ -48,8 +48,6 @@ general_axes_params:
     sharex: True
 
 data_axes:
-  global:
-    sharex: True
   PD:
     modalities:
       - PD l2 on RawUltrasound

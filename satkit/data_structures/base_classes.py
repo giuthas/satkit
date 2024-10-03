@@ -33,12 +33,10 @@
 
 from __future__ import annotations
 
-# Built in packages
 import abc
 import logging
 from pathlib import Path
 
-# Numerical arrays and more
 import numpy as np
 
 from satkit.errors import OverwriteError
@@ -152,7 +150,7 @@ class DataObject(abc.ABC):
         Path
             The path or None if no path was set.
         """
-        if self._file_info.satkit_meta_file:
+        if self._file_info.recorded_data_file:
             return self.recorded_path / self._file_info.recorded_data_file
         return None
 
@@ -172,7 +170,7 @@ class DataObject(abc.ABC):
         Path
             The path or None if no path was set.
         """
-        if self._file_info.satkit_meta_file:
+        if self._file_info.recorded_meta_file:
             return self.recorded_path / self._file_info.recorded_meta_file
         return None
 
@@ -189,7 +187,7 @@ class DataObject(abc.ABC):
             The path or None if no path was set.
         """
         if self.owner:
-            return self.owner.recorded_path() / self._file_info.recorded_path
+            return self.owner.recorded_path / self._file_info.recorded_path
         return self._file_info.recorded_path
 
     @property
@@ -231,7 +229,7 @@ class DataObject(abc.ABC):
             The path or None if no path was set.
         """
         if self.owner:
-            return self.owner.satkit_path() / self._file_info.satkit_path
+            return self.owner.satkit_path / self._file_info.satkit_path
         return self._file_info.satkit_path
 
     @property

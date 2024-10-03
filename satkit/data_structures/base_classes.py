@@ -35,8 +35,6 @@
 import abc
 import logging
 from pathlib import Path
-from typing import Optional
-
 
 # Numerical arrays and more
 import numpy as np
@@ -61,17 +59,17 @@ class DataObject(abc.ABC):
     """
 
     def __init__(self,
-                 owner: 'DataObject',
                  meta_data: EmptyStrAsNoneBaseModel,
-                 file_info: Optional[FileInformation],
+                 owner: 'DataObject' | None = None,
+                 file_info: FileInformation | None = None,
                  ) -> None:
         # The super().__init__() call below is needed to make sure that
         # inheriting classes which also inherit from UserDict and UserList are
         # initialised properly.
         super().__init__()
 
-        self.owner = owner
         self._meta_data = meta_data
+        self.owner = owner
         self._file_info = file_info
 
     def __getstate__(self) -> dict:
@@ -116,6 +114,14 @@ class DataObject(abc.ABC):
 
     @property
     def file_info(self) -> FileInformation:
+        """
+        The paths and filenames of this DataObject as a FileInformation object.
+
+        Returns
+        -------
+        FileInformation
+            The FileInformation.
+        """
         return self._file_info
 
     @property
@@ -271,11 +277,11 @@ class DataAggregator(DataObject):
     """
 
     def __init__(self,
-                 owner: 'DataAggregator',
                  name: str,
                  meta_data: EmptyStrAsNoneBaseModel,
-                 file_info: Optional[FileInformation],
-                 statistics: Optional[dict[str, 'Statistic']] = None
+                 owner: 'DataObject' | None = None,
+                 file_info: FileInformation | None = None,
+                 statistics: dict[str, 'Statistic'] | None = None
                  ) -> None:
         super().__init__(
             owner=owner, meta_data=meta_data, file_info=file_info)
@@ -350,9 +356,9 @@ class DataContainer(DataObject):
         """Abstract version of generating a RecordingMetric name."""
 
     def __init__(self,
-                 owner: DataAggregator,
                  meta_data: EmptyStrAsNoneBaseModel,
-                 file_info: FileInformation
+                 owner: 'DataObject' | None = None,
+                 file_info: FileInformation | None = None,
                  ) -> None:
         super().__init__(
             owner=owner, meta_data=meta_data, file_info=file_info)
@@ -396,10 +402,10 @@ class Statistic(DataContainer):
 
     def __init__(
             self,
-            owner: DataAggregator,
             meta_data: EmptyStrAsNoneBaseModel,
-            file_info: FileInformation,
-            parsed_data: Optional[np.ndarray] = None,
+            owner: DataAggregator | None = None,
+            file_info: FileInformation | None = None,
+            parsed_data: np.ndarray | None = None,
     ) -> None:
         """
         Build a Statistic.       

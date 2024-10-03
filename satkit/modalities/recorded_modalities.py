@@ -37,6 +37,7 @@ import logging
 import sys
 from copy import deepcopy
 
+# from icecream import ic
 import numpy as np
 
 # local modules
@@ -49,7 +50,7 @@ from satkit.import_formats import (
 from satkit.interpolate_raw_uti import to_fan, to_fan_2d
 from satkit.configuration import data_run_params
 
-_modalities_logger = logging.getLogger('satkit.modalities')
+_logger = logging.getLogger('satkit.modalities')
 
 
 class MonoAudio(Modality):
@@ -189,12 +190,12 @@ class RawUltrasound(Modality):
                 # be handled with just a call to _recording_logger.critical and
                 # setting self.excluded = True
                 not_found = set(RawUltrasound.requiredMetaKeys) - set(meta)
-                _modalities_logger.critical(
+                _logger.critical(
                     "Part of metadata missing when processing %s.",
                     meta['filename'])
-                _modalities_logger.critical(
+                _logger.critical(
                     "Could not find %s.", str(not_found))
-                _modalities_logger.critical('Exiting.')
+                _logger.critical('Exiting.')
                 sys.exit()
 
         # Initialise super only after ensuring meta is correct,
@@ -238,19 +239,19 @@ class RawUltrasound(Modality):
 
         Arguments: index - the index of the ultrasound frame to be returned
         """
-        _modalities_logger.debug(
+        _logger.debug(
             "Getting interpolated image from ultrasound. index=%d", index)
         if self.video_has_been_stored:
-            _modalities_logger.debug(
+            _logger.debug(
                 "Returning interpolated image from stored video.")
             half_way = int(self.stored_video.shape[0]/2)
             return self.stored_video[half_way, :, :].copy()
         elif self._stored_index and self._stored_index == index:
-            _modalities_logger.debug(
+            _logger.debug(
                 "Returning previously stored interpolated image.")
             return self._stored_image
         else:
-            _modalities_logger.debug(
+            _logger.debug(
                 "Calculating interpolated image from scratch.")
             self._stored_index = index
             # frame = scipy_medfilt(self.data[index, :, :].copy(), [1,15])
@@ -343,12 +344,12 @@ class Video(Modality):
                 # be handled with just a call to _recording_logger.critical and
                 # setting self.excluded = True
                 not_found = set(Video.requiredMetaKeys) - set(meta)
-                _modalities_logger.critical(
+                _logger.critical(
                     "Part of metadata missing when processing %s. ",
                     meta['filename'])
-                _modalities_logger.critical(
+                _logger.critical(
                     "Could not find %s.", str(not_found))
-                _modalities_logger.critical('Exiting.')
+                _logger.critical('Exiting.')
                 sys.exit()
 
         super().__init__(
@@ -422,12 +423,12 @@ class ThreeD_Ultrasound(Modality):
                 # be handled with just a call to _recording_logger.critical and
                 # setting self.excluded = True
                 not_found = set(RawUltrasound.requiredMetaKeys) - set(meta)
-                _modalities_logger.critical(
+                _logger.critical(
                     "Part of metadata missing when processing %s.",
                     meta['filename'])
-                _modalities_logger.critical(
+                _logger.critical(
                     "Could not find %s.", str(not_found))
-                _modalities_logger.critical('Exiting.')
+                _logger.critical('Exiting.')
                 sys.exit()
 
         # Initialise super only after ensuring meta is correct,

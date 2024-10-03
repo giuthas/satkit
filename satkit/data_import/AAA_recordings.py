@@ -45,7 +45,7 @@ from satkit.data_structures import (
 
 
 from .AAA_raw_ultrasound import (
-    add_aaa_raw_ultrasound, parse_recording_meta_from_aaa_promptfile)
+    add_aaa_raw_ultrasound, parse_recording_meta_from_aaa_prompt_file)
 from .exclusion_list import apply_exclusion_list
 from .AAA_splines import add_splines
 from .audio import add_audio
@@ -143,7 +143,7 @@ def generate_ultrasound_recording(
         "Building Recording object for %s in %s.", basename, directory)
 
     prompt_file = (directory / basename).with_suffix('.txt')
-    meta = parse_recording_meta_from_aaa_promptfile(prompt_file)
+    meta = parse_recording_meta_from_aaa_prompt_file(prompt_file)
 
     textgrid = directory/basename
     textgrid = textgrid.with_suffix('.TextGrid')

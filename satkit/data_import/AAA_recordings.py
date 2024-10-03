@@ -110,7 +110,8 @@ def generate_aaa_recording_list(
                   for prompt_file in ult_prompt_files]
     basenames = [Path(path).name for path in base_paths]
     recordings = [
-        generate_ultrasound_recording(owner, basename, Path(directory))
+        generate_ultrasound_recording(
+            basename=basename, directory=Path(directory), owner=owner)
         for basename in basenames
     ]
 

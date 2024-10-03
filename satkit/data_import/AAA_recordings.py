@@ -39,10 +39,11 @@ from pathlib import Path
 from typing import Optional
 
 # Local packages
-from satkit.configuration import (
-    PathStructure, SessionConfig)
+from satkit.configuration import PathStructure
 from satkit.constants import Datasource, SourceSuffix
-from satkit.data_structures import Recording
+from satkit.data_structures import (
+    FileInformation, Recording, Session, SessionConfig)
+
 
 from .AAA_raw_ultrasound import (
     add_aaa_raw_ultrasound, parse_recording_meta_from_aaa_promptfile)
@@ -56,6 +57,7 @@ _AAA_logger = logging.getLogger('satkit.AAA')
 
 def generate_aaa_recording_list(
         directory: Path,
+        owner: Session,
         import_config: Optional[SessionConfig] = None,
         paths: Optional[PathStructure] = None) -> list[Recording]:
     """
@@ -109,7 +111,7 @@ def generate_aaa_recording_list(
                   for prompt_file in ult_prompt_files]
     basenames = [Path(path).name for path in base_paths]
     recordings = [
-        generate_ultrasound_recording(basename, Path(directory))
+        generate_ultrasound_recording(owner, basename, Path(directory))
         for basename in basenames
     ]
 
@@ -122,7 +124,8 @@ def generate_aaa_recording_list(
                   token: token.meta_data.time_of_recording)
 
 
-def generate_ultrasound_recording(basename: str, directory: Path):
+def generate_ultrasound_recording(
+        owner: Session, basename: str, directory: Path):
     """
     Generate an UltrasoundRecording without Modalities.
 
@@ -139,20 +142,29 @@ def generate_ultrasound_recording(basename: str, directory: Path):
     _AAA_logger.info(
         "Building Recording object for %s in %s.", basename, directory)
 
-    meta = parse_recording_meta_from_aaa_promptfile(
-        (directory / basename).with_suffix('.txt'))
+    prompt_file = (directory / basename).with_suffix('.txt')
+    meta = parse_recording_meta_from_aaa_promptfile(prompt_file)
 
     textgrid = directory/basename
     textgrid = textgrid.with_suffix('.TextGrid')
 
+    # TODO: make this actually meaningful
+    file_info = FileInformation(
+        recorded_path=directory,
+        recorded_meta_file=prompt_file.name)
+
     if textgrid.is_file():
         recording = Recording(
+            owner=owner,
             meta_data=meta,
+            file_info=file_info,
             textgrid_path=textgrid
         )
     else:
         recording = Recording(
+            owner=owner,
             meta_data=meta,
+            file_info=file_info,
         )
 
     return recording

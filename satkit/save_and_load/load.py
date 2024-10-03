@@ -248,7 +248,10 @@ def load_recording_session(
 
     # TODO: don't really know if the current FileInformation handles the
     # duality of config from user and saved meta too well.
-    file_info = FileInformation(satkit_meta_file=directory)
+    file_info = FileInformation(
+        satkit_meta_file=filename, satkit_path=directory,
+        recorded_path=directory,
+        recorded_meta_file=session_config_path.name)
     session = Session(
         name=meta.name, paths=paths,
         config=session_config,

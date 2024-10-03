@@ -35,17 +35,19 @@ Functions for loading previously saved/seen data.
 
 import logging
 from pathlib import Path
-from typing import Optional, TextIO, Union
+from typing import TextIO
 
 import numpy as np
 import nestedtext
 # from icecream import ic
 
-from satkit.configuration import PathStructure, SessionConfig
+from satkit.configuration import PathStructure
 from satkit.constants import SatkitConfigFile, SatkitSuffix
 from satkit.data_import import (
     modality_adders, add_splines, load_session_config)
-from satkit.data_structures import ModalityData, Recording, Session
+from satkit.data_structures import (
+    ModalityData, Recording, Session, SessionConfig)
+from satkit.data_structures.meta_data_classes import FileInformation
 from satkit.metrics import metrics
 
 from .save_and_load_schemas import (
@@ -100,7 +102,7 @@ def load_derived_modality(
 
 
 def read_recording_meta(
-        filepath: Union[str, Path, TextIO]) -> RecordingLoadSchema:
+        filepath: str | Path | TextIO) -> RecordingLoadSchema:
     """
     Read a Recording's saved metadata, validate it, and return it.
 
@@ -158,7 +160,8 @@ def load_recording(filepath: Path) -> Recording:
         raise NotImplementedError(
             "Can't yet jump to a previously unloaded recording here.")
 
-    recording = Recording(meta.parameters)
+    file_info = FileInformation(satkit_meta_file=meta_path)
+    recording = Recording(meta.parameters, file_info=file_info)
 
     for modality in meta.modalities:
         if modality in modality_adders:
@@ -174,8 +177,9 @@ def load_recording(filepath: Path) -> Recording:
     return recording
 
 
-def load_recordings(directory: Path, recording_metafiles: Optional
-                    [list[str]]) -> list[Recording]:
+def load_recordings(
+        directory: Path, recording_metafiles: list[str] | None = None
+) -> list[Recording]:
     """
     Load (specified) Recordings from directory.
 
@@ -205,8 +209,8 @@ def load_recordings(directory: Path, recording_metafiles: Optional
 
 
 def load_recording_session(
-    directory: Union[Path, str],
-    session_config_path: Optional[Path] = None
+    directory: Path | str,
+    session_config_path: Path | None = None
 ) -> Session:
     """
     Load a recording session from a directory.
@@ -242,9 +246,13 @@ def load_recording_session(
 
     recordings = load_recordings(directory, meta.recordings)
 
+    # TODO: don't really know if the current FileInformation handles the
+    # duality of config from user and saved meta too well.
+    file_info = FileInformation(satkit_meta_file=directory)
     session = Session(
         name=meta.name, paths=paths,
         config=session_config,
+        file_info=file_info,
         recordings=recordings)
 
     return session

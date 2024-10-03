@@ -41,7 +41,7 @@ from .configuration_parsers import (
     parse_config,
     config_dict, data_run_params, gui_params, publish_params, PathValidator)
 from .configuration_classes import (
-    ExclusionList, PathStructure, SessionConfig,
+    ExclusionList, PathStructure,
     SplineConfig, SplineDataConfig, SplineImportConfig)
 from .configuration_models import (
     DataRunConfig, DownsampleParams, FindPeaksScipyArguments,

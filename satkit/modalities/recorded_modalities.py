@@ -137,6 +137,7 @@ class RawUltrasound(Modality):
     Ultrasound Recording with raw (probe return) data.
     """
 
+    # TODO: this should be handled by a meta data class
     requiredMetaKeys = [
         'meta_file',
         'Angle',
@@ -369,6 +370,7 @@ class ThreeD_Ultrasound(Modality):
     Ultrasound Recording with interpolated 3D/4D data.
     """
 
+    # TODO: this should be handled by a meta data class
     requiredMetaKeys = [
         'meta_file',
         'Angle',

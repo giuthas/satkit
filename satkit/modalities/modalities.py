@@ -29,18 +29,19 @@
 # articles listed in README.markdown. They can also be found in
 # citations.bib in BibTeX format.
 #
+"""
+Recorded data modalities
+"""
 
 import logging
 import sys
 from copy import deepcopy
-from pathlib import Path
-from typing import Optional
 
 import numpy as np
 
 # local modules
 from satkit.data_structures import (
-    Modality, ModalityData, ModalityMetaData, Recording)
+    FileInformation, Modality, ModalityData, ModalityMetaData, Recording)
 from satkit.import_formats import (
     read_3d_ultrasound_dicom, read_avi, read_ult, read_wav,
     read_wav_and_detect_beep
@@ -53,7 +54,7 @@ _modalities_logger = logging.getLogger('satkit.modalities')
 
 class MonoAudio(Modality):
     """
-    A mono audio track. 
+    A mono audio track.
 
     Audio data is assumed to be small enough for the
     whole session to fit in working memory and therefore
@@ -71,36 +72,34 @@ class MonoAudio(Modality):
 
     def __init__(self,
                  recording: Recording,
-                 data_path: Optional[Path] = None,
-                 load_path: Optional[Path] = None,
-                 parsed_data: Optional[ModalityData] = None,
-                 time_offset: Optional[float] = None,
-                 go_signal: Optional[float] = None,
-                 has_speech: Optional[bool] = None) -> None:
+                 file_info: FileInformation,
+                 parsed_data: ModalityData | None = None,
+                 time_offset: float | None = None,
+                 go_signal: float | None = None,
+                 has_speech: bool | None = None) -> None:
         """
         Create a MonoAudio track.
 
         Positional arguments:
-        recording -- the containing Recording.        
+        recording -- the containing Recording.
 
         Keyword arguments:
         data_path -- path of the wav file
         load_path -- path of the saved data - both wav and metadata
-        parent -- the Modality this one was derived from. None means this 
+        parent -- the Modality this one was derived from. None means this
             is an underived data Modality.
         parsed_data -- ModalityData object containing waveform, sampling rate,
-            and either timevector and/or time_offset. Providing a timevector 
-            overrides any time_offset value given, but in absence of a 
-            timevector the time_offset will be applied on reading the data 
-            from file. 
+            and either timevector and/or time_offset. Providing a timevector
+            overrides any time_offset value given, but in absence of a
+            timevector the time_offset will be applied on reading the data
+            from file.
         go_signal -- time of the go_signal in seconds from start of recording.
-        has_speech -- True if the heuristic algorithm thinks there is speech 
+        has_speech -- True if the heuristic algorithm thinks there is speech
             audio in the sample.
         """
         super().__init__(
             recording=recording,
-            data_path=data_path,
-            load_path=load_path,
+            file_info=file_info,
             parsed_data=parsed_data,
             time_offset=time_offset)
 
@@ -113,11 +112,11 @@ class MonoAudio(Modality):
         """
         if data_run_params['flags']['detect beep']:
             parsed_data, go_signal, has_speech = read_wav_and_detect_beep(
-                self.data_path)
+                self.recorded_data_file)
             self.go_signal = go_signal
             self.has_speech = has_speech
             return parsed_data
-        return read_wav(self.data_path)
+        return read_wav(self.recorded_data_file)
 
     # TODO: uncomment and implement when implementing the save features.
     # def _load_data(self):
@@ -154,18 +153,16 @@ class RawUltrasound(Modality):
 
     def __init__(self,
                  recording: Recording,
-                 data_path: Optional[Path] = None,
-                 meta_path: Optional[Path] = None,
-                 load_path: Optional[Path] = None,
-                 parsed_data: Optional[ModalityData] = None,
-                 time_offset: Optional[float] = None,
-                 meta: Optional[dict] = None
+                 file_info: FileInformation,
+                 parsed_data: ModalityData | None = None,
+                 time_offset: float | None = None,
+                 meta: dict | None = None
                  ) -> None:
         """
         Create a RawUltrasound Modality.
 
         Positional arguments:
-        recording -- the containing Recording.        
+        recording -- the containing Recording.
 
         Keyword arguments:
         data_path -- path of the ultrasound file
@@ -174,9 +171,9 @@ class RawUltrasound(Modality):
             sampling rate, and either timevector and/or time_offset.
             Providing a timevector overrides any time_offset value given,
             but in absence of a timevector the time_offset will be applied
-            on reading the data from file. 
-        meta -- a dict with (at least) the keys listed in 
-            RawUltrasound.requiredMetaKeys. Extra keys will be ignored. 
+            on reading the data from file.
+        meta -- a dict with (at least) the keys listed in
+            RawUltrasound.requiredMetaKeys. Extra keys will be ignored.
             Default is None.
         """
         # Explicitly copy meta data fields to ensure that we have what we
@@ -203,9 +200,7 @@ class RawUltrasound(Modality):
         # because latter may already end the run.
         super().__init__(
             recording=recording,
-            data_path=data_path,
-            meta_path=meta_path,
-            load_path=load_path,
+            file_info=file_info,
             parsed_data=parsed_data,
             time_offset=time_offset)
 
@@ -218,16 +213,17 @@ class RawUltrasound(Modality):
         self.stored_video = None
 
     def _read_data(self) -> ModalityData:
-        return read_ult(self.data_path, self.meta, self._time_offset)
+        return read_ult(
+            self.recorded_data_file, self.meta, self._time_offset)
 
     def get_meta(self) -> dict:
         return self.meta
 
-    @property
+    @ property
     def data(self) -> np.ndarray:
         return super().data
 
-    @data.setter
+    @ data.setter
     def data(self, data) -> None:
         super()._data_setter(data)
 
@@ -296,43 +292,42 @@ class RawUltrasound(Modality):
 
 class Video(Modality):
     """
-    Video recording.    
+    Video recording.
     """
 
     requiredMetaKeys = [
         'FramesPerSec'
     ]
 
-    @classmethod
+    @ classmethod
     def generate_name(cls, params: ModalityMetaData) -> str:
         return cls.__name__
 
     def __init__(self,
                  recording: Recording,
-                 data_path: Optional[Path] = None,
-                 load_path: Optional[Path] = None,
-                 parsed_data: Optional[ModalityData] = None,
-                 time_offset: Optional[float] = None,
-                 meta: Optional[dict] = None
+                 file_info: FileInformation,
+                 parsed_data: ModalityData | None = None,
+                 time_offset: float | None = None,
+                 meta: dict | None = None
                  ) -> None:
         """
         Create a Video Modality.
 
         Positional arguments:
-        recording -- the containing Recording.        
+        recording -- the containing Recording.
 
         Keyword arguments:
         data_path -- path of the ultrasound file
         load_path -- path of the saved data - both ultrasound and metadata
-        parent -- the Modality this one was derived from. Should be None 
+        parent -- the Modality this one was derived from. Should be None
             which means this is an underived data Modality.
-        parsed_data -- ModalityData object containing raw ultrasound, 
-            sampling rate, and either timevector and/or time_offset. Providing 
+        parsed_data -- ModalityData object containing raw ultrasound,
+            sampling rate, and either timevector and/or time_offset. Providing
             a timevector overrides any time_offset value given, but in absence
-            of a timevector the time_offset will be applied on reading the 
-            data from file. 
-        meta -- a dict with (at least) the keys listed in 
-            Video.requiredMetaKeys. Extra keys will be ignored. 
+            of a timevector the time_offset will be applied on reading the
+            data from file.
+        meta -- a dict with (at least) the keys listed in
+            Video.requiredMetaKeys. Extra keys will be ignored.
             Default is None.
         """
         # Explicitly copy meta data fields to ensure that we have what we
@@ -357,13 +352,13 @@ class Video(Modality):
 
         super().__init__(
             recording=recording,
-            data_path=data_path,
-            load_path=load_path,
+            file_info=file_info,
             parsed_data=parsed_data,
             time_offset=time_offset)
 
     def _read_data(self) -> ModalityData:
-        return read_avi(self.data_path, self.meta, self._time_offset)
+        return read_avi(
+            self.recorded_data_file, self.meta, self._time_offset)
 
     def get_meta(self) -> dict:
         return {'sampling_rate': self.sampling_rate}
@@ -371,7 +366,7 @@ class Video(Modality):
 
 class ThreeD_Ultrasound(Modality):
     """
-    Ultrasound Recording with interpolated 3D/4D data.  
+    Ultrasound Recording with interpolated 3D/4D data.
     """
 
     requiredMetaKeys = [
@@ -384,35 +379,33 @@ class ThreeD_Ultrasound(Modality):
         'ZeroOffset'
     ]
 
-    @classmethod
+    @ classmethod
     def generate_name(cls, params: ModalityMetaData) -> str:
         return cls.__name__
 
     def __init__(self,
                  recording: Recording,
-                 data_path: Optional[Path] = None,
-                 load_path: Optional[Path] = None,
-                 meta_path: Optional[Path] = None,
-                 parsed_data: Optional[ModalityData] = None,
-                 time_offset: Optional[float] = None,
-                 meta: Optional[dict] = None
+                 file_info: FileInformation,
+                 parsed_data: ModalityData | None = None,
+                 time_offset: float | None = None,
+                 meta: dict | None = None
                  ) -> None:
         """
         Create a RawUltrasound Modality.
 
         Positional arguments:
-        recording -- the containing Recording.        
+        recording -- the containing Recording.
 
         Keyword arguments:
         data_path -- path of the ultrasound file
         load_path -- path of the saved data - both ultrasound and metadata
-        parsed_data -- ModalityData object containing raw ultrasound, 
-            sampling rate, and either timevector and/or time_offset. 
-            Providing a timevector overrides any time_offset value given, 
-            but in absence of a timevector the time_offset will be applied 
-            on reading the data from file. 
-        meta -- a dict with (at least) the keys listed in 
-            RawUltrasound.requiredMetaKeys. Extra keys will be ignored. 
+        parsed_data -- ModalityData object containing raw ultrasound,
+            sampling rate, and either timevector and/or time_offset.
+            Providing a timevector overrides any time_offset value given,
+            but in absence of a timevector the time_offset will be applied
+            on reading the data from file.
+        meta -- a dict with (at least) the keys listed in
+            RawUltrasound.requiredMetaKeys. Extra keys will be ignored.
             Default is None.
         """
         # Explicitly copy meta data fields to ensure that we have what we
@@ -439,9 +432,7 @@ class ThreeD_Ultrasound(Modality):
         # because latter may already end the run.
         super().__init__(
             recording=recording,
-            data_path=data_path,
-            meta_path=meta_path,
-            load_path=load_path,
+            file_info=file_info,
             parsed_data=parsed_data,
             time_offset=time_offset)
 
@@ -453,15 +444,15 @@ class ThreeD_Ultrasound(Modality):
 
     def _read_data(self) -> ModalityData:
         return read_3d_ultrasound_dicom(
-            self.data_path,
+            self.recorded_data_file,
             self.meta,
             self._time_offset)
 
-    @property
+    @ property
     def data(self) -> np.ndarray:
         return super().data
 
-    @data.setter
+    @ data.setter
     def data(self, data) -> None:
         super()._data_setter(data)
 

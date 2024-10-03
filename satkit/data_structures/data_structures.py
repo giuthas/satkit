@@ -89,7 +89,7 @@ class Session(DataAggregator, UserList):
         for recording in recordings:
             if not recording.owner:
                 recording.owner = self
-        self.append(recordings)
+        self.extend(recordings)
 
         self.paths = paths
         # This was commented out in data structures 4.0, and left here to

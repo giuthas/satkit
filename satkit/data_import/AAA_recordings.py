@@ -56,7 +56,7 @@ _AAA_logger = logging.getLogger('satkit.AAA')
 
 def generate_aaa_recording_list(
         directory: Path,
-        owner: Session,
+        owner: Session | None = None,
         import_config: SessionConfig | None = None,
         paths: PathStructure | None = None) -> list[Recording]:
     """

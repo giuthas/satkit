@@ -29,9 +29,14 @@
 # articles listed in README.markdown. They can also be found in
 # citations.bib in BibTeX format.
 #
+"""
+Import a Session from a directory or call the loader for previously saved data.
+"""
 
 import logging
 from pathlib import Path
+
+# from icecream import ic
 
 from satkit.audio_processing import MainsFilter
 from satkit.configuration import config_dict, PathStructure
@@ -118,9 +123,10 @@ def read_recording_session_from_dir(
             recordings = generate_aaa_recording_list(
                 recorded_data_path, session_config)
 
-            return Session(
+            session = Session(
                 name=containing_dir, paths=paths, config=session_config,
                 file_info=file_info, recordings=recordings)
+            return session
 
         if session_config.data_source == Datasource.RASL:
             raise NotImplementedError(
@@ -132,9 +138,10 @@ def read_recording_session_from_dir(
         paths = PathStructure(root=recorded_data_path)
         session_config = SessionConfig(data_source=Datasource.AAA)
 
-        return Session(
+        session = Session(
             name=containing_dir, paths=paths, config=session_config,
             file_info=file_info, recordings=recordings)
+        return session
 
     logger.error(
         'Could not find a suitable importer: %s.', recorded_data_path)

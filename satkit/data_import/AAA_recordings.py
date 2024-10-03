@@ -36,7 +36,6 @@ Import data exported by AAA.
 # Built in packages
 import logging
 from pathlib import Path
-from typing import Optional
 
 # Local packages
 from satkit.configuration import PathStructure
@@ -58,8 +57,8 @@ _AAA_logger = logging.getLogger('satkit.AAA')
 def generate_aaa_recording_list(
         directory: Path,
         owner: Session,
-        import_config: Optional[SessionConfig] = None,
-        paths: Optional[PathStructure] = None) -> list[Recording]:
+        import_config: SessionConfig | None = None,
+        paths: PathStructure | None = None) -> list[Recording]:
     """
     Produce an array of Recordings from an AAA export directory.
 
@@ -125,7 +124,7 @@ def generate_aaa_recording_list(
 
 
 def generate_ultrasound_recording(
-        owner: Session, basename: str, directory: Path):
+        basename: str, directory: Path, owner: Session | None = None):
     """
     Generate an UltrasoundRecording without Modalities.
 
@@ -148,7 +147,6 @@ def generate_ultrasound_recording(
     textgrid = directory/basename
     textgrid = textgrid.with_suffix('.TextGrid')
 
-    # TODO: make this actually meaningful
     file_info = FileInformation(
         recorded_path=directory,
         recorded_meta_file=prompt_file.name)

@@ -31,6 +31,8 @@
 #
 """SATKIT's main datastructures."""
 
+from __future__ import annotations
+
 # Built in packages
 import abc
 from collections import OrderedDict, UserDict, UserList
@@ -77,7 +79,7 @@ class Session(DataAggregator, UserList):
                  paths: PathStructure,
                  config: SessionConfig,
                  file_info: FileInformation,
-                 recordings: list['Recording'],
+                 recordings: list[Recording],
                  statistics: dict[str, Statistic] | None = None
                  ) -> None:
         super().__init__(
@@ -95,7 +97,7 @@ class Session(DataAggregator, UserList):
         # self.config = config
 
     @property
-    def recordings(self) -> list['Recording']:
+    def recordings(self) -> list[Recording]:
         """
         Property to access the list of Recordings directly.
 
@@ -163,7 +165,7 @@ class Recording(DataAggregator, UserDict):
         self.annotations = {}
 
     @property
-    def modalities(self) -> dict[str, 'Modality']:
+    def modalities(self) -> dict[str, Modality]:
         """
         Dictionary of the modalities of this Recording.
 
@@ -271,7 +273,7 @@ class Recording(DataAggregator, UserDict):
                 "TextGrid save failed with error: %s", str(exception))
 
     def add_modality(
-            self, modality: 'Modality', replace: bool = False) -> None:
+            self, modality: Modality, replace: bool = False) -> None:
         """
         This method adds a new Modality object to the Recording.
 

@@ -34,7 +34,7 @@ from pathlib import Path
 from typing import Optional
 
 from satkit.configuration import data_run_params
-from satkit.data_structures import Recording
+from satkit.data_structures import Recording, FileInformation
 from satkit.import_formats import read_wav, read_wav_and_detect_beep
 from satkit.modalities import MonoAudio
 
@@ -65,12 +65,16 @@ def add_audio(
         ult_wav_file = path
 
     if ult_wav_file.is_file():
+        file_info = FileInformation(
+            recorded_path=Path(""),
+            recorded_data_file=ult_wav_file.name
+        )
         if preload and data_run_params['flags']['detect_beep']:
             data, go_signal, has_speech = read_wav_and_detect_beep(
                 ult_wav_file)
             waveform = MonoAudio(
                 recording=recording,
-                data_path=ult_wav_file,
+                file_info=file_info,
                 parsed_data=data,
                 go_signal=go_signal,
                 has_speech=has_speech
@@ -80,14 +84,14 @@ def add_audio(
             data = read_wav(ult_wav_file)
             waveform = MonoAudio(
                 recording=recording,
-                data_path=ult_wav_file,
+                file_info=file_info,
                 parsed_data=data,
             )
             recording.add_modality(waveform)
         else:
             waveform = MonoAudio(
                 recording=recording,
-                data_path=ult_wav_file
+                file_info=file_info,
             )
             recording.add_modality(waveform)
         _generic_io_logger.debug(

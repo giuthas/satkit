@@ -31,6 +31,8 @@
 #
 """Base classes of the core datastructures."""
 
+from __future__ import annotations
+
 # Built in packages
 import abc
 import logging
@@ -60,7 +62,7 @@ class DataObject(abc.ABC):
 
     def __init__(self,
                  meta_data: EmptyStrAsNoneBaseModel,
-                 owner: 'DataObject' | None = None,
+                 owner: DataObject | None = None,
                  file_info: FileInformation | None = None,
                  ) -> None:
         # The super().__init__() call below is needed to make sure that
@@ -90,8 +92,8 @@ class DataObject(abc.ABC):
         state = self.__dict__.copy()
         del state['owner']
 
-    @abc.abstractmethod
     @property
+    @abc.abstractmethod
     def name(self) -> str:
         """
         Name of this instance.
@@ -279,7 +281,7 @@ class DataAggregator(DataObject):
     def __init__(self,
                  name: str,
                  meta_data: EmptyStrAsNoneBaseModel,
-                 owner: 'DataObject' | None = None,
+                 owner: DataObject | None = None,
                  file_info: FileInformation | None = None,
                  statistics: dict[str, 'Statistic'] | None = None
                  ) -> None:
@@ -357,7 +359,7 @@ class DataContainer(DataObject):
 
     def __init__(self,
                  meta_data: EmptyStrAsNoneBaseModel,
-                 owner: 'DataObject' | None = None,
+                 owner: DataObject | None = None,
                  file_info: FileInformation | None = None,
                  ) -> None:
         super().__init__(

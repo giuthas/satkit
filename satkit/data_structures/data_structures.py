@@ -36,7 +36,6 @@ import abc
 from collections import OrderedDict, UserDict, UserList
 import logging
 from pathlib import Path
-from typing import Optional, Union
 
 # from icecream import ic
 
@@ -79,11 +78,15 @@ class Session(DataAggregator, UserList):
                  config: SessionConfig,
                  file_info: FileInformation,
                  recordings: list['Recording'],
-                 statistics: Optional[dict[str, Statistic]] = None
+                 statistics: dict[str, Statistic] | None = None
                  ) -> None:
         super().__init__(
             owner=None, name=name, meta_data=config,
             file_info=file_info, statistics=statistics)
+
+        for recording in recordings:
+            if not recording.owner:
+                recording.owner = self
         self.append(recordings)
 
         self.paths = paths
@@ -124,11 +127,11 @@ class Recording(DataAggregator, UserDict):
     """
 
     def __init__(self,
-                 owner: Session,
                  meta_data: RecordingMetaData,
                  file_info: FileInformation,
+                 owner: Session | None = None,
                  excluded: bool = False,
-                 textgrid_path: Union[str, Path] = "") -> None:
+                 textgrid_path: str | Path = "") -> None:
         """
         Construct a mainly empty recording without modalities.
 
@@ -326,15 +329,15 @@ class Modality(DataContainer, OrderedDict):
     def generate_name(cls, params: ModalityMetaData) -> str:
         """Abstract version of generating a Modality name."""
 
-    def __init__(self,
-                 recording: Recording,
-                 file_info: FileInformation,
-                 parsed_data: Optional[ModalityData] = None,
-                 meta_data: Optional[ModalityMetaData] = None,
-                 time_offset: Optional[float] = None,
-                 annotations: Optional[dict[AnnotationType,
-                                            PointAnnotations]] = None
-                 ) -> None:
+    def __init__(
+        self,
+        recording: Recording,
+        file_info: FileInformation,
+        parsed_data: ModalityData | None = None,
+        meta_data: ModalityMetaData | None = None,
+        time_offset: float | None = None,
+        annotations: dict[AnnotationType, PointAnnotations] | None = None
+    ) -> None:
         """
         Modality constructor.
 

@@ -153,7 +153,7 @@ def add_aaa_raw_ultrasound(
             meta_path = path.with_suffix(".param")
 
     file_info = FileInformation(
-        recorded_path=ult_path.parent,
+        recorded_path=Path(""),
         recorded_data_file=ult_path.name,
         recorded_meta_file=meta_path.name)
 

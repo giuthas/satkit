@@ -149,7 +149,7 @@ def generate_ultrasound_recording(
     textgrid = textgrid.with_suffix('.TextGrid')
 
     file_info = FileInformation(
-        recorded_path=directory,
+        recorded_path=Path(""),
         recorded_meta_file=prompt_file.name)
 
     if textgrid.is_file():

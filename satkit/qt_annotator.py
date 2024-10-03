@@ -41,7 +41,6 @@ import logging
 from contextlib import closing
 from copy import deepcopy
 from pathlib import Path
-from typing import Optional, Union
 
 import numpy as np
 import matplotlib
@@ -108,8 +107,8 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
                  args: Namespace,
                  gui_config: GuiConfig,
                  xlim: list[float] = (-0.25, 1.5),
-                 categories: Optional[list[str]] = None,
-                 pickle_filename: Optional[Union[Path, str]] = None):
+                 categories: list[str] | None = None,
+                 pickle_filename: Path | str | None = None):
         super().__init__()
         self.setupUi(self)
 
@@ -236,8 +235,10 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
             if 'data_axes' in general_axes_params:
                 data_axes_params = general_axes_params['data_axes']
 
-        i = 0
-        for axes_name in gui_params['data_axes']:
+        for i, axes_name in enumerate(gui_params['data_axes']):
+            # There used to be a 'global' axes which has been moved to
+            # 'general_axes_params' this may still cause problems with old
+            # config files and should be fixed in them, not here.
             sharex = False
             if 'sharex' in gui_params['data_axes'][axes_name]:
                 sharex = gui_params['data_axes'][axes_name]['sharex']
@@ -254,8 +255,6 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
                 self.data_axes.append(
                     self.figure.add_subplot(
                         self.data_grid_spec[i]))
-            # incrementation here, because 'global' is not an actual axes
-            i += 1
 
         self.ultra_fig = Figure()
         self.ultra_canvas = FigureCanvas(self.ultra_fig)
@@ -355,8 +354,8 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
         self,
         axes_number: int,
         axes_name: str,
-        zero_offset: Optional[float] = 0,
-        ylim: Optional[list[float, float]] = None
+        zero_offset: float = 0,
+        ylim: list[float, float] | None = None
     ) -> None:
         """
         Plot modalities on a data_axes.

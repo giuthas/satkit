@@ -34,21 +34,28 @@ import datetime
 import logging
 from dataclasses import dataclass
 from multiprocessing import Pool
-from typing import Callable, Dict, List
+from typing import Callable
+
+# from icecream import ic
 
 from satkit.data_structures import Modality, Recording
 
-logger = logging.getLogger('satkit.scripting')
+_logger = logging.getLogger('satkit.scripting')
+
 
 @dataclass
 class Operation:
+    """
+    An operation to be applied to a Modality with given arguments.
+    """
     processing_function: Callable
     modality: Modality
-    arguments: Dict
+    arguments: dict
+
 
 def process_data(
-    recordings: List[Recording], 
-    processing_functions: Dict) -> None:
+        recordings: list[Recording],
+        processing_functions: dict) -> None:
     """
     Apply processing functions to data.
 
@@ -68,26 +75,28 @@ def process_data(
 
         for key in processing_functions:
             (function, modalities, arguments) = processing_functions[key]
-            # TODO: Version 1.0: add a mechanism to change the arguments for different modalities.
+            # TODO: Version 1.0: add a mechanism to change the arguments for
+            # different modalities.
             for modality in modalities:
                 function(
                     recording,
                     modality,
                     **arguments)
 
-    logger.info('Data run ended at %s.', str(datetime.datetime.now()))
+    _logger.info('Data run ended at %s.', str(datetime.datetime.now()))
+
 
 def multi_process_data(
-    recordings: List[Recording], 
-    operation: Operation) -> None:
+        recordings: list[Recording],
+        operation: Operation) -> None:
 
     arguments = [
-        {'recording':recording, 
-        'modality':operation.modality, 
-        **operation.arguments} for recording in recordings]
+        {'recording': recording,
+         'modality': operation.modality,
+         **operation.arguments} for recording in recordings]
 
-    logger.info('Starting data run at %s.', str(datetime.datetime.now()))
+    _logger.info('Starting data run at %s.', str(datetime.datetime.now()))
     with Pool() as pool:
         pool.map(operation.processing_function, arguments)
 
-    logger.info('Data run ended at %s.', str(datetime.datetime.now()))
+    _logger.info('Data run ended at %s.', str(datetime.datetime.now()))

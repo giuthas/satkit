@@ -248,8 +248,6 @@ class PD(Modality):
             parsed_data=parsed_data,
             time_offset=time_offset)
 
-        self.meta_data = meta_data
-
     def _derive_data(self) -> Tuple[np.ndarray, np.ndarray, float]:
         """
         Calculate Pixel Difference (PD) on the data Modality parent.       

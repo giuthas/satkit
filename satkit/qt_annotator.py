@@ -206,16 +206,6 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
 
         self.xlim = xlim
 
-        # TODO this should be based on the plotted modalities, not on a random
-        # choice from depths of time. It is a good idea though: Setting ylim
-        # over the whole data rather than on recording.
-        max_pds = np.zeros(len(self.recordings))
-        for i, recording in enumerate(self.recordings):
-            if 'PD l1 on RawUltrasound' in recording:
-                max_pds[i] = np.max(
-                    recording['PD l1 on RawUltrasound'].data[10:])
-        self.ylim = (-50, np.max(max_pds)*1.05)
-
         height_ratios = [gui_params['data_and_tier_height_ratios']["data"],
                          gui_params['data_and_tier_height_ratios']["tier"]]
         self.main_grid_spec = self.figure.add_gridspec(

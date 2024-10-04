@@ -30,9 +30,9 @@
 ## citations.bib in BibTeX format.
 ##
 
-# Please note that empty file or directory fields are
-# interpreted as not available and represented by None. If you want to specify
-# current working directory, use '.'
+# Please note that empty file or directory fields are interpreted as not
+# available and represented by None. If you want to specify current working
+# directory, use '.'
 
 flags:
   detect_beep: True # Should onset beep detection be run?

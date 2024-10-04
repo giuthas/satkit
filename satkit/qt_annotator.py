@@ -333,8 +333,6 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
         """
         Updates parts of the UI outwith the graphs.
         """
-        # TODO: highlight current recording
-
         position_annotation = self.current.annotations['tonguePosition']
         if position_annotation in self.position_rbs:
             button_to_activate = self.position_rbs[position_annotation]
@@ -647,7 +645,8 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
         Increases cursor index, updates the view.
         """
         if self.index < self.max_index-1:
-            # TODO: wrap in a data modalities accessor
+            # TODO: make it possible to select which modalities get their
+            # memory released
             if 'RawUltrasound' in self.current.modalities:
                 self.current.modalities['RawUltrasound'].data = None
             self.index += 1

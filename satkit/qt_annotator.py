@@ -263,6 +263,8 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
 
         if not self.current.excluded:
             self.draw_plots()
+        else:
+            self.display_exclusion()
 
         self.figure.align_ylabels()
 
@@ -324,16 +326,16 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
         """
         self.clear_axes()
         if self.current.excluded:
-            pass
-
-        self.draw_plots()
-        self.multicursor = MultiCursor(
-            self.canvas,
-            axes=self.data_axes+self.tier_axes,
-            color='deepskyblue', linestyle="--", lw=1)
+            self.display_exclusion()
+        else:
+            self.draw_plots()
+            self.multicursor = MultiCursor(
+                self.canvas,
+                axes=self.data_axes+self.tier_axes,
+                color='deepskyblue', linestyle="--", lw=1)
         self.figure.canvas.draw()
 
-        if self.display_tongue:
+        if not self.current.excluded and self.display_tongue:
             _logger.debug("Drawing ultra frame in update")
             self.draw_ultra_frame()
 
@@ -410,11 +412,17 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
                            time_offset=zero_offset)
             self.data_axes[axes_number].set_ylabel(axes_name)
 
+    def display_exclusion(self):
+        """
+        Updates title and graphs to show this Recording is excluded.
+        """
+        self.data_axes[0].set_title(
+            self._get_title() + "\nNOTE: This recording has been excluded.")
+
     def draw_plots(self):
         """
         Updates title and graphs. Called by self.update().
         """
-        self.data_axes[0].set_title(self._get_title())
         self.data_axes[0].set_title(self._get_long_title())
 
         for axes in self.tier_axes:

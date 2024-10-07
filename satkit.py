@@ -64,6 +64,16 @@ from satkit.scripting_interface import (
 def downsample(
         recording_session: Session,
         data_run_config: DataRunConfig) -> None:
+    """
+    Downsample metrics in the session.
+
+    Parameters
+    ----------
+    recording_session : Session
+        _description_
+    data_run_config : DataRunConfig
+        _description_
+    """
     for recording in recording_session:
         downsample_metrics(recording, data_run_config.downsample)
 
@@ -71,7 +81,8 @@ def downsample(
 def data_run(
         recording_session: Session,
         configuration: config.Configuration,
-        exclusion_list: list[str]) -> None:
+        exclusion_list: list[str]
+) -> None:
     data_run_config = configuration.data_run_config
 
     function_dict = {}
@@ -105,7 +116,7 @@ def data_run(
                         for prompt in exclusion_list]
             if any(excluded):
                 print(
-                    f"in satkit_publish.py: jumping over {recording.basename}")
+                    f"in satkit.py: jumping over {recording.basename}")
                 continue
             for modality_name in recording:
                 # TODO make this deal with both strings and regexps as the

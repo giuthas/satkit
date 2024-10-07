@@ -275,7 +275,7 @@ class AxesParams(UpdatableBaseModel):
     mark_peaks: Optional[bool] 
         Should peak detection peaks (if available) be marked on the plot. This
         might get confusing if there is more than one timeseries on this axes.
-        By default None
+        By default, None
     sharex: Optional[bool]  
         Does this axes share x limits with other axes, by default None
     y_offset: Optional[float]  
@@ -292,7 +292,7 @@ class AxesParams(UpdatableBaseModel):
 
 class AxesDefinition(AxesParams):
     """
-    Parameters and plotted modalities for a an axes in a plot.
+    Parameters and plotted modalities for an axes in a plot.
 
     Parameters
     ----------

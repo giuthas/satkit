@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta name="generator" content="pdoc 14.1.0"/>
+    <meta name="generator" content="pdoc 14.4.0"/>
     <title>satkit.save_and_load.save_and_load_schemas API documentation</title>
 
     <style>/*! * Bootstrap Reboot v5.0.0 (https://getbootstrap.com/) * Copyright 2011-2021 The Bootstrap Authors * Copyright 2011-2021 Twitter, Inc. * Licensed under MIT (https://github.com/twbs/bootstrap/blob/main/LICENSE) * Forked from Normalize.css, licensed MIT (https://github.com/necolas/normalize.css/blob/master/LICENSE.md) */*,::after,::before{box-sizing:border-box}@media (prefers-reduced-motion:no-preference){:root{scroll-behavior:smooth}}body{margin:0;font-family:system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial,"Noto Sans","Liberation Sans",sans-serif,"Apple Color Emoji","Segoe UI Emoji","Segoe UI Symbol","Noto Color Emoji";font-size:1rem;font-weight:400;line-height:1.5;color:#212529;background-color:#fff;-webkit-text-size-adjust:100%;-webkit-tap-highlight-color:transparent}hr{margin:1rem 0;color:inherit;background-color:currentColor;border:0;opacity:.25}hr:not([size]){height:1px}h1,h2,h3,h4,h5,h6{margin-top:0;margin-bottom:.5rem;font-weight:500;line-height:1.2}h1{font-size:calc(1.375rem + 1.5vw)}@media (min-width:1200px){h1{font-size:2.5rem}}h2{font-size:calc(1.325rem + .9vw)}@media (min-width:1200px){h2{font-size:2rem}}h3{font-size:calc(1.3rem + .6vw)}@media (min-width:1200px){h3{font-size:1.75rem}}h4{font-size:calc(1.275rem + .3vw)}@media (min-width:1200px){h4{font-size:1.5rem}}h5{font-size:1.25rem}h6{font-size:1rem}p{margin-top:0;margin-bottom:1rem}abbr[data-bs-original-title],abbr[title]{-webkit-text-decoration:underline dotted;text-decoration:underline dotted;cursor:help;-webkit-text-decoration-skip-ink:none;text-decoration-skip-ink:none}address{margin-bottom:1rem;font-style:normal;line-height:inherit}ol,ul{padding-left:2rem}dl,ol,ul{margin-top:0;margin-bottom:1rem}ol ol,ol ul,ul ol,ul ul{margin-bottom:0}dt{font-weight:700}dd{margin-bottom:.5rem;margin-left:0}blockquote{margin:0 0 1rem}b,strong{font-weight:bolder}small{font-size:.875em}mark{padding:.2em;background-color:#fcf8e3}sub,sup{position:relative;font-size:.75em;line-height:0;vertical-align:baseline}sub{bottom:-.25em}sup{top:-.5em}a{color:#0d6efd;text-decoration:underline}a:hover{color:#0a58ca}a:not([href]):not([class]),a:not([href]):not([class]):hover{color:inherit;text-decoration:none}code,kbd,pre,samp{font-family:SFMono-Regular,Menlo,Monaco,Consolas,"Liberation Mono","Courier New",monospace;font-size:1em;direction:ltr;unicode-bidi:bidi-override}pre{display:block;margin-top:0;margin-bottom:1rem;overflow:auto;font-size:.875em}pre code{font-size:inherit;color:inherit;word-break:normal}code{font-size:.875em;color:#d63384;word-wrap:break-word}a>code{color:inherit}kbd{padding:.2rem .4rem;font-size:.875em;color:#fff;background-color:#212529;border-radius:.2rem}kbd kbd{padding:0;font-size:1em;font-weight:700}figure{margin:0 0 1rem}img,svg{vertical-align:middle}table{caption-side:bottom;border-collapse:collapse}caption{padding-top:.5rem;padding-bottom:.5rem;color:#6c757d;text-align:left}th{text-align:inherit;text-align:-webkit-match-parent}tbody,td,tfoot,th,thead,tr{border-color:inherit;border-style:solid;border-width:0}label{display:inline-block}button{border-radius:0}button:focus:not(:focus-visible){outline:0}button,input,optgroup,select,textarea{margin:0;font-family:inherit;font-size:inherit;line-height:inherit}button,select{text-transform:none}[role=button]{cursor:pointer}select{word-wrap:normal}select:disabled{opacity:1}[list]::-webkit-calendar-picker-indicator{display:none}[type=button],[type=reset],[type=submit],button{-webkit-appearance:button}[type=button]:not(:disabled),[type=reset]:not(:disabled),[type=submit]:not(:disabled),button:not(:disabled){cursor:pointer}::-moz-focus-inner{padding:0;border-style:none}textarea{resize:vertical}fieldset{min-width:0;padding:0;margin:0;border:0}legend{float:left;width:100%;padding:0;margin-bottom:.5rem;font-size:calc(1.275rem + .3vw);line-height:inherit}@media (min-width:1200px){legend{font-size:1.5rem}}legend+*{clear:left}::-webkit-datetime-edit-day-field,::-webkit-datetime-edit-fields-wrapper,::-webkit-datetime-edit-hour-field,::-webkit-datetime-edit-minute,::-webkit-datetime-edit-month-field,::-webkit-datetime-edit-text,::-webkit-datetime-edit-year-field{padding:0}::-webkit-inner-spin-button{height:auto}[type=search]{outline-offset:-2px;-webkit-appearance:textfield}::-webkit-search-decoration{-webkit-appearance:none}::-webkit-color-swatch-wrapper{padding:0}::file-selector-button{font:inherit}::-webkit-file-upload-button{font:inherit;-webkit-appearance:button}output{display:inline-block}iframe{border:0}summary{display:list-item;cursor:pointer}progress{vertical-align:baseline}[hidden]{display:none!important}</style>
@@ -54,6 +54,9 @@
                         <li>
                                 <a class="variable" href="#ModalityLoadSchema.model_fields">model_fields</a>
                         </li>
+                        <li>
+                                <a class="variable" href="#ModalityLoadSchema.model_computed_fields">model_computed_fields</a>
+                        </li>
                 </ul>
 
             </li>
@@ -71,6 +74,9 @@
                         </li>
                         <li>
                                 <a class="variable" href="#ModalityListingLoadschema.model_fields">model_fields</a>
+                        </li>
+                        <li>
+                                <a class="variable" href="#ModalityListingLoadschema.model_computed_fields">model_computed_fields</a>
                         </li>
                 </ul>
 
@@ -99,50 +105,59 @@
                         <li>
                                 <a class="variable" href="#RecordingLoadSchema.model_fields">model_fields</a>
                         </li>
-                </ul>
-
-            </li>
-            <li>
-                    <a class="class" href="#RecordingSessionParameterLoadSchema">RecordingSessionParameterLoadSchema</a>
-                            <ul class="memberlist">
                         <li>
-                                <a class="variable" href="#RecordingSessionParameterLoadSchema.path">path</a>
-                        </li>
-                        <li>
-                                <a class="variable" href="#RecordingSessionParameterLoadSchema.datasource">datasource</a>
-                        </li>
-                        <li>
-                                <a class="variable" href="#RecordingSessionParameterLoadSchema.model_config">model_config</a>
-                        </li>
-                        <li>
-                                <a class="variable" href="#RecordingSessionParameterLoadSchema.model_fields">model_fields</a>
+                                <a class="variable" href="#RecordingLoadSchema.model_computed_fields">model_computed_fields</a>
                         </li>
                 </ul>
 
             </li>
             <li>
-                    <a class="class" href="#RecordingSessionLoadSchema">RecordingSessionLoadSchema</a>
+                    <a class="class" href="#SessionParameterLoadSchema">SessionParameterLoadSchema</a>
                             <ul class="memberlist">
                         <li>
-                                <a class="variable" href="#RecordingSessionLoadSchema.object_type">object_type</a>
+                                <a class="variable" href="#SessionParameterLoadSchema.path">path</a>
                         </li>
                         <li>
-                                <a class="variable" href="#RecordingSessionLoadSchema.name">name</a>
+                                <a class="variable" href="#SessionParameterLoadSchema.datasource">datasource</a>
                         </li>
                         <li>
-                                <a class="variable" href="#RecordingSessionLoadSchema.format_version">format_version</a>
+                                <a class="variable" href="#SessionParameterLoadSchema.model_config">model_config</a>
                         </li>
                         <li>
-                                <a class="variable" href="#RecordingSessionLoadSchema.parameters">parameters</a>
+                                <a class="variable" href="#SessionParameterLoadSchema.model_fields">model_fields</a>
                         </li>
                         <li>
-                                <a class="variable" href="#RecordingSessionLoadSchema.recordings">recordings</a>
+                                <a class="variable" href="#SessionParameterLoadSchema.model_computed_fields">model_computed_fields</a>
+                        </li>
+                </ul>
+
+            </li>
+            <li>
+                    <a class="class" href="#SessionLoadSchema">SessionLoadSchema</a>
+                            <ul class="memberlist">
+                        <li>
+                                <a class="variable" href="#SessionLoadSchema.object_type">object_type</a>
                         </li>
                         <li>
-                                <a class="variable" href="#RecordingSessionLoadSchema.model_config">model_config</a>
+                                <a class="variable" href="#SessionLoadSchema.name">name</a>
                         </li>
                         <li>
-                                <a class="variable" href="#RecordingSessionLoadSchema.model_fields">model_fields</a>
+                                <a class="variable" href="#SessionLoadSchema.format_version">format_version</a>
+                        </li>
+                        <li>
+                                <a class="variable" href="#SessionLoadSchema.parameters">parameters</a>
+                        </li>
+                        <li>
+                                <a class="variable" href="#SessionLoadSchema.recordings">recordings</a>
+                        </li>
+                        <li>
+                                <a class="variable" href="#SessionLoadSchema.model_config">model_config</a>
+                        </li>
+                        <li>
+                                <a class="variable" href="#SessionLoadSchema.model_fields">model_fields</a>
+                        </li>
+                        <li>
+                                <a class="variable" href="#SessionLoadSchema.model_computed_fields">model_computed_fields</a>
                         </li>
                 </ul>
 
@@ -260,26 +275,26 @@
 </span><span id="L-88"><a href="#L-88"><span class="linenos"> 88</span></a>    <span class="n">modalities</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">ModalityListingLoadschema</span><span class="p">]</span>
 </span><span id="L-89"><a href="#L-89"><span class="linenos"> 89</span></a>
 </span><span id="L-90"><a href="#L-90"><span class="linenos"> 90</span></a>
-</span><span id="L-91"><a href="#L-91"><span class="linenos"> 91</span></a><span class="k">class</span> <span class="nc">RecordingSessionParameterLoadSchema</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">):</span>
+</span><span id="L-91"><a href="#L-91"><span class="linenos"> 91</span></a><span class="k">class</span> <span class="nc">SessionParameterLoadSchema</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">):</span>
 </span><span id="L-92"><a href="#L-92"><span class="linenos"> 92</span></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-</span><span id="L-93"><a href="#L-93"><span class="linenos"> 93</span></a><span class="sd">    Loading schema for a saved RecordingSession.</span>
+</span><span id="L-93"><a href="#L-93"><span class="linenos"> 93</span></a><span class="sd">    Loading schema for a saved Session.</span>
 </span><span id="L-94"><a href="#L-94"><span class="linenos"> 94</span></a>
-</span><span id="L-95"><a href="#L-95"><span class="linenos"> 95</span></a><span class="sd">    RecordingSession is defined in the data_structures module.</span>
+</span><span id="L-95"><a href="#L-95"><span class="linenos"> 95</span></a><span class="sd">    Session is defined in the data_structures module.</span>
 </span><span id="L-96"><a href="#L-96"><span class="linenos"> 96</span></a><span class="sd">    &quot;&quot;&quot;</span>
 </span><span id="L-97"><a href="#L-97"><span class="linenos"> 97</span></a>    <span class="n">path</span><span class="p">:</span> <span class="n">DirectoryPath</span>
 </span><span id="L-98"><a href="#L-98"><span class="linenos"> 98</span></a>    <span class="n">datasource</span><span class="p">:</span> <span class="n">Datasource</span>
 </span><span id="L-99"><a href="#L-99"><span class="linenos"> 99</span></a>
 </span><span id="L-100"><a href="#L-100"><span class="linenos">100</span></a>
-</span><span id="L-101"><a href="#L-101"><span class="linenos">101</span></a><span class="k">class</span> <span class="nc">RecordingSessionLoadSchema</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">):</span>
+</span><span id="L-101"><a href="#L-101"><span class="linenos">101</span></a><span class="k">class</span> <span class="nc">SessionLoadSchema</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">):</span>
 </span><span id="L-102"><a href="#L-102"><span class="linenos">102</span></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-</span><span id="L-103"><a href="#L-103"><span class="linenos">103</span></a><span class="sd">    Loading schema for a saved RecordingSession.</span>
+</span><span id="L-103"><a href="#L-103"><span class="linenos">103</span></a><span class="sd">    Loading schema for a saved Session.</span>
 </span><span id="L-104"><a href="#L-104"><span class="linenos">104</span></a>
-</span><span id="L-105"><a href="#L-105"><span class="linenos">105</span></a><span class="sd">    RecordingSession is defined in the data_structures module.</span>
+</span><span id="L-105"><a href="#L-105"><span class="linenos">105</span></a><span class="sd">    Session is defined in the data_structures module.</span>
 </span><span id="L-106"><a href="#L-106"><span class="linenos">106</span></a><span class="sd">    &quot;&quot;&quot;</span>
-</span><span id="L-107"><a href="#L-107"><span class="linenos">107</span></a>    <span class="n">object_type</span><span class="p">:</span> <span class="n">SavedObjectTypes</span> <span class="o">=</span> <span class="n">SavedObjectTypes</span><span class="o">.</span><span class="n">RECORDING_SESSION</span>
+</span><span id="L-107"><a href="#L-107"><span class="linenos">107</span></a>    <span class="n">object_type</span><span class="p">:</span> <span class="n">SavedObjectTypes</span> <span class="o">=</span> <span class="n">SavedObjectTypes</span><span class="o">.</span><span class="n">SESSION</span>
 </span><span id="L-108"><a href="#L-108"><span class="linenos">108</span></a>    <span class="n">name</span><span class="p">:</span> <span class="nb">str</span>
 </span><span id="L-109"><a href="#L-109"><span class="linenos">109</span></a>    <span class="n">format_version</span><span class="p">:</span> <span class="nb">str</span>
-</span><span id="L-110"><a href="#L-110"><span class="linenos">110</span></a>    <span class="n">parameters</span><span class="p">:</span> <span class="n">RecordingSessionParameterLoadSchema</span>
+</span><span id="L-110"><a href="#L-110"><span class="linenos">110</span></a>    <span class="n">parameters</span><span class="p">:</span> <span class="n">SessionParameterLoadSchema</span>
 </span><span id="L-111"><a href="#L-111"><span class="linenos">111</span></a>    <span class="n">recordings</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span>
 </span></pre></div>
 
@@ -397,12 +412,23 @@
     
 
                             </div>
+                            <div id="ModalityLoadSchema.model_computed_fields" class="classattr">
+                                <div class="attr variable">
+            <span class="name">model_computed_fields</span>        =
+<span class="default_value">{}</span>
+
+        
+    </div>
+    <a class="headerlink" href="#ModalityLoadSchema.model_computed_fields"></a>
+    
+    
+
+                            </div>
                             <div class="inherited">
                                 <h5>Inherited Members</h5>
                                 <dl>
                                     <div><dt>pydantic.main.BaseModel</dt>
                                 <dd id="ModalityLoadSchema.__init__" class="function">BaseModel</dd>
-                <dd id="ModalityLoadSchema.model_computed_fields" class="variable">model_computed_fields</dd>
                 <dd id="ModalityLoadSchema.model_extra" class="variable">model_extra</dd>
                 <dd id="ModalityLoadSchema.model_fields_set" class="variable">model_fields_set</dd>
                 <dd id="ModalityLoadSchema.model_construct" class="function">model_construct</dd>
@@ -504,12 +530,23 @@
     
 
                             </div>
+                            <div id="ModalityListingLoadschema.model_computed_fields" class="classattr">
+                                <div class="attr variable">
+            <span class="name">model_computed_fields</span>        =
+<span class="default_value">{}</span>
+
+        
+    </div>
+    <a class="headerlink" href="#ModalityListingLoadschema.model_computed_fields"></a>
+    
+    
+
+                            </div>
                             <div class="inherited">
                                 <h5>Inherited Members</h5>
                                 <dl>
                                     <div><dt>pydantic.main.BaseModel</dt>
                                 <dd id="ModalityListingLoadschema.__init__" class="function">BaseModel</dd>
-                <dd id="ModalityListingLoadschema.model_computed_fields" class="variable">model_computed_fields</dd>
                 <dd id="ModalityListingLoadschema.model_extra" class="variable">model_extra</dd>
                 <dd id="ModalityListingLoadschema.model_fields_set" class="variable">model_fields_set</dd>
                 <dd id="ModalityListingLoadschema.model_construct" class="function">model_construct</dd>
@@ -606,7 +643,7 @@
                             </div>
                             <div id="RecordingLoadSchema.parameters" class="classattr">
                                 <div class="attr variable">
-            <span class="name">parameters</span><span class="annotation">: <a href="../data_structures.html#RecordingMetaData">satkit.data_structures.RecordingMetaData</a></span>
+            <span class="name">parameters</span><span class="annotation">: <a href="../data_structures/meta_data_classes.html#RecordingMetaData">satkit.data_structures.meta_data_classes.RecordingMetaData</a></span>
 
         
     </div>
@@ -651,12 +688,23 @@
     
 
                             </div>
+                            <div id="RecordingLoadSchema.model_computed_fields" class="classattr">
+                                <div class="attr variable">
+            <span class="name">model_computed_fields</span>        =
+<span class="default_value">{}</span>
+
+        
+    </div>
+    <a class="headerlink" href="#RecordingLoadSchema.model_computed_fields"></a>
+    
+    
+
+                            </div>
                             <div class="inherited">
                                 <h5>Inherited Members</h5>
                                 <dl>
                                     <div><dt>pydantic.main.BaseModel</dt>
                                 <dd id="RecordingLoadSchema.__init__" class="function">BaseModel</dd>
-                <dd id="RecordingLoadSchema.model_computed_fields" class="variable">model_computed_fields</dd>
                 <dd id="RecordingLoadSchema.model_extra" class="variable">model_extra</dd>
                 <dd id="RecordingLoadSchema.model_fields_set" class="variable">model_fields_set</dd>
                 <dd id="RecordingLoadSchema.model_construct" class="function">model_construct</dd>
@@ -687,77 +735,89 @@
                                 </dl>
                             </div>
                 </section>
-                <section id="RecordingSessionParameterLoadSchema">
-                            <input id="RecordingSessionParameterLoadSchema-view-source" class="view-source-toggle-state" type="checkbox" aria-hidden="true" tabindex="-1">
+                <section id="SessionParameterLoadSchema">
+                            <input id="SessionParameterLoadSchema-view-source" class="view-source-toggle-state" type="checkbox" aria-hidden="true" tabindex="-1">
 <div class="attr class">
             
     <span class="def">class</span>
-    <span class="name">RecordingSessionParameterLoadSchema</span><wbr>(<span class="base">pydantic.main.BaseModel</span>):
+    <span class="name">SessionParameterLoadSchema</span><wbr>(<span class="base">pydantic.main.BaseModel</span>):
 
-                <label class="view-source-button" for="RecordingSessionParameterLoadSchema-view-source"><span>View Source</span></label>
+                <label class="view-source-button" for="SessionParameterLoadSchema-view-source"><span>View Source</span></label>
 
     </div>
-    <a class="headerlink" href="#RecordingSessionParameterLoadSchema"></a>
-            <div class="pdoc-code codehilite"><pre><span></span><span id="RecordingSessionParameterLoadSchema-92"><a href="#RecordingSessionParameterLoadSchema-92"><span class="linenos">92</span></a><span class="k">class</span> <span class="nc">RecordingSessionParameterLoadSchema</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">):</span>
-</span><span id="RecordingSessionParameterLoadSchema-93"><a href="#RecordingSessionParameterLoadSchema-93"><span class="linenos">93</span></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-</span><span id="RecordingSessionParameterLoadSchema-94"><a href="#RecordingSessionParameterLoadSchema-94"><span class="linenos">94</span></a><span class="sd">    Loading schema for a saved RecordingSession.</span>
-</span><span id="RecordingSessionParameterLoadSchema-95"><a href="#RecordingSessionParameterLoadSchema-95"><span class="linenos">95</span></a>
-</span><span id="RecordingSessionParameterLoadSchema-96"><a href="#RecordingSessionParameterLoadSchema-96"><span class="linenos">96</span></a><span class="sd">    RecordingSession is defined in the data_structures module.</span>
-</span><span id="RecordingSessionParameterLoadSchema-97"><a href="#RecordingSessionParameterLoadSchema-97"><span class="linenos">97</span></a><span class="sd">    &quot;&quot;&quot;</span>
-</span><span id="RecordingSessionParameterLoadSchema-98"><a href="#RecordingSessionParameterLoadSchema-98"><span class="linenos">98</span></a>    <span class="n">path</span><span class="p">:</span> <span class="n">DirectoryPath</span>
-</span><span id="RecordingSessionParameterLoadSchema-99"><a href="#RecordingSessionParameterLoadSchema-99"><span class="linenos">99</span></a>    <span class="n">datasource</span><span class="p">:</span> <span class="n">Datasource</span>
+    <a class="headerlink" href="#SessionParameterLoadSchema"></a>
+            <div class="pdoc-code codehilite"><pre><span></span><span id="SessionParameterLoadSchema-92"><a href="#SessionParameterLoadSchema-92"><span class="linenos">92</span></a><span class="k">class</span> <span class="nc">SessionParameterLoadSchema</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">):</span>
+</span><span id="SessionParameterLoadSchema-93"><a href="#SessionParameterLoadSchema-93"><span class="linenos">93</span></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+</span><span id="SessionParameterLoadSchema-94"><a href="#SessionParameterLoadSchema-94"><span class="linenos">94</span></a><span class="sd">    Loading schema for a saved Session.</span>
+</span><span id="SessionParameterLoadSchema-95"><a href="#SessionParameterLoadSchema-95"><span class="linenos">95</span></a>
+</span><span id="SessionParameterLoadSchema-96"><a href="#SessionParameterLoadSchema-96"><span class="linenos">96</span></a><span class="sd">    Session is defined in the data_structures module.</span>
+</span><span id="SessionParameterLoadSchema-97"><a href="#SessionParameterLoadSchema-97"><span class="linenos">97</span></a><span class="sd">    &quot;&quot;&quot;</span>
+</span><span id="SessionParameterLoadSchema-98"><a href="#SessionParameterLoadSchema-98"><span class="linenos">98</span></a>    <span class="n">path</span><span class="p">:</span> <span class="n">DirectoryPath</span>
+</span><span id="SessionParameterLoadSchema-99"><a href="#SessionParameterLoadSchema-99"><span class="linenos">99</span></a>    <span class="n">datasource</span><span class="p">:</span> <span class="n">Datasource</span>
 </span></pre></div>
 
 
-            <div class="docstring"><p>Loading schema for a saved RecordingSession.</p>
+            <div class="docstring"><p>Loading schema for a saved Session.</p>
 
-<p>RecordingSession is defined in the data_structures module.</p>
+<p>Session is defined in the data_structures module.</p>
 </div>
 
 
-                            <div id="RecordingSessionParameterLoadSchema.path" class="classattr">
+                            <div id="SessionParameterLoadSchema.path" class="classattr">
                                 <div class="attr variable">
             <span class="name">path</span><span class="annotation">: typing.Annotated[pathlib.Path, PathType(path_type=&#39;dir&#39;)]</span>
 
         
     </div>
-    <a class="headerlink" href="#RecordingSessionParameterLoadSchema.path"></a>
+    <a class="headerlink" href="#SessionParameterLoadSchema.path"></a>
     
     
 
                             </div>
-                            <div id="RecordingSessionParameterLoadSchema.datasource" class="classattr">
+                            <div id="SessionParameterLoadSchema.datasource" class="classattr">
                                 <div class="attr variable">
             <span class="name">datasource</span><span class="annotation">: <a href="../constants.html#Datasource">satkit.constants.Datasource</a></span>
 
         
     </div>
-    <a class="headerlink" href="#RecordingSessionParameterLoadSchema.datasource"></a>
+    <a class="headerlink" href="#SessionParameterLoadSchema.datasource"></a>
     
     
 
                             </div>
-                            <div id="RecordingSessionParameterLoadSchema.model_config" class="classattr">
+                            <div id="SessionParameterLoadSchema.model_config" class="classattr">
                                 <div class="attr variable">
             <span class="name">model_config</span>        =
 <span class="default_value">{}</span>
 
         
     </div>
-    <a class="headerlink" href="#RecordingSessionParameterLoadSchema.model_config"></a>
+    <a class="headerlink" href="#SessionParameterLoadSchema.model_config"></a>
     
     
 
                             </div>
-                            <div id="RecordingSessionParameterLoadSchema.model_fields" class="classattr">
+                            <div id="SessionParameterLoadSchema.model_fields" class="classattr">
                                 <div class="attr variable">
             <span class="name">model_fields</span>        =
-<input id="RecordingSessionParameterLoadSchema.model_fields-view-value" class="view-value-toggle-state" type="checkbox" aria-hidden="true" tabindex="-1">
-            <label class="view-value-button pdoc-button" for="RecordingSessionParameterLoadSchema.model_fields-view-value"></label><span class="default_value">{&#39;path&#39;: FieldInfo(annotation=Path, required=True, metadata=[PathType(path_type=&#39;dir&#39;)]), &#39;datasource&#39;: FieldInfo(annotation=Datasource, required=True)}</span>
+<input id="SessionParameterLoadSchema.model_fields-view-value" class="view-value-toggle-state" type="checkbox" aria-hidden="true" tabindex="-1">
+            <label class="view-value-button pdoc-button" for="SessionParameterLoadSchema.model_fields-view-value"></label><span class="default_value">{&#39;path&#39;: FieldInfo(annotation=Path, required=True, metadata=[PathType(path_type=&#39;dir&#39;)]), &#39;datasource&#39;: FieldInfo(annotation=Datasource, required=True)}</span>
 
         
     </div>
-    <a class="headerlink" href="#RecordingSessionParameterLoadSchema.model_fields"></a>
+    <a class="headerlink" href="#SessionParameterLoadSchema.model_fields"></a>
+    
+    
+
+                            </div>
+                            <div id="SessionParameterLoadSchema.model_computed_fields" class="classattr">
+                                <div class="attr variable">
+            <span class="name">model_computed_fields</span>        =
+<span class="default_value">{}</span>
+
+        
+    </div>
+    <a class="headerlink" href="#SessionParameterLoadSchema.model_computed_fields"></a>
     
     
 
@@ -766,145 +826,156 @@
                                 <h5>Inherited Members</h5>
                                 <dl>
                                     <div><dt>pydantic.main.BaseModel</dt>
-                                <dd id="RecordingSessionParameterLoadSchema.__init__" class="function">BaseModel</dd>
-                <dd id="RecordingSessionParameterLoadSchema.model_computed_fields" class="variable">model_computed_fields</dd>
-                <dd id="RecordingSessionParameterLoadSchema.model_extra" class="variable">model_extra</dd>
-                <dd id="RecordingSessionParameterLoadSchema.model_fields_set" class="variable">model_fields_set</dd>
-                <dd id="RecordingSessionParameterLoadSchema.model_construct" class="function">model_construct</dd>
-                <dd id="RecordingSessionParameterLoadSchema.model_copy" class="function">model_copy</dd>
-                <dd id="RecordingSessionParameterLoadSchema.model_dump" class="function">model_dump</dd>
-                <dd id="RecordingSessionParameterLoadSchema.model_dump_json" class="function">model_dump_json</dd>
-                <dd id="RecordingSessionParameterLoadSchema.model_json_schema" class="function">model_json_schema</dd>
-                <dd id="RecordingSessionParameterLoadSchema.model_parametrized_name" class="function">model_parametrized_name</dd>
-                <dd id="RecordingSessionParameterLoadSchema.model_post_init" class="function">model_post_init</dd>
-                <dd id="RecordingSessionParameterLoadSchema.model_rebuild" class="function">model_rebuild</dd>
-                <dd id="RecordingSessionParameterLoadSchema.model_validate" class="function">model_validate</dd>
-                <dd id="RecordingSessionParameterLoadSchema.model_validate_json" class="function">model_validate_json</dd>
-                <dd id="RecordingSessionParameterLoadSchema.model_validate_strings" class="function">model_validate_strings</dd>
-                <dd id="RecordingSessionParameterLoadSchema.dict" class="function">dict</dd>
-                <dd id="RecordingSessionParameterLoadSchema.json" class="function">json</dd>
-                <dd id="RecordingSessionParameterLoadSchema.parse_obj" class="function">parse_obj</dd>
-                <dd id="RecordingSessionParameterLoadSchema.parse_raw" class="function">parse_raw</dd>
-                <dd id="RecordingSessionParameterLoadSchema.parse_file" class="function">parse_file</dd>
-                <dd id="RecordingSessionParameterLoadSchema.from_orm" class="function">from_orm</dd>
-                <dd id="RecordingSessionParameterLoadSchema.construct" class="function">construct</dd>
-                <dd id="RecordingSessionParameterLoadSchema.copy" class="function">copy</dd>
-                <dd id="RecordingSessionParameterLoadSchema.schema" class="function">schema</dd>
-                <dd id="RecordingSessionParameterLoadSchema.schema_json" class="function">schema_json</dd>
-                <dd id="RecordingSessionParameterLoadSchema.validate" class="function">validate</dd>
-                <dd id="RecordingSessionParameterLoadSchema.update_forward_refs" class="function">update_forward_refs</dd>
+                                <dd id="SessionParameterLoadSchema.__init__" class="function">BaseModel</dd>
+                <dd id="SessionParameterLoadSchema.model_extra" class="variable">model_extra</dd>
+                <dd id="SessionParameterLoadSchema.model_fields_set" class="variable">model_fields_set</dd>
+                <dd id="SessionParameterLoadSchema.model_construct" class="function">model_construct</dd>
+                <dd id="SessionParameterLoadSchema.model_copy" class="function">model_copy</dd>
+                <dd id="SessionParameterLoadSchema.model_dump" class="function">model_dump</dd>
+                <dd id="SessionParameterLoadSchema.model_dump_json" class="function">model_dump_json</dd>
+                <dd id="SessionParameterLoadSchema.model_json_schema" class="function">model_json_schema</dd>
+                <dd id="SessionParameterLoadSchema.model_parametrized_name" class="function">model_parametrized_name</dd>
+                <dd id="SessionParameterLoadSchema.model_post_init" class="function">model_post_init</dd>
+                <dd id="SessionParameterLoadSchema.model_rebuild" class="function">model_rebuild</dd>
+                <dd id="SessionParameterLoadSchema.model_validate" class="function">model_validate</dd>
+                <dd id="SessionParameterLoadSchema.model_validate_json" class="function">model_validate_json</dd>
+                <dd id="SessionParameterLoadSchema.model_validate_strings" class="function">model_validate_strings</dd>
+                <dd id="SessionParameterLoadSchema.dict" class="function">dict</dd>
+                <dd id="SessionParameterLoadSchema.json" class="function">json</dd>
+                <dd id="SessionParameterLoadSchema.parse_obj" class="function">parse_obj</dd>
+                <dd id="SessionParameterLoadSchema.parse_raw" class="function">parse_raw</dd>
+                <dd id="SessionParameterLoadSchema.parse_file" class="function">parse_file</dd>
+                <dd id="SessionParameterLoadSchema.from_orm" class="function">from_orm</dd>
+                <dd id="SessionParameterLoadSchema.construct" class="function">construct</dd>
+                <dd id="SessionParameterLoadSchema.copy" class="function">copy</dd>
+                <dd id="SessionParameterLoadSchema.schema" class="function">schema</dd>
+                <dd id="SessionParameterLoadSchema.schema_json" class="function">schema_json</dd>
+                <dd id="SessionParameterLoadSchema.validate" class="function">validate</dd>
+                <dd id="SessionParameterLoadSchema.update_forward_refs" class="function">update_forward_refs</dd>
 
             </div>
                                 </dl>
                             </div>
                 </section>
-                <section id="RecordingSessionLoadSchema">
-                            <input id="RecordingSessionLoadSchema-view-source" class="view-source-toggle-state" type="checkbox" aria-hidden="true" tabindex="-1">
+                <section id="SessionLoadSchema">
+                            <input id="SessionLoadSchema-view-source" class="view-source-toggle-state" type="checkbox" aria-hidden="true" tabindex="-1">
 <div class="attr class">
             
     <span class="def">class</span>
-    <span class="name">RecordingSessionLoadSchema</span><wbr>(<span class="base">pydantic.main.BaseModel</span>):
+    <span class="name">SessionLoadSchema</span><wbr>(<span class="base">pydantic.main.BaseModel</span>):
 
-                <label class="view-source-button" for="RecordingSessionLoadSchema-view-source"><span>View Source</span></label>
+                <label class="view-source-button" for="SessionLoadSchema-view-source"><span>View Source</span></label>
 
     </div>
-    <a class="headerlink" href="#RecordingSessionLoadSchema"></a>
-            <div class="pdoc-code codehilite"><pre><span></span><span id="RecordingSessionLoadSchema-102"><a href="#RecordingSessionLoadSchema-102"><span class="linenos">102</span></a><span class="k">class</span> <span class="nc">RecordingSessionLoadSchema</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">):</span>
-</span><span id="RecordingSessionLoadSchema-103"><a href="#RecordingSessionLoadSchema-103"><span class="linenos">103</span></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-</span><span id="RecordingSessionLoadSchema-104"><a href="#RecordingSessionLoadSchema-104"><span class="linenos">104</span></a><span class="sd">    Loading schema for a saved RecordingSession.</span>
-</span><span id="RecordingSessionLoadSchema-105"><a href="#RecordingSessionLoadSchema-105"><span class="linenos">105</span></a>
-</span><span id="RecordingSessionLoadSchema-106"><a href="#RecordingSessionLoadSchema-106"><span class="linenos">106</span></a><span class="sd">    RecordingSession is defined in the data_structures module.</span>
-</span><span id="RecordingSessionLoadSchema-107"><a href="#RecordingSessionLoadSchema-107"><span class="linenos">107</span></a><span class="sd">    &quot;&quot;&quot;</span>
-</span><span id="RecordingSessionLoadSchema-108"><a href="#RecordingSessionLoadSchema-108"><span class="linenos">108</span></a>    <span class="n">object_type</span><span class="p">:</span> <span class="n">SavedObjectTypes</span> <span class="o">=</span> <span class="n">SavedObjectTypes</span><span class="o">.</span><span class="n">RECORDING_SESSION</span>
-</span><span id="RecordingSessionLoadSchema-109"><a href="#RecordingSessionLoadSchema-109"><span class="linenos">109</span></a>    <span class="n">name</span><span class="p">:</span> <span class="nb">str</span>
-</span><span id="RecordingSessionLoadSchema-110"><a href="#RecordingSessionLoadSchema-110"><span class="linenos">110</span></a>    <span class="n">format_version</span><span class="p">:</span> <span class="nb">str</span>
-</span><span id="RecordingSessionLoadSchema-111"><a href="#RecordingSessionLoadSchema-111"><span class="linenos">111</span></a>    <span class="n">parameters</span><span class="p">:</span> <span class="n">RecordingSessionParameterLoadSchema</span>
-</span><span id="RecordingSessionLoadSchema-112"><a href="#RecordingSessionLoadSchema-112"><span class="linenos">112</span></a>    <span class="n">recordings</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span>
+    <a class="headerlink" href="#SessionLoadSchema"></a>
+            <div class="pdoc-code codehilite"><pre><span></span><span id="SessionLoadSchema-102"><a href="#SessionLoadSchema-102"><span class="linenos">102</span></a><span class="k">class</span> <span class="nc">SessionLoadSchema</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">):</span>
+</span><span id="SessionLoadSchema-103"><a href="#SessionLoadSchema-103"><span class="linenos">103</span></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+</span><span id="SessionLoadSchema-104"><a href="#SessionLoadSchema-104"><span class="linenos">104</span></a><span class="sd">    Loading schema for a saved Session.</span>
+</span><span id="SessionLoadSchema-105"><a href="#SessionLoadSchema-105"><span class="linenos">105</span></a>
+</span><span id="SessionLoadSchema-106"><a href="#SessionLoadSchema-106"><span class="linenos">106</span></a><span class="sd">    Session is defined in the data_structures module.</span>
+</span><span id="SessionLoadSchema-107"><a href="#SessionLoadSchema-107"><span class="linenos">107</span></a><span class="sd">    &quot;&quot;&quot;</span>
+</span><span id="SessionLoadSchema-108"><a href="#SessionLoadSchema-108"><span class="linenos">108</span></a>    <span class="n">object_type</span><span class="p">:</span> <span class="n">SavedObjectTypes</span> <span class="o">=</span> <span class="n">SavedObjectTypes</span><span class="o">.</span><span class="n">SESSION</span>
+</span><span id="SessionLoadSchema-109"><a href="#SessionLoadSchema-109"><span class="linenos">109</span></a>    <span class="n">name</span><span class="p">:</span> <span class="nb">str</span>
+</span><span id="SessionLoadSchema-110"><a href="#SessionLoadSchema-110"><span class="linenos">110</span></a>    <span class="n">format_version</span><span class="p">:</span> <span class="nb">str</span>
+</span><span id="SessionLoadSchema-111"><a href="#SessionLoadSchema-111"><span class="linenos">111</span></a>    <span class="n">parameters</span><span class="p">:</span> <span class="n">SessionParameterLoadSchema</span>
+</span><span id="SessionLoadSchema-112"><a href="#SessionLoadSchema-112"><span class="linenos">112</span></a>    <span class="n">recordings</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span>
 </span></pre></div>
 
 
-            <div class="docstring"><p>Loading schema for a saved RecordingSession.</p>
+            <div class="docstring"><p>Loading schema for a saved Session.</p>
 
-<p>RecordingSession is defined in the data_structures module.</p>
+<p>Session is defined in the data_structures module.</p>
 </div>
 
 
-                            <div id="RecordingSessionLoadSchema.object_type" class="classattr">
+                            <div id="SessionLoadSchema.object_type" class="classattr">
                                 <div class="attr variable">
             <span class="name">object_type</span><span class="annotation">: <a href="../constants.html#SavedObjectTypes">satkit.constants.SavedObjectTypes</a></span>
 
         
     </div>
-    <a class="headerlink" href="#RecordingSessionLoadSchema.object_type"></a>
+    <a class="headerlink" href="#SessionLoadSchema.object_type"></a>
     
     
 
                             </div>
-                            <div id="RecordingSessionLoadSchema.name" class="classattr">
+                            <div id="SessionLoadSchema.name" class="classattr">
                                 <div class="attr variable">
             <span class="name">name</span><span class="annotation">: str</span>
 
         
     </div>
-    <a class="headerlink" href="#RecordingSessionLoadSchema.name"></a>
+    <a class="headerlink" href="#SessionLoadSchema.name"></a>
     
     
 
                             </div>
-                            <div id="RecordingSessionLoadSchema.format_version" class="classattr">
+                            <div id="SessionLoadSchema.format_version" class="classattr">
                                 <div class="attr variable">
             <span class="name">format_version</span><span class="annotation">: str</span>
 
         
     </div>
-    <a class="headerlink" href="#RecordingSessionLoadSchema.format_version"></a>
+    <a class="headerlink" href="#SessionLoadSchema.format_version"></a>
     
     
 
                             </div>
-                            <div id="RecordingSessionLoadSchema.parameters" class="classattr">
+                            <div id="SessionLoadSchema.parameters" class="classattr">
                                 <div class="attr variable">
-            <span class="name">parameters</span><span class="annotation">: <a href="#RecordingSessionParameterLoadSchema">RecordingSessionParameterLoadSchema</a></span>
+            <span class="name">parameters</span><span class="annotation">: <a href="#SessionParameterLoadSchema">SessionParameterLoadSchema</a></span>
 
         
     </div>
-    <a class="headerlink" href="#RecordingSessionLoadSchema.parameters"></a>
+    <a class="headerlink" href="#SessionLoadSchema.parameters"></a>
     
     
 
                             </div>
-                            <div id="RecordingSessionLoadSchema.recordings" class="classattr">
+                            <div id="SessionLoadSchema.recordings" class="classattr">
                                 <div class="attr variable">
             <span class="name">recordings</span><span class="annotation">: list[str]</span>
 
         
     </div>
-    <a class="headerlink" href="#RecordingSessionLoadSchema.recordings"></a>
+    <a class="headerlink" href="#SessionLoadSchema.recordings"></a>
     
     
 
                             </div>
-                            <div id="RecordingSessionLoadSchema.model_config" class="classattr">
+                            <div id="SessionLoadSchema.model_config" class="classattr">
                                 <div class="attr variable">
             <span class="name">model_config</span>        =
 <span class="default_value">{}</span>
 
         
     </div>
-    <a class="headerlink" href="#RecordingSessionLoadSchema.model_config"></a>
+    <a class="headerlink" href="#SessionLoadSchema.model_config"></a>
     
     
 
                             </div>
-                            <div id="RecordingSessionLoadSchema.model_fields" class="classattr">
+                            <div id="SessionLoadSchema.model_fields" class="classattr">
                                 <div class="attr variable">
             <span class="name">model_fields</span>        =
-<input id="RecordingSessionLoadSchema.model_fields-view-value" class="view-value-toggle-state" type="checkbox" aria-hidden="true" tabindex="-1">
-            <label class="view-value-button pdoc-button" for="RecordingSessionLoadSchema.model_fields-view-value"></label><span class="default_value">{&#39;object_type&#39;: FieldInfo(annotation=SavedObjectTypes, required=False, default=&lt;SavedObjectTypes.RECORDING_SESSION: &#39;RecordingSession&#39;&gt;), &#39;name&#39;: FieldInfo(annotation=str, required=True), &#39;format_version&#39;: FieldInfo(annotation=str, required=True), &#39;parameters&#39;: FieldInfo(annotation=RecordingSessionParameterLoadSchema, required=True), &#39;recordings&#39;: FieldInfo(annotation=list[str], required=True)}</span>
+<input id="SessionLoadSchema.model_fields-view-value" class="view-value-toggle-state" type="checkbox" aria-hidden="true" tabindex="-1">
+            <label class="view-value-button pdoc-button" for="SessionLoadSchema.model_fields-view-value"></label><span class="default_value">{&#39;object_type&#39;: FieldInfo(annotation=SavedObjectTypes, required=False, default=&lt;SavedObjectTypes.SESSION: &#39;Session&#39;&gt;), &#39;name&#39;: FieldInfo(annotation=str, required=True), &#39;format_version&#39;: FieldInfo(annotation=str, required=True), &#39;parameters&#39;: FieldInfo(annotation=SessionParameterLoadSchema, required=True), &#39;recordings&#39;: FieldInfo(annotation=list[str], required=True)}</span>
 
         
     </div>
-    <a class="headerlink" href="#RecordingSessionLoadSchema.model_fields"></a>
+    <a class="headerlink" href="#SessionLoadSchema.model_fields"></a>
+    
+    
+
+                            </div>
+                            <div id="SessionLoadSchema.model_computed_fields" class="classattr">
+                                <div class="attr variable">
+            <span class="name">model_computed_fields</span>        =
+<span class="default_value">{}</span>
+
+        
+    </div>
+    <a class="headerlink" href="#SessionLoadSchema.model_computed_fields"></a>
     
     
 
@@ -913,33 +984,32 @@
                                 <h5>Inherited Members</h5>
                                 <dl>
                                     <div><dt>pydantic.main.BaseModel</dt>
-                                <dd id="RecordingSessionLoadSchema.__init__" class="function">BaseModel</dd>
-                <dd id="RecordingSessionLoadSchema.model_computed_fields" class="variable">model_computed_fields</dd>
-                <dd id="RecordingSessionLoadSchema.model_extra" class="variable">model_extra</dd>
-                <dd id="RecordingSessionLoadSchema.model_fields_set" class="variable">model_fields_set</dd>
-                <dd id="RecordingSessionLoadSchema.model_construct" class="function">model_construct</dd>
-                <dd id="RecordingSessionLoadSchema.model_copy" class="function">model_copy</dd>
-                <dd id="RecordingSessionLoadSchema.model_dump" class="function">model_dump</dd>
-                <dd id="RecordingSessionLoadSchema.model_dump_json" class="function">model_dump_json</dd>
-                <dd id="RecordingSessionLoadSchema.model_json_schema" class="function">model_json_schema</dd>
-                <dd id="RecordingSessionLoadSchema.model_parametrized_name" class="function">model_parametrized_name</dd>
-                <dd id="RecordingSessionLoadSchema.model_post_init" class="function">model_post_init</dd>
-                <dd id="RecordingSessionLoadSchema.model_rebuild" class="function">model_rebuild</dd>
-                <dd id="RecordingSessionLoadSchema.model_validate" class="function">model_validate</dd>
-                <dd id="RecordingSessionLoadSchema.model_validate_json" class="function">model_validate_json</dd>
-                <dd id="RecordingSessionLoadSchema.model_validate_strings" class="function">model_validate_strings</dd>
-                <dd id="RecordingSessionLoadSchema.dict" class="function">dict</dd>
-                <dd id="RecordingSessionLoadSchema.json" class="function">json</dd>
-                <dd id="RecordingSessionLoadSchema.parse_obj" class="function">parse_obj</dd>
-                <dd id="RecordingSessionLoadSchema.parse_raw" class="function">parse_raw</dd>
-                <dd id="RecordingSessionLoadSchema.parse_file" class="function">parse_file</dd>
-                <dd id="RecordingSessionLoadSchema.from_orm" class="function">from_orm</dd>
-                <dd id="RecordingSessionLoadSchema.construct" class="function">construct</dd>
-                <dd id="RecordingSessionLoadSchema.copy" class="function">copy</dd>
-                <dd id="RecordingSessionLoadSchema.schema" class="function">schema</dd>
-                <dd id="RecordingSessionLoadSchema.schema_json" class="function">schema_json</dd>
-                <dd id="RecordingSessionLoadSchema.validate" class="function">validate</dd>
-                <dd id="RecordingSessionLoadSchema.update_forward_refs" class="function">update_forward_refs</dd>
+                                <dd id="SessionLoadSchema.__init__" class="function">BaseModel</dd>
+                <dd id="SessionLoadSchema.model_extra" class="variable">model_extra</dd>
+                <dd id="SessionLoadSchema.model_fields_set" class="variable">model_fields_set</dd>
+                <dd id="SessionLoadSchema.model_construct" class="function">model_construct</dd>
+                <dd id="SessionLoadSchema.model_copy" class="function">model_copy</dd>
+                <dd id="SessionLoadSchema.model_dump" class="function">model_dump</dd>
+                <dd id="SessionLoadSchema.model_dump_json" class="function">model_dump_json</dd>
+                <dd id="SessionLoadSchema.model_json_schema" class="function">model_json_schema</dd>
+                <dd id="SessionLoadSchema.model_parametrized_name" class="function">model_parametrized_name</dd>
+                <dd id="SessionLoadSchema.model_post_init" class="function">model_post_init</dd>
+                <dd id="SessionLoadSchema.model_rebuild" class="function">model_rebuild</dd>
+                <dd id="SessionLoadSchema.model_validate" class="function">model_validate</dd>
+                <dd id="SessionLoadSchema.model_validate_json" class="function">model_validate_json</dd>
+                <dd id="SessionLoadSchema.model_validate_strings" class="function">model_validate_strings</dd>
+                <dd id="SessionLoadSchema.dict" class="function">dict</dd>
+                <dd id="SessionLoadSchema.json" class="function">json</dd>
+                <dd id="SessionLoadSchema.parse_obj" class="function">parse_obj</dd>
+                <dd id="SessionLoadSchema.parse_raw" class="function">parse_raw</dd>
+                <dd id="SessionLoadSchema.parse_file" class="function">parse_file</dd>
+                <dd id="SessionLoadSchema.from_orm" class="function">from_orm</dd>
+                <dd id="SessionLoadSchema.construct" class="function">construct</dd>
+                <dd id="SessionLoadSchema.copy" class="function">copy</dd>
+                <dd id="SessionLoadSchema.schema" class="function">schema</dd>
+                <dd id="SessionLoadSchema.schema_json" class="function">schema_json</dd>
+                <dd id="SessionLoadSchema.validate" class="function">validate</dd>
+                <dd id="SessionLoadSchema.update_forward_refs" class="function">update_forward_refs</dd>
 
             </div>
                                 </dl>

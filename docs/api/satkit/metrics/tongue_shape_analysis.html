@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta name="generator" content="pdoc 14.1.0"/>
+    <meta name="generator" content="pdoc 14.4.0"/>
     <title>satkit.metrics.tongue_shape_analysis API documentation</title>
 
     <style>/*! * Bootstrap Reboot v5.0.0 (https://getbootstrap.com/) * Copyright 2011-2021 The Bootstrap Authors * Copyright 2011-2021 Twitter, Inc. * Licensed under MIT (https://github.com/twbs/bootstrap/blob/main/LICENSE) * Forked from Normalize.css, licensed MIT (https://github.com/necolas/normalize.css/blob/master/LICENSE.md) */*,::after,::before{box-sizing:border-box}@media (prefers-reduced-motion:no-preference){:root{scroll-behavior:smooth}}body{margin:0;font-family:system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial,"Noto Sans","Liberation Sans",sans-serif,"Apple Color Emoji","Segoe UI Emoji","Segoe UI Symbol","Noto Color Emoji";font-size:1rem;font-weight:400;line-height:1.5;color:#212529;background-color:#fff;-webkit-text-size-adjust:100%;-webkit-tap-highlight-color:transparent}hr{margin:1rem 0;color:inherit;background-color:currentColor;border:0;opacity:.25}hr:not([size]){height:1px}h1,h2,h3,h4,h5,h6{margin-top:0;margin-bottom:.5rem;font-weight:500;line-height:1.2}h1{font-size:calc(1.375rem + 1.5vw)}@media (min-width:1200px){h1{font-size:2.5rem}}h2{font-size:calc(1.325rem + .9vw)}@media (min-width:1200px){h2{font-size:2rem}}h3{font-size:calc(1.3rem + .6vw)}@media (min-width:1200px){h3{font-size:1.75rem}}h4{font-size:calc(1.275rem + .3vw)}@media (min-width:1200px){h4{font-size:1.5rem}}h5{font-size:1.25rem}h6{font-size:1rem}p{margin-top:0;margin-bottom:1rem}abbr[data-bs-original-title],abbr[title]{-webkit-text-decoration:underline dotted;text-decoration:underline dotted;cursor:help;-webkit-text-decoration-skip-ink:none;text-decoration-skip-ink:none}address{margin-bottom:1rem;font-style:normal;line-height:inherit}ol,ul{padding-left:2rem}dl,ol,ul{margin-top:0;margin-bottom:1rem}ol ol,ol ul,ul ol,ul ul{margin-bottom:0}dt{font-weight:700}dd{margin-bottom:.5rem;margin-left:0}blockquote{margin:0 0 1rem}b,strong{font-weight:bolder}small{font-size:.875em}mark{padding:.2em;background-color:#fcf8e3}sub,sup{position:relative;font-size:.75em;line-height:0;vertical-align:baseline}sub{bottom:-.25em}sup{top:-.5em}a{color:#0d6efd;text-decoration:underline}a:hover{color:#0a58ca}a:not([href]):not([class]),a:not([href]):not([class]):hover{color:inherit;text-decoration:none}code,kbd,pre,samp{font-family:SFMono-Regular,Menlo,Monaco,Consolas,"Liberation Mono","Courier New",monospace;font-size:1em;direction:ltr;unicode-bidi:bidi-override}pre{display:block;margin-top:0;margin-bottom:1rem;overflow:auto;font-size:.875em}pre code{font-size:inherit;color:inherit;word-break:normal}code{font-size:.875em;color:#d63384;word-wrap:break-word}a>code{color:inherit}kbd{padding:.2rem .4rem;font-size:.875em;color:#fff;background-color:#212529;border-radius:.2rem}kbd kbd{padding:0;font-size:1em;font-weight:700}figure{margin:0 0 1rem}img,svg{vertical-align:middle}table{caption-side:bottom;border-collapse:collapse}caption{padding-top:.5rem;padding-bottom:.5rem;color:#6c757d;text-align:left}th{text-align:inherit;text-align:-webkit-match-parent}tbody,td,tfoot,th,thead,tr{border-color:inherit;border-style:solid;border-width:0}label{display:inline-block}button{border-radius:0}button:focus:not(:focus-visible){outline:0}button,input,optgroup,select,textarea{margin:0;font-family:inherit;font-size:inherit;line-height:inherit}button,select{text-transform:none}[role=button]{cursor:pointer}select{word-wrap:normal}select:disabled{opacity:1}[list]::-webkit-calendar-picker-indicator{display:none}[type=button],[type=reset],[type=submit],button{-webkit-appearance:button}[type=button]:not(:disabled),[type=reset]:not(:disabled),[type=submit]:not(:disabled),button:not(:disabled){cursor:pointer}::-moz-focus-inner{padding:0;border-style:none}textarea{resize:vertical}fieldset{min-width:0;padding:0;margin:0;border:0}legend{float:left;width:100%;padding:0;margin-bottom:.5rem;font-size:calc(1.275rem + .3vw);line-height:inherit}@media (min-width:1200px){legend{font-size:1.5rem}}legend+*{clear:left}::-webkit-datetime-edit-day-field,::-webkit-datetime-edit-fields-wrapper,::-webkit-datetime-edit-hour-field,::-webkit-datetime-edit-minute,::-webkit-datetime-edit-month-field,::-webkit-datetime-edit-text,::-webkit-datetime-edit-year-field{padding:0}::-webkit-inner-spin-button{height:auto}[type=search]{outline-offset:-2px;-webkit-appearance:textfield}::-webkit-search-decoration{-webkit-appearance:none}::-webkit-color-swatch-wrapper{padding:0}::file-selector-button{font:inherit}::-webkit-file-upload-button{font:inherit;-webkit-appearance:button}output{display:inline-block}iframe{border:0}summary{display:list-item;cursor:pointer}progress{vertical-align:baseline}[hidden]{display:none!important}</style>
@@ -63,7 +63,7 @@
 
                         <div class="docstring"><p>tshape_analysis - Code for the analysis of tongue shape contours</p>
 
-<p>Original version Copyright (C) 2015 Katherine Dawson <a href="&#x6d;a&#105;&#108;&#116;&#111;&#58;&#107;&#109;&#100;&#97;&#119;&#x73;o&#x6e;&#x38;&#64;&#103;&#109;&#x61;&#105;&#x6c;&#x2e;&#99;&#x6f;&#109;">&#107;&#109;&#100;&#97;&#119;&#x73;o&#x6e;&#x38;&#64;&#103;&#109;&#x61;&#105;&#x6c;&#x2e;&#99;&#x6f;&#109;</a>
+<p>Original version Copyright (C) 2015 Katherine Dawson <a href="&#x6d;&#x61;&#x69;&#x6c;&#x74;o&#x3a;k&#x6d;&#100;&#97;&#119;&#115;&#x6f;&#x6e;&#56;&#64;&#103;&#109;&#x61;&#x69;&#108;&#x2e;c&#x6f;&#x6d;">k&#x6d;&#100;&#97;&#119;&#115;&#x6f;&#x6e;&#56;&#64;&#103;&#109;&#x61;&#x69;&#108;&#x2e;c&#x6f;&#x6d;</a>
 Available at <a href="https://github.com/kdawson2/tshape_analysis/">https://github.com/kdawson2/tshape_analysis/</a></p>
 </div>
 
@@ -555,17 +555,20 @@ quantifying tongue shape and complexity using ultrasound imaging, Clinical
 Linguistics &amp; Phonetics, 30:3-5, 328-344, DOI:
 10.3109/02699206.2015.1099164 for details.</p>
 
-<h2 id="parameters">Parameters</h2>
+<h6 id="parameters">Parameters</h6>
 
-<p>reference_shape : np.ndarray
-    the reference spline
-compared_shape : np.ndarray
-    the spline to be compared to the reference</p>
+<ul>
+<li><strong>reference_shape</strong> (np.ndarray):
+the reference spline</li>
+<li><strong>compared_shape</strong> (np.ndarray):
+the spline to be compared to the reference</li>
+</ul>
 
-<h2 id="returns">Returns</h2>
+<h6 id="returns">Returns</h6>
 
-<p>float
-    The procrustes similarity value.</p>
+<ul>
+<li><strong>float</strong>: The procrustes similarity value.</li>
+</ul>
 </div>
 
 
@@ -647,17 +650,20 @@ quantifying tongue shape and complexity using ultrasound imaging, Clinical
 Linguistics &amp; Phonetics, 30:3-5, 328-344, DOI:
 10.3109/02699206.2015.1099164 for details.</p>
 
-<h2 id="parameters">Parameters</h2>
+<h6 id="parameters">Parameters</h6>
 
-<p>data : np.ndarray
-    one spline with axes ordered: x-y, spline points 
-run_filter : bool
-    Should the curvature be filtered before integration.</p>
+<ul>
+<li><strong>data</strong> (np.ndarray):
+one spline with axes ordered: x-y, spline points</li>
+<li><strong>run_filter</strong> (bool):
+Should the curvature be filtered before integration.</li>
+</ul>
 
-<h2 id="returns">Returns</h2>
+<h6 id="returns">Returns</h6>
 
-<p>float
-    the modified curvature index</p>
+<ul>
+<li><strong>float</strong>: the modified curvature index</li>
+</ul>
 </div>
 
 
@@ -736,16 +742,19 @@ quantifying tongue shape and complexity using ultrasound imaging, Clinical
 Linguistics &amp; Phonetics, 30:3-5, 328-344, DOI:
 10.3109/02699206.2015.1099164 for details.</p>
 
-<h2 id="parameters">Parameters</h2>
+<h6 id="parameters">Parameters</h6>
 
-<p>tongue_data : np.ndarray
-    one spline with axes ordered: x-y, spline points </p>
+<ul>
+<li><strong>tongue_data</strong> (np.ndarray):
+one spline with axes ordered: x-y, spline points</li>
+</ul>
 
-<h2 id="returns">Returns</h2>
+<h6 id="returns">Returns</h6>
 
-<p>np.ndarray
-    array of floats with the axes ordered: 
-    real-imaginary-modulus, paramvector</p>
+<ul>
+<li><strong>np.ndarray</strong>: array of floats with the axes ordered: 
+real-imaginary-modulus, paramvector</li>
+</ul>
 </div>
 
 
@@ -823,27 +832,30 @@ Linguistics &amp; Phonetics, 30:3-5, 328-344, DOI:
 
             <div class="docstring"><p>Calculate shape spline metrics.</p>
 
-<h2 id="parameters">Parameters</h2>
+<h6 id="parameters">Parameters</h6>
 
-<p>data : np.ndarray
-    the spline data
-metric : SplineMetricEnum
-    which metric to calculate
-notice_base : str
-    text prepended to logging messages</p>
+<ul>
+<li><strong>data</strong> (np.ndarray):
+the spline data</li>
+<li><strong>metric</strong> (SplineMetricEnum):
+which metric to calculate</li>
+<li><strong>notice_base</strong> (str):
+text prepended to logging messages</li>
+</ul>
 
-<h2 id="returns">Returns</h2>
+<h6 id="returns">Returns</h6>
 
-<p>np.ndarray
-    an array of analysis values where array.shape[0] == time_points</p>
+<ul>
+<li><strong>np.ndarray</strong>: an array of analysis values where array.shape[0] == time_points</li>
+</ul>
 
-<h2 id="raises">Raises</h2>
+<h6 id="raises">Raises</h6>
 
-<p>NotImplementedError
-    if asked for regular curvature index instead of the modified one.
-NotImplementedError
-    if asked for procrustes analysis because passing reference shape in
-    hasn't been implemented.</p>
+<ul>
+<li><strong>NotImplementedError</strong>: if asked for regular curvature index instead of the modified one.</li>
+<li><strong>NotImplementedError</strong>: if asked for procrustes analysis because passing reference shape in
+hasn't been implemented.</li>
+</ul>
 </div>
 
 

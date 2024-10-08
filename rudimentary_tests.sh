@@ -9,5 +9,8 @@
 #   - Missing files
 ./satkit.py tongue_data_1_2/
 
-#   - Missing files, exclusion list
+#   - Missing files, exclusion list in .csv format
 ./satkit.py tongue_data_1_2/ -e tongue_data_1_2/exclusion_list.csv
+
+#   - Missing files, exclusion list in .yaml format
+./satkit.py tongue_data_1_2/ -e tongue_data_1_2/exclusion_list.yaml

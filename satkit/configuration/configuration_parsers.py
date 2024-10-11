@@ -40,14 +40,15 @@ import logging
 import sys
 from contextlib import closing
 from pathlib import Path
-from typing import Union
 
 # from icecream import ic
 
 # import numpy as np
-from strictyaml import (Bool, FixedSeq, Float, Int, Map,
-                        MapPattern, Optional, ScalarValidator, Seq, Str,
-                        YAML, YAMLError, load)
+from strictyaml import (
+    Bool, FixedSeq, Float, Int, Map,
+    MapPattern, Optional, ScalarValidator, Seq, Str,
+    YAML, YAMLError, load
+)
 
 from satkit.constants import DEFAULT_ENCODING
 
@@ -145,7 +146,7 @@ _time_limit_schema = Map({
 })
 
 
-def parse_config(filepath: Union[Path, str, None] = None) -> None:
+def parse_config(filepath: Path | str | None = None) -> None:
     """
     Read the config file from filepath and recursively the other config files.
 
@@ -160,7 +161,7 @@ def parse_config(filepath: Union[Path, str, None] = None) -> None:
     load_publish_params(config_dict['publish_parameter_file'])
 
 
-def load_main_config(filepath: Union[Path, str, None] = None) -> YAML:
+def load_main_config(filepath: Path | str | None = None) -> YAML:
     """
     Read the config file from filepath.
 
@@ -201,7 +202,7 @@ def load_main_config(filepath: Union[Path, str, None] = None) -> YAML:
     return _raw_config_dict
 
 
-def load_run_params(filepath: Union[Path, str, None] = None) -> YAML:
+def load_run_params(filepath: Path | str | None = None) -> YAML:
     """
     Read the config file from filepath.
 
@@ -294,7 +295,7 @@ def load_run_params(filepath: Union[Path, str, None] = None) -> YAML:
     return _raw_data_run_params_dict
 
 
-def load_gui_params(filepath: Union[Path, str, None] = None) -> YAML:
+def load_gui_params(filepath: Path | str | None = None) -> YAML:
     """
     Read the config file from filepath.
 
@@ -364,7 +365,7 @@ def load_gui_params(filepath: Union[Path, str, None] = None) -> YAML:
     return _raw_gui_params_dict
 
 
-def load_publish_params(filepath: Union[Path, str, None] = None) -> YAML:
+def load_publish_params(filepath: Path | str | None = None) -> YAML:
     """
     Read the config file from filepath.
 
@@ -442,7 +443,7 @@ def load_publish_params(filepath: Union[Path, str, None] = None) -> YAML:
     return _raw_publish_params_dict
 
 
-def load_plot_params(filepath: Union[Path, str, None] = None) -> YAML:
+def load_plot_params(filepath: Path | str | None = None) -> YAML:
     """
     Read the plot configuration file from filepath.
 

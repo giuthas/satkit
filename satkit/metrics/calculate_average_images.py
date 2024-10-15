@@ -41,14 +41,14 @@ import numpy as np
 # local modules
 from satkit.data_structures import Modality, Recording
 
-from .mean_image import AverageImage, AverageImageParameters
+from .mean_image import AggregateImage, AggregateImageParameters
 
 _logger = logging.getLogger('satkit.session_mse')
 
 
 def calculate_average_image(
         modality: Modality,
-        params: AverageImageParameters) -> AverageImage:
+        params: AggregateImageParameters) -> AggregateImage:
     """
     Calculate average image from a Modality.
 
@@ -60,19 +60,19 @@ def calculate_average_image(
     ----------
     modality : Modality
         Modality to calculate the average on.
-    params : AverageImageParameters
+    params : AggregateImageParameters
         Parameters for calculating the average.
 
     Returns
     -------
-    AverageImage
+    AggregateImage
         The new AverageImage Statistic.
     """
     data = modality.data
     match params.metric:
         case 'mean':
             average_image = np.mean(data, axis=0)
-    return AverageImage(
+    return AggregateImage(
         modality.recording, meta_data=params, parsed_data=average_image)
 
 
@@ -115,7 +115,7 @@ def add_average_images(
         _logger.info("Data modality '%s' not found in session: %s.",
                      modality.__name__, recording.basename)
     else:
-        all_requested = AverageImage.get_names_and_meta(
+        all_requested = AggregateImage.get_names_and_meta(
             modality=modality, metric=metrics,
             mean_image_on_interpolated_data=run_on_interpolated_data,
             release_data_memory=release_data_memory)

@@ -46,7 +46,7 @@ from satkit.helpers import product_dict
 _logger = logging.getLogger('satkit.mean_image')
 
 
-class AverageImageParameters(StatisticMetaData):
+class AggregateImageParameters(StatisticMetaData):
     """
     Parameters used in generating the parent MeanImage modality.
 
@@ -69,7 +69,7 @@ class AverageImageParameters(StatisticMetaData):
     release_data_memory: bool = True
 
 
-class AverageImage(Statistic):
+class AggregateImage(Statistic):
     """
     Represent an AverageImage as a Statistic. 
 
@@ -78,7 +78,7 @@ class AverageImage(Statistic):
     """
 
     @classmethod
-    def generate_name(cls, params: AverageImageParameters) -> str:
+    def generate_name(cls, params: AggregateImageParameters) -> str:
         """
         Generate a MeanImage metric name to be used as its unique identifier.
 
@@ -115,7 +115,7 @@ class AverageImage(Statistic):
         metric: list[str] = None,
         mean_image_on_interpolated_data: bool = False,
         release_data_memory: bool = True
-    ) -> dict[str: AverageImageParameters]:
+    ) -> dict[str: AggregateImageParameters]:
         """
         Generate MeanImage modality names and metadata.
 
@@ -153,15 +153,15 @@ class AverageImage(Statistic):
             'interpolated': [mean_image_on_interpolated_data],
             'release_data_memory': [release_data_memory]}
 
-        mean_image_params = [AverageImageParameters(**item)
+        mean_image_params = [AggregateImageParameters(**item)
                              for item in product_dict(**param_dict)]
 
-        return {AverageImage.generate_name(params): params
+        return {AggregateImage.generate_name(params): params
                 for params in mean_image_params}
 
     def __init__(self,
                  owner: Union[Recording, Session],
-                 meta_data: AverageImageParameters,
+                 meta_data: AggregateImageParameters,
                  parsed_data: Optional[np.ndarray] = None,
                  load_path: Optional[Path] = None,
                  meta_path: Optional[Path] = None,
@@ -205,4 +205,4 @@ class AverageImage(Statistic):
         The name will be of the form
         'MeanImage [metric name] on [data modality class name]'.
         """
-        return AverageImage.generate_name(self.meta_data)
+        return AggregateImage.generate_name(self.meta_data)

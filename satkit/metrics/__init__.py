@@ -30,19 +30,25 @@
 # citations.bib in BibTeX format.
 #
 from .ofreg import of
+from .calculate_aggregate_images import add_aggregate_images
+from .calculate_distance_matrices import add_distance_matrices
 from .calculate_pd import add_pd
 from .calculate_spline_metric import add_spline_metric
 
 from .downsample_metric import downsample_metrics
 
+from .aggregate_image import AggregateImage, AggregateImageParameters
+from .distance_matrix import DistanceMatrix, DistanceMatrixParameters
 from .pd import PD, PdParameters, ImageMask
 from .spline_metric import (SplineMetric, SplineMetricParameters,
                             SplineDiffsEnum, SplineNNDsEnum, SplineShapesEnum)
 
 # TODO: Decide if it is worth it to use typing.Annotated to document this
-# metrics is a mapping between a modality name and its actual type and the the
+# metrics is a mapping between a modality name and its actual type and the
 # validator model for its parameters.
 metrics = {
+    'AggregateImage': (AggregateImage, AggregateImageParameters),
+    'DistanceMatrix': (DistanceMatrix, DistanceMatrixParameters),
     'PD': (PD, PdParameters),
-    'SplineMetric': (SplineMetric, SplineMetricParameters)
+    'SplineMetric': (SplineMetric, SplineMetricParameters),
 }

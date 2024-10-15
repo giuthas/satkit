@@ -152,7 +152,7 @@ def main():
     configuration = config.Configuration(cli.args.configuration_filename)
 
     # TODO read the actual exclusion list and apply it
-    exclusion_list = ("water swallow", "bite plate")
+    exclusion_list = ["water swallow", "bite plate"]
 
     recording_session = load_data(Path(cli.args.load_path))
 

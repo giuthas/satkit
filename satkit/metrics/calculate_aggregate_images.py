@@ -30,7 +30,7 @@
 # citations.bib in BibTeX format.
 #
 """
-Calculate AverageImages for Modalities.
+Calculate AggregateImages for Modalities.
 """
 
 import logging
@@ -43,35 +43,35 @@ from satkit.data_structures import FileInformation, Modality, Recording
 
 from .aggregate_image import AggregateImage, AggregateImageParameters
 
-_logger = logging.getLogger('satkit.session_mse')
+_logger = logging.getLogger('satkit.add_aggregate_images')
 
 
-def calculate_average_image(
+def calculate_aggregate_image(
         modality: Modality,
         params: AggregateImageParameters) -> AggregateImage:
     """
-    Calculate average image from a Modality.
+    Calculate aggregate image from a Modality.
 
     This method does not really care if the Modality contains images, as long
     as it contains time varying data (which all Modalities do). It will
-    calculate the time average with the given method in params.
+    calculate the time aggregate with the given method in params.
 
     Parameters
     ----------
     modality : Modality
-        Modality to calculate the average on.
+        Modality to calculate the aggregate on.
     params : AggregateImageParameters
-        Parameters for calculating the average.
+        Parameters for calculating the aggregate.
 
     Returns
     -------
     AggregateImage
-        The new AverageImage Statistic.
+        The new AggregateImage Statistic.
     """
     data = modality.data
     match params.metric:
         case 'mean':
-            average_image = np.mean(data, axis=0)
+            aggregate_image = np.mean(data, axis=0)
         case _:
             raise ValueError(f'Unknown metric {params.metric}')
     file_info = FileInformation()
@@ -79,10 +79,10 @@ def calculate_average_image(
         modality.recording,
         meta_data=params,
         file_info=file_info,
-        parsed_data=average_image)
+        parsed_data=aggregate_image)
 
 
-def add_average_images(
+def add_aggregate_images(
     recording: Recording,
     modality: Modality,
     preload: bool = True,
@@ -133,13 +133,13 @@ def add_average_images(
 
         if to_be_computed:
             for key in to_be_computed:
-                average_image = calculate_average_image(
+                aggregate_image = calculate_aggregate_image(
                     modality=recording[modality.__name__],
                     params=to_be_computed[key]
                 )
-                recording.add_statistic(average_image)
+                recording.add_statistic(aggregate_image)
                 _logger.info("Added '%s' to recording: %s.",
-                             average_image.name, recording.basename)
+                             aggregate_image.name, recording.basename)
         else:
             _logger.info(
                 "Nothing to compute in PD for recording: %s.",

@@ -50,8 +50,10 @@ import satkit.configuration as config
 
 from satkit.configuration import DataRunConfig
 from satkit.data_structures import Session
-from satkit.metrics import (add_pd,  add_spline_metric,
-                            downsample_metrics)
+from satkit.metrics import (
+    add_aggregate_images, add_pd, add_spline_metric,
+    downsample_metrics
+)
 from satkit.modalities import RawUltrasound, Splines
 from satkit.qt_annotator import PdQtAnnotator
 from satkit.scripting_interface import (
@@ -88,10 +90,16 @@ def data_run(
     function_dict = {}
     if data_run_config.pd_arguments:
         pd_arguments = data_run_config.pd_arguments
+        aggregate_image_arguments = data_run_config.aggregate_image_arguments
         function_dict["PD"] = (
             add_pd,
             [RawUltrasound],
             pd_arguments.model_dump()
+        )
+        function_dict["AggregateImage"] = (
+            add_aggregate_images,
+            [RawUltrasound],
+            aggregate_image_arguments.model_dump()
         )
 
     if data_run_config.spline_metric_arguments:

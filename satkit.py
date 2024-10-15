@@ -30,6 +30,13 @@
 # articles listed in README.markdown. They can also be found in
 # citations.bib in BibTeX format.
 #
+"""
+Current main script for running SATKIT.
+
+DEPRECATION WARNING:
+This file will be removed when the main method of running SATKIT will move to a
+proper access point.
+"""
 
 # built-in modules
 import sys

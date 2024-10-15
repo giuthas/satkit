@@ -48,6 +48,12 @@ and this project uses [Semantic Versioning](https://semver.org/spec/v2.0.0.html)
   metric 'mean', which is used to calculate mean images.
 - Mean Images are used as the basis of calculating another Statistic: 
 
+### Deprecated
+
+- satkit.py will eventually be removed when running SATKIT will be moved to
+  access points. This means SATKIT -- when correctly installed -- will run with
+  from the command line with: `satkit [command] [arguments]`.
+
 ### Fixed
 
 - AAA ultrasound importer now reads dates both in `%d/%m/%Y %H:%M:%S` and

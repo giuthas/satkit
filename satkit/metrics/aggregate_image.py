@@ -30,38 +30,39 @@
 # citations.bib in BibTeX format.
 #
 """
-MeanImage Statistic and its Parameter class.
+AggregateImage Statistic and its Parameter class.
 """
 
 import logging
-from pathlib import Path
-from typing import Optional, Tuple, Union
 
 import numpy as np
 
 from satkit.data_structures import (
-    Modality, Recording, Session, Statistic, StatisticMetaData)
+    FileInformation, Modality, Recording, Session, Statistic, StatisticMetaData
+)
 from satkit.helpers import product_dict
 
-_logger = logging.getLogger('satkit.mean_image')
+_logger = logging.getLogger('satkit.aggregate_image')
 
 
 class AggregateImageParameters(StatisticMetaData):
     """
-    Parameters used in generating the parent MeanImage modality.
+    Parameters used in generating the parent AggregateImage modality.
 
     Parameters
     ----------
     parent_name: str
-        Name of the Modality this instance of MeanImage was calculated on.
-    release_data_memory : bool
-        Wether to assign None to parent.data after deriving this Metric from
-        the data. Currently has no effect as deriving MeanImage at runtime is
-        not yet supported.
-    interpolated : bool
-        Should this MeanImage be calculated on interpolated images. Defaults to
-        False for calculating MeanImage on raw data. This one really can only
-        be used on 2D ultrasound data. 
+        Name of the Modality this instance of AggregateImage was calculated on.
+    metric : str, optional
+        Metric used in aggregation. By default, 'mean'.
+    interpolated : bool, optional
+        Should this AggregateImage be calculated on interpolated images.
+        Defaults to False for calculating AggregateImage on raw data. This one
+        really can only be used on 2D ultrasound data.
+    release_data_memory : bool, optional
+        Whether to assign None to `parent.data` after deriving this Metric from
+        the data. Currently, has no effect as deriving AggregateImage at runtime
+        is not yet supported.
     """
     parent_name: str
     metric: str = 'mean'
@@ -71,7 +72,7 @@ class AggregateImageParameters(StatisticMetaData):
 
 class AggregateImage(Statistic):
     """
-    Represent an AverageImage as a Statistic. 
+    Represent an AggregateImage as a Statistic.
 
     Currently only allowed metric is mean, but median, mode and others could be
     added.
@@ -80,19 +81,19 @@ class AggregateImage(Statistic):
     @classmethod
     def generate_name(cls, params: AggregateImageParameters) -> str:
         """
-        Generate a MeanImage metric name to be used as its unique identifier.
+        Generate a name to be used as this  AggregateImage's unique identifier.
 
         This static method **defines** what the names are. This implementation
-        pattern (MeanImage.name calls this and any where that needs to guess
+        pattern (AggregateImage.name calls this and anywhere that needs to guess
         what a name would be calls this) is how all derived Modalities should
         work.
 
         Parameters
         ----------
-        params : MeanImageParameters
-            The parameters of the MeanImage instance. Note that this
-            MeanImageParameters instance does not need to be attached to a
-            MeanImage instance.
+        params : AggregateImageParameters
+            The parameters of the AggregateImage instance. Note that this
+            AggregateImageParameters instance does not need to be attached to a
+            AggregateImage instance.
 
         Returns
         -------
@@ -111,13 +112,13 @@ class AggregateImage(Statistic):
 
     @staticmethod
     def get_names_and_meta(
-        modality: Union[Modality, str],
-        metric: list[str] = None,
-        mean_image_on_interpolated_data: bool = False,
-        release_data_memory: bool = True
+            modality: Modality | str,
+            metric: list[str] | None = None,
+            mean_image_on_interpolated_data: bool = False,
+            release_data_memory: bool = True
     ) -> dict[str: AggregateImageParameters]:
         """
-        Generate MeanImage modality names and metadata.
+        Generate AggregateImage modality names and metadata.
 
         This method will generate the full cartesian product of the possible
         combinations. If only some of them are needed, make more than one call
@@ -126,19 +127,22 @@ class AggregateImage(Statistic):
         Parameters
         ----------
         modality : Modality
-            parent modality that MeanImage would be derived from
+            parent modality that AggregateImage would be derived from
+        metric : list[str] | None, optional
+            list of the names of metrics to use in name generation, by default
+            None which will result in 'mean' being used.
         mean_image_on_interpolated_data : bool, optional
             indicates if interpolated data should be used for instead of
             RawUltrasound, by default False
-        release_data_memory: bool
+        release_data_memory: bool, optional
             Should parent Modality's data be assigned to None after
             calculations are complete, by default True.
 
         Returns
         -------
-        dict[str: MeanImageParameters]
-            Dictionary where the names of the MeanImage Statistics index the
-            MeanImageParameter objects.
+        dict[str: AggregateImageParameters]
+            Dictionary where the names of the AggregateImage Statistics index
+            the AggregateImageParameter objects.
         """
         if isinstance(modality, str):
             parent_name = modality
@@ -150,51 +154,49 @@ class AggregateImage(Statistic):
 
         param_dict = {
             'parent_name': [parent_name],
+            'metric': metric,
             'interpolated': [mean_image_on_interpolated_data],
             'release_data_memory': [release_data_memory]}
 
-        mean_image_params = [AggregateImageParameters(**item)
-                             for item in product_dict(**param_dict)]
+        aggregate_image_params = [AggregateImageParameters(**item)
+                                  for item in product_dict(**param_dict)]
 
         return {AggregateImage.generate_name(params): params
-                for params in mean_image_params}
+                for params in aggregate_image_params}
 
-    def __init__(self,
-                 owner: Union[Recording, Session],
-                 meta_data: AggregateImageParameters,
-                 parsed_data: Optional[np.ndarray] = None,
-                 load_path: Optional[Path] = None,
-                 meta_path: Optional[Path] = None,
-                 ) -> None:
+    def __init__(
+            self,
+            owner: Recording | Session,
+            meta_data: AggregateImageParameters,
+            file_info: FileInformation,
+            parsed_data: np.ndarray | None = None,
+    ) -> None:
         """
-        Build a MeanImage Statistic.       
+        Build a AggregateImage Statistic.       
 
         Parameters
         ----------
-        owner : Union[Recording, Session]
-            the Recording or Session that this MeanImage was calculated on.
-        metadata : MeanImageParameters
-            Parameters used in calculating this instance of MeanImage.
-        parsed_data : Optional[np.ndarray], optional
-            the actual mean image, by default None
-        load_path : Optional[Path], optional
-            path of the saved data, by default None
-        meta_path : Optional[Path], optional
-            path of the saved meta data, by default None
+        owner : Recording | Session
+            the Recording or Session that this AggregateImage was calculated on.
+        meta_data : AggregateImageParameters
+            Parameters used in calculating this instance of AggregateImage.
+        file_info : FileInformation
+            FileInformation -- if any -- for this AggregateImage.
+        parsed_data : np.ndarray | None, optional
+            the actual aggregate image, by default None
         """
         super().__init__(
             owner=owner,
             meta_data=meta_data,
-            parsed_data=parsed_data,
-            load_path=load_path,
-            meta_path=meta_path)
+            file_info=file_info,
+            parsed_data=parsed_data,)
 
-    def _derive_data(self) -> Tuple[np.ndarray, np.ndarray, float]:
+    def _derive_data(self) -> tuple[np.ndarray, np.ndarray, float]:
         """
-        Calculate MeanImage on the data of the parent Modality.  
+        Calculate AggregateImage on the data of the parent Modality.
         """
         raise NotImplementedError(
-            "Currently MeanImage Modalities have to be "
+            "Currently AggregateImage Modalities have to be "
             "calculated at instantiation time.")
 
     @property
@@ -203,6 +205,6 @@ class AggregateImage(Statistic):
         Identity, metric, and parent data class.
 
         The name will be of the form
-        'MeanImage [metric name] on [data modality class name]'.
+        'AggregateImage [metric name] on [data modality class name]'.
         """
         return AggregateImage.generate_name(self.meta_data)

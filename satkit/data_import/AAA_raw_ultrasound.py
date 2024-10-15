@@ -59,10 +59,12 @@ def parse_recording_meta_from_aaa_prompt_file(
         lines = prompt_file.read().splitlines()
         prompt = lines[0]
 
-        # The date used to be just a string, but needs to be more structured
-        # since the spline export files have a different date format.
-        time_of_recording = datetime.strptime(
-            lines[1], '%d/%m/%Y %H:%M:%S')
+        if '/' in lines[1]:
+            time_of_recording = datetime.strptime(
+                lines[1], '%d/%m/%Y %H:%M:%S')
+        else:
+            time_of_recording = datetime.strptime(
+                lines[1], '%Y-%m-%d %I:%M:%S %p')
 
         if len(lines) > 2 and lines[2].strip():
             participant_id = lines[2].split(',')[0]

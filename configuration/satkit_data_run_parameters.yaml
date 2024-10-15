@@ -43,6 +43,13 @@ flags:
 # default be saved at their original locations.
 output_directory:
 
+aggregate_image_arguments:
+  metrics:
+    - 'mean'
+  run_on_interpolated_data: False
+  preload: True
+  release_data_memory: True
+
 pd_arguments: 
   'norms':
     - 'l1'

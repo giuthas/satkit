@@ -34,13 +34,11 @@ DistanceMatrix Statistic and its Parameter class.
 """
 
 import logging
-from pathlib import Path
-from typing import Optional, Tuple, Union
-
 import numpy as np
 
 from satkit.data_structures import (
-    Modality, Session, Statistic, StatisticMetaData)
+    FileInformation, Modality, Session, Statistic, StatisticMetaData
+)
 from satkit.helpers import product_dict
 
 _logger = logging.getLogger('satkit.mse')
@@ -58,18 +56,12 @@ class DistanceMatrixParameters(StatisticMetaData):
         A string specifying this DistanceMatrix's metric. Defaults to mean
         squared error.
     release_data_memory : bool
-        Wether to assign None to parent.data after deriving this Modality from
-        the data. Currently has no effect as deriving a DistanceMatrix at
+        Whether to assign None to `parent.data` after deriving this Modality
+        from the data. Currently, has no effect as deriving a DistanceMatrix at
         runtime is not yet supported.
-    interpolated : bool
-        Should this DistanceMatrix be calculated on interpolated images.
-        Defaults to False for calculating DistanceMatrix on raw data. This one
-        really can only be used on 2D ultrasound data. For other data raw data
-        is the regular data.
     """
     parent_name: str
     metric: str = 'mean_squared_error'
-    interpolated: bool = False
     release_data_memory: bool = True
 
 
@@ -91,7 +83,7 @@ class DistanceMatrix(Statistic):
         Generate a DistanceMatrix name to be used as its unique identifier.
 
         This static method **defines** what the names are. This implementation
-        pattern (DistanceMatrix.name calls this and any where that needs to
+        pattern (DistanceMatrix.name calls this and anywhere that needs to
         guess what a name would be calls this) is how all derived Modalities
         should work.
 
@@ -119,10 +111,9 @@ class DistanceMatrix(Statistic):
 
     @staticmethod
     def get_names_and_meta(
-        modality: Union[Modality, str],
-        metric: list[str] = None,
-        distance_matrix_on_interpolated_data: bool = False,
-        release_data_memory: bool = True
+            modality: Modality | str,
+            metric: list[str] | None = None,
+            release_data_memory: bool = True
     ) -> dict[str: DistanceMatrixParameters]:
         """
         Generate DistanceMatrix names and metadata.
@@ -135,17 +126,11 @@ class DistanceMatrix(Statistic):
         ----------
         modality : Modality
             parent modality that DistanceMatrix would be derived from
-        norms : List[str], optional
-            list of norms to be calculated, defaults to 'mean_squared_error'.
-        timesteps : List[int], optional
-            list of timesteps to be used, defaults to 1.
-        mse_on_interpolated_data : bool, optional
-            indicates if interpolated data should be used for instead of
-            RawUltrasound, by default False
-        mask_images : bool, optional
-            indicates if images should be masked, by default False
+        metric : list[str] | None, optional
+            list of the names of metrics to use in name generation, by default
+            None which will result in 'mean_squared_error' being used.
         release_data_memory: bool
-            Should parent Modlity's data be assigned to None after calculations
+            Should parent Modality's data be assigned to None after calculations
             are complete, by default True.
 
         Returns
@@ -165,7 +150,6 @@ class DistanceMatrix(Statistic):
         param_dict = {
             'parent_name': [parent_name],
             'metric': metric,
-            'interpolated': [distance_matrix_on_interpolated_data],
             'release_data_memory': [release_data_memory]}
 
         distance_matrix_params = [DistanceMatrixParameters(**item)
@@ -174,39 +158,34 @@ class DistanceMatrix(Statistic):
         return {DistanceMatrix.generate_name(params): params
                 for params in distance_matrix_params}
 
-    def __init__(self,
-                 owner: Session,
-                 meta_data: DistanceMatrixParameters,
-                 load_path: Optional[Path] = None,
-                 meta_path: Optional[Path] = None,
-                 parsed_data: Optional[np.ndarray] = None,
-                 ) -> None:
+    def __init__(
+            self,
+            owner: Session,
+            meta_data: DistanceMatrixParameters,
+            file_info: FileInformation,
+            parsed_data: np.ndarray | None = None,
+    ) -> None:
         """
         Build a DistanceMatrix.
 
         Parameters
         ----------
-        session : Session
+        owner : Session
             Containing Session.
-        metadata : DistanceMatrixParameters
+        meta_data : DistanceMatrixParameters
             Parameters used in calculating this instance of DistanceMatrix.
-        load_path : Optional[Path], optional
-            path of the saved data, by default None
-        meta_path : Optional[Path], optional
-            path of the saved meta data, by default None
+        file_info : FileInformation
+            FileInformation -- if any -- for this DistanceMatrix.
         parsed_data : Optional[np.ndarray], optional
             The distance matrix itself, by default None
         """
         super().__init__(
             owner=owner,
             meta_data=meta_data,
-            parsed_data=parsed_data,
-            load_path=load_path,
-            meta_path=meta_path)
+            file_info=file_info,
+            parsed_data=parsed_data, )
 
-        self.meta_data = meta_data
-
-    def _derive_data(self) -> Tuple[np.ndarray, np.ndarray, float]:
+    def _derive_data(self) -> tuple[np.ndarray, np.ndarray, float]:
         """
         Calculate the distance matrix on the data Session parent.       
         """

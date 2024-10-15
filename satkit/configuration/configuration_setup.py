@@ -37,6 +37,8 @@ from typing import Union
 
 # from icecream import ic
 
+# from icecream import ic
+
 from .configuration_parsers import (
     load_main_config, load_gui_params, load_publish_params,
     load_run_params  # , load_plot_params
@@ -48,7 +50,7 @@ from .configuration_models import (
 _logger = logging.getLogger('satkit.configuration_setup')
 
 
-class Configuration():
+class Configuration:
     """
     Main configuration class of SATKIT.    
     """

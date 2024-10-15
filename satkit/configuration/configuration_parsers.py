@@ -227,20 +227,26 @@ def load_run_params(filepath: Path | str | None = None) -> YAML:
                     "detect_beep": Bool(),
                     "test": Bool()
                 }),
+                Optional("aggregate_image_arguments"): Map({
+                    "metrics": Seq(Str()),
+                    Optional("run_on_interpolated_data", default=False): Bool(),
+                    Optional("preload", default=True): Bool(),
+                    Optional("release_data_memory", default=True): Bool(),
+                }),
                 Optional("pd_arguments"): Map({
                     "norms": Seq(Str()),
                     "timesteps": Seq(Int()),
                     Optional("mask_images", default=False): Bool(),
                     Optional("pd_on_interpolated_data", default=False): Bool(),
-                    Optional("release_data_memory", default=True): Bool(),
                     Optional("preload", default=True): Bool(),
+                    Optional("release_data_memory", default=True): Bool(),
                 }),
                 Optional("spline_metric_arguments"): Map({
                     'metrics': Seq(Str()),
                     'timesteps': Seq(Int()),
                     Optional('exclude_points'): FixedSeq([Int(), Int()]),
+                    Optional('preload', default=True): Bool(),
                     Optional('release_data_memory', default=False): Bool(),
-                    Optional('preload', default=True): Bool()
                 }),
                 Optional("peaks"): Map({
                     "modality_pattern": _search_pattern_schema,

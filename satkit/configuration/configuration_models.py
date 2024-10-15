@@ -49,7 +49,8 @@ import numpy as np
 from pydantic import conlist
 
 from satkit.constants import (
-    IntervalBoundary, IntervalCategory)
+    IntervalBoundary, IntervalCategory
+)
 from satkit.helpers.base_model_extensions import UpdatableBaseModel
 
 _logger = logging.getLogger('satkit.configuration_models')
@@ -131,7 +132,8 @@ class TimeseriesNormalisation(UpdatableBaseModel):
 
     @staticmethod
     def build(
-            value: str) -> 'TimeseriesNormalisation':
+            value: str
+    ) -> 'TimeseriesNormalisation':
         """
         Construct a TimeseriesNormalisation object from a string value.
 
@@ -169,6 +171,13 @@ class TimeLimit(UpdatableBaseModel):
     label: Optional[str] = None
     boundary: IntervalBoundary
     offset: Optional[float] = None
+
+
+class AggregateImageArguments(UpdatableBaseModel):
+    metrics: list[str]
+    preload: Optional[bool] = True
+    release_data_memory: Optional[bool] = True
+    run_on_interpolated_data: Optional[bool] = False
 
 
 class PdArguments(UpdatableBaseModel):
@@ -251,6 +260,7 @@ class CastParams(UpdatableBaseModel):
 
 class DataRunConfig(UpdatableBaseModel):
     output_directory: Optional[Path] = None
+    aggregate_image_arguments: AggregateImageArguments | None = None
     pd_arguments: Optional[PdArguments] = None
     spline_metric_arguments: Optional[SplineMetricArguments] = None
     peaks: Optional[PeakDetectionParams] = None

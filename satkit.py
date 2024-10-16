@@ -57,11 +57,14 @@ from satkit.annotations import (
 )
 import satkit.configuration as config
 
-from satkit.configuration import DataRunConfig
+from satkit.configuration import (
+    apply_exclusion_list, DataRunConfig, ExclusionList,
+    load_exclusion_list
+)
 from satkit.data_structures import Session
 from satkit.metrics import (
     add_aggregate_images, add_distance_matrices, add_pd, add_spline_metric,
-    AggregateImage, downsample_metrics
+    downsample_metrics
 )
 from satkit.modalities import RawUltrasound, Splines
 from satkit.qt_annotator import PdQtAnnotator
@@ -125,7 +128,6 @@ def downsample(
 def data_run(
         recording_session: Session,
         configuration: config.Configuration,
-        exclusion_list: list[str]
 ) -> None:
     data_run_config = configuration.data_run_config
 
@@ -177,9 +179,7 @@ def data_run(
     if data_run_config.peaks:
         modality_pattern = data_run_config.peaks.modality_pattern
         for recording in recording_session:
-            excluded = [prompt in recording.meta_data.prompt
-                        for prompt in exclusion_list]
-            if any(excluded):
+            if recording.excluded:
                 print(
                     f"in satkit.py: jumping over {recording.basename}")
                 continue
@@ -202,24 +202,23 @@ def main():
 
     logger = set_logging_level(cli.args.verbose)
 
+    # TODO: this should be done in one:
     if cli.args.configuration_filename:
         config.parse_config(cli.args.configuration_filename)
     else:
         config.parse_config()
     configuration = config.Configuration(cli.args.configuration_filename)
 
-    ic(configuration)
-    sys.exit()
     # TODO read the actual exclusion list and apply it
-    exclusion_list = ["water swallow", "bite plate"]
+    exclusion_list = load_exclusion_list(cli.args.exclusion_filename)
 
     recording_session = load_data(Path(cli.args.load_path))
+    apply_exclusion_list(recording_session, exclusion_list=exclusion_list)
 
     log_elapsed_time()
 
     data_run(recording_session=recording_session,
-             configuration=configuration,
-             exclusion_list=exclusion_list)
+             configuration=configuration)
 
     save_mean_images(recording_session)
     save_distance_matrix(recording_session)

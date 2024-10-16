@@ -43,7 +43,7 @@ from pydantic import PositiveInt
 
 from satkit.data_structures import (
     FileInformation, Modality, ModalityData, ModalityMetaData, Recording)
-from satkit.extensions_to_external_classes import (
+from satkit.external_class_extensions import (
     enum_union, ListablePrintableEnum, ValueComparedEnumMeta)
 from satkit.utility_functions import product_dict
 

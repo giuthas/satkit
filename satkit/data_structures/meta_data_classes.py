@@ -47,7 +47,7 @@ from pydantic import PositiveInt
 from satkit.configuration import PointAnnotationParams
 from satkit.configuration import ExclusionList, SplineConfig
 from satkit.constants import AnnotationType, Datasource
-from satkit.extensions_to_external_classes import EmptyStrAsNoneBaseModel
+from satkit.external_class_extensions import EmptyStrAsNoneBaseModel
 from satkit.utility_functions.types import is_sequence_form
 
 _datastructures_logger = logging.getLogger('satkit.data_structures')

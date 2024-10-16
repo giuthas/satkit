@@ -38,6 +38,7 @@ import logging
 from pathlib import Path
 
 import numpy as np
+from icecream import ic
 
 from satkit.errors import OverwriteError
 from satkit.helpers import EmptyStrAsNoneBaseModel
@@ -89,6 +90,7 @@ class DataObject(abc.ABC):
         """
         state = self.__dict__.copy()
         del state['owner']
+        return state
 
     @property
     @abc.abstractmethod
@@ -159,7 +161,7 @@ class DataObject(abc.ABC):
         """
         Path to the recorded meta data file of this DataObject.
 
-        This file will exists only for some recorded data. For example, wav
+        This file will exist only for some recorded data. For example, wav
         files do not have a corresponding recorded meta data file. 
 
         This file may also cover more than one recorded data file - usually a
@@ -179,7 +181,7 @@ class DataObject(abc.ABC):
         """
         Path to the recorded raw data files of this DataObject.
 
-        This file will exists only for recorded data.
+        This file will exist only for recorded data.
 
         Returns
         -------
@@ -209,7 +211,7 @@ class DataObject(abc.ABC):
         """
         Path to the SATKIT meta data file of this DataObject.
 
-        After saving this file will exists even for recorded data.
+        After saving this file will exist even for recorded data.
 
         Returns
         -------
@@ -326,13 +328,12 @@ class DataAggregator(DataObject):
             In case replace was False and there exists already a Statistic with
             the same name in this Session.
         """
-        self.statistics[statistic.name] = statistic
         name = statistic.name
 
         if name in self.statistics and not replace:
             raise OverwriteError(
-                "A modality named " + name +
-                " already exists and replace flag was False.")
+                "A Statistic named '" + name +
+                "' already exists and replace flag was False.")
 
         if replace:
             self.statistics[name] = statistic

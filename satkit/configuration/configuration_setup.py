@@ -70,6 +70,7 @@ class Configuration:
         configuration_file : Union[Path, str, None]
             Path to the main configuration file.
         """
+        # TODO: deal with the option that configuration_file is None
 
         self._main_config_yaml = load_main_config(configuration_file)
         self._main_config = MainConfig(**self._main_config_yaml.data)

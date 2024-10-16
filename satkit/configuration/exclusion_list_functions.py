@@ -38,6 +38,7 @@ import logging
 from contextlib import closing
 from pathlib import Path
 
+from icecream import ic
 from strictyaml import (Map, Optional, Seq, Str,
                         YAMLError, load)
 
@@ -66,6 +67,7 @@ def apply_exclusion_list(
 
     for recording in recordings:
         filename = recording.basename
+
         if filename in exclusion_list.files:
             _logger.info('Excluding %s: File is in exclusion list.',
                          filename)
@@ -84,7 +86,7 @@ def apply_exclusion_list(
             partials = [element
                         for element in exclusion_list.parts_of_prompts
                         if element in prompt]
-            if prompt in partials:
+            if any(partials):
                 _logger.info(
                     'Excluding %s. Prompt: %s matches exclusion list.',
                     filename, prompt)
@@ -129,7 +131,7 @@ def _read_exclusion_list_from_yaml(filepath: Path) -> ExclusionList:
             schema = Map({
                 Optional("files"): Seq(Str()),
                 Optional("prompts"): Seq(Str()),
-                Optional("parts_of_prompt"): Seq(Str())
+                Optional("parts_of_prompts"): Seq(Str())
             })
             try:
                 raw_exclusion_dict = load(yaml_file.read(), schema)
@@ -145,7 +147,7 @@ def _read_exclusion_list_from_yaml(filepath: Path) -> ExclusionList:
             "Continuing regardless.")
         raw_exclusion_dict = {}
 
-    return ExclusionList(files=raw_exclusion_dict)
+    return ExclusionList(**raw_exclusion_dict.data)
 
 
 def _read_file_exclusion_list_from_csv(filepath: Path) -> ExclusionList:

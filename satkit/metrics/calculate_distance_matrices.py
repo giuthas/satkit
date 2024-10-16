@@ -66,11 +66,8 @@ def calculate_mse(images: list[np.ndarray]) -> np.ndarray:
     mean_squared_errors = np.zeros([len(images), len(images)])
 
     for i, image1 in enumerate(images):
-        if i < 1:
-            continue
         for j in range(i + 1, len(images)):
             image2 = images[j]
-            ic(i, image1.shape, j, image2.shape)
             mse = mean_squared_error(image1, image2)
             mean_squared_errors[i, j] = mse
             mean_squared_errors[j, i] = mse
@@ -116,7 +113,8 @@ def add_distance_matrices(
             params = to_be_computed[key]
             images = [recording.statistics[parent_name].data
                       for recording in session.recordings
-                      if parent_name in recording.statistics]
+                      if parent_name in recording.statistics and
+                      not recording.excluded]
             if not images:
                 _logger.info(
                     "Data object '%s' not found in recordings of session: %s.",

@@ -44,7 +44,7 @@ from satkit.constants import ImageMask
 from satkit.data_structures import (
     FileInformation, Modality, ModalityData,
     ModalityMetaData, Recording)
-from satkit.helpers import product_dict
+from satkit.utility_functions import product_dict
 
 _pd_logger = logging.getLogger('satkit.pd')
 

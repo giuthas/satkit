@@ -43,7 +43,7 @@ from satkit.constants import CoordinateSystems
 from satkit.data_structures import (
     Modality, ModalityData, ModalityMetaData, Recording)
 from satkit.data_structures.meta_data_classes import FileInformation
-from satkit.helpers.computational import (
+from satkit.utility_functions.computational import (
     cartesian_to_polar, polar_to_cartesian)
 from satkit.import_formats import read_splines
 

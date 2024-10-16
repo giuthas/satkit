@@ -43,7 +43,7 @@ from icecream import ic
 from satkit.data_structures import FileInformation, Session
 
 from .distance_matrix import DistanceMatrix
-from ..helpers import mean_squared_error
+from ..utility_functions import mean_squared_error
 
 _logger = logging.getLogger('satkit.session_mse')
 

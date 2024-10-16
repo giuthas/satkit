@@ -52,7 +52,7 @@ import matplotlib.pyplot as plt
 from matplotlib.backends.backend_pdf import PdfPages
 from scipy import signal as scipy_signal
 
-from satkit.helpers import normalise_timeseries
+from satkit.utility_functions import normalise_timeseries
 from satkit.configuration import (
     PeakDetectionParams, TimeseriesNormalisation)
 from satkit.data_structures import Modality, PointAnnotations, Recording

@@ -39,7 +39,7 @@ import numpy as np
 from satkit.data_structures import (
     FileInformation, Modality, Session, Statistic, StatisticMetaData
 )
-from satkit.helpers import product_dict
+from satkit.utility_functions import product_dict
 
 _logger = logging.getLogger('satkit.mse')
 

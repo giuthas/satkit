@@ -51,8 +51,8 @@ from satkit.configuration import TimeseriesNormalisation
 from satkit.constants import AnnotationType
 from satkit.data_structures import Modality
 from satkit.gui.boundary_animation import AnimatableBoundary, BoundaryAnimator
-from satkit.helpers import normalise_timeseries
 from satkit.satgrid import SatTier
+from satkit.utility_functions import normalise_timeseries
 
 _logger = logging.getLogger('satkit.plot')
 

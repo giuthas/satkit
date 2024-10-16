@@ -44,7 +44,8 @@ from pydantic import PositiveInt
 from satkit.data_structures import (
     FileInformation, Modality, ModalityData, ModalityMetaData, Recording)
 from satkit.helpers import (
-    enum_union, product_dict, ListablePrintableEnum, ValueComparedEnumMeta)
+    enum_union, ListablePrintableEnum, ValueComparedEnumMeta)
+from satkit.utility_functions import product_dict
 
 _logger = logging.getLogger('satkit.spline_metric')
 

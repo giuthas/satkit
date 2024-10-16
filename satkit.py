@@ -60,8 +60,8 @@ import satkit.configuration as config
 from satkit.configuration import DataRunConfig
 from satkit.data_structures import Session
 from satkit.metrics import (
-    add_aggregate_images, add_pd, add_spline_metric,
-    downsample_metrics
+    add_aggregate_images, add_distance_matrices, add_pd, add_spline_metric,
+    AggregateImage, downsample_metrics
 )
 from satkit.modalities import RawUltrasound, Splines
 from satkit.qt_annotator import PdQtAnnotator
@@ -69,7 +69,10 @@ from satkit.scripting_interface import (
     # Operation,
     SatkitArgumentParser,
     load_data,  # multi_process_data,
-    process_data, save_data)
+    process_modalities, process_statistics_in_recordings,
+    save_data
+)
+
 
 def save_images(session: Session) -> None:
     image_name = 'AggregateImage mean on RawUltrasound'
@@ -81,12 +84,14 @@ def save_images(session: Session) -> None:
             im = im.convert('L')
             name = recording.basename
             path = recording.path
-            image_file = path/(name+".bmp")
+            image_file = path / (name + ".bmp")
             im.save(image_file, 'BMP')
+
 
 def downsample(
         recording_session: Session,
-        data_run_config: DataRunConfig) -> None:
+        data_run_config: DataRunConfig
+) -> None:
     """
     Downsample metrics in the session.
 
@@ -108,16 +113,18 @@ def data_run(
 ) -> None:
     data_run_config = configuration.data_run_config
 
-    function_dict = {}
+    modality_operation_dict = {}
     if data_run_config.pd_arguments:
         pd_arguments = data_run_config.pd_arguments
-        aggregate_image_arguments = data_run_config.aggregate_image_arguments
-        function_dict["PD"] = (
+        modality_operation_dict["PD"] = (
             add_pd,
             [RawUltrasound],
             pd_arguments.model_dump()
         )
-        function_dict["AggregateImage"] = (
+
+    if data_run_config.aggregate_image_arguments:
+        aggregate_image_arguments = data_run_config.aggregate_image_arguments
+        modality_operation_dict["AggregateImage"] = (
             add_aggregate_images,
             [RawUltrasound],
             aggregate_image_arguments.model_dump()
@@ -125,14 +132,27 @@ def data_run(
 
     if data_run_config.spline_metric_arguments:
         spline_metric_args = data_run_config.spline_metric_arguments
-        function_dict["SplineMetric"] = (
+        modality_operation_dict["SplineMetric"] = (
             add_spline_metric,
             [Splines],
             spline_metric_args.model_dump()
         )
 
-    process_data(recordings=recording_session.recordings,
-                 processing_functions=function_dict)
+    process_modalities(recordings=recording_session.recordings,
+                       processing_functions=modality_operation_dict)
+
+    # statistic_operation_dict = {}
+    # if data_run_config.distance_matrix_arguments:
+    #     distance_matrix_arguments = data_run_config.distance_matrix_arguments
+    #     statistic_operation_dict["AggregateImage"] = (
+    #         add_distance_matrices,
+    #         [AggregateImage],
+    #         distance_matrix_arguments.model_dump()
+    #     )
+    #
+    # process_statistics_in_recordings(
+    #     recordings=recording_session.recordings,
+    #     processing_functions=modality_operation_dict)
 
     if data_run_config.downsample:
         downsample(recording_session=recording_session,

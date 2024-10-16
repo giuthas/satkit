@@ -51,7 +51,8 @@ class DistanceMatrixParameters(StatisticMetaData):
     Parameters
     ----------
     parent_name: str
-        Name of the Modality this instance of DistanceMatrix was calculated on.
+        Name of the Modality or Statistic this instance of DistanceMatrix was
+        calculated on.
     metric : str
         A string specifying this DistanceMatrix's metric. Defaults to mean
         squared error.
@@ -111,7 +112,7 @@ class DistanceMatrix(Statistic):
 
     @staticmethod
     def get_names_and_meta(
-            modality: Modality | str,
+            parent: Modality | Statistic | str,
             metric: list[str] | None = None,
             release_data_memory: bool = True
     ) -> dict[str: DistanceMatrixParameters]:
@@ -124,8 +125,9 @@ class DistanceMatrix(Statistic):
 
         Parameters
         ----------
-        modality : Modality
-            parent modality that DistanceMatrix would be derived from
+        parent : Modality | Statistic | str
+            parent Modality or Statistic that DistanceMatrix would be derived
+            from.
         metric : list[str] | None, optional
             list of the names of metrics to use in name generation, by default
             None which will result in 'mean_squared_error' being used.
@@ -139,10 +141,10 @@ class DistanceMatrix(Statistic):
             Dictionary where the names of the DistanceMatrices index the 
             DistanceMatrixParameter objects.
         """
-        if isinstance(modality, str):
-            parent_name = modality
+        if isinstance(parent, str):
+            parent_name = parent
         else:
-            parent_name = modality.__name__
+            parent_name = parent.__name__
 
         if not metric:
             metric = ['mean_squared_error']

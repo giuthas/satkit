@@ -33,11 +33,6 @@
 
 import logging
 from pathlib import Path
-from typing import Union
-
-# from icecream import ic
-
-# from icecream import ic
 
 from .configuration_parsers import (
     load_main_config, load_gui_params, load_publish_params,
@@ -54,6 +49,7 @@ class Configuration:
     """
     Main configuration class of SATKIT.    
     """
+
     # TODO
     # - reload
 
@@ -64,7 +60,8 @@ class Configuration:
 
     def __init__(
             self,
-            configuration_file: Union[Path, str, None] = None) -> None:
+            configuration_file: Path | str | None = None
+    ) -> None:
         """
         Init the main configuration object. 
 
@@ -115,7 +112,8 @@ class Configuration:
         return self._publish_config
 
     def update_from_file(
-            self, configuration_file: Union[Path, str]) -> None:
+            self, configuration_file: Path | str
+    ) -> None:
         """
         Update the configuration from a file.
 
@@ -134,7 +132,8 @@ class Configuration:
         # main_config.update(**config_dict)
 
     def save_to_file(
-            self, file: Union[Path, str]) -> None:
+            self, file: Path | str
+    ) -> None:
         """
         Save configuration to a file.
 

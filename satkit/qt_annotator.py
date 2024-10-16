@@ -716,10 +716,13 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
         """
         Go to a recording specified in the goLineEdit text input field.
         """
-        self.current.modalities['RawUltrasound'].data = None
-        self.index = int(self.goLineEdit.text())-1
-        self.update()
-        self.update_ui()
+        index_to_jump_to = int(self.goLineEdit.text())-1
+
+        if 0 <= index_to_jump_to < len(self.recording_session):
+            self.current.modalities['RawUltrasound'].data = None
+            self.index = index_to_jump_to
+            self.update()
+            self.update_ui()
 
     def quit(self):
         """

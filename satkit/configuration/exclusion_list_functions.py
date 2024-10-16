@@ -71,19 +71,24 @@ def apply_exclusion_list(
                          filename)
             recording.exclude()
 
-        # The first condition sees if the whole prompt is excluded,
-        # the second condition checks if any parts of the prompt
-        # match exclusion criteria (for example excluding 'foobar ...'
-        # based on 'foobar').
         prompt = recording.meta_data.prompt
-        partials = [element
-                    for element in exclusion_list.parts_of_prompts
-                    if element in prompt]
-        if prompt in exclusion_list.prompts or partials:
-            _logger.info(
-                'Excluding %s. Prompt: %s matches exclusion list.',
-                filename, prompt)
-            recording.exclude()
+
+        if exclusion_list.prompts:
+            if prompt in exclusion_list.prompts:
+                _logger.info(
+                    'Excluding %s. Prompt: %s matches exclusion list.',
+                    filename, prompt)
+                recording.exclude()
+
+        if exclusion_list.parts_of_prompts:
+            partials = [element
+                        for element in exclusion_list.parts_of_prompts
+                        if element in prompt]
+            if prompt in partials:
+                _logger.info(
+                    'Excluding %s. Prompt: %s matches exclusion list.',
+                    filename, prompt)
+                recording.exclude()
 
 
 def load_exclusion_list(filepath: Path | str) -> ExclusionList:

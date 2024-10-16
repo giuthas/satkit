@@ -56,8 +56,6 @@ class Configuration:
     # TODO: implement an update method as well
     # as save functionality.
 
-    # TODO: __repr__
-
     def __init__(
             self,
             configuration_file: Path | str | None = None
@@ -90,6 +88,14 @@ class Configuration:
             self._main_config.publish_parameter_file)
         # ic(self._publish_yaml.data)
         self._publish_config = PublishConfig(**self._publish_yaml.data)
+
+    def __repr__(self) -> str:
+        return (
+            f"Configuration(\nmain_config={self._main_config.model_dump()})"
+            f"\ndata_run={self._data_run_config.model_dump()}"
+            f"\ngui={self._gui_config.model_dump()}"
+            f"\npublish={self._publish_config.model_dump()})"
+        )
 
     @property
     def main_config(self) -> MainConfig:

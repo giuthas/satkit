@@ -208,6 +208,8 @@ def main():
         config.parse_config()
     configuration = config.Configuration(cli.args.configuration_filename)
 
+    ic(configuration)
+    sys.exit()
     # TODO read the actual exclusion list and apply it
     exclusion_list = ["water swallow", "bite plate"]
 

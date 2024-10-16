@@ -37,12 +37,13 @@ import logging
 from typing import Optional
 
 import numpy as np
+from icecream import ic
 
 # local modules
-from satkit.data_structures import Modality, Session
-from satkit.helpers import mean_squared_error
+from satkit.data_structures import FileInformation, Session
 
 from .distance_matrix import DistanceMatrix
+from ..helpers import mean_squared_error
 
 _logger = logging.getLogger('satkit.session_mse')
 
@@ -65,8 +66,11 @@ def calculate_mse(images: list[np.ndarray]) -> np.ndarray:
     mean_squared_errors = np.zeros([len(images), len(images)])
 
     for i, image1 in enumerate(images):
-        for j in range(i+1, len(images)):
+        if i < 1:
+            continue
+        for j in range(i + 1, len(images)):
             image2 = images[j]
+            ic(i, image1.shape, j, image2.shape)
             mse = mean_squared_error(image1, image2)
             mean_squared_errors[i, j] = mse
             mean_squared_errors[j, i] = mse
@@ -75,29 +79,12 @@ def calculate_mse(images: list[np.ndarray]) -> np.ndarray:
 
 
 def add_distance_matrices(
-    session: Session,
-    modality: Modality,
-    preload: bool = True,
-    metrics: Optional[list[str]] = None,
-    release_data_memory: bool = True,
-    run_on_interpolated_data: bool = False,
+        session: Session,
+        parent: str,
+        preload: bool = True,
+        metrics: Optional[list[str]] = None,
+        release_data_memory: bool = True,
 ) -> None:
-    """
-    Calculate PD on dataModality and add it to recording.
-
-    Positional arguments:
-    recording -- a Recording object
-    modality -- the type of the Modality to be processed. The access will 
-        be by recording[modality.__name__]
-
-    Keyword arguments:
-    preload -- boolean indicating if PD should be calculated on creation 
-        (preloaded) or only on access.
-    release_data_memory -- boolean indicating if the data attribute of the 
-        data modality should be set to None after access. Only set this 
-        to False, if you know that you have enough memory to hold all 
-        of the data in RAM.
-    """
     if not preload:
         message = ("Looks like somebody is trying to leave PD to be "
                    "calculated on the fly. This is not yet supported.")
@@ -106,33 +93,47 @@ def add_distance_matrices(
     if not metrics:
         metrics = ['mean_squared_error']
 
-    if session.excluded:
-        _logger.info(
-            "Session %s excluded from processing.", session.basename)
-    elif not modality.__name__ in session:
-        _logger.info("Data modality '%s' not found in session: %s.",
-                     modality.__name__, session.basename)
+    # if session.excluded:
+    #     _logger.info(
+    #         "Session %s excluded from processing.", session.name)
+    #     return
+
+    if isinstance(parent, str):
+        parent_name = parent
     else:
-        all_requested = DistanceMatrix.get_names_and_meta(
-            modality=modality, metric=metrics,
-            distance_matrix_on_interpolated_data=run_on_interpolated_data,
-            release_data_memory=release_data_memory)
-        missing_keys = set(all_requested).difference(
-            session.keys())
-        to_be_computed = dict((key, value) for key,
-                              value in all_requested.items()
-                              if key in missing_keys)
+        parent_name = parent.__name__
 
-        if to_be_computed:
-            images = [recording[modality.__name__].data
-                      for recording in session.recordings]
-            matrices = calculate_mse(images)
+    all_requested = DistanceMatrix.get_names_and_meta(
+        parent=parent, metric=metrics,
+        release_data_memory=release_data_memory)
+    missing_keys = set(all_requested).difference(
+        session.statistics.keys())
+    to_be_computed = dict((key, value) for key, value in all_requested.items()
+                          if key in missing_keys)
 
-            for matrix in matrices:
-                session.add_modality(matrix)
-                _logger.info("Added '%s' to recording: %s.",
-                             matrix.name, session.basename)
-        else:
-            _logger.info(
-                "Nothing to compute in PD for recording: %s.",
-                session.basename)
+    if to_be_computed:
+        for key in to_be_computed:
+            params = to_be_computed[key]
+            images = [recording.statistics[parent_name].data
+                      for recording in session.recordings
+                      if parent_name in recording.statistics]
+            if not images:
+                _logger.info(
+                    "Data object '%s' not found in recordings of session: %s.",
+                    parent_name, session.name)
+                return
+
+            matrix = calculate_mse(images)
+
+            distance_matrix = DistanceMatrix(
+                owner=session,
+                meta_data=params,
+                file_info=FileInformation(),
+                parsed_data=matrix,)
+            session.add_statistic(distance_matrix)
+            _logger.info("Added '%s' to session: %s.",
+                         distance_matrix.name, session.name)
+    else:
+        _logger.info(
+            "Nothing to compute in PD for recording: %s.",
+            session.name)

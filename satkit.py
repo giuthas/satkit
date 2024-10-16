@@ -89,7 +89,8 @@ def save_mean_images(session: Session) -> None:
 
 
 def save_distance_matrix(session: Session) -> None:
-    image_name = 'DistanceMatrix mean_square_error on AggregateImage'
+    image_name = ('DistanceMatrix mean_squared_error on AggregateImage mean '
+                  'on RawUltrasound')
     ic(session.statistics)
     if image_name in session.statistics:
         statistic = session.statistics[image_name]
@@ -97,7 +98,7 @@ def save_distance_matrix(session: Session) -> None:
         im = Image.fromarray(raw_data)
         im = im.convert('L')
         name = session.name
-        path = session.satkit_path
+        path = session.recorded_path
         image_file = path / (name + ".bmp")
         ic(image_file)
         im.save(image_file, 'BMP')

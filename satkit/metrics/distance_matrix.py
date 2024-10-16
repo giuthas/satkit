@@ -102,11 +102,11 @@ class DistanceMatrix(Statistic):
         """
         name_string = cls.__name__ + " " + params.metric
 
-        if params.interpolated and params.parent_name:
-            name_string = ("Interpolated " + name_string + " on " +
-                           params.parent_name)
-        elif params.parent_name:
-            name_string = name_string + " on " + params.parent_name
+        # if params.interpolated and params.parent_name:
+        #     name_string = ("Interpolated " + name_string + " on " +
+        #                    params.parent_name)
+        # elif params.parent_name:
+        name_string = name_string + " on " + params.parent_name
 
         return name_string
 

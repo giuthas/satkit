@@ -36,7 +36,7 @@ from dataclasses import dataclass
 from multiprocessing import Pool
 from typing import Callable
 
-# from icecream import ic
+from icecream import ic
 
 from satkit.data_structures import Modality, Recording
 
@@ -53,16 +53,17 @@ class Operation:
     arguments: dict
 
 
-def process_data(
+def process_modalities(
         recordings: list[Recording],
         processing_functions: dict) -> None:
     """
-    Apply processing functions to data.
+    Apply processing functions to Modalities.
 
     Arguments: 
     recordings is a list of Recordings to be processed. The results of applying
-        the functions get added to the Recordings as new Modalities.
-    processing_functions is a dictionary containing three keys:
+        the functions get added to the Recordings as new Modalities and
+        Statistics.
+    processing_functions is a dictionary containing three keys:1
         'function' is a callable used to process a Recording,
         'modality' is the Modality passed to the function, and 
         'arguments' is a dict of arguments for the function.
@@ -83,7 +84,40 @@ def process_data(
                     modality,
                     **arguments)
 
-    _logger.info('Data run ended at %s.', str(datetime.datetime.now()))
+    _logger.info('Modalities processed at %s.', str(datetime.datetime.now()))
+
+
+def process_statistics_in_recordings(
+        recordings: list[Recording],
+        processing_functions: dict) -> None:
+    """
+    Apply processing functions to Statistics.
+
+    Arguments:
+    recordings is a list of Recordings to be processed. The results of applying
+        the functions get added to the Recordings as new Statistics.
+    processing_functions is a dictionary containing three keys:
+        'function' is a callable used to process a Recording,
+        'statistic' is the Statistic passed to the function, and
+        'arguments' is a dict of arguments for the function.
+    """
+
+    # calculate the metrics
+    for recording in recordings:
+        if recording.excluded:
+            continue
+
+        for key in processing_functions:
+            (function, statistics, arguments) = processing_functions[key]
+            # TODO: Version 1.0: add a mechanism to change the arguments for
+            # different modalities.
+            for statistic in statistics:
+                function(
+                    recording,
+                    statistic,
+                    **arguments)
+
+    _logger.info('Modalities processed at %s.', str(datetime.datetime.now()))
 
 
 def multi_process_data(

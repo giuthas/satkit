@@ -46,7 +46,7 @@ from satkit.data_structures import (
 
 from .AAA_raw_ultrasound import (
     add_aaa_raw_ultrasound, parse_recording_meta_from_aaa_prompt_file)
-from .exclusion_list import apply_exclusion_list
+from satkit.configuration.exclusion_list_functions import apply_exclusion_list
 from .AAA_splines import add_splines
 from .audio import add_audio
 from .video import add_video

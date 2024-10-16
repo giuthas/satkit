@@ -42,7 +42,7 @@ from satkit.configuration import data_run_params
 from satkit.data_structures import (
     FileInformation, Recording, SessionConfig)
 
-from .exclusion_list import apply_exclusion_list
+from satkit.configuration.exclusion_list_functions import apply_exclusion_list
 from .three_dim_ultrasound import (add_rasl_3D_ultrasound,
                                    generateMeta,
                                    read_3D_meta_from_mat_file)

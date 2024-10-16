@@ -33,19 +33,15 @@
 Routines for dealing with exclusion lists.
 """
 
-# Built in packages
 import csv
 import logging
 from contextlib import closing
 from pathlib import Path
-from typing import Union
-
-from icecream import ic
 
 from strictyaml import (Map, Optional, Seq, Str,
                         YAMLError, load)
 
-from satkit.configuration import ExclusionList
+from .configuration_classes import ExclusionList
 from satkit.constants import SatkitSuffix, SourceSuffix
 from satkit.data_structures import Recording
 
@@ -72,7 +68,8 @@ def apply_exclusion_list(
     for recording in recordings:
         filename = recording.basename
         if filename in exclusion_list.files:
-            _logger.info('Excluding %s: File is in exclusion list.', filename)
+            _logger.info('Excluding %s: File is in exclusion list.',
+                         filename)
             recording.exclude()
 
         # The first condition sees if the whole prompt is excluded,
@@ -90,13 +87,13 @@ def apply_exclusion_list(
             recording.exclude()
 
 
-def load_exclusion_list(filepath: Union[Path, str]) -> ExclusionList:
+def load_exclusion_list(filepath: Path | str) -> ExclusionList:
     """
     If it exists, load the exclusion list from the given path.
 
     Parameters
     ----------
-    filepath : Union[Path, str]
+    filepath : Path | str
         Either a Path object or a string. If a string is passed, it is assumed
         to be a relative path.
 
@@ -110,13 +107,13 @@ def load_exclusion_list(filepath: Union[Path, str]) -> ExclusionList:
         filepath = Path(filepath)
 
     if filepath.suffix == SatkitSuffix.CONFIG:
-        return read_exclusion_list_from_yaml(filepath)
+        return _read_exclusion_list_from_yaml(filepath)
 
     if filepath.suffix == SourceSuffix.CSV:
-        return read_file_exclusion_list_from_csv(filepath)
+        return _read_file_exclusion_list_from_csv(filepath)
 
 
-def read_exclusion_list_from_yaml(filepath: Path) -> ExclusionList:
+def _read_exclusion_list_from_yaml(filepath: Path) -> ExclusionList:
     """
     Read a yaml exclusion list from filepath.
 
@@ -144,12 +141,10 @@ def read_exclusion_list_from_yaml(filepath: Path) -> ExclusionList:
             "Continuing regardless.")
         raw_exclusion_dict = {}
 
-    ic(raw_exclusion_dict)
-
     return ExclusionList(files=raw_exclusion_dict)
 
 
-def read_file_exclusion_list_from_csv(filepath: Path) -> ExclusionList:
+def _read_file_exclusion_list_from_csv(filepath: Path) -> ExclusionList:
     """
     Read a csv exclusion list from filepath.
 

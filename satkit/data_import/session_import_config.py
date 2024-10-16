@@ -49,7 +49,7 @@ from satkit.data_structures import SessionConfig
 
 from .spline_import_config import load_spline_config
 
-from .exclusion_list import load_exclusion_list
+from satkit.configuration.exclusion_list_functions import load_exclusion_list
 _logger = logging.getLogger('satkit.data_import')
 
 

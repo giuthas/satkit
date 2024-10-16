@@ -51,7 +51,7 @@ from pydantic import conlist
 from satkit.constants import (
     IntervalBoundary, IntervalCategory
 )
-from satkit.extensions_to_external_classes.base_model_extensions import UpdatableBaseModel
+from satkit.extensions_to_external_classes import UpdatableBaseModel
 
 _logger = logging.getLogger('satkit.configuration_models')
 

@@ -42,6 +42,8 @@ proper access point.
 import sys
 from pathlib import Path
 
+from icecream import ic
+from PIL import Image
 # from icecream import ic
 
 # For running a Qt GUI
@@ -69,6 +71,18 @@ from satkit.scripting_interface import (
     load_data,  # multi_process_data,
     process_data, save_data)
 
+def save_images(session: Session) -> None:
+    image_name = 'AggregateImage mean on RawUltrasound'
+    for recording in session:
+        if image_name in recording.statistics:
+            statistic = recording.statistics[image_name]
+            raw_data = statistic.data
+            im = Image.fromarray(raw_data)
+            im = im.convert('L')
+            name = recording.basename
+            path = recording.path
+            image_file = path/(name+".bmp")
+            im.save(image_file, 'BMP')
 
 def downsample(
         recording_session: Session,
@@ -168,6 +182,8 @@ def main():
     data_run(recording_session=recording_session,
              configuration=configuration,
              exclusion_list=exclusion_list)
+
+    save_images(recording_session)
 
     logger.info('Data run ended.')
 

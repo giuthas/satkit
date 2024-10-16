@@ -40,7 +40,7 @@ from typing import Optional, Union
 
 import numpy as np
 
-from satkit.helpers import (
+from satkit.extensions_to_external_classes import (
     enum_union, ListablePrintableEnum, ValueComparedEnumMeta)
 
 

@@ -40,7 +40,7 @@ from typing import Annotated, Callable, Optional
 import numpy as np
 from pydantic import BaseModel
 
-from satkit.helpers import product_dict, ListablePrintableEnum
+from satkit.extensions_to_external_classes import product_dict, ListablePrintableEnum
 
 from .contour_tools import contour_point_perturbations
 

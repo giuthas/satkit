@@ -31,7 +31,7 @@
 # citations.bib in BibTeX format.
 #
 """
-helpers is a module for various tools used by various parts of SATKIT.
+extensions_to_external_classes is a module for various tools used by various parts of SATKIT.
 
 Anything that is generic and not specific to a given part of SATKIT lives here.
 So tools that relate to Modalities will be where Modalities are, but tools that

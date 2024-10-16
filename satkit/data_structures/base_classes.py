@@ -41,7 +41,7 @@ import numpy as np
 from icecream import ic
 
 from satkit.errors import OverwriteError
-from satkit.helpers import EmptyStrAsNoneBaseModel
+from satkit.extensions_to_external_classes import EmptyStrAsNoneBaseModel
 
 from .meta_data_classes import FileInformation, StatisticMetaData
 

@@ -44,7 +44,7 @@ from matplotlib.collections import LineCollection
 from matplotlib.lines import Line2D
 import matplotlib.pyplot as plt
 
-from satkit.helpers import polar_to_cartesian, cartesian_to_polar
+from satkit.extensions_to_external_classes import polar_to_cartesian, cartesian_to_polar
 from .contour_tools import contour_point_perturbations
 
 

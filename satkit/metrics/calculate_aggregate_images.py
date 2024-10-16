@@ -37,6 +37,7 @@ import logging
 from typing import Optional
 
 import numpy as np
+from icecream import ic
 
 # local modules
 from satkit.data_structures import FileInformation, Modality, Recording
@@ -90,22 +91,6 @@ def add_aggregate_images(
     release_data_memory: bool = True,
     run_on_interpolated_data: bool = False,
 ) -> None:
-    """
-    Calculate PD on dataModality and add it to recording.
-
-    Positional arguments:
-    recording -- a Recording object
-    modality -- the type of the Modality to be processed. The access will 
-        be by recording[modality.__name__]
-
-    Keyword arguments:
-    preload -- boolean indicating if PD should be calculated on creation 
-        (preloaded) or only on access.
-    release_data_memory -- boolean indicating if the data attribute of the 
-        data modality should be set to None after access. Only set this 
-        to False, if you know that you have enough memory to hold all 
-        of the data in RAM.
-    """
     if not preload:
         message = ("Looks like somebody is trying to leave PD to be "
                    "calculated on the fly. This is not yet supported.")
@@ -116,7 +101,8 @@ def add_aggregate_images(
 
     if recording.excluded:
         _logger.info(
-            "Recording %s excluded from processing.", recording.basename)
+            "Recording %s excluded from processing.",
+            recording.basename)
     elif modality.__name__ not in recording:
         _logger.info("Data modality '%s' not found in session: %s.",
                      modality.__name__, recording.basename)
@@ -142,5 +128,5 @@ def add_aggregate_images(
                              aggregate_image.name, recording.basename)
         else:
             _logger.info(
-                "Nothing to compute in PD for recording: %s.",
+                "Nothing to compute in AggregateImage for recording: %s.",
                 recording.basename)

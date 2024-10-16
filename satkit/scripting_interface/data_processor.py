@@ -38,7 +38,7 @@ from typing import Callable
 
 from icecream import ic
 
-from satkit.data_structures import Modality, Recording
+from satkit.data_structures import Modality, Recording, Session
 
 _logger = logging.getLogger('satkit.scripting')
 
@@ -54,7 +54,7 @@ class Operation:
 
 
 def process_modalities(
-        recordings: list[Recording],
+        recordings: list[Recording] | Session,
         processing_functions: dict) -> None:
     """
     Apply processing functions to Modalities.
@@ -88,7 +88,7 @@ def process_modalities(
 
 
 def process_statistics_in_recordings(
-        recordings: list[Recording],
+        session: Session,
         processing_functions: dict) -> None:
     """
     Apply processing functions to Statistics.
@@ -102,20 +102,15 @@ def process_statistics_in_recordings(
         'arguments' is a dict of arguments for the function.
     """
 
-    # calculate the metrics
-    for recording in recordings:
-        if recording.excluded:
-            continue
-
-        for key in processing_functions:
-            (function, statistics, arguments) = processing_functions[key]
-            # TODO: Version 1.0: add a mechanism to change the arguments for
-            # different modalities.
-            for statistic in statistics:
-                function(
-                    recording,
-                    statistic,
-                    **arguments)
+    for key in processing_functions:
+        (function, statistics, arguments) = processing_functions[key]
+        # TODO: Version 1.0: add a mechanism to change the arguments for
+        # different modalities.
+        for statistic in statistics:
+            function(
+                session,
+                statistic,
+                **arguments)
 
     _logger.info('Modalities processed at %s.', str(datetime.datetime.now()))
 

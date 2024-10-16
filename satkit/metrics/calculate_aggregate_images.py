@@ -37,9 +37,7 @@ import logging
 from typing import Optional
 
 import numpy as np
-from icecream import ic
 
-# local modules
 from satkit.data_structures import FileInformation, Modality, Recording
 
 from .aggregate_image import AggregateImage, AggregateImageParameters

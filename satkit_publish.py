@@ -61,7 +61,7 @@ from satkit.scripting_interface import (
     # Operation,
     SatkitArgumentParser,
     load_data,  # multi_process_data,
-    process_data, save_data)
+    process_modalities, save_data)
 
 
 def main():
@@ -134,8 +134,8 @@ def main():
     #                      spline_metric_args.model_dump())  # ,
     # }
 
-    process_data(recordings=recording_session.recordings,
-                 processing_functions=function_dict)
+    process_modalities(recordings=recording_session.recordings,
+                       processing_functions=function_dict)
 
     # if 'peaks' in configuration.data_run_params:
     #     peaks, properties = find_gesture_peaks(

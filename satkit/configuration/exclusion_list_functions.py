@@ -43,14 +43,13 @@ from strictyaml import (Map, Optional, Seq, Str,
 
 from .configuration_classes import ExclusionList
 from satkit.constants import SatkitSuffix, SourceSuffix
-from satkit.data_structures import Recording
-
+from satkit.data_structures import Recording, Session
 
 _logger = logging.getLogger('satkit.configuration')
 
 
 def apply_exclusion_list(
-        recordings: list[Recording],
+        recordings: list[Recording] | Session,
         exclusion_list: ExclusionList) -> None:
     """
     Apply exclusion list to the list of Recordings.

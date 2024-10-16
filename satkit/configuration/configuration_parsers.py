@@ -248,6 +248,11 @@ def load_run_params(filepath: Path | str | None = None) -> YAML:
                     Optional('preload', default=True): Bool(),
                     Optional('release_data_memory', default=False): Bool(),
                 }),
+                Optional("distance_matrix_arguments"): Map({
+                    "metrics": Seq(Str()),
+                    Optional("preload", default=True): Bool(),
+                    Optional("release_data_memory", default=False): Bool(),
+                }),
                 Optional("peaks"): Map({
                     "modality_pattern": _search_pattern_schema,
                     Optional("time_min"): _time_limit_schema,

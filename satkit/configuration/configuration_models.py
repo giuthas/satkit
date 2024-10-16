@@ -197,6 +197,12 @@ class SplineMetricArguments(UpdatableBaseModel):
     preload: Optional[bool] = True
 
 
+class DistanceMatrixArguments(UpdatableBaseModel):
+    metrics: list[str]
+    preload: Optional[bool] = True
+    release_data_memory: Optional[bool] = False
+
+
 class PointAnnotationParams(UpdatableBaseModel):
     normalisation: Optional[TimeseriesNormalisation] = None
     time_min: Optional[TimeLimit] = None
@@ -263,6 +269,7 @@ class DataRunConfig(UpdatableBaseModel):
     aggregate_image_arguments: AggregateImageArguments | None = None
     pd_arguments: Optional[PdArguments] = None
     spline_metric_arguments: Optional[SplineMetricArguments] = None
+    distance_matrix_arguments: Optional[DistanceMatrixArguments] = None
     peaks: Optional[PeakDetectionParams] = None
     downsample: Optional[DownsampleParams] = None
     cast: Optional[CastParams] = None

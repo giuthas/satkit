@@ -74,7 +74,7 @@ from satkit.scripting_interface import (
 )
 
 
-def save_images(session: Session) -> None:
+def save_mean_images(session: Session) -> None:
     image_name = 'AggregateImage mean on RawUltrasound'
     for recording in session:
         if image_name in recording.statistics:
@@ -86,6 +86,21 @@ def save_images(session: Session) -> None:
             path = recording.path
             image_file = path / (name + ".bmp")
             im.save(image_file, 'BMP')
+
+
+def save_distance_matrix(session: Session) -> None:
+    image_name = 'DistanceMatrix mean_square_error on AggregateImage'
+    ic(session.statistics)
+    if image_name in session.statistics:
+        statistic = session.statistics[image_name]
+        raw_data = statistic.data
+        im = Image.fromarray(raw_data)
+        im = im.convert('L')
+        name = session.name
+        path = session.satkit_path
+        image_file = path / (name + ".bmp")
+        ic(image_file)
+        im.save(image_file, 'BMP')
 
 
 def downsample(
@@ -138,21 +153,21 @@ def data_run(
             spline_metric_args.model_dump()
         )
 
-    process_modalities(recordings=recording_session.recordings,
+    process_modalities(recordings=recording_session,
                        processing_functions=modality_operation_dict)
 
-    # statistic_operation_dict = {}
-    # if data_run_config.distance_matrix_arguments:
-    #     distance_matrix_arguments = data_run_config.distance_matrix_arguments
-    #     statistic_operation_dict["AggregateImage"] = (
-    #         add_distance_matrices,
-    #         [AggregateImage],
-    #         distance_matrix_arguments.model_dump()
-    #     )
-    #
-    # process_statistics_in_recordings(
-    #     recordings=recording_session.recordings,
-    #     processing_functions=modality_operation_dict)
+    statistic_operation_dict = {}
+    if data_run_config.distance_matrix_arguments:
+        distance_matrix_arguments = data_run_config.distance_matrix_arguments
+        statistic_operation_dict["DistanceMatrix"] = (
+            add_distance_matrices,
+            ["AggregateImage mean on RawUltrasound"],
+            distance_matrix_arguments.model_dump()
+        )
+
+    process_statistics_in_recordings(
+        session=recording_session,
+        processing_functions=statistic_operation_dict)
 
     if data_run_config.downsample:
         downsample(recording_session=recording_session,
@@ -203,7 +218,8 @@ def main():
              configuration=configuration,
              exclusion_list=exclusion_list)
 
-    save_images(recording_session)
+    save_mean_images(recording_session)
+    save_distance_matrix(recording_session)
 
     logger.info('Data run ended.')
 

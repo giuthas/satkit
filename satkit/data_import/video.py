@@ -95,4 +95,4 @@ def add_video(recording: Recording, preload: bool = False,
             recording.path.name)
     else:
         notice = 'Note: ' + str(video_file) + " does not exist."
-        _AAA_video_logger.warning(notice)
+        _AAA_video_logger.debug(notice)

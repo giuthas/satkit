@@ -255,7 +255,7 @@ def add_pd(recording: Recording,
            timesteps: Optional[list[int]] = None,
            release_data_memory: bool = True,
            pd_on_interpolated_data: bool = False,
-           mask_images: bool = False):
+           mask_images: bool = False) -> None:
     """
     Calculate PD on dataModality and add it to recording.
 

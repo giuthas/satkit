@@ -33,8 +33,6 @@
 This is the main GUI class for SATKIT.
 """
 
-
-# Built in packages
 from argparse import Namespace
 import csv
 import logging
@@ -106,7 +104,7 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
                  recording_session: Session,
                  args: Namespace,
                  gui_config: GuiConfig,
-                 xlim: list[float] = (-0.25, 1.5),
+                 xlim: tuple[float, float] = (-0.25, 1.5),
                  categories: list[str] | None = None,
                  pickle_filename: Path | str | None = None):
         super().__init__()
@@ -249,7 +247,7 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
         self.ultra_fig = Figure()
         self.ultra_canvas = FigureCanvas(self.ultra_fig)
         self.verticalLayout_6.addWidget(self.ultra_canvas)
-        self.ultra_axes = self.ultra_fig.add_axes([0, 0, 1, 1])
+        self.ultra_axes = self.ultra_fig.add_axes((0, 0, 1, 1))
 
         if not self.current.excluded:
             self.draw_plots()
@@ -365,16 +363,16 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
         plot_modality_names = axes_params['modalities']
 
         if ylim is None:
-            ylim = [-0.05, 1.05]
+            ylim = (-0.05, 1.05)
 
         y_offset = 0
         if 'y_offset' in axes_params:
             y_offset = axes_params['y_offset']
             ylim_adjustment = y_offset * len(plot_modality_names)
             if y_offset > 0:
-                ylim[1] = ylim[1] + ylim_adjustment
+                ylim = (ylim[0], ylim[1] + ylim_adjustment)
             else:
-                ylim[0] = ylim[0] + ylim_adjustment
+                ylim = (ylim[0] + ylim_adjustment, ylim[1])
 
         if axes_params['colors_in_sequence']:
             colors = get_colors_in_sequence(len(plot_modality_names))
@@ -468,14 +466,14 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
                                      waveform=wav,
                                      ylim=(0, 10500),
                                      sampling_frequency=audio.sampling_rate,
-                                     extent_on_x=[wav_time[0], wav_time[-1]])
+                                     extent_on_x=(wav_time[0], wav_time[-1]))
                 case "spectrogram2":
                     image = plot_spectrogram2(
                         self.data_axes[axes_counter],
                         waveform=wav,
                         ylim=(0, 10500),
                         sampling_frequency=audio.sampling_rate,
-                        extent_on_x=[wav_time[0], wav_time[-1]])
+                        extent_on_x=(wav_time[0], wav_time[-1]))
                 case "spectrogram distro":
                     spectrum_data = image.get_array().flatten()
                     ic(np.min(spectrum_data), np.max(spectrum_data))
@@ -525,9 +523,9 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
                 verticalalignment="center")
             axis.set_xlim(self.xlim)
             if name in gui_params["pervasive_tiers"]:
-                for axis in self.data_axes:
+                for data_axis in self.data_axes:
                     boundary_set = plot_satgrid_tier(
-                        axis, tier, time_offset=stimulus_onset,
+                        data_axis, tier, time_offset=stimulus_onset,
                         draw_text=False)[0]
                     boundaries_by_axis.append(boundary_set)
 
@@ -565,6 +563,14 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
         if (self.current.excluded or
                 self.current.annotations['selection_index'] == -1):
             self.ultra_axes.clear()
+            image_name = 'AggregateImage mean on RawUltrasound'
+            if image_name in self.current.statistics:
+                stat = self.current.statistics[image_name]
+                image = stat.data
+                self.ultra_axes.imshow(
+                    image, interpolation='nearest', cmap='gray',
+                    extent=(-image.shape[1]/2-.5, image.shape[1]/2+.5,
+                            -.5, image.shape[0]+.5))
         elif self.current.annotations['selection_index']:
             self.ultra_axes.clear()
             index = self.current.annotations['selection_index']
@@ -588,7 +594,7 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
 
                 # TODO: move this to reading splines/end of loading and make
                 # the system warn the user when there is a creeping
-                # discrepancy. also make it a integration test where
+                # discrepancy. also make it an integration test where
                 # spline_test_token1 gets run and triggers this
                 # ic(splines.timevector)
                 # ic(ultra.timevector[:len(splines.timevector)])
@@ -611,7 +617,7 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
                     _logger.info("Minimal difference: %f, epsilon: %f",
                                  min_difference, epsilon)
 
-                spline_config = self.recording_session.config.spline_config
+                spline_config = self.recording_session.meta_data.spline_config
                 if spline_config.data_config:
                     limits = spline_config.data_config.ignore_points
                     plot_spline(self.ultra_axes,
@@ -667,7 +673,7 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
         """
         Move the data cursor to the next frame.
         """
-        if not 'PD l1 on RawUltrasound' in self.current.modalities:
+        if 'PD l1 on RawUltrasound' not in self.current.modalities:
             return
 
         selection_index = self.current.annotations['selection_index']
@@ -764,8 +770,8 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
                 filter="Pickle files (*.pickle)")
         if self.pickle_filename:
             _logger.info(
-                "Pickling is currently disabled. Did NOT write file {file}.",
-                file=self.pickle_filename)
+                "Pickling is currently disabled. Did NOT write file %s.",
+                self.pickle_filename)
             # satkit_io.save2pickle(
             #     self.recordings,
             #     self.pickle_filename)
@@ -786,7 +792,8 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
             with open(file, 'w', encoding='utf-8') as outfile:
                 outfile.write(self.current.satgrid.format_long())
             _logger.info(
-                "Wrote TextGrid to file %s.", str(self.current.textgrid_path))
+                "Wrote TextGrid to file %s.",
+                str(self.current.textgrid_path))
 
     def export_figure(self):
         """
@@ -878,7 +885,7 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
                 annotations['C1'] = recording.meta_data.prompt[0]
                 writer.writerow(annotations)
             _logger.info(
-                "Wrote onset data in file %s.", (filename))
+                "Wrote onset data in file %s.", filename)
 
     def pd_category_cb(self):
         """

@@ -72,6 +72,13 @@ spline_metric_arguments:
   'release_data_memory': False
   'preload': True
 
+distance_matrix_arguments:
+  metrics:
+    - 'mean_squared_error'
+  preload: True
+  release_data_memory: False
+
+
 # Config for the yet-to-happen submodule CAST that is still a separate entity. 
 cast:
   # Consists of words followed by their segments in arbitrary transcription.  

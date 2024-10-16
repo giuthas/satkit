@@ -58,3 +58,5 @@ and this project uses [Semantic Versioning](https://semver.org/spec/v2.0.0.html)
 
 - AAA ultrasound importer now reads dates both in `%d/%m/%Y %H:%M:%S` and
   `%Y-%m-%d %I:%M:%S %p`.
+- Parsing yaml exclusion lists should now work also when some of the headings
+  are empty.

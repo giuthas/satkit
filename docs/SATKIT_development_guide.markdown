@@ -96,7 +96,7 @@ A release of SATKIT is created as follows:
      - [constants.py](../satkit/constants.py)
      - Setuptools files
        - [pyproject.toml](../pyproject.toml) and/or [setup.cfg](../setup.cfg)
-   - [Release notes](Release_notes.markdown)
+   - [Changelog](Changelog.markdown)
    - [Generated documentation](../devel/doc_generation_commands)
    - [License headers](../devel/licenseheaders_command)
 4. Create a new release candidate branch named 'vX.Y.Z' e.g. 'v0.7.0' from the
@@ -110,7 +110,7 @@ A release of SATKIT is created as follows:
    - These don't exist yet at the time of SATKIT 0.9.0.
 8. Fix any bugs that occur, run tests see that they pass, update the release
    notes.
-   - Check if [Release notes](Release_notes.markdown) need any final updates.
+   - Check if [Changelog](Changelog.markdown) needs any final updates.
    - Rerun doc generation if there were any changes.
 9. Merge release branch to `main`.
 10. Release housekeeping:

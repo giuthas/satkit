@@ -333,7 +333,7 @@ def recording_timeseries_figure(recording: Recording, pdf: PdfPages):
     pdf.savefig(plt.gcf())
 
 
-def publish_pdf(recording_session: Session):
+def publish_session_pdf(recording_session: Session):
     """
     Draw all Recordings in the Session into a pdf file.
 

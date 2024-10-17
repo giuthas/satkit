@@ -67,7 +67,7 @@ class ModalityLoadSchema(BaseModel):
     parameters: dict
 
 
-class ModalityListingLoadschema(BaseModel):
+class ModalityListingLoadSchema(BaseModel):
     """
     Loading schema for the Modality listing in a saved Recording.
     """
@@ -85,7 +85,7 @@ class RecordingLoadSchema(BaseModel):
     name: str
     format_version: str
     parameters: RecordingMetaData
-    modalities: dict[str, ModalityListingLoadschema]
+    modalities: dict[str, ModalityListingLoadSchema]
 
 
 class SessionParameterLoadSchema(BaseModel):

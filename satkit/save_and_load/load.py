@@ -51,7 +51,7 @@ from satkit.data_structures.meta_data_classes import FileInformation
 from satkit.metrics import metrics
 
 from .save_and_load_schemas import (
-    ModalityListingLoadschema, ModalityLoadSchema, RecordingLoadSchema,
+    ModalityListingLoadSchema, ModalityLoadSchema, RecordingLoadSchema,
     SessionLoadSchema)
 
 _recording_loader_logger = logging.getLogger('satkit.recording_loader')
@@ -60,7 +60,7 @@ _recording_loader_logger = logging.getLogger('satkit.recording_loader')
 def load_derived_modality(
         recording: Recording,
         path: Path,
-        modality_schema: ModalityListingLoadschema) -> None:
+        modality_schema: ModalityListingLoadSchema) -> None:
     """
     Load a saved derived Modality meta and data and add them to the Recording. 
 
@@ -68,7 +68,7 @@ def load_derived_modality(
     ----------
     path : Path
         This is the path to the save files.
-    modality_schema : ModalityListingLoadschema
+    modality_schema : ModalityListingLoadSchema
         This contains the name of the meta and data files.
     """
     if not modality_schema.meta_name:

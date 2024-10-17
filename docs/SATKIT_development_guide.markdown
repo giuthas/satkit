@@ -107,7 +107,8 @@ A release of SATKIT is created as follows:
    - While we are in the time before 1.0, satkit-stable most likely does not
      work.
 7. Run tests.
-   - These don't exist yet at the time of SATKIT 0.9.0.
+   - These don't exist yet at the time of SATKIT 0.10.0 except as
+     'rudimentary_tests.sh'.
 8. Fix any bugs that occur, run tests see that they pass, update the release
    notes.
    - Check if [Changelog](Changelog.markdown) needs any final updates.

@@ -87,8 +87,11 @@
 </span><span id="L-31"><a href="#L-31"><span class="linenos">31</span></a><span class="c1">#</span>
 </span><span id="L-32"><a href="#L-32"><span class="linenos">32</span></a><span class="kn">from</span> <span class="nn">.argument_parser</span> <span class="kn">import</span> <span class="n">SatkitArgumentParser</span>
 </span><span id="L-33"><a href="#L-33"><span class="linenos">33</span></a><span class="kn">from</span> <span class="nn">.data_loader</span> <span class="kn">import</span> <span class="n">load_data</span>
-</span><span id="L-34"><a href="#L-34"><span class="linenos">34</span></a><span class="kn">from</span> <span class="nn">.data_processor</span> <span class="kn">import</span> <span class="n">Operation</span><span class="p">,</span> <span class="n">multi_process_data</span><span class="p">,</span> <span class="n">process_data</span>
-</span><span id="L-35"><a href="#L-35"><span class="linenos">35</span></a><span class="kn">from</span> <span class="nn">.data_saver</span> <span class="kn">import</span> <span class="n">save_data</span>
+</span><span id="L-34"><a href="#L-34"><span class="linenos">34</span></a><span class="kn">from</span> <span class="nn">.data_processor</span> <span class="kn">import</span> <span class="p">(</span>
+</span><span id="L-35"><a href="#L-35"><span class="linenos">35</span></a>    <span class="n">Operation</span><span class="p">,</span> <span class="n">multi_process_data</span><span class="p">,</span> <span class="n">process_modalities</span><span class="p">,</span>
+</span><span id="L-36"><a href="#L-36"><span class="linenos">36</span></a>    <span class="n">process_statistics_in_recordings</span>
+</span><span id="L-37"><a href="#L-37"><span class="linenos">37</span></a><span class="p">)</span>
+</span><span id="L-38"><a href="#L-38"><span class="linenos">38</span></a><span class="kn">from</span> <span class="nn">.data_saver</span> <span class="kn">import</span> <span class="n">save_data</span>
 </span></pre></div>
 
 

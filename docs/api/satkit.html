@@ -31,8 +31,8 @@
                     <li><a href="satkit/data_import.html">data_import</a></li>
                     <li><a href="satkit/data_structures.html">data_structures</a></li>
                     <li><a href="satkit/errors.html">errors</a></li>
+                    <li><a href="satkit/external_class_extensions.html">external_class_extensions</a></li>
                     <li><a href="satkit/gui.html">gui</a></li>
-                    <li><a href="satkit/helpers.html">helpers</a></li>
                     <li><a href="satkit/import_formats.html">import_formats</a></li>
                     <li><a href="satkit/interpolate_raw_uti.html">interpolate_raw_uti</a></li>
                     <li><a href="satkit/metrics.html">metrics</a></li>
@@ -44,6 +44,7 @@
                     <li><a href="satkit/scripting_interface.html">scripting_interface</a></li>
                     <li><a href="satkit/simulation.html">simulation</a></li>
                     <li><a href="satkit/ui_callbacks.html">ui_callbacks</a></li>
+                    <li><a href="satkit/utility_functions.html">utility_functions</a></li>
             </ul>
 
             <h2>API Documentation</h2>
@@ -133,32 +134,31 @@ graphical annotation tools derive from Annotator.</p>
 </span><span id="L-46"><a href="#L-46"><span class="linenos">46</span></a><span class="sd">&quot;&quot;&quot;</span>
 </span><span id="L-47"><a href="#L-47"><span class="linenos">47</span></a>
 </span><span id="L-48"><a href="#L-48"><span class="linenos">48</span></a><span class="kn">import</span> <span class="nn">json</span>
-</span><span id="L-49"><a href="#L-49"><span class="linenos">49</span></a><span class="kn">import</span> <span class="nn">logging</span>
-</span><span id="L-50"><a href="#L-50"><span class="linenos">50</span></a><span class="kn">import</span> <span class="nn">logging.config</span>
-</span><span id="L-51"><a href="#L-51"><span class="linenos">51</span></a>
-</span><span id="L-52"><a href="#L-52"><span class="linenos">52</span></a><span class="c1"># import satkit.configuration.configuration as configuration</span>
-</span><span id="L-53"><a href="#L-53"><span class="linenos">53</span></a><span class="kn">from</span> <span class="nn">satkit.helpers.logging_helpers</span> <span class="kn">import</span> <span class="n">log_elapsed_time</span><span class="p">,</span> <span class="n">set_logging_level</span>
-</span><span id="L-54"><a href="#L-54"><span class="linenos">54</span></a>
-</span><span id="L-55"><a href="#L-55"><span class="linenos">55</span></a><span class="c1"># Load logging config from json file.</span>
-</span><span id="L-56"><a href="#L-56"><span class="linenos">56</span></a><span class="n">LOG_CONFIG</span> <span class="o">=</span> <span class="s2">&quot;configuration/satkit_logging_configuration.json&quot;</span>
-</span><span id="L-57"><a href="#L-57"><span class="linenos">57</span></a><span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">LOG_CONFIG</span><span class="p">,</span> <span class="s1">&#39;r&#39;</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s1">&#39;utf-8&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">configuration_file</span><span class="p">:</span>
-</span><span id="L-58"><a href="#L-58"><span class="linenos">58</span></a>    <span class="n">config_dict</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">configuration_file</span><span class="p">)</span>
-</span><span id="L-59"><a href="#L-59"><span class="linenos">59</span></a>    <span class="n">logging</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">dictConfig</span><span class="p">(</span><span class="n">config_dict</span><span class="p">)</span>
-</span><span id="L-60"><a href="#L-60"><span class="linenos">60</span></a>
-</span><span id="L-61"><a href="#L-61"><span class="linenos">61</span></a><span class="c1"># Create the module logger.</span>
-</span><span id="L-62"><a href="#L-62"><span class="linenos">62</span></a><span class="n">_satkit_logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="s1">&#39;satkit&#39;</span><span class="p">)</span>
-</span><span id="L-63"><a href="#L-63"><span class="linenos">63</span></a>
-</span><span id="L-64"><a href="#L-64"><span class="linenos">64</span></a><span class="c1"># Log that the logger was configured.</span>
-</span><span id="L-65"><a href="#L-65"><span class="linenos">65</span></a><span class="n">_satkit_logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;Completed configuring logger.&#39;</span><span class="p">)</span>
-</span><span id="L-66"><a href="#L-66"><span class="linenos">66</span></a>
-</span><span id="L-67"><a href="#L-67"><span class="linenos">67</span></a><span class="c1"># Config should be loaded before parsing arguments, because it may affect</span>
-</span><span id="L-68"><a href="#L-68"><span class="linenos">68</span></a><span class="c1"># how arguments are parsed, and parsed arguments may change config variables.</span>
-</span><span id="L-69"><a href="#L-69"><span class="linenos">69</span></a>
-</span><span id="L-70"><a href="#L-70"><span class="linenos">70</span></a><span class="c1"># TODO: later on make this more complex: parts of config that could be changed by</span>
-</span><span id="L-71"><a href="#L-71"><span class="linenos">71</span></a><span class="c1"># args first, args second, rest of config last. should probably be close to</span>
-</span><span id="L-72"><a href="#L-72"><span class="linenos">72</span></a><span class="c1"># where different commands will eventually be dealt with</span>
-</span><span id="L-73"><a href="#L-73"><span class="linenos">73</span></a>
-</span><span id="L-74"><a href="#L-74"><span class="linenos">74</span></a><span class="c1"># configuration.load_config()</span>
+</span><span id="L-49"><a href="#L-49"><span class="linenos">49</span></a><span class="kn">import</span> <span class="nn">logging.config</span>
+</span><span id="L-50"><a href="#L-50"><span class="linenos">50</span></a>
+</span><span id="L-51"><a href="#L-51"><span class="linenos">51</span></a><span class="c1"># import satkit.configuration.configuration as configuration</span>
+</span><span id="L-52"><a href="#L-52"><span class="linenos">52</span></a><span class="kn">from</span> <span class="nn">satkit.utility_functions.logging_helpers</span> <span class="kn">import</span> <span class="n">log_elapsed_time</span><span class="p">,</span> <span class="n">set_logging_level</span>
+</span><span id="L-53"><a href="#L-53"><span class="linenos">53</span></a>
+</span><span id="L-54"><a href="#L-54"><span class="linenos">54</span></a><span class="c1"># Load logging config from json file.</span>
+</span><span id="L-55"><a href="#L-55"><span class="linenos">55</span></a><span class="n">LOG_CONFIG</span> <span class="o">=</span> <span class="s2">&quot;configuration/satkit_logging_configuration.json&quot;</span>
+</span><span id="L-56"><a href="#L-56"><span class="linenos">56</span></a><span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">LOG_CONFIG</span><span class="p">,</span> <span class="s1">&#39;r&#39;</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s1">&#39;utf-8&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">configuration_file</span><span class="p">:</span>
+</span><span id="L-57"><a href="#L-57"><span class="linenos">57</span></a>    <span class="n">config_dict</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">configuration_file</span><span class="p">)</span>
+</span><span id="L-58"><a href="#L-58"><span class="linenos">58</span></a>    <span class="n">logging</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">dictConfig</span><span class="p">(</span><span class="n">config_dict</span><span class="p">)</span>
+</span><span id="L-59"><a href="#L-59"><span class="linenos">59</span></a>
+</span><span id="L-60"><a href="#L-60"><span class="linenos">60</span></a><span class="c1"># Create the module logger.</span>
+</span><span id="L-61"><a href="#L-61"><span class="linenos">61</span></a><span class="n">_satkit_logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="s1">&#39;satkit&#39;</span><span class="p">)</span>
+</span><span id="L-62"><a href="#L-62"><span class="linenos">62</span></a>
+</span><span id="L-63"><a href="#L-63"><span class="linenos">63</span></a><span class="c1"># Log that the logger was configured.</span>
+</span><span id="L-64"><a href="#L-64"><span class="linenos">64</span></a><span class="n">_satkit_logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;Completed configuring logger.&#39;</span><span class="p">)</span>
+</span><span id="L-65"><a href="#L-65"><span class="linenos">65</span></a>
+</span><span id="L-66"><a href="#L-66"><span class="linenos">66</span></a><span class="c1"># Config should be loaded before parsing arguments, because it may affect</span>
+</span><span id="L-67"><a href="#L-67"><span class="linenos">67</span></a><span class="c1"># how arguments are parsed, and parsed arguments may change config variables.</span>
+</span><span id="L-68"><a href="#L-68"><span class="linenos">68</span></a>
+</span><span id="L-69"><a href="#L-69"><span class="linenos">69</span></a><span class="c1"># TODO: later on make this more complex: parts of config that could be changed by</span>
+</span><span id="L-70"><a href="#L-70"><span class="linenos">70</span></a><span class="c1"># args first, args second, rest of config last. should probably be close to</span>
+</span><span id="L-71"><a href="#L-71"><span class="linenos">71</span></a><span class="c1"># where different commands will eventually be dealt with</span>
+</span><span id="L-72"><a href="#L-72"><span class="linenos">72</span></a>
+</span><span id="L-73"><a href="#L-73"><span class="linenos">73</span></a><span class="c1"># configuration.load_config()</span>
 </span></pre></div>
 
 

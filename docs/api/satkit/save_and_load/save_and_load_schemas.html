@@ -34,6 +34,54 @@
                     <a class="variable" href="#nested_text_converters">nested_text_converters</a>
             </li>
             <li>
+                    <a class="class" href="#StatisticLoadSchema">StatisticLoadSchema</a>
+                            <ul class="memberlist">
+                        <li>
+                                <a class="variable" href="#StatisticLoadSchema.object_type">object_type</a>
+                        </li>
+                        <li>
+                                <a class="variable" href="#StatisticLoadSchema.name">name</a>
+                        </li>
+                        <li>
+                                <a class="variable" href="#StatisticLoadSchema.format_version">format_version</a>
+                        </li>
+                        <li>
+                                <a class="variable" href="#StatisticLoadSchema.parameters">parameters</a>
+                        </li>
+                        <li>
+                                <a class="variable" href="#StatisticLoadSchema.model_config">model_config</a>
+                        </li>
+                        <li>
+                                <a class="variable" href="#StatisticLoadSchema.model_fields">model_fields</a>
+                        </li>
+                        <li>
+                                <a class="variable" href="#StatisticLoadSchema.model_computed_fields">model_computed_fields</a>
+                        </li>
+                </ul>
+
+            </li>
+            <li>
+                    <a class="class" href="#ModalityListingLoadSchema">ModalityListingLoadSchema</a>
+                            <ul class="memberlist">
+                        <li>
+                                <a class="variable" href="#ModalityListingLoadSchema.data_name">data_name</a>
+                        </li>
+                        <li>
+                                <a class="variable" href="#ModalityListingLoadSchema.meta_name">meta_name</a>
+                        </li>
+                        <li>
+                                <a class="variable" href="#ModalityListingLoadSchema.model_config">model_config</a>
+                        </li>
+                        <li>
+                                <a class="variable" href="#ModalityListingLoadSchema.model_fields">model_fields</a>
+                        </li>
+                        <li>
+                                <a class="variable" href="#ModalityListingLoadSchema.model_computed_fields">model_computed_fields</a>
+                        </li>
+                </ul>
+
+            </li>
+            <li>
                     <a class="class" href="#ModalityLoadSchema">ModalityLoadSchema</a>
                             <ul class="memberlist">
                         <li>
@@ -56,27 +104,6 @@
                         </li>
                         <li>
                                 <a class="variable" href="#ModalityLoadSchema.model_computed_fields">model_computed_fields</a>
-                        </li>
-                </ul>
-
-            </li>
-            <li>
-                    <a class="class" href="#ModalityListingLoadschema">ModalityListingLoadschema</a>
-                            <ul class="memberlist">
-                        <li>
-                                <a class="variable" href="#ModalityListingLoadschema.data_name">data_name</a>
-                        </li>
-                        <li>
-                                <a class="variable" href="#ModalityListingLoadschema.meta_name">meta_name</a>
-                        </li>
-                        <li>
-                                <a class="variable" href="#ModalityListingLoadschema.model_config">model_config</a>
-                        </li>
-                        <li>
-                                <a class="variable" href="#ModalityListingLoadschema.model_fields">model_fields</a>
-                        </li>
-                        <li>
-                                <a class="variable" href="#ModalityListingLoadschema.model_computed_fields">model_computed_fields</a>
                         </li>
                 </ul>
 
@@ -242,11 +269,11 @@
 </span><span id="L-55"><a href="#L-55"><span class="linenos"> 55</span></a><span class="p">}</span>
 </span><span id="L-56"><a href="#L-56"><span class="linenos"> 56</span></a>
 </span><span id="L-57"><a href="#L-57"><span class="linenos"> 57</span></a>
-</span><span id="L-58"><a href="#L-58"><span class="linenos"> 58</span></a><span class="k">class</span> <span class="nc">ModalityLoadSchema</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">):</span>
+</span><span id="L-58"><a href="#L-58"><span class="linenos"> 58</span></a><span class="k">class</span> <span class="nc">StatisticLoadSchema</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">):</span>
 </span><span id="L-59"><a href="#L-59"><span class="linenos"> 59</span></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-</span><span id="L-60"><a href="#L-60"><span class="linenos"> 60</span></a><span class="sd">    Loading schema for a saved Modality.</span>
+</span><span id="L-60"><a href="#L-60"><span class="linenos"> 60</span></a><span class="sd">    Loading schema for a saved Statistic.</span>
 </span><span id="L-61"><a href="#L-61"><span class="linenos"> 61</span></a>
-</span><span id="L-62"><a href="#L-62"><span class="linenos"> 62</span></a><span class="sd">    Modality is defined in the data_structures module.</span>
+</span><span id="L-62"><a href="#L-62"><span class="linenos"> 62</span></a><span class="sd">    Statistic is defined in the data_structures module.</span>
 </span><span id="L-63"><a href="#L-63"><span class="linenos"> 63</span></a><span class="sd">    &quot;&quot;&quot;</span>
 </span><span id="L-64"><a href="#L-64"><span class="linenos"> 64</span></a>    <span class="n">object_type</span><span class="p">:</span> <span class="nb">str</span>
 </span><span id="L-65"><a href="#L-65"><span class="linenos"> 65</span></a>    <span class="n">name</span><span class="p">:</span> <span class="nb">str</span>
@@ -254,48 +281,68 @@
 </span><span id="L-67"><a href="#L-67"><span class="linenos"> 67</span></a>    <span class="n">parameters</span><span class="p">:</span> <span class="nb">dict</span>
 </span><span id="L-68"><a href="#L-68"><span class="linenos"> 68</span></a>
 </span><span id="L-69"><a href="#L-69"><span class="linenos"> 69</span></a>
-</span><span id="L-70"><a href="#L-70"><span class="linenos"> 70</span></a><span class="k">class</span> <span class="nc">ModalityListingLoadschema</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">):</span>
+</span><span id="L-70"><a href="#L-70"><span class="linenos"> 70</span></a><span class="k">class</span> <span class="nc">ModalityListingLoadSchema</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">):</span>
 </span><span id="L-71"><a href="#L-71"><span class="linenos"> 71</span></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-</span><span id="L-72"><a href="#L-72"><span class="linenos"> 72</span></a><span class="sd">    Loading schema for the Modality listing in a saved Recording.</span>
+</span><span id="L-72"><a href="#L-72"><span class="linenos"> 72</span></a><span class="sd">    Loading schema for the Statistic listing in a saved Recording or Session.</span>
 </span><span id="L-73"><a href="#L-73"><span class="linenos"> 73</span></a><span class="sd">    &quot;&quot;&quot;</span>
 </span><span id="L-74"><a href="#L-74"><span class="linenos"> 74</span></a>    <span class="n">data_name</span><span class="p">:</span> <span class="nb">str</span>
 </span><span id="L-75"><a href="#L-75"><span class="linenos"> 75</span></a>    <span class="n">meta_name</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="kc">None</span><span class="p">]</span>
 </span><span id="L-76"><a href="#L-76"><span class="linenos"> 76</span></a>
 </span><span id="L-77"><a href="#L-77"><span class="linenos"> 77</span></a>
-</span><span id="L-78"><a href="#L-78"><span class="linenos"> 78</span></a><span class="k">class</span> <span class="nc">RecordingLoadSchema</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">):</span>
+</span><span id="L-78"><a href="#L-78"><span class="linenos"> 78</span></a><span class="k">class</span> <span class="nc">ModalityLoadSchema</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">):</span>
 </span><span id="L-79"><a href="#L-79"><span class="linenos"> 79</span></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-</span><span id="L-80"><a href="#L-80"><span class="linenos"> 80</span></a><span class="sd">    Loading schema for a saved Recording.</span>
+</span><span id="L-80"><a href="#L-80"><span class="linenos"> 80</span></a><span class="sd">    Loading schema for a saved Modality.</span>
 </span><span id="L-81"><a href="#L-81"><span class="linenos"> 81</span></a>
-</span><span id="L-82"><a href="#L-82"><span class="linenos"> 82</span></a><span class="sd">    Recording is defined in the data_structures module.</span>
+</span><span id="L-82"><a href="#L-82"><span class="linenos"> 82</span></a><span class="sd">    Modality is defined in the data_structures module.</span>
 </span><span id="L-83"><a href="#L-83"><span class="linenos"> 83</span></a><span class="sd">    &quot;&quot;&quot;</span>
-</span><span id="L-84"><a href="#L-84"><span class="linenos"> 84</span></a>    <span class="n">object_type</span><span class="p">:</span> <span class="n">SavedObjectTypes</span> <span class="o">=</span> <span class="n">SavedObjectTypes</span><span class="o">.</span><span class="n">RECORDING</span>
+</span><span id="L-84"><a href="#L-84"><span class="linenos"> 84</span></a>    <span class="n">object_type</span><span class="p">:</span> <span class="nb">str</span>
 </span><span id="L-85"><a href="#L-85"><span class="linenos"> 85</span></a>    <span class="n">name</span><span class="p">:</span> <span class="nb">str</span>
 </span><span id="L-86"><a href="#L-86"><span class="linenos"> 86</span></a>    <span class="n">format_version</span><span class="p">:</span> <span class="nb">str</span>
-</span><span id="L-87"><a href="#L-87"><span class="linenos"> 87</span></a>    <span class="n">parameters</span><span class="p">:</span> <span class="n">RecordingMetaData</span>
-</span><span id="L-88"><a href="#L-88"><span class="linenos"> 88</span></a>    <span class="n">modalities</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">ModalityListingLoadschema</span><span class="p">]</span>
+</span><span id="L-87"><a href="#L-87"><span class="linenos"> 87</span></a>    <span class="n">parameters</span><span class="p">:</span> <span class="nb">dict</span>
+</span><span id="L-88"><a href="#L-88"><span class="linenos"> 88</span></a>
 </span><span id="L-89"><a href="#L-89"><span class="linenos"> 89</span></a>
-</span><span id="L-90"><a href="#L-90"><span class="linenos"> 90</span></a>
-</span><span id="L-91"><a href="#L-91"><span class="linenos"> 91</span></a><span class="k">class</span> <span class="nc">SessionParameterLoadSchema</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">):</span>
-</span><span id="L-92"><a href="#L-92"><span class="linenos"> 92</span></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-</span><span id="L-93"><a href="#L-93"><span class="linenos"> 93</span></a><span class="sd">    Loading schema for a saved Session.</span>
-</span><span id="L-94"><a href="#L-94"><span class="linenos"> 94</span></a>
-</span><span id="L-95"><a href="#L-95"><span class="linenos"> 95</span></a><span class="sd">    Session is defined in the data_structures module.</span>
-</span><span id="L-96"><a href="#L-96"><span class="linenos"> 96</span></a><span class="sd">    &quot;&quot;&quot;</span>
-</span><span id="L-97"><a href="#L-97"><span class="linenos"> 97</span></a>    <span class="n">path</span><span class="p">:</span> <span class="n">DirectoryPath</span>
-</span><span id="L-98"><a href="#L-98"><span class="linenos"> 98</span></a>    <span class="n">datasource</span><span class="p">:</span> <span class="n">Datasource</span>
-</span><span id="L-99"><a href="#L-99"><span class="linenos"> 99</span></a>
-</span><span id="L-100"><a href="#L-100"><span class="linenos">100</span></a>
-</span><span id="L-101"><a href="#L-101"><span class="linenos">101</span></a><span class="k">class</span> <span class="nc">SessionLoadSchema</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">):</span>
-</span><span id="L-102"><a href="#L-102"><span class="linenos">102</span></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-</span><span id="L-103"><a href="#L-103"><span class="linenos">103</span></a><span class="sd">    Loading schema for a saved Session.</span>
-</span><span id="L-104"><a href="#L-104"><span class="linenos">104</span></a>
-</span><span id="L-105"><a href="#L-105"><span class="linenos">105</span></a><span class="sd">    Session is defined in the data_structures module.</span>
-</span><span id="L-106"><a href="#L-106"><span class="linenos">106</span></a><span class="sd">    &quot;&quot;&quot;</span>
-</span><span id="L-107"><a href="#L-107"><span class="linenos">107</span></a>    <span class="n">object_type</span><span class="p">:</span> <span class="n">SavedObjectTypes</span> <span class="o">=</span> <span class="n">SavedObjectTypes</span><span class="o">.</span><span class="n">SESSION</span>
-</span><span id="L-108"><a href="#L-108"><span class="linenos">108</span></a>    <span class="n">name</span><span class="p">:</span> <span class="nb">str</span>
-</span><span id="L-109"><a href="#L-109"><span class="linenos">109</span></a>    <span class="n">format_version</span><span class="p">:</span> <span class="nb">str</span>
-</span><span id="L-110"><a href="#L-110"><span class="linenos">110</span></a>    <span class="n">parameters</span><span class="p">:</span> <span class="n">SessionParameterLoadSchema</span>
-</span><span id="L-111"><a href="#L-111"><span class="linenos">111</span></a>    <span class="n">recordings</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span>
+</span><span id="L-90"><a href="#L-90"><span class="linenos"> 90</span></a><span class="k">class</span> <span class="nc">ModalityListingLoadSchema</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">):</span>
+</span><span id="L-91"><a href="#L-91"><span class="linenos"> 91</span></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+</span><span id="L-92"><a href="#L-92"><span class="linenos"> 92</span></a><span class="sd">    Loading schema for the Modality listing in a saved Recording.</span>
+</span><span id="L-93"><a href="#L-93"><span class="linenos"> 93</span></a><span class="sd">    &quot;&quot;&quot;</span>
+</span><span id="L-94"><a href="#L-94"><span class="linenos"> 94</span></a>    <span class="n">data_name</span><span class="p">:</span> <span class="nb">str</span>
+</span><span id="L-95"><a href="#L-95"><span class="linenos"> 95</span></a>    <span class="n">meta_name</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="kc">None</span><span class="p">]</span>
+</span><span id="L-96"><a href="#L-96"><span class="linenos"> 96</span></a>
+</span><span id="L-97"><a href="#L-97"><span class="linenos"> 97</span></a>
+</span><span id="L-98"><a href="#L-98"><span class="linenos"> 98</span></a><span class="k">class</span> <span class="nc">RecordingLoadSchema</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">):</span>
+</span><span id="L-99"><a href="#L-99"><span class="linenos"> 99</span></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+</span><span id="L-100"><a href="#L-100"><span class="linenos">100</span></a><span class="sd">    Loading schema for a saved Recording.</span>
+</span><span id="L-101"><a href="#L-101"><span class="linenos">101</span></a>
+</span><span id="L-102"><a href="#L-102"><span class="linenos">102</span></a><span class="sd">    Recording is defined in the data_structures module.</span>
+</span><span id="L-103"><a href="#L-103"><span class="linenos">103</span></a><span class="sd">    &quot;&quot;&quot;</span>
+</span><span id="L-104"><a href="#L-104"><span class="linenos">104</span></a>    <span class="n">object_type</span><span class="p">:</span> <span class="n">SavedObjectTypes</span> <span class="o">=</span> <span class="n">SavedObjectTypes</span><span class="o">.</span><span class="n">RECORDING</span>
+</span><span id="L-105"><a href="#L-105"><span class="linenos">105</span></a>    <span class="n">name</span><span class="p">:</span> <span class="nb">str</span>
+</span><span id="L-106"><a href="#L-106"><span class="linenos">106</span></a>    <span class="n">format_version</span><span class="p">:</span> <span class="nb">str</span>
+</span><span id="L-107"><a href="#L-107"><span class="linenos">107</span></a>    <span class="n">parameters</span><span class="p">:</span> <span class="n">RecordingMetaData</span>
+</span><span id="L-108"><a href="#L-108"><span class="linenos">108</span></a>    <span class="n">modalities</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">ModalityListingLoadSchema</span><span class="p">]</span>
+</span><span id="L-109"><a href="#L-109"><span class="linenos">109</span></a>
+</span><span id="L-110"><a href="#L-110"><span class="linenos">110</span></a>
+</span><span id="L-111"><a href="#L-111"><span class="linenos">111</span></a><span class="k">class</span> <span class="nc">SessionParameterLoadSchema</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">):</span>
+</span><span id="L-112"><a href="#L-112"><span class="linenos">112</span></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+</span><span id="L-113"><a href="#L-113"><span class="linenos">113</span></a><span class="sd">    Loading schema for a saved Session.</span>
+</span><span id="L-114"><a href="#L-114"><span class="linenos">114</span></a>
+</span><span id="L-115"><a href="#L-115"><span class="linenos">115</span></a><span class="sd">    Session is defined in the data_structures module.</span>
+</span><span id="L-116"><a href="#L-116"><span class="linenos">116</span></a><span class="sd">    &quot;&quot;&quot;</span>
+</span><span id="L-117"><a href="#L-117"><span class="linenos">117</span></a>    <span class="n">path</span><span class="p">:</span> <span class="n">DirectoryPath</span>
+</span><span id="L-118"><a href="#L-118"><span class="linenos">118</span></a>    <span class="n">datasource</span><span class="p">:</span> <span class="n">Datasource</span>
+</span><span id="L-119"><a href="#L-119"><span class="linenos">119</span></a>
+</span><span id="L-120"><a href="#L-120"><span class="linenos">120</span></a>
+</span><span id="L-121"><a href="#L-121"><span class="linenos">121</span></a><span class="k">class</span> <span class="nc">SessionLoadSchema</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">):</span>
+</span><span id="L-122"><a href="#L-122"><span class="linenos">122</span></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+</span><span id="L-123"><a href="#L-123"><span class="linenos">123</span></a><span class="sd">    Loading schema for a saved Session.</span>
+</span><span id="L-124"><a href="#L-124"><span class="linenos">124</span></a>
+</span><span id="L-125"><a href="#L-125"><span class="linenos">125</span></a><span class="sd">    Session is defined in the data_structures module.</span>
+</span><span id="L-126"><a href="#L-126"><span class="linenos">126</span></a><span class="sd">    &quot;&quot;&quot;</span>
+</span><span id="L-127"><a href="#L-127"><span class="linenos">127</span></a>    <span class="n">object_type</span><span class="p">:</span> <span class="n">SavedObjectTypes</span> <span class="o">=</span> <span class="n">SavedObjectTypes</span><span class="o">.</span><span class="n">SESSION</span>
+</span><span id="L-128"><a href="#L-128"><span class="linenos">128</span></a>    <span class="n">name</span><span class="p">:</span> <span class="nb">str</span>
+</span><span id="L-129"><a href="#L-129"><span class="linenos">129</span></a>    <span class="n">format_version</span><span class="p">:</span> <span class="nb">str</span>
+</span><span id="L-130"><a href="#L-130"><span class="linenos">130</span></a>    <span class="n">parameters</span><span class="p">:</span> <span class="n">SessionParameterLoadSchema</span>
+</span><span id="L-131"><a href="#L-131"><span class="linenos">131</span></a>    <span class="n">recordings</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span>
 </span></pre></div>
 
 
@@ -313,6 +360,270 @@
     
 
                 </section>
+                <section id="StatisticLoadSchema">
+                            <input id="StatisticLoadSchema-view-source" class="view-source-toggle-state" type="checkbox" aria-hidden="true" tabindex="-1">
+<div class="attr class">
+            
+    <span class="def">class</span>
+    <span class="name">StatisticLoadSchema</span><wbr>(<span class="base">pydantic.main.BaseModel</span>):
+
+                <label class="view-source-button" for="StatisticLoadSchema-view-source"><span>View Source</span></label>
+
+    </div>
+    <a class="headerlink" href="#StatisticLoadSchema"></a>
+            <div class="pdoc-code codehilite"><pre><span></span><span id="StatisticLoadSchema-59"><a href="#StatisticLoadSchema-59"><span class="linenos">59</span></a><span class="k">class</span> <span class="nc">StatisticLoadSchema</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">):</span>
+</span><span id="StatisticLoadSchema-60"><a href="#StatisticLoadSchema-60"><span class="linenos">60</span></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+</span><span id="StatisticLoadSchema-61"><a href="#StatisticLoadSchema-61"><span class="linenos">61</span></a><span class="sd">    Loading schema for a saved Statistic.</span>
+</span><span id="StatisticLoadSchema-62"><a href="#StatisticLoadSchema-62"><span class="linenos">62</span></a>
+</span><span id="StatisticLoadSchema-63"><a href="#StatisticLoadSchema-63"><span class="linenos">63</span></a><span class="sd">    Statistic is defined in the data_structures module.</span>
+</span><span id="StatisticLoadSchema-64"><a href="#StatisticLoadSchema-64"><span class="linenos">64</span></a><span class="sd">    &quot;&quot;&quot;</span>
+</span><span id="StatisticLoadSchema-65"><a href="#StatisticLoadSchema-65"><span class="linenos">65</span></a>    <span class="n">object_type</span><span class="p">:</span> <span class="nb">str</span>
+</span><span id="StatisticLoadSchema-66"><a href="#StatisticLoadSchema-66"><span class="linenos">66</span></a>    <span class="n">name</span><span class="p">:</span> <span class="nb">str</span>
+</span><span id="StatisticLoadSchema-67"><a href="#StatisticLoadSchema-67"><span class="linenos">67</span></a>    <span class="n">format_version</span><span class="p">:</span> <span class="nb">str</span>
+</span><span id="StatisticLoadSchema-68"><a href="#StatisticLoadSchema-68"><span class="linenos">68</span></a>    <span class="n">parameters</span><span class="p">:</span> <span class="nb">dict</span>
+</span></pre></div>
+
+
+            <div class="docstring"><p>Loading schema for a saved Statistic.</p>
+
+<p>Statistic is defined in the data_structures module.</p>
+</div>
+
+
+                            <div id="StatisticLoadSchema.object_type" class="classattr">
+                                <div class="attr variable">
+            <span class="name">object_type</span><span class="annotation">: str</span>
+
+        
+    </div>
+    <a class="headerlink" href="#StatisticLoadSchema.object_type"></a>
+    
+    
+
+                            </div>
+                            <div id="StatisticLoadSchema.name" class="classattr">
+                                <div class="attr variable">
+            <span class="name">name</span><span class="annotation">: str</span>
+
+        
+    </div>
+    <a class="headerlink" href="#StatisticLoadSchema.name"></a>
+    
+    
+
+                            </div>
+                            <div id="StatisticLoadSchema.format_version" class="classattr">
+                                <div class="attr variable">
+            <span class="name">format_version</span><span class="annotation">: str</span>
+
+        
+    </div>
+    <a class="headerlink" href="#StatisticLoadSchema.format_version"></a>
+    
+    
+
+                            </div>
+                            <div id="StatisticLoadSchema.parameters" class="classattr">
+                                <div class="attr variable">
+            <span class="name">parameters</span><span class="annotation">: dict</span>
+
+        
+    </div>
+    <a class="headerlink" href="#StatisticLoadSchema.parameters"></a>
+    
+    
+
+                            </div>
+                            <div id="StatisticLoadSchema.model_config" class="classattr">
+                                <div class="attr variable">
+            <span class="name">model_config</span>        =
+<span class="default_value">{}</span>
+
+        
+    </div>
+    <a class="headerlink" href="#StatisticLoadSchema.model_config"></a>
+    
+    
+
+                            </div>
+                            <div id="StatisticLoadSchema.model_fields" class="classattr">
+                                <div class="attr variable">
+            <span class="name">model_fields</span>        =
+<input id="StatisticLoadSchema.model_fields-view-value" class="view-value-toggle-state" type="checkbox" aria-hidden="true" tabindex="-1">
+            <label class="view-value-button pdoc-button" for="StatisticLoadSchema.model_fields-view-value"></label><span class="default_value">{&#39;object_type&#39;: FieldInfo(annotation=str, required=True), &#39;name&#39;: FieldInfo(annotation=str, required=True), &#39;format_version&#39;: FieldInfo(annotation=str, required=True), &#39;parameters&#39;: FieldInfo(annotation=dict, required=True)}</span>
+
+        
+    </div>
+    <a class="headerlink" href="#StatisticLoadSchema.model_fields"></a>
+    
+    
+
+                            </div>
+                            <div id="StatisticLoadSchema.model_computed_fields" class="classattr">
+                                <div class="attr variable">
+            <span class="name">model_computed_fields</span>        =
+<span class="default_value">{}</span>
+
+        
+    </div>
+    <a class="headerlink" href="#StatisticLoadSchema.model_computed_fields"></a>
+    
+    
+
+                            </div>
+                            <div class="inherited">
+                                <h5>Inherited Members</h5>
+                                <dl>
+                                    <div><dt>pydantic.main.BaseModel</dt>
+                                <dd id="StatisticLoadSchema.__init__" class="function">BaseModel</dd>
+                <dd id="StatisticLoadSchema.model_extra" class="variable">model_extra</dd>
+                <dd id="StatisticLoadSchema.model_fields_set" class="variable">model_fields_set</dd>
+                <dd id="StatisticLoadSchema.model_construct" class="function">model_construct</dd>
+                <dd id="StatisticLoadSchema.model_copy" class="function">model_copy</dd>
+                <dd id="StatisticLoadSchema.model_dump" class="function">model_dump</dd>
+                <dd id="StatisticLoadSchema.model_dump_json" class="function">model_dump_json</dd>
+                <dd id="StatisticLoadSchema.model_json_schema" class="function">model_json_schema</dd>
+                <dd id="StatisticLoadSchema.model_parametrized_name" class="function">model_parametrized_name</dd>
+                <dd id="StatisticLoadSchema.model_post_init" class="function">model_post_init</dd>
+                <dd id="StatisticLoadSchema.model_rebuild" class="function">model_rebuild</dd>
+                <dd id="StatisticLoadSchema.model_validate" class="function">model_validate</dd>
+                <dd id="StatisticLoadSchema.model_validate_json" class="function">model_validate_json</dd>
+                <dd id="StatisticLoadSchema.model_validate_strings" class="function">model_validate_strings</dd>
+                <dd id="StatisticLoadSchema.dict" class="function">dict</dd>
+                <dd id="StatisticLoadSchema.json" class="function">json</dd>
+                <dd id="StatisticLoadSchema.parse_obj" class="function">parse_obj</dd>
+                <dd id="StatisticLoadSchema.parse_raw" class="function">parse_raw</dd>
+                <dd id="StatisticLoadSchema.parse_file" class="function">parse_file</dd>
+                <dd id="StatisticLoadSchema.from_orm" class="function">from_orm</dd>
+                <dd id="StatisticLoadSchema.construct" class="function">construct</dd>
+                <dd id="StatisticLoadSchema.copy" class="function">copy</dd>
+                <dd id="StatisticLoadSchema.schema" class="function">schema</dd>
+                <dd id="StatisticLoadSchema.schema_json" class="function">schema_json</dd>
+                <dd id="StatisticLoadSchema.validate" class="function">validate</dd>
+                <dd id="StatisticLoadSchema.update_forward_refs" class="function">update_forward_refs</dd>
+
+            </div>
+                                </dl>
+                            </div>
+                </section>
+                <section id="ModalityListingLoadSchema">
+                            <input id="ModalityListingLoadSchema-view-source" class="view-source-toggle-state" type="checkbox" aria-hidden="true" tabindex="-1">
+<div class="attr class">
+            
+    <span class="def">class</span>
+    <span class="name">ModalityListingLoadSchema</span><wbr>(<span class="base">pydantic.main.BaseModel</span>):
+
+                <label class="view-source-button" for="ModalityListingLoadSchema-view-source"><span>View Source</span></label>
+
+    </div>
+    <a class="headerlink" href="#ModalityListingLoadSchema"></a>
+            <div class="pdoc-code codehilite"><pre><span></span><span id="ModalityListingLoadSchema-71"><a href="#ModalityListingLoadSchema-71"><span class="linenos">71</span></a><span class="k">class</span> <span class="nc">ModalityListingLoadSchema</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">):</span>
+</span><span id="ModalityListingLoadSchema-72"><a href="#ModalityListingLoadSchema-72"><span class="linenos">72</span></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+</span><span id="ModalityListingLoadSchema-73"><a href="#ModalityListingLoadSchema-73"><span class="linenos">73</span></a><span class="sd">    Loading schema for the Statistic listing in a saved Recording or Session.</span>
+</span><span id="ModalityListingLoadSchema-74"><a href="#ModalityListingLoadSchema-74"><span class="linenos">74</span></a><span class="sd">    &quot;&quot;&quot;</span>
+</span><span id="ModalityListingLoadSchema-75"><a href="#ModalityListingLoadSchema-75"><span class="linenos">75</span></a>    <span class="n">data_name</span><span class="p">:</span> <span class="nb">str</span>
+</span><span id="ModalityListingLoadSchema-76"><a href="#ModalityListingLoadSchema-76"><span class="linenos">76</span></a>    <span class="n">meta_name</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="kc">None</span><span class="p">]</span>
+</span></pre></div>
+
+
+            <div class="docstring"><p>Loading schema for the Modality listing in a saved Recording.</p>
+</div>
+
+
+                            <div id="ModalityListingLoadSchema.data_name" class="classattr">
+                                <div class="attr variable">
+            <span class="name">data_name</span><span class="annotation">: str</span>
+
+        
+    </div>
+    <a class="headerlink" href="#ModalityListingLoadSchema.data_name"></a>
+    
+    
+
+                            </div>
+                            <div id="ModalityListingLoadSchema.meta_name" class="classattr">
+                                <div class="attr variable">
+            <span class="name">meta_name</span><span class="annotation">: Optional[str]</span>
+
+        
+    </div>
+    <a class="headerlink" href="#ModalityListingLoadSchema.meta_name"></a>
+    
+    
+
+                            </div>
+                            <div id="ModalityListingLoadSchema.model_config" class="classattr">
+                                <div class="attr variable">
+            <span class="name">model_config</span>        =
+<span class="default_value">{}</span>
+
+        
+    </div>
+    <a class="headerlink" href="#ModalityListingLoadSchema.model_config"></a>
+    
+    
+
+                            </div>
+                            <div id="ModalityListingLoadSchema.model_fields" class="classattr">
+                                <div class="attr variable">
+            <span class="name">model_fields</span>        =
+<input id="ModalityListingLoadSchema.model_fields-view-value" class="view-value-toggle-state" type="checkbox" aria-hidden="true" tabindex="-1">
+            <label class="view-value-button pdoc-button" for="ModalityListingLoadSchema.model_fields-view-value"></label><span class="default_value">{&#39;data_name&#39;: FieldInfo(annotation=str, required=True), &#39;meta_name&#39;: FieldInfo(annotation=Union[str, NoneType], required=True)}</span>
+
+        
+    </div>
+    <a class="headerlink" href="#ModalityListingLoadSchema.model_fields"></a>
+    
+    
+
+                            </div>
+                            <div id="ModalityListingLoadSchema.model_computed_fields" class="classattr">
+                                <div class="attr variable">
+            <span class="name">model_computed_fields</span>        =
+<span class="default_value">{}</span>
+
+        
+    </div>
+    <a class="headerlink" href="#ModalityListingLoadSchema.model_computed_fields"></a>
+    
+    
+
+                            </div>
+                            <div class="inherited">
+                                <h5>Inherited Members</h5>
+                                <dl>
+                                    <div><dt>pydantic.main.BaseModel</dt>
+                                <dd id="ModalityListingLoadSchema.__init__" class="function">BaseModel</dd>
+                <dd id="ModalityListingLoadSchema.model_extra" class="variable">model_extra</dd>
+                <dd id="ModalityListingLoadSchema.model_fields_set" class="variable">model_fields_set</dd>
+                <dd id="ModalityListingLoadSchema.model_construct" class="function">model_construct</dd>
+                <dd id="ModalityListingLoadSchema.model_copy" class="function">model_copy</dd>
+                <dd id="ModalityListingLoadSchema.model_dump" class="function">model_dump</dd>
+                <dd id="ModalityListingLoadSchema.model_dump_json" class="function">model_dump_json</dd>
+                <dd id="ModalityListingLoadSchema.model_json_schema" class="function">model_json_schema</dd>
+                <dd id="ModalityListingLoadSchema.model_parametrized_name" class="function">model_parametrized_name</dd>
+                <dd id="ModalityListingLoadSchema.model_post_init" class="function">model_post_init</dd>
+                <dd id="ModalityListingLoadSchema.model_rebuild" class="function">model_rebuild</dd>
+                <dd id="ModalityListingLoadSchema.model_validate" class="function">model_validate</dd>
+                <dd id="ModalityListingLoadSchema.model_validate_json" class="function">model_validate_json</dd>
+                <dd id="ModalityListingLoadSchema.model_validate_strings" class="function">model_validate_strings</dd>
+                <dd id="ModalityListingLoadSchema.dict" class="function">dict</dd>
+                <dd id="ModalityListingLoadSchema.json" class="function">json</dd>
+                <dd id="ModalityListingLoadSchema.parse_obj" class="function">parse_obj</dd>
+                <dd id="ModalityListingLoadSchema.parse_raw" class="function">parse_raw</dd>
+                <dd id="ModalityListingLoadSchema.parse_file" class="function">parse_file</dd>
+                <dd id="ModalityListingLoadSchema.from_orm" class="function">from_orm</dd>
+                <dd id="ModalityListingLoadSchema.construct" class="function">construct</dd>
+                <dd id="ModalityListingLoadSchema.copy" class="function">copy</dd>
+                <dd id="ModalityListingLoadSchema.schema" class="function">schema</dd>
+                <dd id="ModalityListingLoadSchema.schema_json" class="function">schema_json</dd>
+                <dd id="ModalityListingLoadSchema.validate" class="function">validate</dd>
+                <dd id="ModalityListingLoadSchema.update_forward_refs" class="function">update_forward_refs</dd>
+
+            </div>
+                                </dl>
+                            </div>
+                </section>
                 <section id="ModalityLoadSchema">
                             <input id="ModalityLoadSchema-view-source" class="view-source-toggle-state" type="checkbox" aria-hidden="true" tabindex="-1">
 <div class="attr class">
@@ -324,16 +635,16 @@
 
     </div>
     <a class="headerlink" href="#ModalityLoadSchema"></a>
-            <div class="pdoc-code codehilite"><pre><span></span><span id="ModalityLoadSchema-59"><a href="#ModalityLoadSchema-59"><span class="linenos">59</span></a><span class="k">class</span> <span class="nc">ModalityLoadSchema</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">):</span>
-</span><span id="ModalityLoadSchema-60"><a href="#ModalityLoadSchema-60"><span class="linenos">60</span></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-</span><span id="ModalityLoadSchema-61"><a href="#ModalityLoadSchema-61"><span class="linenos">61</span></a><span class="sd">    Loading schema for a saved Modality.</span>
-</span><span id="ModalityLoadSchema-62"><a href="#ModalityLoadSchema-62"><span class="linenos">62</span></a>
-</span><span id="ModalityLoadSchema-63"><a href="#ModalityLoadSchema-63"><span class="linenos">63</span></a><span class="sd">    Modality is defined in the data_structures module.</span>
-</span><span id="ModalityLoadSchema-64"><a href="#ModalityLoadSchema-64"><span class="linenos">64</span></a><span class="sd">    &quot;&quot;&quot;</span>
-</span><span id="ModalityLoadSchema-65"><a href="#ModalityLoadSchema-65"><span class="linenos">65</span></a>    <span class="n">object_type</span><span class="p">:</span> <span class="nb">str</span>
-</span><span id="ModalityLoadSchema-66"><a href="#ModalityLoadSchema-66"><span class="linenos">66</span></a>    <span class="n">name</span><span class="p">:</span> <span class="nb">str</span>
-</span><span id="ModalityLoadSchema-67"><a href="#ModalityLoadSchema-67"><span class="linenos">67</span></a>    <span class="n">format_version</span><span class="p">:</span> <span class="nb">str</span>
-</span><span id="ModalityLoadSchema-68"><a href="#ModalityLoadSchema-68"><span class="linenos">68</span></a>    <span class="n">parameters</span><span class="p">:</span> <span class="nb">dict</span>
+            <div class="pdoc-code codehilite"><pre><span></span><span id="ModalityLoadSchema-79"><a href="#ModalityLoadSchema-79"><span class="linenos">79</span></a><span class="k">class</span> <span class="nc">ModalityLoadSchema</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">):</span>
+</span><span id="ModalityLoadSchema-80"><a href="#ModalityLoadSchema-80"><span class="linenos">80</span></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+</span><span id="ModalityLoadSchema-81"><a href="#ModalityLoadSchema-81"><span class="linenos">81</span></a><span class="sd">    Loading schema for a saved Modality.</span>
+</span><span id="ModalityLoadSchema-82"><a href="#ModalityLoadSchema-82"><span class="linenos">82</span></a>
+</span><span id="ModalityLoadSchema-83"><a href="#ModalityLoadSchema-83"><span class="linenos">83</span></a><span class="sd">    Modality is defined in the data_structures module.</span>
+</span><span id="ModalityLoadSchema-84"><a href="#ModalityLoadSchema-84"><span class="linenos">84</span></a><span class="sd">    &quot;&quot;&quot;</span>
+</span><span id="ModalityLoadSchema-85"><a href="#ModalityLoadSchema-85"><span class="linenos">85</span></a>    <span class="n">object_type</span><span class="p">:</span> <span class="nb">str</span>
+</span><span id="ModalityLoadSchema-86"><a href="#ModalityLoadSchema-86"><span class="linenos">86</span></a>    <span class="n">name</span><span class="p">:</span> <span class="nb">str</span>
+</span><span id="ModalityLoadSchema-87"><a href="#ModalityLoadSchema-87"><span class="linenos">87</span></a>    <span class="n">format_version</span><span class="p">:</span> <span class="nb">str</span>
+</span><span id="ModalityLoadSchema-88"><a href="#ModalityLoadSchema-88"><span class="linenos">88</span></a>    <span class="n">parameters</span><span class="p">:</span> <span class="nb">dict</span>
 </span></pre></div>
 
 
@@ -459,124 +770,6 @@
                                 </dl>
                             </div>
                 </section>
-                <section id="ModalityListingLoadschema">
-                            <input id="ModalityListingLoadschema-view-source" class="view-source-toggle-state" type="checkbox" aria-hidden="true" tabindex="-1">
-<div class="attr class">
-            
-    <span class="def">class</span>
-    <span class="name">ModalityListingLoadschema</span><wbr>(<span class="base">pydantic.main.BaseModel</span>):
-
-                <label class="view-source-button" for="ModalityListingLoadschema-view-source"><span>View Source</span></label>
-
-    </div>
-    <a class="headerlink" href="#ModalityListingLoadschema"></a>
-            <div class="pdoc-code codehilite"><pre><span></span><span id="ModalityListingLoadschema-71"><a href="#ModalityListingLoadschema-71"><span class="linenos">71</span></a><span class="k">class</span> <span class="nc">ModalityListingLoadschema</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">):</span>
-</span><span id="ModalityListingLoadschema-72"><a href="#ModalityListingLoadschema-72"><span class="linenos">72</span></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-</span><span id="ModalityListingLoadschema-73"><a href="#ModalityListingLoadschema-73"><span class="linenos">73</span></a><span class="sd">    Loading schema for the Modality listing in a saved Recording.</span>
-</span><span id="ModalityListingLoadschema-74"><a href="#ModalityListingLoadschema-74"><span class="linenos">74</span></a><span class="sd">    &quot;&quot;&quot;</span>
-</span><span id="ModalityListingLoadschema-75"><a href="#ModalityListingLoadschema-75"><span class="linenos">75</span></a>    <span class="n">data_name</span><span class="p">:</span> <span class="nb">str</span>
-</span><span id="ModalityListingLoadschema-76"><a href="#ModalityListingLoadschema-76"><span class="linenos">76</span></a>    <span class="n">meta_name</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="kc">None</span><span class="p">]</span>
-</span></pre></div>
-
-
-            <div class="docstring"><p>Loading schema for the Modality listing in a saved Recording.</p>
-</div>
-
-
-                            <div id="ModalityListingLoadschema.data_name" class="classattr">
-                                <div class="attr variable">
-            <span class="name">data_name</span><span class="annotation">: str</span>
-
-        
-    </div>
-    <a class="headerlink" href="#ModalityListingLoadschema.data_name"></a>
-    
-    
-
-                            </div>
-                            <div id="ModalityListingLoadschema.meta_name" class="classattr">
-                                <div class="attr variable">
-            <span class="name">meta_name</span><span class="annotation">: Optional[str]</span>
-
-        
-    </div>
-    <a class="headerlink" href="#ModalityListingLoadschema.meta_name"></a>
-    
-    
-
-                            </div>
-                            <div id="ModalityListingLoadschema.model_config" class="classattr">
-                                <div class="attr variable">
-            <span class="name">model_config</span>        =
-<span class="default_value">{}</span>
-
-        
-    </div>
-    <a class="headerlink" href="#ModalityListingLoadschema.model_config"></a>
-    
-    
-
-                            </div>
-                            <div id="ModalityListingLoadschema.model_fields" class="classattr">
-                                <div class="attr variable">
-            <span class="name">model_fields</span>        =
-<input id="ModalityListingLoadschema.model_fields-view-value" class="view-value-toggle-state" type="checkbox" aria-hidden="true" tabindex="-1">
-            <label class="view-value-button pdoc-button" for="ModalityListingLoadschema.model_fields-view-value"></label><span class="default_value">{&#39;data_name&#39;: FieldInfo(annotation=str, required=True), &#39;meta_name&#39;: FieldInfo(annotation=Union[str, NoneType], required=True)}</span>
-
-        
-    </div>
-    <a class="headerlink" href="#ModalityListingLoadschema.model_fields"></a>
-    
-    
-
-                            </div>
-                            <div id="ModalityListingLoadschema.model_computed_fields" class="classattr">
-                                <div class="attr variable">
-            <span class="name">model_computed_fields</span>        =
-<span class="default_value">{}</span>
-
-        
-    </div>
-    <a class="headerlink" href="#ModalityListingLoadschema.model_computed_fields"></a>
-    
-    
-
-                            </div>
-                            <div class="inherited">
-                                <h5>Inherited Members</h5>
-                                <dl>
-                                    <div><dt>pydantic.main.BaseModel</dt>
-                                <dd id="ModalityListingLoadschema.__init__" class="function">BaseModel</dd>
-                <dd id="ModalityListingLoadschema.model_extra" class="variable">model_extra</dd>
-                <dd id="ModalityListingLoadschema.model_fields_set" class="variable">model_fields_set</dd>
-                <dd id="ModalityListingLoadschema.model_construct" class="function">model_construct</dd>
-                <dd id="ModalityListingLoadschema.model_copy" class="function">model_copy</dd>
-                <dd id="ModalityListingLoadschema.model_dump" class="function">model_dump</dd>
-                <dd id="ModalityListingLoadschema.model_dump_json" class="function">model_dump_json</dd>
-                <dd id="ModalityListingLoadschema.model_json_schema" class="function">model_json_schema</dd>
-                <dd id="ModalityListingLoadschema.model_parametrized_name" class="function">model_parametrized_name</dd>
-                <dd id="ModalityListingLoadschema.model_post_init" class="function">model_post_init</dd>
-                <dd id="ModalityListingLoadschema.model_rebuild" class="function">model_rebuild</dd>
-                <dd id="ModalityListingLoadschema.model_validate" class="function">model_validate</dd>
-                <dd id="ModalityListingLoadschema.model_validate_json" class="function">model_validate_json</dd>
-                <dd id="ModalityListingLoadschema.model_validate_strings" class="function">model_validate_strings</dd>
-                <dd id="ModalityListingLoadschema.dict" class="function">dict</dd>
-                <dd id="ModalityListingLoadschema.json" class="function">json</dd>
-                <dd id="ModalityListingLoadschema.parse_obj" class="function">parse_obj</dd>
-                <dd id="ModalityListingLoadschema.parse_raw" class="function">parse_raw</dd>
-                <dd id="ModalityListingLoadschema.parse_file" class="function">parse_file</dd>
-                <dd id="ModalityListingLoadschema.from_orm" class="function">from_orm</dd>
-                <dd id="ModalityListingLoadschema.construct" class="function">construct</dd>
-                <dd id="ModalityListingLoadschema.copy" class="function">copy</dd>
-                <dd id="ModalityListingLoadschema.schema" class="function">schema</dd>
-                <dd id="ModalityListingLoadschema.schema_json" class="function">schema_json</dd>
-                <dd id="ModalityListingLoadschema.validate" class="function">validate</dd>
-                <dd id="ModalityListingLoadschema.update_forward_refs" class="function">update_forward_refs</dd>
-
-            </div>
-                                </dl>
-                            </div>
-                </section>
                 <section id="RecordingLoadSchema">
                             <input id="RecordingLoadSchema-view-source" class="view-source-toggle-state" type="checkbox" aria-hidden="true" tabindex="-1">
 <div class="attr class">
@@ -588,17 +781,17 @@
 
     </div>
     <a class="headerlink" href="#RecordingLoadSchema"></a>
-            <div class="pdoc-code codehilite"><pre><span></span><span id="RecordingLoadSchema-79"><a href="#RecordingLoadSchema-79"><span class="linenos">79</span></a><span class="k">class</span> <span class="nc">RecordingLoadSchema</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">):</span>
-</span><span id="RecordingLoadSchema-80"><a href="#RecordingLoadSchema-80"><span class="linenos">80</span></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-</span><span id="RecordingLoadSchema-81"><a href="#RecordingLoadSchema-81"><span class="linenos">81</span></a><span class="sd">    Loading schema for a saved Recording.</span>
-</span><span id="RecordingLoadSchema-82"><a href="#RecordingLoadSchema-82"><span class="linenos">82</span></a>
-</span><span id="RecordingLoadSchema-83"><a href="#RecordingLoadSchema-83"><span class="linenos">83</span></a><span class="sd">    Recording is defined in the data_structures module.</span>
-</span><span id="RecordingLoadSchema-84"><a href="#RecordingLoadSchema-84"><span class="linenos">84</span></a><span class="sd">    &quot;&quot;&quot;</span>
-</span><span id="RecordingLoadSchema-85"><a href="#RecordingLoadSchema-85"><span class="linenos">85</span></a>    <span class="n">object_type</span><span class="p">:</span> <span class="n">SavedObjectTypes</span> <span class="o">=</span> <span class="n">SavedObjectTypes</span><span class="o">.</span><span class="n">RECORDING</span>
-</span><span id="RecordingLoadSchema-86"><a href="#RecordingLoadSchema-86"><span class="linenos">86</span></a>    <span class="n">name</span><span class="p">:</span> <span class="nb">str</span>
-</span><span id="RecordingLoadSchema-87"><a href="#RecordingLoadSchema-87"><span class="linenos">87</span></a>    <span class="n">format_version</span><span class="p">:</span> <span class="nb">str</span>
-</span><span id="RecordingLoadSchema-88"><a href="#RecordingLoadSchema-88"><span class="linenos">88</span></a>    <span class="n">parameters</span><span class="p">:</span> <span class="n">RecordingMetaData</span>
-</span><span id="RecordingLoadSchema-89"><a href="#RecordingLoadSchema-89"><span class="linenos">89</span></a>    <span class="n">modalities</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">ModalityListingLoadschema</span><span class="p">]</span>
+            <div class="pdoc-code codehilite"><pre><span></span><span id="RecordingLoadSchema-99"><a href="#RecordingLoadSchema-99"><span class="linenos"> 99</span></a><span class="k">class</span> <span class="nc">RecordingLoadSchema</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">):</span>
+</span><span id="RecordingLoadSchema-100"><a href="#RecordingLoadSchema-100"><span class="linenos">100</span></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+</span><span id="RecordingLoadSchema-101"><a href="#RecordingLoadSchema-101"><span class="linenos">101</span></a><span class="sd">    Loading schema for a saved Recording.</span>
+</span><span id="RecordingLoadSchema-102"><a href="#RecordingLoadSchema-102"><span class="linenos">102</span></a>
+</span><span id="RecordingLoadSchema-103"><a href="#RecordingLoadSchema-103"><span class="linenos">103</span></a><span class="sd">    Recording is defined in the data_structures module.</span>
+</span><span id="RecordingLoadSchema-104"><a href="#RecordingLoadSchema-104"><span class="linenos">104</span></a><span class="sd">    &quot;&quot;&quot;</span>
+</span><span id="RecordingLoadSchema-105"><a href="#RecordingLoadSchema-105"><span class="linenos">105</span></a>    <span class="n">object_type</span><span class="p">:</span> <span class="n">SavedObjectTypes</span> <span class="o">=</span> <span class="n">SavedObjectTypes</span><span class="o">.</span><span class="n">RECORDING</span>
+</span><span id="RecordingLoadSchema-106"><a href="#RecordingLoadSchema-106"><span class="linenos">106</span></a>    <span class="n">name</span><span class="p">:</span> <span class="nb">str</span>
+</span><span id="RecordingLoadSchema-107"><a href="#RecordingLoadSchema-107"><span class="linenos">107</span></a>    <span class="n">format_version</span><span class="p">:</span> <span class="nb">str</span>
+</span><span id="RecordingLoadSchema-108"><a href="#RecordingLoadSchema-108"><span class="linenos">108</span></a>    <span class="n">parameters</span><span class="p">:</span> <span class="n">RecordingMetaData</span>
+</span><span id="RecordingLoadSchema-109"><a href="#RecordingLoadSchema-109"><span class="linenos">109</span></a>    <span class="n">modalities</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">ModalityListingLoadSchema</span><span class="p">]</span>
 </span></pre></div>
 
 
@@ -654,7 +847,7 @@
                             </div>
                             <div id="RecordingLoadSchema.modalities" class="classattr">
                                 <div class="attr variable">
-            <span class="name">modalities</span><span class="annotation">: dict[str, <a href="#ModalityListingLoadschema">ModalityListingLoadschema</a>]</span>
+            <span class="name">modalities</span><span class="annotation">: dict[str, <a href="#ModalityListingLoadSchema">ModalityListingLoadSchema</a>]</span>
 
         
     </div>
@@ -679,7 +872,7 @@
                                 <div class="attr variable">
             <span class="name">model_fields</span>        =
 <input id="RecordingLoadSchema.model_fields-view-value" class="view-value-toggle-state" type="checkbox" aria-hidden="true" tabindex="-1">
-            <label class="view-value-button pdoc-button" for="RecordingLoadSchema.model_fields-view-value"></label><span class="default_value">{&#39;object_type&#39;: FieldInfo(annotation=SavedObjectTypes, required=False, default=&lt;SavedObjectTypes.RECORDING: &#39;Recording&#39;&gt;), &#39;name&#39;: FieldInfo(annotation=str, required=True), &#39;format_version&#39;: FieldInfo(annotation=str, required=True), &#39;parameters&#39;: FieldInfo(annotation=RecordingMetaData, required=True), &#39;modalities&#39;: FieldInfo(annotation=dict[str, ModalityListingLoadschema], required=True)}</span>
+            <label class="view-value-button pdoc-button" for="RecordingLoadSchema.model_fields-view-value"></label><span class="default_value">{&#39;object_type&#39;: FieldInfo(annotation=SavedObjectTypes, required=False, default=&lt;SavedObjectTypes.RECORDING: &#39;Recording&#39;&gt;), &#39;name&#39;: FieldInfo(annotation=str, required=True), &#39;format_version&#39;: FieldInfo(annotation=str, required=True), &#39;parameters&#39;: FieldInfo(annotation=RecordingMetaData, required=True), &#39;modalities&#39;: FieldInfo(annotation=dict[str, ModalityListingLoadSchema], required=True)}</span>
 
         
     </div>
@@ -746,14 +939,14 @@
 
     </div>
     <a class="headerlink" href="#SessionParameterLoadSchema"></a>
-            <div class="pdoc-code codehilite"><pre><span></span><span id="SessionParameterLoadSchema-92"><a href="#SessionParameterLoadSchema-92"><span class="linenos">92</span></a><span class="k">class</span> <span class="nc">SessionParameterLoadSchema</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">):</span>
-</span><span id="SessionParameterLoadSchema-93"><a href="#SessionParameterLoadSchema-93"><span class="linenos">93</span></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-</span><span id="SessionParameterLoadSchema-94"><a href="#SessionParameterLoadSchema-94"><span class="linenos">94</span></a><span class="sd">    Loading schema for a saved Session.</span>
-</span><span id="SessionParameterLoadSchema-95"><a href="#SessionParameterLoadSchema-95"><span class="linenos">95</span></a>
-</span><span id="SessionParameterLoadSchema-96"><a href="#SessionParameterLoadSchema-96"><span class="linenos">96</span></a><span class="sd">    Session is defined in the data_structures module.</span>
-</span><span id="SessionParameterLoadSchema-97"><a href="#SessionParameterLoadSchema-97"><span class="linenos">97</span></a><span class="sd">    &quot;&quot;&quot;</span>
-</span><span id="SessionParameterLoadSchema-98"><a href="#SessionParameterLoadSchema-98"><span class="linenos">98</span></a>    <span class="n">path</span><span class="p">:</span> <span class="n">DirectoryPath</span>
-</span><span id="SessionParameterLoadSchema-99"><a href="#SessionParameterLoadSchema-99"><span class="linenos">99</span></a>    <span class="n">datasource</span><span class="p">:</span> <span class="n">Datasource</span>
+            <div class="pdoc-code codehilite"><pre><span></span><span id="SessionParameterLoadSchema-112"><a href="#SessionParameterLoadSchema-112"><span class="linenos">112</span></a><span class="k">class</span> <span class="nc">SessionParameterLoadSchema</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">):</span>
+</span><span id="SessionParameterLoadSchema-113"><a href="#SessionParameterLoadSchema-113"><span class="linenos">113</span></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+</span><span id="SessionParameterLoadSchema-114"><a href="#SessionParameterLoadSchema-114"><span class="linenos">114</span></a><span class="sd">    Loading schema for a saved Session.</span>
+</span><span id="SessionParameterLoadSchema-115"><a href="#SessionParameterLoadSchema-115"><span class="linenos">115</span></a>
+</span><span id="SessionParameterLoadSchema-116"><a href="#SessionParameterLoadSchema-116"><span class="linenos">116</span></a><span class="sd">    Session is defined in the data_structures module.</span>
+</span><span id="SessionParameterLoadSchema-117"><a href="#SessionParameterLoadSchema-117"><span class="linenos">117</span></a><span class="sd">    &quot;&quot;&quot;</span>
+</span><span id="SessionParameterLoadSchema-118"><a href="#SessionParameterLoadSchema-118"><span class="linenos">118</span></a>    <span class="n">path</span><span class="p">:</span> <span class="n">DirectoryPath</span>
+</span><span id="SessionParameterLoadSchema-119"><a href="#SessionParameterLoadSchema-119"><span class="linenos">119</span></a>    <span class="n">datasource</span><span class="p">:</span> <span class="n">Datasource</span>
 </span></pre></div>
 
 
@@ -868,17 +1061,17 @@
 
     </div>
     <a class="headerlink" href="#SessionLoadSchema"></a>
-            <div class="pdoc-code codehilite"><pre><span></span><span id="SessionLoadSchema-102"><a href="#SessionLoadSchema-102"><span class="linenos">102</span></a><span class="k">class</span> <span class="nc">SessionLoadSchema</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">):</span>
-</span><span id="SessionLoadSchema-103"><a href="#SessionLoadSchema-103"><span class="linenos">103</span></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-</span><span id="SessionLoadSchema-104"><a href="#SessionLoadSchema-104"><span class="linenos">104</span></a><span class="sd">    Loading schema for a saved Session.</span>
-</span><span id="SessionLoadSchema-105"><a href="#SessionLoadSchema-105"><span class="linenos">105</span></a>
-</span><span id="SessionLoadSchema-106"><a href="#SessionLoadSchema-106"><span class="linenos">106</span></a><span class="sd">    Session is defined in the data_structures module.</span>
-</span><span id="SessionLoadSchema-107"><a href="#SessionLoadSchema-107"><span class="linenos">107</span></a><span class="sd">    &quot;&quot;&quot;</span>
-</span><span id="SessionLoadSchema-108"><a href="#SessionLoadSchema-108"><span class="linenos">108</span></a>    <span class="n">object_type</span><span class="p">:</span> <span class="n">SavedObjectTypes</span> <span class="o">=</span> <span class="n">SavedObjectTypes</span><span class="o">.</span><span class="n">SESSION</span>
-</span><span id="SessionLoadSchema-109"><a href="#SessionLoadSchema-109"><span class="linenos">109</span></a>    <span class="n">name</span><span class="p">:</span> <span class="nb">str</span>
-</span><span id="SessionLoadSchema-110"><a href="#SessionLoadSchema-110"><span class="linenos">110</span></a>    <span class="n">format_version</span><span class="p">:</span> <span class="nb">str</span>
-</span><span id="SessionLoadSchema-111"><a href="#SessionLoadSchema-111"><span class="linenos">111</span></a>    <span class="n">parameters</span><span class="p">:</span> <span class="n">SessionParameterLoadSchema</span>
-</span><span id="SessionLoadSchema-112"><a href="#SessionLoadSchema-112"><span class="linenos">112</span></a>    <span class="n">recordings</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span>
+            <div class="pdoc-code codehilite"><pre><span></span><span id="SessionLoadSchema-122"><a href="#SessionLoadSchema-122"><span class="linenos">122</span></a><span class="k">class</span> <span class="nc">SessionLoadSchema</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">):</span>
+</span><span id="SessionLoadSchema-123"><a href="#SessionLoadSchema-123"><span class="linenos">123</span></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+</span><span id="SessionLoadSchema-124"><a href="#SessionLoadSchema-124"><span class="linenos">124</span></a><span class="sd">    Loading schema for a saved Session.</span>
+</span><span id="SessionLoadSchema-125"><a href="#SessionLoadSchema-125"><span class="linenos">125</span></a>
+</span><span id="SessionLoadSchema-126"><a href="#SessionLoadSchema-126"><span class="linenos">126</span></a><span class="sd">    Session is defined in the data_structures module.</span>
+</span><span id="SessionLoadSchema-127"><a href="#SessionLoadSchema-127"><span class="linenos">127</span></a><span class="sd">    &quot;&quot;&quot;</span>
+</span><span id="SessionLoadSchema-128"><a href="#SessionLoadSchema-128"><span class="linenos">128</span></a>    <span class="n">object_type</span><span class="p">:</span> <span class="n">SavedObjectTypes</span> <span class="o">=</span> <span class="n">SavedObjectTypes</span><span class="o">.</span><span class="n">SESSION</span>
+</span><span id="SessionLoadSchema-129"><a href="#SessionLoadSchema-129"><span class="linenos">129</span></a>    <span class="n">name</span><span class="p">:</span> <span class="nb">str</span>
+</span><span id="SessionLoadSchema-130"><a href="#SessionLoadSchema-130"><span class="linenos">130</span></a>    <span class="n">format_version</span><span class="p">:</span> <span class="nb">str</span>
+</span><span id="SessionLoadSchema-131"><a href="#SessionLoadSchema-131"><span class="linenos">131</span></a>    <span class="n">parameters</span><span class="p">:</span> <span class="n">SessionParameterLoadSchema</span>
+</span><span id="SessionLoadSchema-132"><a href="#SessionLoadSchema-132"><span class="linenos">132</span></a>    <span class="n">recordings</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span>
 </span></pre></div>
 
 

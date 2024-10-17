@@ -121,7 +121,7 @@
 </span><span id="L-51"><a href="#L-51"><span class="linenos"> 51</span></a><span class="kn">from</span> <span class="nn">satkit.metrics</span> <span class="kn">import</span> <span class="n">metrics</span>
 </span><span id="L-52"><a href="#L-52"><span class="linenos"> 52</span></a>
 </span><span id="L-53"><a href="#L-53"><span class="linenos"> 53</span></a><span class="kn">from</span> <span class="nn">.save_and_load_schemas</span> <span class="kn">import</span> <span class="p">(</span>
-</span><span id="L-54"><a href="#L-54"><span class="linenos"> 54</span></a>    <span class="n">ModalityListingLoadschema</span><span class="p">,</span> <span class="n">ModalityLoadSchema</span><span class="p">,</span> <span class="n">RecordingLoadSchema</span><span class="p">,</span>
+</span><span id="L-54"><a href="#L-54"><span class="linenos"> 54</span></a>    <span class="n">ModalityListingLoadSchema</span><span class="p">,</span> <span class="n">ModalityLoadSchema</span><span class="p">,</span> <span class="n">RecordingLoadSchema</span><span class="p">,</span>
 </span><span id="L-55"><a href="#L-55"><span class="linenos"> 55</span></a>    <span class="n">SessionLoadSchema</span><span class="p">)</span>
 </span><span id="L-56"><a href="#L-56"><span class="linenos"> 56</span></a>
 </span><span id="L-57"><a href="#L-57"><span class="linenos"> 57</span></a><span class="n">_recording_loader_logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="s1">&#39;satkit.recording_loader&#39;</span><span class="p">)</span>
@@ -130,7 +130,7 @@
 </span><span id="L-60"><a href="#L-60"><span class="linenos"> 60</span></a><span class="k">def</span> <span class="nf">load_derived_modality</span><span class="p">(</span>
 </span><span id="L-61"><a href="#L-61"><span class="linenos"> 61</span></a>        <span class="n">recording</span><span class="p">:</span> <span class="n">Recording</span><span class="p">,</span>
 </span><span id="L-62"><a href="#L-62"><span class="linenos"> 62</span></a>        <span class="n">path</span><span class="p">:</span> <span class="n">Path</span><span class="p">,</span>
-</span><span id="L-63"><a href="#L-63"><span class="linenos"> 63</span></a>        <span class="n">modality_schema</span><span class="p">:</span> <span class="n">ModalityListingLoadschema</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+</span><span id="L-63"><a href="#L-63"><span class="linenos"> 63</span></a>        <span class="n">modality_schema</span><span class="p">:</span> <span class="n">ModalityListingLoadSchema</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 </span><span id="L-64"><a href="#L-64"><span class="linenos"> 64</span></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 </span><span id="L-65"><a href="#L-65"><span class="linenos"> 65</span></a><span class="sd">    Load a saved derived Modality meta and data and add them to the Recording. </span>
 </span><span id="L-66"><a href="#L-66"><span class="linenos"> 66</span></a>
@@ -138,7 +138,7 @@
 </span><span id="L-68"><a href="#L-68"><span class="linenos"> 68</span></a><span class="sd">    ----------</span>
 </span><span id="L-69"><a href="#L-69"><span class="linenos"> 69</span></a><span class="sd">    path : Path</span>
 </span><span id="L-70"><a href="#L-70"><span class="linenos"> 70</span></a><span class="sd">        This is the path to the save files.</span>
-</span><span id="L-71"><a href="#L-71"><span class="linenos"> 71</span></a><span class="sd">    modality_schema : ModalityListingLoadschema</span>
+</span><span id="L-71"><a href="#L-71"><span class="linenos"> 71</span></a><span class="sd">    modality_schema : ModalityListingLoadSchema</span>
 </span><span id="L-72"><a href="#L-72"><span class="linenos"> 72</span></a><span class="sd">        This contains the name of the meta and data files.</span>
 </span><span id="L-73"><a href="#L-73"><span class="linenos"> 73</span></a><span class="sd">    &quot;&quot;&quot;</span>
 </span><span id="L-74"><a href="#L-74"><span class="linenos"> 74</span></a>    <span class="k">if</span> <span class="ow">not</span> <span class="n">modality_schema</span><span class="o">.</span><span class="n">meta_name</span><span class="p">:</span>
@@ -166,7 +166,7 @@
 </span><span id="L-96"><a href="#L-96"><span class="linenos"> 96</span></a>            <span class="n">meta</span><span class="o">.</span><span class="n">parameters</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
 </span><span id="L-97"><a href="#L-97"><span class="linenos"> 97</span></a>    <span class="n">parameters</span> <span class="o">=</span> <span class="n">parameter_schema</span><span class="p">(</span><span class="o">**</span><span class="n">meta</span><span class="o">.</span><span class="n">parameters</span><span class="p">)</span>
 </span><span id="L-98"><a href="#L-98"><span class="linenos"> 98</span></a>    <span class="n">modality</span> <span class="o">=</span> <span class="n">metric</span><span class="p">(</span><span class="n">recording</span><span class="o">=</span><span class="n">recording</span><span class="p">,</span>
-</span><span id="L-99"><a href="#L-99"><span class="linenos"> 99</span></a>                      <span class="n">parsed_data</span><span class="o">=</span><span class="n">modality_data</span><span class="p">,</span> <span class="n">metadata</span><span class="o">=</span><span class="n">parameters</span><span class="p">)</span>
+</span><span id="L-99"><a href="#L-99"><span class="linenos"> 99</span></a>                      <span class="n">parsed_data</span><span class="o">=</span><span class="n">modality_data</span><span class="p">,</span> <span class="n">meta_data</span><span class="o">=</span><span class="n">parameters</span><span class="p">)</span>
 </span><span id="L-100"><a href="#L-100"><span class="linenos">100</span></a>
 </span><span id="L-101"><a href="#L-101"><span class="linenos">101</span></a>    <span class="n">recording</span><span class="o">.</span><span class="n">add_modality</span><span class="p">(</span><span class="n">modality</span><span class="o">=</span><span class="n">modality</span><span class="p">)</span>
 </span><span id="L-102"><a href="#L-102"><span class="linenos">102</span></a>
@@ -338,7 +338,7 @@
 <div class="attr function">
             
         <span class="def">def</span>
-        <span class="name">load_derived_modality</span><span class="signature pdoc-code multiline">(<span class="param">	<span class="n">recording</span><span class="p">:</span> <span class="n"><a href="../data_structures/data_structures.html#Recording">satkit.data_structures.data_structures.Recording</a></span>,</span><span class="param">	<span class="n">path</span><span class="p">:</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span>,</span><span class="param">	<span class="n">modality_schema</span><span class="p">:</span> <span class="n"><a href="save_and_load_schemas.html#ModalityListingLoadschema">satkit.save_and_load.save_and_load_schemas.ModalityListingLoadschema</a></span></span><span class="return-annotation">) -> <span class="kc">None</span>:</span></span>
+        <span class="name">load_derived_modality</span><span class="signature pdoc-code multiline">(<span class="param">	<span class="n">recording</span><span class="p">:</span> <span class="n"><a href="../data_structures/data_structures.html#Recording">satkit.data_structures.data_structures.Recording</a></span>,</span><span class="param">	<span class="n">path</span><span class="p">:</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span>,</span><span class="param">	<span class="n">modality_schema</span><span class="p">:</span> <span class="n"><a href="save_and_load_schemas.html#ModalityListingLoadSchema">satkit.save_and_load.save_and_load_schemas.ModalityListingLoadSchema</a></span></span><span class="return-annotation">) -> <span class="kc">None</span>:</span></span>
 
                 <label class="view-source-button" for="load_derived_modality-view-source"><span>View Source</span></label>
 
@@ -347,7 +347,7 @@
             <div class="pdoc-code codehilite"><pre><span></span><span id="load_derived_modality-61"><a href="#load_derived_modality-61"><span class="linenos"> 61</span></a><span class="k">def</span> <span class="nf">load_derived_modality</span><span class="p">(</span>
 </span><span id="load_derived_modality-62"><a href="#load_derived_modality-62"><span class="linenos"> 62</span></a>        <span class="n">recording</span><span class="p">:</span> <span class="n">Recording</span><span class="p">,</span>
 </span><span id="load_derived_modality-63"><a href="#load_derived_modality-63"><span class="linenos"> 63</span></a>        <span class="n">path</span><span class="p">:</span> <span class="n">Path</span><span class="p">,</span>
-</span><span id="load_derived_modality-64"><a href="#load_derived_modality-64"><span class="linenos"> 64</span></a>        <span class="n">modality_schema</span><span class="p">:</span> <span class="n">ModalityListingLoadschema</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+</span><span id="load_derived_modality-64"><a href="#load_derived_modality-64"><span class="linenos"> 64</span></a>        <span class="n">modality_schema</span><span class="p">:</span> <span class="n">ModalityListingLoadSchema</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 </span><span id="load_derived_modality-65"><a href="#load_derived_modality-65"><span class="linenos"> 65</span></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 </span><span id="load_derived_modality-66"><a href="#load_derived_modality-66"><span class="linenos"> 66</span></a><span class="sd">    Load a saved derived Modality meta and data and add them to the Recording. </span>
 </span><span id="load_derived_modality-67"><a href="#load_derived_modality-67"><span class="linenos"> 67</span></a>
@@ -355,7 +355,7 @@
 </span><span id="load_derived_modality-69"><a href="#load_derived_modality-69"><span class="linenos"> 69</span></a><span class="sd">    ----------</span>
 </span><span id="load_derived_modality-70"><a href="#load_derived_modality-70"><span class="linenos"> 70</span></a><span class="sd">    path : Path</span>
 </span><span id="load_derived_modality-71"><a href="#load_derived_modality-71"><span class="linenos"> 71</span></a><span class="sd">        This is the path to the save files.</span>
-</span><span id="load_derived_modality-72"><a href="#load_derived_modality-72"><span class="linenos"> 72</span></a><span class="sd">    modality_schema : ModalityListingLoadschema</span>
+</span><span id="load_derived_modality-72"><a href="#load_derived_modality-72"><span class="linenos"> 72</span></a><span class="sd">    modality_schema : ModalityListingLoadSchema</span>
 </span><span id="load_derived_modality-73"><a href="#load_derived_modality-73"><span class="linenos"> 73</span></a><span class="sd">        This contains the name of the meta and data files.</span>
 </span><span id="load_derived_modality-74"><a href="#load_derived_modality-74"><span class="linenos"> 74</span></a><span class="sd">    &quot;&quot;&quot;</span>
 </span><span id="load_derived_modality-75"><a href="#load_derived_modality-75"><span class="linenos"> 75</span></a>    <span class="k">if</span> <span class="ow">not</span> <span class="n">modality_schema</span><span class="o">.</span><span class="n">meta_name</span><span class="p">:</span>
@@ -383,7 +383,7 @@
 </span><span id="load_derived_modality-97"><a href="#load_derived_modality-97"><span class="linenos"> 97</span></a>            <span class="n">meta</span><span class="o">.</span><span class="n">parameters</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
 </span><span id="load_derived_modality-98"><a href="#load_derived_modality-98"><span class="linenos"> 98</span></a>    <span class="n">parameters</span> <span class="o">=</span> <span class="n">parameter_schema</span><span class="p">(</span><span class="o">**</span><span class="n">meta</span><span class="o">.</span><span class="n">parameters</span><span class="p">)</span>
 </span><span id="load_derived_modality-99"><a href="#load_derived_modality-99"><span class="linenos"> 99</span></a>    <span class="n">modality</span> <span class="o">=</span> <span class="n">metric</span><span class="p">(</span><span class="n">recording</span><span class="o">=</span><span class="n">recording</span><span class="p">,</span>
-</span><span id="load_derived_modality-100"><a href="#load_derived_modality-100"><span class="linenos">100</span></a>                      <span class="n">parsed_data</span><span class="o">=</span><span class="n">modality_data</span><span class="p">,</span> <span class="n">metadata</span><span class="o">=</span><span class="n">parameters</span><span class="p">)</span>
+</span><span id="load_derived_modality-100"><a href="#load_derived_modality-100"><span class="linenos">100</span></a>                      <span class="n">parsed_data</span><span class="o">=</span><span class="n">modality_data</span><span class="p">,</span> <span class="n">meta_data</span><span class="o">=</span><span class="n">parameters</span><span class="p">)</span>
 </span><span id="load_derived_modality-101"><a href="#load_derived_modality-101"><span class="linenos">101</span></a>
 </span><span id="load_derived_modality-102"><a href="#load_derived_modality-102"><span class="linenos">102</span></a>    <span class="n">recording</span><span class="o">.</span><span class="n">add_modality</span><span class="p">(</span><span class="n">modality</span><span class="o">=</span><span class="n">modality</span><span class="p">)</span>
 </span></pre></div>
@@ -396,7 +396,7 @@
 <ul>
 <li><strong>path</strong> (Path):
 This is the path to the save files.</li>
-<li><strong>modality_schema</strong> (ModalityListingLoadschema):
+<li><strong>modality_schema</strong> (ModalityListingLoadSchema):
 This contains the name of the meta and data files.</li>
 </ul>
 </div>

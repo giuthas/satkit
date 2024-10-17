@@ -12,7 +12,7 @@ First things first: write in good pythonic style.
     [autopep8](https://pypi.org/project/autopep8/) and Pylint packages to
     format code.
 - [PEP 257](https://www.python.org/dev/peps/pep-0257/) talks about conventions
-  for docstrings. In addition we might do the following:
+  for docstrings. In addition, we might do the following:
   - Consider what will look good once the docs are compiled.
   - If we are using pdoc, repeating the same thing for a class docstring and
       the constructor is not a good idea. Instead, write general description in
@@ -92,10 +92,9 @@ A release of SATKIT is created as follows:
 3. Update documentation and version numbers
    - Version number lives in at least README.md and constants.py. File version
      number will be different from program version number after 1.0.
-     - [README](../README.md)
-     - [constants.py](../satkit/constants.py)
-     - Setuptools files
-       - [pyproject.toml](../pyproject.toml) and/or [setup.cfg](../setup.cfg)
+     - [README](../README.md),
+     - [constants.py](../satkit/constants.py), and
+     - [pyproject.toml](../pyproject.toml).
    - [Changelog](Changelog.markdown)
    - [Generated documentation](../devel/doc_generation_commands)
    - [License headers](../devel/licenseheaders_command)

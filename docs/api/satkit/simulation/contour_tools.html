@@ -122,7 +122,7 @@
 </span><span id="L-40"><a href="#L-40"><span class="linenos"> 40</span></a>
 </span><span id="L-41"><a href="#L-41"><span class="linenos"> 41</span></a><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 </span><span id="L-42"><a href="#L-42"><span class="linenos"> 42</span></a>
-</span><span id="L-43"><a href="#L-43"><span class="linenos"> 43</span></a><span class="kn">from</span> <span class="nn">satkit.helpers</span> <span class="kn">import</span> <span class="p">(</span>
+</span><span id="L-43"><a href="#L-43"><span class="linenos"> 43</span></a><span class="kn">from</span> <span class="nn">satkit.external_class_extensions</span> <span class="kn">import</span> <span class="p">(</span>
 </span><span id="L-44"><a href="#L-44"><span class="linenos"> 44</span></a>    <span class="n">enum_union</span><span class="p">,</span> <span class="n">ListablePrintableEnum</span><span class="p">,</span> <span class="n">ValueComparedEnumMeta</span><span class="p">)</span>
 </span><span id="L-45"><a href="#L-45"><span class="linenos"> 45</span></a>
 </span><span id="L-46"><a href="#L-46"><span class="linenos"> 46</span></a>
@@ -277,7 +277,7 @@
 <div class="attr class">
             
     <span class="def">class</span>
-    <span class="name">SimulationContourVowel</span><wbr>(<span class="base"><a href="../helpers/enum_extensions.html#ListablePrintableEnum">satkit.helpers.enum_extensions.ListablePrintableEnum</a></span>):
+    <span class="name">SimulationContourVowel</span><wbr>(<span class="base"><a href="../external_class_extensions/enum_extensions.html#ListablePrintableEnum">satkit.external_class_extensions.enum_extensions.ListablePrintableEnum</a></span>):
 
                 <label class="view-source-button" for="SimulationContourVowel-view-source"><span>View Source</span></label>
 
@@ -324,8 +324,8 @@
                             <div class="inherited">
                                 <h5>Inherited Members</h5>
                                 <dl>
-                                    <div><dt><a href="../helpers/enum_extensions.html#ListablePrintableEnum">satkit.helpers.enum_extensions.ListablePrintableEnum</a></dt>
-                                <dd id="SimulationContourVowel.values" class="function"><a href="../helpers/enum_extensions.html#ListablePrintableEnum.values">values</a></dd>
+                                    <div><dt><a href="../external_class_extensions/enum_extensions.html#ListablePrintableEnum">satkit.external_class_extensions.enum_extensions.ListablePrintableEnum</a></dt>
+                                <dd id="SimulationContourVowel.values" class="function"><a href="../external_class_extensions/enum_extensions.html#ListablePrintableEnum.values">values</a></dd>
 
             </div>
             <div><dt>enum.Enum</dt>
@@ -341,7 +341,7 @@
 <div class="attr class">
             
     <span class="def">class</span>
-    <span class="name">SimulationContourConsonant</span><wbr>(<span class="base"><a href="../helpers/enum_extensions.html#ListablePrintableEnum">satkit.helpers.enum_extensions.ListablePrintableEnum</a></span>):
+    <span class="name">SimulationContourConsonant</span><wbr>(<span class="base"><a href="../external_class_extensions/enum_extensions.html#ListablePrintableEnum">satkit.external_class_extensions.enum_extensions.ListablePrintableEnum</a></span>):
 
                 <label class="view-source-button" for="SimulationContourConsonant-view-source"><span>View Source</span></label>
 
@@ -362,8 +362,8 @@
                             <div class="inherited">
                                 <h5>Inherited Members</h5>
                                 <dl>
-                                    <div><dt><a href="../helpers/enum_extensions.html#ListablePrintableEnum">satkit.helpers.enum_extensions.ListablePrintableEnum</a></dt>
-                                <dd id="SimulationContourConsonant.values" class="function"><a href="../helpers/enum_extensions.html#ListablePrintableEnum.values">values</a></dd>
+                                    <div><dt><a href="../external_class_extensions/enum_extensions.html#ListablePrintableEnum">satkit.external_class_extensions.enum_extensions.ListablePrintableEnum</a></dt>
+                                <dd id="SimulationContourConsonant.values" class="function"><a href="../external_class_extensions/enum_extensions.html#ListablePrintableEnum.values">values</a></dd>
 
             </div>
             <div><dt>enum.Enum</dt>
@@ -391,7 +391,7 @@
 <div class="attr function">
             
         <span class="def">def</span>
-        <span class="name">generate_contour</span><span class="signature pdoc-code multiline">(<span class="param">	<span class="n">sound</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n"><a href="../helpers/enum_extensions.html#UnionEnumMeta.make_union">satkit.helpers.enum_extensions.UnionEnumMeta.make_union</a></span><span class="o">.&lt;</span><span class="nb">locals</span><span class="o">&gt;.</span><span class="n">UnionEnum</span><span class="p">,</span> <span class="n">NoneType</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>,</span><span class="param">	<span class="n">number_of_points</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="mi">42</span></span><span class="return-annotation">) -> <span class="n">numpy</span><span class="o">.</span><span class="n">ndarray</span>:</span></span>
+        <span class="name">generate_contour</span><span class="signature pdoc-code multiline">(<span class="param">	<span class="n">sound</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n"><a href="../external_class_extensions/enum_extensions.html#UnionEnumMeta.make_union">satkit.external_class_extensions.enum_extensions.UnionEnumMeta.make_union</a></span><span class="o">.&lt;</span><span class="nb">locals</span><span class="o">&gt;.</span><span class="n">UnionEnum</span><span class="p">,</span> <span class="n">NoneType</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>,</span><span class="param">	<span class="n">number_of_points</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="mi">42</span></span><span class="return-annotation">) -> <span class="n">numpy</span><span class="o">.</span><span class="n">ndarray</span>:</span></span>
 
                 <label class="view-source-button" for="generate_contour-view-source"><span>View Source</span></label>
 

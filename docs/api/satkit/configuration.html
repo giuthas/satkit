@@ -33,6 +33,7 @@
                     <li><a href="configuration/configuration_models.html">configuration_models</a></li>
                     <li><a href="configuration/configuration_parsers.html">configuration_parsers</a></li>
                     <li><a href="configuration/configuration_setup.html">configuration_setup</a></li>
+                    <li><a href="configuration/exclusion_list_functions.html">exclusion_list_functions</a></li>
             </ul>
 
 
@@ -52,7 +53,7 @@
                         <div class="docstring"><p>This is the configuration interface for reading and saving configuration data.</p>
 
 <p>Direct use of config_dict, data_run_params, gui_params, and publish_params
-(from configuration_parsers) is deprecated since v0.8. Instead use the
+(from configuration_parsers) is deprecated since v0.8. Instead, use the
 interface provided by Configuration.</p>
 </div>
 
@@ -95,7 +96,7 @@ interface provided by Configuration.</p>
 </span><span id="L-33"><a href="#L-33"><span class="linenos">33</span></a><span class="sd">This is the configuration interface for reading and saving configuration data.</span>
 </span><span id="L-34"><a href="#L-34"><span class="linenos">34</span></a>
 </span><span id="L-35"><a href="#L-35"><span class="linenos">35</span></a><span class="sd">Direct use of config_dict, data_run_params, gui_params, and publish_params</span>
-</span><span id="L-36"><a href="#L-36"><span class="linenos">36</span></a><span class="sd">(from configuration_parsers) is deprecated since v0.8. Instead use the</span>
+</span><span id="L-36"><a href="#L-36"><span class="linenos">36</span></a><span class="sd">(from configuration_parsers) is deprecated since v0.8. Instead, use the</span>
 </span><span id="L-37"><a href="#L-37"><span class="linenos">37</span></a><span class="sd">interface provided by Configuration.</span>
 </span><span id="L-38"><a href="#L-38"><span class="linenos">38</span></a><span class="sd">&quot;&quot;&quot;</span>
 </span><span id="L-39"><a href="#L-39"><span class="linenos">39</span></a>
@@ -111,6 +112,7 @@ interface provided by Configuration.</p>
 </span><span id="L-49"><a href="#L-49"><span class="linenos">49</span></a>    <span class="n">MainConfig</span><span class="p">,</span> <span class="n">PeakDetectionParams</span><span class="p">,</span> <span class="n">PointAnnotationParams</span><span class="p">,</span>
 </span><span id="L-50"><a href="#L-50"><span class="linenos">50</span></a>    <span class="n">SearchPattern</span><span class="p">,</span> <span class="n">TimeseriesNormalisation</span><span class="p">)</span>
 </span><span id="L-51"><a href="#L-51"><span class="linenos">51</span></a><span class="kn">from</span> <span class="nn">.configuration_setup</span> <span class="kn">import</span> <span class="n">Configuration</span>
+</span><span id="L-52"><a href="#L-52"><span class="linenos">52</span></a><span class="kn">from</span> <span class="nn">.exclusion_list_functions</span> <span class="kn">import</span> <span class="n">apply_exclusion_list</span><span class="p">,</span> <span class="n">load_exclusion_list</span>
 </span></pre></div>
 
 

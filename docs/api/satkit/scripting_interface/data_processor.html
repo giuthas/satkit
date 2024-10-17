@@ -49,7 +49,10 @@
 
             </li>
             <li>
-                    <a class="function" href="#process_data">process_data</a>
+                    <a class="function" href="#process_modalities">process_modalities</a>
+            </li>
+            <li>
+                    <a class="function" href="#process_statistics_in_recordings">process_statistics_in_recordings</a>
             </li>
             <li>
                     <a class="function" href="#multi_process_data">multi_process_data</a>
@@ -113,9 +116,9 @@
 </span><span id="L-36"><a href="#L-36"><span class="linenos"> 36</span></a><span class="kn">from</span> <span class="nn">multiprocessing</span> <span class="kn">import</span> <span class="n">Pool</span>
 </span><span id="L-37"><a href="#L-37"><span class="linenos"> 37</span></a><span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Callable</span>
 </span><span id="L-38"><a href="#L-38"><span class="linenos"> 38</span></a>
-</span><span id="L-39"><a href="#L-39"><span class="linenos"> 39</span></a><span class="c1"># from icecream import ic</span>
+</span><span id="L-39"><a href="#L-39"><span class="linenos"> 39</span></a><span class="kn">from</span> <span class="nn">icecream</span> <span class="kn">import</span> <span class="n">ic</span>
 </span><span id="L-40"><a href="#L-40"><span class="linenos"> 40</span></a>
-</span><span id="L-41"><a href="#L-41"><span class="linenos"> 41</span></a><span class="kn">from</span> <span class="nn">satkit.data_structures</span> <span class="kn">import</span> <span class="n">Modality</span><span class="p">,</span> <span class="n">Recording</span>
+</span><span id="L-41"><a href="#L-41"><span class="linenos"> 41</span></a><span class="kn">from</span> <span class="nn">satkit.data_structures</span> <span class="kn">import</span> <span class="n">Modality</span><span class="p">,</span> <span class="n">Recording</span><span class="p">,</span> <span class="n">Session</span>
 </span><span id="L-42"><a href="#L-42"><span class="linenos"> 42</span></a>
 </span><span id="L-43"><a href="#L-43"><span class="linenos"> 43</span></a><span class="n">_logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="s1">&#39;satkit.scripting&#39;</span><span class="p">)</span>
 </span><span id="L-44"><a href="#L-44"><span class="linenos"> 44</span></a>
@@ -130,53 +133,82 @@
 </span><span id="L-53"><a href="#L-53"><span class="linenos"> 53</span></a>    <span class="n">arguments</span><span class="p">:</span> <span class="nb">dict</span>
 </span><span id="L-54"><a href="#L-54"><span class="linenos"> 54</span></a>
 </span><span id="L-55"><a href="#L-55"><span class="linenos"> 55</span></a>
-</span><span id="L-56"><a href="#L-56"><span class="linenos"> 56</span></a><span class="k">def</span> <span class="nf">process_data</span><span class="p">(</span>
-</span><span id="L-57"><a href="#L-57"><span class="linenos"> 57</span></a>        <span class="n">recordings</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">Recording</span><span class="p">],</span>
+</span><span id="L-56"><a href="#L-56"><span class="linenos"> 56</span></a><span class="k">def</span> <span class="nf">process_modalities</span><span class="p">(</span>
+</span><span id="L-57"><a href="#L-57"><span class="linenos"> 57</span></a>        <span class="n">recordings</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">Recording</span><span class="p">]</span> <span class="o">|</span> <span class="n">Session</span><span class="p">,</span>
 </span><span id="L-58"><a href="#L-58"><span class="linenos"> 58</span></a>        <span class="n">processing_functions</span><span class="p">:</span> <span class="nb">dict</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 </span><span id="L-59"><a href="#L-59"><span class="linenos"> 59</span></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-</span><span id="L-60"><a href="#L-60"><span class="linenos"> 60</span></a><span class="sd">    Apply processing functions to data.</span>
+</span><span id="L-60"><a href="#L-60"><span class="linenos"> 60</span></a><span class="sd">    Apply processing functions to Modalities.</span>
 </span><span id="L-61"><a href="#L-61"><span class="linenos"> 61</span></a>
 </span><span id="L-62"><a href="#L-62"><span class="linenos"> 62</span></a><span class="sd">    Arguments: </span>
 </span><span id="L-63"><a href="#L-63"><span class="linenos"> 63</span></a><span class="sd">    recordings is a list of Recordings to be processed. The results of applying</span>
-</span><span id="L-64"><a href="#L-64"><span class="linenos"> 64</span></a><span class="sd">        the functions get added to the Recordings as new Modalities.</span>
-</span><span id="L-65"><a href="#L-65"><span class="linenos"> 65</span></a><span class="sd">    processing_functions is a dictionary containing three keys:</span>
-</span><span id="L-66"><a href="#L-66"><span class="linenos"> 66</span></a><span class="sd">        &#39;function&#39; is a callable used to process a Recording,</span>
-</span><span id="L-67"><a href="#L-67"><span class="linenos"> 67</span></a><span class="sd">        &#39;modality&#39; is the Modality passed to the function, and </span>
-</span><span id="L-68"><a href="#L-68"><span class="linenos"> 68</span></a><span class="sd">        &#39;arguments&#39; is a dict of arguments for the function.</span>
-</span><span id="L-69"><a href="#L-69"><span class="linenos"> 69</span></a><span class="sd">    &quot;&quot;&quot;</span>
-</span><span id="L-70"><a href="#L-70"><span class="linenos"> 70</span></a>
-</span><span id="L-71"><a href="#L-71"><span class="linenos"> 71</span></a>    <span class="c1"># calculate the metrics</span>
-</span><span id="L-72"><a href="#L-72"><span class="linenos"> 72</span></a>    <span class="k">for</span> <span class="n">recording</span> <span class="ow">in</span> <span class="n">recordings</span><span class="p">:</span>
-</span><span id="L-73"><a href="#L-73"><span class="linenos"> 73</span></a>        <span class="k">if</span> <span class="n">recording</span><span class="o">.</span><span class="n">excluded</span><span class="p">:</span>
-</span><span id="L-74"><a href="#L-74"><span class="linenos"> 74</span></a>            <span class="k">continue</span>
-</span><span id="L-75"><a href="#L-75"><span class="linenos"> 75</span></a>
-</span><span id="L-76"><a href="#L-76"><span class="linenos"> 76</span></a>        <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">processing_functions</span><span class="p">:</span>
-</span><span id="L-77"><a href="#L-77"><span class="linenos"> 77</span></a>            <span class="p">(</span><span class="n">function</span><span class="p">,</span> <span class="n">modalities</span><span class="p">,</span> <span class="n">arguments</span><span class="p">)</span> <span class="o">=</span> <span class="n">processing_functions</span><span class="p">[</span><span class="n">key</span><span class="p">]</span>
-</span><span id="L-78"><a href="#L-78"><span class="linenos"> 78</span></a>            <span class="c1"># TODO: Version 1.0: add a mechanism to change the arguments for</span>
-</span><span id="L-79"><a href="#L-79"><span class="linenos"> 79</span></a>            <span class="c1"># different modalities.</span>
-</span><span id="L-80"><a href="#L-80"><span class="linenos"> 80</span></a>            <span class="k">for</span> <span class="n">modality</span> <span class="ow">in</span> <span class="n">modalities</span><span class="p">:</span>
-</span><span id="L-81"><a href="#L-81"><span class="linenos"> 81</span></a>                <span class="n">function</span><span class="p">(</span>
-</span><span id="L-82"><a href="#L-82"><span class="linenos"> 82</span></a>                    <span class="n">recording</span><span class="p">,</span>
-</span><span id="L-83"><a href="#L-83"><span class="linenos"> 83</span></a>                    <span class="n">modality</span><span class="p">,</span>
-</span><span id="L-84"><a href="#L-84"><span class="linenos"> 84</span></a>                    <span class="o">**</span><span class="n">arguments</span><span class="p">)</span>
-</span><span id="L-85"><a href="#L-85"><span class="linenos"> 85</span></a>
-</span><span id="L-86"><a href="#L-86"><span class="linenos"> 86</span></a>    <span class="n">_logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;Data run ended at </span><span class="si">%s</span><span class="s1">.&#39;</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">()))</span>
-</span><span id="L-87"><a href="#L-87"><span class="linenos"> 87</span></a>
+</span><span id="L-64"><a href="#L-64"><span class="linenos"> 64</span></a><span class="sd">        the functions get added to the Recordings as new Modalities and</span>
+</span><span id="L-65"><a href="#L-65"><span class="linenos"> 65</span></a><span class="sd">        Statistics.</span>
+</span><span id="L-66"><a href="#L-66"><span class="linenos"> 66</span></a><span class="sd">    processing_functions is a dictionary containing three keys:1</span>
+</span><span id="L-67"><a href="#L-67"><span class="linenos"> 67</span></a><span class="sd">        &#39;function&#39; is a callable used to process a Recording,</span>
+</span><span id="L-68"><a href="#L-68"><span class="linenos"> 68</span></a><span class="sd">        &#39;modality&#39; is the Modality passed to the function, and </span>
+</span><span id="L-69"><a href="#L-69"><span class="linenos"> 69</span></a><span class="sd">        &#39;arguments&#39; is a dict of arguments for the function.</span>
+</span><span id="L-70"><a href="#L-70"><span class="linenos"> 70</span></a><span class="sd">    &quot;&quot;&quot;</span>
+</span><span id="L-71"><a href="#L-71"><span class="linenos"> 71</span></a>
+</span><span id="L-72"><a href="#L-72"><span class="linenos"> 72</span></a>    <span class="c1"># calculate the metrics</span>
+</span><span id="L-73"><a href="#L-73"><span class="linenos"> 73</span></a>    <span class="k">for</span> <span class="n">recording</span> <span class="ow">in</span> <span class="n">recordings</span><span class="p">:</span>
+</span><span id="L-74"><a href="#L-74"><span class="linenos"> 74</span></a>        <span class="k">if</span> <span class="n">recording</span><span class="o">.</span><span class="n">excluded</span><span class="p">:</span>
+</span><span id="L-75"><a href="#L-75"><span class="linenos"> 75</span></a>            <span class="k">continue</span>
+</span><span id="L-76"><a href="#L-76"><span class="linenos"> 76</span></a>
+</span><span id="L-77"><a href="#L-77"><span class="linenos"> 77</span></a>        <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">processing_functions</span><span class="p">:</span>
+</span><span id="L-78"><a href="#L-78"><span class="linenos"> 78</span></a>            <span class="p">(</span><span class="n">function</span><span class="p">,</span> <span class="n">modalities</span><span class="p">,</span> <span class="n">arguments</span><span class="p">)</span> <span class="o">=</span> <span class="n">processing_functions</span><span class="p">[</span><span class="n">key</span><span class="p">]</span>
+</span><span id="L-79"><a href="#L-79"><span class="linenos"> 79</span></a>            <span class="c1"># TODO: Version 1.0: add a mechanism to change the arguments for</span>
+</span><span id="L-80"><a href="#L-80"><span class="linenos"> 80</span></a>            <span class="c1"># different modalities.</span>
+</span><span id="L-81"><a href="#L-81"><span class="linenos"> 81</span></a>            <span class="k">for</span> <span class="n">modality</span> <span class="ow">in</span> <span class="n">modalities</span><span class="p">:</span>
+</span><span id="L-82"><a href="#L-82"><span class="linenos"> 82</span></a>                <span class="n">function</span><span class="p">(</span>
+</span><span id="L-83"><a href="#L-83"><span class="linenos"> 83</span></a>                    <span class="n">recording</span><span class="p">,</span>
+</span><span id="L-84"><a href="#L-84"><span class="linenos"> 84</span></a>                    <span class="n">modality</span><span class="p">,</span>
+</span><span id="L-85"><a href="#L-85"><span class="linenos"> 85</span></a>                    <span class="o">**</span><span class="n">arguments</span><span class="p">)</span>
+</span><span id="L-86"><a href="#L-86"><span class="linenos"> 86</span></a>
+</span><span id="L-87"><a href="#L-87"><span class="linenos"> 87</span></a>    <span class="n">_logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;Modalities processed at </span><span class="si">%s</span><span class="s1">.&#39;</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">()))</span>
 </span><span id="L-88"><a href="#L-88"><span class="linenos"> 88</span></a>
-</span><span id="L-89"><a href="#L-89"><span class="linenos"> 89</span></a><span class="k">def</span> <span class="nf">multi_process_data</span><span class="p">(</span>
-</span><span id="L-90"><a href="#L-90"><span class="linenos"> 90</span></a>        <span class="n">recordings</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">Recording</span><span class="p">],</span>
-</span><span id="L-91"><a href="#L-91"><span class="linenos"> 91</span></a>        <span class="n">operation</span><span class="p">:</span> <span class="n">Operation</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-</span><span id="L-92"><a href="#L-92"><span class="linenos"> 92</span></a>
-</span><span id="L-93"><a href="#L-93"><span class="linenos"> 93</span></a>    <span class="n">arguments</span> <span class="o">=</span> <span class="p">[</span>
-</span><span id="L-94"><a href="#L-94"><span class="linenos"> 94</span></a>        <span class="p">{</span><span class="s1">&#39;recording&#39;</span><span class="p">:</span> <span class="n">recording</span><span class="p">,</span>
-</span><span id="L-95"><a href="#L-95"><span class="linenos"> 95</span></a>         <span class="s1">&#39;modality&#39;</span><span class="p">:</span> <span class="n">operation</span><span class="o">.</span><span class="n">modality</span><span class="p">,</span>
-</span><span id="L-96"><a href="#L-96"><span class="linenos"> 96</span></a>         <span class="o">**</span><span class="n">operation</span><span class="o">.</span><span class="n">arguments</span><span class="p">}</span> <span class="k">for</span> <span class="n">recording</span> <span class="ow">in</span> <span class="n">recordings</span><span class="p">]</span>
-</span><span id="L-97"><a href="#L-97"><span class="linenos"> 97</span></a>
-</span><span id="L-98"><a href="#L-98"><span class="linenos"> 98</span></a>    <span class="n">_logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;Starting data run at </span><span class="si">%s</span><span class="s1">.&#39;</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">()))</span>
-</span><span id="L-99"><a href="#L-99"><span class="linenos"> 99</span></a>    <span class="k">with</span> <span class="n">Pool</span><span class="p">()</span> <span class="k">as</span> <span class="n">pool</span><span class="p">:</span>
-</span><span id="L-100"><a href="#L-100"><span class="linenos">100</span></a>        <span class="n">pool</span><span class="o">.</span><span class="n">map</span><span class="p">(</span><span class="n">operation</span><span class="o">.</span><span class="n">processing_function</span><span class="p">,</span> <span class="n">arguments</span><span class="p">)</span>
-</span><span id="L-101"><a href="#L-101"><span class="linenos">101</span></a>
-</span><span id="L-102"><a href="#L-102"><span class="linenos">102</span></a>    <span class="n">_logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;Data run ended at </span><span class="si">%s</span><span class="s1">.&#39;</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">()))</span>
+</span><span id="L-89"><a href="#L-89"><span class="linenos"> 89</span></a>
+</span><span id="L-90"><a href="#L-90"><span class="linenos"> 90</span></a><span class="k">def</span> <span class="nf">process_statistics_in_recordings</span><span class="p">(</span>
+</span><span id="L-91"><a href="#L-91"><span class="linenos"> 91</span></a>        <span class="n">session</span><span class="p">:</span> <span class="n">Session</span><span class="p">,</span>
+</span><span id="L-92"><a href="#L-92"><span class="linenos"> 92</span></a>        <span class="n">processing_functions</span><span class="p">:</span> <span class="nb">dict</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+</span><span id="L-93"><a href="#L-93"><span class="linenos"> 93</span></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+</span><span id="L-94"><a href="#L-94"><span class="linenos"> 94</span></a><span class="sd">    Apply processing functions to Statistics.</span>
+</span><span id="L-95"><a href="#L-95"><span class="linenos"> 95</span></a>
+</span><span id="L-96"><a href="#L-96"><span class="linenos"> 96</span></a><span class="sd">    Arguments:</span>
+</span><span id="L-97"><a href="#L-97"><span class="linenos"> 97</span></a><span class="sd">    recordings is a list of Recordings to be processed. The results of applying</span>
+</span><span id="L-98"><a href="#L-98"><span class="linenos"> 98</span></a><span class="sd">        the functions get added to the Recordings as new Statistics.</span>
+</span><span id="L-99"><a href="#L-99"><span class="linenos"> 99</span></a><span class="sd">    processing_functions is a dictionary containing three keys:</span>
+</span><span id="L-100"><a href="#L-100"><span class="linenos">100</span></a><span class="sd">        &#39;function&#39; is a callable used to process a Recording,</span>
+</span><span id="L-101"><a href="#L-101"><span class="linenos">101</span></a><span class="sd">        &#39;statistic&#39; is the Statistic passed to the function, and</span>
+</span><span id="L-102"><a href="#L-102"><span class="linenos">102</span></a><span class="sd">        &#39;arguments&#39; is a dict of arguments for the function.</span>
+</span><span id="L-103"><a href="#L-103"><span class="linenos">103</span></a><span class="sd">    &quot;&quot;&quot;</span>
+</span><span id="L-104"><a href="#L-104"><span class="linenos">104</span></a>
+</span><span id="L-105"><a href="#L-105"><span class="linenos">105</span></a>    <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">processing_functions</span><span class="p">:</span>
+</span><span id="L-106"><a href="#L-106"><span class="linenos">106</span></a>        <span class="p">(</span><span class="n">function</span><span class="p">,</span> <span class="n">statistics</span><span class="p">,</span> <span class="n">arguments</span><span class="p">)</span> <span class="o">=</span> <span class="n">processing_functions</span><span class="p">[</span><span class="n">key</span><span class="p">]</span>
+</span><span id="L-107"><a href="#L-107"><span class="linenos">107</span></a>        <span class="c1"># TODO: Version 1.0: add a mechanism to change the arguments for</span>
+</span><span id="L-108"><a href="#L-108"><span class="linenos">108</span></a>        <span class="c1"># different modalities.</span>
+</span><span id="L-109"><a href="#L-109"><span class="linenos">109</span></a>        <span class="k">for</span> <span class="n">statistic</span> <span class="ow">in</span> <span class="n">statistics</span><span class="p">:</span>
+</span><span id="L-110"><a href="#L-110"><span class="linenos">110</span></a>            <span class="n">function</span><span class="p">(</span>
+</span><span id="L-111"><a href="#L-111"><span class="linenos">111</span></a>                <span class="n">session</span><span class="p">,</span>
+</span><span id="L-112"><a href="#L-112"><span class="linenos">112</span></a>                <span class="n">statistic</span><span class="p">,</span>
+</span><span id="L-113"><a href="#L-113"><span class="linenos">113</span></a>                <span class="o">**</span><span class="n">arguments</span><span class="p">)</span>
+</span><span id="L-114"><a href="#L-114"><span class="linenos">114</span></a>
+</span><span id="L-115"><a href="#L-115"><span class="linenos">115</span></a>    <span class="n">_logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;Modalities processed at </span><span class="si">%s</span><span class="s1">.&#39;</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">()))</span>
+</span><span id="L-116"><a href="#L-116"><span class="linenos">116</span></a>
+</span><span id="L-117"><a href="#L-117"><span class="linenos">117</span></a>
+</span><span id="L-118"><a href="#L-118"><span class="linenos">118</span></a><span class="k">def</span> <span class="nf">multi_process_data</span><span class="p">(</span>
+</span><span id="L-119"><a href="#L-119"><span class="linenos">119</span></a>        <span class="n">recordings</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">Recording</span><span class="p">],</span>
+</span><span id="L-120"><a href="#L-120"><span class="linenos">120</span></a>        <span class="n">operation</span><span class="p">:</span> <span class="n">Operation</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+</span><span id="L-121"><a href="#L-121"><span class="linenos">121</span></a>
+</span><span id="L-122"><a href="#L-122"><span class="linenos">122</span></a>    <span class="n">arguments</span> <span class="o">=</span> <span class="p">[</span>
+</span><span id="L-123"><a href="#L-123"><span class="linenos">123</span></a>        <span class="p">{</span><span class="s1">&#39;recording&#39;</span><span class="p">:</span> <span class="n">recording</span><span class="p">,</span>
+</span><span id="L-124"><a href="#L-124"><span class="linenos">124</span></a>         <span class="s1">&#39;modality&#39;</span><span class="p">:</span> <span class="n">operation</span><span class="o">.</span><span class="n">modality</span><span class="p">,</span>
+</span><span id="L-125"><a href="#L-125"><span class="linenos">125</span></a>         <span class="o">**</span><span class="n">operation</span><span class="o">.</span><span class="n">arguments</span><span class="p">}</span> <span class="k">for</span> <span class="n">recording</span> <span class="ow">in</span> <span class="n">recordings</span><span class="p">]</span>
+</span><span id="L-126"><a href="#L-126"><span class="linenos">126</span></a>
+</span><span id="L-127"><a href="#L-127"><span class="linenos">127</span></a>    <span class="n">_logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;Starting data run at </span><span class="si">%s</span><span class="s1">.&#39;</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">()))</span>
+</span><span id="L-128"><a href="#L-128"><span class="linenos">128</span></a>    <span class="k">with</span> <span class="n">Pool</span><span class="p">()</span> <span class="k">as</span> <span class="n">pool</span><span class="p">:</span>
+</span><span id="L-129"><a href="#L-129"><span class="linenos">129</span></a>        <span class="n">pool</span><span class="o">.</span><span class="n">map</span><span class="p">(</span><span class="n">operation</span><span class="o">.</span><span class="n">processing_function</span><span class="p">,</span> <span class="n">arguments</span><span class="p">)</span>
+</span><span id="L-130"><a href="#L-130"><span class="linenos">130</span></a>
+</span><span id="L-131"><a href="#L-131"><span class="linenos">131</span></a>    <span class="n">_logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;Data run ended at </span><span class="si">%s</span><span class="s1">.&#39;</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">()))</span>
 </span></pre></div>
 
 
@@ -254,59 +286,114 @@
 
                             </div>
                 </section>
-                <section id="process_data">
-                            <input id="process_data-view-source" class="view-source-toggle-state" type="checkbox" aria-hidden="true" tabindex="-1">
+                <section id="process_modalities">
+                            <input id="process_modalities-view-source" class="view-source-toggle-state" type="checkbox" aria-hidden="true" tabindex="-1">
 <div class="attr function">
             
         <span class="def">def</span>
-        <span class="name">process_data</span><span class="signature pdoc-code multiline">(<span class="param">	<span class="n">recordings</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n"><a href="../data_structures/data_structures.html#Recording">satkit.data_structures.data_structures.Recording</a></span><span class="p">]</span>,</span><span class="param">	<span class="n">processing_functions</span><span class="p">:</span> <span class="nb">dict</span></span><span class="return-annotation">) -> <span class="kc">None</span>:</span></span>
+        <span class="name">process_modalities</span><span class="signature pdoc-code multiline">(<span class="param">	<span class="n">recordings</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n"><a href="../data_structures/data_structures.html#Recording">satkit.data_structures.data_structures.Recording</a></span><span class="p">]</span> <span class="o">|</span> <span class="n"><a href="../data_structures/data_structures.html#Session">satkit.data_structures.data_structures.Session</a></span>,</span><span class="param">	<span class="n">processing_functions</span><span class="p">:</span> <span class="nb">dict</span></span><span class="return-annotation">) -> <span class="kc">None</span>:</span></span>
 
-                <label class="view-source-button" for="process_data-view-source"><span>View Source</span></label>
+                <label class="view-source-button" for="process_modalities-view-source"><span>View Source</span></label>
 
     </div>
-    <a class="headerlink" href="#process_data"></a>
-            <div class="pdoc-code codehilite"><pre><span></span><span id="process_data-57"><a href="#process_data-57"><span class="linenos">57</span></a><span class="k">def</span> <span class="nf">process_data</span><span class="p">(</span>
-</span><span id="process_data-58"><a href="#process_data-58"><span class="linenos">58</span></a>        <span class="n">recordings</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">Recording</span><span class="p">],</span>
-</span><span id="process_data-59"><a href="#process_data-59"><span class="linenos">59</span></a>        <span class="n">processing_functions</span><span class="p">:</span> <span class="nb">dict</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-</span><span id="process_data-60"><a href="#process_data-60"><span class="linenos">60</span></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-</span><span id="process_data-61"><a href="#process_data-61"><span class="linenos">61</span></a><span class="sd">    Apply processing functions to data.</span>
-</span><span id="process_data-62"><a href="#process_data-62"><span class="linenos">62</span></a>
-</span><span id="process_data-63"><a href="#process_data-63"><span class="linenos">63</span></a><span class="sd">    Arguments: </span>
-</span><span id="process_data-64"><a href="#process_data-64"><span class="linenos">64</span></a><span class="sd">    recordings is a list of Recordings to be processed. The results of applying</span>
-</span><span id="process_data-65"><a href="#process_data-65"><span class="linenos">65</span></a><span class="sd">        the functions get added to the Recordings as new Modalities.</span>
-</span><span id="process_data-66"><a href="#process_data-66"><span class="linenos">66</span></a><span class="sd">    processing_functions is a dictionary containing three keys:</span>
-</span><span id="process_data-67"><a href="#process_data-67"><span class="linenos">67</span></a><span class="sd">        &#39;function&#39; is a callable used to process a Recording,</span>
-</span><span id="process_data-68"><a href="#process_data-68"><span class="linenos">68</span></a><span class="sd">        &#39;modality&#39; is the Modality passed to the function, and </span>
-</span><span id="process_data-69"><a href="#process_data-69"><span class="linenos">69</span></a><span class="sd">        &#39;arguments&#39; is a dict of arguments for the function.</span>
-</span><span id="process_data-70"><a href="#process_data-70"><span class="linenos">70</span></a><span class="sd">    &quot;&quot;&quot;</span>
-</span><span id="process_data-71"><a href="#process_data-71"><span class="linenos">71</span></a>
-</span><span id="process_data-72"><a href="#process_data-72"><span class="linenos">72</span></a>    <span class="c1"># calculate the metrics</span>
-</span><span id="process_data-73"><a href="#process_data-73"><span class="linenos">73</span></a>    <span class="k">for</span> <span class="n">recording</span> <span class="ow">in</span> <span class="n">recordings</span><span class="p">:</span>
-</span><span id="process_data-74"><a href="#process_data-74"><span class="linenos">74</span></a>        <span class="k">if</span> <span class="n">recording</span><span class="o">.</span><span class="n">excluded</span><span class="p">:</span>
-</span><span id="process_data-75"><a href="#process_data-75"><span class="linenos">75</span></a>            <span class="k">continue</span>
-</span><span id="process_data-76"><a href="#process_data-76"><span class="linenos">76</span></a>
-</span><span id="process_data-77"><a href="#process_data-77"><span class="linenos">77</span></a>        <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">processing_functions</span><span class="p">:</span>
-</span><span id="process_data-78"><a href="#process_data-78"><span class="linenos">78</span></a>            <span class="p">(</span><span class="n">function</span><span class="p">,</span> <span class="n">modalities</span><span class="p">,</span> <span class="n">arguments</span><span class="p">)</span> <span class="o">=</span> <span class="n">processing_functions</span><span class="p">[</span><span class="n">key</span><span class="p">]</span>
-</span><span id="process_data-79"><a href="#process_data-79"><span class="linenos">79</span></a>            <span class="c1"># TODO: Version 1.0: add a mechanism to change the arguments for</span>
-</span><span id="process_data-80"><a href="#process_data-80"><span class="linenos">80</span></a>            <span class="c1"># different modalities.</span>
-</span><span id="process_data-81"><a href="#process_data-81"><span class="linenos">81</span></a>            <span class="k">for</span> <span class="n">modality</span> <span class="ow">in</span> <span class="n">modalities</span><span class="p">:</span>
-</span><span id="process_data-82"><a href="#process_data-82"><span class="linenos">82</span></a>                <span class="n">function</span><span class="p">(</span>
-</span><span id="process_data-83"><a href="#process_data-83"><span class="linenos">83</span></a>                    <span class="n">recording</span><span class="p">,</span>
-</span><span id="process_data-84"><a href="#process_data-84"><span class="linenos">84</span></a>                    <span class="n">modality</span><span class="p">,</span>
-</span><span id="process_data-85"><a href="#process_data-85"><span class="linenos">85</span></a>                    <span class="o">**</span><span class="n">arguments</span><span class="p">)</span>
-</span><span id="process_data-86"><a href="#process_data-86"><span class="linenos">86</span></a>
-</span><span id="process_data-87"><a href="#process_data-87"><span class="linenos">87</span></a>    <span class="n">_logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;Data run ended at </span><span class="si">%s</span><span class="s1">.&#39;</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">()))</span>
+    <a class="headerlink" href="#process_modalities"></a>
+            <div class="pdoc-code codehilite"><pre><span></span><span id="process_modalities-57"><a href="#process_modalities-57"><span class="linenos">57</span></a><span class="k">def</span> <span class="nf">process_modalities</span><span class="p">(</span>
+</span><span id="process_modalities-58"><a href="#process_modalities-58"><span class="linenos">58</span></a>        <span class="n">recordings</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">Recording</span><span class="p">]</span> <span class="o">|</span> <span class="n">Session</span><span class="p">,</span>
+</span><span id="process_modalities-59"><a href="#process_modalities-59"><span class="linenos">59</span></a>        <span class="n">processing_functions</span><span class="p">:</span> <span class="nb">dict</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+</span><span id="process_modalities-60"><a href="#process_modalities-60"><span class="linenos">60</span></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+</span><span id="process_modalities-61"><a href="#process_modalities-61"><span class="linenos">61</span></a><span class="sd">    Apply processing functions to Modalities.</span>
+</span><span id="process_modalities-62"><a href="#process_modalities-62"><span class="linenos">62</span></a>
+</span><span id="process_modalities-63"><a href="#process_modalities-63"><span class="linenos">63</span></a><span class="sd">    Arguments: </span>
+</span><span id="process_modalities-64"><a href="#process_modalities-64"><span class="linenos">64</span></a><span class="sd">    recordings is a list of Recordings to be processed. The results of applying</span>
+</span><span id="process_modalities-65"><a href="#process_modalities-65"><span class="linenos">65</span></a><span class="sd">        the functions get added to the Recordings as new Modalities and</span>
+</span><span id="process_modalities-66"><a href="#process_modalities-66"><span class="linenos">66</span></a><span class="sd">        Statistics.</span>
+</span><span id="process_modalities-67"><a href="#process_modalities-67"><span class="linenos">67</span></a><span class="sd">    processing_functions is a dictionary containing three keys:1</span>
+</span><span id="process_modalities-68"><a href="#process_modalities-68"><span class="linenos">68</span></a><span class="sd">        &#39;function&#39; is a callable used to process a Recording,</span>
+</span><span id="process_modalities-69"><a href="#process_modalities-69"><span class="linenos">69</span></a><span class="sd">        &#39;modality&#39; is the Modality passed to the function, and </span>
+</span><span id="process_modalities-70"><a href="#process_modalities-70"><span class="linenos">70</span></a><span class="sd">        &#39;arguments&#39; is a dict of arguments for the function.</span>
+</span><span id="process_modalities-71"><a href="#process_modalities-71"><span class="linenos">71</span></a><span class="sd">    &quot;&quot;&quot;</span>
+</span><span id="process_modalities-72"><a href="#process_modalities-72"><span class="linenos">72</span></a>
+</span><span id="process_modalities-73"><a href="#process_modalities-73"><span class="linenos">73</span></a>    <span class="c1"># calculate the metrics</span>
+</span><span id="process_modalities-74"><a href="#process_modalities-74"><span class="linenos">74</span></a>    <span class="k">for</span> <span class="n">recording</span> <span class="ow">in</span> <span class="n">recordings</span><span class="p">:</span>
+</span><span id="process_modalities-75"><a href="#process_modalities-75"><span class="linenos">75</span></a>        <span class="k">if</span> <span class="n">recording</span><span class="o">.</span><span class="n">excluded</span><span class="p">:</span>
+</span><span id="process_modalities-76"><a href="#process_modalities-76"><span class="linenos">76</span></a>            <span class="k">continue</span>
+</span><span id="process_modalities-77"><a href="#process_modalities-77"><span class="linenos">77</span></a>
+</span><span id="process_modalities-78"><a href="#process_modalities-78"><span class="linenos">78</span></a>        <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">processing_functions</span><span class="p">:</span>
+</span><span id="process_modalities-79"><a href="#process_modalities-79"><span class="linenos">79</span></a>            <span class="p">(</span><span class="n">function</span><span class="p">,</span> <span class="n">modalities</span><span class="p">,</span> <span class="n">arguments</span><span class="p">)</span> <span class="o">=</span> <span class="n">processing_functions</span><span class="p">[</span><span class="n">key</span><span class="p">]</span>
+</span><span id="process_modalities-80"><a href="#process_modalities-80"><span class="linenos">80</span></a>            <span class="c1"># TODO: Version 1.0: add a mechanism to change the arguments for</span>
+</span><span id="process_modalities-81"><a href="#process_modalities-81"><span class="linenos">81</span></a>            <span class="c1"># different modalities.</span>
+</span><span id="process_modalities-82"><a href="#process_modalities-82"><span class="linenos">82</span></a>            <span class="k">for</span> <span class="n">modality</span> <span class="ow">in</span> <span class="n">modalities</span><span class="p">:</span>
+</span><span id="process_modalities-83"><a href="#process_modalities-83"><span class="linenos">83</span></a>                <span class="n">function</span><span class="p">(</span>
+</span><span id="process_modalities-84"><a href="#process_modalities-84"><span class="linenos">84</span></a>                    <span class="n">recording</span><span class="p">,</span>
+</span><span id="process_modalities-85"><a href="#process_modalities-85"><span class="linenos">85</span></a>                    <span class="n">modality</span><span class="p">,</span>
+</span><span id="process_modalities-86"><a href="#process_modalities-86"><span class="linenos">86</span></a>                    <span class="o">**</span><span class="n">arguments</span><span class="p">)</span>
+</span><span id="process_modalities-87"><a href="#process_modalities-87"><span class="linenos">87</span></a>
+</span><span id="process_modalities-88"><a href="#process_modalities-88"><span class="linenos">88</span></a>    <span class="n">_logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;Modalities processed at </span><span class="si">%s</span><span class="s1">.&#39;</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">()))</span>
 </span></pre></div>
 
 
-            <div class="docstring"><p>Apply processing functions to data.</p>
+            <div class="docstring"><p>Apply processing functions to Modalities.</p>
 
 <p>Arguments: 
 recordings is a list of Recordings to be processed. The results of applying
-    the functions get added to the Recordings as new Modalities.
-processing_functions is a dictionary containing three keys:
+    the functions get added to the Recordings as new Modalities and
+    Statistics.
+processing_functions is a dictionary containing three keys:1
     'function' is a callable used to process a Recording,
     'modality' is the Modality passed to the function, and 
+    'arguments' is a dict of arguments for the function.</p>
+</div>
+
+
+                </section>
+                <section id="process_statistics_in_recordings">
+                            <input id="process_statistics_in_recordings-view-source" class="view-source-toggle-state" type="checkbox" aria-hidden="true" tabindex="-1">
+<div class="attr function">
+            
+        <span class="def">def</span>
+        <span class="name">process_statistics_in_recordings</span><span class="signature pdoc-code multiline">(<span class="param">	<span class="n">session</span><span class="p">:</span> <span class="n"><a href="../data_structures/data_structures.html#Session">satkit.data_structures.data_structures.Session</a></span>,</span><span class="param">	<span class="n">processing_functions</span><span class="p">:</span> <span class="nb">dict</span></span><span class="return-annotation">) -> <span class="kc">None</span>:</span></span>
+
+                <label class="view-source-button" for="process_statistics_in_recordings-view-source"><span>View Source</span></label>
+
+    </div>
+    <a class="headerlink" href="#process_statistics_in_recordings"></a>
+            <div class="pdoc-code codehilite"><pre><span></span><span id="process_statistics_in_recordings-91"><a href="#process_statistics_in_recordings-91"><span class="linenos"> 91</span></a><span class="k">def</span> <span class="nf">process_statistics_in_recordings</span><span class="p">(</span>
+</span><span id="process_statistics_in_recordings-92"><a href="#process_statistics_in_recordings-92"><span class="linenos"> 92</span></a>        <span class="n">session</span><span class="p">:</span> <span class="n">Session</span><span class="p">,</span>
+</span><span id="process_statistics_in_recordings-93"><a href="#process_statistics_in_recordings-93"><span class="linenos"> 93</span></a>        <span class="n">processing_functions</span><span class="p">:</span> <span class="nb">dict</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+</span><span id="process_statistics_in_recordings-94"><a href="#process_statistics_in_recordings-94"><span class="linenos"> 94</span></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+</span><span id="process_statistics_in_recordings-95"><a href="#process_statistics_in_recordings-95"><span class="linenos"> 95</span></a><span class="sd">    Apply processing functions to Statistics.</span>
+</span><span id="process_statistics_in_recordings-96"><a href="#process_statistics_in_recordings-96"><span class="linenos"> 96</span></a>
+</span><span id="process_statistics_in_recordings-97"><a href="#process_statistics_in_recordings-97"><span class="linenos"> 97</span></a><span class="sd">    Arguments:</span>
+</span><span id="process_statistics_in_recordings-98"><a href="#process_statistics_in_recordings-98"><span class="linenos"> 98</span></a><span class="sd">    recordings is a list of Recordings to be processed. The results of applying</span>
+</span><span id="process_statistics_in_recordings-99"><a href="#process_statistics_in_recordings-99"><span class="linenos"> 99</span></a><span class="sd">        the functions get added to the Recordings as new Statistics.</span>
+</span><span id="process_statistics_in_recordings-100"><a href="#process_statistics_in_recordings-100"><span class="linenos">100</span></a><span class="sd">    processing_functions is a dictionary containing three keys:</span>
+</span><span id="process_statistics_in_recordings-101"><a href="#process_statistics_in_recordings-101"><span class="linenos">101</span></a><span class="sd">        &#39;function&#39; is a callable used to process a Recording,</span>
+</span><span id="process_statistics_in_recordings-102"><a href="#process_statistics_in_recordings-102"><span class="linenos">102</span></a><span class="sd">        &#39;statistic&#39; is the Statistic passed to the function, and</span>
+</span><span id="process_statistics_in_recordings-103"><a href="#process_statistics_in_recordings-103"><span class="linenos">103</span></a><span class="sd">        &#39;arguments&#39; is a dict of arguments for the function.</span>
+</span><span id="process_statistics_in_recordings-104"><a href="#process_statistics_in_recordings-104"><span class="linenos">104</span></a><span class="sd">    &quot;&quot;&quot;</span>
+</span><span id="process_statistics_in_recordings-105"><a href="#process_statistics_in_recordings-105"><span class="linenos">105</span></a>
+</span><span id="process_statistics_in_recordings-106"><a href="#process_statistics_in_recordings-106"><span class="linenos">106</span></a>    <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">processing_functions</span><span class="p">:</span>
+</span><span id="process_statistics_in_recordings-107"><a href="#process_statistics_in_recordings-107"><span class="linenos">107</span></a>        <span class="p">(</span><span class="n">function</span><span class="p">,</span> <span class="n">statistics</span><span class="p">,</span> <span class="n">arguments</span><span class="p">)</span> <span class="o">=</span> <span class="n">processing_functions</span><span class="p">[</span><span class="n">key</span><span class="p">]</span>
+</span><span id="process_statistics_in_recordings-108"><a href="#process_statistics_in_recordings-108"><span class="linenos">108</span></a>        <span class="c1"># TODO: Version 1.0: add a mechanism to change the arguments for</span>
+</span><span id="process_statistics_in_recordings-109"><a href="#process_statistics_in_recordings-109"><span class="linenos">109</span></a>        <span class="c1"># different modalities.</span>
+</span><span id="process_statistics_in_recordings-110"><a href="#process_statistics_in_recordings-110"><span class="linenos">110</span></a>        <span class="k">for</span> <span class="n">statistic</span> <span class="ow">in</span> <span class="n">statistics</span><span class="p">:</span>
+</span><span id="process_statistics_in_recordings-111"><a href="#process_statistics_in_recordings-111"><span class="linenos">111</span></a>            <span class="n">function</span><span class="p">(</span>
+</span><span id="process_statistics_in_recordings-112"><a href="#process_statistics_in_recordings-112"><span class="linenos">112</span></a>                <span class="n">session</span><span class="p">,</span>
+</span><span id="process_statistics_in_recordings-113"><a href="#process_statistics_in_recordings-113"><span class="linenos">113</span></a>                <span class="n">statistic</span><span class="p">,</span>
+</span><span id="process_statistics_in_recordings-114"><a href="#process_statistics_in_recordings-114"><span class="linenos">114</span></a>                <span class="o">**</span><span class="n">arguments</span><span class="p">)</span>
+</span><span id="process_statistics_in_recordings-115"><a href="#process_statistics_in_recordings-115"><span class="linenos">115</span></a>
+</span><span id="process_statistics_in_recordings-116"><a href="#process_statistics_in_recordings-116"><span class="linenos">116</span></a>    <span class="n">_logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;Modalities processed at </span><span class="si">%s</span><span class="s1">.&#39;</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">()))</span>
+</span></pre></div>
+
+
+            <div class="docstring"><p>Apply processing functions to Statistics.</p>
+
+<p>Arguments:
+recordings is a list of Recordings to be processed. The results of applying
+    the functions get added to the Recordings as new Statistics.
+processing_functions is a dictionary containing three keys:
+    'function' is a callable used to process a Recording,
+    'statistic' is the Statistic passed to the function, and
     'arguments' is a dict of arguments for the function.</p>
 </div>
 
@@ -323,20 +410,20 @@ processing_functions is a dictionary containing three keys:
 
     </div>
     <a class="headerlink" href="#multi_process_data"></a>
-            <div class="pdoc-code codehilite"><pre><span></span><span id="multi_process_data-90"><a href="#multi_process_data-90"><span class="linenos"> 90</span></a><span class="k">def</span> <span class="nf">multi_process_data</span><span class="p">(</span>
-</span><span id="multi_process_data-91"><a href="#multi_process_data-91"><span class="linenos"> 91</span></a>        <span class="n">recordings</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">Recording</span><span class="p">],</span>
-</span><span id="multi_process_data-92"><a href="#multi_process_data-92"><span class="linenos"> 92</span></a>        <span class="n">operation</span><span class="p">:</span> <span class="n">Operation</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-</span><span id="multi_process_data-93"><a href="#multi_process_data-93"><span class="linenos"> 93</span></a>
-</span><span id="multi_process_data-94"><a href="#multi_process_data-94"><span class="linenos"> 94</span></a>    <span class="n">arguments</span> <span class="o">=</span> <span class="p">[</span>
-</span><span id="multi_process_data-95"><a href="#multi_process_data-95"><span class="linenos"> 95</span></a>        <span class="p">{</span><span class="s1">&#39;recording&#39;</span><span class="p">:</span> <span class="n">recording</span><span class="p">,</span>
-</span><span id="multi_process_data-96"><a href="#multi_process_data-96"><span class="linenos"> 96</span></a>         <span class="s1">&#39;modality&#39;</span><span class="p">:</span> <span class="n">operation</span><span class="o">.</span><span class="n">modality</span><span class="p">,</span>
-</span><span id="multi_process_data-97"><a href="#multi_process_data-97"><span class="linenos"> 97</span></a>         <span class="o">**</span><span class="n">operation</span><span class="o">.</span><span class="n">arguments</span><span class="p">}</span> <span class="k">for</span> <span class="n">recording</span> <span class="ow">in</span> <span class="n">recordings</span><span class="p">]</span>
-</span><span id="multi_process_data-98"><a href="#multi_process_data-98"><span class="linenos"> 98</span></a>
-</span><span id="multi_process_data-99"><a href="#multi_process_data-99"><span class="linenos"> 99</span></a>    <span class="n">_logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;Starting data run at </span><span class="si">%s</span><span class="s1">.&#39;</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">()))</span>
-</span><span id="multi_process_data-100"><a href="#multi_process_data-100"><span class="linenos">100</span></a>    <span class="k">with</span> <span class="n">Pool</span><span class="p">()</span> <span class="k">as</span> <span class="n">pool</span><span class="p">:</span>
-</span><span id="multi_process_data-101"><a href="#multi_process_data-101"><span class="linenos">101</span></a>        <span class="n">pool</span><span class="o">.</span><span class="n">map</span><span class="p">(</span><span class="n">operation</span><span class="o">.</span><span class="n">processing_function</span><span class="p">,</span> <span class="n">arguments</span><span class="p">)</span>
-</span><span id="multi_process_data-102"><a href="#multi_process_data-102"><span class="linenos">102</span></a>
-</span><span id="multi_process_data-103"><a href="#multi_process_data-103"><span class="linenos">103</span></a>    <span class="n">_logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;Data run ended at </span><span class="si">%s</span><span class="s1">.&#39;</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">()))</span>
+            <div class="pdoc-code codehilite"><pre><span></span><span id="multi_process_data-119"><a href="#multi_process_data-119"><span class="linenos">119</span></a><span class="k">def</span> <span class="nf">multi_process_data</span><span class="p">(</span>
+</span><span id="multi_process_data-120"><a href="#multi_process_data-120"><span class="linenos">120</span></a>        <span class="n">recordings</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">Recording</span><span class="p">],</span>
+</span><span id="multi_process_data-121"><a href="#multi_process_data-121"><span class="linenos">121</span></a>        <span class="n">operation</span><span class="p">:</span> <span class="n">Operation</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+</span><span id="multi_process_data-122"><a href="#multi_process_data-122"><span class="linenos">122</span></a>
+</span><span id="multi_process_data-123"><a href="#multi_process_data-123"><span class="linenos">123</span></a>    <span class="n">arguments</span> <span class="o">=</span> <span class="p">[</span>
+</span><span id="multi_process_data-124"><a href="#multi_process_data-124"><span class="linenos">124</span></a>        <span class="p">{</span><span class="s1">&#39;recording&#39;</span><span class="p">:</span> <span class="n">recording</span><span class="p">,</span>
+</span><span id="multi_process_data-125"><a href="#multi_process_data-125"><span class="linenos">125</span></a>         <span class="s1">&#39;modality&#39;</span><span class="p">:</span> <span class="n">operation</span><span class="o">.</span><span class="n">modality</span><span class="p">,</span>
+</span><span id="multi_process_data-126"><a href="#multi_process_data-126"><span class="linenos">126</span></a>         <span class="o">**</span><span class="n">operation</span><span class="o">.</span><span class="n">arguments</span><span class="p">}</span> <span class="k">for</span> <span class="n">recording</span> <span class="ow">in</span> <span class="n">recordings</span><span class="p">]</span>
+</span><span id="multi_process_data-127"><a href="#multi_process_data-127"><span class="linenos">127</span></a>
+</span><span id="multi_process_data-128"><a href="#multi_process_data-128"><span class="linenos">128</span></a>    <span class="n">_logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;Starting data run at </span><span class="si">%s</span><span class="s1">.&#39;</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">()))</span>
+</span><span id="multi_process_data-129"><a href="#multi_process_data-129"><span class="linenos">129</span></a>    <span class="k">with</span> <span class="n">Pool</span><span class="p">()</span> <span class="k">as</span> <span class="n">pool</span><span class="p">:</span>
+</span><span id="multi_process_data-130"><a href="#multi_process_data-130"><span class="linenos">130</span></a>        <span class="n">pool</span><span class="o">.</span><span class="n">map</span><span class="p">(</span><span class="n">operation</span><span class="o">.</span><span class="n">processing_function</span><span class="p">,</span> <span class="n">arguments</span><span class="p">)</span>
+</span><span id="multi_process_data-131"><a href="#multi_process_data-131"><span class="linenos">131</span></a>
+</span><span id="multi_process_data-132"><a href="#multi_process_data-132"><span class="linenos">132</span></a>    <span class="n">_logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;Data run ended at </span><span class="si">%s</span><span class="s1">.&#39;</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">()))</span>
 </span></pre></div>
 
 

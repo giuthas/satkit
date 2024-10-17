@@ -31,11 +31,12 @@ and this project uses [Semantic Versioning](https://semver.org/spec/v2.0.0.html)
 
 - TODO: import the roadmap here.
 
-## [0.10.0]
+## [0.10.0] 2024-10-17
 
 ### Highlights
 
-- 
+- Diagnosing ultrasound probe alignment is now possible by generating a
+  DistanceMatrix of a Session with the metric `mean_squared_error`.
 
 ### Added
 
@@ -60,3 +61,9 @@ and this project uses [Semantic Versioning](https://semver.org/spec/v2.0.0.html)
   `%Y-%m-%d %I:%M:%S %p`.
 - Parsing yaml exclusion lists should now work also when some of the headings
   are empty.
+
+### Known issues
+
+- Saving and loading are currently not functional. While saving seems to work,
+  since new data structures like FileInformation etc. are not saved at all, the
+  saved files will be unloadable.

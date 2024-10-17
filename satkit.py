@@ -165,7 +165,7 @@ def data_run(
 
 
 def main():
-    """Simple main to run the CLI and start the GUI."""
+    """Main to run the CLI and start the GUI."""
 
     # Arguments need to be parsed before setting up logging so that we have
     # access to the verbosity argument.
@@ -193,8 +193,9 @@ def main():
         recording_session, image_name='AggregateImage mean on RawUltrasound')
     publish_distance_matrix(
         recording_session,
-        distance_matrix_name=('DistanceMatrix mean_squared_error on AggregateImage mean '
-                    'on RawUltrasound')
+        distance_matrix_name=(
+            'DistanceMatrix mean_squared_error on AggregateImage mean '
+            'on RawUltrasound')
     )
 
     logger.info('Data run ended.')

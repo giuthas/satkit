@@ -55,6 +55,26 @@ nested_text_converters = {
 }
 
 
+class StatisticLoadSchema(BaseModel):
+    """
+    Loading schema for a saved Statistic.
+
+    Statistic is defined in the data_structures module.
+    """
+    object_type: str
+    name: str
+    format_version: str
+    parameters: dict
+
+
+class ModalityListingLoadSchema(BaseModel):
+    """
+    Loading schema for the Statistic listing in a saved Recording or Session.
+    """
+    data_name: str
+    meta_name: Union[str, None]
+
+
 class ModalityLoadSchema(BaseModel):
     """
     Loading schema for a saved Modality.

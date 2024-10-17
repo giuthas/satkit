@@ -35,7 +35,6 @@ Functions for saving SATKIT data.
 
 from collections import OrderedDict
 import logging
-from typing import List, Tuple
 
 import nestedtext
 import numpy as np
@@ -53,7 +52,7 @@ _logger = logging.getLogger('satkit._saver')
 def save_modality_data(
         modality: Modality,
         confirmation: OverwriteConfirmation
-) -> Tuple[str, OverwriteConfirmation]:
+) -> tuple[str, OverwriteConfirmation]:
     """
     Save the data of a Modality.
 
@@ -88,7 +87,7 @@ def save_modality_data(
 
 def save_modality_meta(
         modality: Modality, confirmation: OverwriteConfirmation
-) -> Tuple[str, OverwriteConfirmation]:
+) -> tuple[str, OverwriteConfirmation]:
     """
     Save meta data and annotations for a Modality.
 
@@ -134,7 +133,7 @@ def save_recording_meta(
         recording: Recording,
         modalities_saves: dict,
         confirmation: OverwriteConfirmation
-) -> Tuple[str, OverwriteConfirmation]:
+) -> tuple[str, OverwriteConfirmation]:
     """
     Save Recording meta.
 
@@ -175,8 +174,8 @@ def save_recording_meta(
 
 
 def save_modalities(
-        recording: Recording, confirmation: OverwriteConfirmation
-) -> Tuple[str, OverwriteConfirmation]:
+        recording: Recording, confirmation: OverwriteConfirmation | None
+) -> tuple[str, OverwriteConfirmation]:
     """
     Save derived Modalities and gather meta for all Modalities.
 
@@ -204,9 +203,9 @@ def save_modalities(
 
 def save_recordings(
         recordings: list[Recording],
-        confirmation: OverwriteConfirmation,
+        confirmation: OverwriteConfirmation | None,
         save_excluded: bool = True
-) -> Tuple[List[str], OverwriteConfirmation]:
+) -> tuple[list[str], OverwriteConfirmation]:
     """
     Save derived data modalities for each Recording.
     """
@@ -226,7 +225,7 @@ def save_recording_session_meta(
         session: Session,
         recording_meta_files: list,
         confirmation: OverwriteConfirmation
-) -> Tuple[str, OverwriteConfirmation]:
+) -> tuple[str, OverwriteConfirmation]:
     """
     Save recording session metadata.
 
@@ -253,7 +252,7 @@ def save_recording_session_meta(
 
     parameters = OrderedDict()
     parameters['path'] = str(session.paths.root)
-    parameters['datasource'] = session.config.data_source.value
+    parameters['datasource'] = session.meta_data.data_source.value
 
     meta['parameters'] = parameters
     meta['recordings'] = recording_meta_files
@@ -266,7 +265,7 @@ def save_recording_session_meta(
         except OSError as e:
             _logger.critical(e)
 
-    return filename
+    return filename, confirmation
 
 
 def save_recording_session(session: Session) -> None:

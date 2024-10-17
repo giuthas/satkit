@@ -52,7 +52,8 @@ from dipy.align.metrics import CCMetric, EMMetric, SSDMetric
 from matplotlib import animation
 from matplotlib.backends.backend_pdf import PdfPages
 from scipy import interpolate
-from scipy.signal import butter, filtfilt, kaiser, sosfilt
+from scipy.signal import butter, filtfilt, sosfilt
+from scipy.signal.windows import kaiser
 
 # local modules
 import satkit.data_import.AAA_recordings as satkit_import_AAA

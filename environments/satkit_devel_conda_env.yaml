@@ -62,3 +62,4 @@ dependencies:
     # to use in development mode.
     - licenseheaders
     - icecream
+  - seaborn >= 0.13

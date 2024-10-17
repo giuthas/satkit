@@ -30,8 +30,60 @@
 # citations.bib in BibTeX format.
 #
 """
-These are generic plotting functions for SATKIT objects.
-
-All of the functions here are independent of rendering backends and such. Those
-and sizing and other contextual matters should be taken care of by the caller.
+Publish AggregateImages and DistanceMatrices as image files.
 """
+from PIL import Image
+
+from satkit.data_structures import Session
+from satkit.data_structures.base_classes import DataAggregator
+
+
+def publish_aggregate_images(
+        session: Session, image_name: str, image_format: str = ".png") -> None:
+    """
+    Publish AggregateImages as image files.
+
+    Parameters
+    ----------
+    session : Session
+        Session containing the Recordings whose AggregateImages are being saved.
+    image_name : str
+        Name of the AggregateImage to publish.
+    image_format : str
+        File format to use, by default ".png".
+    """
+    for recording in session:
+        _publish_image(recording, image_name, image_format)
+
+
+def publish_distance_matrix(
+        session: Session, distance_matrix_name: str, image_format: str = ".png"
+) -> None:
+    """
+    Publish DistanceMatrix as an image file.
+
+    Parameters
+    ----------
+    session : Session
+        Session containing the DistanceMatrix which is being saved.
+    distance_matrix_name : str
+        Name of the DistanceMatrix to publish.
+    image_format : str
+        File format to use, by default ".png".
+    """
+    _publish_image(session, distance_matrix_name, image_format)
+
+
+def _publish_image(
+        container: DataAggregator,
+        statistic_name: str,
+        image_format: str = ".png") -> None:
+    if statistic_name in container.statistics:
+        statistic = container.statistics[statistic_name]
+        raw_data = statistic.data
+        im = Image.fromarray(raw_data)
+        im = im.convert('L')
+        name = container.name
+        path = container.recorded_path
+        image_file = path / (name + image_format)
+        im.save(image_file)

@@ -42,8 +42,6 @@ proper access point.
 import sys
 from pathlib import Path
 
-from icecream import ic
-from PIL import Image
 # from icecream import ic
 
 # For running a Qt GUI
@@ -58,8 +56,7 @@ from satkit.annotations import (
 import satkit.configuration as config
 
 from satkit.configuration import (
-    apply_exclusion_list, DataRunConfig, ExclusionList,
-    load_exclusion_list
+    apply_exclusion_list, DataRunConfig, load_exclusion_list
 )
 from satkit.data_structures import Session
 from satkit.metrics import (
@@ -67,6 +64,10 @@ from satkit.metrics import (
     downsample_metrics
 )
 from satkit.modalities import RawUltrasound, Splines
+from satkit.plot_and_publish import (
+    publish_distance_matrix,
+    publish_aggregate_images
+)
 from satkit.qt_annotator import PdQtAnnotator
 from satkit.scripting_interface import (
     # Operation,
@@ -75,34 +76,6 @@ from satkit.scripting_interface import (
     process_modalities, process_statistics_in_recordings,
     save_data
 )
-
-
-def save_mean_images(session: Session) -> None:
-    image_name = 'AggregateImage mean on RawUltrasound'
-    for recording in session:
-        if image_name in recording.statistics:
-            statistic = recording.statistics[image_name]
-            raw_data = statistic.data
-            im = Image.fromarray(raw_data)
-            im = im.convert('L')
-            name = recording.basename
-            path = recording.path
-            image_file = path / (name + ".bmp")
-            im.save(image_file, 'BMP')
-
-
-def save_distance_matrix(session: Session) -> None:
-    image_name = ('DistanceMatrix mean_squared_error on AggregateImage mean '
-                  'on RawUltrasound')
-    if image_name in session.statistics:
-        statistic = session.statistics[image_name]
-        raw_data = statistic.data
-        im = Image.fromarray(raw_data)
-        im = im.convert('L')
-        name = session.name
-        path = session.recorded_path
-        image_file = path / (name + ".bmp")
-        im.save(image_file, 'BMP')
 
 
 def downsample(
@@ -216,8 +189,13 @@ def main():
     data_run(recording_session=recording_session,
              configuration=configuration)
 
-    save_mean_images(recording_session)
-    save_distance_matrix(recording_session)
+    publish_aggregate_images(
+        recording_session, image_name='AggregateImage mean on RawUltrasound')
+    publish_distance_matrix(
+        recording_session,
+        distance_matrix_name=('DistanceMatrix mean_squared_error on AggregateImage mean '
+                    'on RawUltrasound')
+    )
 
     logger.info('Data run ended.')
 

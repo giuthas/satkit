@@ -65,6 +65,14 @@ def calculate_mse(images: list[np.ndarray]) -> np.ndarray:
     """
     mean_squared_errors = np.zeros([len(images), len(images)])
 
+    shapes = [image.shape for image in images]
+    if not all(shape == shapes[0] for shape in shapes):
+        _logger.critical(
+            'Images must have the same shape. Found \n%s',
+            str(shapes))
+        raise ValueError(
+            'Images must have the same shape. See log for details.')
+
     for i, image1 in enumerate(images):
         for j in range(i + 1, len(images)):
             image2 = images[j]

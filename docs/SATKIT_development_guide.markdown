@@ -109,8 +109,7 @@ A release of SATKIT is created as follows:
 7. Run tests.
    - These don't exist yet at the time of SATKIT 0.10.0 except as
      'rudimentary_tests.sh'.
-8. Fix any bugs that occur, run tests see that they pass, update the release
-   notes.
+8. Fix any bugs that occur, run tests see that they pass, update the docs.
    - Check if [Changelog](Changelog.markdown) needs any final updates.
    - Rerun doc generation if there were any changes.
 9. Merge release branch to `main`.
@@ -120,6 +119,6 @@ A release of SATKIT is created as follows:
     - Tag the commit in main with the release title ('vX.Y.Z') and push it to
       remote with `git push origin vX.Y.Z`
     - If any commits were made to the release branch, merge `main` into `devel`.
-11. Make the tagged version a release on github to show it correctly as
+11. Make the tagged version a release on GitHub to show it correctly as
     'latest' in the sidebar. 
 12. Announce the release.

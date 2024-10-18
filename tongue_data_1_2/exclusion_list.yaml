@@ -35,6 +35,6 @@ files:
 prompts:
   - "ky ."
 
-parts_of_prompt:
+parts_of_prompts:
   - "water swallow"
   - "bite plate"

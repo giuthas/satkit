@@ -31,11 +31,11 @@
 #
 """SATKIT plotting functions."""
 
-# Built in packages
 import logging
-from typing import List, Optional, Sequence, Tuple, Union
+from typing import Sequence
 
 from matplotlib.collections import LineCollection
+from matplotlib.image import AxesImage
 from matplotlib.typing import ColorType
 from matplotlib.axes import Axes
 from matplotlib.lines import Line2D
@@ -60,18 +60,21 @@ _logger = logging.getLogger('satkit.plot')
 def plot_1d_modality(axes: Axes,
                      modality: Modality,
                      time_offset: float,
-                     xlim: Tuple[float, float],
+                     xlim: tuple[float, float],
                      **kwargs) -> Line2D:
     """
     Plot a modality assuming its data is one dimensional.
 
     Parameters
     ----------
+    axes : Axes
+        Axes to plot on.
     modality : Modality
-        _description_
+        Modality to plot.
     time_offset : float
-        _description_
-
+        time_offset to apply to the plot
+    xlim : tuple[float, float]
+        x-axis limits.
     Returns
     -------
     LegendItem
@@ -87,16 +90,16 @@ def plot_1d_modality(axes: Axes,
 def plot_timeseries(axes: Axes,
                     data: np.ndarray,
                     time: np.ndarray,
-                    xlim: Tuple[float, float],
-                    ylim: Optional[Tuple[float, float]] = None,
-                    normalise: Optional[TimeseriesNormalisation] = None,
-                    y_offset: Optional[float] = 0.0,
+                    xlim: tuple[float, float],
+                    ylim: tuple[float, float] | None = None,
+                    normalise: TimeseriesNormalisation | None = None,
+                    y_offset: float = 0.0,
                     number_of_ignored_frames: int = 10,
-                    ylabel: Optional[str] = None,
+                    ylabel: str | None = None,
                     picker=None,
                     color: str = "deepskyblue",
                     linestyle: str = "-",
-                    label: Optional[str] = None,
+                    label: str | None = None,
                     alpha: float = 1.0,
                     sampling_step: int = 1) -> Line2D:
     """
@@ -194,11 +197,11 @@ def plot_timeseries(axes: Axes,
 def mark_peaks(
         axes: Axes,
         modality: Modality,
-        xlim: Tuple[float, float] = None,
+        xlim: tuple[float, float] = None,
         display_prominence_values: bool = False,
         colors: ColorType | Sequence[ColorType] | None = 'sandybrown',
         time_offset: float = 0.0
-) -> LineCollection:
+) -> LineCollection | None:
     """
     Mark peak annotations from the modality on the axes.
 
@@ -218,6 +221,8 @@ def mark_peaks(
         False
     colors : ColorType | Sequence[ColorType] | None, optional
         Color to use in plotting the peak marker lines, by default 'sandybrown'
+    time_offset : float
+        time_offset to apply to the peaks, by default 0.0.
 
     Returns
     -------
@@ -256,7 +261,7 @@ def mark_peaks(
             if not xlim or xlim[0] <= x <= xlim[1]:
                 axes.text(
                     x=timevector[peak], y=data[peak],
-                    s=(f"{prominences[i]:,.3f}")
+                    s=f"{prominences[i]:,.3f}"
                 )
     return line_collection
 
@@ -266,7 +271,7 @@ def plot_satgrid_tier(axes: Axes,
                       time_offset: float = 0,
                       draw_text: bool = True,
                       text_y: float = 500
-                      ) -> Union[Line2D, List[BoundaryAnimator]]:
+                      ) -> tuple[list[AnimatableBoundary], Line2D | None]:
     """
     Plot a textgrid tier on the axis and return animator objects.
 
@@ -294,7 +299,6 @@ def plot_satgrid_tier(axes: Axes,
                      'verticalalignment': 'center'}
 
     line = None
-    prev_text = None
     text = None
     boundaries = []
     for segment in tier:
@@ -320,8 +324,8 @@ def plot_wav(
         ax: Axes,
         waveform: np.ndarray,
         wav_time: np.ndarray,
-        xlim: Tuple[float, float],
-        picker=None) -> Line2D:
+        xlim: tuple[float, float],
+        picker=None) -> list[Line2D]:
     """
     Plot a waveform.
 
@@ -332,7 +336,8 @@ def plot_wav(
     waveform : np.ndarray
         Waveform to plot
     wav_time : np.ndarray
-        Timevector for the waveform. Must of same shape and length
+        Timevector for the waveform. Must be of same shape and length as the
+        waveform.
     xlim : Tuple[float, float]
         x-axis limits.
     picker : _type_, optional
@@ -345,7 +350,6 @@ def plot_wav(
     """
     normalised_wav = waveform / np.amax(np.abs(waveform))
 
-    line = None
     if picker:
         line = ax.plot(wav_time, normalised_wav,
                        color="k", lw=1, picker=picker)
@@ -365,13 +369,13 @@ def plot_spectrogram2(
         axes: Axes,
         waveform: np.ndarray,
         sampling_frequency: float,
-        extent_on_x: Tuple[float, float],
+        extent_on_x: tuple[float, float],
         window_length: int = 220,
         n_overlap: int = 215,
         cmap: str = 'Greys',
-        ylim: Tuple[float, float] = (0, 10000),
+        ylim: tuple[float, float] = (0, 10000),
         ylabel: str = "Spectrogram",
-        picker=None) -> np.ndarray:
+        picker=None) -> AxesImage:
     """
     Plot a spectrogram with background noise removal.
 
@@ -405,7 +409,7 @@ def plot_spectrogram2(
     Returns
     -------
     np.ndarray
-        The spectrogram as an 2d array.
+        The spectrogram as a 2d array.
     """
 
     normalised_wav = waveform / np.amax(np.abs(waveform))
@@ -437,11 +441,11 @@ def plot_spectrogram(
         ax: Axes,
         waveform: np.ndarray,
         sampling_frequency: float,
-        extent_on_x: Tuple[float, float],
+        extent_on_x: tuple[float, float],
         window_length: int = 220,
         n_overlap: int = 215,
         cmap: str = 'Greys',
-        ylim: Tuple[float, float] = (0, 10000),
+        ylim: tuple[float, float] = (0, 10000),
         ylabel: str = "Spectrogram",
         picker=None) -> tuple:
     """
@@ -451,7 +455,7 @@ def plot_spectrogram(
 
     Parameters
     ----------
-    axes : Axes
+    ax : Axes
         Axes to plot on.
     waveform : np.ndarray
         Waveform to calculate the spectrogram on.
@@ -483,8 +487,8 @@ def plot_spectrogram(
     # xlim = [xlim[0]+time_offset, xlim[1]+time_offset]
     # the length of the windowing segments
     Pxx, freqs, bins, im = ax.specgram(
-        normalised_wav, NFFT=window_length, Fs=sampling_frequency, noverlap=n_overlap,
-        cmap=cmap, xextent=extent_on_x, picker=picker)
+        normalised_wav, NFFT=window_length, Fs=sampling_frequency,
+        noverlap=n_overlap, vcmap=cmap, xextent=extent_on_x, picker=picker)
     (bottom, top) = im.get_extent()[2:]
     im.set_extent(
         (extent_on_x[0]+bins[0], extent_on_x[0]+bins[-1], bottom, top))
@@ -498,8 +502,8 @@ def plot_spectrogram(
 def plot_density(
         ax: Axes,
         frequencies: np.ndarray,
-        x_values: Optional[np.ndarray] = None,
-        ylim: Optional[Tuple[float, float]] = None,
+        x_values: np.ndarray | None = None,
+        ylim: tuple[float, float] | None = None,
         ylabel: str = "Densities)",
         picker=None):
 
@@ -507,7 +511,6 @@ def plot_density(
     if not x_values:
         x_values = np.arange(len(densities))
 
-    line = None
     if picker:
         line = ax.plot(x_values, densities, color="k", lw=1, picker=picker)
     else:
@@ -523,7 +526,7 @@ def plot_density(
 def plot_spline(
         ax: Axes,
         data: np.ndarray,
-        limits: Optional[tuple[int, int]] = None,
+        limits: tuple[int, int] | None = None,
         display_line: bool = True,
         display_points: bool = False) -> None:
     """

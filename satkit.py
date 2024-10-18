@@ -42,6 +42,7 @@ proper access point.
 import sys
 from pathlib import Path
 
+from icecream import ic
 # from icecream import ic
 
 # For running a Qt GUI
@@ -183,6 +184,7 @@ def main():
     exclusion_list = None
     if cli.args.exclusion_filename:
         exclusion_list = load_exclusion_list(cli.args.exclusion_filename)
+        ic(exclusion_list)
     recording_session = load_data(Path(cli.args.load_path))
     apply_exclusion_list(recording_session, exclusion_list=exclusion_list)
 

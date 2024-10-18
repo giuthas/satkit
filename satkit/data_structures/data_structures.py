@@ -29,209 +29,87 @@
 # articles listed in README.markdown. They can also be found in
 # citations.bib in BibTeX format.
 #
-"""SATKIT's core datastructures."""
+"""SATKIT's main datastructures."""
+
+from __future__ import annotations
 
 # Built in packages
 import abc
 from collections import OrderedDict, UserDict, UserList
 import logging
-from dataclasses import dataclass
-from datetime import datetime
 from pathlib import Path
-from typing import Optional, Union
 
-from icecream import ic
+# from icecream import ic
 
 # Numerical arrays and more
 import numpy as np
-from pydantic import PositiveInt
 
 # Praat textgrids
 import textgrids
 
-from satkit.configuration import PathStructure, SessionConfig
-from satkit.constants import AnnotationType, SatkitSuffix
-from satkit.errors import MissingDataError, ModalityError, OverWriteError
-from satkit.helpers import EmptyStrAsNoneBaseModel, is_sequence_form
-from satkit.helpers import UpdatableBaseModel
+from satkit.configuration import PathStructure
+from satkit.constants import AnnotationType
+from satkit.errors import (
+    MissingDataError, OverwriteError, DimensionMismatchError)
 from satkit.satgrid import SatGrid
+
+from .base_classes import DataContainer, DataAggregator, Statistic
+from .meta_data_classes import (
+    FileInformation, ModalityData, ModalityMetaData, PointAnnotations,
+    RecordingMetaData, SessionConfig
+)
+
 
 _datastructures_logger = logging.getLogger('satkit.data_structures')
 
 
-class RecordingMetaData(EmptyStrAsNoneBaseModel):
-    """Basic metadata that any Recording should reasonably have."""
-    prompt: str
-    time_of_recording: datetime
-    participant_id: str
-    basename: str
-    path: Path
-
-
-@dataclass
-class ModalityData:
-    """
-    Data passed from Modality generation into Modality.
-
-    None of the fields are optional. This class represents already loaded data.
-
-    Axes order for the data field is [time, coordinate axes and datatypes,
-    data points] and further structure. For example stereo audio data would be
-    [time, channels] or just [time] for mono audio. For a more complex example,
-    splines from AAA have [time, x-y-confidence, spline points] or [time,
-    r-phi-confidence, spline points] for data in polar coordinates.
-    """
-    data: np.ndarray
-    sampling_rate: float
-    timevector: np.ndarray
-
-
-@dataclass
-class PointAnnotations():
-    """
-    Time point annotations for a Modality.
-
-    For each modality there should be only one of these for each kind of
-    annotation type. 
-
-    annotation_type : AnnotationType
-        unique identifier for the annotation type
-    indeces : np.ndarray
-        indeces of the annotation points. `modality_data.data[indeces[i]]` and
-        `modality_data.timevector[indeces[i]]` correspond to the annotation at
-        `i`.
-    times : np.ndarray 
-        timestamps of the annotation points
-    generating_parameters : dict 
-        the function call arguments and other parameters used in generating
-        these annotations.
-    properties : dict
-        a dictionary containing arrays of each of the annotation properties
-        expected for this annotation type.
-    """
-    annotation_type: AnnotationType
-    indeces: np.ndarray
-    times: np.ndarray
-    generating_parameters: UpdatableBaseModel
-    properties: dict
-
-    def add_annotation(
-            self, index: int, time: float, properties: dict) -> None:
-        """
-        This method has not been implemented yet.
-
-        Index and time should be mutually exclusive.
-
-        Parameters
-        ----------
-        index : int
-            index at which the annotation is to be added
-        time : float
-            time at which the annotation is to be added
-        properties : dict
-            the annotation properties that will be added to the arrays in this
-            PointAnnotations' properties dict.
-
-        Raises
-        ------
-        NotImplementedError
-            This method has not been implemented yet.
-        """
-        raise NotImplementedError(
-            "Adding annotations to "
-            "PointAnnotations hasn't been implemented yet.")
-
-    def apply_lower_time_limit(self, time_min: float) -> None:
-        """
-        Apply a lower time limit to the annotations.
-
-        This removes the annotation points before the given time limit.
-
-        Parameters
-        ----------
-        time_min : float
-            The time limit.
-        """
-        selected = np.nonzero(self.times >= time_min)
-        self.indeces = self.indeces[selected]
-        self.times = self.times[selected]
-        limit = selected[0]
-
-        for key in self.properties:
-            if is_sequence_form(self.properties[key]):
-                ic(key, self.properties[key])
-                self.properties[key] = self.properties[key][limit:]
-            elif isinstance(self.properties[key], np.ndarray):
-                self.properties[key] = self.properties[key][selected]
-
-    def apply_upper_time_limit(self, time_max: float) -> None:
-        """
-        Apply an upper time limit to the annotations.
-
-        This removes the annotation points after the given time limit.
-
-        Parameters
-        ----------
-        time_max : float
-            The time limit.
-        """
-        selected = np.nonzero(self.times <= time_max)
-        self.indeces = self.indeces[selected]
-        self.times = self.times[selected]
-        limit = selected[-1]
-
-        for key in self.properties:
-            if is_sequence_form(self.properties[key]):
-                ic(key, self.properties[key])
-                self.properties[key] = self.properties[key][:limit]
-            elif isinstance(self.properties[key], np.ndarray):
-                self.properties[key] = self.properties[key][selected]
-
-
-class ModalityMetaData(EmptyStrAsNoneBaseModel):
-    """
-    Baseclass of Modalities' metadata classes.
-    """
-    parent_name: Optional[str] = None
-    is_downsampled: Optional[bool] = False
-    downsampling_ratio: Union[None, PositiveInt, str] = None
-    timestep_matched_downsampling: Optional[bool] = True
-
-
-class RecordingSession(UserList):
+class Session(DataAggregator, UserList):
     """
     The metadata and Recordings of a recording session.
 
     This class behaves exactly like a list of Recordings with some extra
     fields. While some legacy code may be left behind, the preferred idiom for
-    iterating over the recordings is `for recording in recording_session`.
+    iterating over the recordings is `for recording in recording_session:`.
+
+    Sessions can also hold aggregate data in the form of Statistics.
     """
 
-    def __init__(
-            self,
-            name: str,
-            paths: PathStructure,
-            config: SessionConfig,
-            recordings: list['Recording']) -> None:
-        super().__init__(recordings)
-        self.name = name
+    def __init__(self,
+                 name: str,
+                 paths: PathStructure,
+                 config: SessionConfig,
+                 file_info: FileInformation,
+                 recordings: list[Recording],
+                 statistics: dict[str, Statistic] | None = None
+                 ) -> None:
+        super().__init__(
+            owner=None, name=name, meta_data=config,
+            file_info=file_info, statistics=statistics)
+
+        for recording in recordings:
+            if not recording.owner:
+                recording.owner = self
+        self.extend(recordings)
+
         self.paths = paths
-        self.config = config
+        # This was commented out in data structures 4.0, and left here to
+        # explain what session.config was. Remove if nothing broke.
+        # self.config = config
 
     @property
-    def recordings(self) -> list['Recording']:
+    def recordings(self) -> list[Recording]:
         """
         Property to access the list of Recordings directly.
 
         Returns
         -------
         list[Recording]
-            The list of this RecordingSessions's Recordings.
+            The list of this Sessions's Recordings.
         """
         return self.data
 
 
-class Recording(UserDict):
+class Recording(DataAggregator, UserDict):
     """
     A Recording is a dictionary of 0-n synchronised Modalities.
 
@@ -252,8 +130,10 @@ class Recording(UserDict):
 
     def __init__(self,
                  meta_data: RecordingMetaData,
+                 file_info: FileInformation,
+                 owner: Session | None = None,
                  excluded: bool = False,
-                 textgrid_path: Union[str, Path] = "") -> None:
+                 textgrid_path: str | Path = "") -> None:
         """
         Construct a mainly empty recording without modalities.
 
@@ -269,11 +149,11 @@ class Recording(UserDict):
         textgrid_path : Union[str, Path], optional
             _description_, by default ""
         """
-        super().__init__()
+        super().__init__(
+            owner=owner, name=meta_data.basename,
+            meta_data=meta_data, file_info=file_info)
 
         self.excluded = excluded
-
-        self.meta_data = meta_data
 
         self.textgrid_path = textgrid_path
         if not self.textgrid_path:
@@ -285,7 +165,7 @@ class Recording(UserDict):
         self.annotations = {}
 
     @property
-    def modalities(self) -> dict[str, 'Modality']:
+    def modalities(self) -> dict[str, Modality]:
         """
         Dictionary of the modalities of this Recording.
 
@@ -393,7 +273,7 @@ class Recording(UserDict):
                 "TextGrid save failed with error: %s", str(exception))
 
     def add_modality(
-            self, modality: 'Modality', replace: bool = False) -> None:
+            self, modality: Modality, replace: bool = False) -> None:
         """
         This method adds a new Modality object to the Recording.
 
@@ -412,9 +292,9 @@ class Recording(UserDict):
         name = modality.name
 
         if name in self.modalities and not replace:
-            ic(modality.metadata)
-            ic(self[modality.name].metadata)
-            raise ModalityError(
+            # ic(modality.metadata)
+            # ic(self[modality.name].metadata)
+            raise OverwriteError(
                 "A modality named " + name +
                 " already exists and replace flag was False.")
 
@@ -437,7 +317,7 @@ class Recording(UserDict):
         return f"Recording {self.basename}"
 
 
-class Modality(abc.ABC, OrderedDict):
+class Modality(DataContainer, OrderedDict):
     """
     Abstract superclass for all data Modality classes.
 
@@ -449,19 +329,17 @@ class Modality(abc.ABC, OrderedDict):
     @classmethod
     @abc.abstractmethod
     def generate_name(cls, params: ModalityMetaData) -> str:
-        pass
+        """Abstract version of generating a Modality name."""
 
-    def __init__(self,
-                 recording: Recording,
-                 parsed_data: Optional[ModalityData] = None,
-                 metadata: Optional[ModalityMetaData] = None,
-                 data_path: Optional[Path] = None,
-                 meta_path: Optional[Path] = None,
-                 load_path: Optional[Path] = None,
-                 time_offset: Optional[float] = None,
-                 annotations: Optional[dict[AnnotationType,
-                                            PointAnnotations]] = None
-                 ) -> None:
+    def __init__(
+        self,
+        recording: Recording,
+        file_info: FileInformation,
+        parsed_data: ModalityData | None = None,
+        meta_data: ModalityMetaData | None = None,
+        time_offset: float | None = None,
+        annotations: dict[AnnotationType, PointAnnotations] | None = None
+    ) -> None:
         """
         Modality constructor.
 
@@ -487,16 +365,12 @@ class Modality(abc.ABC, OrderedDict):
             parsed_data exists and effectively overridden by 
             parsed_data.timevector.
         """
-        self.recording = recording
-        self.data_path = data_path
-        self._meta_path = meta_path  # self.meta_path is a property
-        self.load_path = load_path
+        super().__init__(
+            owner=recording, meta_data=meta_data,
+            file_info=file_info)
 
-        self.metadata = metadata
         if annotations:
             self.update(annotations)
-        # else:
-        #     self.annotations = {}
 
         if parsed_data:
             self._modality_data = parsed_data
@@ -528,25 +402,36 @@ class Modality(abc.ABC, OrderedDict):
         """
         return self
 
+    @property
+    def recording(self) -> Recording:
+        """
+        This modality's owner available also with this alias for ease of use.
+
+        Returns
+        -------
+        Recording
+            The Recording which contains this Modality.
+        """
+        return self.owner
+
     def _get_data(self) -> ModalityData:
-        # TODO: Provide a way to force the data to be derived or loaded.
-        # this would be used when parent modality has updated in some way
-        if self.data_path:
+        # TODO: Provide a way to force the data to be derived or loaded. this
+        # would be used when parent modality has updated in some way. If this
+        # is actually necessary to implement, a call back would be probably the
+        # way to go.
+        if self._file_info.recorded_data_file:
             return self._read_data()
 
-        if self.load_path:
+        if self._file_info.satkit_data_file:
             return self._load_data()
 
-        if self.metadata.parent_name:
+        if self._meta_data.parent_name:
             return self._derive_data()
-        else:
-            raise MissingDataError(
-                "Asked to get data but have no path and no parent Modality.\n"
-                + "Don't know how to solve this.")
 
-    # TODO: should these really return a value rather than
-    # just write the fields? And if return a value, why not
-    # ModalityData?
+        raise MissingDataError(
+            "Asked to get data but have no path and no parent Modality.\n"
+            + "Don't know how to solve this.")
+
     def _derive_data(self) -> ModalityData:
         """
         Derive data from another modality -- overridden by inheriting classes.
@@ -613,24 +498,6 @@ class Modality(abc.ABC, OrderedDict):
                 "Adding %s.", str(annotations.annotation_type))
 
         self.annotations[annotations.annotation_type] = annotations
-
-    @property
-    def name(self) -> str:
-        """
-        Identity and possible parent data class.
-
-        This will be just the class name if this is a data Modality instance.
-        For derived Modalities the name will be of the form
-        '[own class name] on [data modality class name]'.
-
-        Subclasses may override this behaviour to, for example, include
-        the metric used to generate the instance in the name.
-        """
-        # TODO: this doesn't really mesh with the new way of dealing with names
-        name_string = self.__class__.__name__
-        if self.metadata and self.metadata.parent_name:
-            name_string = name_string + " on " + self.metadata.parent_name
-        return name_string
 
     @property
     def modality_data(self) -> ModalityData:
@@ -704,7 +571,7 @@ class Modality(abc.ABC, OrderedDict):
                     data.shape == self._modality_data.data.shape):
                 self._modality_data.data = data
             else:
-                raise OverWriteError(
+                raise DimensionMismatchError(
                     "Trying to write over raw ultrasound data with a numpy " +
                     "array that has non-matching dtype, size, or shape.\n" +
                     " data.shape = " + str(data.shape) + "\n" +
@@ -712,10 +579,6 @@ class Modality(abc.ABC, OrderedDict):
                     str(self._modality_data.data.shape) + ".")
         else:
             self._modality_data.data = data
-
-    @abc.abstractmethod
-    def get_meta(self) -> dict:
-        """Return this Modality's metadata as a dictionary."""
 
     @property
     def sampling_rate(self) -> float:
@@ -727,7 +590,7 @@ class Modality(abc.ABC, OrderedDict):
     @property
     def parent_name(self) -> str:
         """Name of the Modality this Modality was derived from, if any."""
-        return self.metadata.parent_name
+        return self._meta_data.parent_name
 
     @property
     def time_offset(self):
@@ -791,7 +654,7 @@ class Modality(abc.ABC, OrderedDict):
     def timevector(self, timevector):
         if (self._modality_data is None or
                 self._modality_data.timevector is None):
-            raise OverWriteError(
+            raise DimensionMismatchError(
                 "Trying to overwrite the timevector when "
                 "it has not yet been initialised."
             )
@@ -807,7 +670,7 @@ class Modality(abc.ABC, OrderedDict):
                 self._modality_data.timevector = timevector
                 self.time_offset = timevector[0]
             else:
-                raise OverWriteError(
+                raise DimensionMismatchError(
                     "Trying to write over raw ultrasound data with a numpy " +
                     "array that has non-matching dtype, size, or shape.\n" +
                     " timevector.shape = " + str(timevector.shape) + "\n" +
@@ -822,8 +685,6 @@ class Modality(abc.ABC, OrderedDict):
         Setting this to True will result in the whole Recording being 
         excluded by setting self.parent.excluded = True.
         """
-        # TODO: decide if this actually needs to exist and if so,
-        # should the above doc string actually be true?
         return self._excluded
 
     @excluded.setter
@@ -831,9 +692,8 @@ class Modality(abc.ABC, OrderedDict):
         self._excluded = excluded
 
         if excluded:
-            pass
-            # TODO 1.O: find a workaround for self.parent not existing
-            # currently self.parent.excluded = excluded
+            if self.recording:
+                self.recording.excluded = True
 
     @property
     def is_derived_modality(self) -> bool:
@@ -842,48 +702,6 @@ class Modality(abc.ABC, OrderedDict):
 
         This cannot be set from the outside.
         """
-        if self.metadata and self.metadata.parent_name:
+        if self._meta_data and self._meta_data.parent_name:
             return True
         return False
-
-    @property
-    def meta_path(self) -> Path:
-        """
-        Path to meta data file if any, None otherwise.
-
-        Only external data might have per Modality meta files before being
-        first saved by SATKIT.
-        """
-        if not self._meta_path:
-            path = Path(self.recording.basename).with_suffix(
-                "." + self.name.replace(" ", "_"))
-            path.with_suffix(SatkitSuffix.META)
-        return self._meta_path
-
-
-def satkit_suffix(
-        satkit_type: Union[Recording, RecordingSession, Modality]) -> str:
-    """
-    Generate a suffix for the save file of a SATKIT data structure.
-
-    Parameters
-    ----------
-    satkit_type : Union[Recording, RecordingSession, Modality]
-        The datastructures type.
-
-    Returns
-    -------
-    str
-        The suffix.
-    """
-    # TODO 1.1: This is one possibility for not having hardcoded file suffixes.
-    # Another is to let all the classes take care of it themselves and make it
-    # into a Protocol (Python version of an interface).
-    suffix = SatkitSuffix.META
-    if satkit_type == Recording:
-        suffix = '.Recording' + suffix
-    elif satkit_type == RecordingSession:
-        suffix = '.RecordingSession' + suffix
-    elif satkit_type == Modality:
-        suffix = ''
-    return suffix

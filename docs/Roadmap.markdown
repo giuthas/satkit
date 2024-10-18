@@ -17,15 +17,21 @@
       - [ ] toggles or similar for displaying different data modalities
       - [ ] note function for annotating individual tokens with free text
 - [ ] Algorithms
-  - [x] Spectrogram
-  - [x] Pixel Difference
-  - [ ] Optic flow
-  - [ ] Principal component analysis (PCA) / dimensionality reduction
-  - [x] Average Nearest Neighbour Distance and Median Point-by-point Distance
-  - [x] Some or all of the metrics by [Kathtrine M.
-    Dawson](https://github.com/kdawson2/tshape_analysis)
-  - [x] automated peak and valley selection on time series
-  - [x] Simulated data and sensitivity analysis framework for metrics
+  - For audio:
+    - [x] Spectrogram
+  - For video-like data:
+    - [x] Pixel Difference
+    - [ ] Optic flow
+    - [ ] Principal component analysis (PCA) / dimensionality reduction
+    - [x] Mean images and mean squared error metric for assessing ultrasound probe
+      movement
+  - For tongue splines:
+    - [x] Average Nearest Neighbour Distance and Median Point-by-point Distance
+    - [x] Some or all of the metrics by [Kathtrine M.
+      Dawson](https://github.com/kdawson2/tshape_analysis)
+    - [x] Simulated data and sensitivity analysis framework for metrics
+  - For timeseries:
+    - [x] automated peak and valley selection on time series
 - [ ] Saving and loading
   - [x] TextGrids
     - [x] loading

@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta name="generator" content="pdoc 14.1.0"/>
+    <meta name="generator" content="pdoc 14.4.0"/>
     <title>satkit.metrics.spline_metric API documentation</title>
 
     <style>/*! * Bootstrap Reboot v5.0.0 (https://getbootstrap.com/) * Copyright 2011-2021 The Bootstrap Authors * Copyright 2011-2021 Twitter, Inc. * Licensed under MIT (https://github.com/twbs/bootstrap/blob/main/LICENSE) * Forked from Normalize.css, licensed MIT (https://github.com/necolas/normalize.css/blob/master/LICENSE.md) */*,::after,::before{box-sizing:border-box}@media (prefers-reduced-motion:no-preference){:root{scroll-behavior:smooth}}body{margin:0;font-family:system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial,"Noto Sans","Liberation Sans",sans-serif,"Apple Color Emoji","Segoe UI Emoji","Segoe UI Symbol","Noto Color Emoji";font-size:1rem;font-weight:400;line-height:1.5;color:#212529;background-color:#fff;-webkit-text-size-adjust:100%;-webkit-tap-highlight-color:transparent}hr{margin:1rem 0;color:inherit;background-color:currentColor;border:0;opacity:.25}hr:not([size]){height:1px}h1,h2,h3,h4,h5,h6{margin-top:0;margin-bottom:.5rem;font-weight:500;line-height:1.2}h1{font-size:calc(1.375rem + 1.5vw)}@media (min-width:1200px){h1{font-size:2.5rem}}h2{font-size:calc(1.325rem + .9vw)}@media (min-width:1200px){h2{font-size:2rem}}h3{font-size:calc(1.3rem + .6vw)}@media (min-width:1200px){h3{font-size:1.75rem}}h4{font-size:calc(1.275rem + .3vw)}@media (min-width:1200px){h4{font-size:1.5rem}}h5{font-size:1.25rem}h6{font-size:1rem}p{margin-top:0;margin-bottom:1rem}abbr[data-bs-original-title],abbr[title]{-webkit-text-decoration:underline dotted;text-decoration:underline dotted;cursor:help;-webkit-text-decoration-skip-ink:none;text-decoration-skip-ink:none}address{margin-bottom:1rem;font-style:normal;line-height:inherit}ol,ul{padding-left:2rem}dl,ol,ul{margin-top:0;margin-bottom:1rem}ol ol,ol ul,ul ol,ul ul{margin-bottom:0}dt{font-weight:700}dd{margin-bottom:.5rem;margin-left:0}blockquote{margin:0 0 1rem}b,strong{font-weight:bolder}small{font-size:.875em}mark{padding:.2em;background-color:#fcf8e3}sub,sup{position:relative;font-size:.75em;line-height:0;vertical-align:baseline}sub{bottom:-.25em}sup{top:-.5em}a{color:#0d6efd;text-decoration:underline}a:hover{color:#0a58ca}a:not([href]):not([class]),a:not([href]):not([class]):hover{color:inherit;text-decoration:none}code,kbd,pre,samp{font-family:SFMono-Regular,Menlo,Monaco,Consolas,"Liberation Mono","Courier New",monospace;font-size:1em;direction:ltr;unicode-bidi:bidi-override}pre{display:block;margin-top:0;margin-bottom:1rem;overflow:auto;font-size:.875em}pre code{font-size:inherit;color:inherit;word-break:normal}code{font-size:.875em;color:#d63384;word-wrap:break-word}a>code{color:inherit}kbd{padding:.2rem .4rem;font-size:.875em;color:#fff;background-color:#212529;border-radius:.2rem}kbd kbd{padding:0;font-size:1em;font-weight:700}figure{margin:0 0 1rem}img,svg{vertical-align:middle}table{caption-side:bottom;border-collapse:collapse}caption{padding-top:.5rem;padding-bottom:.5rem;color:#6c757d;text-align:left}th{text-align:inherit;text-align:-webkit-match-parent}tbody,td,tfoot,th,thead,tr{border-color:inherit;border-style:solid;border-width:0}label{display:inline-block}button{border-radius:0}button:focus:not(:focus-visible){outline:0}button,input,optgroup,select,textarea{margin:0;font-family:inherit;font-size:inherit;line-height:inherit}button,select{text-transform:none}[role=button]{cursor:pointer}select{word-wrap:normal}select:disabled{opacity:1}[list]::-webkit-calendar-picker-indicator{display:none}[type=button],[type=reset],[type=submit],button{-webkit-appearance:button}[type=button]:not(:disabled),[type=reset]:not(:disabled),[type=submit]:not(:disabled),button:not(:disabled){cursor:pointer}::-moz-focus-inner{padding:0;border-style:none}textarea{resize:vertical}fieldset{min-width:0;padding:0;margin:0;border:0}legend{float:left;width:100%;padding:0;margin-bottom:.5rem;font-size:calc(1.275rem + .3vw);line-height:inherit}@media (min-width:1200px){legend{font-size:1.5rem}}legend+*{clear:left}::-webkit-datetime-edit-day-field,::-webkit-datetime-edit-fields-wrapper,::-webkit-datetime-edit-hour-field,::-webkit-datetime-edit-minute,::-webkit-datetime-edit-month-field,::-webkit-datetime-edit-text,::-webkit-datetime-edit-year-field{padding:0}::-webkit-inner-spin-button{height:auto}[type=search]{outline-offset:-2px;-webkit-appearance:textfield}::-webkit-search-decoration{-webkit-appearance:none}::-webkit-color-swatch-wrapper{padding:0}::file-selector-button{font:inherit}::-webkit-file-upload-button{font:inherit;-webkit-appearance:button}output{display:inline-block}iframe{border:0}summary{display:list-item;cursor:pointer}progress{vertical-align:baseline}[hidden]{display:none!important}</style>
@@ -105,6 +105,9 @@
                         <li>
                                 <a class="variable" href="#SplineMetricParameters.model_fields">model_fields</a>
                         </li>
+                        <li>
+                                <a class="variable" href="#SplineMetricParameters.model_computed_fields">model_computed_fields</a>
+                        </li>
                 </ul>
 
             </li>
@@ -192,17 +195,17 @@
 </span><span id="L-35"><a href="#L-35"><span class="linenos"> 35</span></a>
 </span><span id="L-36"><a href="#L-36"><span class="linenos"> 36</span></a><span class="c1"># Built in packages</span>
 </span><span id="L-37"><a href="#L-37"><span class="linenos"> 37</span></a><span class="kn">import</span> <span class="nn">logging</span>
-</span><span id="L-38"><a href="#L-38"><span class="linenos"> 38</span></a><span class="kn">from</span> <span class="nn">pathlib</span> <span class="kn">import</span> <span class="n">Path</span>
-</span><span id="L-39"><a href="#L-39"><span class="linenos"> 39</span></a><span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Tuple</span>
-</span><span id="L-40"><a href="#L-40"><span class="linenos"> 40</span></a>
-</span><span id="L-41"><a href="#L-41"><span class="linenos"> 41</span></a><span class="c1"># Numpy and scipy</span>
-</span><span id="L-42"><a href="#L-42"><span class="linenos"> 42</span></a><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
-</span><span id="L-43"><a href="#L-43"><span class="linenos"> 43</span></a><span class="kn">from</span> <span class="nn">pydantic</span> <span class="kn">import</span> <span class="n">PositiveInt</span>
-</span><span id="L-44"><a href="#L-44"><span class="linenos"> 44</span></a>
-</span><span id="L-45"><a href="#L-45"><span class="linenos"> 45</span></a><span class="kn">from</span> <span class="nn">satkit.data_structures</span> <span class="kn">import</span> <span class="p">(</span>
-</span><span id="L-46"><a href="#L-46"><span class="linenos"> 46</span></a>    <span class="n">Modality</span><span class="p">,</span> <span class="n">ModalityData</span><span class="p">,</span> <span class="n">ModalityMetaData</span><span class="p">,</span> <span class="n">Recording</span><span class="p">)</span>
-</span><span id="L-47"><a href="#L-47"><span class="linenos"> 47</span></a><span class="kn">from</span> <span class="nn">satkit.helpers</span> <span class="kn">import</span> <span class="p">(</span>
-</span><span id="L-48"><a href="#L-48"><span class="linenos"> 48</span></a>    <span class="n">enum_union</span><span class="p">,</span> <span class="n">product_dict</span><span class="p">,</span> <span class="n">ListablePrintableEnum</span><span class="p">,</span> <span class="n">ValueComparedEnumMeta</span><span class="p">)</span>
+</span><span id="L-38"><a href="#L-38"><span class="linenos"> 38</span></a><span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Tuple</span>
+</span><span id="L-39"><a href="#L-39"><span class="linenos"> 39</span></a>
+</span><span id="L-40"><a href="#L-40"><span class="linenos"> 40</span></a><span class="c1"># Numpy and scipy</span>
+</span><span id="L-41"><a href="#L-41"><span class="linenos"> 41</span></a><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+</span><span id="L-42"><a href="#L-42"><span class="linenos"> 42</span></a><span class="kn">from</span> <span class="nn">pydantic</span> <span class="kn">import</span> <span class="n">PositiveInt</span>
+</span><span id="L-43"><a href="#L-43"><span class="linenos"> 43</span></a>
+</span><span id="L-44"><a href="#L-44"><span class="linenos"> 44</span></a><span class="kn">from</span> <span class="nn">satkit.data_structures</span> <span class="kn">import</span> <span class="p">(</span>
+</span><span id="L-45"><a href="#L-45"><span class="linenos"> 45</span></a>    <span class="n">FileInformation</span><span class="p">,</span> <span class="n">Modality</span><span class="p">,</span> <span class="n">ModalityData</span><span class="p">,</span> <span class="n">ModalityMetaData</span><span class="p">,</span> <span class="n">Recording</span><span class="p">)</span>
+</span><span id="L-46"><a href="#L-46"><span class="linenos"> 46</span></a><span class="kn">from</span> <span class="nn">satkit.external_class_extensions</span> <span class="kn">import</span> <span class="p">(</span>
+</span><span id="L-47"><a href="#L-47"><span class="linenos"> 47</span></a>    <span class="n">enum_union</span><span class="p">,</span> <span class="n">ListablePrintableEnum</span><span class="p">,</span> <span class="n">ValueComparedEnumMeta</span><span class="p">)</span>
+</span><span id="L-48"><a href="#L-48"><span class="linenos"> 48</span></a><span class="kn">from</span> <span class="nn">satkit.utility_functions</span> <span class="kn">import</span> <span class="n">product_dict</span>
 </span><span id="L-49"><a href="#L-49"><span class="linenos"> 49</span></a>
 </span><span id="L-50"><a href="#L-50"><span class="linenos"> 50</span></a><span class="n">_logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="s1">&#39;satkit.spline_metric&#39;</span><span class="p">)</span>
 </span><span id="L-51"><a href="#L-51"><span class="linenos"> 51</span></a>
@@ -365,68 +368,69 @@
 </span><span id="L-208"><a href="#L-208"><span class="linenos">208</span></a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
 </span><span id="L-209"><a href="#L-209"><span class="linenos">209</span></a>                 <span class="n">recording</span><span class="p">:</span> <span class="n">Recording</span><span class="p">,</span>
 </span><span id="L-210"><a href="#L-210"><span class="linenos">210</span></a>                 <span class="n">metadata</span><span class="p">:</span> <span class="n">SplineMetricParameters</span><span class="p">,</span>
-</span><span id="L-211"><a href="#L-211"><span class="linenos">211</span></a>                 <span class="n">load_path</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Path</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-</span><span id="L-212"><a href="#L-212"><span class="linenos">212</span></a>                 <span class="n">meta_path</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Path</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-</span><span id="L-213"><a href="#L-213"><span class="linenos">213</span></a>                 <span class="n">parsed_data</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">ModalityData</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-</span><span id="L-214"><a href="#L-214"><span class="linenos">214</span></a>                 <span class="n">time_offset</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-</span><span id="L-215"><a href="#L-215"><span class="linenos">215</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-</span><span id="L-216"><a href="#L-216"><span class="linenos">216</span></a><span class="sd">        Build a SplineMetric Modality.       </span>
-</span><span id="L-217"><a href="#L-217"><span class="linenos">217</span></a>
-</span><span id="L-218"><a href="#L-218"><span class="linenos">218</span></a><span class="sd">        Positional arguments: recording -- the containing Recording. parameters</span>
-</span><span id="L-219"><a href="#L-219"><span class="linenos">219</span></a><span class="sd">        : SplineMetricParameters</span>
-</span><span id="L-220"><a href="#L-220"><span class="linenos">220</span></a><span class="sd">            Parameters used in calculating this instance of SplineMetric.</span>
-</span><span id="L-221"><a href="#L-221"><span class="linenos">221</span></a><span class="sd">        Keyword arguments: load_path -- path of the saved data - both</span>
-</span><span id="L-222"><a href="#L-222"><span class="linenos">222</span></a><span class="sd">        ultrasound and metadata parent -- the Modality this one was derived</span>
-</span><span id="L-223"><a href="#L-223"><span class="linenos">223</span></a><span class="sd">        from. None means this </span>
-</span><span id="L-224"><a href="#L-224"><span class="linenos">224</span></a><span class="sd">            is an underived data Modality. If parent is None, it will be copied</span>
-</span><span id="L-225"><a href="#L-225"><span class="linenos">225</span></a><span class="sd">            from dataModality.</span>
-</span><span id="L-226"><a href="#L-226"><span class="linenos">226</span></a><span class="sd">        parsed_data -- ModalityData object containing raw ultrasound, </span>
+</span><span id="L-211"><a href="#L-211"><span class="linenos">211</span></a>                 <span class="n">file_info</span><span class="p">:</span> <span class="n">FileInformation</span><span class="p">,</span>
+</span><span id="L-212"><a href="#L-212"><span class="linenos">212</span></a>                 <span class="n">parsed_data</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">ModalityData</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+</span><span id="L-213"><a href="#L-213"><span class="linenos">213</span></a>                 <span class="n">time_offset</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+</span><span id="L-214"><a href="#L-214"><span class="linenos">214</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+</span><span id="L-215"><a href="#L-215"><span class="linenos">215</span></a><span class="sd">        Build a SplineMetric Modality.       </span>
+</span><span id="L-216"><a href="#L-216"><span class="linenos">216</span></a>
+</span><span id="L-217"><a href="#L-217"><span class="linenos">217</span></a><span class="sd">        Parameters</span>
+</span><span id="L-218"><a href="#L-218"><span class="linenos">218</span></a><span class="sd">        ----------</span>
+</span><span id="L-219"><a href="#L-219"><span class="linenos">219</span></a><span class="sd">        recording : Recording</span>
+</span><span id="L-220"><a href="#L-220"><span class="linenos">220</span></a><span class="sd">            the containing Recording.</span>
+</span><span id="L-221"><a href="#L-221"><span class="linenos">221</span></a><span class="sd">        metadata : SplineMetricParameters</span>
+</span><span id="L-222"><a href="#L-222"><span class="linenos">222</span></a><span class="sd">            Parameters used in calculating this instance of SplineMetric.</span>
+</span><span id="L-223"><a href="#L-223"><span class="linenos">223</span></a><span class="sd">        file_info : FileInformation</span>
+</span><span id="L-224"><a href="#L-224"><span class="linenos">224</span></a><span class="sd">            _description_</span>
+</span><span id="L-225"><a href="#L-225"><span class="linenos">225</span></a><span class="sd">        parsed_data : Optional[ModalityData], optional</span>
+</span><span id="L-226"><a href="#L-226"><span class="linenos">226</span></a><span class="sd">            ModalityData object, by default None. Contains SplineMetric values,</span>
 </span><span id="L-227"><a href="#L-227"><span class="linenos">227</span></a><span class="sd">            sampling rate,and either timevector and/or time_offset. Providing a</span>
 </span><span id="L-228"><a href="#L-228"><span class="linenos">228</span></a><span class="sd">            timevector overrides any time_offset value given, but in absence of</span>
 </span><span id="L-229"><a href="#L-229"><span class="linenos">229</span></a><span class="sd">            a timevector the time_offset will be applied on reading the data</span>
-</span><span id="L-230"><a href="#L-230"><span class="linenos">230</span></a><span class="sd">            from file. </span>
-</span><span id="L-231"><a href="#L-231"><span class="linenos">231</span></a><span class="sd">        timeoffset -- timeoffset in seconds against the Recordings baseline.</span>
-</span><span id="L-232"><a href="#L-232"><span class="linenos">232</span></a><span class="sd">            If not specified or 0, timeOffset will be copied from dataModality.</span>
-</span><span id="L-233"><a href="#L-233"><span class="linenos">233</span></a><span class="sd">        &quot;&quot;&quot;</span>
-</span><span id="L-234"><a href="#L-234"><span class="linenos">234</span></a>        <span class="c1"># This allows the caller to be lazy.</span>
-</span><span id="L-235"><a href="#L-235"><span class="linenos">235</span></a>        <span class="k">if</span> <span class="ow">not</span> <span class="n">time_offset</span><span class="p">:</span>
-</span><span id="L-236"><a href="#L-236"><span class="linenos">236</span></a>            <span class="k">if</span> <span class="n">parsed_data</span><span class="p">:</span>
-</span><span id="L-237"><a href="#L-237"><span class="linenos">237</span></a>                <span class="n">time_offset</span> <span class="o">=</span> <span class="n">parsed_data</span><span class="o">.</span><span class="n">timevector</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
-</span><span id="L-238"><a href="#L-238"><span class="linenos">238</span></a>
-</span><span id="L-239"><a href="#L-239"><span class="linenos">239</span></a>        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span>
-</span><span id="L-240"><a href="#L-240"><span class="linenos">240</span></a>            <span class="n">recording</span><span class="p">,</span>
-</span><span id="L-241"><a href="#L-241"><span class="linenos">241</span></a>            <span class="n">metadata</span><span class="o">=</span><span class="n">metadata</span><span class="p">,</span>
-</span><span id="L-242"><a href="#L-242"><span class="linenos">242</span></a>            <span class="n">data_path</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-</span><span id="L-243"><a href="#L-243"><span class="linenos">243</span></a>            <span class="n">load_path</span><span class="o">=</span><span class="n">load_path</span><span class="p">,</span>
-</span><span id="L-244"><a href="#L-244"><span class="linenos">244</span></a>            <span class="n">meta_path</span><span class="o">=</span><span class="n">meta_path</span><span class="p">,</span>
-</span><span id="L-245"><a href="#L-245"><span class="linenos">245</span></a>            <span class="n">parsed_data</span><span class="o">=</span><span class="n">parsed_data</span><span class="p">)</span>
-</span><span id="L-246"><a href="#L-246"><span class="linenos">246</span></a>
-</span><span id="L-247"><a href="#L-247"><span class="linenos">247</span></a>        <span class="bp">self</span><span class="o">.</span><span class="n">meta_data</span> <span class="o">=</span> <span class="n">metadata</span>
-</span><span id="L-248"><a href="#L-248"><span class="linenos">248</span></a>
-</span><span id="L-249"><a href="#L-249"><span class="linenos">249</span></a>    <span class="k">def</span> <span class="nf">_derive_data</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="nb">float</span><span class="p">]:</span>
-</span><span id="L-250"><a href="#L-250"><span class="linenos">250</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-</span><span id="L-251"><a href="#L-251"><span class="linenos">251</span></a><span class="sd">        Calculate the SplineMetric on the data of the parent Modality.</span>
-</span><span id="L-252"><a href="#L-252"><span class="linenos">252</span></a><span class="sd">        &quot;&quot;&quot;</span>
-</span><span id="L-253"><a href="#L-253"><span class="linenos">253</span></a>        <span class="n">message</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;Currently SplineMetric Modalities have to be &quot;</span>
-</span><span id="L-254"><a href="#L-254"><span class="linenos">254</span></a>                   <span class="s2">&quot;calculated at instantiation time. In: &quot;</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
-</span><span id="L-255"><a href="#L-255"><span class="linenos">255</span></a>        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="n">message</span><span class="p">)</span>
-</span><span id="L-256"><a href="#L-256"><span class="linenos">256</span></a>
-</span><span id="L-257"><a href="#L-257"><span class="linenos">257</span></a>    <span class="k">def</span> <span class="nf">get_meta</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
-</span><span id="L-258"><a href="#L-258"><span class="linenos">258</span></a>        <span class="c1"># This conversion is done to keep nestedtext working.</span>
-</span><span id="L-259"><a href="#L-259"><span class="linenos">259</span></a>        <span class="n">meta</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">meta_data</span><span class="o">.</span><span class="n">model_dump</span><span class="p">()</span>
-</span><span id="L-260"><a href="#L-260"><span class="linenos">260</span></a>        <span class="k">return</span> <span class="n">meta</span>
-</span><span id="L-261"><a href="#L-261"><span class="linenos">261</span></a>
-</span><span id="L-262"><a href="#L-262"><span class="linenos">262</span></a>    <span class="nd">@property</span>
-</span><span id="L-263"><a href="#L-263"><span class="linenos">263</span></a>    <span class="k">def</span> <span class="nf">name</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-</span><span id="L-264"><a href="#L-264"><span class="linenos">264</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-</span><span id="L-265"><a href="#L-265"><span class="linenos">265</span></a><span class="sd">        Identity, metric, and parent data class.</span>
-</span><span id="L-266"><a href="#L-266"><span class="linenos">266</span></a>
-</span><span id="L-267"><a href="#L-267"><span class="linenos">267</span></a><span class="sd">        The name will be of the form</span>
-</span><span id="L-268"><a href="#L-268"><span class="linenos">268</span></a><span class="sd">        &#39;PD [metric name] on [data modality class name]&#39;.</span>
-</span><span id="L-269"><a href="#L-269"><span class="linenos">269</span></a>
-</span><span id="L-270"><a href="#L-270"><span class="linenos">270</span></a><span class="sd">        This overrides the default behaviour of Modality.name.</span>
-</span><span id="L-271"><a href="#L-271"><span class="linenos">271</span></a><span class="sd">        &quot;&quot;&quot;</span>
-</span><span id="L-272"><a href="#L-272"><span class="linenos">272</span></a>        <span class="k">return</span> <span class="n">SplineMetric</span><span class="o">.</span><span class="n">generate_name</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">meta_data</span><span class="p">)</span>
+</span><span id="L-230"><a href="#L-230"><span class="linenos">230</span></a><span class="sd">            from file.</span>
+</span><span id="L-231"><a href="#L-231"><span class="linenos">231</span></a><span class="sd">        time_offset : Optional[float], optional</span>
+</span><span id="L-232"><a href="#L-232"><span class="linenos">232</span></a><span class="sd">            timeoffset in seconds against the Recordings baseline. If not</span>
+</span><span id="L-233"><a href="#L-233"><span class="linenos">233</span></a><span class="sd">            specified or 0, timeOffset will be copied from dataModality, by</span>
+</span><span id="L-234"><a href="#L-234"><span class="linenos">234</span></a><span class="sd">            default None</span>
+</span><span id="L-235"><a href="#L-235"><span class="linenos">235</span></a><span class="sd">        &quot;&quot;&quot;</span>
+</span><span id="L-236"><a href="#L-236"><span class="linenos">236</span></a>        <span class="c1"># This allows the caller to be lazy.</span>
+</span><span id="L-237"><a href="#L-237"><span class="linenos">237</span></a>        <span class="k">if</span> <span class="ow">not</span> <span class="n">time_offset</span><span class="p">:</span>
+</span><span id="L-238"><a href="#L-238"><span class="linenos">238</span></a>            <span class="k">if</span> <span class="n">parsed_data</span><span class="p">:</span>
+</span><span id="L-239"><a href="#L-239"><span class="linenos">239</span></a>                <span class="n">time_offset</span> <span class="o">=</span> <span class="n">parsed_data</span><span class="o">.</span><span class="n">timevector</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+</span><span id="L-240"><a href="#L-240"><span class="linenos">240</span></a>
+</span><span id="L-241"><a href="#L-241"><span class="linenos">241</span></a>        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span>
+</span><span id="L-242"><a href="#L-242"><span class="linenos">242</span></a>            <span class="n">recording</span><span class="p">,</span>
+</span><span id="L-243"><a href="#L-243"><span class="linenos">243</span></a>            <span class="n">meta_data</span><span class="o">=</span><span class="n">metadata</span><span class="p">,</span>
+</span><span id="L-244"><a href="#L-244"><span class="linenos">244</span></a>            <span class="n">file_info</span><span class="o">=</span><span class="n">file_info</span><span class="p">,</span>
+</span><span id="L-245"><a href="#L-245"><span class="linenos">245</span></a>            <span class="n">parsed_data</span><span class="o">=</span><span class="n">parsed_data</span><span class="p">,</span>
+</span><span id="L-246"><a href="#L-246"><span class="linenos">246</span></a>            <span class="n">time_offset</span><span class="o">=</span><span class="n">time_offset</span><span class="p">)</span>
+</span><span id="L-247"><a href="#L-247"><span class="linenos">247</span></a>
+</span><span id="L-248"><a href="#L-248"><span class="linenos">248</span></a>        <span class="bp">self</span><span class="o">.</span><span class="n">meta_data</span> <span class="o">=</span> <span class="n">metadata</span>
+</span><span id="L-249"><a href="#L-249"><span class="linenos">249</span></a>
+</span><span id="L-250"><a href="#L-250"><span class="linenos">250</span></a>    <span class="k">def</span> <span class="nf">_derive_data</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="nb">float</span><span class="p">]:</span>
+</span><span id="L-251"><a href="#L-251"><span class="linenos">251</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+</span><span id="L-252"><a href="#L-252"><span class="linenos">252</span></a><span class="sd">        Calculate the SplineMetric on the data of the parent Modality.</span>
+</span><span id="L-253"><a href="#L-253"><span class="linenos">253</span></a><span class="sd">        &quot;&quot;&quot;</span>
+</span><span id="L-254"><a href="#L-254"><span class="linenos">254</span></a>        <span class="n">message</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;Currently SplineMetric Modalities have to be &quot;</span>
+</span><span id="L-255"><a href="#L-255"><span class="linenos">255</span></a>                   <span class="s2">&quot;calculated at instantiation time. In: &quot;</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+</span><span id="L-256"><a href="#L-256"><span class="linenos">256</span></a>        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="n">message</span><span class="p">)</span>
+</span><span id="L-257"><a href="#L-257"><span class="linenos">257</span></a>
+</span><span id="L-258"><a href="#L-258"><span class="linenos">258</span></a>    <span class="k">def</span> <span class="nf">get_meta</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
+</span><span id="L-259"><a href="#L-259"><span class="linenos">259</span></a>        <span class="c1"># This conversion is done to keep nestedtext working.</span>
+</span><span id="L-260"><a href="#L-260"><span class="linenos">260</span></a>        <span class="n">meta</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">meta_data</span><span class="o">.</span><span class="n">model_dump</span><span class="p">()</span>
+</span><span id="L-261"><a href="#L-261"><span class="linenos">261</span></a>        <span class="k">return</span> <span class="n">meta</span>
+</span><span id="L-262"><a href="#L-262"><span class="linenos">262</span></a>
+</span><span id="L-263"><a href="#L-263"><span class="linenos">263</span></a>    <span class="nd">@property</span>
+</span><span id="L-264"><a href="#L-264"><span class="linenos">264</span></a>    <span class="k">def</span> <span class="nf">name</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+</span><span id="L-265"><a href="#L-265"><span class="linenos">265</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+</span><span id="L-266"><a href="#L-266"><span class="linenos">266</span></a><span class="sd">        Identity, metric, and parent data class.</span>
+</span><span id="L-267"><a href="#L-267"><span class="linenos">267</span></a>
+</span><span id="L-268"><a href="#L-268"><span class="linenos">268</span></a><span class="sd">        The name will be of the form</span>
+</span><span id="L-269"><a href="#L-269"><span class="linenos">269</span></a><span class="sd">        &#39;PD [metric name] on [data modality class name]&#39;.</span>
+</span><span id="L-270"><a href="#L-270"><span class="linenos">270</span></a>
+</span><span id="L-271"><a href="#L-271"><span class="linenos">271</span></a><span class="sd">        This overrides the default behaviour of Modality.name.</span>
+</span><span id="L-272"><a href="#L-272"><span class="linenos">272</span></a><span class="sd">        &quot;&quot;&quot;</span>
+</span><span id="L-273"><a href="#L-273"><span class="linenos">273</span></a>        <span class="k">return</span> <span class="n">SplineMetric</span><span class="o">.</span><span class="n">generate_name</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">meta_data</span><span class="p">)</span>
 </span></pre></div>
 
 
@@ -436,7 +440,7 @@
 <div class="attr class">
             
     <span class="def">class</span>
-    <span class="name">SplineDiffsEnum</span><wbr>(<span class="base"><a href="../helpers/enum_extensions.html#ListablePrintableEnum">satkit.helpers.enum_extensions.ListablePrintableEnum</a></span>):
+    <span class="name">SplineDiffsEnum</span><wbr>(<span class="base"><a href="../external_class_extensions/enum_extensions.html#ListablePrintableEnum">satkit.external_class_extensions.enum_extensions.ListablePrintableEnum</a></span>):
 
                 <label class="view-source-button" for="SplineDiffsEnum-view-source"><span>View Source</span></label>
 
@@ -508,8 +512,8 @@
                             <div class="inherited">
                                 <h5>Inherited Members</h5>
                                 <dl>
-                                    <div><dt><a href="../helpers/enum_extensions.html#ListablePrintableEnum">satkit.helpers.enum_extensions.ListablePrintableEnum</a></dt>
-                                <dd id="SplineDiffsEnum.values" class="function"><a href="../helpers/enum_extensions.html#ListablePrintableEnum.values">values</a></dd>
+                                    <div><dt><a href="../external_class_extensions/enum_extensions.html#ListablePrintableEnum">satkit.external_class_extensions.enum_extensions.ListablePrintableEnum</a></dt>
+                                <dd id="SplineDiffsEnum.values" class="function"><a href="../external_class_extensions/enum_extensions.html#ListablePrintableEnum.values">values</a></dd>
 
             </div>
             <div><dt>enum.Enum</dt>
@@ -525,7 +529,7 @@
 <div class="attr class">
             
     <span class="def">class</span>
-    <span class="name">SplineNNDsEnum</span><wbr>(<span class="base"><a href="../helpers/enum_extensions.html#ListablePrintableEnum">satkit.helpers.enum_extensions.ListablePrintableEnum</a></span>):
+    <span class="name">SplineNNDsEnum</span><wbr>(<span class="base"><a href="../external_class_extensions/enum_extensions.html#ListablePrintableEnum">satkit.external_class_extensions.enum_extensions.ListablePrintableEnum</a></span>):
 
                 <label class="view-source-button" for="SplineNNDsEnum-view-source"><span>View Source</span></label>
 
@@ -571,8 +575,8 @@
                             <div class="inherited">
                                 <h5>Inherited Members</h5>
                                 <dl>
-                                    <div><dt><a href="../helpers/enum_extensions.html#ListablePrintableEnum">satkit.helpers.enum_extensions.ListablePrintableEnum</a></dt>
-                                <dd id="SplineNNDsEnum.values" class="function"><a href="../helpers/enum_extensions.html#ListablePrintableEnum.values">values</a></dd>
+                                    <div><dt><a href="../external_class_extensions/enum_extensions.html#ListablePrintableEnum">satkit.external_class_extensions.enum_extensions.ListablePrintableEnum</a></dt>
+                                <dd id="SplineNNDsEnum.values" class="function"><a href="../external_class_extensions/enum_extensions.html#ListablePrintableEnum.values">values</a></dd>
 
             </div>
             <div><dt>enum.Enum</dt>
@@ -588,7 +592,7 @@
 <div class="attr class">
             
     <span class="def">class</span>
-    <span class="name">SplineShapesEnum</span><wbr>(<span class="base"><a href="../helpers/enum_extensions.html#ListablePrintableEnum">satkit.helpers.enum_extensions.ListablePrintableEnum</a></span>):
+    <span class="name">SplineShapesEnum</span><wbr>(<span class="base"><a href="../external_class_extensions/enum_extensions.html#ListablePrintableEnum">satkit.external_class_extensions.enum_extensions.ListablePrintableEnum</a></span>):
 
                 <label class="view-source-button" for="SplineShapesEnum-view-source"><span>View Source</span></label>
 
@@ -660,8 +664,8 @@
                             <div class="inherited">
                                 <h5>Inherited Members</h5>
                                 <dl>
-                                    <div><dt><a href="../helpers/enum_extensions.html#ListablePrintableEnum">satkit.helpers.enum_extensions.ListablePrintableEnum</a></dt>
-                                <dd id="SplineShapesEnum.values" class="function"><a href="../helpers/enum_extensions.html#ListablePrintableEnum.values">values</a></dd>
+                                    <div><dt><a href="../external_class_extensions/enum_extensions.html#ListablePrintableEnum">satkit.external_class_extensions.enum_extensions.ListablePrintableEnum</a></dt>
+                                <dd id="SplineShapesEnum.values" class="function"><a href="../external_class_extensions/enum_extensions.html#ListablePrintableEnum.values">values</a></dd>
 
             </div>
             <div><dt>enum.Enum</dt>
@@ -693,7 +697,7 @@
 <div class="attr class">
             
     <span class="def">class</span>
-    <span class="name">SplineMetricParameters</span><wbr>(<span class="base"><a href="../data_structures.html#ModalityMetaData">satkit.data_structures.ModalityMetaData</a></span>):
+    <span class="name">SplineMetricParameters</span><wbr>(<span class="base"><a href="../data_structures/meta_data_classes.html#ModalityMetaData">satkit.data_structures.meta_data_classes.ModalityMetaData</a></span>):
 
                 <label class="view-source-button" for="SplineMetricParameters-view-source"><span>View Source</span></label>
 
@@ -725,17 +729,19 @@
 
             <div class="docstring"><p>Parameters used in generating a SplineMetric modality.</p>
 
-<h2 id="parameters">Parameters</h2>
+<h6 id="parameters">Parameters</h6>
 
-<p>metric : str
-    A string specifying this Modality's metric. Defaults to the l1 norm.
-timestep : int 
-    A  positive integer used as the timestep in calculating this Modality's
-    data. Defaults to 1, which means comparison of consecutive frames.
-release_data_memory : bool
-    Wether to assign None to parent.data after deriving this Modality from
-    the data. Currently has no effect as deriving SplineMetric at runtime
-    is not yet supported.</p>
+<ul>
+<li><strong>metric</strong> (str):
+A string specifying this Modality's metric. Defaults to the l1 norm.</li>
+<li><strong>timestep</strong> (int):
+A  positive integer used as the timestep in calculating this Modality's
+data. Defaults to 1, which means comparison of consecutive frames.</li>
+<li><strong>release_data_memory</strong> (bool):
+Wether to assign None to parent.data after deriving this Modality from
+the data. Currently has no effect as deriving SplineMetric at runtime
+is not yet supported.</li>
+</ul>
 </div>
 
 
@@ -752,7 +758,7 @@ release_data_memory : bool
                             </div>
                             <div id="SplineMetricParameters.metric" class="classattr">
                                 <div class="attr variable">
-            <span class="name">metric</span><span class="annotation">: <a href="../helpers/enum_extensions.html#UnionEnumMeta.make_union">satkit.helpers.enum_extensions.UnionEnumMeta.make_union</a>.&lt;locals&gt;.UnionEnum</span>
+            <span class="name">metric</span><span class="annotation">: <a href="../external_class_extensions/enum_extensions.html#UnionEnumMeta.make_union">satkit.external_class_extensions.enum_extensions.UnionEnumMeta.make_union</a>.&lt;locals&gt;.UnionEnum</span>
 
         
     </div>
@@ -810,11 +816,23 @@ release_data_memory : bool
                                 <div class="attr variable">
             <span class="name">model_fields</span>        =
 <input id="SplineMetricParameters.model_fields-view-value" class="view-value-toggle-state" type="checkbox" aria-hidden="true" tabindex="-1">
-            <label class="view-value-button pdoc-button" for="SplineMetricParameters.model_fields-view-value"></label><span class="default_value">{&#39;parent_name&#39;: FieldInfo(annotation=str, required=True), &#39;is_downsampled&#39;: FieldInfo(annotation=Union[bool, NoneType], required=False, default=False), &#39;downsampling_ratio&#39;: FieldInfo(annotation=Union[NoneType, Annotated[int, Gt], str], required=False), &#39;timestep_matched_downsampling&#39;: FieldInfo(annotation=Union[bool, NoneType], required=False, default=True), &#39;metric&#39;: FieldInfo(annotation=UnionEnumMeta.make_union.&lt;locals&gt;.UnionEnum, required=False, default=&lt;<a href="#SplineDiffsEnum.MPBPD">SplineDiffsEnum.MPBPD</a>: &#39;mpbpd&#39;&gt;), &#39;timestep&#39;: FieldInfo(annotation=int, required=False, default=1, metadata=[Gt(gt=0)]), &#39;release_data_memory&#39;: FieldInfo(annotation=bool, required=False, default=False), &#39;exclude_points&#39;: FieldInfo(annotation=Union[tuple[int, int], NoneType], required=False)}</span>
+            <label class="view-value-button pdoc-button" for="SplineMetricParameters.model_fields-view-value"></label><span class="default_value">{&#39;parent_name&#39;: FieldInfo(annotation=str, required=True), &#39;is_downsampled&#39;: FieldInfo(annotation=Union[bool, NoneType], required=False, default=False), &#39;downsampling_ratio&#39;: FieldInfo(annotation=Union[NoneType, Annotated[int, Gt], str], required=False, default=None), &#39;timestep_matched_downsampling&#39;: FieldInfo(annotation=Union[bool, NoneType], required=False, default=True), &#39;metric&#39;: FieldInfo(annotation=UnionEnumMeta.make_union.&lt;locals&gt;.UnionEnum, required=False, default=&lt;<a href="#SplineDiffsEnum.MPBPD">SplineDiffsEnum.MPBPD</a>: &#39;mpbpd&#39;&gt;), &#39;timestep&#39;: FieldInfo(annotation=int, required=False, default=1, metadata=[Gt(gt=0)]), &#39;release_data_memory&#39;: FieldInfo(annotation=bool, required=False, default=False), &#39;exclude_points&#39;: FieldInfo(annotation=Union[tuple[int, int], NoneType], required=False, default=None)}</span>
 
         
     </div>
     <a class="headerlink" href="#SplineMetricParameters.model_fields"></a>
+    
+    
+
+                            </div>
+                            <div id="SplineMetricParameters.model_computed_fields" class="classattr">
+                                <div class="attr variable">
+            <span class="name">model_computed_fields</span>        =
+<span class="default_value">{}</span>
+
+        
+    </div>
+    <a class="headerlink" href="#SplineMetricParameters.model_computed_fields"></a>
     
     
 
@@ -824,7 +842,6 @@ release_data_memory : bool
                                 <dl>
                                     <div><dt>pydantic.main.BaseModel</dt>
                                 <dd id="SplineMetricParameters.__init__" class="function">BaseModel</dd>
-                <dd id="SplineMetricParameters.model_computed_fields" class="variable">model_computed_fields</dd>
                 <dd id="SplineMetricParameters.model_extra" class="variable">model_extra</dd>
                 <dd id="SplineMetricParameters.model_fields_set" class="variable">model_fields_set</dd>
                 <dd id="SplineMetricParameters.model_construct" class="function">model_construct</dd>
@@ -852,14 +869,14 @@ release_data_memory : bool
                 <dd id="SplineMetricParameters.update_forward_refs" class="function">update_forward_refs</dd>
 
             </div>
-            <div><dt><a href="../data_structures.html#ModalityMetaData">satkit.data_structures.ModalityMetaData</a></dt>
-                                <dd id="SplineMetricParameters.is_downsampled" class="variable"><a href="../data_structures.html#ModalityMetaData.is_downsampled">is_downsampled</a></dd>
-                <dd id="SplineMetricParameters.downsampling_ratio" class="variable"><a href="../data_structures.html#ModalityMetaData.downsampling_ratio">downsampling_ratio</a></dd>
-                <dd id="SplineMetricParameters.timestep_matched_downsampling" class="variable"><a href="../data_structures.html#ModalityMetaData.timestep_matched_downsampling">timestep_matched_downsampling</a></dd>
+            <div><dt><a href="../data_structures/meta_data_classes.html#ModalityMetaData">satkit.data_structures.meta_data_classes.ModalityMetaData</a></dt>
+                                <dd id="SplineMetricParameters.is_downsampled" class="variable"><a href="../data_structures/meta_data_classes.html#ModalityMetaData.is_downsampled">is_downsampled</a></dd>
+                <dd id="SplineMetricParameters.downsampling_ratio" class="variable"><a href="../data_structures/meta_data_classes.html#ModalityMetaData.downsampling_ratio">downsampling_ratio</a></dd>
+                <dd id="SplineMetricParameters.timestep_matched_downsampling" class="variable"><a href="../data_structures/meta_data_classes.html#ModalityMetaData.timestep_matched_downsampling">timestep_matched_downsampling</a></dd>
 
             </div>
-            <div><dt><a href="../helpers/base_model_extensions.html#EmptyStrAsNoneBaseModel">satkit.helpers.base_model_extensions.EmptyStrAsNoneBaseModel</a></dt>
-                                <dd id="SplineMetricParameters.empty_str_to_none" class="function"><a href="../helpers/base_model_extensions.html#EmptyStrAsNoneBaseModel.empty_str_to_none">empty_str_to_none</a></dd>
+            <div><dt><a href="../external_class_extensions/base_model_extensions.html#EmptyStrAsNoneBaseModel">satkit.external_class_extensions.base_model_extensions.EmptyStrAsNoneBaseModel</a></dt>
+                                <dd id="SplineMetricParameters.empty_str_to_none" class="function"><a href="../external_class_extensions/base_model_extensions.html#EmptyStrAsNoneBaseModel.empty_str_to_none">empty_str_to_none</a></dd>
 
             </div>
                                 </dl>
@@ -870,7 +887,7 @@ release_data_memory : bool
 <div class="attr class">
             
     <span class="def">class</span>
-    <span class="name">SplineMetric</span><wbr>(<span class="base"><a href="../data_structures.html#Modality">satkit.data_structures.Modality</a></span>):
+    <span class="name">SplineMetric</span><wbr>(<span class="base"><a href="../data_structures/data_structures.html#Modality">satkit.data_structures.data_structures.Modality</a></span>):
 
                 <label class="view-source-button" for="SplineMetric-view-source"><span>View Source</span></label>
 
@@ -974,68 +991,69 @@ release_data_memory : bool
 </span><span id="SplineMetric-209"><a href="#SplineMetric-209"><span class="linenos">209</span></a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
 </span><span id="SplineMetric-210"><a href="#SplineMetric-210"><span class="linenos">210</span></a>                 <span class="n">recording</span><span class="p">:</span> <span class="n">Recording</span><span class="p">,</span>
 </span><span id="SplineMetric-211"><a href="#SplineMetric-211"><span class="linenos">211</span></a>                 <span class="n">metadata</span><span class="p">:</span> <span class="n">SplineMetricParameters</span><span class="p">,</span>
-</span><span id="SplineMetric-212"><a href="#SplineMetric-212"><span class="linenos">212</span></a>                 <span class="n">load_path</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Path</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-</span><span id="SplineMetric-213"><a href="#SplineMetric-213"><span class="linenos">213</span></a>                 <span class="n">meta_path</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Path</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-</span><span id="SplineMetric-214"><a href="#SplineMetric-214"><span class="linenos">214</span></a>                 <span class="n">parsed_data</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">ModalityData</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-</span><span id="SplineMetric-215"><a href="#SplineMetric-215"><span class="linenos">215</span></a>                 <span class="n">time_offset</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-</span><span id="SplineMetric-216"><a href="#SplineMetric-216"><span class="linenos">216</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-</span><span id="SplineMetric-217"><a href="#SplineMetric-217"><span class="linenos">217</span></a><span class="sd">        Build a SplineMetric Modality.       </span>
-</span><span id="SplineMetric-218"><a href="#SplineMetric-218"><span class="linenos">218</span></a>
-</span><span id="SplineMetric-219"><a href="#SplineMetric-219"><span class="linenos">219</span></a><span class="sd">        Positional arguments: recording -- the containing Recording. parameters</span>
-</span><span id="SplineMetric-220"><a href="#SplineMetric-220"><span class="linenos">220</span></a><span class="sd">        : SplineMetricParameters</span>
-</span><span id="SplineMetric-221"><a href="#SplineMetric-221"><span class="linenos">221</span></a><span class="sd">            Parameters used in calculating this instance of SplineMetric.</span>
-</span><span id="SplineMetric-222"><a href="#SplineMetric-222"><span class="linenos">222</span></a><span class="sd">        Keyword arguments: load_path -- path of the saved data - both</span>
-</span><span id="SplineMetric-223"><a href="#SplineMetric-223"><span class="linenos">223</span></a><span class="sd">        ultrasound and metadata parent -- the Modality this one was derived</span>
-</span><span id="SplineMetric-224"><a href="#SplineMetric-224"><span class="linenos">224</span></a><span class="sd">        from. None means this </span>
-</span><span id="SplineMetric-225"><a href="#SplineMetric-225"><span class="linenos">225</span></a><span class="sd">            is an underived data Modality. If parent is None, it will be copied</span>
-</span><span id="SplineMetric-226"><a href="#SplineMetric-226"><span class="linenos">226</span></a><span class="sd">            from dataModality.</span>
-</span><span id="SplineMetric-227"><a href="#SplineMetric-227"><span class="linenos">227</span></a><span class="sd">        parsed_data -- ModalityData object containing raw ultrasound, </span>
+</span><span id="SplineMetric-212"><a href="#SplineMetric-212"><span class="linenos">212</span></a>                 <span class="n">file_info</span><span class="p">:</span> <span class="n">FileInformation</span><span class="p">,</span>
+</span><span id="SplineMetric-213"><a href="#SplineMetric-213"><span class="linenos">213</span></a>                 <span class="n">parsed_data</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">ModalityData</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+</span><span id="SplineMetric-214"><a href="#SplineMetric-214"><span class="linenos">214</span></a>                 <span class="n">time_offset</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+</span><span id="SplineMetric-215"><a href="#SplineMetric-215"><span class="linenos">215</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+</span><span id="SplineMetric-216"><a href="#SplineMetric-216"><span class="linenos">216</span></a><span class="sd">        Build a SplineMetric Modality.       </span>
+</span><span id="SplineMetric-217"><a href="#SplineMetric-217"><span class="linenos">217</span></a>
+</span><span id="SplineMetric-218"><a href="#SplineMetric-218"><span class="linenos">218</span></a><span class="sd">        Parameters</span>
+</span><span id="SplineMetric-219"><a href="#SplineMetric-219"><span class="linenos">219</span></a><span class="sd">        ----------</span>
+</span><span id="SplineMetric-220"><a href="#SplineMetric-220"><span class="linenos">220</span></a><span class="sd">        recording : Recording</span>
+</span><span id="SplineMetric-221"><a href="#SplineMetric-221"><span class="linenos">221</span></a><span class="sd">            the containing Recording.</span>
+</span><span id="SplineMetric-222"><a href="#SplineMetric-222"><span class="linenos">222</span></a><span class="sd">        metadata : SplineMetricParameters</span>
+</span><span id="SplineMetric-223"><a href="#SplineMetric-223"><span class="linenos">223</span></a><span class="sd">            Parameters used in calculating this instance of SplineMetric.</span>
+</span><span id="SplineMetric-224"><a href="#SplineMetric-224"><span class="linenos">224</span></a><span class="sd">        file_info : FileInformation</span>
+</span><span id="SplineMetric-225"><a href="#SplineMetric-225"><span class="linenos">225</span></a><span class="sd">            _description_</span>
+</span><span id="SplineMetric-226"><a href="#SplineMetric-226"><span class="linenos">226</span></a><span class="sd">        parsed_data : Optional[ModalityData], optional</span>
+</span><span id="SplineMetric-227"><a href="#SplineMetric-227"><span class="linenos">227</span></a><span class="sd">            ModalityData object, by default None. Contains SplineMetric values,</span>
 </span><span id="SplineMetric-228"><a href="#SplineMetric-228"><span class="linenos">228</span></a><span class="sd">            sampling rate,and either timevector and/or time_offset. Providing a</span>
 </span><span id="SplineMetric-229"><a href="#SplineMetric-229"><span class="linenos">229</span></a><span class="sd">            timevector overrides any time_offset value given, but in absence of</span>
 </span><span id="SplineMetric-230"><a href="#SplineMetric-230"><span class="linenos">230</span></a><span class="sd">            a timevector the time_offset will be applied on reading the data</span>
-</span><span id="SplineMetric-231"><a href="#SplineMetric-231"><span class="linenos">231</span></a><span class="sd">            from file. </span>
-</span><span id="SplineMetric-232"><a href="#SplineMetric-232"><span class="linenos">232</span></a><span class="sd">        timeoffset -- timeoffset in seconds against the Recordings baseline.</span>
-</span><span id="SplineMetric-233"><a href="#SplineMetric-233"><span class="linenos">233</span></a><span class="sd">            If not specified or 0, timeOffset will be copied from dataModality.</span>
-</span><span id="SplineMetric-234"><a href="#SplineMetric-234"><span class="linenos">234</span></a><span class="sd">        &quot;&quot;&quot;</span>
-</span><span id="SplineMetric-235"><a href="#SplineMetric-235"><span class="linenos">235</span></a>        <span class="c1"># This allows the caller to be lazy.</span>
-</span><span id="SplineMetric-236"><a href="#SplineMetric-236"><span class="linenos">236</span></a>        <span class="k">if</span> <span class="ow">not</span> <span class="n">time_offset</span><span class="p">:</span>
-</span><span id="SplineMetric-237"><a href="#SplineMetric-237"><span class="linenos">237</span></a>            <span class="k">if</span> <span class="n">parsed_data</span><span class="p">:</span>
-</span><span id="SplineMetric-238"><a href="#SplineMetric-238"><span class="linenos">238</span></a>                <span class="n">time_offset</span> <span class="o">=</span> <span class="n">parsed_data</span><span class="o">.</span><span class="n">timevector</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
-</span><span id="SplineMetric-239"><a href="#SplineMetric-239"><span class="linenos">239</span></a>
-</span><span id="SplineMetric-240"><a href="#SplineMetric-240"><span class="linenos">240</span></a>        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span>
-</span><span id="SplineMetric-241"><a href="#SplineMetric-241"><span class="linenos">241</span></a>            <span class="n">recording</span><span class="p">,</span>
-</span><span id="SplineMetric-242"><a href="#SplineMetric-242"><span class="linenos">242</span></a>            <span class="n">metadata</span><span class="o">=</span><span class="n">metadata</span><span class="p">,</span>
-</span><span id="SplineMetric-243"><a href="#SplineMetric-243"><span class="linenos">243</span></a>            <span class="n">data_path</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-</span><span id="SplineMetric-244"><a href="#SplineMetric-244"><span class="linenos">244</span></a>            <span class="n">load_path</span><span class="o">=</span><span class="n">load_path</span><span class="p">,</span>
-</span><span id="SplineMetric-245"><a href="#SplineMetric-245"><span class="linenos">245</span></a>            <span class="n">meta_path</span><span class="o">=</span><span class="n">meta_path</span><span class="p">,</span>
-</span><span id="SplineMetric-246"><a href="#SplineMetric-246"><span class="linenos">246</span></a>            <span class="n">parsed_data</span><span class="o">=</span><span class="n">parsed_data</span><span class="p">)</span>
-</span><span id="SplineMetric-247"><a href="#SplineMetric-247"><span class="linenos">247</span></a>
-</span><span id="SplineMetric-248"><a href="#SplineMetric-248"><span class="linenos">248</span></a>        <span class="bp">self</span><span class="o">.</span><span class="n">meta_data</span> <span class="o">=</span> <span class="n">metadata</span>
-</span><span id="SplineMetric-249"><a href="#SplineMetric-249"><span class="linenos">249</span></a>
-</span><span id="SplineMetric-250"><a href="#SplineMetric-250"><span class="linenos">250</span></a>    <span class="k">def</span> <span class="nf">_derive_data</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="nb">float</span><span class="p">]:</span>
-</span><span id="SplineMetric-251"><a href="#SplineMetric-251"><span class="linenos">251</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-</span><span id="SplineMetric-252"><a href="#SplineMetric-252"><span class="linenos">252</span></a><span class="sd">        Calculate the SplineMetric on the data of the parent Modality.</span>
-</span><span id="SplineMetric-253"><a href="#SplineMetric-253"><span class="linenos">253</span></a><span class="sd">        &quot;&quot;&quot;</span>
-</span><span id="SplineMetric-254"><a href="#SplineMetric-254"><span class="linenos">254</span></a>        <span class="n">message</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;Currently SplineMetric Modalities have to be &quot;</span>
-</span><span id="SplineMetric-255"><a href="#SplineMetric-255"><span class="linenos">255</span></a>                   <span class="s2">&quot;calculated at instantiation time. In: &quot;</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
-</span><span id="SplineMetric-256"><a href="#SplineMetric-256"><span class="linenos">256</span></a>        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="n">message</span><span class="p">)</span>
-</span><span id="SplineMetric-257"><a href="#SplineMetric-257"><span class="linenos">257</span></a>
-</span><span id="SplineMetric-258"><a href="#SplineMetric-258"><span class="linenos">258</span></a>    <span class="k">def</span> <span class="nf">get_meta</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
-</span><span id="SplineMetric-259"><a href="#SplineMetric-259"><span class="linenos">259</span></a>        <span class="c1"># This conversion is done to keep nestedtext working.</span>
-</span><span id="SplineMetric-260"><a href="#SplineMetric-260"><span class="linenos">260</span></a>        <span class="n">meta</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">meta_data</span><span class="o">.</span><span class="n">model_dump</span><span class="p">()</span>
-</span><span id="SplineMetric-261"><a href="#SplineMetric-261"><span class="linenos">261</span></a>        <span class="k">return</span> <span class="n">meta</span>
-</span><span id="SplineMetric-262"><a href="#SplineMetric-262"><span class="linenos">262</span></a>
-</span><span id="SplineMetric-263"><a href="#SplineMetric-263"><span class="linenos">263</span></a>    <span class="nd">@property</span>
-</span><span id="SplineMetric-264"><a href="#SplineMetric-264"><span class="linenos">264</span></a>    <span class="k">def</span> <span class="nf">name</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-</span><span id="SplineMetric-265"><a href="#SplineMetric-265"><span class="linenos">265</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-</span><span id="SplineMetric-266"><a href="#SplineMetric-266"><span class="linenos">266</span></a><span class="sd">        Identity, metric, and parent data class.</span>
-</span><span id="SplineMetric-267"><a href="#SplineMetric-267"><span class="linenos">267</span></a>
-</span><span id="SplineMetric-268"><a href="#SplineMetric-268"><span class="linenos">268</span></a><span class="sd">        The name will be of the form</span>
-</span><span id="SplineMetric-269"><a href="#SplineMetric-269"><span class="linenos">269</span></a><span class="sd">        &#39;PD [metric name] on [data modality class name]&#39;.</span>
-</span><span id="SplineMetric-270"><a href="#SplineMetric-270"><span class="linenos">270</span></a>
-</span><span id="SplineMetric-271"><a href="#SplineMetric-271"><span class="linenos">271</span></a><span class="sd">        This overrides the default behaviour of Modality.name.</span>
-</span><span id="SplineMetric-272"><a href="#SplineMetric-272"><span class="linenos">272</span></a><span class="sd">        &quot;&quot;&quot;</span>
-</span><span id="SplineMetric-273"><a href="#SplineMetric-273"><span class="linenos">273</span></a>        <span class="k">return</span> <span class="n">SplineMetric</span><span class="o">.</span><span class="n">generate_name</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">meta_data</span><span class="p">)</span>
+</span><span id="SplineMetric-231"><a href="#SplineMetric-231"><span class="linenos">231</span></a><span class="sd">            from file.</span>
+</span><span id="SplineMetric-232"><a href="#SplineMetric-232"><span class="linenos">232</span></a><span class="sd">        time_offset : Optional[float], optional</span>
+</span><span id="SplineMetric-233"><a href="#SplineMetric-233"><span class="linenos">233</span></a><span class="sd">            timeoffset in seconds against the Recordings baseline. If not</span>
+</span><span id="SplineMetric-234"><a href="#SplineMetric-234"><span class="linenos">234</span></a><span class="sd">            specified or 0, timeOffset will be copied from dataModality, by</span>
+</span><span id="SplineMetric-235"><a href="#SplineMetric-235"><span class="linenos">235</span></a><span class="sd">            default None</span>
+</span><span id="SplineMetric-236"><a href="#SplineMetric-236"><span class="linenos">236</span></a><span class="sd">        &quot;&quot;&quot;</span>
+</span><span id="SplineMetric-237"><a href="#SplineMetric-237"><span class="linenos">237</span></a>        <span class="c1"># This allows the caller to be lazy.</span>
+</span><span id="SplineMetric-238"><a href="#SplineMetric-238"><span class="linenos">238</span></a>        <span class="k">if</span> <span class="ow">not</span> <span class="n">time_offset</span><span class="p">:</span>
+</span><span id="SplineMetric-239"><a href="#SplineMetric-239"><span class="linenos">239</span></a>            <span class="k">if</span> <span class="n">parsed_data</span><span class="p">:</span>
+</span><span id="SplineMetric-240"><a href="#SplineMetric-240"><span class="linenos">240</span></a>                <span class="n">time_offset</span> <span class="o">=</span> <span class="n">parsed_data</span><span class="o">.</span><span class="n">timevector</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+</span><span id="SplineMetric-241"><a href="#SplineMetric-241"><span class="linenos">241</span></a>
+</span><span id="SplineMetric-242"><a href="#SplineMetric-242"><span class="linenos">242</span></a>        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span>
+</span><span id="SplineMetric-243"><a href="#SplineMetric-243"><span class="linenos">243</span></a>            <span class="n">recording</span><span class="p">,</span>
+</span><span id="SplineMetric-244"><a href="#SplineMetric-244"><span class="linenos">244</span></a>            <span class="n">meta_data</span><span class="o">=</span><span class="n">metadata</span><span class="p">,</span>
+</span><span id="SplineMetric-245"><a href="#SplineMetric-245"><span class="linenos">245</span></a>            <span class="n">file_info</span><span class="o">=</span><span class="n">file_info</span><span class="p">,</span>
+</span><span id="SplineMetric-246"><a href="#SplineMetric-246"><span class="linenos">246</span></a>            <span class="n">parsed_data</span><span class="o">=</span><span class="n">parsed_data</span><span class="p">,</span>
+</span><span id="SplineMetric-247"><a href="#SplineMetric-247"><span class="linenos">247</span></a>            <span class="n">time_offset</span><span class="o">=</span><span class="n">time_offset</span><span class="p">)</span>
+</span><span id="SplineMetric-248"><a href="#SplineMetric-248"><span class="linenos">248</span></a>
+</span><span id="SplineMetric-249"><a href="#SplineMetric-249"><span class="linenos">249</span></a>        <span class="bp">self</span><span class="o">.</span><span class="n">meta_data</span> <span class="o">=</span> <span class="n">metadata</span>
+</span><span id="SplineMetric-250"><a href="#SplineMetric-250"><span class="linenos">250</span></a>
+</span><span id="SplineMetric-251"><a href="#SplineMetric-251"><span class="linenos">251</span></a>    <span class="k">def</span> <span class="nf">_derive_data</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="nb">float</span><span class="p">]:</span>
+</span><span id="SplineMetric-252"><a href="#SplineMetric-252"><span class="linenos">252</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+</span><span id="SplineMetric-253"><a href="#SplineMetric-253"><span class="linenos">253</span></a><span class="sd">        Calculate the SplineMetric on the data of the parent Modality.</span>
+</span><span id="SplineMetric-254"><a href="#SplineMetric-254"><span class="linenos">254</span></a><span class="sd">        &quot;&quot;&quot;</span>
+</span><span id="SplineMetric-255"><a href="#SplineMetric-255"><span class="linenos">255</span></a>        <span class="n">message</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;Currently SplineMetric Modalities have to be &quot;</span>
+</span><span id="SplineMetric-256"><a href="#SplineMetric-256"><span class="linenos">256</span></a>                   <span class="s2">&quot;calculated at instantiation time. In: &quot;</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+</span><span id="SplineMetric-257"><a href="#SplineMetric-257"><span class="linenos">257</span></a>        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="n">message</span><span class="p">)</span>
+</span><span id="SplineMetric-258"><a href="#SplineMetric-258"><span class="linenos">258</span></a>
+</span><span id="SplineMetric-259"><a href="#SplineMetric-259"><span class="linenos">259</span></a>    <span class="k">def</span> <span class="nf">get_meta</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
+</span><span id="SplineMetric-260"><a href="#SplineMetric-260"><span class="linenos">260</span></a>        <span class="c1"># This conversion is done to keep nestedtext working.</span>
+</span><span id="SplineMetric-261"><a href="#SplineMetric-261"><span class="linenos">261</span></a>        <span class="n">meta</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">meta_data</span><span class="o">.</span><span class="n">model_dump</span><span class="p">()</span>
+</span><span id="SplineMetric-262"><a href="#SplineMetric-262"><span class="linenos">262</span></a>        <span class="k">return</span> <span class="n">meta</span>
+</span><span id="SplineMetric-263"><a href="#SplineMetric-263"><span class="linenos">263</span></a>
+</span><span id="SplineMetric-264"><a href="#SplineMetric-264"><span class="linenos">264</span></a>    <span class="nd">@property</span>
+</span><span id="SplineMetric-265"><a href="#SplineMetric-265"><span class="linenos">265</span></a>    <span class="k">def</span> <span class="nf">name</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+</span><span id="SplineMetric-266"><a href="#SplineMetric-266"><span class="linenos">266</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+</span><span id="SplineMetric-267"><a href="#SplineMetric-267"><span class="linenos">267</span></a><span class="sd">        Identity, metric, and parent data class.</span>
+</span><span id="SplineMetric-268"><a href="#SplineMetric-268"><span class="linenos">268</span></a>
+</span><span id="SplineMetric-269"><a href="#SplineMetric-269"><span class="linenos">269</span></a><span class="sd">        The name will be of the form</span>
+</span><span id="SplineMetric-270"><a href="#SplineMetric-270"><span class="linenos">270</span></a><span class="sd">        &#39;PD [metric name] on [data modality class name]&#39;.</span>
+</span><span id="SplineMetric-271"><a href="#SplineMetric-271"><span class="linenos">271</span></a>
+</span><span id="SplineMetric-272"><a href="#SplineMetric-272"><span class="linenos">272</span></a><span class="sd">        This overrides the default behaviour of Modality.name.</span>
+</span><span id="SplineMetric-273"><a href="#SplineMetric-273"><span class="linenos">273</span></a><span class="sd">        &quot;&quot;&quot;</span>
+</span><span id="SplineMetric-274"><a href="#SplineMetric-274"><span class="linenos">274</span></a>        <span class="k">return</span> <span class="n">SplineMetric</span><span class="o">.</span><span class="n">generate_name</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">meta_data</span><span class="p">)</span>
 </span></pre></div>
 
 
@@ -1047,7 +1065,7 @@ release_data_memory : bool
                                         <input id="SplineMetric.__init__-view-source" class="view-source-toggle-state" type="checkbox" aria-hidden="true" tabindex="-1">
 <div class="attr function">
             
-        <span class="name">SplineMetric</span><span class="signature pdoc-code multiline">(<span class="param">	<span class="n">recording</span><span class="p">:</span> <span class="n"><a href="../data_structures.html#Recording">satkit.data_structures.Recording</a></span>,</span><span class="param">	<span class="n">metadata</span><span class="p">:</span> <span class="n"><a href="#SplineMetricParameters">SplineMetricParameters</a></span>,</span><span class="param">	<span class="n">load_path</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>,</span><span class="param">	<span class="n">meta_path</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>,</span><span class="param">	<span class="n">parsed_data</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n"><a href="../data_structures.html#ModalityData">satkit.data_structures.ModalityData</a></span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>,</span><span class="param">	<span class="n">time_offset</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span></span>)</span>
+        <span class="name">SplineMetric</span><span class="signature pdoc-code multiline">(<span class="param">	<span class="n">recording</span><span class="p">:</span> <span class="n"><a href="../data_structures/data_structures.html#Recording">satkit.data_structures.data_structures.Recording</a></span>,</span><span class="param">	<span class="n">metadata</span><span class="p">:</span> <span class="n"><a href="#SplineMetricParameters">SplineMetricParameters</a></span>,</span><span class="param">	<span class="n">file_info</span><span class="p">:</span> <span class="n"><a href="../data_structures/meta_data_classes.html#FileInformation">satkit.data_structures.meta_data_classes.FileInformation</a></span>,</span><span class="param">	<span class="n">parsed_data</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n"><a href="../data_structures/meta_data_classes.html#ModalityData">satkit.data_structures.meta_data_classes.ModalityData</a></span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>,</span><span class="param">	<span class="n">time_offset</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span></span>)</span>
 
                 <label class="view-source-button" for="SplineMetric.__init__-view-source"><span>View Source</span></label>
 
@@ -1056,63 +1074,69 @@ release_data_memory : bool
             <div class="pdoc-code codehilite"><pre><span></span><span id="SplineMetric.__init__-209"><a href="#SplineMetric.__init__-209"><span class="linenos">209</span></a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
 </span><span id="SplineMetric.__init__-210"><a href="#SplineMetric.__init__-210"><span class="linenos">210</span></a>                 <span class="n">recording</span><span class="p">:</span> <span class="n">Recording</span><span class="p">,</span>
 </span><span id="SplineMetric.__init__-211"><a href="#SplineMetric.__init__-211"><span class="linenos">211</span></a>                 <span class="n">metadata</span><span class="p">:</span> <span class="n">SplineMetricParameters</span><span class="p">,</span>
-</span><span id="SplineMetric.__init__-212"><a href="#SplineMetric.__init__-212"><span class="linenos">212</span></a>                 <span class="n">load_path</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Path</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-</span><span id="SplineMetric.__init__-213"><a href="#SplineMetric.__init__-213"><span class="linenos">213</span></a>                 <span class="n">meta_path</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Path</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-</span><span id="SplineMetric.__init__-214"><a href="#SplineMetric.__init__-214"><span class="linenos">214</span></a>                 <span class="n">parsed_data</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">ModalityData</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-</span><span id="SplineMetric.__init__-215"><a href="#SplineMetric.__init__-215"><span class="linenos">215</span></a>                 <span class="n">time_offset</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-</span><span id="SplineMetric.__init__-216"><a href="#SplineMetric.__init__-216"><span class="linenos">216</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-</span><span id="SplineMetric.__init__-217"><a href="#SplineMetric.__init__-217"><span class="linenos">217</span></a><span class="sd">        Build a SplineMetric Modality.       </span>
-</span><span id="SplineMetric.__init__-218"><a href="#SplineMetric.__init__-218"><span class="linenos">218</span></a>
-</span><span id="SplineMetric.__init__-219"><a href="#SplineMetric.__init__-219"><span class="linenos">219</span></a><span class="sd">        Positional arguments: recording -- the containing Recording. parameters</span>
-</span><span id="SplineMetric.__init__-220"><a href="#SplineMetric.__init__-220"><span class="linenos">220</span></a><span class="sd">        : SplineMetricParameters</span>
-</span><span id="SplineMetric.__init__-221"><a href="#SplineMetric.__init__-221"><span class="linenos">221</span></a><span class="sd">            Parameters used in calculating this instance of SplineMetric.</span>
-</span><span id="SplineMetric.__init__-222"><a href="#SplineMetric.__init__-222"><span class="linenos">222</span></a><span class="sd">        Keyword arguments: load_path -- path of the saved data - both</span>
-</span><span id="SplineMetric.__init__-223"><a href="#SplineMetric.__init__-223"><span class="linenos">223</span></a><span class="sd">        ultrasound and metadata parent -- the Modality this one was derived</span>
-</span><span id="SplineMetric.__init__-224"><a href="#SplineMetric.__init__-224"><span class="linenos">224</span></a><span class="sd">        from. None means this </span>
-</span><span id="SplineMetric.__init__-225"><a href="#SplineMetric.__init__-225"><span class="linenos">225</span></a><span class="sd">            is an underived data Modality. If parent is None, it will be copied</span>
-</span><span id="SplineMetric.__init__-226"><a href="#SplineMetric.__init__-226"><span class="linenos">226</span></a><span class="sd">            from dataModality.</span>
-</span><span id="SplineMetric.__init__-227"><a href="#SplineMetric.__init__-227"><span class="linenos">227</span></a><span class="sd">        parsed_data -- ModalityData object containing raw ultrasound, </span>
+</span><span id="SplineMetric.__init__-212"><a href="#SplineMetric.__init__-212"><span class="linenos">212</span></a>                 <span class="n">file_info</span><span class="p">:</span> <span class="n">FileInformation</span><span class="p">,</span>
+</span><span id="SplineMetric.__init__-213"><a href="#SplineMetric.__init__-213"><span class="linenos">213</span></a>                 <span class="n">parsed_data</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">ModalityData</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+</span><span id="SplineMetric.__init__-214"><a href="#SplineMetric.__init__-214"><span class="linenos">214</span></a>                 <span class="n">time_offset</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+</span><span id="SplineMetric.__init__-215"><a href="#SplineMetric.__init__-215"><span class="linenos">215</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+</span><span id="SplineMetric.__init__-216"><a href="#SplineMetric.__init__-216"><span class="linenos">216</span></a><span class="sd">        Build a SplineMetric Modality.       </span>
+</span><span id="SplineMetric.__init__-217"><a href="#SplineMetric.__init__-217"><span class="linenos">217</span></a>
+</span><span id="SplineMetric.__init__-218"><a href="#SplineMetric.__init__-218"><span class="linenos">218</span></a><span class="sd">        Parameters</span>
+</span><span id="SplineMetric.__init__-219"><a href="#SplineMetric.__init__-219"><span class="linenos">219</span></a><span class="sd">        ----------</span>
+</span><span id="SplineMetric.__init__-220"><a href="#SplineMetric.__init__-220"><span class="linenos">220</span></a><span class="sd">        recording : Recording</span>
+</span><span id="SplineMetric.__init__-221"><a href="#SplineMetric.__init__-221"><span class="linenos">221</span></a><span class="sd">            the containing Recording.</span>
+</span><span id="SplineMetric.__init__-222"><a href="#SplineMetric.__init__-222"><span class="linenos">222</span></a><span class="sd">        metadata : SplineMetricParameters</span>
+</span><span id="SplineMetric.__init__-223"><a href="#SplineMetric.__init__-223"><span class="linenos">223</span></a><span class="sd">            Parameters used in calculating this instance of SplineMetric.</span>
+</span><span id="SplineMetric.__init__-224"><a href="#SplineMetric.__init__-224"><span class="linenos">224</span></a><span class="sd">        file_info : FileInformation</span>
+</span><span id="SplineMetric.__init__-225"><a href="#SplineMetric.__init__-225"><span class="linenos">225</span></a><span class="sd">            _description_</span>
+</span><span id="SplineMetric.__init__-226"><a href="#SplineMetric.__init__-226"><span class="linenos">226</span></a><span class="sd">        parsed_data : Optional[ModalityData], optional</span>
+</span><span id="SplineMetric.__init__-227"><a href="#SplineMetric.__init__-227"><span class="linenos">227</span></a><span class="sd">            ModalityData object, by default None. Contains SplineMetric values,</span>
 </span><span id="SplineMetric.__init__-228"><a href="#SplineMetric.__init__-228"><span class="linenos">228</span></a><span class="sd">            sampling rate,and either timevector and/or time_offset. Providing a</span>
 </span><span id="SplineMetric.__init__-229"><a href="#SplineMetric.__init__-229"><span class="linenos">229</span></a><span class="sd">            timevector overrides any time_offset value given, but in absence of</span>
 </span><span id="SplineMetric.__init__-230"><a href="#SplineMetric.__init__-230"><span class="linenos">230</span></a><span class="sd">            a timevector the time_offset will be applied on reading the data</span>
-</span><span id="SplineMetric.__init__-231"><a href="#SplineMetric.__init__-231"><span class="linenos">231</span></a><span class="sd">            from file. </span>
-</span><span id="SplineMetric.__init__-232"><a href="#SplineMetric.__init__-232"><span class="linenos">232</span></a><span class="sd">        timeoffset -- timeoffset in seconds against the Recordings baseline.</span>
-</span><span id="SplineMetric.__init__-233"><a href="#SplineMetric.__init__-233"><span class="linenos">233</span></a><span class="sd">            If not specified or 0, timeOffset will be copied from dataModality.</span>
-</span><span id="SplineMetric.__init__-234"><a href="#SplineMetric.__init__-234"><span class="linenos">234</span></a><span class="sd">        &quot;&quot;&quot;</span>
-</span><span id="SplineMetric.__init__-235"><a href="#SplineMetric.__init__-235"><span class="linenos">235</span></a>        <span class="c1"># This allows the caller to be lazy.</span>
-</span><span id="SplineMetric.__init__-236"><a href="#SplineMetric.__init__-236"><span class="linenos">236</span></a>        <span class="k">if</span> <span class="ow">not</span> <span class="n">time_offset</span><span class="p">:</span>
-</span><span id="SplineMetric.__init__-237"><a href="#SplineMetric.__init__-237"><span class="linenos">237</span></a>            <span class="k">if</span> <span class="n">parsed_data</span><span class="p">:</span>
-</span><span id="SplineMetric.__init__-238"><a href="#SplineMetric.__init__-238"><span class="linenos">238</span></a>                <span class="n">time_offset</span> <span class="o">=</span> <span class="n">parsed_data</span><span class="o">.</span><span class="n">timevector</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
-</span><span id="SplineMetric.__init__-239"><a href="#SplineMetric.__init__-239"><span class="linenos">239</span></a>
-</span><span id="SplineMetric.__init__-240"><a href="#SplineMetric.__init__-240"><span class="linenos">240</span></a>        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span>
-</span><span id="SplineMetric.__init__-241"><a href="#SplineMetric.__init__-241"><span class="linenos">241</span></a>            <span class="n">recording</span><span class="p">,</span>
-</span><span id="SplineMetric.__init__-242"><a href="#SplineMetric.__init__-242"><span class="linenos">242</span></a>            <span class="n">metadata</span><span class="o">=</span><span class="n">metadata</span><span class="p">,</span>
-</span><span id="SplineMetric.__init__-243"><a href="#SplineMetric.__init__-243"><span class="linenos">243</span></a>            <span class="n">data_path</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-</span><span id="SplineMetric.__init__-244"><a href="#SplineMetric.__init__-244"><span class="linenos">244</span></a>            <span class="n">load_path</span><span class="o">=</span><span class="n">load_path</span><span class="p">,</span>
-</span><span id="SplineMetric.__init__-245"><a href="#SplineMetric.__init__-245"><span class="linenos">245</span></a>            <span class="n">meta_path</span><span class="o">=</span><span class="n">meta_path</span><span class="p">,</span>
-</span><span id="SplineMetric.__init__-246"><a href="#SplineMetric.__init__-246"><span class="linenos">246</span></a>            <span class="n">parsed_data</span><span class="o">=</span><span class="n">parsed_data</span><span class="p">)</span>
-</span><span id="SplineMetric.__init__-247"><a href="#SplineMetric.__init__-247"><span class="linenos">247</span></a>
-</span><span id="SplineMetric.__init__-248"><a href="#SplineMetric.__init__-248"><span class="linenos">248</span></a>        <span class="bp">self</span><span class="o">.</span><span class="n">meta_data</span> <span class="o">=</span> <span class="n">metadata</span>
+</span><span id="SplineMetric.__init__-231"><a href="#SplineMetric.__init__-231"><span class="linenos">231</span></a><span class="sd">            from file.</span>
+</span><span id="SplineMetric.__init__-232"><a href="#SplineMetric.__init__-232"><span class="linenos">232</span></a><span class="sd">        time_offset : Optional[float], optional</span>
+</span><span id="SplineMetric.__init__-233"><a href="#SplineMetric.__init__-233"><span class="linenos">233</span></a><span class="sd">            timeoffset in seconds against the Recordings baseline. If not</span>
+</span><span id="SplineMetric.__init__-234"><a href="#SplineMetric.__init__-234"><span class="linenos">234</span></a><span class="sd">            specified or 0, timeOffset will be copied from dataModality, by</span>
+</span><span id="SplineMetric.__init__-235"><a href="#SplineMetric.__init__-235"><span class="linenos">235</span></a><span class="sd">            default None</span>
+</span><span id="SplineMetric.__init__-236"><a href="#SplineMetric.__init__-236"><span class="linenos">236</span></a><span class="sd">        &quot;&quot;&quot;</span>
+</span><span id="SplineMetric.__init__-237"><a href="#SplineMetric.__init__-237"><span class="linenos">237</span></a>        <span class="c1"># This allows the caller to be lazy.</span>
+</span><span id="SplineMetric.__init__-238"><a href="#SplineMetric.__init__-238"><span class="linenos">238</span></a>        <span class="k">if</span> <span class="ow">not</span> <span class="n">time_offset</span><span class="p">:</span>
+</span><span id="SplineMetric.__init__-239"><a href="#SplineMetric.__init__-239"><span class="linenos">239</span></a>            <span class="k">if</span> <span class="n">parsed_data</span><span class="p">:</span>
+</span><span id="SplineMetric.__init__-240"><a href="#SplineMetric.__init__-240"><span class="linenos">240</span></a>                <span class="n">time_offset</span> <span class="o">=</span> <span class="n">parsed_data</span><span class="o">.</span><span class="n">timevector</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+</span><span id="SplineMetric.__init__-241"><a href="#SplineMetric.__init__-241"><span class="linenos">241</span></a>
+</span><span id="SplineMetric.__init__-242"><a href="#SplineMetric.__init__-242"><span class="linenos">242</span></a>        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span>
+</span><span id="SplineMetric.__init__-243"><a href="#SplineMetric.__init__-243"><span class="linenos">243</span></a>            <span class="n">recording</span><span class="p">,</span>
+</span><span id="SplineMetric.__init__-244"><a href="#SplineMetric.__init__-244"><span class="linenos">244</span></a>            <span class="n">meta_data</span><span class="o">=</span><span class="n">metadata</span><span class="p">,</span>
+</span><span id="SplineMetric.__init__-245"><a href="#SplineMetric.__init__-245"><span class="linenos">245</span></a>            <span class="n">file_info</span><span class="o">=</span><span class="n">file_info</span><span class="p">,</span>
+</span><span id="SplineMetric.__init__-246"><a href="#SplineMetric.__init__-246"><span class="linenos">246</span></a>            <span class="n">parsed_data</span><span class="o">=</span><span class="n">parsed_data</span><span class="p">,</span>
+</span><span id="SplineMetric.__init__-247"><a href="#SplineMetric.__init__-247"><span class="linenos">247</span></a>            <span class="n">time_offset</span><span class="o">=</span><span class="n">time_offset</span><span class="p">)</span>
+</span><span id="SplineMetric.__init__-248"><a href="#SplineMetric.__init__-248"><span class="linenos">248</span></a>
+</span><span id="SplineMetric.__init__-249"><a href="#SplineMetric.__init__-249"><span class="linenos">249</span></a>        <span class="bp">self</span><span class="o">.</span><span class="n">meta_data</span> <span class="o">=</span> <span class="n">metadata</span>
 </span></pre></div>
 
 
             <div class="docstring"><p>Build a SplineMetric Modality.       </p>
 
-<p>Positional arguments: recording -- the containing Recording. parameters
-: SplineMetricParameters
-    Parameters used in calculating this instance of SplineMetric.
-Keyword arguments: load_path -- path of the saved data - both
-ultrasound and metadata parent -- the Modality this one was derived
-from. None means this 
-    is an underived data Modality. If parent is None, it will be copied
-    from dataModality.
-parsed_data -- ModalityData object containing raw ultrasound, 
-    sampling rate,and either timevector and/or time_offset. Providing a
-    timevector overrides any time_offset value given, but in absence of
-    a timevector the time_offset will be applied on reading the data
-    from file. 
-timeoffset -- timeoffset in seconds against the Recordings baseline.
-    If not specified or 0, timeOffset will be copied from dataModality.</p>
+<h6 id="parameters">Parameters</h6>
+
+<ul>
+<li><strong>recording</strong> (Recording):
+the containing Recording.</li>
+<li><strong>metadata</strong> (SplineMetricParameters):
+Parameters used in calculating this instance of SplineMetric.</li>
+<li><strong>file_info</strong> (FileInformation):
+_description_</li>
+<li><strong>parsed_data</strong> (Optional[ModalityData], optional):
+ModalityData object, by default None. Contains SplineMetric values,
+sampling rate,and either timevector and/or time_offset. Providing a
+timevector overrides any time_offset value given, but in absence of
+a timevector the time_offset will be applied on reading the data
+from file.</li>
+<li><strong>time_offset</strong> (Optional[float], optional):
+timeoffset in seconds against the Recordings baseline. If not
+specified or 0, timeOffset will be copied from dataModality, by
+default None</li>
+</ul>
 </div>
 
 
@@ -1175,19 +1199,22 @@ pattern (<a href="#SplineMetric.name">SplineMetric.name</a> calls this and any w
 what a name would be calls this) is how all derived Modalities should
 work.</p>
 
-<h2 id="parameters">Parameters</h2>
+<h6 id="parameters">Parameters</h6>
 
-<p>modality : Modality
-    Parent Modality that SplineMetric is calculated on.
-params : SplineMetricParameters
-    The parameters of the SplineMetric instance. Note that this
-    SplineMetricParameters instance does not need to be attached to a
-    SplineMetric instance.</p>
+<ul>
+<li><strong>modality</strong> (Modality):
+Parent Modality that SplineMetric is calculated on.</li>
+<li><strong>params</strong> (SplineMetricParameters):
+The parameters of the SplineMetric instance. Note that this
+SplineMetricParameters instance does not need to be attached to a
+SplineMetric instance.</li>
+</ul>
 
-<h2 id="returns">Returns</h2>
+<h6 id="returns">Returns</h6>
 
-<p>str
-    Name of the SplineMetric instance.</p>
+<ul>
+<li><strong>str</strong>: Name of the SplineMetric instance.</li>
+</ul>
 </div>
 
 
@@ -1198,7 +1225,7 @@ params : SplineMetricParameters
                     <div class="decorator">@staticmethod</div>
 
         <span class="def">def</span>
-        <span class="name">get_names_and_meta</span><span class="signature pdoc-code multiline">(<span class="param">	<span class="n">modality</span><span class="p">:</span> <span class="n"><a href="../data_structures.html#Modality">satkit.data_structures.Modality</a></span>,</span><span class="param">	<span class="n">metrics</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>,</span><span class="param">	<span class="n">timesteps</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>,</span><span class="param">	<span class="n">exclude_points</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>,</span><span class="param">	<span class="n">release_data_memory</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span></span><span class="return-annotation">) -> dict[slice(&lt;class &#x27;str&#x27;&gt;, &lt;class &#x27;<a href="#SplineMetricParameters">SplineMetricParameters</a>&#x27;&gt;, None)]:</span></span>
+        <span class="name">get_names_and_meta</span><span class="signature pdoc-code multiline">(<span class="param">	<span class="n">modality</span><span class="p">:</span> <span class="n"><a href="../data_structures/data_structures.html#Modality">satkit.data_structures.data_structures.Modality</a></span>,</span><span class="param">	<span class="n">metrics</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>,</span><span class="param">	<span class="n">timesteps</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>,</span><span class="param">	<span class="n">exclude_points</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>,</span><span class="param">	<span class="n">release_data_memory</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span></span><span class="return-annotation">) -> dict[slice(&lt;class &#x27;str&#x27;&gt;, &lt;class &#x27;<a href="#SplineMetricParameters">SplineMetricParameters</a>&#x27;&gt;, None)]:</span></span>
 
                 <label class="view-source-button" for="SplineMetric.get_names_and_meta-view-source"><span>View Source</span></label>
 
@@ -1265,36 +1292,71 @@ params : SplineMetricParameters
 combinations. If only some of them are needed, make more than one call
 or weed the results afterwards.</p>
 
-<h2 id="parameters">Parameters</h2>
+<h6 id="parameters">Parameters</h6>
 
-<p>modality : Modality
-    parent modality that SplineMetric would be derived from
-metrics : List[str], optional
-    list of metrics to be calculated, defaults to 'l2'.
-timesteps : List[int], optional
-    list of timesteps to be used, defaults to 1.
-release_data_memory: bool
-    Should parent Modlity's data be assigned to None after calculations
-    are complete, by default False.</p>
+<ul>
+<li><strong>modality</strong> (Modality):
+parent modality that SplineMetric would be derived from</li>
+<li><strong>metrics</strong> (List[str], optional):
+list of metrics to be calculated, defaults to 'l2'.</li>
+<li><strong>timesteps</strong> (List[int], optional):
+list of timesteps to be used, defaults to 1.</li>
+<li><strong>release_data_memory</strong> (bool):
+Should parent Modlity's data be assigned to None after calculations
+are complete, by default False.</li>
+</ul>
 
-<h2 id="returns">Returns</h2>
+<h6 id="returns">Returns</h6>
 
-<p>dict[str: SplineMetricParameters]
-    Dictionary where the names of the SplineMetric Modalities index the
-    SplineMetricParameter objects.</p>
+<ul>
+<li><strong>dict[str</strong> (SplineMetricParameters]):
+Dictionary where the names of the SplineMetric Modalities index the
+SplineMetricParameter objects.</li>
+</ul>
 </div>
 
 
                             </div>
                             <div id="SplineMetric.meta_data" class="classattr">
-                                <div class="attr variable">
-            <span class="name">meta_data</span>
+                                        <input id="SplineMetric.meta_data-view-source" class="view-source-toggle-state" type="checkbox" aria-hidden="true" tabindex="-1">
+<div class="attr variable">
+            <span class="name">meta_data</span><span class="annotation">: <a href="../external_class_extensions/base_model_extensions.html#EmptyStrAsNoneBaseModel">satkit.external_class_extensions.base_model_extensions.EmptyStrAsNoneBaseModel</a></span>
 
-        
+                <label class="view-source-button" for="SplineMetric.meta_data-view-source"><span>View Source</span></label>
+
     </div>
     <a class="headerlink" href="#SplineMetric.meta_data"></a>
-    
-    
+            <div class="pdoc-code codehilite"><pre><span></span><span id="SplineMetric.meta_data-130"><a href="#SplineMetric.meta_data-130"><span class="linenos">130</span></a>    <span class="nd">@property</span>
+</span><span id="SplineMetric.meta_data-131"><a href="#SplineMetric.meta_data-131"><span class="linenos">131</span></a>    <span class="k">def</span> <span class="nf">meta_data</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">EmptyStrAsNoneBaseModel</span><span class="p">:</span>
+</span><span id="SplineMetric.meta_data-132"><a href="#SplineMetric.meta_data-132"><span class="linenos">132</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+</span><span id="SplineMetric.meta_data-133"><a href="#SplineMetric.meta_data-133"><span class="linenos">133</span></a><span class="sd">        Meta data of this DataObject.</span>
+</span><span id="SplineMetric.meta_data-134"><a href="#SplineMetric.meta_data-134"><span class="linenos">134</span></a>
+</span><span id="SplineMetric.meta_data-135"><a href="#SplineMetric.meta_data-135"><span class="linenos">135</span></a><span class="sd">        This will be of appropriate type for the subclasses and has been hidden</span>
+</span><span id="SplineMetric.meta_data-136"><a href="#SplineMetric.meta_data-136"><span class="linenos">136</span></a><span class="sd">        behind a property to make it possible to change the internal</span>
+</span><span id="SplineMetric.meta_data-137"><a href="#SplineMetric.meta_data-137"><span class="linenos">137</span></a><span class="sd">        representation without breaking the API.</span>
+</span><span id="SplineMetric.meta_data-138"><a href="#SplineMetric.meta_data-138"><span class="linenos">138</span></a>
+</span><span id="SplineMetric.meta_data-139"><a href="#SplineMetric.meta_data-139"><span class="linenos">139</span></a><span class="sd">        Returns</span>
+</span><span id="SplineMetric.meta_data-140"><a href="#SplineMetric.meta_data-140"><span class="linenos">140</span></a><span class="sd">        -------</span>
+</span><span id="SplineMetric.meta_data-141"><a href="#SplineMetric.meta_data-141"><span class="linenos">141</span></a><span class="sd">        EmptyStrAsNoneBaseModel</span>
+</span><span id="SplineMetric.meta_data-142"><a href="#SplineMetric.meta_data-142"><span class="linenos">142</span></a><span class="sd">            The meta data as a Pydantic model.</span>
+</span><span id="SplineMetric.meta_data-143"><a href="#SplineMetric.meta_data-143"><span class="linenos">143</span></a><span class="sd">        &quot;&quot;&quot;</span>
+</span><span id="SplineMetric.meta_data-144"><a href="#SplineMetric.meta_data-144"><span class="linenos">144</span></a>        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_meta_data</span>
+</span></pre></div>
+
+
+            <div class="docstring"><p>Meta data of this DataObject.</p>
+
+<p>This will be of appropriate type for the subclasses and has been hidden
+behind a property to make it possible to change the internal
+representation without breaking the API.</p>
+
+<h6 id="returns">Returns</h6>
+
+<ul>
+<li><strong>EmptyStrAsNoneBaseModel</strong>: The meta data as a Pydantic model.</li>
+</ul>
+</div>
+
 
                             </div>
                             <div id="SplineMetric.get_meta" class="classattr">
@@ -1308,26 +1370,54 @@ release_data_memory: bool
 
     </div>
     <a class="headerlink" href="#SplineMetric.get_meta"></a>
-            <div class="pdoc-code codehilite"><pre><span></span><span id="SplineMetric.get_meta-258"><a href="#SplineMetric.get_meta-258"><span class="linenos">258</span></a>    <span class="k">def</span> <span class="nf">get_meta</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
-</span><span id="SplineMetric.get_meta-259"><a href="#SplineMetric.get_meta-259"><span class="linenos">259</span></a>        <span class="c1"># This conversion is done to keep nestedtext working.</span>
-</span><span id="SplineMetric.get_meta-260"><a href="#SplineMetric.get_meta-260"><span class="linenos">260</span></a>        <span class="n">meta</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">meta_data</span><span class="o">.</span><span class="n">model_dump</span><span class="p">()</span>
-</span><span id="SplineMetric.get_meta-261"><a href="#SplineMetric.get_meta-261"><span class="linenos">261</span></a>        <span class="k">return</span> <span class="n">meta</span>
+            <div class="pdoc-code codehilite"><pre><span></span><span id="SplineMetric.get_meta-259"><a href="#SplineMetric.get_meta-259"><span class="linenos">259</span></a>    <span class="k">def</span> <span class="nf">get_meta</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
+</span><span id="SplineMetric.get_meta-260"><a href="#SplineMetric.get_meta-260"><span class="linenos">260</span></a>        <span class="c1"># This conversion is done to keep nestedtext working.</span>
+</span><span id="SplineMetric.get_meta-261"><a href="#SplineMetric.get_meta-261"><span class="linenos">261</span></a>        <span class="n">meta</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">meta_data</span><span class="o">.</span><span class="n">model_dump</span><span class="p">()</span>
+</span><span id="SplineMetric.get_meta-262"><a href="#SplineMetric.get_meta-262"><span class="linenos">262</span></a>        <span class="k">return</span> <span class="n">meta</span>
 </span></pre></div>
 
 
-            <div class="docstring"><p>Return this Modality's metadata as a dictionary.</p>
+            <div class="docstring"><p>Get meta data as a dict.</p>
+
+<p>This is a helper method for saving as nested text. Allows for rewriting
+any fields that need a simpler representation. </p>
+
+<p>Subclasses should override this method if any of their fields require
+special handling such as derived Enums needing to be converted to plain
+text etc. </p>
+
+<h6 id="returns">Returns</h6>
+
+<ul>
+<li><strong>dict</strong>: The meta data in a dict.</li>
+</ul>
 </div>
 
 
                             </div>
                             <div id="SplineMetric.name" class="classattr">
-                                <div class="attr variable">
+                                        <input id="SplineMetric.name-view-source" class="view-source-toggle-state" type="checkbox" aria-hidden="true" tabindex="-1">
+<div class="attr variable">
             <span class="name">name</span><span class="annotation">: str</span>
 
-        
+                <label class="view-source-button" for="SplineMetric.name-view-source"><span>View Source</span></label>
+
     </div>
     <a class="headerlink" href="#SplineMetric.name"></a>
-    
+            <div class="pdoc-code codehilite"><pre><span></span><span id="SplineMetric.name-264"><a href="#SplineMetric.name-264"><span class="linenos">264</span></a>    <span class="nd">@property</span>
+</span><span id="SplineMetric.name-265"><a href="#SplineMetric.name-265"><span class="linenos">265</span></a>    <span class="k">def</span> <span class="nf">name</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+</span><span id="SplineMetric.name-266"><a href="#SplineMetric.name-266"><span class="linenos">266</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+</span><span id="SplineMetric.name-267"><a href="#SplineMetric.name-267"><span class="linenos">267</span></a><span class="sd">        Identity, metric, and parent data class.</span>
+</span><span id="SplineMetric.name-268"><a href="#SplineMetric.name-268"><span class="linenos">268</span></a>
+</span><span id="SplineMetric.name-269"><a href="#SplineMetric.name-269"><span class="linenos">269</span></a><span class="sd">        The name will be of the form</span>
+</span><span id="SplineMetric.name-270"><a href="#SplineMetric.name-270"><span class="linenos">270</span></a><span class="sd">        &#39;PD [metric name] on [data modality class name]&#39;.</span>
+</span><span id="SplineMetric.name-271"><a href="#SplineMetric.name-271"><span class="linenos">271</span></a>
+</span><span id="SplineMetric.name-272"><a href="#SplineMetric.name-272"><span class="linenos">272</span></a><span class="sd">        This overrides the default behaviour of Modality.name.</span>
+</span><span id="SplineMetric.name-273"><a href="#SplineMetric.name-273"><span class="linenos">273</span></a><span class="sd">        &quot;&quot;&quot;</span>
+</span><span id="SplineMetric.name-274"><a href="#SplineMetric.name-274"><span class="linenos">274</span></a>        <span class="k">return</span> <span class="n">SplineMetric</span><span class="o">.</span><span class="n">generate_name</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">meta_data</span><span class="p">)</span>
+</span></pre></div>
+
+
             <div class="docstring"><p>Identity, metric, and parent data class.</p>
 
 <p>The name will be of the form
@@ -1341,23 +1431,31 @@ release_data_memory: bool
                             <div class="inherited">
                                 <h5>Inherited Members</h5>
                                 <dl>
-                                    <div><dt><a href="../data_structures.html#Modality">satkit.data_structures.Modality</a></dt>
-                                <dd id="SplineMetric.recording" class="variable"><a href="../data_structures.html#Modality.recording">recording</a></dd>
-                <dd id="SplineMetric.data_path" class="variable"><a href="../data_structures.html#Modality.data_path">data_path</a></dd>
-                <dd id="SplineMetric.load_path" class="variable"><a href="../data_structures.html#Modality.load_path">load_path</a></dd>
-                <dd id="SplineMetric.metadata" class="variable"><a href="../data_structures.html#Modality.metadata">metadata</a></dd>
-                <dd id="SplineMetric.excluded" class="variable"><a href="../data_structures.html#Modality.excluded">excluded</a></dd>
-                <dd id="SplineMetric.annotations" class="variable"><a href="../data_structures.html#Modality.annotations">annotations</a></dd>
-                <dd id="SplineMetric.add_annotations" class="function"><a href="../data_structures.html#Modality.add_annotations">add_annotations</a></dd>
-                <dd id="SplineMetric.modality_data" class="variable"><a href="../data_structures.html#Modality.modality_data">modality_data</a></dd>
-                <dd id="SplineMetric.data" class="variable"><a href="../data_structures.html#Modality.data">data</a></dd>
-                <dd id="SplineMetric.sampling_rate" class="variable"><a href="../data_structures.html#Modality.sampling_rate">sampling_rate</a></dd>
-                <dd id="SplineMetric.parent_name" class="variable"><a href="../data_structures.html#Modality.parent_name">parent_name</a></dd>
-                <dd id="SplineMetric.time_offset" class="variable"><a href="../data_structures.html#Modality.time_offset">time_offset</a></dd>
-                <dd id="SplineMetric.time_precision" class="variable"><a href="../data_structures.html#Modality.time_precision">time_precision</a></dd>
-                <dd id="SplineMetric.timevector" class="variable"><a href="../data_structures.html#Modality.timevector">timevector</a></dd>
-                <dd id="SplineMetric.is_derived_modality" class="variable"><a href="../data_structures.html#Modality.is_derived_modality">is_derived_modality</a></dd>
-                <dd id="SplineMetric.meta_path" class="variable"><a href="../data_structures.html#Modality.meta_path">meta_path</a></dd>
+                                    <div><dt><a href="../data_structures/data_structures.html#Modality">satkit.data_structures.data_structures.Modality</a></dt>
+                                <dd id="SplineMetric.excluded" class="variable"><a href="../data_structures/data_structures.html#Modality.excluded">excluded</a></dd>
+                <dd id="SplineMetric.annotations" class="variable"><a href="../data_structures/data_structures.html#Modality.annotations">annotations</a></dd>
+                <dd id="SplineMetric.recording" class="variable"><a href="../data_structures/data_structures.html#Modality.recording">recording</a></dd>
+                <dd id="SplineMetric.add_annotations" class="function"><a href="../data_structures/data_structures.html#Modality.add_annotations">add_annotations</a></dd>
+                <dd id="SplineMetric.modality_data" class="variable"><a href="../data_structures/data_structures.html#Modality.modality_data">modality_data</a></dd>
+                <dd id="SplineMetric.data" class="variable"><a href="../data_structures/data_structures.html#Modality.data">data</a></dd>
+                <dd id="SplineMetric.sampling_rate" class="variable"><a href="../data_structures/data_structures.html#Modality.sampling_rate">sampling_rate</a></dd>
+                <dd id="SplineMetric.parent_name" class="variable"><a href="../data_structures/data_structures.html#Modality.parent_name">parent_name</a></dd>
+                <dd id="SplineMetric.time_offset" class="variable"><a href="../data_structures/data_structures.html#Modality.time_offset">time_offset</a></dd>
+                <dd id="SplineMetric.time_precision" class="variable"><a href="../data_structures/data_structures.html#Modality.time_precision">time_precision</a></dd>
+                <dd id="SplineMetric.timevector" class="variable"><a href="../data_structures/data_structures.html#Modality.timevector">timevector</a></dd>
+                <dd id="SplineMetric.is_derived_modality" class="variable"><a href="../data_structures/data_structures.html#Modality.is_derived_modality">is_derived_modality</a></dd>
+
+            </div>
+            <div><dt><a href="../data_structures/base_classes.html#DataObject">satkit.data_structures.base_classes.DataObject</a></dt>
+                                <dd id="SplineMetric.owner" class="variable"><a href="../data_structures/base_classes.html#DataObject.owner">owner</a></dd>
+                <dd id="SplineMetric.file_info" class="variable"><a href="../data_structures/base_classes.html#DataObject.file_info">file_info</a></dd>
+                <dd id="SplineMetric.recorded_data_file" class="variable"><a href="../data_structures/base_classes.html#DataObject.recorded_data_file">recorded_data_file</a></dd>
+                <dd id="SplineMetric.recorded_meta_file" class="variable"><a href="../data_structures/base_classes.html#DataObject.recorded_meta_file">recorded_meta_file</a></dd>
+                <dd id="SplineMetric.recorded_path" class="variable"><a href="../data_structures/base_classes.html#DataObject.recorded_path">recorded_path</a></dd>
+                <dd id="SplineMetric.satkit_data_file" class="variable"><a href="../data_structures/base_classes.html#DataObject.satkit_data_file">satkit_data_file</a></dd>
+                <dd id="SplineMetric.satkit_meta_file" class="variable"><a href="../data_structures/base_classes.html#DataObject.satkit_meta_file">satkit_meta_file</a></dd>
+                <dd id="SplineMetric.satkit_path" class="variable"><a href="../data_structures/base_classes.html#DataObject.satkit_path">satkit_path</a></dd>
+                <dd id="SplineMetric.is_fully_initialised" class="variable"><a href="../data_structures/base_classes.html#DataObject.is_fully_initialised">is_fully_initialised</a></dd>
 
             </div>
             <div><dt>collections.OrderedDict</dt>

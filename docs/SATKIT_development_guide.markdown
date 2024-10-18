@@ -12,7 +12,7 @@ First things first: write in good pythonic style.
     [autopep8](https://pypi.org/project/autopep8/) and Pylint packages to
     format code.
 - [PEP 257](https://www.python.org/dev/peps/pep-0257/) talks about conventions
-  for docstrings. In addition we might do the following:
+  for docstrings. In addition, we might do the following:
   - Consider what will look good once the docs are compiled.
   - If we are using pdoc, repeating the same thing for a class docstring and
       the constructor is not a good idea. Instead, write general description in
@@ -92,11 +92,10 @@ A release of SATKIT is created as follows:
 3. Update documentation and version numbers
    - Version number lives in at least README.md and constants.py. File version
      number will be different from program version number after 1.0.
-     - [README](../README.md)
-     - [constants.py](../satkit/constants.py)
-     - Setuptools files
-       - [pyproject.toml](../pyproject.toml) and/or [setup.cfg](../setup.cfg)
-   - [Release notes](Release_notes.markdown)
+     - [README](../README.md),
+     - [constants.py](../satkit/constants.py), and
+     - [pyproject.toml](../pyproject.toml).
+   - [Changelog](Changelog.markdown)
    - [Generated documentation](../devel/doc_generation_commands)
    - [License headers](../devel/licenseheaders_command)
 4. Create a new release candidate branch named 'vX.Y.Z' e.g. 'v0.7.0' from the
@@ -107,16 +106,18 @@ A release of SATKIT is created as follows:
    - While we are in the time before 1.0, satkit-stable most likely does not
      work.
 7. Run tests.
-   - These don't exist yet at the time of SATKIT 0.9.0.
-8. Fix any bugs that occur, run tests see that they pass, update the release
-   notes.
-   - Check if [Release notes](Release_notes.markdown) need any final updates.
+   - These don't exist yet at the time of SATKIT 0.10.0 except as
+     'rudimentary_tests.sh'.
+8. Fix any bugs that occur, run tests see that they pass, update the docs.
+   - Check if [Changelog](Changelog.markdown) needs any final updates.
    - Rerun doc generation if there were any changes.
 9. Merge release branch to `main`.
-10. Release housekeeping: 
+10. Release housekeeping:
     - Delete the now defunct release branch (`git push -d <remote_name>
    <branchname>` and `git branch -d <branchname`)
     - Tag the commit in main with the release title ('vX.Y.Z') and push it to
       remote with `git push origin vX.Y.Z`
     - If any commits were made to the release branch, merge `main` into `devel`.
-11. Announce the release.
+11. Make the tagged version a release on GitHub to show it correctly as
+    'latest' in the sidebar. 
+12. Announce the release.

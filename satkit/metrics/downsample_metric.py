@@ -34,6 +34,12 @@
 Downsampling of metrics and possibly other timeseries data.
 """
 
+import re
+import dataclasses
+
+# from icecream import ic
+
+from satkit.configuration import SearchPattern, DownsampleParams
 from satkit.data_structures import (
     Modality, ModalityData, ModalityMetaData, Recording)
 
@@ -41,7 +47,7 @@ from satkit.data_structures import (
 def downsample_modality(
         modality: Modality,
         downsampling_ratio: int,
-        metadata: ModalityMetaData
+        meta_data: ModalityMetaData
 ) -> Modality:
     """
     Downsample the Modality by the given ratio and return results as a new
@@ -69,18 +75,51 @@ def downsample_modality(
     modality_data = ModalityData(
         data=data, timevector=timevector, sampling_rate=sampling_rate)
 
+    # replace makes a shallow copy when nothing is marked for replacing.
+    file_info = dataclasses.replace(modality.file_info)
+
     return modality.__class__(
         modality.recording,
         parsed_data=modality_data,
-        metadata=metadata,
-        meta_path=modality.meta_path,
-        load_path=modality.load_path,
+        meta_data=meta_data,
+        file_info=file_info,
         time_offset=modality.time_offset)
 
 
 def downsample_metrics(
         recording: Recording,
-        modality_pattern: str,
+        downsampling_parameters: DownsampleParams
+) -> None:
+    """
+    Apply downsampling to Modalities matching the pattern and add them back to
+    the Recording.
+
+    Parameters
+    ----------
+    recording : Recording
+        The Recording which contains the Modalities and to which the new
+        downsampled modalities will be added.
+    downsampling_parameters : DownsampleParams
+        Parameters for the downsampling. See the DownsampleParams class for
+        details.
+
+    Raises
+    ------
+    NotImplementedError
+        For now only match_timestep = True is allowed.
+    """
+    # TODO either expose the original interface in the next function or merge
+    # it into this one
+    _downsample_metrics(
+        recording=recording,
+        modality_pattern=downsampling_parameters.modality_pattern,
+        downsampling_ratios=downsampling_parameters.downsampling_ratios,
+        match_timestep=downsampling_parameters.match_timestep)
+
+
+def _downsample_metrics(
+        recording: Recording,
+        modality_pattern: SearchPattern,
         downsampling_ratios: tuple[int],
         match_timestep: bool = True
 ) -> None:
@@ -107,10 +146,16 @@ def downsample_metrics(
     NotImplementedError
         For now only match_timestep = True is allowed.
     """
-
-    modalities = [recording[key]
-                  for key in recording
-                  if modality_pattern in key]
+    if modality_pattern.is_regexp:
+        pattern = re.compile(modality_pattern.pattern)
+        modalities = [recording[key]
+                      for key in recording
+                      if pattern.match(key)]
+    else:
+        pattern = modality_pattern.pattern
+        modalities = [recording[key]
+                      for key in recording
+                      if pattern in key]
 
     if match_timestep:
         modalities = [

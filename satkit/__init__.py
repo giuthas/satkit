@@ -46,11 +46,10 @@ graphical annotation tools derive from Annotator.
 """
 
 import json
-import logging
 import logging.config
 
 # import satkit.configuration.configuration as configuration
-from satkit.helpers.logging_helpers import log_elapsed_time, set_logging_level
+from satkit.utility_functions.logging_helpers import log_elapsed_time, set_logging_level
 
 # Load logging config from json file.
 LOG_CONFIG = "configuration/satkit_logging_configuration.json"

@@ -29,6 +29,7 @@ When using the toolkit for scientific publications, please cite the
 articles listed in README.markdown. They can also be found in
 citations.bib in BibTeX format.
 -->
+
 # SATKIT Documentation
 
 Until the 1.0 release none of the documentation is necessarily final nor correct.

@@ -29,11 +29,14 @@
 # articles listed in README.markdown. They can also be found in
 # citations.bib in BibTeX format.
 #
+"""
+Extensions to Pydantic BaseModel.
+"""
 
 import logging
 from typing import Optional
 
-from pydantic import BaseModel, Field, model_validator
+from pydantic import BaseModel, model_validator
 
 _logger = logging.getLogger('satkit.base_model_extensions')
 
@@ -45,7 +48,7 @@ _logger = logging.getLogger('satkit.base_model_extensions')
 
 class EmptyStrAsNoneBaseModel(BaseModel):
     """
-    A Pydantic BaseModel extension which accepts empty strings for any field as None.
+    A BaseModel which accepts empty strings for any field as None.
     """
     @model_validator(mode="before")
     @classmethod
@@ -70,7 +73,7 @@ class EmptyStrAsNoneBaseModel(BaseModel):
 
 class UpdatableBaseModel(EmptyStrAsNoneBaseModel):
     """
-    An extension of Pydantic BaseModel which can be updated with new data.
+    A BaseModel which can be updated with new data.
 
     The update will trigger validation again.
     """

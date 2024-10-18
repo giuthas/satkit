@@ -43,12 +43,13 @@ from strictyaml import (Map, Optional,
                         YAMLError, load)
 
 from satkit.configuration import (
-    PathStructure, PathValidator, SessionConfig)
+    PathStructure, PathValidator)
 from satkit.constants import Datasource
+from satkit.data_structures import SessionConfig
 
 from .spline_import_config import load_spline_config
 
-from .exclusion_list import load_exclusion_list
+from satkit.configuration.exclusion_list_functions import load_exclusion_list
 _logger = logging.getLogger('satkit.data_import')
 
 
@@ -111,7 +112,7 @@ def load_session_config(
         data_root: Path,
         filepath: Union[Path, str]) -> tuple[PathStructure, SessionConfig]:
     """
-    Read a Sesssion config file from filepath.
+    Read a Session config file from filepath.
 
     Parameters
     ----------

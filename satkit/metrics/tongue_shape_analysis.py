@@ -131,7 +131,7 @@ def modified_curvature_index(data: np.ndarray,
     Parameters
     ----------
     data : np.ndarray
-        one spline with axes ordered: x-y, splinepoints 
+        one spline with axes ordered: x-y, spline points 
     run_filter : bool
         Should the curvature be filtered before integration.
 
@@ -189,7 +189,7 @@ def fourier_tongue_shape_analysis(data: np.ndarray) -> np.ndarray:
     Parameters
     ----------
     tongue_data : np.ndarray
-        one spline with axes ordered: x-y, splinepoints 
+        one spline with axes ordered: x-y, spline points 
 
     Returns
     -------
@@ -362,7 +362,7 @@ def run_analysis():
                     "Found %d shapes for %s", num_reps, symbol)
 
                 # This transforms the test data into the axes
-                # time, x-y, splinepoint
+                # time, x-y, spline point
                 data = np.stack((data[:, 0::2], data[:, 1::2]))
                 data = np.moveaxis(data, (0, 1), (1, 2))
 

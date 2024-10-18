@@ -40,19 +40,20 @@ import logging
 import sys
 from contextlib import closing
 from pathlib import Path
-from typing import Union
 
 # from icecream import ic
 
-import numpy as np
-from strictyaml import (Any, Bool, FixedSeq, Float, Int, Map, MapCombined,
-                        MapPattern, Optional, ScalarValidator, Seq, Str,
-                        YAML, YAMLError, load)
+# import numpy as np
+from strictyaml import (
+    Bool, FixedSeq, Float, Int, Map,
+    MapPattern, Optional, ScalarValidator, Seq, Str,
+    YAML, YAMLError, load
+)
 
 from satkit.constants import DEFAULT_ENCODING
 
 from .configuration_classes import IntervalBoundary, IntervalCategory
-from .configuration_models import SearchPattern, TimeseriesNormalisation
+from .configuration_models import TimeseriesNormalisation
 
 config_dict = {}
 data_run_params = {}
@@ -101,21 +102,6 @@ class NormalisationValidator(ScalarValidator):
         return None
 
 
-class SearchPatternValidator(ScalarValidator):
-    """
-    Validate yaml representing a Path.
-
-    Please note that empty fields are interpreted as not available and
-    represented by None. If you want to specify current working directory, use
-    '.'
-    """
-
-    def validate_scalar(self, chunk):
-        if chunk.contents:
-            return SearchPattern.build(chunk.contents)
-        return None
-
-
 class IntervalCategoryValidator(ScalarValidator):
     """
     Validate yaml representing a Path.
@@ -146,7 +132,21 @@ class IntervalBoundaryValidator(ScalarValidator):
         return None
 
 
-def parse_config(filepath: Union[Path, str, None] = None) -> None:
+_search_pattern_schema = Map({
+    "pattern": Str(),
+    Optional("is_regexp", default=False): Bool()
+})
+
+_time_limit_schema = Map({
+    "tier": Str(),
+    "interval": IntervalCategoryValidator(),
+    Optional("label"): Str(),
+    "boundary": IntervalBoundaryValidator(),
+    Optional("offset"): Float(),
+})
+
+
+def parse_config(filepath: Path | str | None = None) -> None:
     """
     Read the config file from filepath and recursively the other config files.
 
@@ -161,7 +161,7 @@ def parse_config(filepath: Union[Path, str, None] = None) -> None:
     load_publish_params(config_dict['publish_parameter_file'])
 
 
-def load_main_config(filepath: Union[Path, str, None] = None) -> YAML:
+def load_main_config(filepath: Path | str | None = None) -> YAML:
     """
     Read the config file from filepath.
 
@@ -202,7 +202,7 @@ def load_main_config(filepath: Union[Path, str, None] = None) -> YAML:
     return _raw_config_dict
 
 
-def load_run_params(filepath: Union[Path, str, None] = None) -> YAML:
+def load_run_params(filepath: Path | str | None = None) -> YAML:
     """
     Read the config file from filepath.
 
@@ -218,14 +218,6 @@ def load_run_params(filepath: Union[Path, str, None] = None) -> YAML:
 
     _logger.info("Loading run configuration from %s", str(filepath))
 
-    time_limit_schema = Map({
-                            "tier": Str(),
-                            "interval": IntervalCategoryValidator(),
-                            Optional("label"): Str(),
-                            "boundary": IntervalBoundaryValidator(),
-                            Optional("offset"): Float(),
-                            })
-
     if filepath.is_file():
         with closing(
                 open(filepath, 'r', encoding=DEFAULT_ENCODING)) as yaml_file:
@@ -235,26 +227,38 @@ def load_run_params(filepath: Union[Path, str, None] = None) -> YAML:
                     "detect_beep": Bool(),
                     "test": Bool()
                 }),
+                Optional("aggregate_image_arguments"): Map({
+                    "metrics": Seq(Str()),
+                    Optional("run_on_interpolated_data", default=False): Bool(),
+                    Optional("preload", default=True): Bool(),
+                    Optional("release_data_memory", default=True): Bool(),
+                }),
                 Optional("pd_arguments"): Map({
                     "norms": Seq(Str()),
                     "timesteps": Seq(Int()),
                     Optional("mask_images", default=False): Bool(),
                     Optional("pd_on_interpolated_data", default=False): Bool(),
-                    Optional("release_data_memory", default=True): Bool(),
                     Optional("preload", default=True): Bool(),
+                    Optional("release_data_memory", default=True): Bool(),
                 }),
                 Optional("spline_metric_arguments"): Map({
                     'metrics': Seq(Str()),
                     'timesteps': Seq(Int()),
                     Optional('exclude_points'): FixedSeq([Int(), Int()]),
+                    Optional('preload', default=True): Bool(),
                     Optional('release_data_memory', default=False): Bool(),
-                    Optional('preload', default=True): Bool()
+                }),
+                Optional("distance_matrix_arguments"): Map({
+                    "metrics": Seq(Str()),
+                    Optional("preload", default=True): Bool(),
+                    Optional("release_data_memory", default=False): Bool(),
                 }),
                 Optional("peaks"): Map({
-                    "modality_pattern": Str(),
-                    Optional("time_min"): time_limit_schema,
-                    Optional("time_max"): time_limit_schema,
+                    "modality_pattern": _search_pattern_schema,
+                    Optional("time_min"): _time_limit_schema,
+                    Optional("time_max"): _time_limit_schema,
                     Optional("normalisation"): NormalisationValidator(),
+                    Optional("number_of_ignored_frames"): Int(),
                     Optional("distance_in_seconds"): Float(),
                     Optional("find_peaks_args"): Map({
                         Optional('height'): Float(),
@@ -268,7 +272,7 @@ def load_run_params(filepath: Union[Path, str, None] = None) -> YAML:
                     }),
                 }),
                 Optional("downsample"): Map({
-                    "modality_pattern": Str(),
+                    "modality_pattern": _search_pattern_schema,
                     "match_timestep": Bool(),
                     "downsampling_ratios": Seq(Int()),
                 }),
@@ -302,7 +306,7 @@ def load_run_params(filepath: Union[Path, str, None] = None) -> YAML:
     return _raw_data_run_params_dict
 
 
-def load_gui_params(filepath: Union[Path, str, None] = None) -> YAML:
+def load_gui_params(filepath: Path | str | None = None) -> YAML:
     """
     Read the config file from filepath.
 
@@ -318,6 +322,17 @@ def load_gui_params(filepath: Union[Path, str, None] = None) -> YAML:
 
     _logger.info("Loading GUI configuration from %s", str(filepath))
 
+    axes_params_dict = {
+        Optional(
+            "colors_in_sequence", default=True): Bool(),
+        Optional("sharex"): Bool(),
+        Optional("mark_peaks"): Bool(),
+        Optional("y_offset"): Float(),
+    }
+
+    axes_definition_dict = axes_params_dict | {
+        Optional("modalities"): Seq(Str())}
+
     if filepath.is_file():
         with closing(
                 open(filepath, 'r', encoding=DEFAULT_ENCODING)) as yaml_file:
@@ -326,17 +341,13 @@ def load_gui_params(filepath: Union[Path, str, None] = None) -> YAML:
                     "data": Int(),
                     "tier": Int()
                 }),
+                "general_axes_params": Map({
+                    "data_axes": Map(axes_params_dict),
+                    "tier_axes": Map(axes_params_dict),
+                }),
                 "data_axes": MapPattern(
-                    Str(), MapCombined(
-                        {
-                            Optional("sharex"): Bool(),
-                            Optional("modalities"): Seq(Str())
-                        },
-                        # TODO The following looks to be a bad choice which
-                        # allows any string to be used as a key followed by any
-                        # value.
-                        Str(), Any()
-                    )),
+                    Str(), Map(axes_definition_dict)
+                ),
                 "pervasive_tiers": Seq(Str()),
                 Optional("xlim"): FixedSeq([Float(), Float()]),
                 "default_font_size": Int(),
@@ -365,7 +376,7 @@ def load_gui_params(filepath: Union[Path, str, None] = None) -> YAML:
     return _raw_gui_params_dict
 
 
-def load_publish_params(filepath: Union[Path, str, None] = None) -> YAML:
+def load_publish_params(filepath: Path | str | None = None) -> YAML:
     """
     Read the config file from filepath.
 
@@ -410,7 +421,7 @@ def load_publish_params(filepath: Union[Path, str, None] = None) -> YAML:
                         Optional("handlelength"): Float(),
                         Optional("handletextpad"): Float(),
                     }),
-                    "modality_pattern": SearchPatternValidator(),
+                    "modality_pattern": _search_pattern_schema,
                     "plotted_annotation": Str(),
                     "panel_by": Str(),
                     "aggregate": Bool(),
@@ -443,7 +454,7 @@ def load_publish_params(filepath: Union[Path, str, None] = None) -> YAML:
     return _raw_publish_params_dict
 
 
-def load_plot_params(filepath: Union[Path, str, None] = None) -> YAML:
+def load_plot_params(filepath: Path | str | None = None) -> YAML:
     """
     Read the plot configuration file from filepath.
 

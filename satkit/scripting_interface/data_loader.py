@@ -29,18 +29,23 @@
 # articles listed in README.markdown. They can also be found in
 # citations.bib in BibTeX format.
 #
+"""
+Import a Session from a directory or call the loader for previously saved data.
+"""
 
 import logging
 from pathlib import Path
 
+# from icecream import ic
+
 from satkit.audio_processing import MainsFilter
-from satkit.configuration import (
-    config_dict, PathStructure, SessionConfig)
+from satkit.configuration import config_dict, PathStructure
 from satkit.constants import (
     Datasource, SourceSuffix, SatkitSuffix, SatkitConfigFile)
 from satkit.data_import import (
     generate_aaa_recording_list, load_session_config)
-from satkit.data_structures import RecordingSession
+from satkit.data_structures import (
+    FileInformation, Session, SessionConfig)
 from satkit.save_and_load import load_recording_session
 
 logger = logging.getLogger('satkit.scripting')
@@ -49,19 +54,19 @@ logger = logging.getLogger('satkit.scripting')
 # appropriate submodule.
 
 
-def load_data(path: Path) -> RecordingSession:
+def load_data(path: Path) -> Session:
     """
     Handle loading data from individual files or a previously saved session.
 
     Parameters
     ----------
     path : Path
-        Directory or SATKIT metafile to read the RecordingSession from.
+        Directory or SATKIT metafile to read the Session from.
 
     Returns
     -------
-    RecordingSession
-        The generated RecordingSession object with the exclusion list applied.
+    Session
+        The generated Session object with the exclusion list applied.
     """
     if config_dict['mains_frequency']:
         MainsFilter.generate_mains_filter(
@@ -87,7 +92,7 @@ def load_data(path: Path) -> RecordingSession:
 
 
 def read_recording_session_from_dir(
-        path: Path) -> RecordingSession:
+        recorded_data_path: Path) -> Session:
     """
     Wrapper for reading data from a directory full of files.
 
@@ -98,37 +103,45 @@ def read_recording_session_from_dir(
     this method just returns the data and saving it in an
     instance variable is left for the caller to handle.
     """
-    containing_dir = path.parts[-1]
+    containing_dir = recorded_data_path.parts[-1]
 
-    session_config_path = path / SatkitConfigFile.SESSION
-    session_meta_path = path / (containing_dir + '.RecordingSession' +
-                                SatkitSuffix.META)
+    session_config_path = recorded_data_path / SatkitConfigFile.SESSION
+    session_meta_path = recorded_data_path / (containing_dir + '.Session' +
+                                              SatkitSuffix.META)
     if session_meta_path.is_file():
-        return load_recording_session(path, session_config_path)
+        return load_recording_session(recorded_data_path, session_config_path)
 
+    file_info = FileInformation(
+        recorded_path=recorded_data_path,
+        recorded_meta_file=session_config_path.name)
     if session_config_path.is_file():
-        paths, session_config = load_session_config(path, session_config_path)
+        paths, session_config = load_session_config(
+            recorded_data_path, session_config_path)
 
         if session_config.data_source == Datasource.AAA:
 
-            recordings = generate_aaa_recording_list(path, session_config)
+            recordings = generate_aaa_recording_list(
+                recorded_data_path, session_config)
 
-            return RecordingSession(
+            session = Session(
                 name=containing_dir, paths=paths, config=session_config,
-                recordings=recordings)
+                file_info=file_info, recordings=recordings)
+            return session
 
         if session_config.data_source == Datasource.RASL:
             raise NotImplementedError(
-                "Loading RASL data hasn't been impmelented yet.")
+                "Loading RASL data hasn't been implemented yet.")
 
-    if list(path.glob('*' + SourceSuffix.AAA_ULTRA)):
-        recordings = generate_aaa_recording_list(path)
+    if list(recorded_data_path.glob('*' + SourceSuffix.AAA_ULTRA)):
+        recordings = generate_aaa_recording_list(recorded_data_path)
 
-        paths = PathStructure(root=path)
+        paths = PathStructure(root=recorded_data_path)
         session_config = SessionConfig(data_source=Datasource.AAA)
-        return RecordingSession(
+
+        session = Session(
             name=containing_dir, paths=paths, config=session_config,
-            recordings=recordings)
+            file_info=file_info, recordings=recordings)
+        return session
 
     logger.error(
-        'Could not find a suitable importer: %s.', path)
+        'Could not find a suitable importer: %s.', recorded_data_path)

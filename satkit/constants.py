@@ -43,10 +43,25 @@ from dataclasses import dataclass
 from enum import Enum
 
 # TODO 1.0: Decouple program and file format versions at version 1.0.
-SATKIT_VERSION = '0.9.0'
+SATKIT_VERSION = '0.10.0'
 SATKIT_FILE_VERSION = SATKIT_VERSION
 
 DEFAULT_ENCODING = 'utf-8'
+
+
+class ImageMask(Enum):
+    """
+    Accepted image masking options in calculating PD.
+
+    If both imagemask and interpolated data are chosen, the masking will happen
+    before interpolation.
+    """
+    TOP = "top"
+    BOTTOM = "bottom"
+    WHOLE = "whole"
+
+    def __str__(self):
+        return self.value
 
 
 class IntervalBoundary(Enum):
@@ -165,7 +180,7 @@ class SavedObjectTypes(Enum):
     Represent type of a saved satkit object in .satkit_meta.
     """
     # TODO 1.1: Check if this is actually in use.
-    RECORDING_SESSION = "RecordingSession"
+    SESSION = "Session"
     RECORDING = "Recording"
     MODALITY = "Modality"
 
@@ -192,3 +207,31 @@ class SourceSuffix():
     AAA_SPLINES = ".spl"
     AVI = ".avi"
     CSV = ".csv"
+
+
+# def satkit_suffix(
+#         satkit_type: Union[Recording, Session, Modality]) -> str:
+#     """
+#     Generate a suffix for the save file of a SATKIT data structure.
+
+#     Parameters
+#     ----------
+#     satkit_type : Union[Recording, Session, Modality]
+#         The datastructures type.
+
+#     Returns
+#     -------
+#     str
+#         The suffix.
+#     """
+#     # TODO 1.1: This is one possibility for not having hardcoded file suffixes.
+#     # Another is to let all the classes take care of it themselves and make it
+#     # into a Protocol (Python version of an interface).
+#     suffix = SatkitSuffix.META
+#     if satkit_type == Recording:
+#         suffix = '.Recording' + suffix
+#     elif satkit_type == Session:
+#         suffix = '.Session' + suffix
+#     elif satkit_type == Modality:
+#         suffix = ''
+#     return suffix

@@ -1,4 +1,3 @@
-#!/usr/bin/env python3
 #
 # Copyright (c) 2019-2024
 # Pertti Palo, Scott Moisik, Matthew Faytak, and Motoki Saito.
@@ -31,17 +30,16 @@
 # citations.bib in BibTeX format.
 #
 """
-helpers is a module for various tools used by various parts of SATKIT.
+SATKIT's core datastructures.
 
-Anything that is generic and not specific to a given part of SATKIT lives here.
-So tools that relate to Modalities will be where Modalities are, but tools that
-relate to for example Python base modules -- like enum_union does -- are here. 
+This module contains some abstract classes that are used as base classes for
+SATKIT's datastructures and are not meant to be directly inherited from.
 """
 
-from .base_model_extensions import EmptyStrAsNoneBaseModel, UpdatableBaseModel
-from .computational import (
-    cartesian_to_polar, polar_to_cartesian, normalise_timeseries)
-from .enum_extensions import (
-    enum_union, ListablePrintableEnum, ValueComparedEnumMeta)
-from .processing_helpers import product_dict
-from .types import is_sequence_form
+from .base_classes import Statistic
+from .data_structures import Modality, Recording, Session
+from .meta_data_classes import (
+    FileInformation,
+    ModalityData, ModalityMetaData, PointAnnotations,
+    RecordingMetaData, SessionConfig, StatisticMetaData
+)

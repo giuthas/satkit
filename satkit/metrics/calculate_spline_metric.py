@@ -188,6 +188,7 @@ def calculate_spline_metric(
     prompt = splines.recording.meta_data.prompt
     notice_base = basename + " " + prompt
 
+    # TODO: This should be handled where iterating over recordings.
     if splines.recording.excluded:
         notice = notice_base + ': Token excluded.'
         _logger.info(notice)

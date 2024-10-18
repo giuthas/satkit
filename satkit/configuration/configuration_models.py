@@ -42,14 +42,16 @@ we can implement configuration round tripping with preserved comments.
 
 import logging
 from pathlib import Path
+import re
 from typing import Any, NewType, Optional, Union
 
 import numpy as np
 from pydantic import conlist
 
 from satkit.constants import (
-    IntervalBoundary, IntervalCategory)
-from satkit.helpers.base_model_extensions import UpdatableBaseModel
+    IntervalBoundary, IntervalCategory
+)
+from satkit.external_class_extensions import UpdatableBaseModel
 
 _logger = logging.getLogger('satkit.configuration_models')
 
@@ -69,8 +71,40 @@ class MainConfig(UpdatableBaseModel):
 
 
 class SearchPattern(UpdatableBaseModel):
+    """
+    Representation for simple and regexp search patterns.
+
+    Members
+    ----------
+    pattern : str
+        The pattern to search for
+    is_regexp : bool, optional
+        If the pattern should be treated as a regexp or not. Defaults to False.
+    """
     pattern: str
     is_regexp: Optional[bool] = False
+
+    def match(self, string: str) -> bool:
+        """
+        Match this pattern to the argument string.
+
+        If this pattern is not a regexp then this method will return True only
+        when the pattern is found verbatim in the argument string.
+
+        Parameters
+        ----------
+        string : str
+            The string to match to.
+
+        Returns
+        -------
+        bool
+            True if this pattern matches the argument.
+        """
+        if self.is_regexp:
+            return re.match(self.pattern, string)
+
+        return self.pattern in string
 
     @staticmethod
     def build(value: Union[dict, str]) -> 'SearchPattern':
@@ -87,7 +121,9 @@ class SearchPattern(UpdatableBaseModel):
 
 class TimeseriesNormalisation(UpdatableBaseModel):
     """
+    Selection between peak normalised, bottom normalised or both.
 
+    Contains a boolean for each peak and bottom normalisation.
     """
     peak: Optional[bool] = False
     bottom: Optional[bool] = False
@@ -96,7 +132,8 @@ class TimeseriesNormalisation(UpdatableBaseModel):
 
     @staticmethod
     def build(
-            value: str) -> 'TimeseriesNormalisation':
+            value: str
+    ) -> 'TimeseriesNormalisation':
         """
         Construct a TimeseriesNormalisation object from a string value.
 
@@ -115,19 +152,14 @@ class TimeseriesNormalisation(UpdatableBaseModel):
         TimeseriesNormalisation
             The new TimeseriesNormalisation with fields set as expected.
         """
-        print(value)
         match value:
             case 'none':
-                print(value)
                 return TimeseriesNormalisation()
             case 'peak':
-                print(value)
                 return TimeseriesNormalisation(peak=True)
             case 'bottom':
-                print(value)
                 return TimeseriesNormalisation(bottom=True)
             case 'both':
-                print(value)
                 return TimeseriesNormalisation(peak=True, bottom=True)
             case _:
                 raise ValueError("Unrecognised value: " + value + ".")
@@ -139,6 +171,13 @@ class TimeLimit(UpdatableBaseModel):
     label: Optional[str] = None
     boundary: IntervalBoundary
     offset: Optional[float] = None
+
+
+class AggregateImageArguments(UpdatableBaseModel):
+    metrics: list[str]
+    preload: Optional[bool] = True
+    release_data_memory: Optional[bool] = True
+    run_on_interpolated_data: Optional[bool] = False
 
 
 class PdArguments(UpdatableBaseModel):
@@ -158,6 +197,18 @@ class SplineMetricArguments(UpdatableBaseModel):
     preload: Optional[bool] = True
 
 
+class DistanceMatrixArguments(UpdatableBaseModel):
+    metrics: list[str]
+    preload: Optional[bool] = True
+    release_data_memory: Optional[bool] = False
+
+
+class PointAnnotationParams(UpdatableBaseModel):
+    normalisation: Optional[TimeseriesNormalisation] = None
+    time_min: Optional[TimeLimit] = None
+    time_max: Optional[TimeLimit] = None
+
+
 class FindPeaksScipyArguments(UpdatableBaseModel):
     height: Optional[float] = None
     threshold: Optional[float] = None
@@ -169,11 +220,9 @@ class FindPeaksScipyArguments(UpdatableBaseModel):
     plateau_size: Optional[float] = None
 
 
-class PeakDetectionParams(UpdatableBaseModel):
+class PeakDetectionParams(PointAnnotationParams):
     modality_pattern: SearchPattern
-    time_min: Optional[TimeLimit] = None
-    time_max: Optional[TimeLimit] = None
-    normalisation: Optional[TimeseriesNormalisation] = None
+    number_of_ignored_frames: Optional[int] = 10
     distance_in_seconds: Optional[float] = None
     find_peaks_args: Optional[FindPeaksScipyArguments] = None
 
@@ -184,9 +233,23 @@ class DataRunFlags(UpdatableBaseModel):
 
 
 class DownsampleParams(UpdatableBaseModel):
+    """
+    Parameters for downsampling metrics.
+
+    Members
+    ----------
+    modality_pattern : str
+        Simple search string to used to find the modalities.
+    downsampling_ratios : tuple[int]
+        Which downsampling ratios should be attempted. Depending on the next
+        parameter all might not actually be used.
+    match_timestep : bool, optional
+        If the timestep of the Modality to be downsampled should match the
+        downsampling_ratio, by default True
+    """
     modality_pattern: SearchPattern
-    match_timestep: bool
     downsampling_ratios: list[int]
+    match_timestep: Optional[bool] = True
 
 
 class CastFlags(UpdatableBaseModel):
@@ -203,8 +266,10 @@ class CastParams(UpdatableBaseModel):
 
 class DataRunConfig(UpdatableBaseModel):
     output_directory: Optional[Path] = None
+    aggregate_image_arguments: AggregateImageArguments | None = None
     pd_arguments: Optional[PdArguments] = None
     spline_metric_arguments: Optional[SplineMetricArguments] = None
+    distance_matrix_arguments: Optional[DistanceMatrixArguments] = None
     peaks: Optional[PeakDetectionParams] = None
     downsample: Optional[DownsampleParams] = None
     cast: Optional[CastParams] = None
@@ -216,16 +281,61 @@ class HeightRatios(UpdatableBaseModel):
 
 
 class AxesParams(UpdatableBaseModel):
+    """
+    Parameters for an axes in a plot.
+
+    Parameters
+    ----------
+    colors_in_sequence : Optional[bool] 
+        Should the line color rotation be ordered into a perceptual sequence,
+        by default True
+    mark_peaks: Optional[bool] 
+        Should peak detection peaks (if available) be marked on the plot. This
+        might get confusing if there is more than one timeseries on this axes.
+        By default, None
+    sharex: Optional[bool]  
+        Does this axes share x limits with other axes, by default None
+    y_offset: Optional[float]  
+        y_offset between the modalities timeseries, by default None
+    """
+    # TODO: these docstrings should contain links to full, simple examples of
+    # the corresponding yaml files
+
+    colors_in_sequence: Optional[bool] = True
+    mark_peaks: Optional[bool] = None
     sharex: Optional[bool] = None
+    y_offset: Optional[float] = None
+
+
+class AxesDefinition(AxesParams):
+    """
+    Parameters and plotted modalities for an axes in a plot.
+
+    Parameters
+    ----------
+    modalities: Optional[list[str]]  
+        List of the modalities to be plotted on this axes, by default None
+    """
     modalities: Optional[list[str]] = None
 
 
 class GuiConfig(UpdatableBaseModel):
     data_and_tier_height_ratios: HeightRatios
-    data_axes: dict[str, AxesParams]
+    general_axes_params: AxesParams
+    data_axes: dict[str, AxesDefinition]
     pervasive_tiers: list[str]
     xlim: Optional[FloatPair] = None
     default_font_size: int
+
+    # TODO make a computed callback for getting params for a given axes so that
+    # globals don't need to be copied over
+
+    # def model_post_init(self, __context: Any) -> None:
+    #     if 'global' in self.data_axes:
+    #         for axes in self.data_axes:
+    #             update axes params with global
+    #         delete global? or move it to a different place?
+    #     return super().model_post_init(__context)
 
     # @computed_field
     @property

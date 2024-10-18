@@ -1,11 +1,11 @@
 # Core Data Structures
 
 Dataset is a collection of Sessions (see below for details on which kind they
-might be), most usually RecordingSession which in turn are a collection of the
+might be), most usually Session which in turn are a collection of the
 different data Modalities recorded from a single Participant. Finally
 Modalities are collections of not only data but also Annotations of that data.
 
-In future RecordingSessions will either be expanded or get a sibling class to
+In future Sessions will either be expanded or get a sibling class to
 represent Sessions that have more than one Participant.
 
 The below UML graph does not show all of the members of the classes, but rather
@@ -19,9 +19,9 @@ documentation and the code itself.
 For ease of use all classes containing a list or a dict of their major
 components **are** Python lists and dicts of those components:
 
-* Dataset is a list of Sessions (either RecordingSessions or possibly
+* Dataset is a list of Sessions (either Sessions or possibly
   TrialSessions).
-* RecordingSession is a list of Recordings, TrialSession is a list of Trials.
+* Session is a list of Recordings, TrialSession is a list of Trials.
   The difference between a Recording and a Trial is that a Recording involves
   one participant, but a Trial may involve several and consists will have one
   Recording for each Participant.
@@ -37,7 +37,7 @@ that way may lead to to problems. Use instead accessors like
 ## What Else is Contained: Metadata and Others
 
 Dataset represents a single experiment with possibly multiple Participants and
-each with possibly multiple Sessions (RecordingSessions or otherwise). While
+each with possibly multiple Sessions (Sessions or otherwise). While
 Dataset contains a full dictionary of all of the participants, the Sessions
 only have references to the Participants that took part in the Session.
 

@@ -29,21 +29,25 @@
 # articles listed in README.markdown. They can also be found in
 # citations.bib in BibTeX format.
 #
+"""
+Importer for AAA raw ultrasound. 
+"""
+
 import logging
 from contextlib import closing
 from datetime import datetime
 from math import inf
 from pathlib import Path
-from typing import Optional, Union
 
-from satkit.data_structures import Recording, RecordingMetaData
+from satkit.data_structures import (
+    FileInformation, Recording, RecordingMetaData)
 from satkit.modalities import RawUltrasound
 
-_AAA_raw_ultrasound_logger = logging.getLogger('satkit.AAA_raw_ultrasound')
+_logger = logging.getLogger('satkit.AAA_raw_ultrasound')
 
 
-def parse_recording_meta_from_aaa_promptfile(
-        filepath: Union[str, Path]) -> RecordingMetaData:
+def parse_recording_meta_from_aaa_prompt_file(
+        filepath: str | Path) -> RecordingMetaData:
     """
     Read an AAA .txt (not US.txt or .param) file and save prompt, 
     recording date and time, and participant name into the RecordingMetaData.
@@ -51,19 +55,21 @@ def parse_recording_meta_from_aaa_promptfile(
     if isinstance(filepath, str):
         filepath = Path(filepath)
 
-    with closing(open(filepath, 'r', encoding='utf-8')) as promptfile:
-        lines = promptfile.read().splitlines()
+    with closing(open(filepath, 'r', encoding='utf-8')) as prompt_file:
+        lines = prompt_file.read().splitlines()
         prompt = lines[0]
 
-        # The date used to be just a string, but needs to be more sturctured
-        # since the spline export files have a different date format.
-        time_of_recording = datetime.strptime(
-            lines[1], '%d/%m/%Y %H:%M:%S')
+        if '/' in lines[1]:
+            time_of_recording = datetime.strptime(
+                lines[1], '%d/%m/%Y %H:%M:%S')
+        else:
+            time_of_recording = datetime.strptime(
+                lines[1], '%Y-%m-%d %I:%M:%S %p')
 
         if len(lines) > 2 and lines[2].strip():
             participant_id = lines[2].split(',')[0]
         else:
-            _AAA_raw_ultrasound_logger.info(
+            _logger.info(
                 "Participant does not have an id in file %s.", filepath)
             participant_id = ""
 
@@ -71,7 +77,7 @@ def parse_recording_meta_from_aaa_promptfile(
             prompt=prompt, time_of_recording=time_of_recording,
             participant_id=participant_id, basename=filepath.stem,
             path=filepath.parent)
-        _AAA_raw_ultrasound_logger.debug("Read prompt file %s.", filepath)
+        _logger.debug("Read prompt file %s.", filepath)
     return meta
 
 
@@ -106,7 +112,7 @@ def parse_ultrasound_meta_aaa(filename):
                 value = float(value_str)
             meta[key] = value
 
-        _AAA_raw_ultrasound_logger.debug(
+        _logger.debug(
             "Read and parsed ultrasound metafile %s.", filename)
         meta['meta_file'] = filename
     return meta
@@ -115,7 +121,7 @@ def parse_ultrasound_meta_aaa(filename):
 def add_aaa_raw_ultrasound(
         recording: Recording,
         preload: bool = False,
-        path: Optional[Path] = None) -> None:
+        path: Path | None = None) -> None:
     """
     Create a RawUltrasound Modality and add it to the Recording.
 
@@ -148,6 +154,11 @@ def add_aaa_raw_ultrasound(
         else:
             meta_path = path.with_suffix(".param")
 
+    file_info = FileInformation(
+        recorded_path=Path(""),
+        recorded_data_file=ult_path.name,
+        recorded_meta_file=meta_path.name)
+
     ult_time_offset = -inf
     if meta_path.is_file():
         meta = parse_ultrasound_meta_aaa(meta_path)
@@ -158,10 +169,10 @@ def add_aaa_raw_ultrasound(
         ult_time_offset = meta.pop('TimeInSecsOfFirstFrame')
     else:
         notice = 'Note: ' + str(meta_path) + " does not exist. Excluding."
-        _AAA_raw_ultrasound_logger.warning(notice)
+        _logger.warning(notice)
         recording.exclude()
 
-    _AAA_raw_ultrasound_logger.debug(
+    _logger.debug(
         "Trying to read RawUltrasound for Recording representing %s.",
         recording.basename)
 
@@ -174,17 +185,16 @@ def add_aaa_raw_ultrasound(
         else:
             ultrasound = RawUltrasound(
                 recording=recording,
-                data_path=ult_path,
-                meta_path=meta_path,
+                file_info=file_info,
                 time_offset=ult_time_offset,
                 meta=meta
             )
             recording.add_modality(ultrasound)
 
-        _AAA_raw_ultrasound_logger.debug(
+        _logger.debug(
             "Added RawUltrasound to Recording representing %s.",
             recording.basename)
     else:
         notice = 'Note: ' + str(ult_path) + " does not exist. Excluding."
-        _AAA_raw_ultrasound_logger.warning(notice)
+        _logger.warning(notice)
         recording.exclude()

@@ -55,9 +55,9 @@ from matplotlib.gridspec import GridSpec
 import pandas
 import seaborn as sns
 
-from icecream import ic
+# from icecream import ic
 
-from satkit.data_structures import Recording, RecordingSession
+from satkit.data_structures import Recording, Session
 from satkit.configuration import publish_params
 
 from .plot import (plot_1d_modality, plot_satgrid_tier)
@@ -77,11 +77,19 @@ class PublishParameters:
 
 
 class PeakStatistic(Enum):
+    """
+    Peak statistics extracted from timeseries.
+    """
     NUMBER_OF_PEAKS = 'number_of_peaks'
     NEAREST_NEIGHBOURS = 'nearest_neighbours'
 
 
 class AggregationMethod(Enum):
+    """
+    Aggregation methods.
+
+    These are used to select and record how to aggregate data.
+    """
     MEAN = 'mean'
     MEDIAN = 'median'
     MODE = 'mode'
@@ -218,7 +226,7 @@ def publish_distribution_data(
     pdf.savefig(plt.gcf())
 
 
-def make_figure(recording: Recording, pdf: PdfPages):
+def recording_timeseries_figure(recording: Recording, pdf: PdfPages):
     """
     Create a figure from the recording and write it out to the pdf.
 
@@ -233,7 +241,6 @@ def make_figure(recording: Recording, pdf: PdfPages):
     pdf : PdfPages
         A PdfPages instance to draw into.
     """
-    # TODO: rename this function!
     figure = plt.figure(figsize=publish_params['figure size'])
 
     height_ratios = [3 for i in range(publish_params['subplot grid'][0])]
@@ -326,9 +333,9 @@ def make_figure(recording: Recording, pdf: PdfPages):
     pdf.savefig(plt.gcf())
 
 
-def publish_pdf(recording_session: RecordingSession):
+def publish_session_pdf(recording_session: Session):
     """
-    Draw all Recordings in the RecordingSession into a pdf file.
+    Draw all Recordings in the Session into a pdf file.
 
     The filename is read from configuration (likely satkit_publish_config.yaml
     or similar specified in the main config file.)
@@ -337,10 +344,10 @@ def publish_pdf(recording_session: RecordingSession):
 
     Parameters
     ----------
-    recording_session : RecordingSession
-        The RecordingSession containing the Recordings.
+    recording_session : Session
+        The Session containing the Recordings.
     """
     with PdfPages(publish_params['output file']) as pdf:
         for recording in recording_session.recordings:
             if not recording.excluded:
-                make_figure(recording, pdf)
+                recording_timeseries_figure(recording, pdf)

@@ -30,15 +30,19 @@
 # citations.bib in BibTeX format.
 #
 
+import logging
 import math
 
 import cv2
 import numpy as np
 from scipy import ndimage
 from tqdm import tqdm
-from icecream import ic
+
+# from icecream import ic
 
 from satkit.errors import UltrasoundInterpolationError
+
+_logger = logging.getLogger('satkit.interpolate_raw_uti')
 
 
 def to_fan(scanline_data, *, angle=None, zero_offset=None, pix_per_mm=None,
@@ -106,7 +110,7 @@ def to_fan_2d(img, *, angle=None, zero_offset=None, pix_per_mm=None,
     if None in [angle, zero_offset, pix_per_mm, num_vectors]:
         warning = 'WARNING: Not all the necessary information was provided. '
         warning += 'General parameters are used instead.'
-        print(warning)
+        _logger.warning(warning)
         img = cv2.resize(img, (500, 500))
         angle = 0.0031
         zero_offset = 150
@@ -190,7 +194,7 @@ def trim_picture(img):
         try:
             res = len(set(aaa))
         except TypeError:
-            print('Warning: the input is not iterable')
+            _logger.warning('Warning: the input is not iterable')
             res = 1
         return res
 

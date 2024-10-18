@@ -40,7 +40,8 @@ from typing import Annotated, Callable, Optional
 import numpy as np
 from pydantic import BaseModel
 
-from satkit.helpers import product_dict, ListablePrintableEnum
+from satkit.external_class_extensions import ListablePrintableEnum
+from satkit.utility_functions import product_dict
 
 from .contour_tools import contour_point_perturbations
 
@@ -57,6 +58,20 @@ class ComparisonMember(ListablePrintableEnum):
     """
     FIRST = "first"
     SECOND = "second"
+
+
+class SoundPair(BaseModel, frozen=True):
+    """
+    Defines a comparison between two contours.
+
+    First should be compared to second.     
+    """
+    first: str
+    second: str
+
+    def __repr__(self) -> str:
+        return (f"Comparison: from first {self.first} "
+                f"to second {self.second}.")
 
 
 class Comparison(BaseModel, frozen=True):

@@ -33,28 +33,24 @@
 Routines for dealing with exclusion lists.
 """
 
-# Built in packages
 import csv
 import logging
 from contextlib import closing
 from pathlib import Path
-from typing import Union
 
 from icecream import ic
-
 from strictyaml import (Map, Optional, Seq, Str,
                         YAMLError, load)
 
-from satkit.configuration import ExclusionList
+from .configuration_classes import ExclusionList
 from satkit.constants import SatkitSuffix, SourceSuffix
-from satkit.data_structures import Recording
-
+from satkit.data_structures import Recording, Session
 
 _logger = logging.getLogger('satkit.configuration')
 
 
 def apply_exclusion_list(
-        recordings: list[Recording],
+        recordings: list[Recording] | Session,
         exclusion_list: ExclusionList) -> None:
     """
     Apply exclusion list to the list of Recordings.
@@ -71,32 +67,39 @@ def apply_exclusion_list(
 
     for recording in recordings:
         filename = recording.basename
+
         if filename in exclusion_list.files:
-            _logger.info('Excluding %s: File is in exclusion list.', filename)
+            _logger.info('Excluding %s: File is in exclusion list.',
+                         filename)
             recording.exclude()
 
-        # The first condition sees if the whole prompt is excluded,
-        # the second condition checks if any parts of the prompt
-        # match exclusion criteria (for example excluding 'foobar ...'
-        # based on 'foobar').
         prompt = recording.meta_data.prompt
-        partials = [element
-                    for element in exclusion_list.parts_of_prompts
-                    if element in prompt]
-        if prompt in exclusion_list.prompts or partials:
-            _logger.info(
-                'Excluding %s. Prompt: %s matches exclusion list.',
-                filename, prompt)
-            recording.exclude()
+
+        if exclusion_list.prompts:
+            if prompt in exclusion_list.prompts:
+                _logger.info(
+                    'Excluding %s. Prompt: %s matches exclusion list.',
+                    filename, prompt)
+                recording.exclude()
+
+        if exclusion_list.parts_of_prompts:
+            partials = [element
+                        for element in exclusion_list.parts_of_prompts
+                        if element in prompt]
+            if any(partials):
+                _logger.info(
+                    'Excluding %s. Prompt: %s matches exclusion list.',
+                    filename, prompt)
+                recording.exclude()
 
 
-def load_exclusion_list(filepath: Union[Path, str]) -> ExclusionList:
+def load_exclusion_list(filepath: Path | str) -> ExclusionList:
     """
     If it exists, load the exclusion list from the given path.
 
     Parameters
     ----------
-    filepath : Union[Path, str]
+    filepath : Path | str
         Either a Path object or a string. If a string is passed, it is assumed
         to be a relative path.
 
@@ -110,13 +113,13 @@ def load_exclusion_list(filepath: Union[Path, str]) -> ExclusionList:
         filepath = Path(filepath)
 
     if filepath.suffix == SatkitSuffix.CONFIG:
-        return read_exclusion_list_from_yaml(filepath)
+        return _read_exclusion_list_from_yaml(filepath)
 
     if filepath.suffix == SourceSuffix.CSV:
-        return read_file_exclusion_list_from_csv(filepath)
+        return _read_file_exclusion_list_from_csv(filepath)
 
 
-def read_exclusion_list_from_yaml(filepath: Path) -> ExclusionList:
+def _read_exclusion_list_from_yaml(filepath: Path) -> ExclusionList:
     """
     Read a yaml exclusion list from filepath.
 
@@ -128,7 +131,7 @@ def read_exclusion_list_from_yaml(filepath: Path) -> ExclusionList:
             schema = Map({
                 Optional("files"): Seq(Str()),
                 Optional("prompts"): Seq(Str()),
-                Optional("parts_of_prompt"): Seq(Str())
+                Optional("parts_of_prompts"): Seq(Str())
             })
             try:
                 raw_exclusion_dict = load(yaml_file.read(), schema)
@@ -144,12 +147,10 @@ def read_exclusion_list_from_yaml(filepath: Path) -> ExclusionList:
             "Continuing regardless.")
         raw_exclusion_dict = {}
 
-    ic(raw_exclusion_dict)
-
-    return ExclusionList(files=raw_exclusion_dict)
+    return ExclusionList(**raw_exclusion_dict.data)
 
 
-def read_file_exclusion_list_from_csv(filepath: Path) -> ExclusionList:
+def _read_file_exclusion_list_from_csv(filepath: Path) -> ExclusionList:
     """
     Read a csv exclusion list from filepath.
 

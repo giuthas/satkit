@@ -35,13 +35,13 @@ from pathlib import Path
 from typing import List
 
 # import satkit.io as satkit_io
-from satkit.data_structures import Recording
+from satkit.data_structures import Recording, Session
 
 logger = logging.getLogger('satkit.scripting')
 
 
 
-def save_data(path: Path, recordings: List[Recording]):
+def save_data(path: Path, recordings: List[Recording] | Session):
     if path.suffix == '.pickle':
         logger.info(
             "Pickling is currently disabled. Did NOT write file %s.", str(path))

@@ -55,6 +55,26 @@ nested_text_converters = {
 }
 
 
+class StatisticLoadSchema(BaseModel):
+    """
+    Loading schema for a saved Statistic.
+
+    Statistic is defined in the data_structures module.
+    """
+    object_type: str
+    name: str
+    format_version: str
+    parameters: dict
+
+
+class ModalityListingLoadSchema(BaseModel):
+    """
+    Loading schema for the Statistic listing in a saved Recording or Session.
+    """
+    data_name: str
+    meta_name: Union[str, None]
+
+
 class ModalityLoadSchema(BaseModel):
     """
     Loading schema for a saved Modality.
@@ -67,7 +87,7 @@ class ModalityLoadSchema(BaseModel):
     parameters: dict
 
 
-class ModalityListingLoadschema(BaseModel):
+class ModalityListingLoadSchema(BaseModel):
     """
     Loading schema for the Modality listing in a saved Recording.
     """
@@ -85,27 +105,27 @@ class RecordingLoadSchema(BaseModel):
     name: str
     format_version: str
     parameters: RecordingMetaData
-    modalities: dict[str, ModalityListingLoadschema]
+    modalities: dict[str, ModalityListingLoadSchema]
 
 
-class RecordingSessionParameterLoadSchema(BaseModel):
+class SessionParameterLoadSchema(BaseModel):
     """
-    Loading schema for a saved RecordingSession.
+    Loading schema for a saved Session.
 
-    RecordingSession is defined in the data_structures module.
+    Session is defined in the data_structures module.
     """
     path: DirectoryPath
     datasource: Datasource
 
 
-class RecordingSessionLoadSchema(BaseModel):
+class SessionLoadSchema(BaseModel):
     """
-    Loading schema for a saved RecordingSession.
+    Loading schema for a saved Session.
 
-    RecordingSession is defined in the data_structures module.
+    Session is defined in the data_structures module.
     """
-    object_type: SavedObjectTypes = SavedObjectTypes.RECORDING_SESSION
+    object_type: SavedObjectTypes = SavedObjectTypes.SESSION
     name: str
     format_version: str
-    parameters: RecordingSessionParameterLoadSchema
+    parameters: SessionParameterLoadSchema
     recordings: list[str]

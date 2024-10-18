@@ -1,3 +1,4 @@
+#!/usr/bin/env python3
 #
 # Copyright (c) 2019-2024
 # Pertti Palo, Scott Moisik, Matthew Faytak, and Motoki Saito.
@@ -29,32 +30,14 @@
 # articles listed in README.markdown. They can also be found in
 # citations.bib in BibTeX format.
 #
+"""
+external_class_extensions is a module for various tools used by various parts of SATKIT.
 
-import itertools
+Anything that is generic and not specific to a given part of SATKIT lives here.
+So tools that relate to Modalities will be where Modalities are, but tools that
+relate to for example Python base modules -- like enum_union does -- are here. 
+"""
 
-
-def product_dict(**kwargs):
-    """
-    Produce a list of dicts of the cartesian product of lists in a dict.
-
-    ```python
-    options = {"number": [1,2,3], "color": ["orange","blue"] }
-    print(list(product_dict(**options)))
-
-    [ {"number": 1, "color": "orange"},
-    {"number": 1, "color": "blue"},
-    {"number": 2, "color": "orange"},
-    {"number": 2, "color": "blue"},
-    {"number": 3, "color": "orange"},
-    {"number": 3, "color": "blue"}
-    ]
-    ```
-
-    Yields
-    ------
-    list of dicts
-        See example above.
-    """
-    keys = kwargs.keys()
-    for instance in itertools.product(*kwargs.values()):
-        yield dict(zip(keys, instance))
+from .base_model_extensions import EmptyStrAsNoneBaseModel, UpdatableBaseModel
+from .enum_extensions import (
+    enum_union, ListablePrintableEnum, ValueComparedEnumMeta)

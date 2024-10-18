@@ -30,9 +30,9 @@
 ## citations.bib in BibTeX format.
 ##
 
-# Please note that empty file or directory fields are
-# interpreted as not available and represented by None. If you want to specify
-# current working directory, use '.'
+# Please note that empty file or directory fields are interpreted as not
+# available and represented by None. If you want to specify current working
+# directory, use '.'
 
 flags:
   detect_beep: True # Should onset beep detection be run?
@@ -42,6 +42,13 @@ flags:
 # once exclusion list or similar things can be edited in SATKIT, they will by
 # default be saved at their original locations.
 output_directory:
+
+aggregate_image_arguments:
+  metrics:
+    - 'mean'
+  run_on_interpolated_data: False
+  preload: True
+  release_data_memory: True
 
 pd_arguments: 
   'norms':
@@ -64,6 +71,13 @@ spline_metric_arguments:
     - 3
   'release_data_memory': False
   'preload': True
+
+distance_matrix_arguments:
+  metrics:
+    - 'mean_squared_error'
+  preload: True
+  release_data_memory: False
+
 
 # Config for the yet-to-happen submodule CAST that is still a separate entity. 
 cast:

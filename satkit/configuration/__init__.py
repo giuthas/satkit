@@ -29,14 +29,24 @@
 # articles listed in README.markdown. They can also be found in
 # citations.bib in BibTeX format.
 #
+"""
+This is the configuration interface for reading and saving configuration data.
+
+Direct use of config_dict, data_run_params, gui_params, and publish_params
+(from configuration_parsers) is deprecated since v0.8. Instead, use the
+interface provided by Configuration.
+"""
 
 from .configuration_parsers import (
     parse_config,
     config_dict, data_run_params, gui_params, publish_params, PathValidator)
 from .configuration_classes import (
-    ExclusionList, PathStructure, SessionConfig,
+    ExclusionList, PathStructure,
     SplineConfig, SplineDataConfig, SplineImportConfig)
 from .configuration_models import (
-    MainConfig, PeakDetectionParams, FindPeaksScipyArguments,
-    TimeseriesNormalisation)
+    DataRunConfig, DownsampleParams, FindPeaksScipyArguments,
+    GuiConfig,
+    MainConfig, PeakDetectionParams, PointAnnotationParams,
+    SearchPattern, TimeseriesNormalisation)
 from .configuration_setup import Configuration
+from .exclusion_list_functions import apply_exclusion_list, load_exclusion_list

@@ -41,17 +41,20 @@ data_and_tier_height_ratios:
 # Which data axes to display. Currently used only to decide the number to
 # create. Number of lines gives the number of axis, modalities on the same line
 # will be drawn on the same axes.
-data_axes:
-  global:
+general_axes_params:
+  data_axes:
     sharex: True
+  tier_axes:
+    sharex: True
+
+data_axes:
   PD:
     modalities:
-      - l2 whole
-      - l2 bottom
+      - PD l2 on RawUltrasound
+    sharex: True
+  spectrogram2:
     sharex: True
   wav:
-    sharex: True
-  spectrogram:
     sharex: True
   # density:
   #   sharex: False

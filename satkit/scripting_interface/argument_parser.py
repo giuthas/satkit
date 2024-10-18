@@ -52,7 +52,7 @@ def widen_help_formatter(formatter, total_width=140, syntax_width=35):
     return formatter
 
 
-class SatkitArgumentParser():
+class SatkitArgumentParser:
     """
     This class is the root class for SATKIT commandline interfaces.
 
@@ -62,7 +62,7 @@ class SatkitArgumentParser():
 
     def __init__(self, description):
         """
-        Setup a commandline interface with the given description.
+        Set up a commandline interface with the given description.
 
         Sets up the parsers and runs it, and also sets up logging. Description
         is what this version will be called if called with -h or --help.

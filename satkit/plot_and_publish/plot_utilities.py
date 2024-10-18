@@ -39,9 +39,10 @@ import matplotlib.pyplot as plt
 
 def get_colors_in_sequence(number: int) -> list[str]:
     """
-    Not fully implemented!
-
     Get colors in a perceptual sequence.
+
+    NOTE: This may or may not end up working for color lists of length other
+    than 6 and 7.
 
     Parameters
     ----------
@@ -54,10 +55,15 @@ def get_colors_in_sequence(number: int) -> list[str]:
         Names of the colors.
     """
     colors = plt.rcParams['axes.prop_cycle'].by_key()['color'][0:number]
-    if number == 2:
-        colors = sorted(colors)
-    if number == 6:
-        colors = sorted(colors)
-        colors = [colors[0], colors[2], colors[1],
-                  colors[3], colors[5], colors[4]]
+    match number:
+        case 6:
+            colors = sorted(colors)
+            colors = [colors[0], colors[2], colors[1],
+                      colors[3], colors[5], colors[4]]
+        case 7:
+            colors = sorted(colors)
+            colors = [colors[0], colors[2], colors[4],
+                      colors[3], colors[1], colors[5], colors[6]]
+        case _:
+            colors = sorted(colors)
     return colors

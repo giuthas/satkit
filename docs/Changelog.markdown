@@ -31,7 +31,7 @@ and this project uses [Semantic Versioning](https://semver.org/spec/v2.0.0.html)
 
 - TODO: import the roadmap here.
 
-## [0.10.0] 2024-10-17
+## [0.10.0] 2024-10-18
 
 ### Highlights
 

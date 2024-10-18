@@ -47,7 +47,7 @@ from satkit.metrics.tongue_shape_analysis import spline_shape_metric
 from satkit.plot_and_publish.plot_utilities import get_colors_in_sequence
 
 from .contour_tools import contour_point_perturbations
-from .metric_calculations import Comparison, SoundPair
+from .metric_calculations import Comparison, ComparisonSoundPair
 from .simulation_plots import plot_distance_metric_against_perturbation_point
 
 
@@ -105,7 +105,7 @@ def annd_perturbation_series_like_to_like_plot(
 def annd_perturbation_series_crosswise_plot(
     annd_dict: dict[Comparison, dict[str, np.ndarray]],
     annd_baseline: np.ndarray,
-    columns: list[SoundPair]
+    columns: list[ComparisonSoundPair]
 ) -> None:
     """
     Make the first part of the perturbation series plot for ANND.
@@ -116,7 +116,7 @@ def annd_perturbation_series_crosswise_plot(
         ANND analysis results by Comparisons and perturbations.
     annd_baseline : np.ndarray
         baselines for the ANND comparisons.
-    columns : list[SoundPair]
+    columns : list[ComparisonSoundPair]
         Order of contour pairs to go through. Used to access the results from
         annd_dict.
     """
@@ -134,7 +134,7 @@ def annd_perturbation_series_crosswise_plot(
                            gridspec_kw=gridspec_keywords)
 
     filtered_annd_dict = {
-        SoundPair(first=key.first, second=key.second): annd_dict[key]
+        ComparisonSoundPair(first=key.first, second=key.second): annd_dict[key]
         for key in annd_dict if key.first != key.second}
 
     for i, sound_pair in enumerate(columns):

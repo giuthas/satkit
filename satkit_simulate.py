@@ -55,7 +55,7 @@ from satkit.metrics.calculate_spline_metric import (
 )
 
 from satkit.simulation import (
-    Comparison, SoundPair,
+    Comparison, ComparisonSoundPair,
     generate_contour,
     calculate_metric_series_for_comparisons,
     calculate_metric_series_for_contours,
@@ -101,10 +101,10 @@ def main() -> None:
         Comparison(first='i', second='æ', perturbed='first'),
     ]
     sound_pairs = [
-        SoundPair(first='æ', second='æ'),
-        SoundPair(first='i', second='i'),
-        SoundPair(first='æ', second='i'),
-        SoundPair(first='i', second='æ'),
+        ComparisonSoundPair(first='æ', second='æ'),
+        ComparisonSoundPair(first='i', second='i'),
+        ComparisonSoundPair(first='æ', second='i'),
+        ComparisonSoundPair(first='i', second='æ'),
     ]
     annd_results = calculate_metric_series_for_comparisons(
         metric=annd_call,

@@ -80,6 +80,8 @@ and this project uses [Semantic Versioning](https://semver.org/spec/v2.0.0.html)
   `%Y-%m-%d %I:%M:%S %p`.
 - Parsing yaml exclusion lists should now work also when some of the headings
   are empty.
+- Added the seaborn package to conda environment satkit-devel to make it work
+  properly.
 
 ### Known issues
 
@@ -124,9 +126,9 @@ Known issues:
   - Saved data can be loaded on startup or opened afterwards. This means
     derived Modalities don't need to be re-generated every time and switching
     between recording sessions is fast.
-  - Metadata of derived Modalities is now saved in human readable form while
+  - Metadata of derived Modalities is now saved in human-readable form while
     the numeric data is saved in numpy native formats.
-  - Database is also saved in human readable formats for easy checking of data
+  - Database is also saved in human-readable formats for easy checking of data
     integrity.
   - Opening (ctrl+'o') and saving (ctrl+shift+'s') work in the GUI. Overwrites
     are verified when saving, but the logic of that part may change before 1.0.

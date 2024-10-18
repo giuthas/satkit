@@ -32,7 +32,7 @@
 """
 This package is for simulating data and plotting simulation results.
 
-Currently it deals with only simulated tongue contour data.
+Currently, it deals with only simulated tongue contour data.
 """
 from .contour_tools import (
     SimulationContourConsonant, SimulationContourVowel,

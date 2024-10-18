@@ -180,7 +180,9 @@ def main():
         config.parse_config()
     configuration = config.Configuration(cli.args.configuration_filename)
 
-    exclusion_list = load_exclusion_list(cli.args.exclusion_filename)
+    exclusion_list = None
+    if cli.args.exclusion_filename:
+        exclusion_list = load_exclusion_list(cli.args.exclusion_filename)
     recording_session = load_data(Path(cli.args.load_path))
     apply_exclusion_list(recording_session, exclusion_list=exclusion_list)
 

@@ -31,6 +31,15 @@ and this project uses [Semantic Versioning](https://semver.org/spec/v2.0.0.html)
 
 - TODO: import the roadmap here.
 
+## [0.11.0] 
+
+### Added
+
+- Simulating ultrasound probe rotation (misalignment) by selecting different
+  sub-sectors from recorded raw data.
+- Saving the selected frame with metadata so that example frames can be 
+  reproduced.
+
 ## [0.10.1] 2024-10-18
 
 ### Added

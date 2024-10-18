@@ -31,6 +31,16 @@ and this project uses [Semantic Versioning](https://semver.org/spec/v2.0.0.html)
 
 - TODO: import the roadmap here.
 
+## [0.10.1] 2024-10-18
+
+### Added
+
+- Added some docstring documentation.
+
+### Fixed
+
+- Removed some tracing that was left from debugging.
+
 ## [0.10.0] 2024-10-18
 
 ### Highlights

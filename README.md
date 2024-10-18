@@ -30,7 +30,7 @@ More up-to-date information can be found in the
 
 ## Current version
 
-Current version is 0.10.0. See [Changelog](docs/Changelog.markdown), for
+Current version is 0.10.1. See [Changelog](docs/Changelog.markdown), for
 what's new.
 
 ## Getting Started

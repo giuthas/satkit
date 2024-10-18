@@ -376,6 +376,8 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
 
         if axes_params['colors_in_sequence']:
             colors = get_colors_in_sequence(len(plot_modality_names))
+        else:
+            colors = None
         for i, name in enumerate(plot_modality_names):
             modality = self.current.modalities[name]
             plot_timeseries(

@@ -1,8 +1,8 @@
 #
-# Copyright (c) 2019-2023 
+# Copyright (c) 2019-2024
 # Pertti Palo, Scott Moisik, Matthew Faytak, and Motoki Saito.
 #
-# This file is part of Speech Articulation ToolKIT 
+# This file is part of Speech Articulation ToolKIT
 # (see https://github.com/giuthas/satkit/).
 #
 # This program is free software: you can redistribute it and/or modify
@@ -33,15 +33,18 @@ import logging
 from pathlib import Path
 from typing import Optional
 
-from satkit.data_structures import Recording
-from satkit.import_formats import read_wav
+from satkit.configuration import data_run_params
+from satkit.data_structures import Recording, FileInformation
+from satkit.import_formats import read_wav, read_wav_and_detect_beep
 from satkit.modalities import MonoAudio
 
 _generic_io_logger = logging.getLogger('satkit.data_structures')
 
 
-def add_audio(recording: Recording, preload: bool = True,
-              path: Optional[Path] = None) -> None:
+def add_audio(
+        recording: Recording,
+        preload: bool = True,
+        path: Optional[Path] = None) -> None:
     """
     Create a MonoAudio Modality and add it to the Recording.
 
@@ -53,6 +56,8 @@ def add_audio(recording: Recording, preload: bool = True,
         _description_, by default True
     path : Optional[Path], optional
         _description_, by default None
+    detect_beep : bool, optional
+        _description_, by default False
     """
     if not path:
         ult_wav_file = (recording.path/recording.basename).with_suffix(".wav")
@@ -60,21 +65,33 @@ def add_audio(recording: Recording, preload: bool = True,
         ult_wav_file = path
 
     if ult_wav_file.is_file():
-        if preload:
-            data, go_signal, has_speech = read_wav(
-                ult_wav_file, detect_beep=True)
+        file_info = FileInformation(
+            recorded_path=Path(""),
+            recorded_data_file=ult_wav_file.name
+        )
+        if preload and data_run_params['flags']['detect_beep']:
+            data, go_signal, has_speech = read_wav_and_detect_beep(
+                ult_wav_file)
             waveform = MonoAudio(
                 recording=recording,
-                data_path=ult_wav_file,
+                file_info=file_info,
                 parsed_data=data,
                 go_signal=go_signal,
                 has_speech=has_speech
             )
             recording.add_modality(waveform)
+        elif preload:
+            data = read_wav(ult_wav_file)
+            waveform = MonoAudio(
+                recording=recording,
+                file_info=file_info,
+                parsed_data=data,
+            )
+            recording.add_modality(waveform)
         else:
             waveform = MonoAudio(
                 recording=recording,
-                data_path=ult_wav_file
+                file_info=file_info,
             )
             recording.add_modality(waveform)
         _generic_io_logger.debug(

@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2019-2023
+# Copyright (c) 2019-2024
 # Pertti Palo, Scott Moisik, Matthew Faytak, and Motoki Saito.
 #
 # This file is part of Speech Articulation ToolKIT
@@ -29,5 +29,5 @@
 # articles listed in README.markdown. They can also be found in
 # citations.bib in BibTeX format.
 #
-from .modalities import MonoAudio, RawUltrasound, ThreeD_Ultrasound, Video
+from .recorded_modalities import MonoAudio, RawUltrasound, ThreeD_Ultrasound, Video
 from .splines import Splines

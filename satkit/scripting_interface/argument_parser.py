@@ -1,8 +1,8 @@
 #
-# Copyright (c) 2019-2023 
+# Copyright (c) 2019-2024
 # Pertti Palo, Scott Moisik, Matthew Faytak, and Motoki Saito.
 #
-# This file is part of Speech Articulation ToolKIT 
+# This file is part of Speech Articulation ToolKIT
 # (see https://github.com/giuthas/satkit/).
 #
 # This program is free software: you can redistribute it and/or modify
@@ -29,6 +29,9 @@
 # articles listed in README.markdown. They can also be found in
 # citations.bib in BibTeX format.
 #
+"""
+Commandline argument parser.
+"""
 
 import argparse
 import warnings
@@ -44,11 +47,12 @@ def widen_help_formatter(formatter, total_width=140, syntax_width=35):
         return lambda prog: formatter(prog, **kwargs)
     except TypeError:
         warnings.warn(
-            "Widening argparse help formatter failed. Falling back on default settings.")
+            "Widening argparse help formatter failed. "
+            "Falling back on default settings.")
     return formatter
 
 
-class SatkitArgumentParser():
+class SatkitArgumentParser:
     """
     This class is the root class for SATKIT commandline interfaces.
 
@@ -58,30 +62,61 @@ class SatkitArgumentParser():
 
     def __init__(self, description):
         """
-        Setup a commandline interface with the given description.
+        Set up a commandline interface with the given description.
 
-        Sets up the parsers and runs it, and also sets up logging.
-        Description is what this version will be called if called with -h or --help.
+        Sets up the parsers and runs it, and also sets up logging. Description
+        is what this version will be called if called with -h or --help.
         """
         self.description = description
-        self._parse_args()
+        self.parser = argparse.ArgumentParser(
+            description=self.description,
+            formatter_class=widen_help_formatter(
+                argparse.HelpFormatter, total_width=80, syntax_width=35))
+        self._add_positional_arguments()
+        self._add_optional_arguments()
+        self.args = self.parser.parse_args()
 
     def _add_optional_arguments(self):
-        """Adds the optional verbosity argument."""
+        """Adds optional arguments."""
+
         helptext = (
-            'Set verbosity of console output. Range is [0, 3], default is 1, '
-            'larger values mean greater verbosity.'
+            'Open the SATKIT annotator. '
+            'Defaults to True.'
         )
-        self.parser.add_argument("-v", "--verbose",
-                                 type=int, dest="verbose",
-                                 default=1,
-                                 help=helptext,
-                                 metavar="verbosity")
+        self.parser.add_argument("-a", "--annotator",
+                                 dest="annotator",
+                                 default=True,
+                                 action=argparse.BooleanOptionalAction,
+                                 help=helptext)
+
+        helptext = (
+            'Use the given main configuration file. '
+            'Other files will be specified by the main config file.'
+        )
+        self.parser.add_argument("-c", "--configuration",
+                                 dest="configuration_filename",
+                                 help=helptext, metavar="file")
+
+        helptext = (
+            'Should an ultrasound frame be displayed by the annotator. '
+            'Set to False if the .ult files are not available.'
+        )
+        self.parser.add_argument("--displayUltraFrame", dest="displayTongue",
+                                 default=True,
+                                 action=argparse.BooleanOptionalAction,
+                                 help=helptext)
 
         self.parser.add_argument(
             "-e", "--exclusion_list", dest="exclusion_filename",
             help="Exclusion list of data files that should be ignored.",
             metavar="file")
+
+        helptext = (
+            'Destination directory for generated figures.'
+        )
+        self.parser.add_argument("-f", "--figures", dest="figure_dir",
+                                 default="figures",
+                                 help=helptext, metavar="dir")
 
         helptext = (
             'Save metrics to file. '
@@ -92,35 +127,24 @@ class SatkitArgumentParser():
                                  help=helptext, metavar="file")
 
         helptext = (
-            'Should we run plotting on the results.'
+            'Should we publish figures into a pdf file.'
         )
-        self.parser.add_argument("-p", "--plot", dest="plot",
-                                default=False, action=argparse.BooleanOptionalAction,
-                                help=helptext)
-
+        self.parser.add_argument("-p", "--publish", dest="publish",
+                                 default=False,
+                                 action=argparse.BooleanOptionalAction,
+                                 help=helptext)
         helptext = (
-            'Destination directory for generated figures.'
+            'Set verbosity of console output. Range is [0, 3], default is 1, '
+            'larger values mean greater verbosity.'
         )
-        self.parser.add_argument("-f", "--figures", dest="figure_dir",
-                                 default="figures",
-                                 help=helptext, metavar="dir")
+        self.parser.add_argument("-v", "--verbose",
+                                 type=int, dest="verbose",
+                                 default=1,
+                                 help=helptext,
+                                 metavar="verbosity")
 
-        helptext = (
-            'Should an ultrasound frame be displayed by the annotator.'
-            'Set to False if the .ult files are not available.'
-        )
-        self.parser.add_argument("--displayUltraFrame", dest="displayTongue", 
-                                default=True, action=argparse.BooleanOptionalAction,
-                                help=helptext)
-
-
-    def _init_parser(self):
+    def _add_positional_arguments(self):
         """Setup basic commandline parsing and the file loading argument."""
-        self.parser = argparse.ArgumentParser(
-            description=self.description,
-            formatter_class=widen_help_formatter(
-                argparse.HelpFormatter, total_width=100, syntax_width=35))
-
         # mutually exclusive with reading previous results from a file
         helptext = (
             'Path containing the data to be read.'
@@ -128,12 +152,3 @@ class SatkitArgumentParser():
             'containing files exported from AAA. '
             'Loading from .m, .json, and .csv are in the works.')
         self.parser.add_argument("load_path", help=helptext)
-
-    def _parse_args(self):
-        """Create a parser for commandline arguments and parse the arguments."""
-        self._init_parser()
-        self._add_optional_arguments()
-        self.args = self.parser.parse_args()
-
-
-

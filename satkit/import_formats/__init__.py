@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2019-2023
+# Copyright (c) 2019-2024
 # Pertti Palo, Scott Moisik, Matthew Faytak, and Motoki Saito.
 #
 # This file is part of Speech Articulation ToolKIT
@@ -36,5 +36,5 @@ Reading functions for the imported formats.
 from .avi_read import read_avi
 from .dicom_ultra_read import read_3d_ultrasound_dicom
 from .ult_read import read_ult
-from .wav_read import read_wav
+from .wav_read import read_wav, read_wav_and_detect_beep
 from .splines_read import read_splines

@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2019-2023
+# Copyright (c) 2019-2024
 # Pertti Palo, Scott Moisik, Matthew Faytak, and Motoki Saito.
 #
 # This file is part of Speech Articulation ToolKIT
@@ -32,7 +32,7 @@
 """
 Classes for dealing with configuration.
 
-This file exist to remove a namespace conflict between typing.Optional and
+This module exist to remove a namespace conflict between typing.Optional and
 strictyaml.Optional.
 """
 
@@ -41,7 +41,16 @@ from dataclasses import dataclass
 from typing import Optional
 
 from satkit.constants import (
-    CoordinateSystems, Datasource, SplineDataColumn, SplineMetaColumn)
+    CoordinateSystems, Datasource, IntervalBoundary, IntervalCategory,
+    SplineDataColumn, SplineMetaColumn)
+
+
+@dataclass
+class TimeLimit:
+    tier: str
+    interval: IntervalCategory
+    boundary: IntervalBoundary
+    label: Optional[str]
 
 
 @dataclass
@@ -65,8 +74,8 @@ class SplineImportConfig:
     headers: bool
     coordinates: CoordinateSystems
     interleaved_coords: bool
-    meta_columns: tuple(SplineMetaColumn)
-    data_columns: tuple(SplineDataColumn)
+    meta_columns: tuple[SplineMetaColumn]
+    data_columns: tuple[SplineDataColumn]
     spline_file: Optional[Path]
     spline_file_extension: Optional[str]
     delimiter: Optional[str] = '\t'
@@ -107,13 +116,3 @@ class PathStructure:
     textgrid: Optional[Path] = None
     ultrasound: Optional[Path] = None
     spline_config: Optional[Path] = None
-
-
-@dataclass
-class SessionConfig:
-    """
-    Description of a RecordingSession for import into SATKIT.
-    """
-    data_source: Datasource
-    exclusion_list: Optional[ExclusionList] = None
-    spline_config: Optional[SplineConfig] = None

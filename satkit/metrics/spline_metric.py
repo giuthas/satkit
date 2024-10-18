@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2019-2023
+# Copyright (c) 2019-2024
 # Pertti Palo, Scott Moisik, Matthew Faytak, and Motoki Saito.
 #
 # This file is part of Speech Articulation ToolKIT
@@ -34,9 +34,7 @@ SplineMetric and supporting classes.
 """
 
 # Built in packages
-from enum import Enum
 import logging
-from pathlib import Path
 from typing import Optional, Tuple
 
 # Numpy and scipy
@@ -44,23 +42,15 @@ import numpy as np
 from pydantic import PositiveInt
 
 from satkit.data_structures import (
-    Modality, ModalityData, ModalityMetaData, Recording)
-from satkit.helpers import enum_union, ValueComparedEnumMeta
-from satkit.helpers.processing_helpers import product_dict
+    FileInformation, Modality, ModalityData, ModalityMetaData, Recording)
+from satkit.external_class_extensions import (
+    enum_union, ListablePrintableEnum, ValueComparedEnumMeta)
+from satkit.utility_functions import product_dict
 
 _logger = logging.getLogger('satkit.spline_metric')
 
 
-class PrintableEnum(Enum):
-    """
-    Extension of the regular Enum that returns its value as a string.
-    """
-
-    def __str__(self) -> str:
-        return str(self.value)
-
-
-class SplineDiffsEnum(PrintableEnum, metaclass=ValueComparedEnumMeta):
+class SplineDiffsEnum(ListablePrintableEnum, metaclass=ValueComparedEnumMeta):
     """
     Spline metrics that use distance between corresponding points.
     """
@@ -70,7 +60,7 @@ class SplineDiffsEnum(PrintableEnum, metaclass=ValueComparedEnumMeta):
     SPLINE_L2 = 'spline_l2'
 
 
-class SplineNNDsEnum(PrintableEnum, metaclass=ValueComparedEnumMeta):
+class SplineNNDsEnum(ListablePrintableEnum, metaclass=ValueComparedEnumMeta):
     """
     Spline metrics that use nearest neighbour distance.
     """
@@ -78,7 +68,7 @@ class SplineNNDsEnum(PrintableEnum, metaclass=ValueComparedEnumMeta):
     MNND = 'mnnd'
 
 
-class SplineShapesEnum(PrintableEnum, metaclass=ValueComparedEnumMeta):
+class SplineShapesEnum(ListablePrintableEnum, metaclass=ValueComparedEnumMeta):
     """
     Spline metrics that characterise shape.
     """
@@ -107,7 +97,7 @@ class SplineMetricParameters(ModalityMetaData):
         A string specifying this Modality's metric. Defaults to the l1 norm.
     timestep : int 
         A  positive integer used as the timestep in calculating this Modality's
-        data. Defaults to 1, which means comparison of consequetive frames.
+        data. Defaults to 1, which means comparison of consecutive frames.
     release_data_memory : bool
         Wether to assign None to parent.data after deriving this Modality from
         the data. Currently has no effect as deriving SplineMetric at runtime
@@ -125,12 +115,12 @@ class SplineMetric(Modality):
     Represent a SplineMetric as a Modality. 
     """
 
-    @staticmethod
-    def generate_name(params: SplineMetricParameters) -> str:
+    @classmethod
+    def generate_name(cls, params: SplineMetricParameters) -> str:
         """
         Generate a SplineMetric name to be used as its unique identifier.
 
-        This statit method **defines** what the names are. This implementation
+        This static method **defines** what the names are. This implementation
         pattern (SplineMetric.name calls this and any where that needs to guess
         what a name would be calls this) is how all derived Modalities should
         work.
@@ -149,13 +139,16 @@ class SplineMetric(Modality):
         str
             Name of the SplineMetric instance.
         """
-        name_string = 'SplineMetric' + " " + params.metric.value
+        name_string = cls.__name__ + " " + params.metric.value
 
         if params.timestep != 1 and params.metric not in SplineShapesEnum:
             name_string = name_string + " ts" + str(params.timestep)
 
         if params.parent_name:
             name_string = name_string + " on " + params.parent_name
+
+        if params.is_downsampled:
+            name_string += " downsampled by " + params.downsampling_ratio
 
         return name_string
 
@@ -214,29 +207,31 @@ class SplineMetric(Modality):
 
     def __init__(self,
                  recording: Recording,
-                 parameters: SplineMetricParameters,
-                 load_path: Optional[Path] = None,
-                 meta_path: Optional[Path] = None,
+                 metadata: SplineMetricParameters,
+                 file_info: FileInformation,
                  parsed_data: Optional[ModalityData] = None,
                  time_offset: Optional[float] = None) -> None:
         """
         Build a SplineMetric Modality.       
 
-        Positional arguments: recording -- the containing Recording. paremeters
-        : SplineMetricParameters
+        Parameters
+        ----------
+        recording : Recording
+            the containing Recording.
+        metadata : SplineMetricParameters
             Parameters used in calculating this instance of SplineMetric.
-        Keyword arguments: load_path -- path of the saved data - both
-        ultrasound and metadata parent -- the Modality this one was derived
-        from. None means this 
-            is an underived data Modality. If parent is None, it will be copied
-            from dataModality.
-        parsed_data -- ModalityData object containing raw ultrasound, 
+        file_info : FileInformation
+            _description_
+        parsed_data : Optional[ModalityData], optional
+            ModalityData object, by default None. Contains SplineMetric values,
             sampling rate,and either timevector and/or time_offset. Providing a
             timevector overrides any time_offset value given, but in absence of
             a timevector the time_offset will be applied on reading the data
-            from file. 
-        timeoffset -- timeoffset in seconds against the Recordings baseline.
-            If not specified or 0, timeOffset will be copied from dataModality.
+            from file.
+        time_offset : Optional[float], optional
+            timeoffset in seconds against the Recordings baseline. If not
+            specified or 0, timeOffset will be copied from dataModality, by
+            default None
         """
         # This allows the caller to be lazy.
         if not time_offset:
@@ -245,13 +240,12 @@ class SplineMetric(Modality):
 
         super().__init__(
             recording,
-            metadata=parameters,
-            data_path=None,
-            load_path=load_path,
-            meta_path=meta_path,
-            parsed_data=parsed_data)
+            meta_data=metadata,
+            file_info=file_info,
+            parsed_data=parsed_data,
+            time_offset=time_offset)
 
-        self.meta_data = parameters
+        self.meta_data = metadata
 
     def _derive_data(self) -> Tuple[np.ndarray, np.ndarray, float]:
         """

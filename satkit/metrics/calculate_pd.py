@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2019-2023
+# Copyright (c) 2019-2024
 # Pertti Palo, Scott Moisik, Matthew Faytak, and Motoki Saito.
 #
 # This file is part of Speech Articulation ToolKIT
@@ -37,13 +37,14 @@ from typing import Optional
 import numpy as np
 
 # local modules
-from satkit.data_structures import Modality, ModalityData, Recording
+from satkit.data_structures import (
+    FileInformation, Modality, ModalityData, Recording)
 from satkit.errors import UnrecognisedNormError
 
 from .metrics_helpers import calculate_timevector
 from .pd import ImageMask, PdParameters, PD
 
-_pd_logger = logging.getLogger('satkit.pd')
+_logger = logging.getLogger('satkit.pd')
 
 
 def calculate_metric(
@@ -171,16 +172,12 @@ def calculate_pd(
         _description_
     """
 
-    _pd_logger.info('%s: Calculating PD on %s.',
-                    str(parent_modality.data_path), parent_modality.name)
+    _logger.info('%s: Calculating PD on %s.',
+                 str(parent_modality.recorded_data_file),
+                 parent_modality.name)
 
     data = parent_modality.data
     sampling_rate = parent_modality.sampling_rate
-
-    # # TODO: Make this happen in processing LipVideo, not here.
-    # # Hacky hack to recognise LipVideo data and change the timestep for it.
-    # if len(data.shape) != 3:
-    #     timesteps[0] = 2
 
     # # Use this if we want to collapse e.g. rgb data without producing a
     # # PD contour for each colour or channel.
@@ -197,8 +194,8 @@ def calculate_pd(
 
     interpolated = [to_be_computed[key].interpolated for key in to_be_computed]
     if any(interpolated):
-        _pd_logger.info('%s: Interpolating frames of %s.',
-                        str(parent_modality.data_path), parent_modality.name)
+        _logger.info('%s: Interpolating frames of %s.',
+                     str(parent_modality.data_path), parent_modality.name)
         # TODO: make this into its own derived modality and parallelise the
         # calculation. or make frame interpolation into a filter function that
         # doesn't live in the modality.
@@ -233,8 +230,14 @@ def calculate_pd(
 
         modality_data = ModalityData(
             norm_data, sampling_rate, timevectors[param_set.timestep])
-        pds.append(PD(parent_modality.recording,
-                   param_set, parsed_data=modality_data))
+        # TODO: add the satkit save path if it is known.
+        file_info = FileInformation()
+        pds.append(
+            PD(
+                recording=parent_modality.recording,
+                meta_data=param_set,
+                file_info=file_info,
+                parsed_data=modality_data))
 
     if param_set and param_set.release_data_memory:
         # Accessing the data modality's data causes it to be
@@ -252,19 +255,19 @@ def add_pd(recording: Recording,
            timesteps: Optional[list[int]] = None,
            release_data_memory: bool = True,
            pd_on_interpolated_data: bool = False,
-           mask_images: bool = False):
+           mask_images: bool = False) -> None:
     """
     Calculate PD on dataModality and add it to recording.
 
     Positional arguments:
     recording -- a Recording object
     modality -- the type of the Modality to be processed. The access will 
-        be by recording.modalities[modality.__name__]
+        be by recording[modality.__name__]
 
     Keyword arguments:
     preload -- boolean indicating if PD should be calculated on creation 
         (preloaded) or only on access.
-    releaseDataMemor -- boolean indicating if the data attribute of the 
+    release_data_memory -- boolean indicating if the data attribute of the 
         data modality should be set to None after access. Only set this 
         to False, if you know that you have enough memory to hold all 
         of the data in RAM.
@@ -280,31 +283,31 @@ def add_pd(recording: Recording,
         timesteps = [1]
 
     if recording.excluded:
-        _pd_logger.info(
+        _logger.info(
             "Recording %s excluded from processing.", recording.basename)
-    elif not modality.__name__ in recording.modalities:
-        _pd_logger.info("Data modality '%s' not found in recording: %s.",
-                        modality.__name__, recording.basename)
+    elif not modality.__name__ in recording:
+        _logger.info("Data modality '%s' not found in recording: %s.",
+                     modality.__name__, recording.basename)
     else:
         all_requested = PD.get_names_and_meta(
             modality, norms, timesteps, pd_on_interpolated_data, mask_images,
             release_data_memory)
         missing_keys = set(all_requested).difference(
-            recording.modalities.keys())
+            recording.keys())
         to_be_computed = dict((key, value) for key,
                               value in all_requested.items()
                               if key in missing_keys)
 
-        data_modality = recording.modalities[modality.__name__]
+        data_modality = recording[modality.__name__]
 
         if to_be_computed:
             pds = calculate_pd(data_modality, to_be_computed)
 
             for pd in pds:
                 recording.add_modality(pd)
-                _pd_logger.info("Added '%s' to recording: %s.",
-                                pd.name, recording.basename)
+                _logger.info("Added '%s' to recording: %s.",
+                             pd.name, recording.basename)
         else:
-            _pd_logger.info(
+            _logger.info(
                 "Nothing to compute in PD for recording: %s.",
                 recording.basename)

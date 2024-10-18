@@ -1,8 +1,8 @@
 ##
-## Copyright (c) 2019-2023 
+## Copyright (c) 2019-2024
 ## Pertti Palo, Scott Moisik, Matthew Faytak, and Motoki Saito.
 ##
-## This file is part of Speech Articulation ToolKIT 
+## This file is part of Speech Articulation ToolKIT
 ## (see https://github.com/giuthas/satkit/).
 ##
 ## This program is free software: you can redistribute it and/or modify
@@ -30,34 +30,37 @@
 ## citations.bib in BibTeX format.
 ##
 
-# Height ratio of data display area vs textgrid tier display area. This does not
-# control directly the height of individual data displays nor individiual tier
-# displays, but instead controls the ratio between the sum of data displays vs
-# sum of tier displays.
-data/tier height ratios: 
+# Height ratio of data display area vs textgrid tier display area. This does
+# not control directly the height of individual data displays nor individual
+# tier displays, but instead controls the ratio between the sum of data
+# displays vs sum of tier displays.
+data_and_tier_height_ratios: 
   data: 2
   tier: 1
 
 # Which data axes to display. Currently used only to decide the number to
 # create. Number of lines gives the number of axis, modalities on the same line
 # will be drawn on the same axes.
-data axes:
-  global:
+general_axes_params:
+  data_axes:
     sharex: True
+  tier_axes:
+    sharex: True
+
+data_axes:
   PD:
     modalities:
-      - l2 whole
-      - l2 bottom
+      - PD l2 on RawUltrasound
+    sharex: True
+  spectrogram2:
     sharex: True
   wav:
-    sharex: True
-  spectrogram:
     sharex: True
   # density:
   #   sharex: False
 
 # Tiers drawn on the data axes. Ignored if not found.  
-pervasive tiers:
+pervasive_tiers:
   - Segment
   - Segments
   - segment
@@ -70,4 +73,4 @@ xlim:
   - 1.5
 
 # Font parameters
-default font size: 10
+default_font_size: 10

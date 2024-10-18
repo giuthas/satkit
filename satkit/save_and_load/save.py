@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2019-2023
+# Copyright (c) 2019-2024
 # Pertti Palo, Scott Moisik, Matthew Faytak, and Motoki Saito.
 #
 # This file is part of Speech Articulation ToolKIT
@@ -38,19 +38,21 @@ import logging
 
 import nestedtext
 import numpy as np
-from icecream import ic
+# from icecream import ic
+
 from satkit.constants import SATKIT_FILE_VERSION, SatkitSuffix
-from satkit.data_structures import Modality, Recording, RecordingSession
+from satkit.data_structures import Modality, Recording, Session
 from satkit.ui_callbacks import UiCallbacks, OverwriteConfirmation
 
-from .save_and_load_helpers import nested_text_converters
+from .save_and_load_schemas import nested_text_converters
 
 _logger = logging.getLogger('satkit._saver')
 
 
 def save_modality_data(
-        modality: Modality, confirmation: OverwriteConfirmation) -> [
-        str, OverwriteConfirmation]:
+        modality: Modality,
+        confirmation: OverwriteConfirmation
+) -> tuple[str, OverwriteConfirmation]:
     """
     Save the data of a Modality.
 
@@ -84,8 +86,8 @@ def save_modality_data(
 
 
 def save_modality_meta(
-        modality: Modality, confirmation: OverwriteConfirmation) -> [
-        str, OverwriteConfirmation]:
+        modality: Modality, confirmation: OverwriteConfirmation
+) -> tuple[str, OverwriteConfirmation]:
     """
     Save meta data and annotations for a Modality.
 
@@ -130,8 +132,8 @@ def save_modality_meta(
 def save_recording_meta(
         recording: Recording,
         modalities_saves: dict,
-        confirmation: OverwriteConfirmation) -> [str,
-                                                 OverwriteConfirmation]:
+        confirmation: OverwriteConfirmation
+) -> tuple[str, OverwriteConfirmation]:
     """
     Save Recording meta.
 
@@ -172,26 +174,27 @@ def save_recording_meta(
 
 
 def save_modalities(
-        recording: Recording, confirmation: OverwriteConfirmation) -> [
-        str, OverwriteConfirmation]:
+        recording: Recording, confirmation: OverwriteConfirmation | None
+) -> tuple[str, OverwriteConfirmation]:
     """
-    Save derived data Modalities for a single Recording.
+    Save derived Modalities and gather meta for all Modalities.
 
     Returns a dictionary of the data and meta paths of the Modalities.
     """
     recording_meta = {}
-    for modality_name in recording.modalities:
+    for modality_name in recording:
         modality_meta = {}
-        modality = recording.modalities[modality_name]
+        modality = recording[modality_name]
         if modality.is_derived_modality:
             (modality_meta['data_name'], confirmation) = save_modality_data(
                 modality, confirmation)
             (modality_meta['meta_name'], confirmation) = save_modality_meta(
                 modality, confirmation)
         else:
-            modality_meta['data_name'] = str(modality.data_path.name)
-            if modality.meta_path:
-                modality_meta['meta_name'] = str(modality.meta_path.name)
+            modality_meta['data_name'] = str(modality.recorded_data_file.name)
+            if modality.recorded_meta_file:
+                modality_meta['meta_name'] = str(
+                    modality.recorded_meta_file.name)
             else:
                 modality_meta['meta_name'] = None
         recording_meta[modality_name] = modality_meta
@@ -199,8 +202,10 @@ def save_modalities(
 
 
 def save_recordings(
-        recordings: list[Recording], confirmation: OverwriteConfirmation,
-        save_excluded: bool = True) -> [list[str], OverwriteConfirmation]:
+        recordings: list[Recording],
+        confirmation: OverwriteConfirmation | None,
+        save_excluded: bool = True
+) -> tuple[list[str], OverwriteConfirmation]:
     """
     Save derived data modalities for each Recording.
     """
@@ -217,10 +222,10 @@ def save_recordings(
 
 
 def save_recording_session_meta(
-        session: RecordingSession,
+        session: Session,
         recording_meta_files: list,
         confirmation: OverwriteConfirmation
-) -> [str, OverwriteConfirmation]:
+) -> tuple[str, OverwriteConfirmation]:
     """
     Save recording session metadata.
 
@@ -229,7 +234,7 @@ def save_recording_session_meta(
     """
     _logger.debug(
         "Saving meta for session %s.", session.name)
-    filename = f"{session.name}{'.RecordingSession'}{SatkitSuffix.META}"
+    filename = f"{session.name}{'.Session'}{SatkitSuffix.META}"
     filepath = session.paths.root/filename
 
     if filepath.exists():
@@ -247,7 +252,7 @@ def save_recording_session_meta(
 
     parameters = OrderedDict()
     parameters['path'] = str(session.paths.root)
-    parameters['datasource'] = session.config.data_source.value
+    parameters['datasource'] = session.meta_data.data_source.value
 
     meta['parameters'] = parameters
     meta['recordings'] = recording_meta_files
@@ -260,10 +265,10 @@ def save_recording_session_meta(
         except OSError as e:
             _logger.critical(e)
 
-    return filename
+    return filename, confirmation
 
 
-def save_recording_session(session: RecordingSession):
+def save_recording_session(session: Session) -> None:
     """
     Save a recording session.
     """

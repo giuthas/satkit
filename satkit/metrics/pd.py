@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2019-2023
+# Copyright (c) 2019-2024
 # Pertti Palo, Scott Moisik, Matthew Faytak, and Motoki Saito.
 #
 # This file is part of Speech Articulation ToolKIT
@@ -29,36 +29,24 @@
 # articles listed in README.markdown. They can also be found in
 # citations.bib in BibTeX format.
 #
+"""
+Modality for PD (Pixel Difference) and its parameter class.
+"""
 
-from enum import Enum
 import logging
-from pathlib import Path
-from typing import Optional, Tuple
+from typing import Optional, Tuple, Union
 
 import numpy as np
 
 from pydantic import PositiveInt
 
+from satkit.constants import ImageMask
 from satkit.data_structures import (
-    Modality, ModalityData, ModalityMetaData, Recording)
-from satkit.helpers.processing_helpers import product_dict
+    FileInformation, Modality, ModalityData,
+    ModalityMetaData, Recording)
+from satkit.utility_functions import product_dict
 
 _pd_logger = logging.getLogger('satkit.pd')
-
-
-class ImageMask(Enum):
-    """
-    Accepted image masking options in calculating PD.
-
-    If both imagemask and interpolated data are chosen, the masking will happen
-    before interpolation.
-    """
-    TOP = "top"
-    BOTTOM = "bottom"
-    WHOLE = "whole"
-
-    def __str__(self):
-        return self.value
 
 
 class PdParameters(ModalityMetaData):
@@ -73,9 +61,9 @@ class PdParameters(ModalityMetaData):
         A string specifying this Modality's metric. Defaults to the l1 norm.
     timestep : int 
         A  positive integer used as the timestep in calculating this Modality's
-        data. Defaults to 1, which means comparison of consequetive frames.
+        data. Defaults to 1, which means comparison of consecutive frames.
     release_data_memory : bool
-        Wether to assing None to parent.data after deriving this Modality from
+        Wether to assign None to parent.data after deriving this Modality from
         the data. Currently has no effect as deriving PD at runtime is not yet
         supported.
     interpolated : bool
@@ -113,19 +101,17 @@ class PD(Modality):
         'inf',
     ]
 
-    @staticmethod
-    def generate_name(params: PdParameters) -> str:
+    @classmethod
+    def generate_name(cls, params: PdParameters) -> str:
         """
         Generate a PD modality name to be used as its unique identifier.
 
-        This statit method **defines** what the names are. This implementation
+        This static method **defines** what the names are. This implementation
         pattern (PD.name calls this and any where that needs to guess what a
         name would be calls this) is how all derived Modalities should work.
 
         Parameters
         ----------
-        modality : Modality
-            Parent Modality that PD is calculated on.
         params : PdParameters
             The parameters of the PD instance. Note that this PdParameters
             instance does not need to be attached to a PD instance.
@@ -135,7 +121,8 @@ class PD(Modality):
         str
             Name of the PD instance.
         """
-        name_string = 'PD' + " " + params.metric
+        # name_string = 'PD' + " " + params.metric
+        name_string = cls.__name__ + " " + params.metric
 
         if params.timestep != 1:
             name_string = name_string + " ts" + str(params.timestep)
@@ -149,11 +136,14 @@ class PD(Modality):
         elif params.parent_name:
             name_string = name_string + " on " + params.parent_name
 
+        if params.is_downsampled:
+            name_string += " downsampled by " + str(params.downsampling_ratio)
+
         return name_string
 
     @staticmethod
     def get_names_and_meta(
-        modality: Modality,
+        modality: Union[Modality, str],
         norms: list[str] = None,
         timesteps: list[int] = None,
         pd_on_interpolated_data: bool = False,
@@ -190,7 +180,10 @@ class PD(Modality):
             Dictionary where the names of the PD Modalities index the 
             PdParameter objects.
         """
-        parent_name = modality.__name__
+        if isinstance(modality, str):
+            parent_name = modality
+        else:
+            parent_name = modality.__name__
 
         if not norms:
             norms = ['l2']
@@ -218,31 +211,30 @@ class PD(Modality):
 
     def __init__(self,
                  recording: Recording,
-                 parameters: PdParameters,
-                 load_path: Optional[Path] = None,
-                 meta_path: Optional[Path] = None,
+                 meta_data: PdParameters,
+                 file_info: FileInformation,
                  parsed_data: Optional[ModalityData] = None,
                  time_offset: Optional[float] = None) -> None:
         """
         Build a Pixel Difference (PD) Modality       
 
-        Positional arguments:
-        recording -- the containing Recording.   
-        paremeters : PdParameters
+        Parameters
+        ----------
+        recording : Recording
+            the containing Recording.
+        meta_data : PdParameters
             Parameters used in calculating this instance of PD.
-        Keyword arguments:
-        load_path -- path of the saved data - both ultrasound and metadata
-        parent -- the Modality this one was derived from. None means this 
-            is an underived data Modality.
-            If parent is None, it will be copied from dataModality.
-        parsed_data -- ModalityData object containing raw ultrasound, 
-            sampling rate, and either timevector and/or time_offset. Providing a 
-            timevector 
-            overrides any time_offset value given, but in absence of a 
-            timevector the time_offset will be applied on reading the data 
-            from file. 
-        timeoffset -- timeoffset in seconds against the Recordings baseline.
-            If not specified or 0, timeOffset will be copied from dataModality.
+        file_info : FileInformation
+            Save paths for numerical and meta data.
+        parsed_data : Optional[ModalityData], optional
+            ModalityData object, by default None. Contains PD values,
+            sampling rate, and either timevector and/or time_offset. Providing
+            a timevector overrides any time_offset value given, but in absence
+            of a timevector the time_offset will be applied on reading the data
+            from file.
+        time_offset : Optional[float], optional
+            If not specified or 0, timeOffset will be copied from dataModality,
+            by default None
         """
         # This allows the caller to be lazy.
         if not time_offset:
@@ -251,13 +243,10 @@ class PD(Modality):
 
         super().__init__(
             recording,
-            metadata=parameters,
-            data_path=None,
-            load_path=load_path,
-            meta_path=meta_path,
-            parsed_data=parsed_data)
-
-        self.meta_data = parameters
+            meta_data=meta_data,
+            file_info=file_info,
+            parsed_data=parsed_data,
+            time_offset=time_offset)
 
     def _derive_data(self) -> Tuple[np.ndarray, np.ndarray, float]:
         """

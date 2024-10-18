@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2019-2023
+# Copyright (c) 2019-2024
 # Pertti Palo, Scott Moisik, Matthew Faytak, and Motoki Saito.
 #
 # This file is part of Speech Articulation ToolKIT
@@ -36,17 +36,17 @@ Import data exported by AAA.
 # Built in packages
 import logging
 from pathlib import Path
-from typing import Optional
 
 # Local packages
-from satkit.configuration import (
-    PathStructure, SessionConfig)
+from satkit.configuration import PathStructure
 from satkit.constants import Datasource, SourceSuffix
-from satkit.data_structures import Recording
+from satkit.data_structures import (
+    FileInformation, Recording, Session, SessionConfig)
+
 
 from .AAA_raw_ultrasound import (
-    add_aaa_raw_ultrasound, parse_recording_meta_from_aaa_promptfile)
-from .exclusion_list import apply_exclusion_list
+    add_aaa_raw_ultrasound, parse_recording_meta_from_aaa_prompt_file)
+from satkit.configuration.exclusion_list_functions import apply_exclusion_list
 from .AAA_splines import add_splines
 from .audio import add_audio
 from .video import add_video
@@ -56,8 +56,9 @@ _AAA_logger = logging.getLogger('satkit.AAA')
 
 def generate_aaa_recording_list(
         directory: Path,
-        import_config: Optional[SessionConfig] = None,
-        paths: Optional[PathStructure] = None) -> list[Recording]:
+        owner: Session | None = None,
+        import_config: SessionConfig | None = None,
+        paths: PathStructure | None = None) -> list[Recording]:
     """
     Produce an array of Recordings from an AAA export directory.
 
@@ -109,7 +110,8 @@ def generate_aaa_recording_list(
                   for prompt_file in ult_prompt_files]
     basenames = [Path(path).name for path in base_paths]
     recordings = [
-        generate_ultrasound_recording(basename, Path(directory))
+        generate_ultrasound_recording(
+            basename=basename, directory=Path(directory), owner=owner)
         for basename in basenames
     ]
 
@@ -122,7 +124,8 @@ def generate_aaa_recording_list(
                   token: token.meta_data.time_of_recording)
 
 
-def generate_ultrasound_recording(basename: str, directory: Path):
+def generate_ultrasound_recording(
+        basename: str, directory: Path, owner: Session | None = None):
     """
     Generate an UltrasoundRecording without Modalities.
 
@@ -139,20 +142,28 @@ def generate_ultrasound_recording(basename: str, directory: Path):
     _AAA_logger.info(
         "Building Recording object for %s in %s.", basename, directory)
 
-    meta = parse_recording_meta_from_aaa_promptfile(
-        (directory / basename).with_suffix('.txt'))
+    prompt_file = (directory / basename).with_suffix('.txt')
+    meta = parse_recording_meta_from_aaa_prompt_file(prompt_file)
 
     textgrid = directory/basename
     textgrid = textgrid.with_suffix('.TextGrid')
 
+    file_info = FileInformation(
+        recorded_path=Path(""),
+        recorded_meta_file=prompt_file.name)
+
     if textgrid.is_file():
         recording = Recording(
+            owner=owner,
             meta_data=meta,
+            file_info=file_info,
             textgrid_path=textgrid
         )
     else:
         recording = Recording(
+            owner=owner,
             meta_data=meta,
+            file_info=file_info,
         )
 
     return recording

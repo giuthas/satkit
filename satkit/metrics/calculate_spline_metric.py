@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2019-2023
+# Copyright (c) 2019-2024
 # Pertti Palo, Scott Moisik, Matthew Faytak, and Motoki Saito.
 #
 # This file is part of Speech Articulation ToolKIT
@@ -37,7 +37,7 @@ import logging
 from typing import Optional
 
 import numpy as np
-from icecream import ic
+# from icecream import ic
 
 from satkit.data_structures import ModalityData, Recording
 from satkit.modalities import Splines
@@ -53,7 +53,6 @@ _logger = logging.getLogger('satkit.gen_spline_metric')
 
 def spline_diff_metric(
         data: np.ndarray,
-        time_points: np.ndarray,
         metric: SplineMetricEnum,
         timestep: int,
         notice_base: str) -> np.ndarray:
@@ -78,7 +77,7 @@ def spline_diff_metric(
     np.ndarray
         an array of analysis values where array.shape[0] == time_points
     """
-
+    time_points = data.shape[0] - timestep
     result = np.zeros(time_points)
 
     for i in range(time_points):
@@ -107,7 +106,6 @@ def spline_diff_metric(
 
 def spline_nnd_metric(
         data: np.ndarray,
-        time_points: np.ndarray,
         metric: SplineMetricEnum,
         timestep: int,
         notice_base: str) -> np.ndarray:
@@ -132,6 +130,7 @@ def spline_nnd_metric(
     np.ndarray
         an array of analysis values where array.shape[0] == time_points
     """
+    time_points = data.shape[0] - timestep
     result = np.zeros(time_points)
     num_points = data.shape[2]
 
@@ -189,6 +188,7 @@ def calculate_spline_metric(
     prompt = splines.recording.meta_data.prompt
     notice_base = basename + " " + prompt
 
+    # TODO: This should be handled where iterating over recordings.
     if splines.recording.excluded:
         notice = notice_base + ': Token excluded.'
         _logger.info(notice)
@@ -225,14 +225,13 @@ def calculate_spline_metric(
                             exclude_points[0]:-exclude_points[1]]
 
         timestep = param_set.timestep
-        time_points = data.shape[0] - timestep
 
         if metric in SplineDiffsEnum:
             metric_data = spline_diff_metric(
-                data, time_points, metric, timestep, notice_base)
+                data, metric, timestep, notice_base)
         elif metric in SplineNNDsEnum:
             metric_data = spline_nnd_metric(
-                data, time_points, metric, timestep, notice_base)
+                data, metric, timestep, notice_base)
         elif metric in SplineShapesEnum:
             metric_data = spline_shape_metric(
                 data, metric, notice_base)
@@ -272,7 +271,7 @@ def add_spline_metric(recording: Recording,
     Positional arguments:
     recording -- a Recording object
     modality -- the type of the Modality to be processed. The access will 
-        be by recording.modalities[modality.__name__]
+        be by recording[modality.__name__]
 
     Keyword arguments:
     preload -- boolean indicating if PD should be calculated on creation 
@@ -295,19 +294,19 @@ def add_spline_metric(recording: Recording,
     if recording.excluded:
         _logger.info(
             "Recording %s excluded from processing.", recording.basename)
-    elif not splines.__name__ in recording.modalities:
+    elif not splines.__name__ in recording:
         _logger.info("Data modality '%s' not found in recording: %s.",
                      splines.__name__, recording.basename)
     else:
         all_requested = SplineMetric.get_names_and_meta(
             splines, metrics, timesteps, exclude_points, release_data_memory)
         missing_keys = set(all_requested).difference(
-            recording.modalities.keys())
+            recording.keys())
         to_be_computed = dict((key, value)
                               for key, value in all_requested.items()
                               if key in missing_keys)
 
-        data_modality = recording.modalities[splines.__name__]
+        data_modality = recording[splines.__name__]
 
         if to_be_computed:
             spline_metrics = calculate_spline_metric(

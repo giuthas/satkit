@@ -1,5 +1,5 @@
 # Generate docs with pdoc ...
-pdoc -o docs/api satkit
+pdoc -d numpy -o docs/api satkit
 
 # and some diagrams to be linked as well.
 # Needs Graphviz to work properly

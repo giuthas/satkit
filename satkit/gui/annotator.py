@@ -1,8 +1,8 @@
 #
-# Copyright (c) 2019-2023 
+# Copyright (c) 2019-2024
 # Pertti Palo, Scott Moisik, Matthew Faytak, and Motoki Saito.
 #
-# This file is part of Speech Articulation ToolKIT 
+# This file is part of Speech Articulation ToolKIT
 # (see https://github.com/giuthas/satkit/).
 #
 # This program is free software: you can redistribute it and/or modify
@@ -38,23 +38,23 @@ from copy import deepcopy
 
 # Numpy
 import numpy as np
-# Local modules
-import satkit.io as satkit_io
+
 from matplotlib.backends.backend_qt5agg import \
     FigureCanvasQTAgg as FigureCanvas
 # from matplotlib.backends.backend_qt5agg import \
 #     NavigationToolbar2QT as NavigationToolbar
 # Plotting functions and hooks for GUI
 from matplotlib.figure import Figure
+
 # GUI functionality
 from PyQt5.QtCore import QCoreApplication
 from PyQt5.QtGui import QIntValidator
 from PyQt5.QtWidgets import QFileDialog
 from PyQt5.uic import loadUiType
-from satkit.configuration.configuration import config_dict, data_run_params
+from satkit.configuration.configuration_parsers import config_dict, data_run_params
 from satkit.gui.qt_annotator_window import QtAnnotatorWindow
-from satkit.plot import plot_timeseries, plot_wav
-from satkit.plot.plot import plot_satgrid_tier
+from satkit.plot_and_publish import plot_timeseries, plot_wav
+from satkit.plot_and_publish.plot import plot_satgrid_tier
 
 # Load the GUI layout generated with QtDesigner.
 Ui_MainWindow, QMainWindow = loadUiType('satkit/gui/qt_annotator.ui')
@@ -175,11 +175,11 @@ class Annotator():
             (self.pickle_filename, _) = QFileDialog.getSaveFileName(
                 self, 'Save file', directory='.', filter="Pickle files (*.pickle)")
         if self.pickle_filename:
-            satkit_io.save2pickle(
-                self.recordings,
-                self.pickle_filename)
+            # satkit_io.save2pickle(
+            #     self.recordings,
+            #     self.pickle_filename)
             _qt_annotator_logger.info(
-                "Wrote data to file {file}.", file=self.pickle_filename)
+                "Pickling is disabled. Did NOT write file {file}.", file=self.pickle_filename)
         self.has_been_saved = True
 
     def export_cb(self):
@@ -226,7 +226,7 @@ class Annotator():
                         # more intelligent by selecting purposefully the last non-empty first and
                         # taking the duration?
                         word_dur = interval.dur
-                        stimulus_onset = recording.modalities['MonoAudio'].meta['stimulus_onset']
+                        stimulus_onset = recording['MonoAudio'].meta['stimulus_onset']
                         acoustic_onset = interval.xmin - stimulus_onset
                         break
                     annotations['word_dur'] = word_dur

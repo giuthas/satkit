@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2019-2023
+# Copyright (c) 2019-2024
 # Pertti Palo, Scott Moisik, Matthew Faytak, and Motoki Saito.
 #
 # This file is part of Speech Articulation ToolKIT
@@ -37,11 +37,7 @@ from .AAA_recordings import (generate_aaa_recording_list,
                              generate_ultrasound_recording)
 from .RASL_3D_ultrasound_recordings import (generate_3D_ultrasound_recording,
                                             generate_rasl_recording_list)
-
-from .spline_import_config import (
-    load_spline_config, SplineImportConfig)
-from .session_import_config import (
-    load_session_config, SessionConfig)
+from .session_import_config import load_session_config
 
 from .audio import add_audio
 from .video import add_video
@@ -49,12 +45,16 @@ from .AAA_raw_ultrasound import add_aaa_raw_ultrasound
 from .three_dim_ultrasound import add_rasl_3D_ultrasound
 from .AAA_splines import add_splines
 
+# TODO: Decide if it is worth it to use typing.Annotated to document this
+# modality_adders is a mapping between a modality name and a function to add
+# that modality to a single recording.
+#
+# This does not belong here because splines may be in a
+# single file for many recordings.
+# 'Splines': add_splines,
 modality_adders = {
     'MonoAudio': add_audio,
     'RawUltrasound': add_aaa_raw_ultrasound,
-    # This does not belong here because splines maybe in a
-    # single file for many recordings.
-    # 'Splines': add_splines,
     'ThreeD_Ultrasound': add_rasl_3D_ultrasound,
     'Video': add_video
 }

@@ -1,8 +1,8 @@
 #
-# Copyright (c) 2019-2023 
+# Copyright (c) 2019-2024
 # Pertti Palo, Scott Moisik, Matthew Faytak, and Motoki Saito.
 #
-# This file is part of Speech Articulation ToolKIT 
+# This file is part of Speech Articulation ToolKIT
 # (see https://github.com/giuthas/satkit/).
 #
 # This program is free software: you can redistribute it and/or modify
@@ -29,6 +29,9 @@
 # articles listed in README.markdown. They can also be found in
 # citations.bib in BibTeX format.
 #
+"""
+Read AAA raw ultrasound files.
+"""
 
 from contextlib import closing
 from pathlib import Path
@@ -38,9 +41,9 @@ from satkit.data_structures import ModalityData
 
 
 def read_ult(
-    path: Path, 
-    meta: dict, 
-    time_offset: float) -> ModalityData:
+        path: Path,
+        meta: dict,
+        time_offset: float) -> ModalityData:
     """
     Read raw ultrasound from path.
 
@@ -73,7 +76,7 @@ def read_ult(
         # expectations could be altered.
 
         # Re-order indeces to time, height (along scanline), width
-        data = np.transpose(data, (0,2,1))
+        data = np.transpose(data, (0, 2, 1))
         # Flip height dimension
         data = np.flip(data, 1)
 
@@ -83,7 +86,8 @@ def read_ult(
             endpoint=False)
         timevector = ultra_time / \
             meta['FramesPerSec'] + time_offset
-        # this should be added for PD and similar time vectors: + .5/self.meta['framesPerSec']
-        # while at the same time dropping a suitable number of timestamps
+        # this should be added for PD and similar time vectors: +
+        # .5/self.meta['framesPerSec'] while at the same time dropping a
+        # suitable number of timestamps
 
     return ModalityData(data, meta['FramesPerSec'], timevector)

@@ -10,30 +10,27 @@ authors = [
 classifiers = [
   "Development Status :: 3 - Alpha",
   "Programming Language :: Python",
-  "Intended Audience :: Speech researchers",
+  "Intended Audience :: Speech researchers and students",
 ]
 description = "Speech Articulation ToolKit: tools for processing ultrasound speech data"
-keywords = ["egg", "bacon", "sausage", "tomatoes", "Lobster Thermidor"]
+keywords = ["speech", "articulation", "textgrid", "ultrasound", "splines"]
 license = {file = "LICENSE.markdown"}
 maintainers = [
-  {name = "Brett Cannon", email = "brett@python.org"},
+  {name = "Pertti Palo", email = "giuthas@gmail.com"},
 ]
 name = "satkit"
 readme = "README.md"
-requires-python = ">=3.9"
-version = "0.3.1"
+requires-python = ">=3.10.13"
+version = "0.10.1"
 
 dependencies = [
-  "httpx",
-  "gidgethub[httpx]>4.0.0",
-  "django>2.1; os_name != 'nt'",
-  "django>2.0; os_name == 'nt'",
+  # To be added
 ]
 
 [project.urls]
 bug_tracker = "https://github.com/giuthas/satkit/issues"
-changelog = "github.com/giuthas/satkit/blob/master/CHANGELOG.markdown"
-documentation = "coming soon"
+changelog = "https://github.com/giuthas/satkit/blob/main/docs/Release_notes.markdown"
+documentation = "https://giuthas.github.io/satkit/"
 homepage = "github.com/giuthas/satkit"
 repository = "github.com"
 

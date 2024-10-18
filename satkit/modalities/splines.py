@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2019-2023
+# Copyright (c) 2019-2024
 # Pertti Palo, Scott Moisik, Matthew Faytak, and Motoki Saito.
 #
 # This file is part of Speech Articulation ToolKIT
@@ -29,9 +29,11 @@
 # articles listed in README.markdown. They can also be found in
 # citations.bib in BibTeX format.
 #
+"""
+Modality for Splines and its meta data class.
+"""
 
 import logging
-from pathlib import Path
 from typing import Optional
 
 import numpy as np
@@ -40,7 +42,8 @@ import numpy as np
 from satkit.constants import CoordinateSystems
 from satkit.data_structures import (
     Modality, ModalityData, ModalityMetaData, Recording)
-from satkit.helpers.computational import (
+from satkit.data_structures.meta_data_classes import FileInformation
+from satkit.utility_functions.computational import (
     cartesian_to_polar, polar_to_cartesian)
 from satkit.import_formats import read_splines
 
@@ -54,7 +57,7 @@ class SplineMetadata(ModalityMetaData):
     coordinates: CoordinateSystems
     number_of_sample_points: int
     confidence_exists: bool
-    axisnames: tuple[str] = ('time', 'x-y', 'splinepoint')
+    axis_names: tuple[str] = ('time', 'x-y', 'spline point')
 
 
 class Splines(Modality):
@@ -62,12 +65,14 @@ class Splines(Modality):
     Splines from 2D ultrasound data.
     """
 
+    @classmethod
+    def generate_name(cls, params: ModalityMetaData) -> str:
+        return cls.__name__
+
     def __init__(self,
                  recording: Recording,
                  metadata: SplineMetadata,
-                 data_path: Optional[Path] = None,
-                 meta_path: Optional[Path] = None,
-                 load_path: Optional[Path] = None,
+                 file_info: FileInformation,
                  parsed_data: Optional[ModalityData] = None,
                  time_offset: Optional[float] = None
                  ) -> None:
@@ -76,15 +81,13 @@ class Splines(Modality):
         # because latter may already end the run.
         super().__init__(
             recording=recording,
-            metadata=metadata,
-            data_path=data_path,
-            meta_path=meta_path,
-            load_path=load_path,
-            parsed_data=parsed_data,
+            meta_data=metadata,
+            file_info=file_info,
             time_offset=time_offset)
 
     def _read_data(self) -> ModalityData:
-        return read_splines(self.data_path, self.metadata, self._time_offset)
+        return read_splines(
+            self.recorded_data_file, self._meta_data, self._time_offset)
 
     @property
     def data(self) -> np.ndarray:
@@ -95,19 +98,19 @@ class Splines(Modality):
         super()._data_setter(data)
 
     def get_meta(self) -> dict:
-        return self.metadata
+        return self._meta_data
 
     @property
     def in_polar(self) -> np.ndarray:
         """
-        Spline coordinates in polar coordiantes.
+        Spline coordinates in polar coordinates.
 
         Returns
         -------
         np.ndarray
             The coordinates
         """
-        if self.metadata.coordinates is CoordinateSystems.POLAR:
+        if self._meta_data.coordinates is CoordinateSystems.POLAR:
             return self.data
         else:
             cartesian = self.data[:, 0:2, :]
@@ -120,14 +123,14 @@ class Splines(Modality):
 
     def cartesian_spline(self, index) -> np.ndarray:
         """
-        Spline coordinates in Cartesian coordiantes.
+        Spline coordinates in Cartesian coordinates.
 
         Returns
         -------
         np.ndarray
             The coordinates
         """
-        if self.metadata.coordinates is CoordinateSystems.CARTESIAN:
+        if self._meta_data.coordinates is CoordinateSystems.CARTESIAN:
             return self.data[index, :, :]
         else:
             return polar_to_cartesian(self.data[index, :, :], np.pi/2)
@@ -135,14 +138,14 @@ class Splines(Modality):
     @property
     def in_cartesian(self) -> np.ndarray:
         """
-        Spline coordinates in Cartesian coordiantes.
+        Spline coordinates in Cartesian coordinates.
 
         Returns
         -------
         np.ndarray
             The coordinates
         """
-        if self.metadata.coordinates is CoordinateSystems.CARTESIAN:
+        if self._meta_data.coordinates is CoordinateSystems.CARTESIAN:
             return self.data
         else:
             r_phi = self.data[:, 0:2, :]

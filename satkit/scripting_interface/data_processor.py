@@ -1,8 +1,8 @@
 #
-# Copyright (c) 2019-2023 
+# Copyright (c) 2019-2024
 # Pertti Palo, Scott Moisik, Matthew Faytak, and Motoki Saito.
 #
-# This file is part of Speech Articulation ToolKIT 
+# This file is part of Speech Articulation ToolKIT
 # (see https://github.com/giuthas/satkit/).
 #
 # This program is free software: you can redistribute it and/or modify
@@ -34,28 +34,36 @@ import datetime
 import logging
 from dataclasses import dataclass
 from multiprocessing import Pool
-from typing import Callable, Dict, List
+from typing import Callable
 
-from satkit.data_structures import Modality, Recording
+from icecream import ic
 
-logger = logging.getLogger('satkit.scripting')
+from satkit.data_structures import Modality, Recording, Session
+
+_logger = logging.getLogger('satkit.scripting')
+
 
 @dataclass
 class Operation:
+    """
+    An operation to be applied to a Modality with given arguments.
+    """
     processing_function: Callable
     modality: Modality
-    arguments: Dict
+    arguments: dict
 
-def process_data(
-    recordings: List[Recording], 
-    processing_functions: Dict) -> None:
+
+def process_modalities(
+        recordings: list[Recording] | Session,
+        processing_functions: dict) -> None:
     """
-    Apply processing functions to data.
+    Apply processing functions to Modalities.
 
     Arguments: 
     recordings is a list of Recordings to be processed. The results of applying
-        the functions get added to the Recordings as new Modalities.
-    processing_functions is a dictionary containing three keys:
+        the functions get added to the Recordings as new Modalities and
+        Statistics.
+    processing_functions is a dictionary containing three keys:1
         'function' is a callable used to process a Recording,
         'modality' is the Modality passed to the function, and 
         'arguments' is a dict of arguments for the function.
@@ -68,26 +76,56 @@ def process_data(
 
         for key in processing_functions:
             (function, modalities, arguments) = processing_functions[key]
-            # TODO: Version 1.0: add a mechanism to change the arguments for different modalities.
+            # TODO: Version 1.0: add a mechanism to change the arguments for
+            # different modalities.
             for modality in modalities:
                 function(
                     recording,
                     modality,
                     **arguments)
 
-    logger.info('Data run ended at %s.', str(datetime.datetime.now()))
+    _logger.info('Modalities processed at %s.', str(datetime.datetime.now()))
+
+
+def process_statistics_in_recordings(
+        session: Session,
+        processing_functions: dict) -> None:
+    """
+    Apply processing functions to Statistics.
+
+    Arguments:
+    recordings is a list of Recordings to be processed. The results of applying
+        the functions get added to the Recordings as new Statistics.
+    processing_functions is a dictionary containing three keys:
+        'function' is a callable used to process a Recording,
+        'statistic' is the Statistic passed to the function, and
+        'arguments' is a dict of arguments for the function.
+    """
+
+    for key in processing_functions:
+        (function, statistics, arguments) = processing_functions[key]
+        # TODO: Version 1.0: add a mechanism to change the arguments for
+        # different modalities.
+        for statistic in statistics:
+            function(
+                session,
+                statistic,
+                **arguments)
+
+    _logger.info('Modalities processed at %s.', str(datetime.datetime.now()))
+
 
 def multi_process_data(
-    recordings: List[Recording], 
-    operation: Operation) -> None:
+        recordings: list[Recording],
+        operation: Operation) -> None:
 
     arguments = [
-        {'recording':recording, 
-        'modality':operation.modality, 
-        **operation.arguments} for recording in recordings]
+        {'recording': recording,
+         'modality': operation.modality,
+         **operation.arguments} for recording in recordings]
 
-    logger.info('Starting data run at %s.', str(datetime.datetime.now()))
+    _logger.info('Starting data run at %s.', str(datetime.datetime.now()))
     with Pool() as pool:
         pool.map(operation.processing_function, arguments)
 
-    logger.info('Data run ended at %s.', str(datetime.datetime.now()))
+    _logger.info('Data run ended at %s.', str(datetime.datetime.now()))

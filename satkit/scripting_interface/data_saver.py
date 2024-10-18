@@ -1,8 +1,8 @@
 #
-# Copyright (c) 2019-2023 
+# Copyright (c) 2019-2024
 # Pertti Palo, Scott Moisik, Matthew Faytak, and Motoki Saito.
 #
-# This file is part of Speech Articulation ToolKIT 
+# This file is part of Speech Articulation ToolKIT
 # (see https://github.com/giuthas/satkit/).
 #
 # This program is free software: you can redistribute it and/or modify
@@ -35,13 +35,13 @@ from pathlib import Path
 from typing import List
 
 # import satkit.io as satkit_io
-from satkit.data_structures import Recording
+from satkit.data_structures import Recording, Session
 
 logger = logging.getLogger('satkit.scripting')
 
 
 
-def save_data(path: Path, recordings: List[Recording]):
+def save_data(path: Path, recordings: List[Recording] | Session):
     if path.suffix == '.pickle':
         logger.info(
             "Pickling is currently disabled. Did NOT write file %s.", str(path))

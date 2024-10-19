@@ -54,11 +54,7 @@ from PyQt5.QtGui import QIntValidator, QKeySequence
 from PyQt5.QtWidgets import QFileDialog, QShortcut
 from PyQt5.uic import loadUiType
 
-from icecream import ic
-
-# Local modules
-# import satkit.io as satkit_io
-from satkit.data_structures import Session
+from satkit.data_structures import Recording, Session
 from satkit.configuration import (
     GuiConfig, TimeseriesNormalisation, gui_params, config_dict)
 from satkit.gui import BoundaryAnimator, ReplaceDialog
@@ -83,6 +79,97 @@ def setup_qtannotator_ui_callbacks():
     """
     UiCallbacks.register_overwrite_confirmation_callback(
         ReplaceDialog.confirm_overwrite)
+
+
+def write_ultrasound_frame_meta(
+        filename: str | Path,
+        session: Session,
+        recording: Recording,
+        selection_index: int,
+        selection_time: float,
+) -> None:
+    """
+    Write ultrasound frame metadata to a human-readable text file.
+
+    The purpose of this function is to generate a file documenting an extracted
+    ultrasound frame, so that it can be found again in its original context.
+
+    Parameters
+    ----------
+    filename : str | Path
+        Filename or path of the extracted ultrasound frame.
+    session : Session
+        Session that the frame belongs to.
+    recording : Recording
+        Recording that the frame belongs to.
+    selection_index : int
+        Index of the frame within the ultrasound video.
+    selection_time : float
+        Time in seconds of the frame within the **recording**. This is relative
+        to what ever -- most likely the beginning of audio -- is being used as
+        t=0s.
+    """
+    if not isinstance(filename, Path):
+        filename = Path(filename)
+    meta_filename = filename.with_suffix('.txt')
+    with meta_filename.open('w', encoding='utf-8') as file:
+        file.write(f"Metadata for frame extracted by SATKIT to {filename}.\n")
+        file.write(f"Session path: {session.recorded_path}\n")
+        file.write(f"Participant ID: {recording.meta_data.participant_id}\n")
+        file.write(f"Recording filename: {recording.name}\n")
+        file.write(f"Recorded at: {recording.meta_data.time_of_recording}\n")
+        file.write(f"Prompt: {recording.meta_data.prompt}\n")
+        file.write(f"Frame number: {selection_index}\n")
+        file.write(f"Timestamp in recording: {selection_time}\n")
+
+
+def write_ultrasound_frame_and_meta(
+        filename: str | Path,
+        figure: Figure,
+        session: Session,
+        recording: Recording,
+        selection_index: int,
+        selection_time: float,
+        bbox_inches: str = 'tight',
+        pad_inches: float = 0.05,
+) -> None:
+    """
+    Write ultrasound frame metadata to a human-readable text file.
+
+    The purpose of this function is to generate a file documenting an extracted
+    ultrasound frame, so that it can be found again in its original context.
+
+    Parameters
+    ----------
+    figure : matplotlib.figure.Figure
+        Figure to write in the image file.
+    filename : str | Path
+        Filename or path for the ultrasound frame to export. Format is deduced
+        from the file suffix.
+    session : Session
+        Session that the frame belongs to.
+    recording : Recording
+        Recording that the frame belongs to.
+    selection_index : int
+        Index of the frame within the ultrasound video.
+    selection_time : float
+        Time in seconds of the frame within the **recording**. This is relative
+        to what ever -- most likely the beginning of audio -- is being used as
+        t=0s.
+    bbox_inches : str
+        bounding box inches for the figure, by default 'tight'.
+    pad_inches :
+        padding inches around the figure, by default 0.05.
+    """
+    figure.savefig(filename, bbox_inches=bbox_inches, pad_inches=pad_inches)
+
+    write_ultrasound_frame_meta(
+        filename=filename,
+        session=session,
+        recording=recording,
+        selection_index=selection_index,
+        selection_time=selection_time,
+    )
 
 
 class PdQtAnnotator(QMainWindow, Ui_MainWindow):
@@ -112,7 +199,7 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
 
         setup_qtannotator_ui_callbacks()
 
-        self.recording_session = recording_session
+        self.session = recording_session
         self.recordings = recording_session.recordings
         self.index = 0
         self.max_index = len(self.recordings)
@@ -142,10 +229,18 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
         #     self.tr("Ctrl+E", "File|Export figure...")), self)
         # self.export_figure_shortcut.activated.connect(self.export_figure)
 
-        self.actionOpen.triggered.connect(self.open)
-        self.actionSaveAll.triggered.connect(self.save_all)
+        self.action_open.triggered.connect(self.open)
+        self.action_save_all.triggered.connect(self.save_all)
+        self.action_save_current_textgrid.triggered.connect(self.save_textgrid)
+        self.action_save_all_textgrids.triggered.connect(
+            self.save_all_textgrids)
         # self.actionSaveToPickle.triggered.connect(self.save_to_pickle)
+
+        self.action_export_annotations_and_metadata.triggered.connect(
+            self.export_annotations_and_meta_data)
         self.action_export_figure.triggered.connect(self.export_figure)
+        self.action_export_ultrasound_frame.triggered.connect(
+            self.export_ultrasound_frame)
 
         self.actionNext.triggered.connect(self.next)
         self.actionPrevious.triggered.connect(self.prev)
@@ -153,7 +248,7 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
         self.actionNext_Frame.triggered.connect(self.next_frame)
         self.actionPrevious_Frame.triggered.connect(self.previous_frame)
 
-        self.actionQuit.triggered.connect(self.quit)
+        self.action_quit.triggered.connect(self.quit)
 
         #
         # GUI buttons
@@ -161,7 +256,8 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
         self.nextButton.clicked.connect(self.next)
         self.prevButton.clicked.connect(self.prev)
         self.saveButton.clicked.connect(self.save_all)
-        self.exportButton.clicked.connect(self.export)
+        self.exportButton.clicked.connect(
+            self.export_annotations_and_meta_data)
 
         go_validator = QIntValidator(1, self.max_index + 1, self)
         self.goLineEdit.setValidator(go_validator)
@@ -192,6 +288,7 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
         self.mplWindowVerticalLayout.addWidget(self.canvas)
         self.data_axes = []
         self.tier_axes = []
+        self.animators = []
 
         self.shift_is_held = False
         # self.cid_key_press = self.figure.canvas.mpl_connect(
@@ -200,7 +297,8 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
         #     'key_release_event', self.on_key_release)
 
         matplotlib.rcParams.update(
-            {'font.size': gui_params['default_font_size']})
+            {'font.size': gui_params['default_font_size']}
+        )
 
         self.xlim = xlim
 
@@ -212,6 +310,7 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
             hspace=0,
             wspace=0,
             height_ratios=height_ratios)
+        self.tier_grid_spec = None
 
         number_of_data_axes = gui_params['number_of_data_axes']
         self.data_grid_spec = self.main_grid_spec[0].subgridspec(
@@ -460,7 +559,6 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
             self.xlim = (-.25, 1.5)
 
         axes_counter = 0
-        image = None
         for axes_name in gui_params['data_axes']:
             match axes_name:
                 case "spectrogram":
@@ -470,19 +568,22 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
                                      sampling_frequency=audio.sampling_rate,
                                      extent_on_x=(wav_time[0], wav_time[-1]))
                 case "spectrogram2":
-                    image = plot_spectrogram2(
+                    plot_spectrogram2(
                         self.data_axes[axes_counter],
                         waveform=wav,
                         ylim=(0, 10500),
                         sampling_frequency=audio.sampling_rate,
                         extent_on_x=(wav_time[0], wav_time[-1]))
-                case "spectrogram distro":
-                    spectrum_data = image.get_array().flatten()
-                    ic(np.min(spectrum_data), np.max(spectrum_data))
-                    self.data_axes[axes_counter].hist(
-                        spectrum_data, bins=200)
-                    ic(np.quantile(spectrum_data,
-                       [.3, .4, .5, .6, .7, .8, .9, 1]))
+                # TODO: figure out if this should be just completely removed.
+                # looks like some old experiment.
+                # add `image =` to spectrogram2 to make this work:
+                # case "spectrogram distro":
+                #     spectrum_data = image.get_array().flatten()
+                #     ic(np.min(spectrum_data), np.max(spectrum_data))
+                #     self.data_axes[axes_counter].hist(
+                #         spectrum_data, bins=200)
+                #     ic(np.quantile(spectrum_data,
+                #        [.3, .4, .5, .6, .7, .8, .9, 1]))
                 case "wav":
                     plot_wav(ax=self.data_axes[axes_counter],
                              waveform=wav,
@@ -619,7 +720,7 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
                     _logger.info("Minimal difference: %f, epsilon: %f",
                                  min_difference, epsilon)
 
-                spline_config = self.recording_session.meta_data.spline_config
+                spline_config = self.session.meta_data.spline_config
                 if spline_config.data_config:
                     limits = spline_config.data_config.ignore_points
                     plot_spline(self.ultra_axes,
@@ -720,7 +821,7 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
         """
         index_to_jump_to = int(self.goLineEdit.text())-1
 
-        if 0 <= index_to_jump_to < len(self.recording_session):
+        if 0 <= index_to_jump_to < len(self.session):
             self.current.modalities['RawUltrasound'].data = None
             self.index = index_to_jump_to
             self.update()
@@ -739,9 +840,9 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
         directory = QFileDialog.getExistingDirectory(
             self, caption="Open directory", directory='.')
         if directory:
-            self.recording_session = load_recording_session(
+            self.session = load_recording_session(
                 directory=directory)
-            self.recordings = self.recording_session.recordings
+            self.recordings = self.session.recordings
             self.index = 0
             self.max_index = len(self.recordings)
             self._add_annotations()
@@ -763,7 +864,7 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
         Save derived modalities and annotations.
         """
         # TODO 1.0: write a call back for asking for overwrite confirmation.
-        save_recording_session(self.recording_session)
+        save_recording_session(self.session)
 
     def save_to_pickle(self):
         """
@@ -790,7 +891,7 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
         # TODO 1.0: write a call back for asking for overwrite confirmation.
         if not self.current.textgrid_path:
             (self.current.textgrid_path, _) = QFileDialog.getSaveFileName(
-                self, 'Save file', directory='.',
+                self, 'Save TextGrid', directory='.',
                 filter="TextGrid files (*.TextGrid)")
         if self.current.textgrid_path and self.current.satgrid:
             file = self.current.textgrid_path
@@ -799,6 +900,28 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
             _logger.info(
                 "Wrote TextGrid to file %s.",
                 str(self.current.textgrid_path))
+
+    def save_all_textgrids(self):
+        """
+        Save the all TextGrids in this Session.
+        """
+        # TODO 1.0: write a call back for asking for overwrite confirmation.
+        for recording in self.session:
+            if not recording.textgrid_path:
+                # TODO: This will be SUPER ANNOYING when there are a lot of
+                # recordings. Instead, ask for the directory to save in. In any
+                # case needs to be reworked when SATKIT files no longer live
+                # with the recorded data.
+                (recording.textgrid_path, _) = QFileDialog.getSaveFileName(
+                    self, 'Save TextGrid', directory='.',
+                    filter="TextGrid files (*.TextGrid)")
+            if recording.textgrid_path and recording.satgrid:
+                file = recording.textgrid_path
+                with open(file, 'w', encoding='utf-8') as outfile:
+                    outfile.write(recording.satgrid.format_long())
+                _logger.info(
+                    "Wrote TextGrid to file %s.",
+                    str(recording.textgrid_path))
 
     def export_figure(self):
         """
@@ -811,7 +934,25 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
             self, 'Export figure', directory='.')
         self.figure.savefig(filename, bbox_inches='tight', pad_inches=0.05)
 
-    def export(self):
+    def export_ultrasound_frame(self):
+        """
+        Export the currently displayed ultrasound frame and its meta data.
+
+        The metadata is written to a separate `.txt` file of the same name as
+        the image file.
+        """
+        (filename, _) = QFileDialog.getSaveFileName(
+            self, 'Export ultrasound frame', directory='.')
+        write_ultrasound_frame_and_meta(
+            filename=filename,
+            figure=self.ultrafig,
+            session=self.session,
+            recording=self.current,
+            selection_index=self.current.annotations['selection_index'],
+            selection_time=self.current.annotations['selected_time'],
+        )
+
+    def export_annotations_and_meta_data(self):
         """
         Export annotations and some other meta data.
         """

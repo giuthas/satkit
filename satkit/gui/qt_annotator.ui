@@ -285,13 +285,24 @@
     <property name="title">
      <string>File</string>
     </property>
-    <addaction name="actionOpen"/>
-    <addaction name="actionSaveAll"/>
+    <widget class="QMenu" name="menuExport">
+     <property name="title">
+      <string>Export</string>
+     </property>
+     <addaction name="action_export_analysis"/>
+     <addaction name="action_export_figure"/>
+     <addaction name="action_export_ultrasound_frame"/>
+     <addaction name="action_export_annotations_and_metadata"/>
+     <addaction name="action_export_aggregate_image"/>
+    </widget>
+    <addaction name="action_open"/>
+    <addaction name="action_save_current_textgrid"/>
+    <addaction name="action_save_all_textgrids"/>
+    <addaction name="action_save_all"/>
     <addaction name="separator"/>
-    <addaction name="actionExport_analysis"/>
-    <addaction name="action_export_figure"/>
+    <addaction name="menuExport"/>
     <addaction name="separator"/>
-    <addaction name="actionQuit"/>
+    <addaction name="action_quit"/>
    </widget>
    <widget class="QMenu" name="menuImage">
     <property name="enabled">
@@ -334,7 +345,7 @@
     <string>New</string>
    </property>
   </action>
-  <action name="actionOpen">
+  <action name="action_open">
    <property name="text">
     <string>Open...</string>
    </property>
@@ -342,7 +353,7 @@
     <string>Ctrl+O</string>
    </property>
   </action>
-  <action name="actionSaveAll">
+  <action name="action_save_all">
    <property name="text">
     <string>Save all</string>
    </property>
@@ -394,20 +405,12 @@
     <string>Up</string>
    </property>
   </action>
-  <action name="actionExport_analysis">
+  <action name="action_export_analysis">
    <property name="enabled">
     <bool>false</bool>
    </property>
    <property name="text">
     <string>Export analysis...</string>
-   </property>
-  </action>
-  <action name="actionQuit">
-   <property name="text">
-    <string>Quit</string>
-   </property>
-   <property name="shortcut">
-    <string>Ctrl+Q</string>
    </property>
   </action>
   <action name="actionNext_Frame">
@@ -432,6 +435,41 @@
    </property>
    <property name="shortcut">
     <string>Ctrl+E</string>
+   </property>
+  </action>
+  <action name="action_export_ultrasound_frame">
+   <property name="text">
+    <string>Export ultrasound figure...</string>
+   </property>
+  </action>
+  <action name="action_export_annotations_and_metadata">
+   <property name="text">
+    <string>Export annotations and metadata...</string>
+   </property>
+  </action>
+  <action name="actionfoobar">
+   <property name="text">
+    <string>foobar</string>
+   </property>
+  </action>
+  <action name="action_export_aggregate_image">
+   <property name="text">
+    <string>Export aggregate image...</string>
+   </property>
+  </action>
+  <action name="action_save_all_textgrids">
+   <property name="text">
+    <string>Save all TextGrids</string>
+   </property>
+  </action>
+  <action name="action_save_current_textgrid">
+   <property name="text">
+    <string>Save current TextGrid</string>
+   </property>
+  </action>
+  <action name="action_quit">
+   <property name="text">
+    <string>Quit</string>
    </property>
   </action>
  </widget>

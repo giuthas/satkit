@@ -218,6 +218,7 @@ class RecordingMetaData(EmptyStrAsNoneBaseModel):
     prompt: str
     time_of_recording: datetime
     participant_id: str
+    # TODO: These should be taken care of by FileInformation.
     basename: str
     path: Path
 

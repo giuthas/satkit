@@ -29,6 +29,7 @@
 # articles listed in README.markdown. They can also be found in
 # citations.bib in BibTeX format.
 #
+"""Classes for animating TextGrid boundaries."""
 
 from dataclasses import dataclass
 from typing import List, Optional
@@ -80,6 +81,10 @@ class BoundaryAnimator:
         # We generate this dynamically every time a shift-drag occurs.
         self.coincident_boundaries = []
 
+        self.cidpress = None
+        self.cidmotion = None
+        self.cidrelease = None
+
     def connect(self):
         """Connect to all the events we need."""
         for boundary in self.boundaries:
@@ -111,11 +116,12 @@ class BoundaryAnimator:
                         animator.segment.begin == self.segment.begin):
                     self.coincident_boundaries.append(animator)
                     print(
-                        f"self: {self.segment.text} {self.segment.begin} other:{animator.segment.text} {animator.segment.begin}")
+                        f"self: {self.segment.label} {self.segment.begin} "
+                        f"other:{animator.segment.label} {animator.segment.begin}")
 
         is_inaxes = False
         for boundary in self.boundaries:
-            if (event.inaxes == boundary.axes):
+            if event.inaxes == boundary.axes:
                 is_inaxes = True
         if not is_inaxes:
             return
@@ -133,6 +139,8 @@ class BoundaryAnimator:
 
         # draw everything but the selected line and store the pixel buffer
         # TODO: don't draw coinciding lines if shift was held
+        axes = None
+        canvas = None
         for boundary in self.boundaries:
             line = boundary.line
             prev_text = boundary.prev_text
@@ -157,7 +165,8 @@ class BoundaryAnimator:
                 axes.draw_artist(next_text)
 
         # and blit just the redrawn area
-        canvas.blit(axes.bbox)
+        if canvas and axes:
+            canvas.blit(axes.bbox)
 
     def on_motion(self, event):
         """Move the boundary if the mouse is over us."""
@@ -166,7 +175,7 @@ class BoundaryAnimator:
 
         is_inaxes = False
         for boundary in self.boundaries:
-            if (event.inaxes == boundary.axes):
+            if event.inaxes == boundary.axes:
                 is_inaxes = True
         if not is_inaxes:
             return

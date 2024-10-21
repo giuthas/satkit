@@ -307,10 +307,10 @@ def plot_satgrid_tier(axes: Axes,
             color="dimgrey",
             lw=1,
             linestyle='--')
-        if draw_text and segment.text:
+        if draw_text and segment.label:
             prev_text = text
             text = axes.text(segment.mid - time_offset,
-                             text_y, segment.text,
+                             text_y, segment.label,
                              text_settings, color="dimgrey")
             boundaries.append(AnimatableBoundary(axes, line, prev_text, text))
         else:

@@ -40,9 +40,6 @@ import csv
 import logging
 from dataclasses import dataclass
 import math
-from typing import List, Optional, Tuple
-
-# from icecream import ic
 
 import numpy as np
 import pandas
@@ -217,7 +214,7 @@ def _setup_peak_extraction_variables(
         metrics: tuple[str],
 ) -> tuple[list[Recording], list[str], ]:
     """
-    Local helper function to capture some boiler plate setup code.
+    Local helper function to capture some boilerplate setup code.
     """
     exclude = ("water swallow", "bite plate")
     recordings = [
@@ -403,7 +400,7 @@ def count_number_of_peaks(
 
     modality_params = PD.get_names_and_meta(
         modality="RawUltrasound",
-        norms=metrics,
+        norms=list(metrics),
     )
     modality_names = list(modality_params.keys())
 
@@ -468,14 +465,17 @@ class PeakData:
 def time_series_peaks(
         data: np.ndarray,
         time: np.ndarray,
-        time_lim: Tuple[float, float],
-        normalise: Optional[TimeseriesNormalisation],
-        number_of_ignored_frames: int = 10,
-        distance: Optional[int] = 10,
-        prominence: Optional[float] = 0.05):
-
-    search_data = data[number_of_ignored_frames:]
-    search_time = time[number_of_ignored_frames:]
+        time_lim: tuple[float, float],
+        normalise: TimeseriesNormalisation | None,
+        number_of_ignored_frames: int | None = 10,
+        distance: int | None= 10,
+        prominence: float | None = 0.05):
+    if number_of_ignored_frames:
+        search_data = data[number_of_ignored_frames:]
+        search_time = time[number_of_ignored_frames:]
+    else:
+        search_data = data
+        search_time = time
 
     indeces = np.nonzero(
         (search_time > time_lim[0]) & (search_time < time_lim[1]))
@@ -494,7 +494,7 @@ def time_series_peaks(
 
 def save_peaks(
     filename: str,
-    recordings: List[Recording]
+    recordings: list[Recording]
 ):
     """
     Save peak data to .csv files.
@@ -533,7 +533,8 @@ def save_peaks(
 
         peak_data = time_series_peaks(
             l1.data, ultra_time, time_lim=time_lim,
-            normalise='PEAK AND BOTTOM', number_of_ignored_frames=None,
+            normalise='PEAK AND BOTTOM',
+            number_of_ignored_frames=None,
             distance=None, prominence=None)
         bottom_peak_data = time_series_peaks(
             l1_bottom.data, ultra_time, time_lim=time_lim,

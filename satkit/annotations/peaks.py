@@ -32,7 +32,7 @@
 """
 Generating and operating on peak annotations. 
 
-Currently contains also some legacy code that is not in use, but may provide a
+Currently, contains also some legacy code that is not in use, but may provide a
 useful basis for writing future functionality.
 """
 
@@ -212,6 +212,26 @@ def find_gesture_peaks(
         properties=properties)
     return annotations
 
+def _setup_peak_extraction_variables(
+        recordings: list[Recording],
+        metrics: tuple[str],
+) -> tuple[list[Recording], list[str], ]:
+    """
+    Local helper function to capture some boiler plate setup code.
+    """
+    exclude = ("water swallow", "bite plate")
+    recordings = [
+        recording for recording in recordings
+        if not any(prompt in recording.meta_data.prompt for prompt in exclude)
+    ]
+
+    modality_params = PD.get_names_and_meta(
+        modality="RawUltrasound",
+        norms=list(metrics),
+    )
+    reference_names = list(modality_params.keys())
+    return recordings, reference_names
+
 
 def annotations_to_dataframe(
         # annotation_statistic:
@@ -221,17 +241,8 @@ def annotations_to_dataframe(
         downsampling_ratios: tuple[int],
         annotations: dict[str, tuple[str]] = None
 ) -> pandas.DataFrame:
-    exclude = ("water swallow", "bite plate")
-    recordings = [
-        recording for recording in recordings
-        if not any(prompt in recording.meta_data.prompt for prompt in exclude)
-    ]
-
-    modality_params = PD.get_names_and_meta(
-        modality="RawUltrasound",
-        norms=metrics,
-    )
-    reference_names = list(modality_params.keys())
+    recordings, reference_names = _setup_peak_extraction_variables(
+        recordings, metrics)
 
     average_prominences = np.zeros(
         [len(recordings), len(metrics), 1+len(downsampling_ratios)])
@@ -297,17 +308,8 @@ def prominences_in_downsampling(
         metrics: tuple[str],
         downsampling_ratios: tuple[int]
 ) -> np.ndarray:
-    exclusion = ("water swallow", "bite plate")
-    recordings = [
-        recording for recording in recordings
-        if not any(prompt in recording.meta_data.prompt for prompt in exclusion)
-    ]
-
-    modality_params = PD.get_names_and_meta(
-        modality="RawUltrasound",
-        norms=metrics,
-    )
-    reference_names = list(modality_params.keys())
+    recordings, reference_names = _setup_peak_extraction_variables(
+        recordings, metrics)
 
     average_prominences = np.zeros(
         [len(recordings), len(metrics), 1+len(downsampling_ratios)])
@@ -347,17 +349,8 @@ def nearest_neighbours_in_downsampling(
         metrics: tuple[str],
         downsampling_ratios: tuple[int]
 ) -> np.ndarray:
-    exclusion = ("water swallow", "bite plate")
-    recordings = [
-        recording for recording in recordings
-        if not any(prompt in recording.meta_data.prompt for prompt in exclusion)
-    ]
-
-    modality_params = PD.get_names_and_meta(
-        modality="RawUltrasound",
-        norms=metrics,
-    )
-    reference_names = list(modality_params.keys())
+    recordings, reference_names = _setup_peak_extraction_variables(
+        recordings, metrics)
 
     average_distances = np.zeros(
         [len(recordings), len(metrics), 1+len(downsampling_ratios)])
@@ -370,7 +363,8 @@ def nearest_neighbours_in_downsampling(
                               if p in name]
             reference_name = reference_name[0]
             reference_modality = recording[reference_name]
-            reference_peaks = reference_modality.annotations[AnnotationType.PEAKS]
+            reference_peaks = reference_modality.annotations[
+                AnnotationType.PEAKS]
 
             p_norm_names = [name for name in downsampled_names
                             if p in name]
@@ -388,7 +382,8 @@ def nearest_neighbours_in_downsampling(
 
     average_distances = np.moveaxis(
         average_distances, (0, 1, 2), (1, 0, 2))
-    _logger.debug("average_distances.shape = %s", str(average_distances.shape))
+    _logger.debug("average_distances.shape = %s",
+                  str(average_distances.shape))
     return average_distances
 
 
@@ -530,8 +525,8 @@ def save_peaks(
 
         end_time = 0
         for interval in recording.satgrid['utterance']:
-            if interval.text:
-                end_time = interval.next.begin
+            if interval.label:
+                end_time = interval.end
                 break
 
         time_lim = (0, end_time)
@@ -606,8 +601,10 @@ def save_peaks(
 
     whole_to_bottom_file = filename + '_whole_to_bottom.csv'
     bottom_to_whole_file = filename + '_bottom_to_whole.csv'
-    whole_to_bottom_thresholded_file = filename + '_whole_to_bottom_thresholded.csv'
-    bottom_to_whole_thresholded_file = filename + '_bottom_to_whole_thresholded.csv'
+    whole_to_bottom_thresholded_file = (
+            filename + '_whole_to_bottom_thresholded.csv')
+    bottom_to_whole_thresholded_file = (
+            filename + '_bottom_to_whole_thresholded.csv')
     np.savetxt(whole_to_bottom_file, whole_to_bottom, fmt='%.8f',
                delimiter=',', header="whole,bottom", comments="")
     np.savetxt(bottom_to_whole_file, bottom_to_whole, fmt='%.8f',

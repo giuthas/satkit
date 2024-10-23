@@ -35,6 +35,7 @@ DistanceMatrix Statistic and its Parameter class.
 
 import logging
 import numpy as np
+from pydantic.v1 import PositiveInt
 
 from satkit.data_structures import (
     FileInformation, Modality, Session, Statistic, StatisticMetaData
@@ -60,10 +61,22 @@ class DistanceMatrixParameters(StatisticMetaData):
         Whether to assign None to `parent.data` after deriving this Modality
         from the data. Currently, has no effect as deriving a DistanceMatrix at
         runtime is not yet supported.
+    slice_size : PositiveInt | None = None
+        Size of the slice to take from the parent Modality or Statistic, by
+        default None. This is used for example in simulating probe rotation by
+        sampling AggregateImages calculated from raw (uninterpolated) ultrasound
+        data.
+    slice_offset : PositiveInt | None = None
+        offset of the slice to take from the parent Modality or Statistic, by
+        default None. This is used for example in simulating probe rotation by
+        sampling AggregateImages calculated from raw (uninterpolated) ultrasound
+        data.
     """
     parent_name: str
     metric: str = 'mean_squared_error'
     release_data_memory: bool = True
+    slice_size: PositiveInt | None = None
+    slice_offset: PositiveInt | None = None
 
 
 class DistanceMatrix(Statistic):

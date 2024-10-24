@@ -169,7 +169,7 @@ def load_recording(filepath: Path) -> Recording:
 
     # TODO: new directory structure
     file_info = FileInformation(
-        recorded_path=meta_path.parent,
+        recorded_path=Path(""),
         satkit_path=meta_path.parent,
         satkit_meta_file=meta_path.name)
     recording = Recording(meta.parameters, file_info=file_info)

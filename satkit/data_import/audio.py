@@ -56,8 +56,6 @@ def add_audio(
         _description_, by default True
     path : Optional[Path], optional
         _description_, by default None
-    detect_beep : bool, optional
-        _description_, by default False
     """
     if not path:
         ult_wav_file = (recording.path/recording.basename).with_suffix(".wav")
@@ -66,7 +64,7 @@ def add_audio(
 
     if ult_wav_file.is_file():
         file_info = FileInformation(
-            recorded_path=Path(""),
+            recorded_path=Path("."),
             recorded_data_file=ult_wav_file.name
         )
         if preload and data_run_params['flags']['detect_beep']:

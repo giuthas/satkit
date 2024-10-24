@@ -78,6 +78,11 @@ def load_derived_modality(
         _recording_loader_logger.info(
             "Assuming the Modality to be batch loaded, so skipping.")
         return
+    file_info = FileInformation(
+        satkit_path=path,
+        satkit_data_file=modality_schema.data_name,
+        satkit_meta_file=modality_schema.meta_name,
+    )
     meta_path = path/modality_schema.meta_name
     data_path = path/modality_schema.data_name
 
@@ -96,7 +101,9 @@ def load_derived_modality(
             meta.parameters[key] = None
     parameters = parameter_schema(**meta.parameters)
     modality = metric(recording=recording,
-                      parsed_data=modality_data, meta_data=parameters)
+                      file_info=file_info,
+                      parsed_data=modality_data,
+                      meta_data=parameters)
 
     recording.add_modality(modality=modality)
 
@@ -160,7 +167,11 @@ def load_recording(filepath: Path) -> Recording:
         raise NotImplementedError(
             "Can't yet jump to a previously unloaded recording here.")
 
-    file_info = FileInformation(satkit_meta_file=meta_path)
+    # TODO: new directory structure
+    file_info = FileInformation(
+        recorded_path=meta_path.parent,
+        satkit_path=meta_path.parent,
+        satkit_meta_file=meta_path.name)
     recording = Recording(meta.parameters, file_info=file_info)
 
     for modality in meta.modalities:

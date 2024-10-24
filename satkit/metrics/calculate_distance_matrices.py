@@ -37,12 +37,9 @@ import logging
 from typing import Optional
 
 import numpy as np
-from icecream import ic
 
-# local modules
 from satkit.data_structures import FileInformation, Session
-
-from .distance_matrix import DistanceMatrix
+from .distance_matrix import DistanceMatrix, DistanceMatrixParameters
 from ..utility_functions import mean_squared_error
 
 _logger = logging.getLogger('satkit.session_mse')
@@ -82,6 +79,41 @@ def calculate_mse(images: list[np.ndarray]) -> np.ndarray:
 
     return mean_squared_errors
 
+def calculate_distance_matrix(
+        session: Session,
+        parent_name: str,
+        params: DistanceMatrixParameters
+) -> DistanceMatrix | None:
+    if params.slice_size:
+        begin = params.slice_offset
+        end = params.slice_offset + params.slice_size
+        images = [recording.statistics[parent_name].data[begin:end]
+                  for recording in session.recordings
+                  if parent_name in recording.statistics and
+                  not recording.excluded]
+    else:
+        images = [recording.statistics[parent_name].data
+                  for recording in session.recordings
+                  if parent_name in recording.statistics and
+                  not recording.excluded]
+
+    if not images:
+        _logger.info(
+            "Data object '%s' not found in recordings of session: %s.",
+            parent_name, session.name)
+        return None
+
+    match params.metric:
+        case 'mean_squared_error':
+            matrix = calculate_mse(images)
+        case _:
+            raise ValueError(f"Unknown metric {params.metric}.")
+
+    return DistanceMatrix(
+                owner=session,
+                meta_data=params,
+                file_info=FileInformation(),
+                parsed_data=matrix,)
 
 def add_distance_matrices(
         session: Session,
@@ -97,11 +129,6 @@ def add_distance_matrices(
 
     if not metrics:
         metrics = ['mean_squared_error']
-
-    # if session.excluded:
-    #     _logger.info(
-    #         "Session %s excluded from processing.", session.name)
-    #     return
 
     if isinstance(parent, str):
         parent_name = parent
@@ -119,26 +146,29 @@ def add_distance_matrices(
     if to_be_computed:
         for key in to_be_computed:
             params = to_be_computed[key]
-            images = [recording.statistics[parent_name].data
-                      for recording in session.recordings
-                      if parent_name in recording.statistics and
-                      not recording.excluded]
-            if not images:
-                _logger.info(
-                    "Data object '%s' not found in recordings of session: %s.",
-                    parent_name, session.name)
-                return
-
-            matrix = calculate_mse(images)
-
-            distance_matrix = DistanceMatrix(
-                owner=session,
-                meta_data=params,
-                file_info=FileInformation(),
-                parsed_data=matrix,)
-            session.add_statistic(distance_matrix)
-            _logger.info("Added '%s' to session: %s.",
-                         distance_matrix.name, session.name)
+            distance_matrix = calculate_distance_matrix(
+                session, parent_name, params)
+            # images = [recording.statistics[parent_name].data
+            #           for recording in session.recordings
+            #           if parent_name in recording.statistics and
+            #           not recording.excluded]
+            # if not images:
+            #     _logger.info(
+            #         "Data object '%s' not found in recordings of session: %s.",
+            #         parent_name, session.name)
+            #     return
+            #
+            # matrix = calculate_mse(images)
+            #
+            # distance_matrix = DistanceMatrix(
+            #     owner=session,
+            #     meta_data=params,
+            #     file_info=FileInformation(),
+            #     parsed_data=matrix,)
+            if distance_matrix is not None:
+                session.add_statistic(distance_matrix)
+                _logger.info("Added '%s' to session: %s.",
+                             distance_matrix.name, session.name)
     else:
         _logger.info(
             "Nothing to compute in PD for recording: %s.",

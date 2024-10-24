@@ -35,7 +35,7 @@ DistanceMatrix Statistic and its Parameter class.
 
 import logging
 import numpy as np
-from pydantic.v1 import PositiveInt
+from pydantic import PositiveInt
 
 from satkit.data_structures import (
     FileInformation, Modality, Session, Statistic, StatisticMetaData

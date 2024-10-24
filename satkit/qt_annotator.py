@@ -56,15 +56,18 @@ from PyQt5.uic import loadUiType
 
 from satkit.data_structures import Recording, Session
 from satkit.configuration import (
-    GuiConfig, TimeseriesNormalisation, gui_params, config_dict)
+    GuiConfig, TimeseriesNormalisation, gui_params, config_dict
+)
 from satkit.gui import BoundaryAnimator, ReplaceDialog
 from satkit.plot_and_publish import (
     get_colors_in_sequence,
     mark_peaks, plot_spline, plot_satgrid_tier, plot_spectrogram,
-    plot_timeseries, plot_wav)
+    plot_timeseries, plot_wav
+)
 from satkit.plot_and_publish.plot import plot_spectrogram2
 from satkit.save_and_load import (
-    save_recording_session, load_recording_session)
+    save_recording_session, load_recording_session
+)
 from satkit.ui_callbacks import UiCallbacks
 
 # Load the GUI layout generated with QtDesigner.
@@ -187,13 +190,15 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
 
     default_tongue_positions = ['High', 'Low', 'Other / Not visible']
 
-    def __init__(self,
-                 recording_session: Session,
-                 args: Namespace,
-                 gui_config: GuiConfig,
-                 xlim: tuple[float, float] = (-0.25, 1.5),
-                 categories: list[str] | None = None,
-                 pickle_filename: Path | str | None = None):
+    def __init__(
+            self,
+            recording_session: Session,
+            args: Namespace,
+            gui_config: GuiConfig,
+            xlim: tuple[float, float] = (-0.25, 1.5),
+            categories: list[str] | None = None,
+            pickle_filename: Path | str | None = None
+    ):
         super().__init__()
         self.setupUi(self)
 
@@ -389,7 +394,7 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
         """
         Private helper function for generating the title.
         """
-        text = 'Recording: ' + str(self.index+1) + '/' + str(self.max_index)
+        text = 'Recording: ' + str(self.index + 1) + '/' + str(self.max_index)
         text += ', prompt: ' + self.current.meta_data.prompt
         return text
 
@@ -397,7 +402,7 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
         """
         Private helper function for generating a longer title for a figure.
         """
-        text = 'Recording: ' + str(self.index+1) + '/' + str(self.max_index)
+        text = 'Recording: ' + str(self.index + 1) + '/' + str(self.max_index)
         text += ', Speaker: ' + str(self.current.meta_data.participant_id)
         text += ', prompt: ' + self.current.meta_data.prompt
         return text
@@ -418,7 +423,7 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
             self.draw_plots()
             self.multicursor = MultiCursor(
                 self.canvas,
-                axes=self.data_axes+self.tier_axes,
+                axes=self.data_axes + self.tier_axes,
                 color='deepskyblue', linestyle="--", lw=1)
         self.figure.canvas.draw()
 
@@ -438,11 +443,11 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
         self.goLineEdit.setText(str(self.index + 1))
 
     def plot_modality_axes(
-        self,
-        axes_number: int,
-        axes_name: str,
-        zero_offset: float = 0,
-        ylim: list[float, float] | None = None
+            self,
+            axes_number: int,
+            axes_name: str,
+            zero_offset: float = 0,
+            ylim: list[float, float] | None = None
     ) -> None:
         """
         Plot modalities on a data_axes.
@@ -482,14 +487,14 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
             plot_timeseries(
                 self.data_axes[axes_number],
                 modality.data,
-                modality.timevector-zero_offset,
+                modality.timevector - zero_offset,
                 self.xlim, ylim,
                 color=colors[i],
-                linestyle=(0, (i+1, i+1)),
+                linestyle=(0, (i + 1, i + 1)),
                 normalise=TimeseriesNormalisation(peak=True, bottom=True),
-                y_offset=i*y_offset,
-                sampling_step=i+1,
-                label=f"{modality.sampling_rate/(i+1):.2f} Hz"
+                y_offset=i * y_offset,
+                sampling_step=i + 1,
+                label=f"{modality.sampling_rate / (i + 1):.2f} Hz"
             )
             if 'mark_peaks' in axes_params and axes_params['mark_peaks']:
                 mark_peaks(self.data_axes[axes_number],
@@ -653,7 +658,7 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
                 axes.axvline(x=self.current.annotations['selected_time'],
                              linestyle=':', color="deepskyblue", lw=1)
             self.data_axes[-1].axvline(x=self.current.annotations
-                                       ['selected_time'],
+            ['selected_time'],
                                        linestyle=':', color="white", lw=1)
             for axes in self.tier_axes:
                 axes.axvline(x=self.current.annotations['selected_time'],
@@ -672,8 +677,8 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
                 image = stat.data
                 self.ultra_axes.imshow(
                     image, interpolation='nearest', cmap='gray',
-                    extent=(-image.shape[1]/2-.5, image.shape[1]/2+.5,
-                            -.5, image.shape[0]+.5))
+                    extent=(-image.shape[1] / 2 - .5, image.shape[1] / 2 + .5,
+                            -.5, image.shape[0] + .5))
         elif self.current.annotations['selection_index']:
             self.ultra_axes.clear()
             index = self.current.annotations['selection_index']
@@ -683,8 +688,8 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
 
             self.ultra_axes.imshow(
                 image, interpolation='nearest', cmap='gray',
-                extent=(-image.shape[1]/2-.5, image.shape[1]/2+.5,
-                        -.5, image.shape[0]+.5))
+                extent=(-image.shape[1] / 2 - .5, image.shape[1] / 2 + .5,
+                        -.5, image.shape[0] + .5))
 
             if 'Splines' in self.current.modalities:
                 splines = self.current.modalities['Splines']
@@ -753,7 +758,7 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
         Callback function for the Next button.
         Increases cursor index, updates the view.
         """
-        if self.index < self.max_index-1:
+        if self.index < self.max_index - 1:
             # TODO: make it possible to select which modalities get their
             # memory released
             if 'RawUltrasound' in self.current.modalities:
@@ -819,7 +824,7 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
         """
         Go to a recording specified in the goLineEdit text input field.
         """
-        index_to_jump_to = int(self.goLineEdit.text())-1
+        index_to_jump_to = int(self.goLineEdit.text()) - 1
 
         if 0 <= index_to_jump_to < len(self.session):
             self.current.modalities['RawUltrasound'].data = None
@@ -941,16 +946,19 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
         The metadata is written to a separate `.txt` file of the same name as
         the image file.
         """
-        (filename, _) = QFileDialog.getSaveFileName(
-            self, 'Export ultrasound frame', directory='.')
-        write_ultrasound_frame_and_meta(
-            filename=filename,
-            figure=self.ultrafig,
-            session=self.session,
-            recording=self.current,
-            selection_index=self.current.annotations['selection_index'],
-            selection_time=self.current.annotations['selected_time'],
-        )
+        # TODO: Add a check that grays out the export ultrasound figure when one
+        # isn't available.
+        if self.self.current.annotations['selection_index'] >= 0:
+            (filename, _) = QFileDialog.getSaveFileName(
+                self, 'Export ultrasound frame', directory='.')
+            write_ultrasound_frame_and_meta(
+                filename=filename,
+                figure=self.ultra_fig,
+                session=self.session,
+                recording=self.current,
+                selection_index=self.current.annotations['selection_index'],
+                selection_time=self.current.annotations['selected_time'],
+            )
 
     def export_annotations_and_meta_data(self):
         """
@@ -1064,7 +1072,7 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
         subplot = 0
         for i, axes in enumerate(self.data_axes):
             if axes == event.inaxes:
-                subplot = i+1
+                subplot = i + 1
                 break
 
         _logger.debug(
@@ -1111,17 +1119,17 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
             if self.current.annotations['selection_index'] >= 0:
                 center = self.current.annotations['selected_time']
             else:
-                center = (self.xlim[0] + self.xlim[1])/2.0
-            length = (self.xlim[1] - self.xlim[0])*.25
-            self.xlim = (center-length, center+length)
+                center = (self.xlim[0] + self.xlim[1]) / 2.0
+            length = (self.xlim[1] - self.xlim[0]) * .25
+            self.xlim = (center - length, center + length)
             if 'xlim' in gui_params:
                 gui_params['xlim'] = self.xlim
             self.update()
         elif event.key() == Qt.Key_O:
             gui_params['auto x'] = False
-            center = (self.xlim[0] + self.xlim[1])/2.0
+            center = (self.xlim[0] + self.xlim[1]) / 2.0
             length = self.xlim[1] - self.xlim[0]
-            self.xlim = (center-length, center+length)
+            self.xlim = (center - length, center + length)
             if 'xlim' in gui_params:
                 gui_params['xlim'] = self.xlim
             self.update()

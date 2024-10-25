@@ -29,7 +29,8 @@
 # articles listed in README.markdown. They can also be found in
 # citations.bib in BibTeX format.
 #
+"""GUI elements."""
 
 from .boundary_animation import BoundaryAnimator
-from .check_list_dialog import ChecklistDialog
+from .list_save_dialog import ListSaveDialog
 from .replace_dialog import ReplaceDialog

@@ -60,7 +60,7 @@ from satkit.data_structures import Recording, Session
 from satkit.configuration import (
     GuiConfig, TimeseriesNormalisation, gui_params, config_dict
 )
-from satkit.gui import BoundaryAnimator, ChecklistDialog, ReplaceDialog
+from satkit.gui import BoundaryAnimator, ListSaveDialog, ReplaceDialog
 from satkit.plot_and_publish import (
     get_colors_in_sequence,
     mark_peaks, plot_spline, plot_satgrid_tier, plot_spectrogram,
@@ -968,12 +968,13 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
         statistics_names = self.current.statistics.keys()
         choice_list = [
             name for name in statistics_names if 'AggregateImage' in name]
-        image_list = ChecklistDialog.get_selection(
+        image_list, path = ListSaveDialog.get_selection(
             name="Export AggregateImages",
             choices=choice_list,
             parent=self
         )
-        ic(image_list)
+        # save the correct things
+        ic(image_list, path)
 
     def export_annotations_and_meta_data(self) -> None:
         """

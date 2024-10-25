@@ -39,10 +39,12 @@ import logging
 from contextlib import closing
 from copy import deepcopy
 from pathlib import Path
+from random import choices
 
 import numpy as np
 import matplotlib
 import matplotlib.pyplot as plt
+from icecream import ic
 from matplotlib.backends.backend_qt5agg import \
     FigureCanvasQTAgg as FigureCanvas
 # Plotting functions and hooks for GUI
@@ -58,7 +60,7 @@ from satkit.data_structures import Recording, Session
 from satkit.configuration import (
     GuiConfig, TimeseriesNormalisation, gui_params, config_dict
 )
-from satkit.gui import BoundaryAnimator, ReplaceDialog
+from satkit.gui import BoundaryAnimator, ChecklistDialog, ReplaceDialog
 from satkit.plot_and_publish import (
     get_colors_in_sequence,
     mark_peaks, plot_spline, plot_satgrid_tier, plot_spectrogram,
@@ -246,6 +248,8 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
         self.action_export_figure.triggered.connect(self.export_figure)
         self.action_export_ultrasound_frame.triggered.connect(
             self.export_ultrasound_frame)
+        self.action_export_aggregate_image.triggered.connect(
+            self.export_aggregate_image)
 
         self.actionNext.triggered.connect(self.next)
         self.actionPrevious.triggered.connect(self.prev)
@@ -939,7 +943,7 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
             self, 'Export figure', directory='.')
         self.figure.savefig(filename, bbox_inches='tight', pad_inches=0.05)
 
-    def export_ultrasound_frame(self):
+    def export_ultrasound_frame(self) -> None:
         """
         Export the currently displayed ultrasound frame and its meta data.
 
@@ -960,7 +964,16 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
                 selection_time=self.current.annotations['selected_time'],
             )
 
-    def export_annotations_and_meta_data(self):
+    def export_aggregate_image(self) -> None:
+        choice_list = ['foo', 'bar']
+        image_list = ChecklistDialog.get_selection(
+            name="Export AggregateImages",
+            choices=choice_list,
+            parent=self
+        )
+        ic(image_list)
+
+    def export_annotations_and_meta_data(self) -> None:
         """
         Export annotations and some other meta data.
         """

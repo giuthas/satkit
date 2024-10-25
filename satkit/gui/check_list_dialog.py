@@ -78,34 +78,48 @@ class ChecklistDialog(QDialog):
             item = self.model.item(i)
             item.setCheckState(QtCore.Qt.Unchecked)
 
+    @staticmethod
+    def get_selection(
+            name: str,
+            choices: list[str] | None = None,
+            checked: bool = False,
+            icon: QIcon | None = None,
+            parent: QWidget | None = None,
+    ) -> list[str]:
+        dialog = ChecklistDialog(name, choices, checked, icon, parent)
+        dialog.exec_()
+        if dialog.exec_() == QDialog.Rejected:
+            return []
+        return dialog.choices
 
-if __name__ == '__main__':
 
-    import sys
-
-    fruits = [
-        'Banana',
-        'Apple',
-        'Elderberry',
-        'Clementine',
-        'Fig',
-        'Guava',
-        'Mango',
-        'Honeydew Melon',
-        'Date',
-        'Watermelon',
-        'Tangerine',
-        'Ugli Fruit',
-        'Juniperberry',
-        'Kiwi',
-        'Lemon',
-        'Nectarine',
-        'Plum',
-        'Raspberry',
-        'Strawberry',
-        'Orange',
-    ]
-    app = QApplication(sys.argv)
-    form = ChecklistDialog('Fruit', fruits, checked=True)
-    if form.exec_() == QDialog.Accepted:
-        print(', '.join([str(s) for s in form.choices]))
+# if __name__ == '__main__':
+#
+#     import sys
+#
+#     fruits = [
+#         'Banana',
+#         'Apple',
+#         'Elderberry',
+#         'Clementine',
+#         'Fig',
+#         'Guava',
+#         'Mango',
+#         'Honeydew Melon',
+#         'Date',
+#         'Watermelon',
+#         'Tangerine',
+#         'Ugli Fruit',
+#         'Juniperberry',
+#         'Kiwi',
+#         'Lemon',
+#         'Nectarine',
+#         'Plum',
+#         'Raspberry',
+#         'Strawberry',
+#         'Orange',
+#     ]
+#     app = QApplication(sys.argv)
+#     form = ChecklistDialog('Fruit', fruits, checked=True)
+#     if form.exec_() == QDialog.Accepted:
+#         print(', '.join([str(s) for s in form.choices]))

@@ -37,7 +37,8 @@ from icecream import ic
 from PyQt5 import QtCore
 from PyQt5.QtGui import QIcon, QStandardItem, QStandardItemModel
 from PyQt5.QtWidgets import (
-    QDialog, QDialogButtonBox, QHBoxLayout, QLabel, QLineEdit, QListView,
+    QDialog, QDialogButtonBox, QFileDialog, QHBoxLayout, QLabel, QLineEdit,
+    QListView,
     QPushButton, QVBoxLayout, QWidget
 )
 
@@ -66,7 +67,7 @@ class ListSaveDialog(QDialog):
         # self.icon = icon
 
         # The checklist
-        self.listView = QListView()
+        self.list_view = QListView()
         self.model = QStandardItemModel()
         for item_name in item_names:
             item = QStandardItem(item_name)
@@ -74,7 +75,7 @@ class ListSaveDialog(QDialog):
             check = QtCore.Qt.Checked if checked else QtCore.Qt.Unchecked
             item.setCheckState(check)
             self.model.appendRow(item)
-        self.listView.setModel(self.model)
+        self.list_view.setModel(self.model)
 
         # Buttons for checking and unchecking 
         select_box = QHBoxLayout()
@@ -82,13 +83,12 @@ class ListSaveDialog(QDialog):
         self.reverse_selection_button = QPushButton('Reverse selection')
         self.select_button = QPushButton('Select All')
         self.unselect_button = QPushButton('Unselect All')
-        select_box.addWidget(self.reverse_selection_button)
-        select_box.addWidget(self.select_button)
-        select_box.addWidget(self.unselect_button)
-
         self.reverse_selection_button.clicked.connect(self._reverse_selection)
         self.select_button.clicked.connect(self._select)
         self.unselect_button.clicked.connect(self._unselect)
+        select_box.addWidget(self.reverse_selection_button)
+        select_box.addWidget(self.select_button)
+        select_box.addWidget(self.unselect_button)
 
         # Elements for choosing names to use and location to save at.
         path_and_name_box = QHBoxLayout()
@@ -98,29 +98,41 @@ class ListSaveDialog(QDialog):
         self.path_field = QLineEdit(str(self.save_path), parent=self)
         self.path_label.setBuddy(self.path_field)
         self.browse_button = QPushButton('Browse...')
+        self.browse_button.clicked.connect(self._browse)
         path_and_name_box.addWidget(self.path_label)
         path_and_name_box.addWidget(self.path_field)
         path_and_name_box.addWidget(self.browse_button)
 
+
         # The cancel, ok buttons
         dialog_buttons = QDialogButtonBox.Ok | QDialogButtonBox.Cancel
-        self.button_box = QDialogButtonBox(dialog_buttons)
-        self.button_box.accepted.connect(self.accept)
-        self.button_box.button(QDialogButtonBox.Ok).clicked.connect(
+        self.ok_cancel_buttons = QDialogButtonBox(dialog_buttons)
+        self.ok_cancel_buttons.accepted.connect(self.accept)
+        self.ok_cancel_buttons.button(QDialogButtonBox.Ok).clicked.connect(
             self._on_accepted)
-        self.button_box.rejected.connect(self.reject)
+        self.ok_cancel_buttons.rejected.connect(self.reject)
 
         # Assemble the window contents
         vbox = QVBoxLayout(self)
-        vbox.addWidget(self.listView)
+        vbox.addWidget(self.list_view)
         vbox.addStretch(1)
         vbox.addLayout(select_box)
         vbox.addLayout(path_and_name_box)
-        vbox.addWidget(self.button_box)
+        vbox.addWidget(self.ok_cancel_buttons)
         
         self.setWindowTitle(self.name)
         if icon:
             self.setWindowIcon(icon)
+
+    def _browse(self):
+        directory = QFileDialog.getExistingDirectory(
+            parent=self,
+            caption="Select Directory to Save to",
+            directory=self.path_field.text(),
+            options=QFileDialog.DontResolveSymlinks
+        )
+        if directory:
+            self.path_field.setText(directory)
 
     def _on_accepted(self):
         self.chosen_item_names = [

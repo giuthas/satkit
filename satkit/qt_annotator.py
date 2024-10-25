@@ -970,7 +970,7 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
             name for name in statistics_names if 'AggregateImage' in name]
         image_list, path = ListSaveDialog.get_selection(
             name="Export AggregateImages",
-            choices=choice_list,
+            item_names=choice_list,
             parent=self
         )
         # save the correct things

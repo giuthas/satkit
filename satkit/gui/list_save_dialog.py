@@ -30,6 +30,9 @@
 # citations.bib in BibTeX format.
 #
 """Dialog for asking which items should be saved and where."""
+
+from pathlib import Path
+
 from icecream import ic
 from PyQt5 import QtCore
 from PyQt5.QtGui import QIcon, QStandardItem, QStandardItemModel
@@ -45,7 +48,8 @@ class ListSaveDialog(QDialog):
             self,
             name: str,
             item_names: list[str] | None = None,
-            checked: bool = False,
+            save_path: str | Path | None = None,
+            checked: bool = True,
             icon: QIcon | None = None,
             parent: QWidget | None = None,
     ):
@@ -53,6 +57,12 @@ class ListSaveDialog(QDialog):
 
         self.chosen_item_names = []
         self.name = name
+        if save_path is None:
+            save_path = Path.cwd()
+        elif isinstance(save_path, str):
+            save_path = Path(save_path)
+        self.save_path = save_path
+
         # self.icon = icon
 
         # The checklist
@@ -85,7 +95,7 @@ class ListSaveDialog(QDialog):
         # path_and_name_box.addStretch(1)
         self.path_label = QLabel(self)
         self.path_label.setText("Path:")
-        self.path_field = QLineEdit(self)
+        self.path_field = QLineEdit(str(self.save_path), parent=self)
         self.path_label.setBuddy(self.path_field)
         self.browse_button = QPushButton('Browse...')
         path_and_name_box.addWidget(self.path_label)
@@ -117,6 +127,7 @@ class ListSaveDialog(QDialog):
             self.model.item(i).text() for i in range(self.model.rowCount())
             if self.model.item(i).checkState() == QtCore.Qt.Checked
         ]
+        self.save_path = Path(self.path_field.text())
         self.accept()
 
     def _reverse_selection(self):
@@ -140,12 +151,19 @@ class ListSaveDialog(QDialog):
     @staticmethod
     def get_selection(
             name: str,
-            choices: list[str] | None = None,
+            item_names: list[str] | None = None,
+            save_path: str | Path | None = None,
             checked: bool = True,
             icon: QIcon | None = None,
             parent: QWidget | None = None,
-    ) -> list[str]:
-        dialog = ListSaveDialog(name, choices, checked, icon, parent)
+    ) -> tuple[list[str] | None, Path | None]:
+        dialog = ListSaveDialog(
+            name=name,
+            item_names=item_names,
+            save_path=save_path,
+            checked=checked,
+            icon=icon,
+            parent=parent)
         if dialog.exec_() == QDialog.Rejected:
-            return []
-        return dialog.chosen_item_names
+            return None, None
+        return dialog.chosen_item_names, dialog.save_path

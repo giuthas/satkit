@@ -29,6 +29,7 @@
 # articles listed in README.markdown. They can also be found in
 # citations.bib in BibTeX format.
 #
+"""This is not a functional dialog window, only a template."""
 
 from PyQt5.QtWidgets import (
     QDialog, QVBoxLayout, QLabel, QDialogButtonBox, QApplication)

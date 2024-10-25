@@ -29,12 +29,11 @@
 # articles listed in README.markdown. They can also be found in
 # citations.bib in BibTeX format.
 #
+"""Dialog for asking if we should overwrite an existing file or files."""
 
 from PyQt5.QtWidgets import (
-    QDialog, QVBoxLayout, QLabel, QDialogButtonBox, QApplication)
+    QDialog, QVBoxLayout, QLabel, QDialogButtonBox)
 from PyQt5.QtCore import Qt
-
-from icecream import ic
 
 from satkit.ui_callbacks import OverwriteConfirmation
 
@@ -88,8 +87,3 @@ class ReplaceDialog(QDialog):
         dialog.exec_()
         pressed_button = dialog.pressed_button
         return pressed_button
-
-
-# app = QApplication([])
-# pressed_button = ReplaceDialog.confirmOverwrite(filename='foobar.txt')
-# print("user said: {}".format(pressed_button.value))

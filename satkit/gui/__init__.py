@@ -31,4 +31,5 @@
 #
 
 from .boundary_animation import BoundaryAnimator
+from .check_list_dialog import ChecklistDialog
 from .replace_dialog import ReplaceDialog

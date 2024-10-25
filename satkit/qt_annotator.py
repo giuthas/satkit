@@ -965,7 +965,9 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
             )
 
     def export_aggregate_image(self) -> None:
-        choice_list = ['foo', 'bar']
+        statistics_names = self.current.statistics.keys()
+        choice_list = [
+            name for name in statistics_names if 'AggregateImage' in name]
         image_list = ChecklistDialog.get_selection(
             name="Export AggregateImages",
             choices=choice_list,

@@ -87,7 +87,6 @@ class ChecklistDialog(QDialog):
             parent: QWidget | None = None,
     ) -> list[str]:
         dialog = ChecklistDialog(name, choices, checked, icon, parent)
-        dialog.exec_()
         if dialog.exec_() == QDialog.Rejected:
             return []
         return dialog.choices

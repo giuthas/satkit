@@ -127,7 +127,7 @@ class ListSaveDialog(QDialog):
     def _browse(self):
         directory = QFileDialog.getExistingDirectory(
             parent=self,
-            caption="Select Directory to Save to",
+            caption="Select Directory to Export to",
             directory=self.path_field.text(),
             options=QFileDialog.DontResolveSymlinks
         )

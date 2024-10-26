@@ -29,15 +29,14 @@
 # articles listed in README.markdown. They can also be found in
 # citations.bib in BibTeX format.
 #
-"""
-These are generic plotting functions for SATKIT objects.
+"""Export functions for extracting parts of the data."""
 
-All of the functions here are independent of rendering backends and such. Those
-and sizing and other contextual matters should be taken care of by the caller.
-"""
+from .images import (
+    publish_distance_matrix,
+    publish_aggregate_images
+)
 
-from .plot import (
-    mark_peaks, plot_satgrid_tier, plot_spectrogram, plot_spline,
-    plot_timeseries, plot_wav)
-from .publish import publish_session_pdf, publish_distribution_data
-from .plot_utilities import get_colors_in_sequence
+from .export import (
+    export_aggregate_image_meta, export_aggregate_image_and_meta,
+    export_ultrasound_frame_meta, export_ultrasound_frame_and_meta
+)

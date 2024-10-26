@@ -39,7 +39,6 @@ import logging
 from contextlib import closing
 from copy import deepcopy
 from pathlib import Path
-from random import choices
 
 import numpy as np
 import matplotlib
@@ -56,9 +55,13 @@ from PyQt5.QtGui import QIntValidator, QKeySequence
 from PyQt5.QtWidgets import QFileDialog, QShortcut
 from PyQt5.uic import loadUiType
 
-from satkit.data_structures import Recording, Session
+from satkit.data_structures import Session
 from satkit.configuration import (
     GuiConfig, TimeseriesNormalisation, gui_params, config_dict
+)
+from satkit.export.export import (
+    export_aggregate_image_and_meta,
+    export_ultrasound_frame_and_meta
 )
 from satkit.gui import BoundaryAnimator, ListSaveDialog, ReplaceDialog
 from satkit.plot_and_publish import (
@@ -84,97 +87,6 @@ def setup_qtannotator_ui_callbacks():
     """
     UiCallbacks.register_overwrite_confirmation_callback(
         ReplaceDialog.confirm_overwrite)
-
-
-def write_ultrasound_frame_meta(
-        filename: str | Path,
-        session: Session,
-        recording: Recording,
-        selection_index: int,
-        selection_time: float,
-) -> None:
-    """
-    Write ultrasound frame metadata to a human-readable text file.
-
-    The purpose of this function is to generate a file documenting an extracted
-    ultrasound frame, so that it can be found again in its original context.
-
-    Parameters
-    ----------
-    filename : str | Path
-        Filename or path of the extracted ultrasound frame.
-    session : Session
-        Session that the frame belongs to.
-    recording : Recording
-        Recording that the frame belongs to.
-    selection_index : int
-        Index of the frame within the ultrasound video.
-    selection_time : float
-        Time in seconds of the frame within the **recording**. This is relative
-        to what ever -- most likely the beginning of audio -- is being used as
-        t=0s.
-    """
-    if not isinstance(filename, Path):
-        filename = Path(filename)
-    meta_filename = filename.with_suffix('.txt')
-    with meta_filename.open('w', encoding='utf-8') as file:
-        file.write(f"Metadata for frame extracted by SATKIT to {filename}.\n")
-        file.write(f"Session path: {session.recorded_path}\n")
-        file.write(f"Participant ID: {recording.meta_data.participant_id}\n")
-        file.write(f"Recording filename: {recording.name}\n")
-        file.write(f"Recorded at: {recording.meta_data.time_of_recording}\n")
-        file.write(f"Prompt: {recording.meta_data.prompt}\n")
-        file.write(f"Frame number: {selection_index}\n")
-        file.write(f"Timestamp in recording: {selection_time}\n")
-
-
-def write_ultrasound_frame_and_meta(
-        filename: str | Path,
-        figure: Figure,
-        session: Session,
-        recording: Recording,
-        selection_index: int,
-        selection_time: float,
-        bbox_inches: str = 'tight',
-        pad_inches: float = 0.05,
-) -> None:
-    """
-    Write ultrasound frame metadata to a human-readable text file.
-
-    The purpose of this function is to generate a file documenting an extracted
-    ultrasound frame, so that it can be found again in its original context.
-
-    Parameters
-    ----------
-    figure : matplotlib.figure.Figure
-        Figure to write in the image file.
-    filename : str | Path
-        Filename or path for the ultrasound frame to export. Format is deduced
-        from the file suffix.
-    session : Session
-        Session that the frame belongs to.
-    recording : Recording
-        Recording that the frame belongs to.
-    selection_index : int
-        Index of the frame within the ultrasound video.
-    selection_time : float
-        Time in seconds of the frame within the **recording**. This is relative
-        to what ever -- most likely the beginning of audio -- is being used as
-        t=0s.
-    bbox_inches : str
-        bounding box inches for the figure, by default 'tight'.
-    pad_inches :
-        padding inches around the figure, by default 0.05.
-    """
-    figure.savefig(filename, bbox_inches=bbox_inches, pad_inches=pad_inches)
-
-    write_ultrasound_frame_meta(
-        filename=filename,
-        session=session,
-        recording=recording,
-        selection_index=selection_index,
-        selection_time=selection_time,
-    )
 
 
 class PdQtAnnotator(QMainWindow, Ui_MainWindow):
@@ -955,7 +867,7 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
         if self.self.current.annotations['selection_index'] >= 0:
             (filename, _) = QFileDialog.getSaveFileName(
                 self, 'Export ultrasound frame', directory='.')
-            write_ultrasound_frame_and_meta(
+            export_ultrasound_frame_and_meta(
                 filename=filename,
                 figure=self.ultra_fig,
                 session=self.session,
@@ -975,6 +887,13 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
         )
         # save the correct things
         ic(image_list, path)
+        for image in image_list:
+            export_aggregate_image_and_meta(
+                image=self.current.statistics[image],
+                session=self.session,
+                recording=self.current,
+                path=path)
+
 
     def export_annotations_and_meta_data(self) -> None:
         """

@@ -57,15 +57,15 @@ from satkit.configuration import (
     apply_exclusion_list, DataRunConfig, load_exclusion_list
 )
 from satkit.data_structures import Session
+from satkit.export import (
+    publish_distance_matrix,
+    publish_aggregate_images
+)
 from satkit.metrics import (
     add_aggregate_images, add_distance_matrices, add_pd, add_spline_metric,
     downsample_metrics
 )
 from satkit.modalities import RawUltrasound, Splines
-from satkit.plot_and_publish import (
-    publish_distance_matrix,
-    publish_aggregate_images
-)
 from satkit.qt_annotator import PdQtAnnotator
 from satkit.scripting_interface import (
     # Operation,

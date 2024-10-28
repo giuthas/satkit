@@ -280,6 +280,7 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
 
         self.show()
         self.ultra_canvas.draw()
+        self.update()
 
     @property
     def current(self):
@@ -343,7 +344,7 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
                 color='deepskyblue', linestyle="--", lw=1)
         self.figure.canvas.draw()
 
-        if not self.current.excluded and self.display_tongue:
+        if self.display_tongue:
             _logger.debug("Drawing ultra frame in update")
             self.draw_ultra_frame()
 
@@ -584,8 +585,8 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
         """
         Display an already interpolated ultrasound frame.
         """
-        if (self.current.excluded or
-                self.current.annotations['selection_index'] == -1):
+        if self.current.annotations['selection_index'] == -1:
+            self.action_export_ultrasound_frame.setEnabled(False)
             self.ultra_axes.clear()
             image_name = 'AggregateImage mean on RawUltrasound'
             if image_name in self.current.statistics:
@@ -595,7 +596,8 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
                     image, interpolation='nearest', cmap='gray',
                     extent=(-image.shape[1] / 2 - .5, image.shape[1] / 2 + .5,
                             -.5, image.shape[0] + .5))
-        elif self.current.annotations['selection_index']:
+        elif self.current.annotations['selection_index'] >= 0:
+            self.action_export_ultrasound_frame.setEnabled(True)
             self.ultra_axes.clear()
             index = self.current.annotations['selection_index']
 
@@ -658,11 +660,17 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
         """
         Interpolate and display a raw ultrasound frame.
         """
-        if self.current.annotations['selection_index']:
+        if self.current.annotations['selection_index'] > -1:
+            self.action_export_ultrasound_frame.setEnabled(True)
             ind = self.current.annotations['selection_index']
             array = self.current.modalities['RawUltrasound'].data[ind, :, :]
         else:
-            array = self.current.modalities['RawUltrasound'].data[1, :, :]
+            self.action_export_ultrasound_frame.setEnabled(False)
+            if self.current.statistics['Aggregate mean on RawUltrasound']:
+                array = self.current.modalities[
+                    'Aggregate mean on RawUltrasound'].data
+            else:
+                array = self.current.modalities['RawUltrasound'].data[1, :, :]
         array = np.transpose(array)
         array = np.flip(array, 0).copy()
         array = array.astype(np.int8)
@@ -864,7 +872,7 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
         """
         # TODO: Add a check that grays out the export ultrasound figure when one
         # isn't available.
-        if self.self.current.annotations['selection_index'] >= 0:
+        if self.current.annotations['selection_index'] >= 0:
             (filename, _) = QFileDialog.getSaveFileName(
                 self, 'Export ultrasound frame', directory='.')
             export_ultrasound_frame_and_meta(

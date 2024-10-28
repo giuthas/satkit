@@ -39,6 +39,7 @@ and this project uses [Semantic Versioning](https://semver.org/spec/v2.0.0.html)
   sub-sectors from recorded raw data.
 - Saving the selected frame with metadata so that example frames can be 
   reproduced.
+- Saving AggregateImages with metadata.
 - Expanded SatGrid (the editable TextGrid extension) to include Points and Point
   Tiers.
 

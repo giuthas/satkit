@@ -30,12 +30,15 @@
 # citations.bib in BibTeX format.
 #
 """
-Publish AggregateImages and DistanceMatrices as image files.
+Export various images.
+
+Raw and interpolated ultrasound frames, AggregateImages. and DistanceMatrices.
 """
 import logging
 from pathlib import Path
 
 import nestedtext
+import numpy as np
 from matplotlib.figure import Figure
 from PIL import Image
 
@@ -43,6 +46,8 @@ from satkit.data_structures import Recording, Session
 from satkit.data_structures.base_classes import DataAggregator
 from satkit.metrics import AggregateImage, AggregateImageParameters
 from satkit.save_and_load import nested_text_converters
+
+_logger = logging.getLogger('satkit._saver')
 
 
 def publish_aggregate_images(
@@ -80,7 +85,6 @@ def publish_distance_matrix(
     """
     _publish_image(session, distance_matrix_name, image_format)
 
-
 def _publish_image(
         container: DataAggregator,
         statistic_name: str,
@@ -94,9 +98,6 @@ def _publish_image(
         path = container.recorded_path
         image_file = path / (name + image_format)
         im.save(image_file)
-
-
-_logger = logging.getLogger('satkit._saver')
 
 
 def export_ultrasound_frame_meta(
@@ -237,7 +238,8 @@ def export_aggregate_image_and_meta(
         image: AggregateImage,
         session: Session,
         recording: Recording,
-        path: Path
+        path: Path,
+        image_format: str = ".png"
 ):
     if path.is_dir():
         filename = image.name.replace(" ", "_")
@@ -245,7 +247,10 @@ def export_aggregate_image_and_meta(
     else:
         filepath = path
 
-
+    raw_data = image.data
+    im = Image.fromarray(raw_data)
+    im = im.convert('L')
+    im.save(filepath.with_suffix(image_format))
     _logger.debug("Wrote file %s.", filepath)
 
     export_aggregate_image_meta(

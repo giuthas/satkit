@@ -59,7 +59,7 @@ from satkit.data_structures import Session
 from satkit.configuration import (
     GuiConfig, TimeseriesNormalisation, gui_params, config_dict
 )
-from satkit.export.export import (
+from satkit.export import (
     export_aggregate_image_and_meta,
     export_ultrasound_frame_and_meta
 )

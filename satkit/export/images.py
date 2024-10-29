@@ -38,7 +38,6 @@ import logging
 from pathlib import Path
 
 import nestedtext
-import numpy as np
 from matplotlib.figure import Figure
 from PIL import Image
 
@@ -84,6 +83,7 @@ def publish_distance_matrix(
         File format to use, by default ".png".
     """
     _publish_image(session, distance_matrix_name, image_format)
+
 
 def _publish_image(
         container: DataAggregator,
@@ -240,7 +240,23 @@ def export_aggregate_image_and_meta(
         recording: Recording,
         path: Path,
         image_format: str = ".png"
-):
+) -> None:
+    """
+    Export AggregateImage to an image file and meta to a text file.
+
+    Parameters
+    ----------
+    image : AggregateImage
+        The AggregateImage to be exported.
+    session : Session
+        Session the AggregateImage belongs to.
+    recording : Recording
+        Recording that the AggregateImage belongs to.
+    path : Path
+        Path to save the image and meta file.
+    image_format : str, optional
+        File format to save the image in, by default ".png"
+    """
     if path.is_dir():
         filename = image.name.replace(" ", "_")
         filepath = path / filename

@@ -602,7 +602,7 @@ class Modality(DataContainer, OrderedDict):
         The time offset of this modality.
 
         Assigning a value to this property is implemented so that
-        self._timevector[0] stays equal to self._timeOffset. 
+        `self.timevector[0]` stays equal to `self._time_offset`.
 
         If shape of the timevector were to change then also shape of the data
         should change. Unlikely that we'd try to deal that in any other way but
@@ -630,9 +630,9 @@ class Modality(DataContainer, OrderedDict):
     @time_offset.setter
     def time_offset(self, time_offset):
         self._time_offset = time_offset
-        if self._timevector:
-            self._timevector = (self.timevector +
-                                (time_offset - self.timevector[0]))
+        if self._modality_data.timevector:
+            self._modality_data.timevector = (
+                    self.timevector + (time_offset - self.timevector[0]))
 
     @property
     def timevector(self):
@@ -647,7 +647,7 @@ class Modality(DataContainer, OrderedDict):
         accessing it does not trigger a new loading operation.
 
         Assigning a value to this property is implemented so 
-        that self._timevector[0] stays equal to self._timeOffset. 
+        that `self.timevector[0]` stays equal to `self._timeOffset`.
         """
         if (self._modality_data is None or
                 self._modality_data.timevector is None):
@@ -686,8 +686,8 @@ class Modality(DataContainer, OrderedDict):
         """
         Boolean property for excluding this Modality from processing.
 
-        Setting this to True will result in the whole Recording being 
-        excluded by setting self.parent.excluded = True.
+        Setting this to `True` will result in the whole Recording being
+        excluded by setting `self.parent.excluded = True`.
         """
         return self._excluded
 

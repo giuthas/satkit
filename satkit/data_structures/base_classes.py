@@ -385,6 +385,11 @@ class DataContainer(DataObject):
         """
         return self.__class__.generate_name(self._meta_data)
 
+    @abc.abstractmethod
+    @property
+    def data(self) -> np.ndarray:
+        pass
+
 
 class Statistic(DataContainer):
     """
@@ -393,7 +398,7 @@ class Statistic(DataContainer):
     Specifically Statistics are time independent data while Modalities are
     time-dependent data.
     """
-    data: np.ndarray
+    _data: np.ndarray
 
     @classmethod
     @abc.abstractmethod
@@ -426,5 +431,13 @@ class Statistic(DataContainer):
             the actual statistic, by default None
         """
         super().__init__(
-            owner=owner, meta_data=meta_data, file_info=file_info, parsed_data)
-        self.data = parsed_data
+            owner=owner, meta_data=meta_data, file_info=file_info)
+        self._data = parsed_data
+
+    @property
+    def data(self) -> np.ndarray:
+        return self._data
+
+    @data.setter
+    def data(self, data: np.ndarray) -> None:
+        self._data = data

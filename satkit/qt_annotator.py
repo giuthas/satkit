@@ -162,6 +162,8 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
             self.export_ultrasound_frame)
         self.action_export_aggregate_image.triggered.connect(
             self.export_aggregate_image)
+        self.action_export_distance_matrix.triggered.connect(
+            self.export_distance_matrix)
 
         self.actionNext.triggered.connect(self.next)
         self.actionPrevious.triggered.connect(self.prev)
@@ -902,6 +904,22 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
                 recording=self.current,
                 path=path)
 
+    def export_distance_matrix(self) -> None:
+        statistics_names = self.session.statistics.keys()
+        choice_list = [
+            name for name in statistics_names if 'DistanceMatrix' in name]
+        matrix_list, path = ListSaveDialog.get_selection(
+            name="Export DistanceMatrices",
+            item_names=choice_list,
+            parent=self
+        )
+        # save the correct things
+        ic(matrix_list, path)
+        for matrix in matrix_list:
+            export_distance_matrix_and_meta(
+                image=self.session.statistics[matrix],
+                session=self.session,
+                path=path)
 
     def export_annotations_and_meta_data(self) -> None:
         """

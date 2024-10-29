@@ -35,6 +35,8 @@ DistanceMatrix Statistic and its Parameter class.
 
 import logging
 import numpy as np
+from icecream import ic
+from pandas.io.sas.sas_constants import dataset_length
 from pydantic import PositiveInt
 
 from satkit.data_structures import (
@@ -121,13 +123,19 @@ class DistanceMatrix(Statistic):
         # elif params.parent_name:
         name_string = name_string + " on " + params.parent_name
 
+        if params.slice_size:
+            name_string = name_string + " slice_size " + params.slice_size
+            name_string = name_string + " slice_offset " + params.slice_offset
+
         return name_string
 
     @staticmethod
     def get_names_and_meta(
-            parent: Modality | Statistic | str,
+            parent: Modality | Statistic,
             metric: list[str] | None = None,
-            release_data_memory: bool = True
+            release_data_memory: bool = True,
+            slice_size: int | None = None,
+            slice_offset: tuple[int] | None = None
     ) -> dict[str: DistanceMatrixParameters]:
         """
         Generate DistanceMatrix names and metadata.
@@ -138,7 +146,7 @@ class DistanceMatrix(Statistic):
 
         Parameters
         ----------
-        parent : Modality | Statistic | str
+        parent : Modality | Statistic
             parent Modality or Statistic that DistanceMatrix would be derived
             from.
         metric : list[str] | None, optional
@@ -147,7 +155,13 @@ class DistanceMatrix(Statistic):
         release_data_memory: bool
             Should parent Modality's data be assigned to None after calculations
             are complete, by default True.
-
+        slice_size : int | None, optional
+            Size of the slice in x direction to take from the parent Modality's
+            data.
+        slice_offset : tuple[int] | None, optional
+            Offset of the slices to take from the parent Modality's data. If
+            slice_size is not None and slice_offset is None, then slice_sizes to
+            cover the whole of the original data will be generated.
         Returns
         -------
         dict[str: DistanceMatrixParameters]
@@ -162,11 +176,26 @@ class DistanceMatrix(Statistic):
         if not metric:
             metric = ['mean_squared_error']
 
+        if slice_size and slice_offset is None:
+            if isinstance(parent, Modality):
+                data_length = parent.data.shape[1]
+            else:
+                data_length = parent.data.shape[0]
+            slice_space = data_length-slice_size
+            slice_offset = tuple(range(slice_space))
+        else:
+            slice_size = [None]
+            slice_offset = [None]
+
         param_dict = {
             'parent_name': [parent_name],
             'metric': metric,
-            'release_data_memory': [release_data_memory]}
+            'release_data_memory': [release_data_memory],
+            'slice_size': slice_size,
+            'slice_offset': slice_offset,
+        }
 
+        ic(param_dict)
         distance_matrix_params = [DistanceMatrixParameters(**item)
                                   for item in product_dict(**param_dict)]
 

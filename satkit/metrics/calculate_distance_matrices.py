@@ -79,20 +79,21 @@ def calculate_mse(images: list[np.ndarray]) -> np.ndarray:
 
     return mean_squared_errors
 
+
 def calculate_distance_matrix(
         session: Session,
         parent_name: str,
         params: DistanceMatrixParameters
 ) -> DistanceMatrix | None:
+    images = [recording.statistics[parent_name].data
+              for recording in session.recordings
+              if parent_name in recording.statistics and
+              not recording.excluded]
+
     if params.slice_size:
         begin = params.slice_offset
         end = params.slice_offset + params.slice_size
-        images = [recording.statistics[parent_name].data[begin:end]
-                  for recording in session.recordings
-                  if parent_name in recording.statistics and
-                  not recording.excluded]
-    else:
-        images = [recording.statistics[parent_name].data
+        images = [recording.statistics[parent_name].data[begin:end, :]
                   for recording in session.recordings
                   if parent_name in recording.statistics and
                   not recording.excluded]
@@ -110,10 +111,11 @@ def calculate_distance_matrix(
             raise ValueError(f"Unknown metric {params.metric}.")
 
     return DistanceMatrix(
-                owner=session,
-                meta_data=params,
-                file_info=FileInformation(),
-                parsed_data=matrix,)
+        owner=session,
+        meta_data=params,
+        file_info=FileInformation(),
+        parsed_data=matrix, )
+
 
 def add_distance_matrices(
         session: Session,
@@ -121,14 +123,13 @@ def add_distance_matrices(
         preload: bool = True,
         metrics: Optional[list[str]] = None,
         release_data_memory: bool = True,
+        slice_size: int | None = None,
+        slice_offset: tuple[int] | None = None,
 ) -> None:
     if not preload:
         message = ("Looks like somebody is trying to leave PD to be "
                    "calculated on the fly. This is not yet supported.")
         raise NotImplementedError(message)
-
-    if not metrics:
-        metrics = ['mean_squared_error']
 
     if isinstance(parent, str):
         parent_name = parent

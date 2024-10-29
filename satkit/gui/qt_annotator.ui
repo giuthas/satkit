@@ -281,30 +281,18 @@
      <height>22</height>
     </rect>
    </property>
-   <widget class="QMenu" name="menuFile">
+   <widget class="QMenu" name="menu_file">
     <property name="title">
      <string>File</string>
     </property>
-    <widget class="QMenu" name="menuExport">
-     <property name="title">
-      <string>Export</string>
-     </property>
-     <addaction name="action_export_analysis"/>
-     <addaction name="action_export_figure"/>
-     <addaction name="action_export_ultrasound_frame"/>
-     <addaction name="action_export_annotations_and_metadata"/>
-     <addaction name="action_export_aggregate_image"/>
-    </widget>
     <addaction name="action_open"/>
     <addaction name="action_save_current_textgrid"/>
     <addaction name="action_save_all_textgrids"/>
     <addaction name="action_save_all"/>
     <addaction name="separator"/>
-    <addaction name="menuExport"/>
-    <addaction name="separator"/>
     <addaction name="action_quit"/>
    </widget>
-   <widget class="QMenu" name="menuImage">
+   <widget class="QMenu" name="menu_image">
     <property name="enabled">
      <bool>false</bool>
     </property>
@@ -314,7 +302,7 @@
     <addaction name="actionSave_plot_as"/>
     <addaction name="actionSave_as"/>
    </widget>
-   <widget class="QMenu" name="menuScript">
+   <widget class="QMenu" name="menu_script">
     <property name="enabled">
      <bool>false</bool>
     </property>
@@ -324,7 +312,7 @@
     <addaction name="actionShow_interpreter"/>
     <addaction name="actionRun_file"/>
    </widget>
-   <widget class="QMenu" name="menuNavigation">
+   <widget class="QMenu" name="menu_navigation">
     <property name="title">
      <string>Navigation</string>
     </property>
@@ -334,10 +322,22 @@
     <addaction name="actionNext_Frame"/>
     <addaction name="actionPrevious_Frame"/>
    </widget>
-   <addaction name="menuFile"/>
-   <addaction name="menuImage"/>
-   <addaction name="menuScript"/>
-   <addaction name="menuNavigation"/>
+   <widget class="QMenu" name="menu_export">
+    <property name="title">
+     <string>Export</string>
+    </property>
+    <addaction name="action_export_analysis"/>
+    <addaction name="action_export_aggregate_image"/>
+    <addaction name="action_export_annotations_and_metadata"/>
+    <addaction name="action_export_figure"/>
+    <addaction name="action_export_ultrasound_frame"/>
+    <addaction name="action_export_distance_matrix"/>
+   </widget>
+   <addaction name="menu_file"/>
+   <addaction name="menu_export"/>
+   <addaction name="menu_image"/>
+   <addaction name="menu_script"/>
+   <addaction name="menu_navigation"/>
   </widget>
   <widget class="QStatusBar" name="statusbar"/>
   <action name="actionNew">
@@ -473,6 +473,11 @@
    </property>
    <property name="shortcut">
     <string>Ctrl+Q</string>
+   </property>
+  </action>
+  <action name="action_export_distance_matrix">
+   <property name="text">
+    <string>Export distance matrix...</string>
    </property>
   </action>
  </widget>

@@ -42,15 +42,54 @@ from matplotlib.figure import Figure
 from PIL import Image
 
 from satkit.data_structures import Recording, Session
-from satkit.data_structures.base_classes import DataAggregator
-from satkit.metrics import AggregateImage, AggregateImageParameters
+from satkit.data_structures.base_classes import DataAggregator, DataContainer
+from satkit.metrics import (
+    AggregateImage, AggregateImageParameters,
+    DistanceMatrix, DistanceMatrixParameters
+)
 from satkit.save_and_load import nested_text_converters
 
 _logger = logging.getLogger('satkit._saver')
 
 
+def _export_data_as_image(
+        data: DataContainer,
+        path: Path,
+        image_format: str = ".png"
+) -> Path:
+    if path.is_dir():
+        filename = data.name.replace(" ", "_")
+        filepath = path / filename
+    else:
+        filepath = path
+
+    raw_data = data.data
+    im = Image.fromarray(raw_data)
+    im = im.convert('L')
+    im.save(filepath.with_suffix(image_format))
+    _logger.debug("Wrote file %s.", filepath)
+    return filepath
+
+
+def _publish_image(
+        container: DataAggregator,
+        statistic_name: str,
+        image_format: str = ".png"
+) -> None:
+    if statistic_name in container.statistics:
+        statistic = container.statistics[statistic_name]
+        raw_data = statistic.data
+        im = Image.fromarray(raw_data)
+        im = im.convert('L')
+        name = container.name
+        path = container.recorded_path
+        image_file = path / (name + image_format)
+        im.save(image_file)
+
+
 def publish_aggregate_images(
-        session: Session, image_name: str, image_format: str = ".png") -> None:
+        session: Session, image_name: str, image_format: str = ".png"
+) -> None:
     """
     Publish AggregateImages as image files.
 
@@ -85,19 +124,113 @@ def publish_distance_matrix(
     _publish_image(session, distance_matrix_name, image_format)
 
 
-def _publish_image(
-        container: DataAggregator,
-        statistic_name: str,
-        image_format: str = ".png") -> None:
-    if statistic_name in container.statistics:
-        statistic = container.statistics[statistic_name]
-        raw_data = statistic.data
-        im = Image.fromarray(raw_data)
-        im = im.convert('L')
-        name = container.name
-        path = container.recorded_path
-        image_file = path / (name + image_format)
-        im.save(image_file)
+def export_aggregate_image_meta(
+        filename: str | Path,
+        session: Session,
+        recording: Recording,
+        aggregate_meta: AggregateImageParameters,
+) -> None:
+    """
+    Write ultrasound frame metadata to a human-readable text file.
+
+    The purpose of this function is to generate a file documenting an extracted
+    ultrasound frame, so that it can be found again in its original context.
+
+    Parameters
+    ----------
+    filename : str | Path
+        Filename or path of the extracted ultrasound frame.
+    session : Session
+        Session that the frame belongs to.
+    recording : Recording
+        Recording that the frame belongs to.
+    aggregate_meta : AggregateImageParameters
+        The parameters of the AggregateImage to be dumped in a file along with
+        the session and recording information.
+    """
+    if not isinstance(filename, Path):
+        filename = Path(filename)
+    meta_filename = filename.with_suffix('.txt')
+    with meta_filename.open('w', encoding='utf-8') as file:
+        file.write(
+            f"Metadata for AggregateImage extracted by SATKIT to {filename}.\n")
+        file.write(f"Session path: {session.recorded_path}\n")
+        file.write(f"Participant ID: {recording.meta_data.participant_id}\n")
+        file.write(f"Recording filename: {recording.name}\n")
+        file.write(f"Recorded at: {recording.meta_data.time_of_recording}\n")
+        file.write(f"Prompt: {recording.meta_data.prompt}\n")
+
+        nestedtext.dump(aggregate_meta.model_dump(), file,
+                        converters=nested_text_converters)
+        _logger.debug("Wrote file %s.", meta_filename)
+
+
+def export_aggregate_image_and_meta(
+        image: AggregateImage,
+        session: Session,
+        recording: Recording,
+        path: Path,
+        image_format: str = ".png"
+) -> None:
+    """
+    Export AggregateImage to an image file and meta to a text file.
+
+    Parameters
+    ----------
+    image : AggregateImage
+        The AggregateImage to be exported.
+    session : Session
+        Session the AggregateImage belongs to.
+    recording : Recording
+        Recording that the AggregateImage belongs to.
+    path : Path
+        Path to save the image and meta file.
+    image_format : str, optional
+        File format to save the image in, by default ".png"
+    """
+    filepath = _export_data_as_image(image, path, image_format)
+
+    export_aggregate_image_meta(
+        filename=filepath.with_suffix(".txt"),
+        session=session,
+        recording=recording,
+        aggregate_meta=image.meta_data
+    )
+
+
+def export_distance_matrix_meta(
+        filename: str | Path,
+        session: Session,
+        distance_matrix_meta: DistanceMatrixParameters,
+) -> None:
+    if not isinstance(filename, Path):
+        filename = Path(filename)
+    meta_filename = filename.with_suffix('.txt')
+    with meta_filename.open('w', encoding='utf-8') as file:
+        file.write(
+            f"Metadata for AggregateImage extracted by SATKIT to {filename}.\n")
+        file.write(f"Session path: {session.recorded_path}\n")
+        participant_id = session.recordings[0].meta_data.participant_id
+        file.write(f"Participant ID: {participant_id}\n")
+
+        nestedtext.dump(distance_matrix_meta.model_dump(), file,
+                        converters=nested_text_converters)
+        _logger.debug("Wrote file %s.", meta_filename)
+
+
+def export_distance_matrix_and_meta(
+        matrix: DistanceMatrix,
+        session: Session,
+        path: Path,
+        image_format: str = ".png"
+) -> None:
+    path = _export_data_as_image(matrix, path, image_format)
+
+    export_distance_matrix_meta(
+        filename=path.with_suffix(".txt"),
+        session=session,
+        distance_matrix_meta=matrix.meta_data,
+    )
 
 
 def export_ultrasound_frame_meta(
@@ -190,88 +323,4 @@ def export_ultrasound_frame_and_meta(
         recording=recording,
         selection_index=selection_index,
         selection_time=selection_time,
-    )
-
-
-def export_aggregate_image_meta(
-        filename: str | Path,
-        session: Session,
-        recording: Recording,
-        aggregate_meta: AggregateImageParameters,
-) -> None:
-    """
-    Write ultrasound frame metadata to a human-readable text file.
-
-    The purpose of this function is to generate a file documenting an extracted
-    ultrasound frame, so that it can be found again in its original context.
-
-    Parameters
-    ----------
-    filename : str | Path
-        Filename or path of the extracted ultrasound frame.
-    session : Session
-        Session that the frame belongs to.
-    recording : Recording
-        Recording that the frame belongs to.
-    aggregate_meta : AggregateImageParameters
-        The parameters of the AggregateImage to be dumped in a file along with
-        the session and recording information.
-    """
-    if not isinstance(filename, Path):
-        filename = Path(filename)
-    meta_filename = filename.with_suffix('.txt')
-    with meta_filename.open('w', encoding='utf-8') as file:
-        file.write(
-            f"Metadata for AggregateImage extracted by SATKIT to {filename}.\n")
-        file.write(f"Session path: {session.recorded_path}\n")
-        file.write(f"Participant ID: {recording.meta_data.participant_id}\n")
-        file.write(f"Recording filename: {recording.name}\n")
-        file.write(f"Recorded at: {recording.meta_data.time_of_recording}\n")
-        file.write(f"Prompt: {recording.meta_data.prompt}\n")
-
-        nestedtext.dump(aggregate_meta.model_dump(), file,
-                        converters=nested_text_converters)
-        _logger.debug("Wrote file %s.", meta_filename)
-
-
-def export_aggregate_image_and_meta(
-        image: AggregateImage,
-        session: Session,
-        recording: Recording,
-        path: Path,
-        image_format: str = ".png"
-) -> None:
-    """
-    Export AggregateImage to an image file and meta to a text file.
-
-    Parameters
-    ----------
-    image : AggregateImage
-        The AggregateImage to be exported.
-    session : Session
-        Session the AggregateImage belongs to.
-    recording : Recording
-        Recording that the AggregateImage belongs to.
-    path : Path
-        Path to save the image and meta file.
-    image_format : str, optional
-        File format to save the image in, by default ".png"
-    """
-    if path.is_dir():
-        filename = image.name.replace(" ", "_")
-        filepath = path / filename
-    else:
-        filepath = path
-
-    raw_data = image.data
-    im = Image.fromarray(raw_data)
-    im = im.convert('L')
-    im.save(filepath.with_suffix(image_format))
-    _logger.debug("Wrote file %s.", filepath)
-
-    export_aggregate_image_meta(
-        filename=filepath.with_suffix(".txt"),
-        session=session,
-        recording=recording,
-        aggregate_meta=image.meta_data
     )

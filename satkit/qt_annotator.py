@@ -61,6 +61,7 @@ from satkit.configuration import (
 )
 from satkit.export import (
     export_aggregate_image_and_meta,
+    export_distance_matrix_and_meta,
     export_ultrasound_frame_and_meta
 )
 from satkit.gui import BoundaryAnimator, ListSaveDialog, ReplaceDialog
@@ -917,7 +918,7 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
         ic(matrix_list, path)
         for matrix in matrix_list:
             export_distance_matrix_and_meta(
-                image=self.session.statistics[matrix],
+                matrix=self.session.statistics[matrix],
                 session=self.session,
                 path=path)
 

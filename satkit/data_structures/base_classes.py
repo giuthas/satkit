@@ -385,8 +385,8 @@ class DataContainer(DataObject):
         """
         return self.__class__.generate_name(self._meta_data)
 
-    @abc.abstractmethod
     @property
+    @abc.abstractmethod
     def data(self) -> np.ndarray:
         pass
 

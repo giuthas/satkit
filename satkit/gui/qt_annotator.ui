@@ -329,9 +329,9 @@
     <addaction name="action_export_analysis"/>
     <addaction name="action_export_aggregate_image"/>
     <addaction name="action_export_annotations_and_metadata"/>
+    <addaction name="action_export_distance_matrix"/>
     <addaction name="action_export_figure"/>
     <addaction name="action_export_ultrasound_frame"/>
-    <addaction name="action_export_distance_matrix"/>
    </widget>
    <addaction name="menu_file"/>
    <addaction name="menu_export"/>

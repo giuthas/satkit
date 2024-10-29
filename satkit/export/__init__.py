@@ -32,7 +32,9 @@
 """Export functions for extracting parts of the data."""
 
 from .images import (
-    export_aggregate_image_and_meta, export_aggregate_image_meta,
+    export_aggregate_image_and_meta,
+    export_aggregate_image_meta,
+    export_distance_matrix_and_meta,
     export_ultrasound_frame_and_meta,
     export_ultrasound_frame_meta,
     publish_distance_matrix,

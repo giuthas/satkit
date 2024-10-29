@@ -350,7 +350,7 @@ class Modality(DataContainer, OrderedDict):
         data_path -- path of the data file
         load_path -- path of data when saved by SATKIT - both data and metadata
         parent -- the Modality this one was derived from. None means this 
-            is an underived data Modality.
+            is a recorded data Modality.
         parsed_data -- ModalityData object containing waveform, sampling rate,
             and either timevector and/or time_offset. 
         parsed_data -- a ModalityData object containing parsed data 

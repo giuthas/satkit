@@ -426,5 +426,5 @@ class Statistic(DataContainer):
             the actual statistic, by default None
         """
         super().__init__(
-            owner=owner, meta_data=meta_data, file_info=file_info)
+            owner=owner, meta_data=meta_data, file_info=file_info, parsed_data)
         self.data = parsed_data

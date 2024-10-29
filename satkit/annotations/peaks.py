@@ -104,7 +104,7 @@ def add_peaks(
         modality.data,
         modality.timevector,
         peak_parameters)
-    modality.add_annotations(annotations)
+    modality.add_point_annotations(annotations)
 
     if peak_parameters.time_min and recording.satgrid:
         tier_name = peak_parameters.time_min.tier

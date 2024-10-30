@@ -49,7 +49,7 @@ from satkit.metrics import (
 )
 from satkit.save_and_load import nested_text_converters
 
-_logger = logging.getLogger('satkit._saver')
+_logger = logging.getLogger('satkit.export')
 
 
 def _export_data_as_image(
@@ -67,7 +67,7 @@ def _export_data_as_image(
     im = Image.fromarray(raw_data)
     im = im.convert('L')
     im.save(filepath.with_suffix(image_format))
-    _logger.debug("Wrote file %s.", filepath)
+    _logger.info("Wrote file %s.", filepath)
     return filepath
 
 
@@ -75,7 +75,7 @@ def _publish_image(
         container: DataAggregator,
         statistic_name: str,
         image_format: str = ".png"
-) -> None:
+) -> Path | None:
     if statistic_name in container.statistics:
         statistic = container.statistics[statistic_name]
         raw_data = statistic.data
@@ -85,6 +85,8 @@ def _publish_image(
         path = container.recorded_path
         image_file = path / (name + image_format)
         im.save(image_file)
+        _logger.info("Wrote file %s.", image_file)
+        return image_file
 
 
 def publish_aggregate_images(

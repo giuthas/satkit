@@ -127,8 +127,8 @@ def add_distance_matrices(
         slice_offset: tuple[int] | None = None,
 ) -> None:
     if not preload:
-        message = ("Looks like somebody is trying to leave PD to be "
-                   "calculated on the fly. This is not yet supported.")
+        message = ("Looks like somebody is trying to leave Distance Matrices "
+                   "to be calculated on the fly. This is not yet supported.")
         raise NotImplementedError(message)
 
     if isinstance(parent, str):
@@ -136,9 +136,17 @@ def add_distance_matrices(
     else:
         parent_name = parent.__name__
 
+    first_parent_in_session = next(
+        recording.statistics[parent_name] for recording in session
+        if parent_name in recording.statistics)
+
     all_requested = DistanceMatrix.get_names_and_meta(
-        parent=parent, metric=metrics,
-        release_data_memory=release_data_memory)
+        parent=first_parent_in_session,
+        metric=metrics,
+        release_data_memory=release_data_memory,
+        slice_size=slice_size,
+        slice_offset=slice_offset,
+    )
     missing_keys = set(all_requested).difference(
         session.statistics.keys())
     to_be_computed = dict((key, value) for key, value in all_requested.items()
@@ -149,23 +157,6 @@ def add_distance_matrices(
             params = to_be_computed[key]
             distance_matrix = calculate_distance_matrix(
                 session, parent_name, params)
-            # images = [recording.statistics[parent_name].data
-            #           for recording in session.recordings
-            #           if parent_name in recording.statistics and
-            #           not recording.excluded]
-            # if not images:
-            #     _logger.info(
-            #         "Data object '%s' not found in recordings of session: %s.",
-            #         parent_name, session.name)
-            #     return
-            #
-            # matrix = calculate_mse(images)
-            #
-            # distance_matrix = DistanceMatrix(
-            #     owner=session,
-            #     meta_data=params,
-            #     file_info=FileInformation(),
-            #     parsed_data=matrix,)
             if distance_matrix is not None:
                 session.add_statistic(distance_matrix)
                 _logger.info("Added '%s' to session: %s.",

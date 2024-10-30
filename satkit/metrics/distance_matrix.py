@@ -34,10 +34,11 @@ DistanceMatrix Statistic and its Parameter class.
 """
 
 import logging
+
 import numpy as np
 from icecream import ic
-from pandas.io.sas.sas_constants import dataset_length
-from pydantic import PositiveInt
+from pydantic import NonNegativeInt, PositiveInt
+
 
 from satkit.data_structures import (
     FileInformation, Modality, Session, Statistic, StatisticMetaData
@@ -78,7 +79,7 @@ class DistanceMatrixParameters(StatisticMetaData):
     metric: str = 'mean_squared_error'
     release_data_memory: bool = True
     slice_size: PositiveInt | None = None
-    slice_offset: PositiveInt | None = None
+    slice_offset: NonNegativeInt | None = None
 
 
 class DistanceMatrix(Statistic):
@@ -124,8 +125,9 @@ class DistanceMatrix(Statistic):
         name_string = name_string + " on " + params.parent_name
 
         if params.slice_size:
-            name_string = name_string + " slice_size " + params.slice_size
-            name_string = name_string + " slice_offset " + params.slice_offset
+            name_string = name_string + " slice_size " + str(params.slice_size)
+            name_string = (
+                    name_string + " slice_offset " + str(params.slice_offset))
 
         return name_string
 
@@ -170,6 +172,8 @@ class DistanceMatrix(Statistic):
         """
         if isinstance(parent, str):
             parent_name = parent
+        elif isinstance(parent, Statistic) or isinstance(parent, Modality):
+            parent_name = parent.__class__.__name__
         else:
             parent_name = parent.__name__
 
@@ -177,10 +181,10 @@ class DistanceMatrix(Statistic):
             metric = ['mean_squared_error']
 
         if slice_size and slice_offset is None:
-            if isinstance(parent, Modality):
+            if isinstance(parent, Modality) or isinstance(parent, Statistic):
                 data_length = parent.data.shape[1]
             else:
-                data_length = parent.data.shape[0]
+                raise ValueError("Unexpected parent type: " + str(type(parent)))
             slice_space = data_length-slice_size
             slice_offset = tuple(range(slice_space))
         else:
@@ -191,7 +195,7 @@ class DistanceMatrix(Statistic):
             'parent_name': [parent_name],
             'metric': metric,
             'release_data_memory': [release_data_memory],
-            'slice_size': slice_size,
+            'slice_size': [slice_size],
             'slice_offset': slice_offset,
         }
 

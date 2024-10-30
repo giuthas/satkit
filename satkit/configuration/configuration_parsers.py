@@ -41,8 +41,6 @@ import sys
 from contextlib import closing
 from pathlib import Path
 
-# from icecream import ic
-
 # import numpy as np
 from strictyaml import (
     Bool, FixedSeq, Float, Int, Map,

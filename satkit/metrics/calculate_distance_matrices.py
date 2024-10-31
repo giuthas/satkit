@@ -37,6 +37,7 @@ import logging
 from typing import Optional
 
 import numpy as np
+from icecream import ic
 
 from satkit.data_structures import FileInformation, Session
 from .distance_matrix import DistanceMatrix, DistanceMatrixParameters
@@ -70,6 +71,10 @@ def calculate_mse(images: list[np.ndarray]) -> np.ndarray:
         raise ValueError(
             'Images must have the same shape. See log for details.')
 
+    _logger.info("Calculating MSE. Image sizes are %s.",
+                 str([image.shape for image in images]))
+    ic(np.max(images), np.min(images))
+
     for i, image1 in enumerate(images):
         for j in range(i + 1, len(images)):
             image2 = images[j]
@@ -90,13 +95,17 @@ def calculate_distance_matrix(
               if parent_name in recording.statistics and
               not recording.excluded]
 
-    if params.slice_size:
-        begin = params.slice_offset
-        end = params.slice_offset + params.slice_size
-        images = [recording.statistics[parent_name].data[begin:end, :]
-                  for recording in session.recordings
-                  if parent_name in recording.statistics and
-                  not recording.excluded]
+    if params.slice_max_step:
+        sliced_images = []
+        data_length = images[0].shape[1]
+        for i in range(params.slice_max_step + 1):
+            begin = i
+            end = data_length - (params.slice_max_step - i)
+            new_images = [
+                image[:, begin:end] for image in images
+            ]
+            sliced_images.extend(new_images)
+        images = sliced_images
 
     if not images:
         _logger.info(
@@ -123,8 +132,7 @@ def add_distance_matrices(
         preload: bool = True,
         metrics: Optional[list[str]] = None,
         release_data_memory: bool = True,
-        slice_size: int | None = None,
-        slice_offset: tuple[int] | None = None,
+        slice_max_step: int | None = None,
 ) -> None:
     if not preload:
         message = ("Looks like somebody is trying to leave Distance Matrices "
@@ -144,8 +152,7 @@ def add_distance_matrices(
         parent=first_parent_in_session,
         metric=metrics,
         release_data_memory=release_data_memory,
-        slice_size=slice_size,
-        slice_offset=slice_offset,
+        slice_max_step=slice_max_step,
     )
     missing_keys = set(all_requested).difference(
         session.statistics.keys())

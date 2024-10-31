@@ -36,8 +36,7 @@ DistanceMatrix Statistic and its Parameter class.
 import logging
 
 import numpy as np
-from icecream import ic
-from pydantic import NonNegativeInt, PositiveInt
+from pydantic import PositiveInt
 
 
 from satkit.data_structures import (
@@ -78,8 +77,7 @@ class DistanceMatrixParameters(StatisticMetaData):
     parent_name: str
     metric: str = 'mean_squared_error'
     release_data_memory: bool = True
-    slice_size: PositiveInt | None = None
-    slice_offset: NonNegativeInt | None = None
+    slice_max_step: PositiveInt | None = None
 
 
 class DistanceMatrix(Statistic):
@@ -118,16 +116,11 @@ class DistanceMatrix(Statistic):
         """
         name_string = cls.__name__ + " " + params.metric
 
-        # if params.interpolated and params.parent_name:
-        #     name_string = ("Interpolated " + name_string + " on " +
-        #                    params.parent_name)
-        # elif params.parent_name:
         name_string = name_string + " on " + params.parent_name
 
-        if params.slice_size:
-            name_string = name_string + " slice_size " + str(params.slice_size)
+        if params.slice_max_step:
             name_string = (
-                    name_string + " slice_offset " + str(params.slice_offset))
+                    name_string + f" slice_max_step {params.slice_max_step}")
 
         return name_string
 
@@ -136,8 +129,7 @@ class DistanceMatrix(Statistic):
             parent: Modality | Statistic,
             metric: list[str] | None = None,
             release_data_memory: bool = True,
-            slice_size: int | None = None,
-            slice_offset: tuple[int] | None = None
+            slice_max_step: int | None = None,
     ) -> dict[str: DistanceMatrixParameters]:
         """
         Generate DistanceMatrix names and metadata.
@@ -157,13 +149,8 @@ class DistanceMatrix(Statistic):
         release_data_memory: bool
             Should parent Modality's data be assigned to None after calculations
             are complete, by default True.
-        slice_size : int | None, optional
-            Size of the slice in x direction to take from the parent Modality's
-            data.
-        slice_offset : tuple[int] | None, optional
-            Offset of the slices to take from the parent Modality's data. If
-            slice_size is not None and slice_offset is None, then slice_sizes to
-            cover the whole of the original data will be generated.
+        slice_max_step : int | None, optional
+            TODO 0.11: write a description
         Returns
         -------
         dict[str: DistanceMatrixParameters]
@@ -180,26 +167,13 @@ class DistanceMatrix(Statistic):
         if not metric:
             metric = ['mean_squared_error']
 
-        if slice_size and slice_offset is None:
-            if isinstance(parent, Modality) or isinstance(parent, Statistic):
-                data_length = parent.data.shape[1]
-            else:
-                raise ValueError("Unexpected parent type: " + str(type(parent)))
-            slice_space = data_length-slice_size
-            slice_offset = tuple(range(slice_space))
-        else:
-            slice_size = [None]
-            slice_offset = [None]
-
         param_dict = {
             'parent_name': [parent_name],
             'metric': metric,
             'release_data_memory': [release_data_memory],
-            'slice_size': [slice_size],
-            'slice_offset': slice_offset,
+            'slice_max_step': [slice_max_step],
         }
 
-        ic(param_dict)
         distance_matrix_params = [DistanceMatrixParameters(**item)
                                   for item in product_dict(**param_dict)]
 

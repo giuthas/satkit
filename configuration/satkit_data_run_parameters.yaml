@@ -50,34 +50,34 @@ aggregate_image_arguments:
   preload: True
   release_data_memory: True
 
-pd_arguments: 
-  'norms':
-    - 'l1'
-    - 'l2'
-  'timesteps': 
-    - 1
-  mask_images: False
-  pd_on_interpolated_data: False
-  release_data_memory: True
-  preload: True
+#pd_arguments:
+#  'norms':
+#    - 'l1'
+#    - 'l2'
+#  'timesteps':
+#    - 1
+#  mask_images: False
+#  pd_on_interpolated_data: False
+#  release_data_memory: True
+#  preload: True
 
-spline_metric_arguments:
-  'metrics': 
-    - 'annd'
-    - 'mpbpd'
-    - 'modified_curvature'
-    - 'fourier'
-  'timesteps': 
-    - 3
-  'release_data_memory': False
-  'preload': True
+#spline_metric_arguments:
+#  'metrics':
+#    - 'annd'
+#    - 'mpbpd'
+#    - 'modified_curvature'
+#    - 'fourier'
+#  'timesteps':
+#    - 3
+#  'release_data_memory': False
+#  'preload': True
 
 distance_matrix_arguments:
   metrics:
     - 'mean_squared_error'
   preload: True
   release_data_memory: False
-  slice_size: 58
+#  slice_max_step: 6
 
 
 # Config for the yet-to-happen submodule CAST that is still a separate entity. 

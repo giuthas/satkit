@@ -41,7 +41,6 @@ we can implement configuration round tripping with preserved comments.
 """
 
 import logging
-import warnings
 from pathlib import Path
 import re
 from typing import Any, NewType
@@ -221,8 +220,7 @@ class DistanceMatrixArguments(UpdatableBaseModel):
     metrics: list[str]
     preload: bool = True
     release_data_memory: bool = False
-    slice_size: int | None = None
-    slice_offset: int | None = None
+    slice_max_step: int | None = None
 
 
 class PointAnnotationParams(UpdatableBaseModel):
@@ -359,13 +357,13 @@ class GuiConfig(UpdatableBaseModel):
     #         delete global? or move it to a different place?
     #     return super().model_post_init(__context)
 
-    @warnings.deprecated(
-        "This property will be removed as data axes list should not contain any"
-        " extra information like a `global` directive.")
     @property
     def number_of_data_axes(self) -> int:
         """
         Number of data axes. 
+
+        DEPRECATED: This property will be removed as data axes list should not
+        contain any extra information like a `global` directive.
 
         Returns
         -------

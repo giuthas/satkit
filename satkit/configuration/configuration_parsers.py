@@ -250,7 +250,7 @@ def load_run_params(filepath: Path | str | None = None) -> YAML:
                     "metrics": Seq(Str()),
                     Optional("preload", default=True): Bool(),
                     Optional("release_data_memory", default=False): Bool(),
-                    Optional('slice_size'): Int(),
+                    Optional('slice_max_step'): Int(),
                 }),
                 Optional("peaks"): Map({
                     "modality_pattern": _search_pattern_schema,

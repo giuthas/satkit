@@ -153,10 +153,7 @@ def parse_config(filepath: Path | str | None = None) -> None:
     exist, report this and exit.
     """
     load_main_config(filepath)
-    load_run_params(config_dict['data_run_parameter_file'])
     load_gui_params(config_dict['gui_parameter_file'])
-    # load_plot_params(config['plotting_parameter_file'])
-    load_publish_params(config_dict['publish_parameter_file'])
 
 
 def load_main_config(filepath: Path | str | None = None) -> YAML:
@@ -441,57 +438,4 @@ def load_publish_params(filepath: Path | str | None = None) -> YAML:
 
     publish_params.update(_raw_publish_params_dict.data)
 
-    # if publish_params['xticks']:
-    #     publish_params['xticklabels'] = publish_params['xticks'].copy()
-    #     publish_params['xticks'] = np.asarray(
-    #         publish_params['xticks'], dtype=float)
-
-    # if publish_params['yticks']:
-    #     publish_params['yticklabels'] = publish_params['yticks'].copy()
-    #     publish_params['yticks'] = np.asarray(
-    #         publish_params['yticks'], dtype=float)
     return _raw_publish_params_dict
-
-
-def load_plot_params(filepath: Path | str | None = None) -> YAML:
-    """
-    Read the plot configuration file from filepath.
-
-    Not yet implemented. Will raise a NotImplementedError.
-    """
-
-    raise NotImplementedError
-
-    # if filepath is None:
-    #     print("Fatal error in loading run parameters: filepath is None")
-    #     sys.exit()
-    # elif isinstance(filepath, str):
-    #     filepath = Path(filepath)
-
-    # _logger.info("Loading plot configuration from %s", str(filepath))
-
-    # if filepath.is_file():
-    #     with closing(
-    #             open(filepath, 'r', encoding=DEFAULT_ENCODING)) as yaml_file:
-    #         schema = Map({
-    #             "data_and_tier_height_ratios": Map({
-    #                 "data": Int(),
-    #                 "tier": Int()
-    #             }),
-    #             "data_axes": Seq(Str()),
-    #             "pervasive_tiers": Seq(Str())
-    #         })
-    #         try:
-    #             _raw_plot_params_dict = load(yaml_file.read(), schema)
-    #         except YAMLError as error:
-    #             _logger.fatal("Fatal error in reading %s.",
-    #                           str(filepath))
-    #             _logger.fatal(str(error))
-    #             raise
-    # else:
-    #     _logger.fatal(
-    #         "Didn't find plot parameter file at %s.", str(filepath))
-    #     sys.exit()
-
-    # plot_params.update(_raw_plot_params_dict.data)
-    # return _raw_plot_params_dict

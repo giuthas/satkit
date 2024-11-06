@@ -82,6 +82,10 @@ A release of SATKIT is created as follows:
    increments), check that all features in the current roadmap are either
    done (implemented and merged to local `devel`), or that all undone features are
    moved to the next release's roadmap.
+   - Check that there are no `# TODO [version number]:` comments (like `TODO 0.11:`) 
+     left for the version being released. If you find any either finish them or move 
+     them to a later version. Mostly these should be just documentation, but one 
+     never knows.
    - This applies from version 1.0. Before that the roadmap is for 1.0 and
      minor releases are done when significant parts have been updated without
      fulfilling all of the promises in the roadmap.

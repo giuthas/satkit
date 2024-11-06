@@ -37,6 +37,7 @@ and this project uses [Semantic Versioning](https://semver.org/spec/v2.0.0.html)
 
 - Simulating ultrasound probe rotation (misalignment) by selecting different
   sub-sectors from recorded raw data.
+- DistanceMatrices can now be sorted by prompt. 
 - Saving the selected frame with metadata so that example frames can be 
   reproduced.
 - Saving AggregateImages with metadata.

@@ -78,6 +78,8 @@ class DistanceMatrixParameters(StatisticMetaData):
     metric: str = 'mean_squared_error'
     release_data_memory: bool = True
     slice_max_step: PositiveInt | None = None
+    slice_step_to: PositiveInt | None = None
+    sort: bool = False
 
 
 class DistanceMatrix(Statistic):
@@ -121,6 +123,13 @@ class DistanceMatrix(Statistic):
         if params.slice_max_step:
             name_string = (
                     name_string + f" slice_max_step {params.slice_max_step}")
+        elif params.slice_step_to:
+            name_string = (
+                    name_string + f" slice_step_to {params.slice_step_to}")
+
+        if params.sort:
+            name_string = (
+                    name_string + f" sort: {params.sort}")
 
         return name_string
 
@@ -130,6 +139,8 @@ class DistanceMatrix(Statistic):
             metric: list[str] | None = None,
             release_data_memory: bool = True,
             slice_max_step: int | None = None,
+            slice_step_to: int | None = None,
+            sort: bool = False,
     ) -> dict[str: DistanceMatrixParameters]:
         """
         Generate DistanceMatrix names and metadata.
@@ -140,6 +151,8 @@ class DistanceMatrix(Statistic):
 
         Parameters
         ----------
+        sort :
+        slice_step_to :
         parent : Modality | Statistic
             parent Modality or Statistic that DistanceMatrix would be derived
             from.
@@ -150,6 +163,10 @@ class DistanceMatrix(Statistic):
             Should parent Modality's data be assigned to None after calculations
             are complete, by default True.
         slice_max_step : int | None, optional
+            TODO 0.11: write a description
+        slice_step_to :
+            TODO 0.11: write a description
+        sort :
             TODO 0.11: write a description
         Returns
         -------
@@ -172,6 +189,8 @@ class DistanceMatrix(Statistic):
             'metric': metric,
             'release_data_memory': [release_data_memory],
             'slice_max_step': [slice_max_step],
+            'slice_step_to': [slice_step_to],
+            'sort': [sort],
         }
 
         distance_matrix_params = [DistanceMatrixParameters(**item)

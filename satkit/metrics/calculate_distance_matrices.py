@@ -90,10 +90,25 @@ def calculate_distance_matrix(
         parent_name: str,
         params: DistanceMatrixParameters
 ) -> DistanceMatrix | None:
-    images = [recording.statistics[parent_name].data
-              for recording in session.recordings
-              if parent_name in recording.statistics and
-              not recording.excluded]
+
+    recordings = [
+        recording for recording in session
+        if parent_name in recording.statistics and not recording.excluded
+    ]
+
+    if params.sort:
+        prompts = [
+            recording.meta_data.prompt for recording in recordings
+        ]
+        prompts, indeces = zip(*sorted(zip(prompts, range(len(prompts)))))
+        sorted_recordings = [
+            recordings[index] for index in indeces
+        ]
+        recordings = sorted_recordings
+
+    images = [
+        recording.statistics[parent_name].data for recording in recordings
+    ]
 
     if params.slice_max_step:
         sliced_images = []
@@ -105,6 +120,19 @@ def calculate_distance_matrix(
                 image[:, begin:end] for image in images
             ]
             sliced_images.extend(new_images)
+        images = sliced_images
+    elif params.slice_step_to:
+        sliced_images = []
+        for step in range(params.slice_step_to):
+            step += 1
+            first = [
+                image[:, :-step] for image in images
+            ]
+            sliced_images.extend(first)
+            second = [
+                image[:, step:] for image in images
+            ]
+            sliced_images.extend(second)
         images = sliced_images
 
     if not images:
@@ -133,6 +161,8 @@ def add_distance_matrices(
         metrics: Optional[list[str]] = None,
         release_data_memory: bool = True,
         slice_max_step: int | None = None,
+        slice_step_to: int | None = None,
+        sort: bool = False,
 ) -> None:
     if not preload:
         message = ("Looks like somebody is trying to leave Distance Matrices "
@@ -153,6 +183,8 @@ def add_distance_matrices(
         metric=metrics,
         release_data_memory=release_data_memory,
         slice_max_step=slice_max_step,
+        slice_step_to=slice_step_to,
+        sort=sort,
     )
     missing_keys = set(all_requested).difference(
         session.statistics.keys())

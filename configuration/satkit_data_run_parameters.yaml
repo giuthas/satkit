@@ -77,7 +77,9 @@ distance_matrix_arguments:
     - 'mean_squared_error'
   preload: True
   release_data_memory: False
-#  slice_max_step: 6
+  slice_max_step: 6
+#  slice_steps_to: 6
+  sort: True
 
 
 # Config for the yet-to-happen submodule CAST that is still a separate entity. 

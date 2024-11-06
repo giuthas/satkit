@@ -236,7 +236,7 @@ def load_run_params(filepath: Path | str | None = None) -> YAML:
                     Optional("preload", default=True): Bool(),
                     Optional("release_data_memory", default=False): Bool(),
                     Optional('slice_max_step'): Int(),
-                    Optional('slice_steps_to'): Int(),
+                    Optional('slice_step_to'): Int(),
                     Optional('sort'): Bool(),
                 }),
                 Optional("pd_arguments"): Map({

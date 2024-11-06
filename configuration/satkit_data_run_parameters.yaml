@@ -77,8 +77,8 @@ distance_matrix_arguments:
     - 'mean_squared_error'
   preload: True
   release_data_memory: False
-  slice_max_step: 6
-#  slice_steps_to: 6
+#  slice_max_step: 6
+  slice_step_to: 6
   sort: True
 
 

@@ -73,7 +73,6 @@ def calculate_mse(images: list[np.ndarray]) -> np.ndarray:
 
     _logger.info("Calculating MSE. Image sizes are %s.",
                  str([image.shape for image in images]))
-    ic(np.max(images), np.min(images))
 
     for i, image1 in enumerate(images):
         for j in range(i + 1, len(images)):
@@ -95,6 +94,11 @@ def calculate_distance_matrix(
         recording for recording in session
         if parent_name in recording.statistics and not recording.excluded
     ]
+    if len(recordings) == 0:
+        _logger.info(
+            "Data object '%s' not found in recordings of session: %s.",
+            parent_name, session.name)
+        return None
 
     if params.sort:
         prompts = [
@@ -110,6 +114,7 @@ def calculate_distance_matrix(
         recording.statistics[parent_name].data for recording in recordings
     ]
 
+    matrix = None
     if params.slice_max_step:
         sliced_images = []
         data_length = images[0].shape[1]
@@ -120,32 +125,32 @@ def calculate_distance_matrix(
                 image[:, begin:end] for image in images
             ]
             sliced_images.extend(new_images)
-        images = sliced_images
+
+        match params.metric:
+            case 'mean_squared_error':
+                matrix = calculate_mse(sliced_images)
+            case _:
+                raise ValueError(f"Unknown metric {params.metric}.")
+
     elif params.slice_step_to:
-        sliced_images = []
+        matrix = np.zeros((2*len(images), params.slice_step_to*2*len(images)))
         for step in range(params.slice_step_to):
-            step += 1
+            sliced_images = []
             first = [
-                image[:, :-step] for image in images
+                image[:, :-(step+1)] for image in images
             ]
             sliced_images.extend(first)
             second = [
-                image[:, step:] for image in images
+                image[:, (step+1):] for image in images
             ]
             sliced_images.extend(second)
-        images = sliced_images
-
-    if not images:
-        _logger.info(
-            "Data object '%s' not found in recordings of session: %s.",
-            parent_name, session.name)
-        return None
-
-    match params.metric:
-        case 'mean_squared_error':
-            matrix = calculate_mse(images)
-        case _:
-            raise ValueError(f"Unknown metric {params.metric}.")
+            match params.metric:
+                case 'mean_squared_error':
+                    new_values = calculate_mse(sliced_images)
+                case _:
+                    raise ValueError(f"Unknown metric {params.metric}.")
+            ic(matrix.shape, new_values.shape)
+            matrix[:, step * 2*len(images):(step + 1) * 2*len(images)] = new_values
 
     return DistanceMatrix(
         owner=session,

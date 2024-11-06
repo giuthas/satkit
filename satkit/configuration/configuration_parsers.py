@@ -231,6 +231,14 @@ def load_run_params(filepath: Path | str | None = None) -> YAML:
                     Optional("preload", default=True): Bool(),
                     Optional("release_data_memory", default=True): Bool(),
                 }),
+                Optional("distance_matrix_arguments"): Map({
+                    "metrics": Seq(Str()),
+                    Optional("preload", default=True): Bool(),
+                    Optional("release_data_memory", default=False): Bool(),
+                    Optional('slice_max_step'): Int(),
+                    Optional('slice_steps_to'): Int(),
+                    Optional('sort'): Bool(),
+                }),
                 Optional("pd_arguments"): Map({
                     "norms": Seq(Str()),
                     "timesteps": Seq(Int()),
@@ -245,12 +253,6 @@ def load_run_params(filepath: Path | str | None = None) -> YAML:
                     Optional('exclude_points'): FixedSeq([Int(), Int()]),
                     Optional('preload', default=True): Bool(),
                     Optional('release_data_memory', default=False): Bool(),
-                }),
-                Optional("distance_matrix_arguments"): Map({
-                    "metrics": Seq(Str()),
-                    Optional("preload", default=True): Bool(),
-                    Optional("release_data_memory", default=False): Bool(),
-                    Optional('slice_max_step'): Int(),
                 }),
                 Optional("peaks"): Map({
                     "modality_pattern": _search_pattern_schema,

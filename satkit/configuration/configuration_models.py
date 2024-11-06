@@ -221,6 +221,8 @@ class DistanceMatrixArguments(UpdatableBaseModel):
     preload: bool = True
     release_data_memory: bool = False
     slice_max_step: int | None = None
+    slice_step_to: int | None = None
+    sort: bool = False
 
 
 class PointAnnotationParams(UpdatableBaseModel):

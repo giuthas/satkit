@@ -129,7 +129,7 @@ class DistanceMatrix(Statistic):
 
         if params.sort:
             name_string = (
-                    name_string + f" sort: {params.sort}")
+                    name_string + f" sort {params.sort}")
 
         return name_string
 

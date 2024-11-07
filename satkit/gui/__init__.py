@@ -32,5 +32,6 @@
 """GUI elements."""
 
 from .boundary_animation import BoundaryAnimator
+from .image_save_dialog import ImageSaveDialog
 from .list_save_dialog import ListSaveDialog
 from .replace_dialog import ReplaceDialog

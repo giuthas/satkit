@@ -64,7 +64,10 @@ from satkit.export import (
     export_distance_matrix_and_meta,
     export_ultrasound_frame_and_meta
 )
-from satkit.gui import BoundaryAnimator, ListSaveDialog, ReplaceDialog
+from satkit.gui import (
+    BoundaryAnimator, ImageSaveDialog, ListSaveDialog,
+    ReplaceDialog
+)
 from satkit.plot_and_publish import (
     get_colors_in_sequence,
     mark_peaks, plot_spline, plot_satgrid_tier, plot_spectrogram,
@@ -339,12 +342,12 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
         self.clear_axes()
         if self.current.excluded:
             self.display_exclusion()
-        else:
-            self.draw_plots()
-            self.multicursor = MultiCursor(
-                self.canvas,
-                axes=self.data_axes + self.tier_axes,
-                color='deepskyblue', linestyle="--", lw=1)
+
+        self.draw_plots()
+        self.multicursor = MultiCursor(
+            self.canvas,
+            axes=self.data_axes + self.tier_axes,
+            color='deepskyblue', linestyle="--", lw=1)
         self.figure.canvas.draw()
 
         if self.display_tongue:
@@ -868,7 +871,7 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
 
     def export_ultrasound_frame(self) -> None:
         """
-        Export the currently displayed ultrasound frame and its meta data.
+        Export the currently selected ultrasound frame and its meta data.
 
         The metadata is written to a separate `.txt` file of the same name as
         the image file.
@@ -876,16 +879,28 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
         # TODO: Add a check that grays out the export ultrasound figure when one
         # isn't available.
         if self.current.annotations['selection_index'] >= 0:
-            (filename, _) = QFileDialog.getSaveFileName(
-                self, 'Export ultrasound frame', directory='.')
+            path, export_interpolated = ImageSaveDialog.get_selection(
+                name="Export ultrasound frame",
+                parent=self,
+                option_label='Export interpolated image'
+            )
+
+            if export_interpolated:
+                ultrasound_modality = self.current['RawUltrasound']
+                interpolation_params = ultrasound_modality.interpolation_params
+            else:
+                interpolation_params = None
+
             export_ultrasound_frame_and_meta(
-                filename=filename,
-                figure=self.ultra_fig,
+                filepath=path,
                 session=self.session,
                 recording=self.current,
                 selection_index=self.current.annotations['selection_index'],
                 selection_time=self.current.annotations['selected_time'],
+                ultrasound=self.current['RawUltrasound'],
+                interpolation_params=interpolation_params
             )
+
 
     def export_aggregate_image(self) -> None:
         statistics_names = self.current.statistics.keys()

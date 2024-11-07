@@ -38,9 +38,11 @@ import logging
 from pathlib import Path
 
 import nestedtext
+import numpy as np
 from matplotlib.figure import Figure
 from PIL import Image
 
+from local.depracated_code.recording import RawUltrasound
 from satkit.data_structures import Recording, Session
 from satkit.data_structures.base_classes import DataAggregator, DataContainer
 from satkit.interpolate_raw_uti import to_fan_2d
@@ -54,21 +56,27 @@ _logger = logging.getLogger('satkit.export')
 
 
 def _export_data_as_image(
-        data: DataContainer,
+        data: DataContainer | np.ndarray,
         path: Path,
         image_format: str = ".png",
         interpolation_params: dict | None = None,
 ) -> Path:
-    if path.is_dir():
+    if path.is_dir() and not isinstance(data, DataContainer):
+        raise ValueError("Data must be DataContainer if path is a directory.")
+    elif path.is_dir():
         filename = data.name.replace(" ", "_")
         filepath = path / filename
     else:
         filepath = path
 
-    if interpolation_params is not None:
-        raw_data = to_fan_2d(data.data, **interpolation_params)
-    else:
+    if isinstance(data, DataContainer):
         raw_data = data.data
+    else:
+        raw_data = data
+
+    if interpolation_params is not None:
+        raw_data = to_fan_2d(raw_data, **interpolation_params)
+
     im = Image.fromarray(raw_data)
     im = im.convert('L')
     im.save(filepath.with_suffix(image_format))
@@ -155,6 +163,9 @@ def export_aggregate_image_meta(
     aggregate_meta : AggregateImageParameters
         The parameters of the AggregateImage to be dumped in a file along with
         the session and recording information.
+    interpolation_params : dict | None
+        Dictionary of interpolation parameters to be passed to `to_fan_2d`, by
+        default None. If none, export raw image instead.
     """
     if not isinstance(filename, Path):
         filename = Path(filename)
@@ -201,6 +212,9 @@ def export_aggregate_image_and_meta(
         Path to save the image and meta file.
     image_format : str, optional
         File format to save the image in, by default ".png"
+    interpolation_params : dict | None
+        Dictionary of interpolation parameters to be passed to `to_fan_2d`, by
+        default None. If none, export raw image instead.
     """
     filepath = _export_data_as_image(
         image, path, image_format, interpolation_params)
@@ -293,14 +307,14 @@ def export_ultrasound_frame_meta(
 
 
 def export_ultrasound_frame_and_meta(
-        filename: str | Path,
-        figure: Figure,
+        filepath: str | Path,
         session: Session,
         recording: Recording,
         selection_index: int,
         selection_time: float,
-        bbox_inches: str = 'tight',
-        pad_inches: float = 0.05,
+        ultrasound: RawUltrasound,
+        image_format: str = ".png",
+        interpolation_params: dict | None = None
 ) -> None:
     """
     Write ultrasound frame metadata to a human-readable text file.
@@ -310,9 +324,7 @@ def export_ultrasound_frame_and_meta(
 
     Parameters
     ----------
-    figure : matplotlib.figure.Figure
-        Figure to write in the image file.
-    filename : str | Path
+    filepath : str | Path
         Filename or path for the ultrasound frame to export. Format is deduced
         from the file suffix.
     session : Session
@@ -325,16 +337,22 @@ def export_ultrasound_frame_and_meta(
         Time in seconds of the frame within the **recording**. This is relative
         to what ever -- most likely the beginning of audio -- is being used as
         t=0s.
-    bbox_inches : str
-        bounding box inches for the figure, by default 'tight'.
-    pad_inches :
-        padding inches around the figure, by default 0.05.
+    ultrasound : RawUltrasound
+        The RawUltrasound from which a frame is to be exported.
+    image_format : str, optional
+        File format to save the image in, by default ".png"
+    interpolation_params : dict | None
+        Dictionary of interpolation parameters to be passed to `to_fan_2d`, by
+        default None. If none, export raw image instead.
     """
-    figure.savefig(filename, bbox_inches=bbox_inches, pad_inches=pad_inches)
-    _logger.debug("Wrote file %s.", filename)
+    filepath = _export_data_as_image(
+        ultrasound, filepath, image_format, interpolation_params)
+
+    # figure.savefig(filepath, bbox_inches=bbox_inches, pad_inches=pad_inches)
+    _logger.debug("Wrote file %s.", filepath)
 
     export_ultrasound_frame_meta(
-        filename=filename,
+        filename=filepath,
         session=session,
         recording=recording,
         selection_index=selection_index,

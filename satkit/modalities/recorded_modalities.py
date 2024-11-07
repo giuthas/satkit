@@ -230,7 +230,7 @@ class RawUltrasound(Modality):
             # frame[:half,:] = 0
             self._stored_image = to_fan_2d(
                 frame,
-                **self.interpolation_parameters(),
+                **self.interpolation_params,
             )
             return self._stored_image
 
@@ -250,7 +250,7 @@ class RawUltrasound(Modality):
         video = to_fan(
             data,
             show_progress=True,
-            **self.interpolation_parameters(),
+            **self.interpolation_params,
         )
         self.stored_video = video.copy()
         # half = int(video.shape[1]/2)

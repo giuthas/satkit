@@ -43,6 +43,7 @@ import numpy as np
 # Praat textgrids
 import textgrids
 
+from local.call_structure import recording
 from satkit.configuration import PathStructure
 from satkit.constants import AnnotationType
 from satkit.errors import (
@@ -218,9 +219,21 @@ class Recording(DataAggregator, UserDict):
         else:
             notice = 'Note: ' + str(self.textgrid_path) + " did not exist."
             _datastructures_logger.warning(notice)
-            _datastructures_logger.warning("Creating an empty textgrid "
-                                           + "instead.")
+            _datastructures_logger.warning(
+                "Creating a placeholder textgrid "
+                "instead to make GUI function correctly.")
             textgrid = textgrids.TextGrid()
+            interval = textgrids.Interval(
+                text=self.meta_data.prompt,
+                xmin=self['MonoAudio'].min_time,
+                xmax=self['MonoAudio'].max_time,
+            )
+            tier = textgrids.Tier(
+                xmin=self['MonoAudio'].min_time,
+                xmax=self['MonoAudio'].max_time,
+            )
+            tier.append(interval)
+            textgrid['Utterance'] = tier
         return textgrid
 
     def identifier(self) -> str:
@@ -680,6 +693,14 @@ class Modality(DataContainer, OrderedDict):
                     " timevector.shape = " + str(timevector.shape) + "\n" +
                     " self.timevector.shape = "
                     + str(self._timevector.shape) + ".")
+
+    @property
+    def min_time(self) -> float:
+        return self.timevector[0]
+
+    @property
+    def max_time(self) -> float:
+        return self.timevector[-1]
 
     @property
     def excluded(self) -> None:

@@ -30,7 +30,7 @@
 # citations.bib in BibTeX format.
 #
 """Dialog for asking which items should be saved and where."""
-
+import os
 from pathlib import Path
 
 from PyQt5 import QtCore
@@ -107,7 +107,11 @@ class ListSaveDialog(QDialog):
         path_and_name_box = QHBoxLayout()
         self.path_label = QLabel(self)
         self.path_label.setText("Path:")
-        self.path_field = QLineEdit(str(self.save_path), parent=self)
+        if self.save_path.is_dir():
+            path_string = os.path.join(self.save_path, "")
+        else:
+            path_string = str(self.save_path)
+        self.path_field = QLineEdit(path_string, parent=self)
         self.path_label.setBuddy(self.path_field)
         self.browse_button = QPushButton('Browse...')
         self.browse_button.clicked.connect(self._browse)

@@ -43,6 +43,7 @@ and this project uses [Semantic Versioning](https://semver.org/spec/v2.0.0.html)
 - Saving AggregateImages with metadata.
 - Expanded SatGrid (the editable TextGrid extension) to include Points and Point
   Tiers.
+- Automatic x limits now work properly in the GUI.
 
 ## [0.10.1] 2024-10-18
 

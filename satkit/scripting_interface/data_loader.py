@@ -34,6 +34,7 @@ Import a Session from a directory or call the loader for previously saved data.
 """
 
 import logging
+import sys
 from pathlib import Path
 
 # from icecream import ic
@@ -79,7 +80,7 @@ def load_data(path: Path) -> Session:
         logger.critical(
             'File or directory does not exist: %s.', path)
         logger.critical('Exiting.')
-        quit()
+        sys.exit()
     elif path.is_dir():
         session = read_recording_session_from_dir(path)
     elif path.suffix == '.satkit_meta':
@@ -87,6 +88,10 @@ def load_data(path: Path) -> Session:
     else:
         logger.error(
             'Unsupported filetype: %s.', path)
+        sys.exit()
+
+    for recording in session:
+        recording.after_modalities_init()
 
     return session
 

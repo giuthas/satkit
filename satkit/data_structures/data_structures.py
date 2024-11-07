@@ -42,8 +42,8 @@ from pathlib import Path
 import numpy as np
 # Praat textgrids
 import textgrids
+from icecream import ic
 
-from local.call_structure import recording
 from satkit.configuration import PathStructure
 from satkit.constants import AnnotationType
 from satkit.errors import (
@@ -58,7 +58,7 @@ from .meta_data_classes import (
 
 # from icecream import ic
 
-_datastructures_logger = logging.getLogger('satkit.data_structures')
+_logger = logging.getLogger('satkit.data_structures')
 
 
 class Session(DataAggregator, UserList):
@@ -141,6 +141,10 @@ class Recording(DataAggregator, UserDict):
         Modalities and annotations get added after constructions with their own
         add_[modality or annotation] functions.
 
+        NOTE: `after_modalities_init` should be called on each new Recording
+        after modalities have been loaded. It ensures that there is at least a
+        minimal TextGrid in place to facilitate GUI functions.
+
         Parameters
         ----------
         meta_data : RecordingMetaData
@@ -161,7 +165,10 @@ class Recording(DataAggregator, UserDict):
             self.textgrid_path = meta_data.path.joinpath(
                 meta_data.basename + ".TextGrid")
         self.textgrid = self._read_textgrid()
-        self.satgrid = SatGrid(self.textgrid)
+        if self.textgrid:
+            self.satgrid = SatGrid(self.textgrid)
+        else:
+            self.satgrid = None
 
         self.annotations = {}
 
@@ -195,7 +202,7 @@ class Recording(DataAggregator, UserDict):
     def basename(self, basename: str) -> None:
         self.meta_data.basename = basename
 
-    def _read_textgrid(self) -> textgrids.TextGrid:
+    def _read_textgrid(self) -> textgrids.TextGrid | None:
         """
         Read the textgrid specified in self.meta.
 
@@ -203,37 +210,20 @@ class Recording(DataAggregator, UserDict):
         by logging an error and creating an empty textgrid for this 
         recording.
         """
+        textgrid = None
         if self.textgrid_path.is_file():
             try:
                 textgrid = textgrids.TextGrid(self.textgrid_path)
-                _datastructures_logger.info("Read textgrid in %s.",
-                                            self.textgrid_path)
+                _logger.info("Read textgrid in %s.",
+                             self.textgrid_path)
             except Exception as exception:
-                _datastructures_logger.critical(
+                _logger.critical(
                     "Could not read textgrid in %s.", self.textgrid_path)
-                _datastructures_logger.critical(
+                _logger.critical(
                     "Failed with: %s.", str(exception))
-                _datastructures_logger.critical("Creating an empty textgrid "
-                                                + "instead.")
-                textgrid = textgrids.TextGrid()
         else:
             notice = 'Note: ' + str(self.textgrid_path) + " did not exist."
-            _datastructures_logger.warning(notice)
-            _datastructures_logger.warning(
-                "Creating a placeholder textgrid "
-                "instead to make GUI function correctly.")
-            textgrid = textgrids.TextGrid()
-            interval = textgrids.Interval(
-                text=self.meta_data.prompt,
-                xmin=self['MonoAudio'].min_time,
-                xmax=self['MonoAudio'].max_time,
-            )
-            tier = textgrids.Tier(
-                xmin=self['MonoAudio'].min_time,
-                xmax=self['MonoAudio'].max_time,
-            )
-            tier.append(interval)
-            textgrid['Utterance'] = tier
+            _logger.warning(notice)
         return textgrid
 
     def identifier(self) -> str:
@@ -279,9 +269,9 @@ class Recording(DataAggregator, UserDict):
             else:
                 self.textgrid.write(self.textgrid_path)
         except Exception as exception:
-            _datastructures_logger.critical(
+            _logger.critical(
                 "Could not write textgrid to %s.", str(self.textgrid_path))
-            _datastructures_logger.critical(
+            _logger.critical(
                 "TextGrid save failed with error: %s", str(exception))
 
     def add_modality(
@@ -313,10 +303,36 @@ class Recording(DataAggregator, UserDict):
 
         if replace:
             self.modalities[name] = modality
-            _datastructures_logger.debug("Replaced modality %s.", name)
+            _logger.debug("Replaced modality %s.", name)
         else:
             self.modalities[name] = modality
-            _datastructures_logger.debug("Added new modality %s.", name)
+            _logger.debug("Added new modality %s.", name)
+
+    def after_modalities_init(self):
+        ic()
+        if 'MonoAudio' in self.modalities:
+            ic()
+            _logger.warning(
+                "Creating a placeholder textgrid to make GUI function "
+                "correctly.")
+            textgrid = textgrids.TextGrid()
+            interval = textgrids.Interval(
+                text=self.meta_data.prompt,
+                xmin=self['MonoAudio'].min_time,
+                xmax=self['MonoAudio'].max_time,
+            )
+            tier = textgrids.Tier(
+                xmin=self['MonoAudio'].min_time,
+                xmax=self['MonoAudio'].max_time,
+            )
+            tier.append(interval)
+            textgrid['Utterance'] = tier
+            self.textgrid = textgrid
+            self.satgrid = SatGrid(self.textgrid)
+        else:
+            _logger.warning("No audio found for %s.", self.basename)
+            _logger.warning("Can't create a textgrid so GUI may not function "
+                            "correctly.")
 
     def __str__(self) -> str:
         """
@@ -506,11 +522,11 @@ class Modality(DataContainer, OrderedDict):
             The annotations to be added.
         """
         if point_annotations.annotation_type in self:
-            _datastructures_logger.debug(
+            _logger.debug(
                 "In Modality add_annotations. "
                 "Overwriting %s.", str(point_annotations.annotation_type))
         else:
-            _datastructures_logger.debug(
+            _logger.debug(
                 "In Modality add_annotations. "
                 "Adding %s.", str(point_annotations.annotation_type))
 
@@ -533,7 +549,7 @@ class Modality(DataContainer, OrderedDict):
         release the memory, assign None to this Modality's data.
         """
         if self._modality_data is None:
-            _datastructures_logger.debug(
+            _logger.debug(
                 "In Modality modality_data getter. "
                 "self._modality_data was None.")
             self._set_data(self._get_data())
@@ -556,7 +572,7 @@ class Modality(DataContainer, OrderedDict):
         release the memory, assign None to this Modality's data.
         """
         if self._modality_data is None or self._modality_data.data is None:
-            _datastructures_logger.debug(
+            _logger.debug(
                 "In Modality data getter. "
                 "self._modality_data or self._modality_data.data was None.")
             self._set_data(self._get_data())

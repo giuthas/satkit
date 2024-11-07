@@ -345,8 +345,12 @@ def export_ultrasound_frame_and_meta(
         Dictionary of interpolation parameters to be passed to `to_fan_2d`, by
         default None. If none, export raw image instead.
     """
+    frame = ultrasound.raw_image(selection_index)
+    if filepath.is_dir():
+        filename = ultrasound.name.replace(" ", "_")
+        filepath = filepath / filename
     filepath = _export_data_as_image(
-        ultrasound, filepath, image_format, interpolation_params)
+        frame, filepath, image_format, interpolation_params)
 
     # figure.savefig(filepath, bbox_inches=bbox_inches, pad_inches=pad_inches)
     _logger.debug("Wrote file %s.", filepath)

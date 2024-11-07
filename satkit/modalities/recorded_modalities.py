@@ -199,6 +199,20 @@ class RawUltrasound(Modality):
     def data(self, data) -> None:
         super()._data_setter(data)
 
+    def raw_image(self, index: int) -> np.ndarray:
+        """
+        Return the raw ultrasound frame at index.
+
+        Parameters
+        ----------
+        index : int
+            Index to look up.
+        Returns
+        -------
+            The frame as an `np.ndarray`.
+        """
+        return self.data[index, :, :].copy()
+
     def interpolated_image(self, index):
         """
         Return an interpolated version of the ultrasound frame at index.

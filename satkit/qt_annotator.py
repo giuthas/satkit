@@ -460,10 +460,6 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
         for axes in self.tier_axes[:-1]:
             axes.xaxis.set_tick_params(bottom=False, labelbottom=False)
 
-        # self.tier_axes[-1].xaxis.set_tick_params(labelbottom=True)
-        # ticks = self.tier_axes[-1].xaxis.set_tick_params(bottom=True,
-        #                                                  labelbottom=True)
-
         audio = self.current.modalities['MonoAudio']
         stimulus_onset = audio.go_signal
         wav = audio.data
@@ -473,15 +469,16 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
         if self.gui_config.xlim is not None:
             self.xlim = self.gui_config.xlim
         elif self.gui_config.auto_xlim:
-            self.xlim = list(self.xlim)
-            for name in self.gui_config.plotted_modality_names():
-                modality_xmin = self.current[name].timevector[0]
-                modality_xmax = self.current[name].timevector[-1]
-                if self.xlim[0] > modality_xmin - stimulus_onset:
-                    self.xlim[0] = modality_xmin - stimulus_onset
-                if self.xlim[1] < modality_xmax - stimulus_onset:
-                    self.xlim[1] = modality_xmax - stimulus_onset
-            self.xlim = tuple(self.xlim)
+            x_minimums = []
+            x_maximums = []
+            modalities_to_check = self.gui_config.plotted_modality_names()
+            modalities_to_check.add("MonoAudio")
+            for name in modalities_to_check:
+                x_minimums.append(
+                    self.current[name].timevector[0] - stimulus_onset)
+                x_maximums.append(
+                    self.current[name].timevector[-1] - stimulus_onset)
+            self.xlim = (np.min(x_minimums)-.05, np.max(x_maximums)+.05)
 
         axes_counter = 0
         for axes_name in self.gui_config.data_axes:
@@ -524,7 +521,7 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
         self.data_axes[0].legend(
             loc='upper left')
 
-        # TODO: the sync is out with this one, but plotting a pd spectrum is
+        # TODO: the sync is iffy with this one, but plotting a pd spectrum is
         # still a good idea. Just need to get the FFT parameters tuned - if
         # that's even possible.
         # plot_spectrogram(self.data_axes[1],

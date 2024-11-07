@@ -309,28 +309,29 @@ class Recording(DataAggregator, UserDict):
             _logger.debug("Added new modality %s.", name)
 
     def after_modalities_init(self):
-        if 'MonoAudio' in self.modalities:
-            _logger.warning(
-                "%s: Creating a placeholder textgrid to make GUI function "
-                "correctly.", self.basename)
-            textgrid = textgrids.TextGrid()
-            interval = textgrids.Interval(
-                text=self.meta_data.prompt,
-                xmin=self['MonoAudio'].min_time,
-                xmax=self['MonoAudio'].max_time,
-            )
-            tier = textgrids.Tier(
-                xmin=self['MonoAudio'].min_time,
-                xmax=self['MonoAudio'].max_time,
-            )
-            tier.append(interval)
-            textgrid['Utterance'] = tier
-            self.textgrid = textgrid
-            self.satgrid = SatGrid(self.textgrid)
-        else:
-            _logger.warning("No audio found for %s.", self.basename)
-            _logger.warning("Can't create a textgrid so GUI may not function "
-                            "correctly.")
+        if self.textgrid is None:
+            if 'MonoAudio' in self.modalities:
+                _logger.warning(
+                    "%s: Creating a placeholder textgrid to make GUI function "
+                    "correctly.", self.basename)
+                textgrid = textgrids.TextGrid()
+                interval = textgrids.Interval(
+                    text=self.meta_data.prompt,
+                    xmin=self['MonoAudio'].min_time,
+                    xmax=self['MonoAudio'].max_time,
+                )
+                tier = textgrids.Tier(
+                    xmin=self['MonoAudio'].min_time,
+                    xmax=self['MonoAudio'].max_time,
+                )
+                tier.append(interval)
+                textgrid['Utterance'] = tier
+                self.textgrid = textgrid
+                self.satgrid = SatGrid(self.textgrid)
+            else:
+                _logger.warning("No audio found for %s.", self.basename)
+                _logger.warning("Can't create a textgrid so GUI may not function "
+                                "correctly.")
 
     def __str__(self) -> str:
         """

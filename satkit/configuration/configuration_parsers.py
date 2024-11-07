@@ -351,6 +351,7 @@ def load_gui_params(filepath: Path | str | None = None) -> YAML:
                 ),
                 "pervasive_tiers": Seq(Str()),
                 Optional("xlim"): FixedSeq([Float(), Float()]),
+                Optional('auto_xlim', default=False): Bool(),
                 "default_font_size": Int(),
             })
             try:
@@ -366,6 +367,9 @@ def load_gui_params(filepath: Path | str | None = None) -> YAML:
         sys.exit()
 
     gui_params.update(_raw_gui_params_dict.data)
+
+    if 'xlim' in gui_params and 'auto_xlim' in gui_params:
+        gui_params['auto_xlim'] = False
 
     number_of_data_axes = 0
     if 'data_axes' in gui_params:

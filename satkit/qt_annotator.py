@@ -57,7 +57,7 @@ from PyQt5.uic import loadUiType
 
 from satkit.data_structures import Session
 from satkit.configuration import (
-    GuiConfig, TimeseriesNormalisation, gui_params, config_dict
+    GuiConfig, TimeseriesNormalisation, config_dict
 )
 from satkit.export import (
     export_aggregate_image_and_meta,
@@ -224,13 +224,13 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
         #     'key_release_event', self.on_key_release)
 
         matplotlib.rcParams.update(
-            {'font.size': gui_params['default_font_size']}
+            {'font.size': self.gui_config.default_font_size}
         )
 
         self.xlim = xlim
 
-        height_ratios = [gui_params['data_and_tier_height_ratios']["data"],
-                         gui_params['data_and_tier_height_ratios']["tier"]]
+        height_ratios = [self.gui_config.data_and_tier_height_ratios.data,
+                         self.gui_config.data_and_tier_height_ratios.tier]
         self.main_grid_spec = self.figure.add_gridspec(
             nrows=2,
             ncols=1,
@@ -239,26 +239,26 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
             height_ratios=height_ratios)
         self.tier_grid_spec = None
 
-        number_of_data_axes = gui_params['number_of_data_axes']
+        number_of_data_axes = self.gui_config.number_of_data_axes
         self.data_grid_spec = self.main_grid_spec[0].subgridspec(
             number_of_data_axes, 1, hspace=0, wspace=0)
 
         data_axes_params = None
-        if 'general_axes_params' in gui_params:
-            general_axes_params = gui_params['general_axes_params']
-            if 'data_axes' in general_axes_params:
-                data_axes_params = general_axes_params['data_axes']
+        if gui_config.general_axes_params:
+            general_axes_params = gui_config.general_axes_params
+            if general_axes_params is not None:
+                data_axes_params = general_axes_params
 
-        for i, axes_name in enumerate(gui_params['data_axes']):
+        for i, axes_name in enumerate(gui_config.data_axes):
             # There used to be a 'global' axes which has been moved to
             # 'general_axes_params' this may still cause problems with old
             # config files and should be fixed in them, not here.
             sharex = False
-            if 'sharex' in gui_params['data_axes'][axes_name]:
-                sharex = gui_params['data_axes'][axes_name]['sharex']
+            if gui_config.data_axes[axes_name].sharex:
+                sharex = gui_config.data_axes[axes_name].sharex
             elif (data_axes_params is not None and
-                  'sharex' in data_axes_params):
-                sharex = data_axes_params['sharex']
+                  data_axes_params.sharex is not None):
+                sharex = data_axes_params.sharex
 
             if i != 0 and sharex:
                 self.data_axes.append(
@@ -386,22 +386,22 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
         ylim : Optional[list[float, float]], optional
             y limits, by default None
         """
-        axes_params = gui_params['data_axes'][axes_name]
-        plot_modality_names = axes_params['modalities']
+        axes_params = self.gui_config.data_axes[axes_name]
+        plot_modality_names = axes_params.modalities
 
         if ylim is None:
             ylim = (-0.05, 1.05)
 
         y_offset = 0
-        if 'y_offset' in axes_params:
-            y_offset = axes_params['y_offset']
+        if axes_params.y_offset is not None:
+            y_offset = axes_params.y_offset
             ylim_adjustment = y_offset * len(plot_modality_names)
             if y_offset > 0:
                 ylim = (ylim[0], ylim[1] + ylim_adjustment)
             else:
                 ylim = (ylim[0] + ylim_adjustment, ylim[1])
 
-        if axes_params['colors_in_sequence']:
+        if axes_params.colors_in_sequence:
             colors = get_colors_in_sequence(len(plot_modality_names))
         else:
             colors = None
@@ -419,7 +419,7 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
                 sampling_step=i + 1,
                 label=f"{modality.sampling_rate / (i + 1):.2f} Hz"
             )
-            if 'mark_peaks' in axes_params and axes_params['mark_peaks']:
+            if axes_params.mark_peaks:
                 mark_peaks(self.data_axes[axes_number],
                            modality,
                            self.xlim,
@@ -469,25 +469,22 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
         wav = audio.data
         wav_time = audio.timevector - stimulus_onset
 
-        # TODO find a less hacky way of setting the xlim for auto_x
-        l1 = self.current.modalities['PD l1 on RawUltrasound']
-        ultra_time = l1.timevector - stimulus_onset
-
-        if 'auto_x' in gui_params and gui_params['auto_x']:
-            # TODO: find the minimum and maximum timestamp of all the
-            # modalities being plotted. this can be really done only after
-            # plotting is controlled by config instead of manual code
-            self.xlim = (
-                np.min([np.min(wav_time), np.min(ultra_time)]),
-                np.max([np.max(wav_time), np.max(ultra_time)])
-            )
-        elif 'xlim' in gui_params:
-            self.xlim = gui_params['xlim']
-        else:
-            self.xlim = (-.25, 1.5)
+        self.xlim = (-.25, 1.5)
+        if self.gui_config.xlim is not None:
+            self.xlim = self.gui_config.xlim
+        elif self.gui_config.auto_xlim:
+            self.xlim = list(self.xlim)
+            for name in self.gui_config.plotted_modality_names():
+                modality_xmin = self.current[name].timevector[0]
+                modality_xmax = self.current[name].timevector[-1]
+                if self.xlim[0] > modality_xmin - stimulus_onset:
+                    self.xlim[0] = modality_xmin - stimulus_onset
+                if self.xlim[1] < modality_xmax - stimulus_onset:
+                    self.xlim[1] = modality_xmax - stimulus_onset
+            self.xlim = tuple(self.xlim)
 
         axes_counter = 0
-        for axes_name in gui_params['data_axes']:
+        for axes_name in self.gui_config.data_axes:
             match axes_name:
                 case "spectrogram":
                     plot_spectrogram(self.data_axes[axes_counter],
@@ -553,7 +550,7 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
                 name, rotation=0, horizontalalignment="right",
                 verticalalignment="center")
             axis.set_xlim(self.xlim)
-            if name in gui_params["pervasive_tiers"]:
+            if name in self.gui_config.pervasive_tiers:
                 for data_axis in self.data_axes:
                     boundary_set = plot_satgrid_tier(
                         data_axis, tier, time_offset=stimulus_onset,
@@ -580,9 +577,9 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
             for axes in self.data_axes:
                 axes.axvline(x=self.current.annotations['selected_time'],
                              linestyle=':', color="deepskyblue", lw=1)
-            self.data_axes[-1].axvline(x=self.current.annotations
-            ['selected_time'],
-                                       linestyle=':', color="white", lw=1)
+            self.data_axes[-1].axvline(
+                x=self.current.annotations['selected_time'],
+                linestyle=':', color="white", lw=1)
             for axes in self.tier_axes:
                 axes.axvline(x=self.current.annotations['selected_time'],
                              linestyle=':', color="deepskyblue", lw=1)
@@ -1107,26 +1104,27 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
         if event.key() == Qt.Key_Shift:
             self.shift_is_held = True
         if event.key() == Qt.Key_I:
-            gui_params['auto_x'] = False
+            self.gui_config.auto_xlim = False
             if self.current.annotations['selection_index'] >= 0:
                 center = self.current.annotations['selected_time']
             else:
                 center = (self.xlim[0] + self.xlim[1]) / 2.0
             length = (self.xlim[1] - self.xlim[0]) * .25
             self.xlim = (center - length, center + length)
-            if 'xlim' in gui_params:
-                gui_params['xlim'] = self.xlim
+            if self.gui_config.xlim is not None:
+                self.gui_config.xlim = self.xlim
             self.update()
         elif event.key() == Qt.Key_O:
-            gui_params['auto x'] = False
+            self.gui_config.auto_xlim = False
             center = (self.xlim[0] + self.xlim[1]) / 2.0
             length = self.xlim[1] - self.xlim[0]
             self.xlim = (center - length, center + length)
-            if 'xlim' in gui_params:
-                gui_params['xlim'] = self.xlim
+            if self.gui_config.xlim is not None:
+                self.gui_config.xlim = self.xlim
             self.update()
         elif event.key() == Qt.Key_A:
-            gui_params['auto_x'] = True
+            self.gui_config.auto_xlim = True
+            self.gui_config.xlim = None
             self.update()
 
     def keyReleaseEvent(self, event):

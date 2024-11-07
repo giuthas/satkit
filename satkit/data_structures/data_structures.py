@@ -309,12 +309,10 @@ class Recording(DataAggregator, UserDict):
             _logger.debug("Added new modality %s.", name)
 
     def after_modalities_init(self):
-        ic()
         if 'MonoAudio' in self.modalities:
-            ic()
             _logger.warning(
-                "Creating a placeholder textgrid to make GUI function "
-                "correctly.")
+                "%s: Creating a placeholder textgrid to make GUI function "
+                "correctly.", self.basename)
             textgrid = textgrids.TextGrid()
             interval = textgrids.Interval(
                 text=self.meta_data.prompt,

@@ -389,7 +389,7 @@ class DataContainer(DataObject):
     @abc.abstractmethod
     def data(self) -> np.ndarray:
         pass
-
+    
 
 class Statistic(DataContainer):
     """

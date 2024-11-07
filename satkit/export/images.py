@@ -43,6 +43,7 @@ from PIL import Image
 
 from satkit.data_structures import Recording, Session
 from satkit.data_structures.base_classes import DataAggregator, DataContainer
+from satkit.interpolate_raw_uti import to_fan_2d
 from satkit.metrics import (
     AggregateImage, AggregateImageParameters,
     DistanceMatrix, DistanceMatrixParameters
@@ -55,7 +56,8 @@ _logger = logging.getLogger('satkit.export')
 def _export_data_as_image(
         data: DataContainer,
         path: Path,
-        image_format: str = ".png"
+        image_format: str = ".png",
+        interpolated: dict | None = None,
 ) -> Path:
     if path.is_dir():
         filename = data.name.replace(" ", "_")
@@ -63,7 +65,10 @@ def _export_data_as_image(
     else:
         filepath = path
 
-    raw_data = data.data
+    if interpolated is not None:
+        raw_data = to_fan_2d(data, **interpolated)
+    else:
+        raw_data = data.data
     im = Image.fromarray(raw_data)
     im = im.convert('L')
     im.save(filepath.with_suffix(image_format))
@@ -172,7 +177,8 @@ def export_aggregate_image_and_meta(
         session: Session,
         recording: Recording,
         path: Path,
-        image_format: str = ".png"
+        image_format: str = ".png",
+        interpolated: bool = False,
 ) -> None:
     """
     Export AggregateImage to an image file and meta to a text file.

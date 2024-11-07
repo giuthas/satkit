@@ -38,11 +38,12 @@ from pathlib import Path
 
 import numpy as np
 from satkit.data_structures import ModalityData
+from satkit.modalities import RawUltrasoundMeta
 
 
 def read_ult(
         path: Path,
-        meta: dict,
+        meta: RawUltrasoundMeta,
         time_offset: float) -> ModalityData:
     """
     Read raw ultrasound from path.
@@ -63,13 +64,10 @@ def read_ult(
         ultra = np.fromstring(ult_data, dtype=np.uint8)
         ultra = ultra.astype("float32")
 
-        meta['no_frames'] = int(
-            len(ultra) /
-            (meta['NumVectors'] * meta['PixPerVector']))
+        no_frames = int(len(ultra) / (meta.num_vectors * meta.pix_per_vector))
         data = ultra.reshape(
-            (meta['no_frames'],
-                meta['NumVectors'],
-                meta['PixPerVector']))
+            no_frames, meta.num_vectors, meta.pix_per_vector
+        )
 
         # TODO The following transpose and flip are done to match
         # interpolate_raw_uti.py expectations. Need to check if those
@@ -81,13 +79,12 @@ def read_ult(
         data = np.flip(data, 1)
 
         ultra_time = np.linspace(
-            0, meta['no_frames'],
-            num=meta['no_frames'],
+            0, no_frames,
+            num=no_frames,
             endpoint=False)
-        timevector = ultra_time / \
-            meta['FramesPerSec'] + time_offset
+        timevector = ultra_time / meta.frames_per_sec + time_offset
         # this should be added for PD and similar time vectors: +
         # .5/self.meta['framesPerSec'] while at the same time dropping a
         # suitable number of timestamps
 
-    return ModalityData(data, meta['FramesPerSec'], timevector)
+    return ModalityData(data, meta.frames_per_sec, timevector)

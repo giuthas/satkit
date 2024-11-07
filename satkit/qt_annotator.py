@@ -891,31 +891,36 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
         statistics_names = self.current.statistics.keys()
         choice_list = [
             name for name in statistics_names if 'AggregateImage' in name]
-        image_list, path = ListSaveDialog.get_selection(
+        image_list, path, export_interpolated = ListSaveDialog.get_selection(
             name="Export AggregateImages",
             item_names=choice_list,
-            parent=self
+            parent=self,
+            option_label='Export interpolated image'
         )
-        # save the correct things
-        ic(image_list, path)
+        if image_list is None:
+            return
+
         for image in image_list:
             export_aggregate_image_and_meta(
                 image=self.current.statistics[image],
                 session=self.session,
                 recording=self.current,
-                path=path)
+                path=path,
+                interpolated=export_interpolated
+            )
 
     def export_distance_matrix(self) -> None:
         statistics_names = self.session.statistics.keys()
         choice_list = [
             name for name in statistics_names if 'DistanceMatrix' in name]
-        matrix_list, path = ListSaveDialog.get_selection(
+        matrix_list, path, _ = ListSaveDialog.get_selection(
             name="Export DistanceMatrices",
             item_names=choice_list,
-            parent=self
+            parent=self,
         )
-        # save the correct things
-        ic(matrix_list, path)
+        if matrix_list is None:
+            return
+
         for matrix in matrix_list:
             export_distance_matrix_and_meta(
                 matrix=self.session.statistics[matrix],

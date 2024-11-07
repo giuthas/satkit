@@ -30,11 +30,29 @@
 # citations.bib in BibTeX format.
 #
 """
-General purpose utility functions.
+Metadata for recorded (external) data.
 """
 
-from .computational import (
-    cartesian_to_polar, polar_to_cartesian, mean_squared_error,
-    normalise_timeseries)
-from .processing_helpers import camel_to_snake, product_dict
-from .types import is_sequence_form
+from satkit.data_structures import ModalityMetaData
+
+
+class RawUltrasoundMeta(ModalityMetaData):
+    """
+
+    num_vectors -- number of scanlines in a frame
+    pix_Ver_vector -- number of pixels in a scanline
+    zero_offset --
+    bits_per_pixel -- byte length of a single pixel in the .ult file
+    angle -- angle in radians between two scanlines
+    kind -- type of probe used
+    pixels_per_mm -- depth resolution of a scanline
+    frames_per_sec -- frame rate of ultrasound recording
+    """
+    angle: float
+    frames_per_sec: float
+    num_vectors: int
+    pix_per_vector: int
+    pixels_per_mm: float
+    zero_offset: float
+    kind: int
+    bits_per_pixel: int

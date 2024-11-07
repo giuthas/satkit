@@ -29,5 +29,12 @@
 # articles listed in README.markdown. They can also be found in
 # citations.bib in BibTeX format.
 #
-from .recorded_modalities import MonoAudio, RawUltrasound, ThreeD_Ultrasound, Video
+"""
+Modalities and metadata for recorded (external) data.
+"""
+
+from .recorded_meta_data_classes import RawUltrasoundMeta
+from .recorded_modalities import (
+    MonoAudio, RawUltrasound, ThreeD_Ultrasound, Video
+)
 from .splines import Splines

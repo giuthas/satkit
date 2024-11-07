@@ -37,7 +37,6 @@ import logging
 from typing import Optional
 
 import numpy as np
-from icecream import ic
 
 from satkit.data_structures import FileInformation, Session
 from .distance_matrix import DistanceMatrix, DistanceMatrixParameters
@@ -133,7 +132,8 @@ def calculate_distance_matrix(
                 raise ValueError(f"Unknown metric {params.metric}.")
 
     elif params.slice_step_to:
-        matrix = np.zeros((2*len(images), params.slice_step_to*2*len(images)))
+        data_length = 2*len(images)
+        matrix = np.zeros((data_length, params.slice_step_to*data_length))
         for step in range(params.slice_step_to):
             sliced_images = []
             first = [
@@ -149,8 +149,7 @@ def calculate_distance_matrix(
                     new_values = calculate_mse(sliced_images)
                 case _:
                     raise ValueError(f"Unknown metric {params.metric}.")
-            ic(matrix.shape, new_values.shape)
-            matrix[:, step * 2*len(images):(step + 1) * 2*len(images)] = new_values
+            matrix[:, step * data_length:(step + 1) * data_length] = new_values
 
     return DistanceMatrix(
         owner=session,

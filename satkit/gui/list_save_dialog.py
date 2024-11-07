@@ -37,7 +37,8 @@ from icecream import ic
 from PyQt5 import QtCore
 from PyQt5.QtGui import QIcon, QStandardItem, QStandardItemModel
 from PyQt5.QtWidgets import (
-    QDialog, QDialogButtonBox, QFileDialog, QHBoxLayout, QLabel, QLineEdit,
+    QCheckBox, QDialog, QDialogButtonBox, QFileDialog, QHBoxLayout, QLabel,
+    QLineEdit,
     QListView,
     QPushButton, QVBoxLayout, QWidget
 )
@@ -53,6 +54,7 @@ class ListSaveDialog(QDialog):
             checked: bool = True,
             icon: QIcon | None = None,
             parent: QWidget | None = None,
+            option_label: str | None = None,
     ):
         super().__init__(parent)
 
@@ -63,11 +65,14 @@ class ListSaveDialog(QDialog):
         elif isinstance(save_path, str):
             save_path = Path(save_path)
         self.save_path = save_path
+        self.option = None
 
         # self.icon = icon
 
         # The checklist
         self.list_view = QListView()
+        self.list_view.setHorizontalScrollBarPolicy(
+            QtCore.Qt.ScrollBarAlwaysOff)
         self.model = QStandardItemModel()
         for item_name in item_names:
             item = QStandardItem(item_name)
@@ -76,8 +81,11 @@ class ListSaveDialog(QDialog):
             item.setCheckState(check)
             self.model.appendRow(item)
         self.list_view.setModel(self.model)
+        # TODO: this doesn't quite work, but rather sets the width too large
+        self.list_view.setMinimumWidth(
+            self.list_view.contentsRect().width())
 
-        # Buttons for checking and unchecking 
+        # Buttons for checking and unchecking list items
         select_box = QHBoxLayout()
         select_box.addStretch(1)
         self.reverse_selection_button = QPushButton('Reverse selection')
@@ -91,8 +99,13 @@ class ListSaveDialog(QDialog):
         select_box.addWidget(self.unselect_button)
 
         # Elements for choosing names to use and location to save at.
+        option_box = None
+        if option_label is not None:
+            option_box = QHBoxLayout()
+            self.option_checkbox = QCheckBox(option_label)
+            option_box.addWidget(self.option_checkbox)
+            self.option = False
         path_and_name_box = QHBoxLayout()
-        # path_and_name_box.addStretch(1)
         self.path_label = QLabel(self)
         self.path_label.setText("Path:")
         self.path_field = QLineEdit(str(self.save_path), parent=self)
@@ -102,7 +115,6 @@ class ListSaveDialog(QDialog):
         path_and_name_box.addWidget(self.path_label)
         path_and_name_box.addWidget(self.path_field)
         path_and_name_box.addWidget(self.browse_button)
-
 
         # The cancel, ok buttons
         dialog_buttons = QDialogButtonBox.Ok | QDialogButtonBox.Cancel
@@ -117,12 +129,16 @@ class ListSaveDialog(QDialog):
         vbox.addWidget(self.list_view)
         vbox.addStretch(1)
         vbox.addLayout(select_box)
+        if option_box is not None:
+            vbox.addLayout(option_box)
         vbox.addLayout(path_and_name_box)
         vbox.addWidget(self.ok_cancel_buttons)
         
         self.setWindowTitle(self.name)
         if icon:
             self.setWindowIcon(icon)
+
+        self.adjustSize()
 
     def _browse(self):
         directory = QFileDialog.getExistingDirectory(
@@ -139,6 +155,8 @@ class ListSaveDialog(QDialog):
             self.model.item(i).text() for i in range(self.model.rowCount())
             if self.model.item(i).checkState() == QtCore.Qt.Checked
         ]
+        if self.option is not None:
+            self.option = self.option_checkbox.isChecked()
         self.save_path = Path(self.path_field.text())
         self.accept()
 
@@ -168,14 +186,17 @@ class ListSaveDialog(QDialog):
             checked: bool = True,
             icon: QIcon | None = None,
             parent: QWidget | None = None,
-    ) -> tuple[list[str] | None, Path | None]:
+            option_label: str | None = None,
+    ) -> tuple[list[str] | None, Path | None, bool | None]:
         dialog = ListSaveDialog(
             name=name,
             item_names=item_names,
             save_path=save_path,
             checked=checked,
             icon=icon,
-            parent=parent)
+            parent=parent,
+            option_label=option_label,
+        )
         if dialog.exec_() == QDialog.Rejected:
-            return None, None
-        return dialog.chosen_item_names, dialog.save_path
+            return None, None, None
+        return dialog.chosen_item_names, dialog.save_path, dialog.option

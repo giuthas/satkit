@@ -57,7 +57,7 @@ def _export_data_as_image(
         data: DataContainer,
         path: Path,
         image_format: str = ".png",
-        interpolated: dict | None = None,
+        interpolation_params: dict | None = None,
 ) -> Path:
     if path.is_dir():
         filename = data.name.replace(" ", "_")
@@ -65,8 +65,8 @@ def _export_data_as_image(
     else:
         filepath = path
 
-    if interpolated is not None:
-        raw_data = to_fan_2d(data, **interpolated)
+    if interpolation_params is not None:
+        raw_data = to_fan_2d(data.data, **interpolation_params)
     else:
         raw_data = data.data
     im = Image.fromarray(raw_data)
@@ -136,6 +136,7 @@ def export_aggregate_image_meta(
         session: Session,
         recording: Recording,
         aggregate_meta: AggregateImageParameters,
+        interpolation_params: dict | None = None
 ) -> None:
     """
     Write ultrasound frame metadata to a human-readable text file.
@@ -169,6 +170,11 @@ def export_aggregate_image_meta(
 
         nestedtext.dump(aggregate_meta.model_dump(), file,
                         converters=nested_text_converters)
+        if interpolation_params is not None:
+            nestedtext.dump(interpolation_params, file,
+                            converters=nested_text_converters)
+        else:
+            file.write("Interpolated: False")
         _logger.debug("Wrote file %s.", meta_filename)
 
 
@@ -178,7 +184,7 @@ def export_aggregate_image_and_meta(
         recording: Recording,
         path: Path,
         image_format: str = ".png",
-        interpolated: bool = False,
+        interpolation_params: dict | None = None
 ) -> None:
     """
     Export AggregateImage to an image file and meta to a text file.
@@ -196,13 +202,15 @@ def export_aggregate_image_and_meta(
     image_format : str, optional
         File format to save the image in, by default ".png"
     """
-    filepath = _export_data_as_image(image, path, image_format)
+    filepath = _export_data_as_image(
+        image, path, image_format, interpolation_params)
 
     export_aggregate_image_meta(
         filename=filepath.with_suffix(".txt"),
         session=session,
         recording=recording,
-        aggregate_meta=image.meta_data
+        aggregate_meta=image.meta_data,
+        interpolation_params=interpolation_params
     )
 
 

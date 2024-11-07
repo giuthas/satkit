@@ -230,10 +230,8 @@ class RawUltrasound(Modality):
             # frame[:half,:] = 0
             self._stored_image = to_fan_2d(
                 frame,
-                angle=self.meta_data.angle,
-                zero_offset=self.meta_data.zero_offset,
-                pix_per_mm=self.meta_data.pix_per_mm,
-                num_vectors=self.meta_data.num_vectors,)
+                **self.interpolation_parameters(),
+            )
             return self._stored_image
 
     def interpolated_frames(self) -> np.ndarray:
@@ -251,16 +249,22 @@ class RawUltrasound(Modality):
         self.video_has_been_stored = True
         video = to_fan(
             data,
-            angle=self.meta_data.angle,
-            zero_offset=self.meta_data.zero_offset,
-            pix_per_mm=self.meta_data.pix_per_mm,
-            num_vectors=self.meta_data.num_vectors,
-            show_progress=True)
+            show_progress=True,
+            **self.interpolation_parameters(),
+        )
         self.stored_video = video.copy()
         # half = int(video.shape[1]/2)
         # self.stored_video[:,half:,:] = 0
         return video
 
+    @property
+    def interpolation_params(self) -> dict:
+        return {
+            'angle': self.meta_data.angle,
+            'zero_offset': self.meta_data.zero_offset,
+            'pixels_per_mm': self.meta_data.pixels_per_mm,
+            'num_vectors': self.meta_data.num_vectors,
+        }
 
 class Video(Modality):
     """

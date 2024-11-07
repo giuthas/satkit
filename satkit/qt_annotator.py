@@ -900,13 +900,23 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
         if image_list is None:
             return
 
+        if export_interpolated:
+            ultrasound = "RawUltrasound"
+            ultrasound_modality = next(
+                recording[ultrasound] for recording in self.session
+                if ultrasound in recording
+            )
+            interpolation_params = ultrasound_modality.interpolation_params
+        else:
+            interpolation_params = None
+
         for image in image_list:
             export_aggregate_image_and_meta(
                 image=self.current.statistics[image],
                 session=self.session,
                 recording=self.current,
                 path=path,
-                interpolated=export_interpolated
+                interpolation_params=interpolation_params,
             )
 
     def export_distance_matrix(self) -> None:

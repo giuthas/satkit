@@ -308,7 +308,13 @@ class Recording(DataAggregator, UserDict):
             self.modalities[name] = modality
             _logger.debug("Added new modality %s.", name)
 
-    def after_modalities_init(self):
+    def after_modalities_init(self) -> None:
+        """
+        Ensure everything is properly in place after loading modalities.
+
+        Currently, this is only used to create placeholder TextGrids when
+        needed.
+        """
         if self.textgrid is None:
             if 'MonoAudio' in self.modalities:
                 _logger.warning(
@@ -329,9 +335,10 @@ class Recording(DataAggregator, UserDict):
                 self.textgrid = textgrid
                 self.satgrid = SatGrid(self.textgrid)
             else:
-                _logger.warning("No audio found for %s.", self.basename)
-                _logger.warning("Can't create a textgrid so GUI may not function "
-                                "correctly.")
+                _logger.warning("No audio found for %s.",
+                                self.basename)
+                _logger.warning("Can't create a textgrid so GUI may not "
+                                "function correctly.")
 
     def __str__(self) -> str:
         """
@@ -707,14 +714,28 @@ class Modality(DataContainer, OrderedDict):
                     "array that has non-matching dtype, size, or shape.\n" +
                     " timevector.shape = " + str(timevector.shape) + "\n" +
                     " self.timevector.shape = "
-                    + str(self._timevector.shape) + ".")
+                    + str(self._modality_data.timevector.shape) + ".")
 
     @property
     def min_time(self) -> float:
+        """
+        Minimum time stamp.
+
+        Returns
+        -------
+            A float which represents the minimum time stamp in seconds.
+        """
         return self.timevector[0]
 
     @property
     def max_time(self) -> float:
+        """
+        Maximum time stamp.
+
+        Returns
+        -------
+            A float which represents the maximum time stamp in seconds.
+        """
         return self.timevector[-1]
 
     @property

@@ -107,7 +107,7 @@ class ImageSaveDialog(QDialog):
         self.adjustSize()
 
     def _browse(self):
-        directory = QFileDialog.getExistingDirectory(
+        directory = QFileDialog.getSaveFileName(
             parent=self,
             caption="Select Directory to Export to",
             directory=self.path_field.text(),

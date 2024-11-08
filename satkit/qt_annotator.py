@@ -872,14 +872,19 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
         """
         # TODO: Add a check that grays out the export ultrasound figure when one
         # isn't available.
-        if self.current.annotations['selection_index'] >= 0:
-            path, export_interpolated = ImageSaveDialog.get_selection(
-                name="Export ultrasound frame",
-                parent=self,
-                option_label='Export interpolated image'
-            )
 
-            if export_interpolated:
+        if self.current.annotations['selection_index'] >= 0:
+            suggested_path = Path.cwd() / "Raw_ultrasound_frame.png"
+            path, options = ImageSaveDialog.get_selection(
+                name="Export ultrasound frame",
+                save_path=suggested_path,
+                parent=self,
+                options={'Export interpolated image': True}
+            )
+            if path is None:
+                return
+
+            if options['Export interpolated image']:
                 ultrasound_modality = self.current['RawUltrasound']
                 interpolation_params = ultrasound_modality.interpolation_params
             else:

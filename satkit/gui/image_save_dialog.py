@@ -33,6 +33,7 @@
 import os
 from pathlib import Path
 
+from PyQt5 import QtCore
 from PyQt5.QtGui import QIcon
 from PyQt5.QtWidgets import (
     QCheckBox, QDialog, QDialogButtonBox, QFileDialog, QHBoxLayout, QLabel,
@@ -48,7 +49,7 @@ class ImageSaveDialog(QDialog):
             save_path: str | Path | None = None,
             icon: QIcon | None = None,
             parent: QWidget | None = None,
-            option_label: str | None = None,
+            options: dict[str, bool] | None = None,
     ):
         super().__init__(parent)
 
@@ -59,17 +60,21 @@ class ImageSaveDialog(QDialog):
         elif isinstance(save_path, str):
             save_path = Path(save_path)
         self.save_path = save_path
-        self.option = None
 
         # self.icon = icon
 
         # Elements for choosing names to use and location to save at.
+        self.options = options
         option_box = None
-        if option_label is not None:
+        if options is not None:
             option_box = QHBoxLayout()
-            self.option_checkbox = QCheckBox(option_label)
-            option_box.addWidget(self.option_checkbox)
-            self.option = False
+            self.option_checkboxes = {}
+            for option, checked in options.items():
+                checkbox = QCheckBox(option)
+                check = QtCore.Qt.Checked if checked else QtCore.Qt.Unchecked
+                checkbox.setCheckState(check)
+                self.option_checkboxes[option] = checkbox
+                option_box.addWidget(self.option_checkboxes[option])
         path_and_name_box = QHBoxLayout()
         self.path_label = QLabel(self)
         self.path_label.setText("Path:")
@@ -117,8 +122,8 @@ class ImageSaveDialog(QDialog):
             self.path_field.setText(directory)
 
     def _on_accepted(self):
-        if self.option is not None:
-            self.option = self.option_checkbox.isChecked()
+        for option in self.options:
+            self.options[option] = self.option_checkboxes[option].isChecked()
         self.save_path = Path(self.path_field.text())
         self.accept()
 
@@ -128,15 +133,15 @@ class ImageSaveDialog(QDialog):
             save_path: str | Path | None = None,
             icon: QIcon | None = None,
             parent: QWidget | None = None,
-            option_label: str | None = None,
-    ) -> tuple[Path | None, bool | None]:
+            options: dict[str, bool] | None = None,
+    ) -> tuple[Path | None, dict[str, bool] | None]:
         dialog = ImageSaveDialog(
             name=name,
             save_path=save_path,
             icon=icon,
             parent=parent,
-            option_label=option_label,
+            options=options,
         )
         if dialog.exec_() == QDialog.Rejected:
             return None, None
-        return dialog.save_path, dialog.option
+        return dialog.save_path, dialog.options

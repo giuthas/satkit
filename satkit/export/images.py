@@ -37,9 +37,7 @@ Raw and interpolated ultrasound frames, AggregateImages. and DistanceMatrices.
 import logging
 from pathlib import Path
 
-import nestedtext
 import numpy as np
-from matplotlib.figure import Figure
 from PIL import Image
 
 from local.depracated_code.recording import RawUltrasound
@@ -47,10 +45,14 @@ from satkit.data_structures import Recording, Session
 from satkit.data_structures.base_classes import DataAggregator, DataContainer
 from satkit.interpolate_raw_uti import to_fan_2d
 from satkit.metrics import (
-    AggregateImage, AggregateImageParameters,
-    DistanceMatrix, DistanceMatrixParameters
+    AggregateImage, DistanceMatrix
 )
-from satkit.save_and_load import nested_text_converters
+
+from .meta_data import (
+    export_aggregate_image_meta,
+    export_distance_matrix_meta,
+    export_ultrasound_frame_meta
+)
 
 _logger = logging.getLogger('satkit.export')
 
@@ -139,56 +141,6 @@ def publish_distance_matrix(
     _publish_image(session, distance_matrix_name, image_format)
 
 
-def export_aggregate_image_meta(
-        filename: str | Path,
-        session: Session,
-        recording: Recording,
-        aggregate_meta: AggregateImageParameters,
-        interpolation_params: dict | None = None
-) -> None:
-    """
-    Write ultrasound frame metadata to a human-readable text file.
-
-    The purpose of this function is to generate a file documenting an extracted
-    ultrasound frame, so that it can be found again in its original context.
-
-    Parameters
-    ----------
-    filename : str | Path
-        Filename or path of the extracted ultrasound frame.
-    session : Session
-        Session that the frame belongs to.
-    recording : Recording
-        Recording that the frame belongs to.
-    aggregate_meta : AggregateImageParameters
-        The parameters of the AggregateImage to be dumped in a file along with
-        the session and recording information.
-    interpolation_params : dict | None
-        Dictionary of interpolation parameters to be passed to `to_fan_2d`, by
-        default None. If none, export raw image instead.
-    """
-    if not isinstance(filename, Path):
-        filename = Path(filename)
-    meta_filename = filename.with_suffix('.txt')
-    with meta_filename.open('w', encoding='utf-8') as file:
-        file.write(
-            f"Metadata for AggregateImage extracted by SATKIT to {filename}.\n")
-        file.write(f"Session path: {session.recorded_path}\n")
-        file.write(f"Participant ID: {recording.meta_data.participant_id}\n")
-        file.write(f"Recording filename: {recording.name}\n")
-        file.write(f"Recorded at: {recording.meta_data.time_of_recording}\n")
-        file.write(f"Prompt: {recording.meta_data.prompt}\n")
-
-        nestedtext.dump(aggregate_meta.model_dump(), file,
-                        converters=nested_text_converters)
-        if interpolation_params is not None:
-            nestedtext.dump(interpolation_params, file,
-                            converters=nested_text_converters)
-        else:
-            file.write("Interpolated: False")
-        _logger.debug("Wrote file %s.", meta_filename)
-
-
 def export_aggregate_image_and_meta(
         image: AggregateImage,
         session: Session,
@@ -228,26 +180,6 @@ def export_aggregate_image_and_meta(
     )
 
 
-def export_distance_matrix_meta(
-        filename: str | Path,
-        session: Session,
-        distance_matrix_meta: DistanceMatrixParameters,
-) -> None:
-    if not isinstance(filename, Path):
-        filename = Path(filename)
-    meta_filename = filename.with_suffix('.txt')
-    with meta_filename.open('w', encoding='utf-8') as file:
-        file.write(
-            f"Metadata for AggregateImage extracted by SATKIT to {filename}.\n")
-        file.write(f"Session path: {session.recorded_path}\n")
-        participant_id = session.recordings[0].meta_data.participant_id
-        file.write(f"Participant ID: {participant_id}\n")
-
-        nestedtext.dump(distance_matrix_meta.model_dump(), file,
-                        converters=nested_text_converters)
-        _logger.debug("Wrote file %s.", meta_filename)
-
-
 def export_distance_matrix_and_meta(
         matrix: DistanceMatrix,
         session: Session,
@@ -261,49 +193,6 @@ def export_distance_matrix_and_meta(
         session=session,
         distance_matrix_meta=matrix.meta_data,
     )
-
-
-def export_ultrasound_frame_meta(
-        filename: str | Path,
-        session: Session,
-        recording: Recording,
-        selection_index: int,
-        selection_time: float,
-) -> None:
-    """
-    Write ultrasound frame metadata to a human-readable text file.
-
-    The purpose of this function is to generate a file documenting an extracted
-    ultrasound frame, so that it can be found again in its original context.
-
-    Parameters
-    ----------
-    filename : str | Path
-        Filename or path of the extracted ultrasound frame.
-    session : Session
-        Session that the frame belongs to.
-    recording : Recording
-        Recording that the frame belongs to.
-    selection_index : int
-        Index of the frame within the ultrasound video.
-    selection_time : float
-        Time in seconds of the frame within the **recording**. This is relative
-        to what ever -- most likely the beginning of audio -- is being used as
-        t=0s.
-    """
-    if not isinstance(filename, Path):
-        filename = Path(filename)
-    meta_filename = filename.with_suffix('.txt')
-    with meta_filename.open('w', encoding='utf-8') as file:
-        file.write(f"Metadata for frame extracted by SATKIT to {filename}.\n")
-        file.write(f"Session path: {session.recorded_path}\n")
-        file.write(f"Participant ID: {recording.meta_data.participant_id}\n")
-        file.write(f"Recording filename: {recording.name}\n")
-        file.write(f"Recorded at: {recording.meta_data.time_of_recording}\n")
-        file.write(f"Prompt: {recording.meta_data.prompt}\n")
-        file.write(f"Frame number: {selection_index}\n")
-        file.write(f"Timestamp in recording: {selection_time}\n")
-        _logger.debug("Wrote file %s.", meta_filename)
 
 
 def export_ultrasound_frame_and_meta(

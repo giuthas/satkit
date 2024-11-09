@@ -62,7 +62,7 @@ from satkit.configuration import (
 from satkit.export import (
     export_aggregate_image_and_meta,
     export_distance_matrix_and_meta,
-    export_ultrasound_frame_and_meta
+    export_session_and_recording_meta, export_ultrasound_frame_and_meta
 )
 from satkit.gui import (
     BoundaryAnimator, ImageSaveDialog, ListSaveDialog,
@@ -159,15 +159,15 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
             self.save_all_textgrids)
         # self.actionSaveToPickle.triggered.connect(self.save_to_pickle)
 
+        self.action_export_aggregate_images.triggered.connect(
+            self.export_aggregate_image)
         self.action_export_annotations_and_metadata.triggered.connect(
             self.export_annotations_and_meta_data)
-        self.action_export_figure.triggered.connect(self.export_figure)
+        self.action_export_distance_matrices.triggered.connect(
+            self.export_distance_matrix)
+        self.action_export_main_figure.triggered.connect(self.export_figure)
         self.action_export_ultrasound_frame.triggered.connect(
             self.export_ultrasound_frame)
-        self.action_export_aggregate_image.triggered.connect(
-            self.export_aggregate_image)
-        self.action_export_distance_matrix.triggered.connect(
-            self.export_distance_matrix)
 
         self.actionNext.triggered.connect(self.next)
         self.actionPrevious.triggered.connect(self.prev)
@@ -859,9 +859,18 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
         Opens a filedialog to ask for the filename. Save format is determined
         by file extension.
         """
-        (filename, _) = QFileDialog.getSaveFileName(
-            self, 'Export figure', directory='.')
-        self.figure.savefig(filename, bbox_inches='tight', pad_inches=0.05)
+        suggested_path = Path.cwd() / "Raw_ultrasound_frame.png"
+        filename, _ = ImageSaveDialog.get_selection(
+            name="Export the main figure",
+            save_path=suggested_path,
+            parent=self,
+        )
+        if filename is not None:
+            self.figure.savefig(filename, bbox_inches='tight', pad_inches=0.05)
+            export_session_and_recording_meta(
+                filename=filename, session=self.session, recording=self.current,
+                description="main GUI figure"
+            )
 
     def export_ultrasound_frame(self) -> None:
         """

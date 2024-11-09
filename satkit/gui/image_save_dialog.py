@@ -34,7 +34,7 @@ import os
 from pathlib import Path
 
 from PyQt5 import QtCore
-from PyQt5.QtGui import QIcon
+from PyQt5.QtGui import QFontMetrics, QIcon
 from PyQt5.QtWidgets import (
     QCheckBox, QDialog, QDialogButtonBox, QFileDialog, QHBoxLayout, QLabel,
     QLineEdit, QPushButton, QVBoxLayout, QWidget
@@ -83,6 +83,9 @@ class ImageSaveDialog(QDialog):
         else:
             path_string = str(self.save_path)
         self.path_field = QLineEdit(path_string, parent=self)
+        text_size = self.path_field.fontMetrics().size(0, path_string)
+        width = text_size.width() + 50
+        self.path_field.setMinimumWidth(width)
         self.path_label.setBuddy(self.path_field)
         self.browse_button = QPushButton('Browse...')
         self.browse_button.clicked.connect(self._browse)
@@ -122,8 +125,9 @@ class ImageSaveDialog(QDialog):
             self.path_field.setText(directory)
 
     def _on_accepted(self):
-        for option in self.options:
-            self.options[option] = self.option_checkboxes[option].isChecked()
+        if self.options is not None:
+            for option in self.options:
+                self.options[option] = self.option_checkboxes[option].isChecked()
         self.save_path = Path(self.path_field.text())
         self.accept()
 

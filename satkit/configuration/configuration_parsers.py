@@ -233,6 +233,7 @@ def load_run_params(filepath: Path | str | None = None) -> YAML:
                 }),
                 Optional("distance_matrix_arguments"): Map({
                     "metrics": Seq(Str()),
+                    Optional("exclusion_list"): PathValidator(),
                     Optional("preload", default=True): Bool(),
                     Optional("release_data_memory", default=False): Bool(),
                     Optional('slice_max_step'): Int(),
@@ -299,9 +300,6 @@ def load_run_params(filepath: Path | str | None = None) -> YAML:
         _logger.fatal(
             "Didn't find run parameter file at %s.", str(filepath))
         sys.exit()
-
-    if 'sort_criteria' in _raw_data_run_params_dict['distance_matrix_arguments']:
-        _raw_data_run_params_dict['distance_matrix_arguments']['sort'] = True
 
     data_run_params.update(_raw_data_run_params_dict.data)
     if 'peaks' in data_run_params:

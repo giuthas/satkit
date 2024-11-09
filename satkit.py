@@ -189,14 +189,14 @@ def main():
     data_run(recording_session=recording_session,
              configuration=configuration)
 
-    publish_aggregate_images(
-        recording_session, image_name='AggregateImage mean on RawUltrasound')
-    publish_distance_matrix(
-        recording_session,
-        distance_matrix_name=(
-            'DistanceMatrix mean_squared_error on AggregateImage mean '
-            'on RawUltrasound')
-    )
+    # publish_aggregate_images(
+    #     recording_session, image_name='AggregateImage mean on RawUltrasound')
+    # publish_distance_matrix(
+    #     recording_session,
+    #     distance_matrix_name=(
+    #         'DistanceMatrix mean_squared_error on AggregateImage mean '
+    #         'on RawUltrasound')
+    # )
 
     logger.info('Data run ended.')
 

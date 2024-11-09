@@ -73,6 +73,7 @@ pd_arguments:
 #  'preload': True
 
 distance_matrix_arguments:
+  exclusion_list: "alignment/data/satkit_exclusion_list.yaml"
   metrics:
     - 'mean_squared_error'
   preload: True

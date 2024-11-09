@@ -474,10 +474,11 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
             modalities_to_check = self.gui_config.plotted_modality_names()
             modalities_to_check.add("MonoAudio")
             for name in modalities_to_check:
-                x_minimums.append(
-                    self.current[name].timevector[0] - stimulus_onset)
-                x_maximums.append(
-                    self.current[name].timevector[-1] - stimulus_onset)
+                if name in self.current:
+                    x_minimums.append(
+                        self.current[name].timevector[0] - stimulus_onset)
+                    x_maximums.append(
+                        self.current[name].timevector[-1] - stimulus_onset)
             self.xlim = (np.min(x_minimums)-.05, np.max(x_maximums)+.05)
 
         axes_counter = 0

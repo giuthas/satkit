@@ -879,12 +879,12 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
                 name="Export ultrasound frame",
                 save_path=suggested_path,
                 parent=self,
-                options={'Export interpolated image': True}
+                options={'Export interpolated frame': True}
             )
             if path is None:
                 return
 
-            if options['Export interpolated image']:
+            if options['Export interpolated frame']:
                 ultrasound_modality = self.current['RawUltrasound']
                 interpolation_params = ultrasound_modality.interpolation_params
             else:
@@ -900,8 +900,13 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
                 interpolation_params=interpolation_params
             )
 
-
     def export_aggregate_image(self) -> None:
+        """
+        Export AggregateImages connected with the current recording.
+        
+        The metadata is written to a separate `.txt` file of the same name as
+        the corresponding image file.
+        """
         statistics_names = self.current.statistics.keys()
         choice_list = [
             name for name in statistics_names if 'AggregateImage' in name]
@@ -934,6 +939,12 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
             )
 
     def export_distance_matrix(self) -> None:
+        """
+        Export DistanceMatrices connected with the current session.
+
+        The metadata is written to a separate `.txt` file of the same name as
+        the corresponding image file.
+        """
         statistics_names = self.session.statistics.keys()
         choice_list = [
             name for name in statistics_names if 'DistanceMatrix' in name]
@@ -1097,6 +1108,7 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
         self.update()
         QMainWindow.resizeEvent(self, event)
 
+    # noinspection PyPep8Naming
     def keyPressEvent(self, event):
         """
         Key press callback.
@@ -1129,6 +1141,7 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
             self.gui_config.xlim = None
             self.update()
 
+    # noinspection PyPep8Naming
     def keyReleaseEvent(self, event):
         """
         Key release callback.

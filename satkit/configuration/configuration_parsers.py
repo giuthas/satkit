@@ -45,7 +45,7 @@ from pathlib import Path
 from strictyaml import (
     Bool, FixedSeq, Float, Int, Map,
     MapPattern, Optional, ScalarValidator, Seq, Str,
-    YAML, YAMLError, load
+    UniqueSeq, YAML, YAMLError, load
 )
 
 from satkit.constants import DEFAULT_ENCODING
@@ -238,6 +238,7 @@ def load_run_params(filepath: Path | str | None = None) -> YAML:
                     Optional('slice_max_step'): Int(),
                     Optional('slice_step_to'): Int(),
                     Optional('sort'): Bool(),
+                    Optional('sort_criteria'): UniqueSeq(Str()),
                 }),
                 Optional("pd_arguments"): Map({
                     "norms": Seq(Str()),
@@ -298,6 +299,9 @@ def load_run_params(filepath: Path | str | None = None) -> YAML:
         _logger.fatal(
             "Didn't find run parameter file at %s.", str(filepath))
         sys.exit()
+
+    if 'sort_criteria' in _raw_data_run_params_dict['distance_matrix_arguments']:
+        _raw_data_run_params_dict['distance_matrix_arguments']['sort'] = True
 
     data_run_params.update(_raw_data_run_params_dict.data)
     if 'peaks' in data_run_params:

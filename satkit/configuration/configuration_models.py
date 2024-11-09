@@ -223,6 +223,7 @@ class DistanceMatrixArguments(UpdatableBaseModel):
     slice_max_step: int | None = None
     slice_step_to: int | None = None
     sort: bool = False
+    sort_criteria: list[str] | None = None
 
 
 class PointAnnotationParams(UpdatableBaseModel):

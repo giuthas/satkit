@@ -859,7 +859,7 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
         Opens a filedialog to ask for the filename. Save format is determined
         by file extension.
         """
-        suggested_path = Path.cwd() / "Raw_ultrasound_frame.png"
+        suggested_path = Path.cwd() / "Satkit_figure.png"
         filename, _ = ImageSaveDialog.get_selection(
             name="Export the main figure",
             save_path=suggested_path,

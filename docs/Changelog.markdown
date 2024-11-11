@@ -28,8 +28,7 @@ and this project uses [Semantic Versioning](https://semver.org/spec/v2.0.0.html)
 
 - SATKIT will soon be available on pypi, probably under the long name:
   speech_articulation_toolkit.
-
-- TODO: import the roadmap here.
+- See [Roadmap](Roadmap.markdown) for an overview of what to expect in 1.0.
 
 ## [0.11.0] 
 
@@ -37,10 +36,13 @@ and this project uses [Semantic Versioning](https://semver.org/spec/v2.0.0.html)
 
 - Simulating ultrasound probe rotation (misalignment) by selecting different
   sub-sectors from recorded raw data.
-- DistanceMatrices can now be sorted by prompt. 
+- DistanceMatrices can now be sorted by a list of substrings into or simply by 
+  prompt.
+  - DistanceMatrices can also specify their own exclusion list in the config.
 - Saving the selected frame with metadata so that example frames can be 
   reproduced.
-- Saving AggregateImages with metadata.
+- Saving AggregateImages, DistanceMatrices and the main figure (of the GUI) 
+  with metadata.
 - Expanded SatGrid (the editable TextGrid extension) to include Points and Point
   Tiers.
 - Automatic x limits now work properly in the GUI.

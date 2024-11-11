@@ -22,16 +22,20 @@ thesis](https://eresearch.qmu.ac.uk/handle/20.500.12289/10163).
 
 ## Major update -- version 1.0 -- coming up
 
-There will be incremental 0.x releases until the codebase reaches milestones
-for version 1.0 (See [Roadmap](docs/Roadmap.markdown)). While this notice is
-here in the main branch, that update is not yet complete. In the meanwhile, if
-you wish to try SATKIT or contribute to the code or as a beta tester, please
+There will be incremental 0.x releases until the codebase reaches milestones for
+version 1.0 (See [Roadmap](docs/Roadmap.markdown)). While this notice is here in
+the main branch, that update is not yet complete. In the meanwhile, if you wish
+to try SATKIT or contribute to the code or as an alpha/beta tester, please
 contact Pertti for instructions.
 
-With version 1.0 getting closer a lot of the instructions below are outdated.
-More up-to-date information can be found in the
-[Documentation](https://giuthas.github.io/satkit/). See
-[Roadmap](docs/Roadmap.markdown) for updates on progress towards 1.0.
+2024-11-11: As the timeline has drawn out quite a bit from the originally
+intended, time for a timeline update. Original plan for 1.0 was 2020 (yes 2020),
+and later 2021 and 2023. Good ideas piled and work for various conferences also
+piled, and it soon made no sense to not do a proper overhaul of the plan.
+Current plan does not have a specific time for when 1.0 should be released, but
+it does have a limited (if a bit lengthy) feature set. These will be rolled out
+in about 10-15 minor releases (versions 0.11-0.21/0.26), which will be followed
+by 1.0-alpha, 1.0-beta, 1.0-release-candidate, and 1.0.
 
 ## Current version
 
@@ -40,46 +44,28 @@ what's new.
 
 ## Getting Started
 
+NOTE: 
+- With version 1.0 getting closer a lot of the instructions below are
+  outdated. More up-to-date information can be found in the
+  [Documentation](https://giuthas.github.io/satkit/). See
+  [Roadmap](docs/Roadmap.markdown) for updates on progress towards 1.0.
+- There will also soon be a move to either pixi or uv for package, environment
+  and installation management. This will make a lot of the below automated and
+  easier.
+
 Download the repository to either a subdirectory of the project you
 want to use the tools on or a suitable place that you then add to your
 $PYTHONPATH.
 
 ### Requisites
 
-SATKit should run with the following or more recent (see the `.yml` files in
-`environments/` for a more complete list):
-
-* Python 3.10
-* PyQt5 v5.12
-* MatPlotLib 3.5
-* NumPy 1.22
-* OpenCV 4.5
-* SciPy 1.3
-* praat-textgrids 1.3
-
-A handy way of getting MatPlotLib, NumPy, and SciPy is to get them as part of
-the [Anaconda
-distribution](https://www.anaconda.com/distribution/#download-section). Using
-mamba as the environment manager when creating virtual environments is
-recommended because conda may not manage to solve the dependencies and may
-refuse to install anything.
-
-Note: If you decide to use Anaconda, you should install any additional packages
-you are getting with mamba (or conda) before installing praat-textgrids with pip
-*as the final step* of setting up a virtual environment.
-
-For OF you will need in addition:
-
-* DIPY 1.5
-
-For processing lip videos:
-
-* Scikit-video 1.1
+See the `.yml` files in `environments/` for a more list. Before 1.0 only the
+satkit-devel environment is maintained, so read that one.
 
 ### Installing for regular use
 
-An installation through pypi is in the works. Do get in touch if you
-would like to *test* it.
+An installation through pypi is in the works. Do get in touch if you would like
+to *test* it. Do also get in touch if you would like to *build* it.
 
 A downloadable executable will hopefully also become reality. Do get in touch if
 you would like to *develop* it.

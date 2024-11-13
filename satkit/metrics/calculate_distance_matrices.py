@@ -147,7 +147,7 @@ def calculate_distance_matrix(
         recording.statistics[parent_name].data for recording in recordings
     ]
 
-    matrix = None
+    # matrix = None
     if params.slice_max_step:
         sliced_images = []
         data_length = images[0].shape[1]
@@ -164,7 +164,6 @@ def calculate_distance_matrix(
                 matrix = calculate_mse(sliced_images)
             case _:
                 raise ValueError(f"Unknown metric {params.metric}.")
-
     elif params.slice_step_to:
         data_length = 2*len(images)
         matrix = np.zeros((data_length, params.slice_step_to*data_length))
@@ -184,6 +183,13 @@ def calculate_distance_matrix(
                 case _:
                     raise ValueError(f"Unknown metric {params.metric}.")
             matrix[:, step * data_length:(step + 1) * data_length] = new_values
+    else:
+        match params.metric:
+            case 'mean_squared_error':
+                matrix = calculate_mse(images)
+            case _:
+                raise ValueError(f"Unknown metric {params.metric}.")
+
 
     return DistanceMatrix(
         owner=session,

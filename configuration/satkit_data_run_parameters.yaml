@@ -79,7 +79,7 @@ distance_matrix_arguments:
   preload: True
   release_data_memory: False
 #  slice_max_step: 6
-  slice_step_to: 6
+#  slice_step_to: 6
   sort: True
   sort_criteria:
     - 'i'

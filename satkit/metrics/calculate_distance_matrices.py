@@ -103,6 +103,7 @@ def calculate_distance_matrix(
             parent_name, session.name)
         return None
 
+    sorted_indeces = []
     if params.sort:
         prompts = [
             recording.meta_data.prompt for recording in recordings
@@ -112,9 +113,11 @@ def calculate_distance_matrix(
             sorted_recordings = [
                 recordings[index] for index in indeces
             ]
+            sorted_indeces = indeces
         else:
             sorted_recordings = []
             sorted_prompts = []
+            sorted_indeces = []
             for key in params.sort_criteria:
                 block = [
                     recording for recording in recordings
@@ -128,6 +131,7 @@ def calculate_distance_matrix(
                 block = [
                     block[index] for index in indeces
                 ]
+                sorted_indeces.extend(indeces)
                 sorted_recordings.extend(block)
                 sorted_prompts.extend(prompts)
             remaining_prompts = set(prompts) - set(sorted_prompts)
@@ -141,11 +145,16 @@ def calculate_distance_matrix(
                     *sorted(zip(prompts, range(len(prompts)))))
                 block = [last_block[index] for index in indeces]
                 sorted_recordings.extend(block)
+                sorted_indeces.extend(indeces)
         recordings = sorted_recordings
 
     images = [
         recording.statistics[parent_name].data for recording in recordings
     ]
+
+    params.sorted_indeces = sorted_indeces
+    params.sorted_prompts = [
+        recording.meta_data.prompt for recording in recordings]
 
     # matrix = None
     if params.slice_max_step:

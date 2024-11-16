@@ -88,6 +88,8 @@ class DistanceMatrixParameters(StatisticMetaData):
     slice_step_to: PositiveInt | None = None
     sort: bool = False
     sort_criteria: list[str] | None = None
+    sorted_indeces: list[int] | None = None
+    sorted_prompts: list[str] | None = None
     exclusion_list: ExclusionList | None = None
 
 

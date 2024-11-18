@@ -39,7 +39,7 @@ by 1.0-alpha, 1.0-beta, 1.0-release-candidate, and 1.0.
 
 ## Current version
 
-Current version is 0.10.1. See [Changelog](docs/Changelog.markdown), for
+Current version is 0.11. See [Changelog](docs/Changelog.markdown), for
 what's new.
 
 ## Getting Started

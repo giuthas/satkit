@@ -39,11 +39,23 @@ from typing import TextIO
 
 import nestedtext
 
-from satkit.data_structures import Recording, Session
+from satkit.constants import SATKIT_VERSION
+from satkit.data_structures import FileInformation, Recording, Session
 from satkit.metrics import AggregateImageParameters, DistanceMatrixParameters
 from satkit.save_and_load import nested_text_converters
 
 _logger = logging.getLogger('satkit.export')
+
+
+def _path_from_name(filename: str | Path) -> Path:
+    if not isinstance(filename, Path):
+        return Path(filename)
+    return filename
+
+
+def _paths_from_name(filename: str | Path) -> tuple[Path, Path]:
+    path = _path_from_name(filename)
+    return path, path.with_suffix('.txt')
 
 
 def _write_session_and_recording_meta(
@@ -53,6 +65,20 @@ def _write_session_and_recording_meta(
     file.write(f"Recording filename: {recording.name}\n")
     file.write(f"Recorded at: {recording.meta_data.time_of_recording}\n")
     file.write(f"Prompt: {recording.meta_data.prompt}\n")
+
+
+def _export_header(
+    file: TextIOWrapper | TextIO,
+    object_name: str,
+    filename: str,
+    file_info: FileInformation | None = None,
+) -> None:
+    file.write(
+        f"Metadata for {object_name} extracted by "
+        f"SATKIT {SATKIT_VERSION} to\n")
+    file.write(f"\t{filename}.\n\n")
+    if file_info is not None:
+        file.write(f"{file_info}\n\n")
 
 
 def export_aggregate_image_meta(
@@ -83,12 +109,12 @@ def export_aggregate_image_meta(
         Dictionary of interpolation parameters to be passed to `to_fan_2d`, by
         default None. If none, export raw image instead.
     """
-    if not isinstance(filename, Path):
-        filename = Path(filename)
-    meta_filename = filename.with_suffix('.txt')
-    with meta_filename.open('w', encoding='utf-8') as file:
-        file.write(
-            f"Metadata for AggregateImage extracted by SATKIT to {filename}.\n")
+    filepath, meta_filepath = _paths_from_name(filename)
+    with meta_filepath.open('w', encoding='utf-8') as file:
+        _export_header(
+            file=file,
+            object_name="AggregateImage",
+            filename=filename)
         _write_session_and_recording_meta(
             file=file, session=session, recording=recording)
 
@@ -99,7 +125,7 @@ def export_aggregate_image_meta(
                             converters=nested_text_converters)
         else:
             file.write("Interpolated: False")
-        _logger.debug("Wrote file %s.", meta_filename)
+        _logger.debug("Wrote file %s.", str(meta_filepath))
 
 
 def export_distance_matrix_meta(
@@ -107,19 +133,21 @@ def export_distance_matrix_meta(
         session: Session,
         distance_matrix_meta: DistanceMatrixParameters,
 ) -> None:
-    if not isinstance(filename, Path):
-        filename = Path(filename)
-    meta_filename = filename.with_suffix('.txt')
-    with meta_filename.open('w', encoding='utf-8') as file:
-        file.write(
-            f"Metadata for AggregateImage extracted by SATKIT to {filename}.\n")
+    filepath, meta_filepath = _paths_from_name(filename)
+    with meta_filepath.open('w', encoding='utf-8') as file:
+        _export_header(
+            file=file,
+            object_name="DistanceMatrix",
+            filename=filename)
         file.write(f"Session path: {session.recorded_path}\n")
         participant_id = session.recordings[0].meta_data.participant_id
-        file.write(f"Participant ID: {participant_id}\n")
+        file.write(f"Participant ID: {participant_id}\n\n")
 
-        nestedtext.dump(distance_matrix_meta.model_dump(), file,
-                        converters=nested_text_converters)
-        _logger.debug("Wrote file %s.", meta_filename)
+        nestedtext.dump(
+            dict(sorted(distance_matrix_meta.model_dump().items())),
+            file,
+            converters=nested_text_converters)
+        _logger.debug("Wrote file %s.", str(meta_filepath))
 
 
 def export_session_and_recording_meta(
@@ -128,16 +156,16 @@ def export_session_and_recording_meta(
         recording: Recording,
         description: str
 ) -> None:
-    if not isinstance(filename, Path):
-        filename = Path(filename)
-    meta_filename = filename.with_suffix('.txt')
-    with meta_filename.open('w', encoding='utf-8') as file:
-        file.write(
-            f"Metadata for {description} extracted by SATKIT to {filename}.\n")
+    filepath, meta_filepath = _paths_from_name(filename)
+    with meta_filepath.open('w', encoding='utf-8') as file:
+        _export_header(
+            file=file,
+            object_name=description,
+            filename=filename)
         _write_session_and_recording_meta(
             file=file, session=session, recording=recording)
 
-        _logger.debug("Wrote file %s.", meta_filename)
+        _logger.debug("Wrote file %s.", str(meta_filepath))
 
 
 def export_ultrasound_frame_meta(
@@ -168,13 +196,14 @@ def export_ultrasound_frame_meta(
         to what ever -- most likely the beginning of audio -- is being used as
         t=0s.
     """
-    if not isinstance(filename, Path):
-        filename = Path(filename)
-    meta_filename = filename.with_suffix('.txt')
-    with meta_filename.open('w', encoding='utf-8') as file:
-        file.write(f"Metadata for frame extracted by SATKIT to {filename}.\n")
+    filepath, meta_filepath = _paths_from_name(filename)
+    with meta_filepath.open('w', encoding='utf-8') as file:
+        _export_header(
+            file=file,
+            object_name="AggregateImage",
+            filename=filename)
         _write_session_and_recording_meta(
             file=file, session=session, recording=recording)
         file.write(f"Frame number: {selection_index}\n")
         file.write(f"Timestamp in recording: {selection_time}\n")
-        _logger.debug("Wrote file %s.", meta_filename)
+        _logger.debug("Wrote file %s.", str(meta_filepath))

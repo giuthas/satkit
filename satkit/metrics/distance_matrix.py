@@ -90,6 +90,7 @@ class DistanceMatrixParameters(StatisticMetaData):
     sort_criteria: list[str] | None = None
     sorted_indeces: list[int] | None = None
     sorted_prompts: list[str] | None = None
+    sorted_filenames: list[str] | None = None
     exclusion_list: ExclusionList | None = None
 
 

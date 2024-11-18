@@ -513,10 +513,11 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
                              wav_time=wav_time,
                              xlim=self.xlim)
                 case _:
-                    self.plot_modality_axes(
-                        axes_number=axes_counter,
-                        axes_name=axes_name,
-                        zero_offset=stimulus_onset)
+                    if not self.current.excluded:
+                        self.plot_modality_axes(
+                            axes_number=axes_counter,
+                            axes_name=axes_name,
+                            zero_offset=stimulus_onset)
             axes_counter += 1
 
         self.data_axes[0].legend(

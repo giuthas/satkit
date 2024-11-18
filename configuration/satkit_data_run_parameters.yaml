@@ -81,9 +81,9 @@ distance_matrix_arguments:
 #  slice_max_step: 6
   slice_step_to: 6
   sort: True
-#  sort_criteria:
-#    - 'i'
-#    - 'o'
+  sort_criteria:
+    - 'i'
+    - 'o'
 
 # Config for the yet-to-happen submodule CAST that is still a separate entity. 
 cast:

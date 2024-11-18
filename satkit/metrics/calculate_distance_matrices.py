@@ -120,6 +120,9 @@ def calculate_distance_matrix(
                     recording for recording in recordings
                     if key in recording.meta_data.prompt
                 ]
+                if len(block) == 0:
+                    continue
+
                 prompts = [
                     recording.meta_data.prompt for recording in block
                 ]

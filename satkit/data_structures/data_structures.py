@@ -349,7 +349,24 @@ class Recording(DataAggregator, UserDict):
         string
             'Recording [basename]'
         """
-        return f"Recording {self.basename}"
+        return f"Recording {self.name}"
+
+    def __repr__(self) -> str:
+        """Overrides the default implementation"""
+        modalities = "{\n"
+        for modality in self.modalities:
+            modalities += ("\t" + modality
+                           + f": {self.modalities[modality].name},\n")
+        modalities += "}"
+        return (
+            f"Recording {self.basename}\n"
+            f"{modalities}")
+
+    def __eq__(self, other):
+        """Overrides the default implementation"""
+        if isinstance(other, Recording):
+            return self.name == other.name
+        return NotImplemented
 
 
 class Modality(DataContainer, OrderedDict):

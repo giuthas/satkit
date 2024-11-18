@@ -30,7 +30,7 @@ and this project uses [Semantic Versioning](https://semver.org/spec/v2.0.0.html)
   speech_articulation_toolkit.
 - See [Roadmap](Roadmap.markdown) for an overview of what to expect in 1.0.
 
-## [0.11.0] 2024-11-18
+## [0.11.0] 2024-11-19
 
 ### Added
 

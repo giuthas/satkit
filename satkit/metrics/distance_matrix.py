@@ -167,8 +167,6 @@ class DistanceMatrix(Statistic):
 
         Parameters
         ----------
-        sort :
-        slice_step_to :
         parent : Modality | Statistic
             parent Modality or Statistic that DistanceMatrix would be derived
             from.

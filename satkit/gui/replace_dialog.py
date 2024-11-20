@@ -29,12 +29,11 @@
 # articles listed in README.markdown. They can also be found in
 # citations.bib in BibTeX format.
 #
+"""Dialog for asking if we should overwrite an existing file or files."""
 
 from PyQt5.QtWidgets import (
-    QDialog, QVBoxLayout, QLabel, QDialogButtonBox, QApplication)
+    QDialog, QVBoxLayout, QLabel, QDialogButtonBox)
 from PyQt5.QtCore import Qt
-
-from icecream import ic
 
 from satkit.ui_callbacks import OverwriteConfirmation
 
@@ -45,13 +44,11 @@ class ReplaceDialog(QDialog):
 
         layout = QVBoxLayout(self)
 
-        # nice widget for editing the date
         self.question = QLabel(self)
         self.question.setText(
             f"File {filename} exists. Do you want to overwrite it?")
         layout.addWidget(self.question)
 
-        # OK and Cancel buttons
         buttons = QDialogButtonBox(
             (QDialogButtonBox.Yes | QDialogButtonBox.YesToAll |
              QDialogButtonBox.No | QDialogButtonBox.NoToAll),
@@ -62,26 +59,26 @@ class ReplaceDialog(QDialog):
         buttons.rejected.connect(self.reject)
 
         button_yes = buttons.button(QDialogButtonBox.Yes)
-        button_yes.clicked.connect(self.handle_yes)
+        button_yes.clicked.connect(self._handle_yes)
         button_yes_all = buttons.button(QDialogButtonBox.YesToAll)
-        button_yes_all.clicked.connect(self.handle_yes_all)
+        button_yes_all.clicked.connect(self._handle_yes_all)
         button_no = buttons.button(QDialogButtonBox.No)
-        button_no.clicked.connect(self.handle_no)
+        button_no.clicked.connect(self._handle_no)
         button_no_all = buttons.button(QDialogButtonBox.NoToAll)
-        button_no_all.clicked.connect(self.handle_no_all)
+        button_no_all.clicked.connect(self._handle_no_all)
 
         self.pressed_button = None
 
-    def handle_yes(self):
+    def _handle_yes(self):
         self.pressed_button = OverwriteConfirmation.YES
 
-    def handle_yes_all(self):
+    def _handle_yes_all(self):
         self.pressed_button = OverwriteConfirmation.YES_TO_ALL
 
-    def handle_no(self):
+    def _handle_no(self):
         self.pressed_button = OverwriteConfirmation.NO
 
-    def handle_no_all(self):
+    def _handle_no_all(self):
         self.pressed_button = OverwriteConfirmation.NO_TO_ALL
 
     @staticmethod
@@ -90,8 +87,3 @@ class ReplaceDialog(QDialog):
         dialog.exec_()
         pressed_button = dialog.pressed_button
         return pressed_button
-
-
-# app = QApplication([])
-# pressed_button = ReplaceDialog.confirmOverwrite(filename='foobar.txt')
-# print("user said: {}".format(pressed_button.value))

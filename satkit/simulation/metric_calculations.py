@@ -60,7 +60,7 @@ class ComparisonMember(ListablePrintableEnum):
     SECOND = "second"
 
 
-class SoundPair(BaseModel, frozen=True):
+class ComparisonSoundPair(BaseModel, frozen=True):
     """
     Defines a comparison between two contours.
 

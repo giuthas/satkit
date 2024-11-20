@@ -38,15 +38,17 @@ import numpy as np
 from scipy import ndimage
 from tqdm import tqdm
 
-# from icecream import ic
-
 from satkit.errors import UltrasoundInterpolationError
+
+from icecream import ic
 
 _logger = logging.getLogger('satkit.interpolate_raw_uti')
 
 
-def to_fan(scanline_data, *, angle=None, zero_offset=None, pix_per_mm=None,
-           num_vectors=None, magnify=1, reserve=1800, show_progress=False):
+def to_fan(
+        scanline_data, *, angle=None, zero_offset=None, pixels_per_mm=None,
+        num_vectors=None, magnify=1, reserve=1800, show_progress=False
+):
     """
     Generate interpolated images from scanline ultrasound data.
 
@@ -62,62 +64,69 @@ def to_fan(scanline_data, *, angle=None, zero_offset=None, pix_per_mm=None,
 
     Returns a numpy array containing the generated image(s).
     """
+    # TODO: looks like cases multiple rgb and grayscale can be handled by the
+    # same call. don't have the data to test that so not refactoring - Pertti
     if len(scanline_data.shape) == 4:  # multiple RGB images
         if show_progress:
             images = [to_fan_2d(frame, angle=angle, zero_offset=zero_offset,
-                                pex_per_mm=pix_per_mm, num_vectors=num_vectors,
-                                magnify=magnify, reserve=reserve) for frame in
-                      tqdm(scanline_data, desc='Fanshape')]
+                                pixels_per_mm=pixels_per_mm,
+                                num_vectors=num_vectors,
+                                magnify=magnify, reserve=reserve)
+                      for frame in tqdm(scanline_data, desc='Fanshape')]
         else:
             images = [to_fan_2d(frame, angle=angle, zero_offset=zero_offset,
-                                pix_per_mm=pix_per_mm, num_vectors=num_vectors,
-                                magnify=magnify, reserve=reserve) for frame in
-                      scanline_data]
+                                pixels_per_mm=pixels_per_mm,
+                                num_vectors=num_vectors,
+                                magnify=magnify, reserve=reserve)
+                      for frame in scanline_data]
     elif len(scanline_data.shape) == 3:
         if scanline_data.shape[-1] == 3:  # single RGB image
             images = to_fan_2d(scanline_data, angle=angle,
-                               zero_offset=zero_offset, pix_per_mm=pix_per_mm,
+                               zero_offset=zero_offset,
+                               pixels_per_mm=pixels_per_mm,
                                num_vectors=num_vectors, magnify=magnify,
                                reserve=reserve)
         else:  # multiple grayscale images
             if show_progress:
                 images = [to_fan_2d(frame, angle=angle,
                                     zero_offset=zero_offset,
-                                    pix_per_mm=pix_per_mm,
+                                    pixels_per_mm=pixels_per_mm,
                                     num_vectors=num_vectors, magnify=magnify,
-                                    reserve=reserve) for frame in
-                          tqdm(scanline_data, desc='Fanshape')]
+                                    reserve=reserve)
+                          for frame in tqdm(scanline_data, desc='Fanshape')]
             else:
                 images = [to_fan_2d(frame, angle=angle,
                                     zero_offset=zero_offset,
-                                    pix_per_mm=pix_per_mm,
+                                    pixels_per_mm=pixels_per_mm,
                                     num_vectors=num_vectors, magnify=magnify,
-                                    reserve=reserve) for frame in
-                          scanline_data]
+                                    reserve=reserve)
+                          for frame in scanline_data]
     else:  # single grayscale image
         images = to_fan_2d(scanline_data, angle=angle, zero_offset=zero_offset,
-                           pix_per_mm=pix_per_mm, num_vectors=num_vectors,
+                           pixels_per_mm=pixels_per_mm, num_vectors=num_vectors,
                            magnify=magnify, reserve=reserve)
     return np.array(images)
 
 
-def to_fan_2d(img, *, angle=None, zero_offset=None, pix_per_mm=None,
-              num_vectors=None, magnify=1, reserve=1800):
+def to_fan_2d(
+        img, *, angle=None, zero_offset=None, pixels_per_mm=None,
+        num_vectors=None, magnify=1, reserve=1800
+):
     """
     Transform a raw ultrasound image to a fanshaped image.
     """
 
-    if None in [angle, zero_offset, pix_per_mm, num_vectors]:
+    if None in [angle, zero_offset, pixels_per_mm, num_vectors]:
         warning = 'WARNING: Not all the necessary information was provided. '
         warning += 'General parameters are used instead.'
         _logger.warning(warning)
         img = cv2.resize(img, (500, 500))
         angle = 0.0031
         zero_offset = 150
-        pix_per_mm = 2
+        pixels_per_mm = 2
         num_vectors = img.shape[0]
 
-    pix_per_mm = pix_per_mm//magnify
+    pixels_per_mm = pixels_per_mm // magnify
 
     img = np.rot90(img, 3)
     dimnum = len(img.shape)
@@ -127,16 +136,17 @@ def to_fan_2d(img, *, angle=None, zero_offset=None, pix_per_mm=None,
         grayscale = False
     else:
         raise UltrasoundInterpolationError(
-            'Dimensions is not 2. And it does not look like a RGB format, either.')
+            'Dimensions is not 2. And it does not look like a RGB format, '
+            'either.')
 
     if grayscale:
         output_shape = (
-            int(reserve // pix_per_mm),
-            int((reserve * 0.80) // pix_per_mm))
+            int(reserve // pixels_per_mm),
+            int((reserve * 0.80) // pixels_per_mm))
     else:
         output_shape = (
-            int(reserve // pix_per_mm),
-            int((reserve * 0.80) // pix_per_mm),
+            int(reserve // pixels_per_mm),
+            int((reserve * 0.80) // pixels_per_mm),
             3)
 
     origin = (int(output_shape[0] // 2), 0)
@@ -151,25 +161,29 @@ def to_fan_2d(img, *, angle=None, zero_offset=None, pix_per_mm=None,
                                           'num_of_vectors': num_vectors,
                                           'angle': angle,
                                           'zero_offset': zero_offset,
-                                          'pix_per_mm': pix_per_mm,
+                                          'pix_per_mm': pixels_per_mm,
                                           'grayscale': grayscale})
     img = trim_picture(img)
     img = np.rot90(img, 1)
     return img
 
 
-def ult_cart2pol(output_coordinates, origin, num_of_vectors, angle,
-                 zero_offset, pix_per_mm, grayscale):
+def ult_cart2pol(
+        output_coordinates, origin, num_of_vectors, angle,
+        zero_offset, pix_per_mm, grayscale
+):
     """
     Transform an ultrasound image from cartesian to polar coordinates.
 
     More specifically map a raw image onto a scanline fan and interpolate the
     result for viewing by humans.
     """
+
     def cart2pol(x, y):
-        r = math.sqrt(x**2 + y**2)
+        r = math.sqrt(x ** 2 + y ** 2)
         theta = math.atan2(y, x)
         return r, theta
+
     (r, theta) = cart2pol(output_coordinates[0] - origin[0],
                           output_coordinates[1] - origin[1])
     r *= pix_per_mm
@@ -178,7 +192,7 @@ def ult_cart2pol(output_coordinates, origin, num_of_vectors, angle,
         res = cl - ((theta - np.pi / 2) / angle), r - zero_offset
     else:
         res = cl - ((theta - np.pi / 2) / angle), r - \
-            zero_offset, output_coordinates[2]
+              zero_offset, output_coordinates[2]
     return res
 
 
@@ -186,6 +200,7 @@ def trim_picture(img):
     """
     TODO: docstring.
     """
+
     def unique_element_number(vec):
         try:
             aaa = [tuple(i) for i in vec]

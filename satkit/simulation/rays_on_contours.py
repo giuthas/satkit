@@ -46,7 +46,7 @@ from mpl_toolkits.axes_grid1.anchored_artists import AnchoredSizeBar
 
 from satkit.plot_and_publish.plot_utilities import get_colors_in_sequence
 from satkit.simulation import (
-    Comparison, ComparisonMember, SoundPair,
+    Comparison, ComparisonMember, ComparisonSoundPair,
     display_contour,
     contour_ray_plot,
 )
@@ -59,7 +59,7 @@ def distance_metric_rays_on_contours(
     baselines: dict[Comparison, float],
     number_of_perturbations: int,
     figsize: tuple[float, float],
-    columns: list[SoundPair],
+    columns: list[ComparisonSoundPair],
     nrows: Optional[int] = 2,
     contour_rows: Optional[int] = 2,
     scale: Optional[float] = 1,
@@ -82,7 +82,7 @@ def distance_metric_rays_on_contours(
         How many perturbation values there are.
     figsize : tuple[float, float]
         size of the figure
-    columns : list[SoundPair]
+    columns : list[ComparisonSoundPair]
         Order of contours to go through. 
     nrows : Optional[int], optional
         number of subplot rows in the plot, by default 1

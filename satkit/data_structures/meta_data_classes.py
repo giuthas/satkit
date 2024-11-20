@@ -31,16 +31,11 @@
 #
 """Meta data classes for use by core data structures."""
 
-# Built in packages
 import logging
 from dataclasses import dataclass
 from datetime import datetime
 from pathlib import Path
-from typing import Optional, Union
 
-from icecream import ic
-
-# Numerical arrays and more
 import numpy as np
 from pydantic import PositiveInt
 
@@ -58,29 +53,29 @@ class FileInformation:
     """
     File and Path information for SATKIT DataObjects. 
 
-    recorded_data_file: Optional[str] = None
+    recorded_data_file: str | None = None
         Name of the file containing the raw recorded data.
-    recorded_meta_file: Optional[str] = None
+    recorded_meta_file: str | None = None
         Name of the file containing the meta data of the recording.
-    recorded_path : Optional[Path] = None
+    recorded_path : Path | None = None
         Path to the recorded data of this DataObject - if there is original
         recorded data associated with this instance/type, defaults to None
-    satkit_data_file : Optional[str]
+    satkit_data_file : str | None
         Name of the SATKIT data file, if it exists, defaults to None.
-    satkit_meta_file : Optional[str]
+    satkit_meta_file : str | None
         Name of the SATKIT meta file, if it exists, defaults to None.
-    satkit_path : Optional[Path] 
+    satkit_path : Path | None
         Path to the saved SATKIT data, if it exists, defaults to None.
         Generally this will mostly be equivalent to the recorded_path, except
         for the root level DataAggregator which contains the paths to the
         SATKIT and recorded data root directories.
     """
-    recorded_data_file: Optional[str] = None
-    recorded_meta_file: Optional[str] = None
-    recorded_path: Optional[Path] = None
-    satkit_data_file: Optional[str] = None
-    satkit_meta_file: Optional[str] = None
-    satkit_path: Optional[Path] = None
+    recorded_data_file: str | None = None
+    recorded_meta_file: str | None = None
+    recorded_path: Path | None = None
+    satkit_data_file: str | None = None
+    satkit_meta_file: str | None = None
+    satkit_path: Path | None = None
 
 
 @dataclass
@@ -105,14 +100,14 @@ class ModalityMetaData(EmptyStrAsNoneBaseModel):
     """
     Baseclass of Modalities' metadata classes.
     """
-    parent_name: Optional[str] = None
-    is_downsampled: Optional[bool] = False
-    downsampling_ratio: Union[None, PositiveInt, str] = None
-    timestep_matched_downsampling: Optional[bool] = True
+    parent_name: str = None
+    is_downsampled: bool = False
+    downsampling_ratio: PositiveInt | str | None = None
+    timestep_matched_downsampling: bool = True
 
 
 @dataclass
-class PointAnnotations():
+class PointAnnotations:
     """
     Time point annotations for a Modality.
 
@@ -184,7 +179,6 @@ class PointAnnotations():
 
         for key in self.properties:
             if is_sequence_form(self.properties[key]):
-                ic(key, self.properties[key])
                 self.properties[key] = self.properties[key][limit:]
             elif isinstance(self.properties[key], np.ndarray):
                 self.properties[key] = self.properties[key][selected]
@@ -207,7 +201,6 @@ class PointAnnotations():
 
         for key in self.properties:
             if is_sequence_form(self.properties[key]):
-                ic(key, self.properties[key])
                 self.properties[key] = self.properties[key][:limit]
             elif isinstance(self.properties[key], np.ndarray):
                 self.properties[key] = self.properties[key][selected]
@@ -218,6 +211,7 @@ class RecordingMetaData(EmptyStrAsNoneBaseModel):
     prompt: str
     time_of_recording: datetime
     participant_id: str
+    # TODO: These should be taken care of by FileInformation.
     basename: str
     path: Path
 
@@ -227,12 +221,12 @@ class SessionConfig(EmptyStrAsNoneBaseModel):
     Description of a Session for import into SATKIT.
     """
     data_source: Datasource
-    exclusion_list: Optional[ExclusionList] = None
-    spline_config: Optional[SplineConfig] = None
+    exclusion_list: ExclusionList | None = None
+    spline_config: SplineConfig | None = None
 
 
 class StatisticMetaData(EmptyStrAsNoneBaseModel):
     """
     Baseclass of Statistics' metadata classes.
     """
-    parent_name: Optional[str] = None
+    parent_name: str | None = None

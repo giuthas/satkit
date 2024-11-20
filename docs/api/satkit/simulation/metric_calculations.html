@@ -46,22 +46,22 @@
 
             </li>
             <li>
-                    <a class="class" href="#SoundPair">SoundPair</a>
+                    <a class="class" href="#ComparisonSoundPair">ComparisonSoundPair</a>
                             <ul class="memberlist">
                         <li>
-                                <a class="variable" href="#SoundPair.first">first</a>
+                                <a class="variable" href="#ComparisonSoundPair.first">first</a>
                         </li>
                         <li>
-                                <a class="variable" href="#SoundPair.second">second</a>
+                                <a class="variable" href="#ComparisonSoundPair.second">second</a>
                         </li>
                         <li>
-                                <a class="variable" href="#SoundPair.model_config">model_config</a>
+                                <a class="variable" href="#ComparisonSoundPair.model_config">model_config</a>
                         </li>
                         <li>
-                                <a class="variable" href="#SoundPair.model_fields">model_fields</a>
+                                <a class="variable" href="#ComparisonSoundPair.model_fields">model_fields</a>
                         </li>
                         <li>
-                                <a class="variable" href="#SoundPair.model_computed_fields">model_computed_fields</a>
+                                <a class="variable" href="#ComparisonSoundPair.model_computed_fields">model_computed_fields</a>
                         </li>
                 </ul>
 
@@ -193,7 +193,7 @@
 </span><span id="L-60"><a href="#L-60"><span class="linenos"> 60</span></a>    <span class="n">SECOND</span> <span class="o">=</span> <span class="s2">&quot;second&quot;</span>
 </span><span id="L-61"><a href="#L-61"><span class="linenos"> 61</span></a>
 </span><span id="L-62"><a href="#L-62"><span class="linenos"> 62</span></a>
-</span><span id="L-63"><a href="#L-63"><span class="linenos"> 63</span></a><span class="k">class</span> <span class="nc">SoundPair</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">,</span> <span class="n">frozen</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+</span><span id="L-63"><a href="#L-63"><span class="linenos"> 63</span></a><span class="k">class</span> <span class="nc">ComparisonSoundPair</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">,</span> <span class="n">frozen</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
 </span><span id="L-64"><a href="#L-64"><span class="linenos"> 64</span></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 </span><span id="L-65"><a href="#L-65"><span class="linenos"> 65</span></a><span class="sd">    Defines a comparison between two contours.</span>
 </span><span id="L-66"><a href="#L-66"><span class="linenos"> 66</span></a>
@@ -539,29 +539,29 @@
                                 </dl>
                             </div>
                 </section>
-                <section id="SoundPair">
-                            <input id="SoundPair-view-source" class="view-source-toggle-state" type="checkbox" aria-hidden="true" tabindex="-1">
+                <section id="ComparisonSoundPair">
+                            <input id="ComparisonSoundPair-view-source" class="view-source-toggle-state" type="checkbox" aria-hidden="true" tabindex="-1">
 <div class="attr class">
             
     <span class="def">class</span>
-    <span class="name">SoundPair</span><wbr>(<span class="base">pydantic.main.BaseModel</span>):
+    <span class="name">ComparisonSoundPair</span><wbr>(<span class="base">pydantic.main.BaseModel</span>):
 
-                <label class="view-source-button" for="SoundPair-view-source"><span>View Source</span></label>
+                <label class="view-source-button" for="ComparisonSoundPair-view-source"><span>View Source</span></label>
 
     </div>
-    <a class="headerlink" href="#SoundPair"></a>
-            <div class="pdoc-code codehilite"><pre><span></span><span id="SoundPair-64"><a href="#SoundPair-64"><span class="linenos">64</span></a><span class="k">class</span> <span class="nc">SoundPair</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">,</span> <span class="n">frozen</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
-</span><span id="SoundPair-65"><a href="#SoundPair-65"><span class="linenos">65</span></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-</span><span id="SoundPair-66"><a href="#SoundPair-66"><span class="linenos">66</span></a><span class="sd">    Defines a comparison between two contours.</span>
-</span><span id="SoundPair-67"><a href="#SoundPair-67"><span class="linenos">67</span></a>
-</span><span id="SoundPair-68"><a href="#SoundPair-68"><span class="linenos">68</span></a><span class="sd">    First should be compared to second.     </span>
-</span><span id="SoundPair-69"><a href="#SoundPair-69"><span class="linenos">69</span></a><span class="sd">    &quot;&quot;&quot;</span>
-</span><span id="SoundPair-70"><a href="#SoundPair-70"><span class="linenos">70</span></a>    <span class="n">first</span><span class="p">:</span> <span class="nb">str</span>
-</span><span id="SoundPair-71"><a href="#SoundPair-71"><span class="linenos">71</span></a>    <span class="n">second</span><span class="p">:</span> <span class="nb">str</span>
-</span><span id="SoundPair-72"><a href="#SoundPair-72"><span class="linenos">72</span></a>
-</span><span id="SoundPair-73"><a href="#SoundPair-73"><span class="linenos">73</span></a>    <span class="k">def</span> <span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-</span><span id="SoundPair-74"><a href="#SoundPair-74"><span class="linenos">74</span></a>        <span class="k">return</span> <span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Comparison: from first </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">first</span><span class="si">}</span><span class="s2"> &quot;</span>
-</span><span id="SoundPair-75"><a href="#SoundPair-75"><span class="linenos">75</span></a>                <span class="sa">f</span><span class="s2">&quot;to second </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">second</span><span class="si">}</span><span class="s2">.&quot;</span><span class="p">)</span>
+    <a class="headerlink" href="#ComparisonSoundPair"></a>
+            <div class="pdoc-code codehilite"><pre><span></span><span id="ComparisonSoundPair-64"><a href="#ComparisonSoundPair-64"><span class="linenos">64</span></a><span class="k">class</span> <span class="nc">ComparisonSoundPair</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">,</span> <span class="n">frozen</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+</span><span id="ComparisonSoundPair-65"><a href="#ComparisonSoundPair-65"><span class="linenos">65</span></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+</span><span id="ComparisonSoundPair-66"><a href="#ComparisonSoundPair-66"><span class="linenos">66</span></a><span class="sd">    Defines a comparison between two contours.</span>
+</span><span id="ComparisonSoundPair-67"><a href="#ComparisonSoundPair-67"><span class="linenos">67</span></a>
+</span><span id="ComparisonSoundPair-68"><a href="#ComparisonSoundPair-68"><span class="linenos">68</span></a><span class="sd">    First should be compared to second.     </span>
+</span><span id="ComparisonSoundPair-69"><a href="#ComparisonSoundPair-69"><span class="linenos">69</span></a><span class="sd">    &quot;&quot;&quot;</span>
+</span><span id="ComparisonSoundPair-70"><a href="#ComparisonSoundPair-70"><span class="linenos">70</span></a>    <span class="n">first</span><span class="p">:</span> <span class="nb">str</span>
+</span><span id="ComparisonSoundPair-71"><a href="#ComparisonSoundPair-71"><span class="linenos">71</span></a>    <span class="n">second</span><span class="p">:</span> <span class="nb">str</span>
+</span><span id="ComparisonSoundPair-72"><a href="#ComparisonSoundPair-72"><span class="linenos">72</span></a>
+</span><span id="ComparisonSoundPair-73"><a href="#ComparisonSoundPair-73"><span class="linenos">73</span></a>    <span class="k">def</span> <span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+</span><span id="ComparisonSoundPair-74"><a href="#ComparisonSoundPair-74"><span class="linenos">74</span></a>        <span class="k">return</span> <span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Comparison: from first </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">first</span><span class="si">}</span><span class="s2"> &quot;</span>
+</span><span id="ComparisonSoundPair-75"><a href="#ComparisonSoundPair-75"><span class="linenos">75</span></a>                <span class="sa">f</span><span class="s2">&quot;to second </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">second</span><span class="si">}</span><span class="s2">.&quot;</span><span class="p">)</span>
 </span></pre></div>
 
 
@@ -571,61 +571,61 @@
 </div>
 
 
-                            <div id="SoundPair.first" class="classattr">
+                            <div id="ComparisonSoundPair.first" class="classattr">
                                 <div class="attr variable">
             <span class="name">first</span><span class="annotation">: str</span>
 
         
     </div>
-    <a class="headerlink" href="#SoundPair.first"></a>
+    <a class="headerlink" href="#ComparisonSoundPair.first"></a>
     
     
 
                             </div>
-                            <div id="SoundPair.second" class="classattr">
+                            <div id="ComparisonSoundPair.second" class="classattr">
                                 <div class="attr variable">
             <span class="name">second</span><span class="annotation">: str</span>
 
         
     </div>
-    <a class="headerlink" href="#SoundPair.second"></a>
+    <a class="headerlink" href="#ComparisonSoundPair.second"></a>
     
     
 
                             </div>
-                            <div id="SoundPair.model_config" class="classattr">
+                            <div id="ComparisonSoundPair.model_config" class="classattr">
                                 <div class="attr variable">
             <span class="name">model_config</span>        =
 <span class="default_value">{&#39;frozen&#39;: True}</span>
 
         
     </div>
-    <a class="headerlink" href="#SoundPair.model_config"></a>
+    <a class="headerlink" href="#ComparisonSoundPair.model_config"></a>
     
     
 
                             </div>
-                            <div id="SoundPair.model_fields" class="classattr">
+                            <div id="ComparisonSoundPair.model_fields" class="classattr">
                                 <div class="attr variable">
             <span class="name">model_fields</span>        =
-<input id="SoundPair.model_fields-view-value" class="view-value-toggle-state" type="checkbox" aria-hidden="true" tabindex="-1">
-            <label class="view-value-button pdoc-button" for="SoundPair.model_fields-view-value"></label><span class="default_value">{&#39;first&#39;: FieldInfo(annotation=str, required=True), &#39;second&#39;: FieldInfo(annotation=str, required=True)}</span>
+<input id="ComparisonSoundPair.model_fields-view-value" class="view-value-toggle-state" type="checkbox" aria-hidden="true" tabindex="-1">
+            <label class="view-value-button pdoc-button" for="ComparisonSoundPair.model_fields-view-value"></label><span class="default_value">{&#39;first&#39;: FieldInfo(annotation=str, required=True), &#39;second&#39;: FieldInfo(annotation=str, required=True)}</span>
 
         
     </div>
-    <a class="headerlink" href="#SoundPair.model_fields"></a>
+    <a class="headerlink" href="#ComparisonSoundPair.model_fields"></a>
     
     
 
                             </div>
-                            <div id="SoundPair.model_computed_fields" class="classattr">
+                            <div id="ComparisonSoundPair.model_computed_fields" class="classattr">
                                 <div class="attr variable">
             <span class="name">model_computed_fields</span>        =
 <span class="default_value">{}</span>
 
         
     </div>
-    <a class="headerlink" href="#SoundPair.model_computed_fields"></a>
+    <a class="headerlink" href="#ComparisonSoundPair.model_computed_fields"></a>
     
     
 
@@ -634,32 +634,32 @@
                                 <h5>Inherited Members</h5>
                                 <dl>
                                     <div><dt>pydantic.main.BaseModel</dt>
-                                <dd id="SoundPair.__init__" class="function">BaseModel</dd>
-                <dd id="SoundPair.model_extra" class="variable">model_extra</dd>
-                <dd id="SoundPair.model_fields_set" class="variable">model_fields_set</dd>
-                <dd id="SoundPair.model_construct" class="function">model_construct</dd>
-                <dd id="SoundPair.model_copy" class="function">model_copy</dd>
-                <dd id="SoundPair.model_dump" class="function">model_dump</dd>
-                <dd id="SoundPair.model_dump_json" class="function">model_dump_json</dd>
-                <dd id="SoundPair.model_json_schema" class="function">model_json_schema</dd>
-                <dd id="SoundPair.model_parametrized_name" class="function">model_parametrized_name</dd>
-                <dd id="SoundPair.model_post_init" class="function">model_post_init</dd>
-                <dd id="SoundPair.model_rebuild" class="function">model_rebuild</dd>
-                <dd id="SoundPair.model_validate" class="function">model_validate</dd>
-                <dd id="SoundPair.model_validate_json" class="function">model_validate_json</dd>
-                <dd id="SoundPair.model_validate_strings" class="function">model_validate_strings</dd>
-                <dd id="SoundPair.dict" class="function">dict</dd>
-                <dd id="SoundPair.json" class="function">json</dd>
-                <dd id="SoundPair.parse_obj" class="function">parse_obj</dd>
-                <dd id="SoundPair.parse_raw" class="function">parse_raw</dd>
-                <dd id="SoundPair.parse_file" class="function">parse_file</dd>
-                <dd id="SoundPair.from_orm" class="function">from_orm</dd>
-                <dd id="SoundPair.construct" class="function">construct</dd>
-                <dd id="SoundPair.copy" class="function">copy</dd>
-                <dd id="SoundPair.schema" class="function">schema</dd>
-                <dd id="SoundPair.schema_json" class="function">schema_json</dd>
-                <dd id="SoundPair.validate" class="function">validate</dd>
-                <dd id="SoundPair.update_forward_refs" class="function">update_forward_refs</dd>
+                                <dd id="ComparisonSoundPair.__init__" class="function">BaseModel</dd>
+                <dd id="ComparisonSoundPair.model_extra" class="variable">model_extra</dd>
+                <dd id="ComparisonSoundPair.model_fields_set" class="variable">model_fields_set</dd>
+                <dd id="ComparisonSoundPair.model_construct" class="function">model_construct</dd>
+                <dd id="ComparisonSoundPair.model_copy" class="function">model_copy</dd>
+                <dd id="ComparisonSoundPair.model_dump" class="function">model_dump</dd>
+                <dd id="ComparisonSoundPair.model_dump_json" class="function">model_dump_json</dd>
+                <dd id="ComparisonSoundPair.model_json_schema" class="function">model_json_schema</dd>
+                <dd id="ComparisonSoundPair.model_parametrized_name" class="function">model_parametrized_name</dd>
+                <dd id="ComparisonSoundPair.model_post_init" class="function">model_post_init</dd>
+                <dd id="ComparisonSoundPair.model_rebuild" class="function">model_rebuild</dd>
+                <dd id="ComparisonSoundPair.model_validate" class="function">model_validate</dd>
+                <dd id="ComparisonSoundPair.model_validate_json" class="function">model_validate_json</dd>
+                <dd id="ComparisonSoundPair.model_validate_strings" class="function">model_validate_strings</dd>
+                <dd id="ComparisonSoundPair.dict" class="function">dict</dd>
+                <dd id="ComparisonSoundPair.json" class="function">json</dd>
+                <dd id="ComparisonSoundPair.parse_obj" class="function">parse_obj</dd>
+                <dd id="ComparisonSoundPair.parse_raw" class="function">parse_raw</dd>
+                <dd id="ComparisonSoundPair.parse_file" class="function">parse_file</dd>
+                <dd id="ComparisonSoundPair.from_orm" class="function">from_orm</dd>
+                <dd id="ComparisonSoundPair.construct" class="function">construct</dd>
+                <dd id="ComparisonSoundPair.copy" class="function">copy</dd>
+                <dd id="ComparisonSoundPair.schema" class="function">schema</dd>
+                <dd id="ComparisonSoundPair.schema_json" class="function">schema_json</dd>
+                <dd id="ComparisonSoundPair.validate" class="function">validate</dd>
+                <dd id="ComparisonSoundPair.update_forward_refs" class="function">update_forward_refs</dd>
 
             </div>
                                 </dl>

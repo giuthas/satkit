@@ -58,6 +58,9 @@
                                 <a class="function" href="#ExclusionList.__init__">ExclusionList</a>
                         </li>
                         <li>
+                                <a class="variable" href="#ExclusionList.path">path</a>
+                        </li>
+                        <li>
                                 <a class="variable" href="#ExclusionList.files">files</a>
                         </li>
                         <li>
@@ -225,11 +228,11 @@ strictyaml.Optional.</p>
 </span><span id="L-38"><a href="#L-38"><span class="linenos"> 38</span></a>
 </span><span id="L-39"><a href="#L-39"><span class="linenos"> 39</span></a><span class="kn">from</span> <span class="nn">pathlib</span> <span class="kn">import</span> <span class="n">Path</span>
 </span><span id="L-40"><a href="#L-40"><span class="linenos"> 40</span></a><span class="kn">from</span> <span class="nn">dataclasses</span> <span class="kn">import</span> <span class="n">dataclass</span>
-</span><span id="L-41"><a href="#L-41"><span class="linenos"> 41</span></a><span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Optional</span>
-</span><span id="L-42"><a href="#L-42"><span class="linenos"> 42</span></a>
-</span><span id="L-43"><a href="#L-43"><span class="linenos"> 43</span></a><span class="kn">from</span> <span class="nn">satkit.constants</span> <span class="kn">import</span> <span class="p">(</span>
-</span><span id="L-44"><a href="#L-44"><span class="linenos"> 44</span></a>    <span class="n">CoordinateSystems</span><span class="p">,</span> <span class="n">Datasource</span><span class="p">,</span> <span class="n">IntervalBoundary</span><span class="p">,</span> <span class="n">IntervalCategory</span><span class="p">,</span>
-</span><span id="L-45"><a href="#L-45"><span class="linenos"> 45</span></a>    <span class="n">SplineDataColumn</span><span class="p">,</span> <span class="n">SplineMetaColumn</span><span class="p">)</span>
+</span><span id="L-41"><a href="#L-41"><span class="linenos"> 41</span></a>
+</span><span id="L-42"><a href="#L-42"><span class="linenos"> 42</span></a><span class="kn">from</span> <span class="nn">satkit.constants</span> <span class="kn">import</span> <span class="p">(</span>
+</span><span id="L-43"><a href="#L-43"><span class="linenos"> 43</span></a>    <span class="n">CoordinateSystems</span><span class="p">,</span> <span class="n">Datasource</span><span class="p">,</span> <span class="n">IntervalBoundary</span><span class="p">,</span> <span class="n">IntervalCategory</span><span class="p">,</span>
+</span><span id="L-44"><a href="#L-44"><span class="linenos"> 44</span></a>    <span class="n">SplineDataColumn</span><span class="p">,</span> <span class="n">SplineMetaColumn</span>
+</span><span id="L-45"><a href="#L-45"><span class="linenos"> 45</span></a><span class="p">)</span>
 </span><span id="L-46"><a href="#L-46"><span class="linenos"> 46</span></a>
 </span><span id="L-47"><a href="#L-47"><span class="linenos"> 47</span></a>
 </span><span id="L-48"><a href="#L-48"><span class="linenos"> 48</span></a><span class="nd">@dataclass</span>
@@ -237,7 +240,7 @@ strictyaml.Optional.</p>
 </span><span id="L-50"><a href="#L-50"><span class="linenos"> 50</span></a>    <span class="n">tier</span><span class="p">:</span> <span class="nb">str</span>
 </span><span id="L-51"><a href="#L-51"><span class="linenos"> 51</span></a>    <span class="n">interval</span><span class="p">:</span> <span class="n">IntervalCategory</span>
 </span><span id="L-52"><a href="#L-52"><span class="linenos"> 52</span></a>    <span class="n">boundary</span><span class="p">:</span> <span class="n">IntervalBoundary</span>
-</span><span id="L-53"><a href="#L-53"><span class="linenos"> 53</span></a>    <span class="n">label</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span>
+</span><span id="L-53"><a href="#L-53"><span class="linenos"> 53</span></a>    <span class="n">label</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
 </span><span id="L-54"><a href="#L-54"><span class="linenos"> 54</span></a>
 </span><span id="L-55"><a href="#L-55"><span class="linenos"> 55</span></a>
 </span><span id="L-56"><a href="#L-56"><span class="linenos"> 56</span></a><span class="nd">@dataclass</span>
@@ -245,64 +248,65 @@ strictyaml.Optional.</p>
 </span><span id="L-58"><a href="#L-58"><span class="linenos"> 58</span></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 </span><span id="L-59"><a href="#L-59"><span class="linenos"> 59</span></a><span class="sd">    List of files, prompts, and parts of prompts to be excluded from analysis.</span>
 </span><span id="L-60"><a href="#L-60"><span class="linenos"> 60</span></a><span class="sd">    &quot;&quot;&quot;</span>
-</span><span id="L-61"><a href="#L-61"><span class="linenos"> 61</span></a>    <span class="n">files</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span>
-</span><span id="L-62"><a href="#L-62"><span class="linenos"> 62</span></a>    <span class="n">prompts</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span>
-</span><span id="L-63"><a href="#L-63"><span class="linenos"> 63</span></a>    <span class="n">parts_of_prompts</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span>
-</span><span id="L-64"><a href="#L-64"><span class="linenos"> 64</span></a>
+</span><span id="L-61"><a href="#L-61"><span class="linenos"> 61</span></a>    <span class="n">path</span><span class="p">:</span> <span class="n">Path</span>
+</span><span id="L-62"><a href="#L-62"><span class="linenos"> 62</span></a>    <span class="n">files</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+</span><span id="L-63"><a href="#L-63"><span class="linenos"> 63</span></a>    <span class="n">prompts</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+</span><span id="L-64"><a href="#L-64"><span class="linenos"> 64</span></a>    <span class="n">parts_of_prompts</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
 </span><span id="L-65"><a href="#L-65"><span class="linenos"> 65</span></a>
-</span><span id="L-66"><a href="#L-66"><span class="linenos"> 66</span></a><span class="nd">@dataclass</span>
-</span><span id="L-67"><a href="#L-67"><span class="linenos"> 67</span></a><span class="k">class</span> <span class="nc">SplineImportConfig</span><span class="p">:</span>
-</span><span id="L-68"><a href="#L-68"><span class="linenos"> 68</span></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-</span><span id="L-69"><a href="#L-69"><span class="linenos"> 69</span></a><span class="sd">    Spline import csv file configuration.</span>
-</span><span id="L-70"><a href="#L-70"><span class="linenos"> 70</span></a>
-</span><span id="L-71"><a href="#L-71"><span class="linenos"> 71</span></a><span class="sd">    This describes how to interpret a csv file containing splines.</span>
-</span><span id="L-72"><a href="#L-72"><span class="linenos"> 72</span></a><span class="sd">    &quot;&quot;&quot;</span>
-</span><span id="L-73"><a href="#L-73"><span class="linenos"> 73</span></a>    <span class="n">single_spline_file</span><span class="p">:</span> <span class="nb">bool</span>
-</span><span id="L-74"><a href="#L-74"><span class="linenos"> 74</span></a>    <span class="n">headers</span><span class="p">:</span> <span class="nb">bool</span>
-</span><span id="L-75"><a href="#L-75"><span class="linenos"> 75</span></a>    <span class="n">coordinates</span><span class="p">:</span> <span class="n">CoordinateSystems</span>
-</span><span id="L-76"><a href="#L-76"><span class="linenos"> 76</span></a>    <span class="n">interleaved_coords</span><span class="p">:</span> <span class="nb">bool</span>
-</span><span id="L-77"><a href="#L-77"><span class="linenos"> 77</span></a>    <span class="n">meta_columns</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">SplineMetaColumn</span><span class="p">]</span>
-</span><span id="L-78"><a href="#L-78"><span class="linenos"> 78</span></a>    <span class="n">data_columns</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">SplineDataColumn</span><span class="p">]</span>
-</span><span id="L-79"><a href="#L-79"><span class="linenos"> 79</span></a>    <span class="n">spline_file</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Path</span><span class="p">]</span>
-</span><span id="L-80"><a href="#L-80"><span class="linenos"> 80</span></a>    <span class="n">spline_file_extension</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span>
-</span><span id="L-81"><a href="#L-81"><span class="linenos"> 81</span></a>    <span class="n">delimiter</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;</span><span class="se">\t</span><span class="s1">&#39;</span>
-</span><span id="L-82"><a href="#L-82"><span class="linenos"> 82</span></a>
-</span><span id="L-83"><a href="#L-83"><span class="linenos"> 83</span></a>    <span class="k">def</span> <span class="nf">__post_init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-</span><span id="L-84"><a href="#L-84"><span class="linenos"> 84</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-</span><span id="L-85"><a href="#L-85"><span class="linenos"> 85</span></a><span class="sd">        Empty delimiter strings are replaced with a tabulator.</span>
-</span><span id="L-86"><a href="#L-86"><span class="linenos"> 86</span></a><span class="sd">        &quot;&quot;&quot;</span>
-</span><span id="L-87"><a href="#L-87"><span class="linenos"> 87</span></a>        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">delimiter</span><span class="p">:</span>
-</span><span id="L-88"><a href="#L-88"><span class="linenos"> 88</span></a>            <span class="bp">self</span><span class="o">.</span><span class="n">delimiter</span> <span class="o">=</span> <span class="s1">&#39;</span><span class="se">\t</span><span class="s1">&#39;</span>
-</span><span id="L-89"><a href="#L-89"><span class="linenos"> 89</span></a>
+</span><span id="L-66"><a href="#L-66"><span class="linenos"> 66</span></a>
+</span><span id="L-67"><a href="#L-67"><span class="linenos"> 67</span></a><span class="nd">@dataclass</span>
+</span><span id="L-68"><a href="#L-68"><span class="linenos"> 68</span></a><span class="k">class</span> <span class="nc">SplineImportConfig</span><span class="p">:</span>
+</span><span id="L-69"><a href="#L-69"><span class="linenos"> 69</span></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+</span><span id="L-70"><a href="#L-70"><span class="linenos"> 70</span></a><span class="sd">    Spline import csv file configuration.</span>
+</span><span id="L-71"><a href="#L-71"><span class="linenos"> 71</span></a>
+</span><span id="L-72"><a href="#L-72"><span class="linenos"> 72</span></a><span class="sd">    This describes how to interpret a csv file containing splines.</span>
+</span><span id="L-73"><a href="#L-73"><span class="linenos"> 73</span></a><span class="sd">    &quot;&quot;&quot;</span>
+</span><span id="L-74"><a href="#L-74"><span class="linenos"> 74</span></a>    <span class="n">single_spline_file</span><span class="p">:</span> <span class="nb">bool</span>
+</span><span id="L-75"><a href="#L-75"><span class="linenos"> 75</span></a>    <span class="n">headers</span><span class="p">:</span> <span class="nb">bool</span>
+</span><span id="L-76"><a href="#L-76"><span class="linenos"> 76</span></a>    <span class="n">coordinates</span><span class="p">:</span> <span class="n">CoordinateSystems</span>
+</span><span id="L-77"><a href="#L-77"><span class="linenos"> 77</span></a>    <span class="n">interleaved_coords</span><span class="p">:</span> <span class="nb">bool</span>
+</span><span id="L-78"><a href="#L-78"><span class="linenos"> 78</span></a>    <span class="n">meta_columns</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">SplineMetaColumn</span><span class="p">]</span>
+</span><span id="L-79"><a href="#L-79"><span class="linenos"> 79</span></a>    <span class="n">data_columns</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">SplineDataColumn</span><span class="p">]</span>
+</span><span id="L-80"><a href="#L-80"><span class="linenos"> 80</span></a>    <span class="n">spline_file</span><span class="p">:</span> <span class="n">Path</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+</span><span id="L-81"><a href="#L-81"><span class="linenos"> 81</span></a>    <span class="n">spline_file_extension</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+</span><span id="L-82"><a href="#L-82"><span class="linenos"> 82</span></a>    <span class="n">delimiter</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">&#39;</span><span class="se">\t</span><span class="s1">&#39;</span>
+</span><span id="L-83"><a href="#L-83"><span class="linenos"> 83</span></a>
+</span><span id="L-84"><a href="#L-84"><span class="linenos"> 84</span></a>    <span class="k">def</span> <span class="nf">__post_init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+</span><span id="L-85"><a href="#L-85"><span class="linenos"> 85</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+</span><span id="L-86"><a href="#L-86"><span class="linenos"> 86</span></a><span class="sd">        Empty delimiter strings are replaced with a tabulator.</span>
+</span><span id="L-87"><a href="#L-87"><span class="linenos"> 87</span></a><span class="sd">        &quot;&quot;&quot;</span>
+</span><span id="L-88"><a href="#L-88"><span class="linenos"> 88</span></a>        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">delimiter</span><span class="p">:</span>
+</span><span id="L-89"><a href="#L-89"><span class="linenos"> 89</span></a>            <span class="bp">self</span><span class="o">.</span><span class="n">delimiter</span> <span class="o">=</span> <span class="s1">&#39;</span><span class="se">\t</span><span class="s1">&#39;</span>
 </span><span id="L-90"><a href="#L-90"><span class="linenos"> 90</span></a>
-</span><span id="L-91"><a href="#L-91"><span class="linenos"> 91</span></a><span class="nd">@dataclass</span>
-</span><span id="L-92"><a href="#L-92"><span class="linenos"> 92</span></a><span class="k">class</span> <span class="nc">SplineDataConfig</span><span class="p">:</span>
-</span><span id="L-93"><a href="#L-93"><span class="linenos"> 93</span></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-</span><span id="L-94"><a href="#L-94"><span class="linenos"> 94</span></a><span class="sd">    Configuration options for processing and display of splines.</span>
-</span><span id="L-95"><a href="#L-95"><span class="linenos"> 95</span></a><span class="sd">    &quot;&quot;&quot;</span>
-</span><span id="L-96"><a href="#L-96"><span class="linenos"> 96</span></a>    <span class="n">ignore_points</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span>
-</span><span id="L-97"><a href="#L-97"><span class="linenos"> 97</span></a>
+</span><span id="L-91"><a href="#L-91"><span class="linenos"> 91</span></a>
+</span><span id="L-92"><a href="#L-92"><span class="linenos"> 92</span></a><span class="nd">@dataclass</span>
+</span><span id="L-93"><a href="#L-93"><span class="linenos"> 93</span></a><span class="k">class</span> <span class="nc">SplineDataConfig</span><span class="p">:</span>
+</span><span id="L-94"><a href="#L-94"><span class="linenos"> 94</span></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+</span><span id="L-95"><a href="#L-95"><span class="linenos"> 95</span></a><span class="sd">    Configuration options for processing and display of splines.</span>
+</span><span id="L-96"><a href="#L-96"><span class="linenos"> 96</span></a><span class="sd">    &quot;&quot;&quot;</span>
+</span><span id="L-97"><a href="#L-97"><span class="linenos"> 97</span></a>    <span class="n">ignore_points</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
 </span><span id="L-98"><a href="#L-98"><span class="linenos"> 98</span></a>
-</span><span id="L-99"><a href="#L-99"><span class="linenos"> 99</span></a><span class="nd">@dataclass</span>
-</span><span id="L-100"><a href="#L-100"><span class="linenos">100</span></a><span class="k">class</span> <span class="nc">SplineConfig</span><span class="p">:</span>
-</span><span id="L-101"><a href="#L-101"><span class="linenos">101</span></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-</span><span id="L-102"><a href="#L-102"><span class="linenos">102</span></a><span class="sd">    Configuration options for both import and processing of splines.</span>
-</span><span id="L-103"><a href="#L-103"><span class="linenos">103</span></a><span class="sd">    &quot;&quot;&quot;</span>
-</span><span id="L-104"><a href="#L-104"><span class="linenos">104</span></a>    <span class="n">import_config</span><span class="p">:</span> <span class="n">SplineImportConfig</span>
-</span><span id="L-105"><a href="#L-105"><span class="linenos">105</span></a>    <span class="n">data_config</span><span class="p">:</span> <span class="n">SplineDataConfig</span>
-</span><span id="L-106"><a href="#L-106"><span class="linenos">106</span></a>
+</span><span id="L-99"><a href="#L-99"><span class="linenos"> 99</span></a>
+</span><span id="L-100"><a href="#L-100"><span class="linenos">100</span></a><span class="nd">@dataclass</span>
+</span><span id="L-101"><a href="#L-101"><span class="linenos">101</span></a><span class="k">class</span> <span class="nc">SplineConfig</span><span class="p">:</span>
+</span><span id="L-102"><a href="#L-102"><span class="linenos">102</span></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+</span><span id="L-103"><a href="#L-103"><span class="linenos">103</span></a><span class="sd">    Configuration options for both import and processing of splines.</span>
+</span><span id="L-104"><a href="#L-104"><span class="linenos">104</span></a><span class="sd">    &quot;&quot;&quot;</span>
+</span><span id="L-105"><a href="#L-105"><span class="linenos">105</span></a>    <span class="n">import_config</span><span class="p">:</span> <span class="n">SplineImportConfig</span>
+</span><span id="L-106"><a href="#L-106"><span class="linenos">106</span></a>    <span class="n">data_config</span><span class="p">:</span> <span class="n">SplineDataConfig</span>
 </span><span id="L-107"><a href="#L-107"><span class="linenos">107</span></a>
-</span><span id="L-108"><a href="#L-108"><span class="linenos">108</span></a><span class="nd">@dataclass</span>
-</span><span id="L-109"><a href="#L-109"><span class="linenos">109</span></a><span class="k">class</span> <span class="nc">PathStructure</span><span class="p">:</span>
-</span><span id="L-110"><a href="#L-110"><span class="linenos">110</span></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-</span><span id="L-111"><a href="#L-111"><span class="linenos">111</span></a><span class="sd">    Path structure of a Session for both loading and saving.</span>
-</span><span id="L-112"><a href="#L-112"><span class="linenos">112</span></a><span class="sd">    &quot;&quot;&quot;</span>
-</span><span id="L-113"><a href="#L-113"><span class="linenos">113</span></a>    <span class="n">root</span><span class="p">:</span> <span class="n">Path</span>
-</span><span id="L-114"><a href="#L-114"><span class="linenos">114</span></a>    <span class="n">exclusion_list</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Path</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
-</span><span id="L-115"><a href="#L-115"><span class="linenos">115</span></a>    <span class="n">wav</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Path</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
-</span><span id="L-116"><a href="#L-116"><span class="linenos">116</span></a>    <span class="n">textgrid</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Path</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
-</span><span id="L-117"><a href="#L-117"><span class="linenos">117</span></a>    <span class="n">ultrasound</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Path</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
-</span><span id="L-118"><a href="#L-118"><span class="linenos">118</span></a>    <span class="n">spline_config</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Path</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+</span><span id="L-108"><a href="#L-108"><span class="linenos">108</span></a>
+</span><span id="L-109"><a href="#L-109"><span class="linenos">109</span></a><span class="nd">@dataclass</span>
+</span><span id="L-110"><a href="#L-110"><span class="linenos">110</span></a><span class="k">class</span> <span class="nc">PathStructure</span><span class="p">:</span>
+</span><span id="L-111"><a href="#L-111"><span class="linenos">111</span></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+</span><span id="L-112"><a href="#L-112"><span class="linenos">112</span></a><span class="sd">    Path structure of a Session for both loading and saving.</span>
+</span><span id="L-113"><a href="#L-113"><span class="linenos">113</span></a><span class="sd">    &quot;&quot;&quot;</span>
+</span><span id="L-114"><a href="#L-114"><span class="linenos">114</span></a>    <span class="n">root</span><span class="p">:</span> <span class="n">Path</span>
+</span><span id="L-115"><a href="#L-115"><span class="linenos">115</span></a>    <span class="n">exclusion_list</span><span class="p">:</span> <span class="n">Path</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+</span><span id="L-116"><a href="#L-116"><span class="linenos">116</span></a>    <span class="n">wav</span><span class="p">:</span> <span class="n">Path</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+</span><span id="L-117"><a href="#L-117"><span class="linenos">117</span></a>    <span class="n">textgrid</span><span class="p">:</span> <span class="n">Path</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+</span><span id="L-118"><a href="#L-118"><span class="linenos">118</span></a>    <span class="n">ultrasound</span><span class="p">:</span> <span class="n">Path</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+</span><span id="L-119"><a href="#L-119"><span class="linenos">119</span></a>    <span class="n">spline_config</span><span class="p">:</span> <span class="n">Path</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
 </span></pre></div>
 
 
@@ -324,7 +328,7 @@ strictyaml.Optional.</p>
 </span><span id="TimeLimit-51"><a href="#TimeLimit-51"><span class="linenos">51</span></a>    <span class="n">tier</span><span class="p">:</span> <span class="nb">str</span>
 </span><span id="TimeLimit-52"><a href="#TimeLimit-52"><span class="linenos">52</span></a>    <span class="n">interval</span><span class="p">:</span> <span class="n">IntervalCategory</span>
 </span><span id="TimeLimit-53"><a href="#TimeLimit-53"><span class="linenos">53</span></a>    <span class="n">boundary</span><span class="p">:</span> <span class="n">IntervalBoundary</span>
-</span><span id="TimeLimit-54"><a href="#TimeLimit-54"><span class="linenos">54</span></a>    <span class="n">label</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span>
+</span><span id="TimeLimit-54"><a href="#TimeLimit-54"><span class="linenos">54</span></a>    <span class="n">label</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
 </span></pre></div>
 
 
@@ -333,7 +337,7 @@ strictyaml.Optional.</p>
                             <div id="TimeLimit.__init__" class="classattr">
                                 <div class="attr function">
             
-        <span class="name">TimeLimit</span><span class="signature pdoc-code multiline">(<span class="param">	<span class="n">tier</span><span class="p">:</span> <span class="nb">str</span>,</span><span class="param">	<span class="n">interval</span><span class="p">:</span> <span class="n"><a href="../constants.html#IntervalCategory">satkit.constants.IntervalCategory</a></span>,</span><span class="param">	<span class="n">boundary</span><span class="p">:</span> <span class="n"><a href="../constants.html#IntervalBoundary">satkit.constants.IntervalBoundary</a></span>,</span><span class="param">	<span class="n">label</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span></span>)</span>
+        <span class="name">TimeLimit</span><span class="signature pdoc-code multiline">(<span class="param">	<span class="n">tier</span><span class="p">:</span> <span class="nb">str</span>,</span><span class="param">	<span class="n">interval</span><span class="p">:</span> <span class="n"><a href="../constants.html#IntervalCategory">satkit.constants.IntervalCategory</a></span>,</span><span class="param">	<span class="n">boundary</span><span class="p">:</span> <span class="n"><a href="../constants.html#IntervalBoundary">satkit.constants.IntervalBoundary</a></span>,</span><span class="param">	<span class="n">label</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span></span>)</span>
 
         
     </div>
@@ -377,7 +381,8 @@ strictyaml.Optional.</p>
                             </div>
                             <div id="TimeLimit.label" class="classattr">
                                 <div class="attr variable">
-            <span class="name">label</span><span class="annotation">: Optional[str]</span>
+            <span class="name">label</span><span class="annotation">: str | None</span>        =
+<span class="default_value">None</span>
 
         
     </div>
@@ -404,9 +409,10 @@ strictyaml.Optional.</p>
 </span><span id="ExclusionList-59"><a href="#ExclusionList-59"><span class="linenos">59</span></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 </span><span id="ExclusionList-60"><a href="#ExclusionList-60"><span class="linenos">60</span></a><span class="sd">    List of files, prompts, and parts of prompts to be excluded from analysis.</span>
 </span><span id="ExclusionList-61"><a href="#ExclusionList-61"><span class="linenos">61</span></a><span class="sd">    &quot;&quot;&quot;</span>
-</span><span id="ExclusionList-62"><a href="#ExclusionList-62"><span class="linenos">62</span></a>    <span class="n">files</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span>
-</span><span id="ExclusionList-63"><a href="#ExclusionList-63"><span class="linenos">63</span></a>    <span class="n">prompts</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span>
-</span><span id="ExclusionList-64"><a href="#ExclusionList-64"><span class="linenos">64</span></a>    <span class="n">parts_of_prompts</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span>
+</span><span id="ExclusionList-62"><a href="#ExclusionList-62"><span class="linenos">62</span></a>    <span class="n">path</span><span class="p">:</span> <span class="n">Path</span>
+</span><span id="ExclusionList-63"><a href="#ExclusionList-63"><span class="linenos">63</span></a>    <span class="n">files</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+</span><span id="ExclusionList-64"><a href="#ExclusionList-64"><span class="linenos">64</span></a>    <span class="n">prompts</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+</span><span id="ExclusionList-65"><a href="#ExclusionList-65"><span class="linenos">65</span></a>    <span class="n">parts_of_prompts</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
 </span></pre></div>
 
 
@@ -417,7 +423,7 @@ strictyaml.Optional.</p>
                             <div id="ExclusionList.__init__" class="classattr">
                                 <div class="attr function">
             
-        <span class="name">ExclusionList</span><span class="signature pdoc-code multiline">(<span class="param">	<span class="n">files</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span>,</span><span class="param">	<span class="n">prompts</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span>,</span><span class="param">	<span class="n">parts_of_prompts</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span></span>)</span>
+        <span class="name">ExclusionList</span><span class="signature pdoc-code multiline">(<span class="param">	<span class="n">path</span><span class="p">:</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span>,</span><span class="param">	<span class="n">files</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>,</span><span class="param">	<span class="n">prompts</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>,</span><span class="param">	<span class="n">parts_of_prompts</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span></span>)</span>
 
         
     </div>
@@ -426,9 +432,20 @@ strictyaml.Optional.</p>
     
 
                             </div>
+                            <div id="ExclusionList.path" class="classattr">
+                                <div class="attr variable">
+            <span class="name">path</span><span class="annotation">: pathlib.Path</span>
+
+        
+    </div>
+    <a class="headerlink" href="#ExclusionList.path"></a>
+    
+    
+
+                            </div>
                             <div id="ExclusionList.files" class="classattr">
                                 <div class="attr variable">
-            <span class="name">files</span><span class="annotation">: Optional[list[str]]</span>        =
+            <span class="name">files</span><span class="annotation">: list[str] | None</span>        =
 <span class="default_value">None</span>
 
         
@@ -440,7 +457,7 @@ strictyaml.Optional.</p>
                             </div>
                             <div id="ExclusionList.prompts" class="classattr">
                                 <div class="attr variable">
-            <span class="name">prompts</span><span class="annotation">: Optional[list[str]]</span>        =
+            <span class="name">prompts</span><span class="annotation">: list[str] | None</span>        =
 <span class="default_value">None</span>
 
         
@@ -452,7 +469,7 @@ strictyaml.Optional.</p>
                             </div>
                             <div id="ExclusionList.parts_of_prompts" class="classattr">
                                 <div class="attr variable">
-            <span class="name">parts_of_prompts</span><span class="annotation">: Optional[list[str]]</span>        =
+            <span class="name">parts_of_prompts</span><span class="annotation">: list[str] | None</span>        =
 <span class="default_value">None</span>
 
         
@@ -475,29 +492,29 @@ strictyaml.Optional.</p>
 
     </div>
     <a class="headerlink" href="#SplineImportConfig"></a>
-            <div class="pdoc-code codehilite"><pre><span></span><span id="SplineImportConfig-67"><a href="#SplineImportConfig-67"><span class="linenos">67</span></a><span class="nd">@dataclass</span>
-</span><span id="SplineImportConfig-68"><a href="#SplineImportConfig-68"><span class="linenos">68</span></a><span class="k">class</span> <span class="nc">SplineImportConfig</span><span class="p">:</span>
-</span><span id="SplineImportConfig-69"><a href="#SplineImportConfig-69"><span class="linenos">69</span></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-</span><span id="SplineImportConfig-70"><a href="#SplineImportConfig-70"><span class="linenos">70</span></a><span class="sd">    Spline import csv file configuration.</span>
-</span><span id="SplineImportConfig-71"><a href="#SplineImportConfig-71"><span class="linenos">71</span></a>
-</span><span id="SplineImportConfig-72"><a href="#SplineImportConfig-72"><span class="linenos">72</span></a><span class="sd">    This describes how to interpret a csv file containing splines.</span>
-</span><span id="SplineImportConfig-73"><a href="#SplineImportConfig-73"><span class="linenos">73</span></a><span class="sd">    &quot;&quot;&quot;</span>
-</span><span id="SplineImportConfig-74"><a href="#SplineImportConfig-74"><span class="linenos">74</span></a>    <span class="n">single_spline_file</span><span class="p">:</span> <span class="nb">bool</span>
-</span><span id="SplineImportConfig-75"><a href="#SplineImportConfig-75"><span class="linenos">75</span></a>    <span class="n">headers</span><span class="p">:</span> <span class="nb">bool</span>
-</span><span id="SplineImportConfig-76"><a href="#SplineImportConfig-76"><span class="linenos">76</span></a>    <span class="n">coordinates</span><span class="p">:</span> <span class="n">CoordinateSystems</span>
-</span><span id="SplineImportConfig-77"><a href="#SplineImportConfig-77"><span class="linenos">77</span></a>    <span class="n">interleaved_coords</span><span class="p">:</span> <span class="nb">bool</span>
-</span><span id="SplineImportConfig-78"><a href="#SplineImportConfig-78"><span class="linenos">78</span></a>    <span class="n">meta_columns</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">SplineMetaColumn</span><span class="p">]</span>
-</span><span id="SplineImportConfig-79"><a href="#SplineImportConfig-79"><span class="linenos">79</span></a>    <span class="n">data_columns</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">SplineDataColumn</span><span class="p">]</span>
-</span><span id="SplineImportConfig-80"><a href="#SplineImportConfig-80"><span class="linenos">80</span></a>    <span class="n">spline_file</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Path</span><span class="p">]</span>
-</span><span id="SplineImportConfig-81"><a href="#SplineImportConfig-81"><span class="linenos">81</span></a>    <span class="n">spline_file_extension</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span>
-</span><span id="SplineImportConfig-82"><a href="#SplineImportConfig-82"><span class="linenos">82</span></a>    <span class="n">delimiter</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;</span><span class="se">\t</span><span class="s1">&#39;</span>
-</span><span id="SplineImportConfig-83"><a href="#SplineImportConfig-83"><span class="linenos">83</span></a>
-</span><span id="SplineImportConfig-84"><a href="#SplineImportConfig-84"><span class="linenos">84</span></a>    <span class="k">def</span> <span class="nf">__post_init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-</span><span id="SplineImportConfig-85"><a href="#SplineImportConfig-85"><span class="linenos">85</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-</span><span id="SplineImportConfig-86"><a href="#SplineImportConfig-86"><span class="linenos">86</span></a><span class="sd">        Empty delimiter strings are replaced with a tabulator.</span>
-</span><span id="SplineImportConfig-87"><a href="#SplineImportConfig-87"><span class="linenos">87</span></a><span class="sd">        &quot;&quot;&quot;</span>
-</span><span id="SplineImportConfig-88"><a href="#SplineImportConfig-88"><span class="linenos">88</span></a>        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">delimiter</span><span class="p">:</span>
-</span><span id="SplineImportConfig-89"><a href="#SplineImportConfig-89"><span class="linenos">89</span></a>            <span class="bp">self</span><span class="o">.</span><span class="n">delimiter</span> <span class="o">=</span> <span class="s1">&#39;</span><span class="se">\t</span><span class="s1">&#39;</span>
+            <div class="pdoc-code codehilite"><pre><span></span><span id="SplineImportConfig-68"><a href="#SplineImportConfig-68"><span class="linenos">68</span></a><span class="nd">@dataclass</span>
+</span><span id="SplineImportConfig-69"><a href="#SplineImportConfig-69"><span class="linenos">69</span></a><span class="k">class</span> <span class="nc">SplineImportConfig</span><span class="p">:</span>
+</span><span id="SplineImportConfig-70"><a href="#SplineImportConfig-70"><span class="linenos">70</span></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+</span><span id="SplineImportConfig-71"><a href="#SplineImportConfig-71"><span class="linenos">71</span></a><span class="sd">    Spline import csv file configuration.</span>
+</span><span id="SplineImportConfig-72"><a href="#SplineImportConfig-72"><span class="linenos">72</span></a>
+</span><span id="SplineImportConfig-73"><a href="#SplineImportConfig-73"><span class="linenos">73</span></a><span class="sd">    This describes how to interpret a csv file containing splines.</span>
+</span><span id="SplineImportConfig-74"><a href="#SplineImportConfig-74"><span class="linenos">74</span></a><span class="sd">    &quot;&quot;&quot;</span>
+</span><span id="SplineImportConfig-75"><a href="#SplineImportConfig-75"><span class="linenos">75</span></a>    <span class="n">single_spline_file</span><span class="p">:</span> <span class="nb">bool</span>
+</span><span id="SplineImportConfig-76"><a href="#SplineImportConfig-76"><span class="linenos">76</span></a>    <span class="n">headers</span><span class="p">:</span> <span class="nb">bool</span>
+</span><span id="SplineImportConfig-77"><a href="#SplineImportConfig-77"><span class="linenos">77</span></a>    <span class="n">coordinates</span><span class="p">:</span> <span class="n">CoordinateSystems</span>
+</span><span id="SplineImportConfig-78"><a href="#SplineImportConfig-78"><span class="linenos">78</span></a>    <span class="n">interleaved_coords</span><span class="p">:</span> <span class="nb">bool</span>
+</span><span id="SplineImportConfig-79"><a href="#SplineImportConfig-79"><span class="linenos">79</span></a>    <span class="n">meta_columns</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">SplineMetaColumn</span><span class="p">]</span>
+</span><span id="SplineImportConfig-80"><a href="#SplineImportConfig-80"><span class="linenos">80</span></a>    <span class="n">data_columns</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">SplineDataColumn</span><span class="p">]</span>
+</span><span id="SplineImportConfig-81"><a href="#SplineImportConfig-81"><span class="linenos">81</span></a>    <span class="n">spline_file</span><span class="p">:</span> <span class="n">Path</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+</span><span id="SplineImportConfig-82"><a href="#SplineImportConfig-82"><span class="linenos">82</span></a>    <span class="n">spline_file_extension</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+</span><span id="SplineImportConfig-83"><a href="#SplineImportConfig-83"><span class="linenos">83</span></a>    <span class="n">delimiter</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">&#39;</span><span class="se">\t</span><span class="s1">&#39;</span>
+</span><span id="SplineImportConfig-84"><a href="#SplineImportConfig-84"><span class="linenos">84</span></a>
+</span><span id="SplineImportConfig-85"><a href="#SplineImportConfig-85"><span class="linenos">85</span></a>    <span class="k">def</span> <span class="nf">__post_init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+</span><span id="SplineImportConfig-86"><a href="#SplineImportConfig-86"><span class="linenos">86</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+</span><span id="SplineImportConfig-87"><a href="#SplineImportConfig-87"><span class="linenos">87</span></a><span class="sd">        Empty delimiter strings are replaced with a tabulator.</span>
+</span><span id="SplineImportConfig-88"><a href="#SplineImportConfig-88"><span class="linenos">88</span></a><span class="sd">        &quot;&quot;&quot;</span>
+</span><span id="SplineImportConfig-89"><a href="#SplineImportConfig-89"><span class="linenos">89</span></a>        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">delimiter</span><span class="p">:</span>
+</span><span id="SplineImportConfig-90"><a href="#SplineImportConfig-90"><span class="linenos">90</span></a>            <span class="bp">self</span><span class="o">.</span><span class="n">delimiter</span> <span class="o">=</span> <span class="s1">&#39;</span><span class="se">\t</span><span class="s1">&#39;</span>
 </span></pre></div>
 
 
@@ -510,7 +527,7 @@ strictyaml.Optional.</p>
                             <div id="SplineImportConfig.__init__" class="classattr">
                                 <div class="attr function">
             
-        <span class="name">SplineImportConfig</span><span class="signature pdoc-code multiline">(<span class="param">	<span class="n">single_spline_file</span><span class="p">:</span> <span class="nb">bool</span>,</span><span class="param">	<span class="n">headers</span><span class="p">:</span> <span class="nb">bool</span>,</span><span class="param">	<span class="n">coordinates</span><span class="p">:</span> <span class="n"><a href="../constants.html#CoordinateSystems">satkit.constants.CoordinateSystems</a></span>,</span><span class="param">	<span class="n">interleaved_coords</span><span class="p">:</span> <span class="nb">bool</span>,</span><span class="param">	<span class="n">meta_columns</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="n"><a href="../constants.html#SplineMetaColumn">satkit.constants.SplineMetaColumn</a></span><span class="p">]</span>,</span><span class="param">	<span class="n">data_columns</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="n"><a href="../constants.html#SplineDataColumn">satkit.constants.SplineDataColumn</a></span><span class="p">]</span>,</span><span class="param">	<span class="n">spline_file</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">]</span>,</span><span class="param">	<span class="n">spline_file_extension</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span>,</span><span class="param">	<span class="n">delimiter</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;</span><span class="se">\t</span><span class="s1">&#39;</span></span>)</span>
+        <span class="name">SplineImportConfig</span><span class="signature pdoc-code multiline">(<span class="param">	<span class="n">single_spline_file</span><span class="p">:</span> <span class="nb">bool</span>,</span><span class="param">	<span class="n">headers</span><span class="p">:</span> <span class="nb">bool</span>,</span><span class="param">	<span class="n">coordinates</span><span class="p">:</span> <span class="n"><a href="../constants.html#CoordinateSystems">satkit.constants.CoordinateSystems</a></span>,</span><span class="param">	<span class="n">interleaved_coords</span><span class="p">:</span> <span class="nb">bool</span>,</span><span class="param">	<span class="n">meta_columns</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="n"><a href="../constants.html#SplineMetaColumn">satkit.constants.SplineMetaColumn</a></span><span class="p">]</span>,</span><span class="param">	<span class="n">data_columns</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="n"><a href="../constants.html#SplineDataColumn">satkit.constants.SplineDataColumn</a></span><span class="p">]</span>,</span><span class="param">	<span class="n">spline_file</span><span class="p">:</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>,</span><span class="param">	<span class="n">spline_file_extension</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>,</span><span class="param">	<span class="n">delimiter</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">&#39;</span><span class="se">\t</span><span class="s1">&#39;</span></span>)</span>
 
         
     </div>
@@ -587,7 +604,8 @@ strictyaml.Optional.</p>
                             </div>
                             <div id="SplineImportConfig.spline_file" class="classattr">
                                 <div class="attr variable">
-            <span class="name">spline_file</span><span class="annotation">: Optional[pathlib.Path]</span>
+            <span class="name">spline_file</span><span class="annotation">: pathlib.Path | None</span>        =
+<span class="default_value">None</span>
 
         
     </div>
@@ -598,7 +616,8 @@ strictyaml.Optional.</p>
                             </div>
                             <div id="SplineImportConfig.spline_file_extension" class="classattr">
                                 <div class="attr variable">
-            <span class="name">spline_file_extension</span><span class="annotation">: Optional[str]</span>
+            <span class="name">spline_file_extension</span><span class="annotation">: str | None</span>        =
+<span class="default_value">None</span>
 
         
     </div>
@@ -609,7 +628,7 @@ strictyaml.Optional.</p>
                             </div>
                             <div id="SplineImportConfig.delimiter" class="classattr">
                                 <div class="attr variable">
-            <span class="name">delimiter</span><span class="annotation">: Optional[str]</span>        =
+            <span class="name">delimiter</span><span class="annotation">: str</span>        =
 <span class="default_value">&#39;\t&#39;</span>
 
         
@@ -632,12 +651,12 @@ strictyaml.Optional.</p>
 
     </div>
     <a class="headerlink" href="#SplineDataConfig"></a>
-            <div class="pdoc-code codehilite"><pre><span></span><span id="SplineDataConfig-92"><a href="#SplineDataConfig-92"><span class="linenos">92</span></a><span class="nd">@dataclass</span>
-</span><span id="SplineDataConfig-93"><a href="#SplineDataConfig-93"><span class="linenos">93</span></a><span class="k">class</span> <span class="nc">SplineDataConfig</span><span class="p">:</span>
-</span><span id="SplineDataConfig-94"><a href="#SplineDataConfig-94"><span class="linenos">94</span></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-</span><span id="SplineDataConfig-95"><a href="#SplineDataConfig-95"><span class="linenos">95</span></a><span class="sd">    Configuration options for processing and display of splines.</span>
-</span><span id="SplineDataConfig-96"><a href="#SplineDataConfig-96"><span class="linenos">96</span></a><span class="sd">    &quot;&quot;&quot;</span>
-</span><span id="SplineDataConfig-97"><a href="#SplineDataConfig-97"><span class="linenos">97</span></a>    <span class="n">ignore_points</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span>
+            <div class="pdoc-code codehilite"><pre><span></span><span id="SplineDataConfig-93"><a href="#SplineDataConfig-93"><span class="linenos">93</span></a><span class="nd">@dataclass</span>
+</span><span id="SplineDataConfig-94"><a href="#SplineDataConfig-94"><span class="linenos">94</span></a><span class="k">class</span> <span class="nc">SplineDataConfig</span><span class="p">:</span>
+</span><span id="SplineDataConfig-95"><a href="#SplineDataConfig-95"><span class="linenos">95</span></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+</span><span id="SplineDataConfig-96"><a href="#SplineDataConfig-96"><span class="linenos">96</span></a><span class="sd">    Configuration options for processing and display of splines.</span>
+</span><span id="SplineDataConfig-97"><a href="#SplineDataConfig-97"><span class="linenos">97</span></a><span class="sd">    &quot;&quot;&quot;</span>
+</span><span id="SplineDataConfig-98"><a href="#SplineDataConfig-98"><span class="linenos">98</span></a>    <span class="n">ignore_points</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
 </span></pre></div>
 
 
@@ -648,7 +667,7 @@ strictyaml.Optional.</p>
                             <div id="SplineDataConfig.__init__" class="classattr">
                                 <div class="attr function">
             
-        <span class="name">SplineDataConfig</span><span class="signature pdoc-code condensed">(<span class="param"><span class="n">ignore_points</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span></span>)</span>
+        <span class="name">SplineDataConfig</span><span class="signature pdoc-code condensed">(<span class="param"><span class="n">ignore_points</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span></span>)</span>
 
         
     </div>
@@ -659,7 +678,7 @@ strictyaml.Optional.</p>
                             </div>
                             <div id="SplineDataConfig.ignore_points" class="classattr">
                                 <div class="attr variable">
-            <span class="name">ignore_points</span><span class="annotation">: Optional[tuple[int]]</span>        =
+            <span class="name">ignore_points</span><span class="annotation">: tuple[int] | None</span>        =
 <span class="default_value">None</span>
 
         
@@ -682,13 +701,13 @@ strictyaml.Optional.</p>
 
     </div>
     <a class="headerlink" href="#SplineConfig"></a>
-            <div class="pdoc-code codehilite"><pre><span></span><span id="SplineConfig-100"><a href="#SplineConfig-100"><span class="linenos">100</span></a><span class="nd">@dataclass</span>
-</span><span id="SplineConfig-101"><a href="#SplineConfig-101"><span class="linenos">101</span></a><span class="k">class</span> <span class="nc">SplineConfig</span><span class="p">:</span>
-</span><span id="SplineConfig-102"><a href="#SplineConfig-102"><span class="linenos">102</span></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-</span><span id="SplineConfig-103"><a href="#SplineConfig-103"><span class="linenos">103</span></a><span class="sd">    Configuration options for both import and processing of splines.</span>
-</span><span id="SplineConfig-104"><a href="#SplineConfig-104"><span class="linenos">104</span></a><span class="sd">    &quot;&quot;&quot;</span>
-</span><span id="SplineConfig-105"><a href="#SplineConfig-105"><span class="linenos">105</span></a>    <span class="n">import_config</span><span class="p">:</span> <span class="n">SplineImportConfig</span>
-</span><span id="SplineConfig-106"><a href="#SplineConfig-106"><span class="linenos">106</span></a>    <span class="n">data_config</span><span class="p">:</span> <span class="n">SplineDataConfig</span>
+            <div class="pdoc-code codehilite"><pre><span></span><span id="SplineConfig-101"><a href="#SplineConfig-101"><span class="linenos">101</span></a><span class="nd">@dataclass</span>
+</span><span id="SplineConfig-102"><a href="#SplineConfig-102"><span class="linenos">102</span></a><span class="k">class</span> <span class="nc">SplineConfig</span><span class="p">:</span>
+</span><span id="SplineConfig-103"><a href="#SplineConfig-103"><span class="linenos">103</span></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+</span><span id="SplineConfig-104"><a href="#SplineConfig-104"><span class="linenos">104</span></a><span class="sd">    Configuration options for both import and processing of splines.</span>
+</span><span id="SplineConfig-105"><a href="#SplineConfig-105"><span class="linenos">105</span></a><span class="sd">    &quot;&quot;&quot;</span>
+</span><span id="SplineConfig-106"><a href="#SplineConfig-106"><span class="linenos">106</span></a>    <span class="n">import_config</span><span class="p">:</span> <span class="n">SplineImportConfig</span>
+</span><span id="SplineConfig-107"><a href="#SplineConfig-107"><span class="linenos">107</span></a>    <span class="n">data_config</span><span class="p">:</span> <span class="n">SplineDataConfig</span>
 </span></pre></div>
 
 
@@ -743,17 +762,17 @@ strictyaml.Optional.</p>
 
     </div>
     <a class="headerlink" href="#PathStructure"></a>
-            <div class="pdoc-code codehilite"><pre><span></span><span id="PathStructure-109"><a href="#PathStructure-109"><span class="linenos">109</span></a><span class="nd">@dataclass</span>
-</span><span id="PathStructure-110"><a href="#PathStructure-110"><span class="linenos">110</span></a><span class="k">class</span> <span class="nc">PathStructure</span><span class="p">:</span>
-</span><span id="PathStructure-111"><a href="#PathStructure-111"><span class="linenos">111</span></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-</span><span id="PathStructure-112"><a href="#PathStructure-112"><span class="linenos">112</span></a><span class="sd">    Path structure of a Session for both loading and saving.</span>
-</span><span id="PathStructure-113"><a href="#PathStructure-113"><span class="linenos">113</span></a><span class="sd">    &quot;&quot;&quot;</span>
-</span><span id="PathStructure-114"><a href="#PathStructure-114"><span class="linenos">114</span></a>    <span class="n">root</span><span class="p">:</span> <span class="n">Path</span>
-</span><span id="PathStructure-115"><a href="#PathStructure-115"><span class="linenos">115</span></a>    <span class="n">exclusion_list</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Path</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
-</span><span id="PathStructure-116"><a href="#PathStructure-116"><span class="linenos">116</span></a>    <span class="n">wav</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Path</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
-</span><span id="PathStructure-117"><a href="#PathStructure-117"><span class="linenos">117</span></a>    <span class="n">textgrid</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Path</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
-</span><span id="PathStructure-118"><a href="#PathStructure-118"><span class="linenos">118</span></a>    <span class="n">ultrasound</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Path</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
-</span><span id="PathStructure-119"><a href="#PathStructure-119"><span class="linenos">119</span></a>    <span class="n">spline_config</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Path</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+            <div class="pdoc-code codehilite"><pre><span></span><span id="PathStructure-110"><a href="#PathStructure-110"><span class="linenos">110</span></a><span class="nd">@dataclass</span>
+</span><span id="PathStructure-111"><a href="#PathStructure-111"><span class="linenos">111</span></a><span class="k">class</span> <span class="nc">PathStructure</span><span class="p">:</span>
+</span><span id="PathStructure-112"><a href="#PathStructure-112"><span class="linenos">112</span></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+</span><span id="PathStructure-113"><a href="#PathStructure-113"><span class="linenos">113</span></a><span class="sd">    Path structure of a Session for both loading and saving.</span>
+</span><span id="PathStructure-114"><a href="#PathStructure-114"><span class="linenos">114</span></a><span class="sd">    &quot;&quot;&quot;</span>
+</span><span id="PathStructure-115"><a href="#PathStructure-115"><span class="linenos">115</span></a>    <span class="n">root</span><span class="p">:</span> <span class="n">Path</span>
+</span><span id="PathStructure-116"><a href="#PathStructure-116"><span class="linenos">116</span></a>    <span class="n">exclusion_list</span><span class="p">:</span> <span class="n">Path</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+</span><span id="PathStructure-117"><a href="#PathStructure-117"><span class="linenos">117</span></a>    <span class="n">wav</span><span class="p">:</span> <span class="n">Path</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+</span><span id="PathStructure-118"><a href="#PathStructure-118"><span class="linenos">118</span></a>    <span class="n">textgrid</span><span class="p">:</span> <span class="n">Path</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+</span><span id="PathStructure-119"><a href="#PathStructure-119"><span class="linenos">119</span></a>    <span class="n">ultrasound</span><span class="p">:</span> <span class="n">Path</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+</span><span id="PathStructure-120"><a href="#PathStructure-120"><span class="linenos">120</span></a>    <span class="n">spline_config</span><span class="p">:</span> <span class="n">Path</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
 </span></pre></div>
 
 
@@ -764,7 +783,7 @@ strictyaml.Optional.</p>
                             <div id="PathStructure.__init__" class="classattr">
                                 <div class="attr function">
             
-        <span class="name">PathStructure</span><span class="signature pdoc-code multiline">(<span class="param">	<span class="n">root</span><span class="p">:</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span>,</span><span class="param">	<span class="n">exclusion_list</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>,</span><span class="param">	<span class="n">wav</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>,</span><span class="param">	<span class="n">textgrid</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>,</span><span class="param">	<span class="n">ultrasound</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>,</span><span class="param">	<span class="n">spline_config</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span></span>)</span>
+        <span class="name">PathStructure</span><span class="signature pdoc-code multiline">(<span class="param">	<span class="n">root</span><span class="p">:</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span>,</span><span class="param">	<span class="n">exclusion_list</span><span class="p">:</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>,</span><span class="param">	<span class="n">wav</span><span class="p">:</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>,</span><span class="param">	<span class="n">textgrid</span><span class="p">:</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>,</span><span class="param">	<span class="n">ultrasound</span><span class="p">:</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>,</span><span class="param">	<span class="n">spline_config</span><span class="p">:</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span></span>)</span>
 
         
     </div>
@@ -786,7 +805,7 @@ strictyaml.Optional.</p>
                             </div>
                             <div id="PathStructure.exclusion_list" class="classattr">
                                 <div class="attr variable">
-            <span class="name">exclusion_list</span><span class="annotation">: Optional[pathlib.Path]</span>        =
+            <span class="name">exclusion_list</span><span class="annotation">: pathlib.Path | None</span>        =
 <span class="default_value">None</span>
 
         
@@ -798,7 +817,7 @@ strictyaml.Optional.</p>
                             </div>
                             <div id="PathStructure.wav" class="classattr">
                                 <div class="attr variable">
-            <span class="name">wav</span><span class="annotation">: Optional[pathlib.Path]</span>        =
+            <span class="name">wav</span><span class="annotation">: pathlib.Path | None</span>        =
 <span class="default_value">None</span>
 
         
@@ -810,7 +829,7 @@ strictyaml.Optional.</p>
                             </div>
                             <div id="PathStructure.textgrid" class="classattr">
                                 <div class="attr variable">
-            <span class="name">textgrid</span><span class="annotation">: Optional[pathlib.Path]</span>        =
+            <span class="name">textgrid</span><span class="annotation">: pathlib.Path | None</span>        =
 <span class="default_value">None</span>
 
         
@@ -822,7 +841,7 @@ strictyaml.Optional.</p>
                             </div>
                             <div id="PathStructure.ultrasound" class="classattr">
                                 <div class="attr variable">
-            <span class="name">ultrasound</span><span class="annotation">: Optional[pathlib.Path]</span>        =
+            <span class="name">ultrasound</span><span class="annotation">: pathlib.Path | None</span>        =
 <span class="default_value">None</span>
 
         
@@ -834,7 +853,7 @@ strictyaml.Optional.</p>
                             </div>
                             <div id="PathStructure.spline_config" class="classattr">
                                 <div class="attr variable">
-            <span class="name">spline_config</span><span class="annotation">: Optional[pathlib.Path]</span>        =
+            <span class="name">spline_config</span><span class="annotation">: pathlib.Path | None</span>        =
 <span class="default_value">None</span>
 
         

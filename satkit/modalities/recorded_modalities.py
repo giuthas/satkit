@@ -49,6 +49,7 @@ from satkit.import_formats import (
 )
 from satkit.interpolate_raw_uti import to_fan, to_fan_2d
 from satkit.configuration import data_run_params
+from .recorded_meta_data_classes import RawUltrasoundMeta
 
 _logger = logging.getLogger('satkit.modalities')
 
@@ -138,17 +139,6 @@ class RawUltrasound(Modality):
     Ultrasound Recording with raw (probe return) data.
     """
 
-    # TODO: this should be handled by a meta data class
-    requiredMetaKeys = [
-        'meta_file',
-        'Angle',
-        'FramesPerSec',
-        'NumVectors',
-        'PixPerVector',
-        'PixelsPerMm',
-        'ZeroOffset'
-    ]
-
     @classmethod
     def generate_name(cls, params: ModalityMetaData) -> str:
         return cls.__name__
@@ -158,7 +148,7 @@ class RawUltrasound(Modality):
                  file_info: FileInformation,
                  parsed_data: ModalityData | None = None,
                  time_offset: float | None = None,
-                 meta: dict | None = None
+                 meta_data: RawUltrasoundMeta | None = None
                  ) -> None:
         """
         Create a RawUltrasound Modality.
@@ -178,33 +168,13 @@ class RawUltrasound(Modality):
             RawUltrasound.requiredMetaKeys. Extra keys will be ignored.
             Default is None.
         """
-        # Explicitly copy meta data fields to ensure that we have what we
-        # expected to get.
-        if meta is not None:
-            try:
-                wanted_meta = {key: meta[key]
-                               for key in RawUltrasound.requiredMetaKeys}
-                self.meta = deepcopy(wanted_meta)
-            except KeyError:
-                # Missing metadata for one recording may be ok and this could
-                # be handled with just a call to _recording_logger.critical and
-                # setting self.excluded = True
-                not_found = set(RawUltrasound.requiredMetaKeys) - set(meta)
-                _logger.critical(
-                    "Part of metadata missing when processing %s.",
-                    meta['filename'])
-                _logger.critical(
-                    "Could not find %s.", str(not_found))
-                _logger.critical('Exiting.')
-                sys.exit()
-
-        # Initialise super only after ensuring meta is correct,
-        # because latter may already end the run.
         super().__init__(
             recording=recording,
             file_info=file_info,
             parsed_data=parsed_data,
-            time_offset=time_offset)
+            time_offset=time_offset,
+            meta_data=meta_data
+        )
 
         # TODO: these are related to GUI and should really be in a decorator
         # class and not here. State variables for fast retrieval of previously
@@ -216,7 +186,7 @@ class RawUltrasound(Modality):
 
     def _read_data(self) -> ModalityData:
         return read_ult(
-            self.recorded_data_file, self.meta, self._time_offset)
+            self.recorded_data_file, self.meta_data, self._time_offset)
 
     def get_meta(self) -> dict:
         return self.meta
@@ -228,6 +198,22 @@ class RawUltrasound(Modality):
     @ data.setter
     def data(self, data) -> None:
         super()._data_setter(data)
+
+    def raw_image(self, index: int) -> np.ndarray:
+        """
+        Return the raw ultrasound frame at index.
+
+        Parameters
+        ----------
+        index : int
+            Index to look up.
+
+        Returns
+        -------
+        np.ndarray
+            The frame.
+        """
+        return self.data[index, :, :].copy()
 
     def interpolated_image(self, index):
         """
@@ -260,10 +246,8 @@ class RawUltrasound(Modality):
             # frame[:half,:] = 0
             self._stored_image = to_fan_2d(
                 frame,
-                angle=self.meta['Angle'],
-                zero_offset=self.meta['ZeroOffset'],
-                pix_per_mm=self.meta['PixelsPerMm'],
-                num_vectors=self.meta['NumVectors'])
+                **self.interpolation_params,
+            )
             return self._stored_image
 
     def interpolated_frames(self) -> np.ndarray:
@@ -281,16 +265,22 @@ class RawUltrasound(Modality):
         self.video_has_been_stored = True
         video = to_fan(
             data,
-            angle=self.meta['Angle'],
-            zero_offset=self.meta['ZeroOffset'],
-            pix_per_mm=self.meta['PixelsPerMm'],
-            num_vectors=self.meta['NumVectors'],
-            show_progress=True)
+            show_progress=True,
+            **self.interpolation_params,
+        )
         self.stored_video = video.copy()
         # half = int(video.shape[1]/2)
         # self.stored_video[:,half:,:] = 0
         return video
 
+    @property
+    def interpolation_params(self) -> dict:
+        return {
+            'angle': self.meta_data.angle,
+            'zero_offset': self.meta_data.zero_offset,
+            'pixels_per_mm': self.meta_data.pixels_per_mm,
+            'num_vectors': self.meta_data.num_vectors,
+        }
 
 class Video(Modality):
     """

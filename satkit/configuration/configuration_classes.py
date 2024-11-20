@@ -38,11 +38,11 @@ strictyaml.Optional.
 
 from pathlib import Path
 from dataclasses import dataclass
-from typing import Optional
 
 from satkit.constants import (
     CoordinateSystems, Datasource, IntervalBoundary, IntervalCategory,
-    SplineDataColumn, SplineMetaColumn)
+    SplineDataColumn, SplineMetaColumn
+)
 
 
 @dataclass
@@ -50,7 +50,7 @@ class TimeLimit:
     tier: str
     interval: IntervalCategory
     boundary: IntervalBoundary
-    label: Optional[str]
+    label: str | None = None
 
 
 @dataclass
@@ -58,9 +58,10 @@ class ExclusionList:
     """
     List of files, prompts, and parts of prompts to be excluded from analysis.
     """
-    files: Optional[list[str]] = None
-    prompts: Optional[list[str]] = None
-    parts_of_prompts: Optional[list[str]] = None
+    path: Path
+    files: list[str] | None = None
+    prompts: list[str] | None = None
+    parts_of_prompts: list[str] | None = None
 
 
 @dataclass
@@ -76,9 +77,9 @@ class SplineImportConfig:
     interleaved_coords: bool
     meta_columns: tuple[SplineMetaColumn]
     data_columns: tuple[SplineDataColumn]
-    spline_file: Optional[Path]
-    spline_file_extension: Optional[str]
-    delimiter: Optional[str] = '\t'
+    spline_file: Path | None = None
+    spline_file_extension: str | None = None
+    delimiter: str = '\t'
 
     def __post_init__(self):
         """
@@ -93,7 +94,7 @@ class SplineDataConfig:
     """
     Configuration options for processing and display of splines.
     """
-    ignore_points: Optional[tuple[int]] = None
+    ignore_points: tuple[int] | None = None
 
 
 @dataclass
@@ -111,8 +112,8 @@ class PathStructure:
     Path structure of a Session for both loading and saving.
     """
     root: Path
-    exclusion_list: Optional[Path] = None
-    wav: Optional[Path] = None
-    textgrid: Optional[Path] = None
-    ultrasound: Optional[Path] = None
-    spline_config: Optional[Path] = None
+    exclusion_list: Path | None = None
+    wav: Path | None = None
+    textgrid: Path | None = None
+    ultrasound: Path | None = None
+    spline_config: Path | None = None

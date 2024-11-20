@@ -14,7 +14,7 @@
             "filename": "satkit.log",
             "mode": "w",
             "class": "logging.FileHandler",
-            "level": "INFO",
+            "level": "DEBUG",
             "formatter": "detailed",
             "encoding": "utf-8"
         }

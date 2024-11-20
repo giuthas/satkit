@@ -68,9 +68,10 @@ pervasive_tiers:
   - phoneme
 
 # Initial limits for x-axis
-xlim: 
-  - -.25
-  - 1.5
+#xlim:
+#  - -.25
+#  - 1.5
+auto_xlim: True
 
 # Font parameters
 default_font_size: 10

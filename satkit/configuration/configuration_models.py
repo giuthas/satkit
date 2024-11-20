@@ -43,7 +43,7 @@ we can implement configuration round tripping with preserved comments.
 import logging
 from pathlib import Path
 import re
-from typing import Any, NewType, Optional, Union
+from typing import Any, NewType
 
 import numpy as np
 from pydantic import conlist
@@ -67,7 +67,7 @@ class MainConfig(UpdatableBaseModel):
     mains_frequency: float
     data_run_parameter_file: Path
     gui_parameter_file: Path
-    publish_parameter_file: Optional[Path] = None
+    publish_parameter_file: Path | None = None
 
 
 class SearchPattern(UpdatableBaseModel):
@@ -82,7 +82,7 @@ class SearchPattern(UpdatableBaseModel):
         If the pattern should be treated as a regexp or not. Defaults to False.
     """
     pattern: str
-    is_regexp: Optional[bool] = False
+    is_regexp: bool = False
 
     def match(self, string: str) -> bool:
         """
@@ -102,13 +102,32 @@ class SearchPattern(UpdatableBaseModel):
             True if this pattern matches the argument.
         """
         if self.is_regexp:
-            return re.match(self.pattern, string)
+            return bool(re.match(self.pattern, string))
 
         return self.pattern in string
 
     @staticmethod
-    def build(value: Union[dict, str]) -> 'SearchPattern':
+    def build(value: dict | str) -> 'SearchPattern':
+        """
+        Build a SearchPattern from a dictionary or a string.
 
+        Parameters
+        ----------
+        value : dict | str
+            The dictionary or string to build the SearchPattern from. If the
+            parameter is a string it is used as the pattern, if it is a dict
+            it's passed as keyword arguments to the SearchPattern constructor.
+
+        Returns
+        -------
+        SearchPattern
+            The constructed SearchPattern.
+
+        Raises
+        ------
+        ValueError
+            If the value is not a dict or a string.
+        """
         if isinstance(value, str):
             return SearchPattern(pattern=value)
 
@@ -125,8 +144,8 @@ class TimeseriesNormalisation(UpdatableBaseModel):
 
     Contains a boolean for each peak and bottom normalisation.
     """
-    peak: Optional[bool] = False
-    bottom: Optional[bool] = False
+    peak: bool = False
+    bottom: bool = False
 
     # TODO: this class needs a special dumper to save things correctly.
 
@@ -168,68 +187,73 @@ class TimeseriesNormalisation(UpdatableBaseModel):
 class TimeLimit(UpdatableBaseModel):
     tier: str
     interval: IntervalCategory
-    label: Optional[str] = None
     boundary: IntervalBoundary
-    offset: Optional[float] = None
+    label: str | None = None
+    offset: float | None = None
 
 
 class AggregateImageArguments(UpdatableBaseModel):
     metrics: list[str]
-    preload: Optional[bool] = True
-    release_data_memory: Optional[bool] = True
-    run_on_interpolated_data: Optional[bool] = False
+    preload: bool = True
+    release_data_memory: bool = True
+    run_on_interpolated_data: bool = False
 
 
 class PdArguments(UpdatableBaseModel):
     norms: list[str]
     timesteps: list[int]
-    mask_images: Optional[bool] = False
-    pd_on_interpolated_data: Optional[bool] = False
-    release_data_memory: Optional[bool] = True
-    preload: Optional[bool] = True
+    mask_images: bool = False
+    pd_on_interpolated_data: bool = False
+    release_data_memory: bool = True
+    preload: bool = True
 
 
 class SplineMetricArguments(UpdatableBaseModel):
     metrics: list[str]
     timesteps: list[int]
-    exclude_points: Optional[IntPair] = None
-    release_data_memory: Optional[bool] = False
-    preload: Optional[bool] = True
+    exclude_points: IntPair | None = None
+    release_data_memory: bool = False
+    preload: bool = True
 
 
 class DistanceMatrixArguments(UpdatableBaseModel):
     metrics: list[str]
-    preload: Optional[bool] = True
-    release_data_memory: Optional[bool] = False
+    exclusion_list: Path
+    preload: bool = True
+    release_data_memory: bool = False
+    slice_max_step: int | None = None
+    slice_step_to: int | None = None
+    sort: bool = False
+    sort_criteria: list[str] | None = None
 
 
 class PointAnnotationParams(UpdatableBaseModel):
-    normalisation: Optional[TimeseriesNormalisation] = None
-    time_min: Optional[TimeLimit] = None
-    time_max: Optional[TimeLimit] = None
+    normalisation: TimeseriesNormalisation | None = None
+    time_min: TimeLimit | None = None
+    time_max: TimeLimit | None = None
 
 
 class FindPeaksScipyArguments(UpdatableBaseModel):
-    height: Optional[float] = None
-    threshold: Optional[float] = None
-    distance: Optional[int] = None
-    prominence: Optional[float] = None
-    width: Optional[int] = None
-    wlen: Optional[int] = None
-    rel_height: Optional[float] = None
-    plateau_size: Optional[float] = None
+    height: float = None
+    threshold: float = None
+    distance: int = None
+    prominence: float = None
+    width: int = None
+    wlen: int = None
+    rel_height: float = None
+    plateau_size: float = None
 
 
 class PeakDetectionParams(PointAnnotationParams):
     modality_pattern: SearchPattern
-    number_of_ignored_frames: Optional[int] = 10
-    distance_in_seconds: Optional[float] = None
-    find_peaks_args: Optional[FindPeaksScipyArguments] = None
+    number_of_ignored_frames: int = 10
+    distance_in_seconds: float | None = None
+    find_peaks_args: FindPeaksScipyArguments | None = None
 
 
 class DataRunFlags(UpdatableBaseModel):
-    detect_beep: Optional[bool] = False
-    test: Optional[bool] = False
+    detect_beep: bool = False
+    test: bool = False
 
 
 class DownsampleParams(UpdatableBaseModel):
@@ -249,7 +273,7 @@ class DownsampleParams(UpdatableBaseModel):
     """
     modality_pattern: SearchPattern
     downsampling_ratios: list[int]
-    match_timestep: Optional[bool] = True
+    match_timestep: bool = True
 
 
 class CastFlags(UpdatableBaseModel):
@@ -265,14 +289,14 @@ class CastParams(UpdatableBaseModel):
 
 
 class DataRunConfig(UpdatableBaseModel):
-    output_directory: Optional[Path] = None
+    output_directory: Path | None = None
     aggregate_image_arguments: AggregateImageArguments | None = None
-    pd_arguments: Optional[PdArguments] = None
-    spline_metric_arguments: Optional[SplineMetricArguments] = None
-    distance_matrix_arguments: Optional[DistanceMatrixArguments] = None
-    peaks: Optional[PeakDetectionParams] = None
-    downsample: Optional[DownsampleParams] = None
-    cast: Optional[CastParams] = None
+    pd_arguments: PdArguments | None = None
+    spline_metric_arguments: SplineMetricArguments | None = None
+    distance_matrix_arguments: DistanceMatrixArguments | None = None
+    peaks: PeakDetectionParams | None = None
+    downsample: DownsampleParams | None = None
+    cast: CastParams | None = None
 
 
 class HeightRatios(UpdatableBaseModel):
@@ -286,25 +310,25 @@ class AxesParams(UpdatableBaseModel):
 
     Parameters
     ----------
-    colors_in_sequence : Optional[bool] 
+    colors_in_sequence : bool
         Should the line color rotation be ordered into a perceptual sequence,
         by default True
-    mark_peaks: Optional[bool] 
+    mark_peaks: bool
         Should peak detection peaks (if available) be marked on the plot. This
         might get confusing if there is more than one timeseries on this axes.
         By default, None
-    sharex: Optional[bool]  
+    sharex: bool
         Does this axes share x limits with other axes, by default None
-    y_offset: Optional[float]  
+    y_offset: float
         y_offset between the modalities timeseries, by default None
     """
     # TODO: these docstrings should contain links to full, simple examples of
     # the corresponding yaml files
 
-    colors_in_sequence: Optional[bool] = True
-    mark_peaks: Optional[bool] = None
-    sharex: Optional[bool] = None
-    y_offset: Optional[float] = None
+    colors_in_sequence: bool = True
+    mark_peaks: bool | None = None
+    sharex: bool | None = None
+    y_offset: float | None = None
 
 
 class AxesDefinition(AxesParams):
@@ -313,10 +337,11 @@ class AxesDefinition(AxesParams):
 
     Parameters
     ----------
-    modalities: Optional[list[str]]  
+    modalities: list[str]
         List of the modalities to be plotted on this axes, by default None
     """
-    modalities: Optional[list[str]] = None
+    modalities: list[str] | None = None
+    sharex: bool = True
 
 
 class GuiConfig(UpdatableBaseModel):
@@ -324,8 +349,27 @@ class GuiConfig(UpdatableBaseModel):
     general_axes_params: AxesParams
     data_axes: dict[str, AxesDefinition]
     pervasive_tiers: list[str]
-    xlim: Optional[FloatPair] = None
+    xlim: FloatPair | str | None = None
+    auto_xlim: bool | None = None
     default_font_size: int
+
+    def plotted_modality_names(self) -> set[str]:
+        """
+        Return a set of the plotted modalities' names.
+
+        This is run across all of the data axes. If you want the names plotted
+        on a given axes, look them up from the `AxesDefinition`.
+
+        Returns
+        -------
+        set[str]
+            Set of strings containing the plotted modalities' names.
+        """
+        names = []
+        for axes_def in self.data_axes.values():
+            if axes_def.modalities is not None:
+                names.extend(axes_def.modalities)
+        return set(names)
 
     # TODO make a computed callback for getting params for a given axes so that
     # globals don't need to be copied over
@@ -337,9 +381,19 @@ class GuiConfig(UpdatableBaseModel):
     #         delete global? or move it to a different place?
     #     return super().model_post_init(__context)
 
-    # @computed_field
     @property
     def number_of_data_axes(self) -> int:
+        """
+        Number of data axes. 
+
+        DEPRECATED: This property will be removed as data axes list should not
+        contain any extra information like a `global` directive.
+
+        Returns
+        -------
+        int
+            The number of data axes.
+        """
         if self.data_axes:
             if 'global' in self.data_axes:
                 return len(self.data_axes) - 1
@@ -348,14 +402,14 @@ class GuiConfig(UpdatableBaseModel):
 
 
 class LegendParams(UpdatableBaseModel):
-    handlelength: Optional[float]
-    handletextpad: Optional[float]
+    handlelength: float | None = None
+    handletextpad: float | None = None
 
 
 class PlotConfig(UpdatableBaseModel):
-    output_file: Optional[str] = None
-    figure_size: Optional[FloatPair] = None
-    legend: Optional[LegendParams] = None
+    output_file: str | None = None
+    figure_size: FloatPair | None = None
+    legend: LegendParams | None = None
 
 
 class TimeseriesPlotConfig(PlotConfig):
@@ -365,19 +419,35 @@ class TimeseriesPlotConfig(PlotConfig):
     subplot_grid: IntPair
     subplots: dict[str, str]
     xlim: FloatPair
-    xticks: Optional[list[str]]
-    yticks: Optional[list[str]]
+    xticks: list[str] | None = None
+    yticks: list[str] | None = None
 
     # @computed_field
     @property
-    def xtick_values(self) -> list[float]:
+    def xtick_values(self) -> np.ndarray | None:
+        """
+        The xtick values as an `np.ndarray`.
+
+        Returns
+        -------
+        np.ndarray | None
+            The xtick values as an `np.ndarray` or None if there are none.
+        """
         if self.xticks:
             return np.asarray(self.xticks, dtype=float)
         return None
 
     # @computed_field
     @property
-    def ytick_values(self) -> list[float]:
+    def ytick_values(self) -> np.ndarray | None:
+        """
+        The ytick values as an `np.ndarray`.
+
+        Returns
+        -------
+        np.ndarray | None
+            The ytick values as an `np.ndarray` or None if there are none.
+        """
         if self.yticks:
             return np.asarray(self.yticks, dtype=float)
         return None
@@ -392,8 +462,8 @@ class AnnotationStatsPlotConfig(PlotConfig):
 
 
 class PublishConfig(PlotConfig):
-    timeseries_plot: Optional[TimeseriesPlotConfig] = None
-    annotation_stats_plot: Optional[TimeseriesPlotConfig] = None
+    timeseries_plot: TimeseriesPlotConfig | None = None
+    annotation_stats_plot: TimeseriesPlotConfig | None = None
 
     def model_post_init(self, __context: Any) -> None:
         if self.timeseries_plot:

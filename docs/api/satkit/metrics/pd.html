@@ -543,7 +543,7 @@ calculate PD on the whole image.</li>
                                 <div class="attr variable">
             <span class="name">model_fields</span>        =
 <input id="PdParameters.model_fields-view-value" class="view-value-toggle-state" type="checkbox" aria-hidden="true" tabindex="-1">
-            <label class="view-value-button pdoc-button" for="PdParameters.model_fields-view-value"></label><span class="default_value">{&#39;parent_name&#39;: FieldInfo(annotation=str, required=True), &#39;is_downsampled&#39;: FieldInfo(annotation=Union[bool, NoneType], required=False, default=False), &#39;downsampling_ratio&#39;: FieldInfo(annotation=Union[NoneType, Annotated[int, Gt], str], required=False, default=None), &#39;timestep_matched_downsampling&#39;: FieldInfo(annotation=Union[bool, NoneType], required=False, default=True), &#39;metric&#39;: FieldInfo(annotation=str, required=False, default=&#39;l1&#39;), &#39;timestep&#39;: FieldInfo(annotation=int, required=False, default=1, metadata=[Gt(gt=0)]), &#39;image_mask&#39;: FieldInfo(annotation=Union[ImageMask, NoneType], required=False, default=None), &#39;interpolated&#39;: FieldInfo(annotation=bool, required=False, default=False), &#39;release_data_memory&#39;: FieldInfo(annotation=bool, required=False, default=True)}</span>
+            <label class="view-value-button pdoc-button" for="PdParameters.model_fields-view-value"></label><span class="default_value">{&#39;parent_name&#39;: FieldInfo(annotation=str, required=True), &#39;is_downsampled&#39;: FieldInfo(annotation=bool, required=False, default=False), &#39;downsampling_ratio&#39;: FieldInfo(annotation=Union[Annotated[int, Gt], str, NoneType], required=False, default=None), &#39;timestep_matched_downsampling&#39;: FieldInfo(annotation=bool, required=False, default=True), &#39;metric&#39;: FieldInfo(annotation=str, required=False, default=&#39;l1&#39;), &#39;timestep&#39;: FieldInfo(annotation=int, required=False, default=1, metadata=[Gt(gt=0)]), &#39;image_mask&#39;: FieldInfo(annotation=Union[ImageMask, NoneType], required=False, default=None), &#39;interpolated&#39;: FieldInfo(annotation=bool, required=False, default=False), &#39;release_data_memory&#39;: FieldInfo(annotation=bool, required=False, default=True)}</span>
 
         
     </div>
@@ -1178,7 +1178,7 @@ text etc. </p>
                                 <dd id="PD.excluded" class="variable"><a href="../data_structures/data_structures.html#Modality.excluded">excluded</a></dd>
                 <dd id="PD.annotations" class="variable"><a href="../data_structures/data_structures.html#Modality.annotations">annotations</a></dd>
                 <dd id="PD.recording" class="variable"><a href="../data_structures/data_structures.html#Modality.recording">recording</a></dd>
-                <dd id="PD.add_annotations" class="function"><a href="../data_structures/data_structures.html#Modality.add_annotations">add_annotations</a></dd>
+                <dd id="PD.add_point_annotations" class="function"><a href="../data_structures/data_structures.html#Modality.add_point_annotations">add_point_annotations</a></dd>
                 <dd id="PD.modality_data" class="variable"><a href="../data_structures/data_structures.html#Modality.modality_data">modality_data</a></dd>
                 <dd id="PD.data" class="variable"><a href="../data_structures/data_structures.html#Modality.data">data</a></dd>
                 <dd id="PD.sampling_rate" class="variable"><a href="../data_structures/data_structures.html#Modality.sampling_rate">sampling_rate</a></dd>
@@ -1186,6 +1186,8 @@ text etc. </p>
                 <dd id="PD.time_offset" class="variable"><a href="../data_structures/data_structures.html#Modality.time_offset">time_offset</a></dd>
                 <dd id="PD.time_precision" class="variable"><a href="../data_structures/data_structures.html#Modality.time_precision">time_precision</a></dd>
                 <dd id="PD.timevector" class="variable"><a href="../data_structures/data_structures.html#Modality.timevector">timevector</a></dd>
+                <dd id="PD.min_time" class="variable"><a href="../data_structures/data_structures.html#Modality.min_time">min_time</a></dd>
+                <dd id="PD.max_time" class="variable"><a href="../data_structures/data_structures.html#Modality.max_time">max_time</a></dd>
                 <dd id="PD.is_derived_modality" class="variable"><a href="../data_structures/data_structures.html#Modality.is_derived_modality">is_derived_modality</a></dd>
 
             </div>

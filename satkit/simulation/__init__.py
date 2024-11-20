@@ -32,7 +32,7 @@
 """
 This package is for simulating data and plotting simulation results.
 
-Currently it deals with only simulated tongue contour data.
+Currently, it deals with only simulated tongue contour data.
 """
 from .contour_tools import (
     SimulationContourConsonant, SimulationContourVowel,
@@ -40,7 +40,7 @@ from .contour_tools import (
     generate_contour, contour_point_perturbations
 )
 from .metric_calculations import (
-    Comparison, ComparisonMember, SoundPair, MetricFunction,
+    Comparison, ComparisonMember, ComparisonSoundPair, MetricFunction,
     calculate_metric_series_for_comparisons,
     calculate_metric_series_for_contours,
     get_distance_metric_baselines,

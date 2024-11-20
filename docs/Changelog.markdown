@@ -28,8 +28,24 @@ and this project uses [Semantic Versioning](https://semver.org/spec/v2.0.0.html)
 
 - SATKIT will soon be available on pypi, probably under the long name:
   speech_articulation_toolkit.
+- See [Roadmap](Roadmap.markdown) for an overview of what to expect in 1.0.
 
-- TODO: import the roadmap here.
+## [0.11.0] 2024-11-19
+
+### Added
+
+- Simulating ultrasound probe rotation (misalignment) by selecting different
+  sub-sectors from recorded raw data.
+- DistanceMatrices can now be sorted by a list of substrings into or simply by 
+  prompt.
+  - DistanceMatrices can also specify their own exclusion list in the config.
+- Saving the selected frame with metadata so that example frames can be 
+  reproduced.
+- Saving AggregateImages, DistanceMatrices and the main figure (of the GUI) 
+  with metadata.
+- Expanded SatGrid (the editable TextGrid extension) to include Points and Point
+  Tiers.
+- Automatic x limits now work properly in the GUI.
 
 ## [0.10.1] 2024-10-18
 
@@ -71,6 +87,8 @@ and this project uses [Semantic Versioning](https://semver.org/spec/v2.0.0.html)
   `%Y-%m-%d %I:%M:%S %p`.
 - Parsing yaml exclusion lists should now work also when some of the headings
   are empty.
+- Added the seaborn package to conda environment satkit-devel to make it work
+  properly.
 
 ### Known issues
 
@@ -115,9 +133,9 @@ Known issues:
   - Saved data can be loaded on startup or opened afterwards. This means
     derived Modalities don't need to be re-generated every time and switching
     between recording sessions is fast.
-  - Metadata of derived Modalities is now saved in human readable form while
+  - Metadata of derived Modalities is now saved in human-readable form while
     the numeric data is saved in numpy native formats.
-  - Database is also saved in human readable formats for easy checking of data
+  - Database is also saved in human-readable formats for easy checking of data
     integrity.
   - Opening (ctrl+'o') and saving (ctrl+shift+'s') work in the GUI. Overwrites
     are verified when saving, but the logic of that part may change before 1.0.

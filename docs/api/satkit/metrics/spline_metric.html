@@ -816,7 +816,7 @@ is not yet supported.</li>
                                 <div class="attr variable">
             <span class="name">model_fields</span>        =
 <input id="SplineMetricParameters.model_fields-view-value" class="view-value-toggle-state" type="checkbox" aria-hidden="true" tabindex="-1">
-            <label class="view-value-button pdoc-button" for="SplineMetricParameters.model_fields-view-value"></label><span class="default_value">{&#39;parent_name&#39;: FieldInfo(annotation=str, required=True), &#39;is_downsampled&#39;: FieldInfo(annotation=Union[bool, NoneType], required=False, default=False), &#39;downsampling_ratio&#39;: FieldInfo(annotation=Union[NoneType, Annotated[int, Gt], str], required=False, default=None), &#39;timestep_matched_downsampling&#39;: FieldInfo(annotation=Union[bool, NoneType], required=False, default=True), &#39;metric&#39;: FieldInfo(annotation=UnionEnumMeta.make_union.&lt;locals&gt;.UnionEnum, required=False, default=&lt;<a href="#SplineDiffsEnum.MPBPD">SplineDiffsEnum.MPBPD</a>: &#39;mpbpd&#39;&gt;), &#39;timestep&#39;: FieldInfo(annotation=int, required=False, default=1, metadata=[Gt(gt=0)]), &#39;release_data_memory&#39;: FieldInfo(annotation=bool, required=False, default=False), &#39;exclude_points&#39;: FieldInfo(annotation=Union[tuple[int, int], NoneType], required=False, default=None)}</span>
+            <label class="view-value-button pdoc-button" for="SplineMetricParameters.model_fields-view-value"></label><span class="default_value">{&#39;parent_name&#39;: FieldInfo(annotation=str, required=True), &#39;is_downsampled&#39;: FieldInfo(annotation=bool, required=False, default=False), &#39;downsampling_ratio&#39;: FieldInfo(annotation=Union[Annotated[int, Gt], str, NoneType], required=False, default=None), &#39;timestep_matched_downsampling&#39;: FieldInfo(annotation=bool, required=False, default=True), &#39;metric&#39;: FieldInfo(annotation=UnionEnumMeta.make_union.&lt;locals&gt;.UnionEnum, required=False, default=&lt;<a href="#SplineDiffsEnum.MPBPD">SplineDiffsEnum.MPBPD</a>: &#39;mpbpd&#39;&gt;), &#39;timestep&#39;: FieldInfo(annotation=int, required=False, default=1, metadata=[Gt(gt=0)]), &#39;release_data_memory&#39;: FieldInfo(annotation=bool, required=False, default=False), &#39;exclude_points&#39;: FieldInfo(annotation=Union[tuple[int, int], NoneType], required=False, default=None)}</span>
 
         
     </div>
@@ -1326,25 +1326,25 @@ SplineMetricParameter objects.</li>
 
     </div>
     <a class="headerlink" href="#SplineMetric.meta_data"></a>
-            <div class="pdoc-code codehilite"><pre><span></span><span id="SplineMetric.meta_data-130"><a href="#SplineMetric.meta_data-130"><span class="linenos">130</span></a>    <span class="nd">@property</span>
-</span><span id="SplineMetric.meta_data-131"><a href="#SplineMetric.meta_data-131"><span class="linenos">131</span></a>    <span class="k">def</span> <span class="nf">meta_data</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">EmptyStrAsNoneBaseModel</span><span class="p">:</span>
-</span><span id="SplineMetric.meta_data-132"><a href="#SplineMetric.meta_data-132"><span class="linenos">132</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-</span><span id="SplineMetric.meta_data-133"><a href="#SplineMetric.meta_data-133"><span class="linenos">133</span></a><span class="sd">        Meta data of this DataObject.</span>
-</span><span id="SplineMetric.meta_data-134"><a href="#SplineMetric.meta_data-134"><span class="linenos">134</span></a>
-</span><span id="SplineMetric.meta_data-135"><a href="#SplineMetric.meta_data-135"><span class="linenos">135</span></a><span class="sd">        This will be of appropriate type for the subclasses and has been hidden</span>
-</span><span id="SplineMetric.meta_data-136"><a href="#SplineMetric.meta_data-136"><span class="linenos">136</span></a><span class="sd">        behind a property to make it possible to change the internal</span>
-</span><span id="SplineMetric.meta_data-137"><a href="#SplineMetric.meta_data-137"><span class="linenos">137</span></a><span class="sd">        representation without breaking the API.</span>
-</span><span id="SplineMetric.meta_data-138"><a href="#SplineMetric.meta_data-138"><span class="linenos">138</span></a>
-</span><span id="SplineMetric.meta_data-139"><a href="#SplineMetric.meta_data-139"><span class="linenos">139</span></a><span class="sd">        Returns</span>
-</span><span id="SplineMetric.meta_data-140"><a href="#SplineMetric.meta_data-140"><span class="linenos">140</span></a><span class="sd">        -------</span>
-</span><span id="SplineMetric.meta_data-141"><a href="#SplineMetric.meta_data-141"><span class="linenos">141</span></a><span class="sd">        EmptyStrAsNoneBaseModel</span>
-</span><span id="SplineMetric.meta_data-142"><a href="#SplineMetric.meta_data-142"><span class="linenos">142</span></a><span class="sd">            The meta data as a Pydantic model.</span>
-</span><span id="SplineMetric.meta_data-143"><a href="#SplineMetric.meta_data-143"><span class="linenos">143</span></a><span class="sd">        &quot;&quot;&quot;</span>
-</span><span id="SplineMetric.meta_data-144"><a href="#SplineMetric.meta_data-144"><span class="linenos">144</span></a>        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_meta_data</span>
+            <div class="pdoc-code codehilite"><pre><span></span><span id="SplineMetric.meta_data-129"><a href="#SplineMetric.meta_data-129"><span class="linenos">129</span></a>    <span class="nd">@property</span>
+</span><span id="SplineMetric.meta_data-130"><a href="#SplineMetric.meta_data-130"><span class="linenos">130</span></a>    <span class="k">def</span> <span class="nf">meta_data</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">EmptyStrAsNoneBaseModel</span><span class="p">:</span>
+</span><span id="SplineMetric.meta_data-131"><a href="#SplineMetric.meta_data-131"><span class="linenos">131</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+</span><span id="SplineMetric.meta_data-132"><a href="#SplineMetric.meta_data-132"><span class="linenos">132</span></a><span class="sd">        Metadata of this DataObject.</span>
+</span><span id="SplineMetric.meta_data-133"><a href="#SplineMetric.meta_data-133"><span class="linenos">133</span></a>
+</span><span id="SplineMetric.meta_data-134"><a href="#SplineMetric.meta_data-134"><span class="linenos">134</span></a><span class="sd">        This will be of appropriate type for the subclasses and has been hidden</span>
+</span><span id="SplineMetric.meta_data-135"><a href="#SplineMetric.meta_data-135"><span class="linenos">135</span></a><span class="sd">        behind a property to make it possible to change the internal</span>
+</span><span id="SplineMetric.meta_data-136"><a href="#SplineMetric.meta_data-136"><span class="linenos">136</span></a><span class="sd">        representation without breaking the API.</span>
+</span><span id="SplineMetric.meta_data-137"><a href="#SplineMetric.meta_data-137"><span class="linenos">137</span></a>
+</span><span id="SplineMetric.meta_data-138"><a href="#SplineMetric.meta_data-138"><span class="linenos">138</span></a><span class="sd">        Returns</span>
+</span><span id="SplineMetric.meta_data-139"><a href="#SplineMetric.meta_data-139"><span class="linenos">139</span></a><span class="sd">        -------</span>
+</span><span id="SplineMetric.meta_data-140"><a href="#SplineMetric.meta_data-140"><span class="linenos">140</span></a><span class="sd">        EmptyStrAsNoneBaseModel</span>
+</span><span id="SplineMetric.meta_data-141"><a href="#SplineMetric.meta_data-141"><span class="linenos">141</span></a><span class="sd">            The meta data as a Pydantic model.</span>
+</span><span id="SplineMetric.meta_data-142"><a href="#SplineMetric.meta_data-142"><span class="linenos">142</span></a><span class="sd">        &quot;&quot;&quot;</span>
+</span><span id="SplineMetric.meta_data-143"><a href="#SplineMetric.meta_data-143"><span class="linenos">143</span></a>        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_meta_data</span>
 </span></pre></div>
 
 
-            <div class="docstring"><p>Meta data of this DataObject.</p>
+            <div class="docstring"><p>Metadata of this DataObject.</p>
 
 <p>This will be of appropriate type for the subclasses and has been hidden
 behind a property to make it possible to change the internal
@@ -1435,7 +1435,7 @@ text etc. </p>
                                 <dd id="SplineMetric.excluded" class="variable"><a href="../data_structures/data_structures.html#Modality.excluded">excluded</a></dd>
                 <dd id="SplineMetric.annotations" class="variable"><a href="../data_structures/data_structures.html#Modality.annotations">annotations</a></dd>
                 <dd id="SplineMetric.recording" class="variable"><a href="../data_structures/data_structures.html#Modality.recording">recording</a></dd>
-                <dd id="SplineMetric.add_annotations" class="function"><a href="../data_structures/data_structures.html#Modality.add_annotations">add_annotations</a></dd>
+                <dd id="SplineMetric.add_point_annotations" class="function"><a href="../data_structures/data_structures.html#Modality.add_point_annotations">add_point_annotations</a></dd>
                 <dd id="SplineMetric.modality_data" class="variable"><a href="../data_structures/data_structures.html#Modality.modality_data">modality_data</a></dd>
                 <dd id="SplineMetric.data" class="variable"><a href="../data_structures/data_structures.html#Modality.data">data</a></dd>
                 <dd id="SplineMetric.sampling_rate" class="variable"><a href="../data_structures/data_structures.html#Modality.sampling_rate">sampling_rate</a></dd>
@@ -1443,6 +1443,8 @@ text etc. </p>
                 <dd id="SplineMetric.time_offset" class="variable"><a href="../data_structures/data_structures.html#Modality.time_offset">time_offset</a></dd>
                 <dd id="SplineMetric.time_precision" class="variable"><a href="../data_structures/data_structures.html#Modality.time_precision">time_precision</a></dd>
                 <dd id="SplineMetric.timevector" class="variable"><a href="../data_structures/data_structures.html#Modality.timevector">timevector</a></dd>
+                <dd id="SplineMetric.min_time" class="variable"><a href="../data_structures/data_structures.html#Modality.min_time">min_time</a></dd>
+                <dd id="SplineMetric.max_time" class="variable"><a href="../data_structures/data_structures.html#Modality.max_time">max_time</a></dd>
                 <dd id="SplineMetric.is_derived_modality" class="variable"><a href="../data_structures/data_structures.html#Modality.is_derived_modality">is_derived_modality</a></dd>
 
             </div>

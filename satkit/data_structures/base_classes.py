@@ -38,7 +38,6 @@ import logging
 from pathlib import Path
 
 import numpy as np
-from icecream import ic
 
 from satkit.errors import OverwriteError
 from satkit.external_class_extensions import EmptyStrAsNoneBaseModel
@@ -78,7 +77,7 @@ class DataObject(abc.ABC):
         Return this DataContainer's pickle compatible state.
 
         To achieve pickle compatibility, subclasses should take care to delete
-        any cyclical references, like is done with self.owner here.
+        any cyclical references, like is done with `self.owner` here.
 
         NOTE! This also requires owner to be reset after unpickling by the
         owners, because the unpickled class can not know who owns it.
@@ -129,7 +128,7 @@ class DataObject(abc.ABC):
     @property
     def meta_data(self) -> EmptyStrAsNoneBaseModel:
         """
-        Meta data of this DataObject.
+        Metadata of this DataObject.
 
         This will be of appropriate type for the subclasses and has been hidden
         behind a property to make it possible to change the internal
@@ -386,15 +385,20 @@ class DataContainer(DataObject):
         """
         return self.__class__.generate_name(self._meta_data)
 
+    @property
+    @abc.abstractmethod
+    def data(self) -> np.ndarray:
+        pass
+
 
 class Statistic(DataContainer):
     """
     Abstract baseclass for statistics generated from members of a container. 
 
-    Specifically Statistics are time independent data while Modalities are time
-    dependent data.
+    Specifically Statistics are time independent data while Modalities are
+    time-dependent data.
     """
-    data: np.ndarray
+    _data: np.ndarray
 
     @classmethod
     @abc.abstractmethod
@@ -413,18 +417,27 @@ class Statistic(DataContainer):
 
         Parameters
         ----------
+        meta_data : EmptyStrAsNoneBaseModel
+            Parameters used in calculating this Statistic.
         owner : DataAggregator
             The owner of this Statistic. Usually this will be the object whose
-            contents this Statistic was calculated on.
-        metadata : EmptyStrAsNoneBaseModel
-            Parameters used in calculating this Statistic.
+            contents this Statistic was calculated on. By default, None, to
+            facilitate mass generation and setting the owner after wards.
+        file_info : FileInformation
+            The SATKIT load path and names for this Statistic. Recorded path and
+            names should usually be empty. Defaults to None, when the Statistic
+            hasn't been saved yet.
         parsed_data : Optional[np.ndarray], optional
             the actual statistic, by default None
-        load_path : Optional[Path], optional
-            path of the saved data, by default None
-        meta_path : Optional[Path], optional
-            path of the saved meta data, by default None
         """
         super().__init__(
             owner=owner, meta_data=meta_data, file_info=file_info)
-        self.data = parsed_data
+        self._data = parsed_data
+
+    @property
+    def data(self) -> np.ndarray:
+        return self._data
+
+    @data.setter
+    def data(self, data: np.ndarray) -> None:
+        self._data = data

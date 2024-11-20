@@ -83,6 +83,7 @@ class Splines(Modality):
             recording=recording,
             meta_data=metadata,
             file_info=file_info,
+            parsed_data=parsed_data,
             time_offset=time_offset)
 
     def _read_data(self) -> ModalityData:

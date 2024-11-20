@@ -50,7 +50,7 @@ from scipy.signal.windows import kaiser
 from satkit.configuration import TimeseriesNormalisation
 from satkit.constants import AnnotationType
 from satkit.data_structures import Modality
-from satkit.gui.boundary_animation import AnimatableBoundary, BoundaryAnimator
+from satkit.gui.boundary_animation import AnimatableBoundary
 from satkit.satgrid import SatTier
 from satkit.utility_functions import normalise_timeseries
 
@@ -98,7 +98,7 @@ def plot_timeseries(axes: Axes,
                     ylabel: str | None = None,
                     picker=None,
                     color: str | None = "deepskyblue",
-                    linestyle: str = "-",
+                    linestyle: tuple[int, tuple[int]] | str = "-",
                     label: str | None = None,
                     alpha: float = 1.0,
                     sampling_step: int = 1) -> Line2D:
@@ -293,7 +293,6 @@ def plot_satgrid_tier(axes: Axes,
 
     Returns a line object for the segment line, so that it
     can be included in the legend.
-    Also returns a list of BoundaryAnimators that 
     """
     text_settings = {'horizontalalignment': 'center',
                      'verticalalignment': 'center'}
@@ -307,10 +306,10 @@ def plot_satgrid_tier(axes: Axes,
             color="dimgrey",
             lw=1,
             linestyle='--')
-        if draw_text and segment.text:
+        if draw_text and segment.label:
             prev_text = text
             text = axes.text(segment.mid - time_offset,
-                             text_y, segment.text,
+                             text_y, segment.label,
                              text_settings, color="dimgrey")
             boundaries.append(AnimatableBoundary(axes, line, prev_text, text))
         else:

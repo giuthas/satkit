@@ -33,34 +33,32 @@
 
 from __future__ import annotations
 
-# Built in packages
 import abc
-from collections import OrderedDict, UserDict, UserList
 import logging
+from collections import OrderedDict, UserDict, UserList
 from pathlib import Path
-
-# from icecream import ic
 
 # Numerical arrays and more
 import numpy as np
-
 # Praat textgrids
 import textgrids
+from icecream import ic
 
 from satkit.configuration import PathStructure
 from satkit.constants import AnnotationType
 from satkit.errors import (
-    MissingDataError, OverwriteError, DimensionMismatchError)
+    DimensionMismatchError, MissingDataError, OverwriteError
+)
 from satkit.satgrid import SatGrid
-
-from .base_classes import DataContainer, DataAggregator, Statistic
+from .base_classes import DataAggregator, DataContainer, Statistic
 from .meta_data_classes import (
     FileInformation, ModalityData, ModalityMetaData, PointAnnotations,
     RecordingMetaData, SessionConfig
 )
 
+# from icecream import ic
 
-_datastructures_logger = logging.getLogger('satkit.data_structures')
+_logger = logging.getLogger('satkit.data_structures')
 
 
 class Session(DataAggregator, UserList):
@@ -74,14 +72,15 @@ class Session(DataAggregator, UserList):
     Sessions can also hold aggregate data in the form of Statistics.
     """
 
-    def __init__(self,
-                 name: str,
-                 paths: PathStructure,
-                 config: SessionConfig,
-                 file_info: FileInformation,
-                 recordings: list[Recording],
-                 statistics: dict[str, Statistic] | None = None
-                 ) -> None:
+    def __init__(
+            self,
+            name: str,
+            paths: PathStructure,
+            config: SessionConfig,
+            file_info: FileInformation,
+            recordings: list[Recording],
+            statistics: dict[str, Statistic] | None = None
+    ) -> None:
         super().__init__(
             owner=None, name=name, meta_data=config,
             file_info=file_info, statistics=statistics)
@@ -104,7 +103,7 @@ class Session(DataAggregator, UserList):
         Returns
         -------
         list[Recording]
-            The list of this Sessions's Recordings.
+            The list of this Session's Recordings.
         """
         return self.data
 
@@ -119,26 +118,32 @@ class Recording(DataAggregator, UserDict):
     iterate with the idiom `for modality_name in recording`.
 
     The recording also contains the non-modality-specific metadata
-    (participant, speech content, etc) as a dictionary, as well as the textgrid
+    (participant, speech content, etc.) as a dictionary, as well as the textgrid
     for the whole recording.
 
     In general, inheriting should not be necessary, but if it is, inheriting
-    classes should call self._read_textgrid() after calling super.__init__()
-    (with correct arguments) and doing any updates to self.meta['textgrid']
+    classes should call `self._read_textgrid()` after calling `super.__init__()`
+    (with correct arguments) and doing any updates to `self.meta['textgrid']`
     that are necessary.
     """
 
-    def __init__(self,
-                 meta_data: RecordingMetaData,
-                 file_info: FileInformation,
-                 owner: Session | None = None,
-                 excluded: bool = False,
-                 textgrid_path: str | Path = "") -> None:
+    def __init__(
+            self,
+            meta_data: RecordingMetaData,
+            file_info: FileInformation,
+            owner: Session | None = None,
+            excluded: bool = False,
+            textgrid_path: str | Path = ""
+    ) -> None:
         """
         Construct a mainly empty recording without modalities.
 
         Modalities and annotations get added after constructions with their own
         add_[modality or annotation] functions.
+
+        NOTE: `after_modalities_init` should be called on each new Recording
+        after modalities have been loaded. It ensures that there is at least a
+        minimal TextGrid in place to facilitate GUI functions.
 
         Parameters
         ----------
@@ -160,7 +165,10 @@ class Recording(DataAggregator, UserDict):
             self.textgrid_path = meta_data.path.joinpath(
                 meta_data.basename + ".TextGrid")
         self.textgrid = self._read_textgrid()
-        self.satgrid = SatGrid(self.textgrid)
+        if self.textgrid:
+            self.satgrid = SatGrid(self.textgrid)
+        else:
+            self.satgrid = None
 
         self.annotations = {}
 
@@ -194,7 +202,7 @@ class Recording(DataAggregator, UserDict):
     def basename(self, basename: str) -> None:
         self.meta_data.basename = basename
 
-    def _read_textgrid(self) -> textgrids.TextGrid:
+    def _read_textgrid(self) -> textgrids.TextGrid | None:
         """
         Read the textgrid specified in self.meta.
 
@@ -206,22 +214,16 @@ class Recording(DataAggregator, UserDict):
         if self.textgrid_path.is_file():
             try:
                 textgrid = textgrids.TextGrid(self.textgrid_path)
-                _datastructures_logger.info("Read textgrid in %s.",
-                                            self.textgrid_path)
+                _logger.info("Read textgrid in %s.",
+                             self.textgrid_path)
             except Exception as exception:
-                _datastructures_logger.critical(
+                _logger.critical(
                     "Could not read textgrid in %s.", self.textgrid_path)
-                _datastructures_logger.critical(
+                _logger.critical(
                     "Failed with: %s.", str(exception))
-                _datastructures_logger.critical("Creating an empty textgrid "
-                                                + "instead.")
-                textgrid = textgrids.TextGrid()
         else:
             notice = 'Note: ' + str(self.textgrid_path) + " did not exist."
-            _datastructures_logger.warning(notice)
-            _datastructures_logger.warning("Creating an empty textgrid "
-                                           + "instead.")
-            textgrid = textgrids.TextGrid()
+            _logger.warning(notice)
         return textgrid
 
     def identifier(self) -> str:
@@ -238,7 +240,7 @@ class Recording(DataAggregator, UserDict):
 
     def exclude(self) -> None:
         """
-        Set self.excluded to True with a method.
+        Set `self.excluded` to True with a method.
 
         This method exists to facilitate list comprehensions being used
         for excluding recordings e.g. 
@@ -267,19 +269,20 @@ class Recording(DataAggregator, UserDict):
             else:
                 self.textgrid.write(self.textgrid_path)
         except Exception as exception:
-            _datastructures_logger.critical(
+            _logger.critical(
                 "Could not write textgrid to %s.", str(self.textgrid_path))
-            _datastructures_logger.critical(
+            _logger.critical(
                 "TextGrid save failed with error: %s", str(exception))
 
     def add_modality(
-            self, modality: Modality, replace: bool = False) -> None:
+            self, modality: Modality, replace: bool = False
+    ) -> None:
         """
         This method adds a new Modality object to the Recording.
 
         Replacing a modality has to be specified otherwise if a
         Modality with the same name already exists in this Recording
-        and the replace argument is not True, an Error is raised. 
+        and the `replace` argument is not True, an Error is raised.
 
         Arguments:
         modality -- object of type Modality to be added to 
@@ -300,10 +303,42 @@ class Recording(DataAggregator, UserDict):
 
         if replace:
             self.modalities[name] = modality
-            _datastructures_logger.debug("Replaced modality %s.", name)
+            _logger.debug("Replaced modality %s.", name)
         else:
             self.modalities[name] = modality
-            _datastructures_logger.debug("Added new modality %s.", name)
+            _logger.debug("Added new modality %s.", name)
+
+    def after_modalities_init(self) -> None:
+        """
+        Ensure everything is properly in place after loading modalities.
+
+        Currently, this is only used to create placeholder TextGrids when
+        needed.
+        """
+        if self.textgrid is None:
+            if 'MonoAudio' in self.modalities:
+                _logger.warning(
+                    "%s: Creating a placeholder textgrid to make GUI function "
+                    "correctly.", self.basename)
+                textgrid = textgrids.TextGrid()
+                interval = textgrids.Interval(
+                    text=self.meta_data.prompt,
+                    xmin=self['MonoAudio'].min_time,
+                    xmax=self['MonoAudio'].max_time,
+                )
+                tier = textgrids.Tier(
+                    xmin=self['MonoAudio'].min_time,
+                    xmax=self['MonoAudio'].max_time,
+                )
+                tier.append(interval)
+                textgrid['Utterance'] = tier
+                self.textgrid = textgrid
+                self.satgrid = SatGrid(self.textgrid)
+            else:
+                _logger.warning("No audio found for %s.",
+                                self.basename)
+                _logger.warning("Can't create a textgrid so GUI may not "
+                                "function correctly.")
 
     def __str__(self) -> str:
         """
@@ -314,7 +349,24 @@ class Recording(DataAggregator, UserDict):
         string
             'Recording [basename]'
         """
-        return f"Recording {self.basename}"
+        return f"Recording {self.name}"
+
+    def __repr__(self) -> str:
+        """Overrides the default implementation"""
+        modalities = "{\n"
+        for modality in self.modalities:
+            modalities += ("\t" + modality
+                           + f": {self.modalities[modality].name},\n")
+        modalities += "}"
+        return (
+            f"Recording {self.basename}\n"
+            f"{modalities}")
+
+    def __eq__(self, other):
+        """Overrides the default implementation"""
+        if isinstance(other, Recording):
+            return self.name == other.name
+        return NotImplemented
 
 
 class Modality(DataContainer, OrderedDict):
@@ -332,13 +384,15 @@ class Modality(DataContainer, OrderedDict):
         """Abstract version of generating a Modality name."""
 
     def __init__(
-        self,
-        recording: Recording,
-        file_info: FileInformation,
-        parsed_data: ModalityData | None = None,
-        meta_data: ModalityMetaData | None = None,
-        time_offset: float | None = None,
-        annotations: dict[AnnotationType, PointAnnotations] | None = None
+            self,
+            recording: Recording,
+            file_info: FileInformation,
+            parsed_data: ModalityData | None = None,
+            meta_data: ModalityMetaData | None = None,
+            time_offset: float | None = None,
+            point_annotations: dict[
+                                   AnnotationType, PointAnnotations] | None =
+            None
     ) -> None:
         """
         Modality constructor.
@@ -350,7 +404,7 @@ class Modality(DataContainer, OrderedDict):
         data_path -- path of the data file
         load_path -- path of data when saved by SATKIT - both data and metadata
         parent -- the Modality this one was derived from. None means this 
-            is an underived data Modality.
+            is a recorded data Modality.
         parsed_data -- ModalityData object containing waveform, sampling rate,
             and either timevector and/or time_offset. 
         parsed_data -- a ModalityData object containing parsed data 
@@ -369,8 +423,8 @@ class Modality(DataContainer, OrderedDict):
             owner=recording, meta_data=meta_data,
             file_info=file_info)
 
-        if annotations:
-            self.update(annotations)
+        if point_annotations:
+            self.update(point_annotations)
 
         if parsed_data:
             self._modality_data = parsed_data
@@ -403,7 +457,7 @@ class Modality(DataContainer, OrderedDict):
         return self
 
     @property
-    def recording(self) -> Recording:
+    def recording(self) -> Recording | None:
         """
         This modality's owner available also with this alias for ease of use.
 
@@ -439,7 +493,7 @@ class Modality(DataContainer, OrderedDict):
         This method should be implemented by subclasses by calling 
         a suitable deriving function to provide on-the-fly loading of data.
 
-        This method is intended to rely on self.parent to provide the data
+        This method is intended to rely on `self.parent` to provide the data
         to be processed.
         """
         raise NotImplementedError(
@@ -473,7 +527,9 @@ class Modality(DataContainer, OrderedDict):
         """Set data from _get_data, _load_data, and _derive_data."""
         self._modality_data = data
 
-    def add_annotations(self, annotations: PointAnnotations) -> None:
+    def add_point_annotations(
+            self, point_annotations: PointAnnotations
+    ) -> None:
         """
         Add the PointAnnotations object to this Modality.
 
@@ -485,19 +541,19 @@ class Modality(DataContainer, OrderedDict):
 
         Parameters
         ----------
-        annotations : PointAnnotations
+        point_annotations : PointAnnotations
             The annotations to be added.
         """
-        if annotations.annotation_type in self:
-            _datastructures_logger.debug(
+        if point_annotations.annotation_type in self:
+            _logger.debug(
                 "In Modality add_annotations. "
-                "Overwriting %s.", str(annotations.annotation_type))
+                "Overwriting %s.", str(point_annotations.annotation_type))
         else:
-            _datastructures_logger.debug(
+            _logger.debug(
                 "In Modality add_annotations. "
-                "Adding %s.", str(annotations.annotation_type))
+                "Adding %s.", str(point_annotations.annotation_type))
 
-        self.annotations[annotations.annotation_type] = annotations
+        self.annotations[point_annotations.annotation_type] = point_annotations
 
     @property
     def modality_data(self) -> ModalityData:
@@ -516,7 +572,7 @@ class Modality(DataContainer, OrderedDict):
         release the memory, assign None to this Modality's data.
         """
         if self._modality_data is None:
-            _datastructures_logger.debug(
+            _logger.debug(
                 "In Modality modality_data getter. "
                 "self._modality_data was None.")
             self._set_data(self._get_data())
@@ -539,7 +595,7 @@ class Modality(DataContainer, OrderedDict):
         release the memory, assign None to this Modality's data.
         """
         if self._modality_data is None or self._modality_data.data is None:
-            _datastructures_logger.debug(
+            _logger.debug(
                 "In Modality data getter. "
                 "self._modality_data or self._modality_data.data was None.")
             self._set_data(self._get_data())
@@ -598,7 +654,7 @@ class Modality(DataContainer, OrderedDict):
         The time offset of this modality.
 
         Assigning a value to this property is implemented so that
-        self._timevector[0] stays equal to self._timeOffset. 
+        `self.timevector[0]` stays equal to `self._time_offset`.
 
         If shape of the timevector were to change then also shape of the data
         should change. Unlikely that we'd try to deal that in any other way but
@@ -626,14 +682,14 @@ class Modality(DataContainer, OrderedDict):
     @time_offset.setter
     def time_offset(self, time_offset):
         self._time_offset = time_offset
-        if self.timevector:
-            self._timevector = (self.timevector +
-                                (time_offset - self.timevector[0]))
+        if self._modality_data.timevector:
+            self._modality_data.timevector = (
+                    self.timevector + (time_offset - self.timevector[0]))
 
     @property
     def timevector(self):
         """
-        The timevector corresponding to self.data as a NumPy array. 
+        The timevector corresponding to `self.data` as a NumPy array.
 
         If the data has not been previously loaded, accessing this 
         property will cause data to be loaded on the fly _and_ saved 
@@ -643,7 +699,7 @@ class Modality(DataContainer, OrderedDict):
         accessing it does not trigger a new loading operation.
 
         Assigning a value to this property is implemented so 
-        that self._timevector[0] stays equal to self._timeOffset. 
+        that `self.timevector[0]` stays equal to `self._timeOffset`.
         """
         if (self._modality_data is None or
                 self._modality_data.timevector is None):
@@ -675,15 +731,39 @@ class Modality(DataContainer, OrderedDict):
                     "array that has non-matching dtype, size, or shape.\n" +
                     " timevector.shape = " + str(timevector.shape) + "\n" +
                     " self.timevector.shape = "
-                    + str(self._timevector.shape) + ".")
+                    + str(self._modality_data.timevector.shape) + ".")
+
+    @property
+    def min_time(self) -> float:
+        """
+        Minimum time stamp.
+
+        Returns
+        -------
+        float
+            The minimum time stamp in seconds.
+        """
+        return self.timevector[0]
+
+    @property
+    def max_time(self) -> float:
+        """
+        Maximum time stamp.
+
+        Returns
+        -------
+        float
+            The maximum time stamp in seconds.
+        """
+        return self.timevector[-1]
 
     @property
     def excluded(self) -> None:
         """
         Boolean property for excluding this Modality from processing.
 
-        Setting this to True will result in the whole Recording being 
-        excluded by setting self.parent.excluded = True.
+        Setting this to `True` will result in the whole Recording being
+        excluded by setting `self.parent.excluded = True`.
         """
         return self._excluded
 

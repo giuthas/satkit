@@ -45,6 +45,7 @@ def camel_to_snake(name: str) -> str:
 
     Returns
     -------
+    str
         The transformed name.
     """
     name = re.sub('(.)([A-Z][a-z]+)', r'\1_\2', name)

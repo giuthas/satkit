@@ -207,9 +207,11 @@ class RawUltrasound(Modality):
         ----------
         index : int
             Index to look up.
+
         Returns
         -------
-            The frame as an `np.ndarray`.
+        np.ndarray
+            The frame.
         """
         return self.data[index, :, :].copy()
 

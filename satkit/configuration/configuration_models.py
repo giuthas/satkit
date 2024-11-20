@@ -362,6 +362,7 @@ class GuiConfig(UpdatableBaseModel):
 
         Returns
         -------
+        set[str]
             Set of strings containing the plotted modalities' names.
         """
         names = []

@@ -740,7 +740,8 @@ class Modality(DataContainer, OrderedDict):
 
         Returns
         -------
-            A float which represents the minimum time stamp in seconds.
+        float
+            The minimum time stamp in seconds.
         """
         return self.timevector[0]
 
@@ -751,7 +752,8 @@ class Modality(DataContainer, OrderedDict):
 
         Returns
         -------
-            A float which represents the maximum time stamp in seconds.
+        float
+            The maximum time stamp in seconds.
         """
         return self.timevector[-1]
 

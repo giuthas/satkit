@@ -29,6 +29,7 @@
 
             <h2>Submodules</h2>
             <ul>
+                    <li><a href="modalities/recorded_meta_data_classes.html">recorded_meta_data_classes</a></li>
                     <li><a href="modalities/recorded_modalities.html">recorded_modalities</a></li>
                     <li><a href="modalities/splines.html">splines</a></li>
             </ul>
@@ -47,7 +48,9 @@
                     <h1 class="modulename">
 <a href="./../satkit.html">satkit</a><wbr>.modalities    </h1>
 
-                
+                        <div class="docstring"><p>Modalities and metadata for recorded (external) data.</p>
+</div>
+
                         <input id="mod-modalities-view-source" class="view-source-toggle-state" type="checkbox" aria-hidden="true" tabindex="-1">
 
                         <label class="view-source-button" for="mod-modalities-view-source"><span>View Source</span></label>
@@ -83,8 +86,15 @@
 </span><span id="L-29"><a href="#L-29"><span class="linenos">29</span></a><span class="c1"># articles listed in README.markdown. They can also be found in</span>
 </span><span id="L-30"><a href="#L-30"><span class="linenos">30</span></a><span class="c1"># citations.bib in BibTeX format.</span>
 </span><span id="L-31"><a href="#L-31"><span class="linenos">31</span></a><span class="c1">#</span>
-</span><span id="L-32"><a href="#L-32"><span class="linenos">32</span></a><span class="kn">from</span> <span class="nn">.recorded_modalities</span> <span class="kn">import</span> <span class="n">MonoAudio</span><span class="p">,</span> <span class="n">RawUltrasound</span><span class="p">,</span> <span class="n">ThreeD_Ultrasound</span><span class="p">,</span> <span class="n">Video</span>
-</span><span id="L-33"><a href="#L-33"><span class="linenos">33</span></a><span class="kn">from</span> <span class="nn">.splines</span> <span class="kn">import</span> <span class="n">Splines</span>
+</span><span id="L-32"><a href="#L-32"><span class="linenos">32</span></a><span class="sd">&quot;&quot;&quot;</span>
+</span><span id="L-33"><a href="#L-33"><span class="linenos">33</span></a><span class="sd">Modalities and metadata for recorded (external) data.</span>
+</span><span id="L-34"><a href="#L-34"><span class="linenos">34</span></a><span class="sd">&quot;&quot;&quot;</span>
+</span><span id="L-35"><a href="#L-35"><span class="linenos">35</span></a>
+</span><span id="L-36"><a href="#L-36"><span class="linenos">36</span></a><span class="kn">from</span> <span class="nn">.recorded_meta_data_classes</span> <span class="kn">import</span> <span class="n">RawUltrasoundMeta</span>
+</span><span id="L-37"><a href="#L-37"><span class="linenos">37</span></a><span class="kn">from</span> <span class="nn">.recorded_modalities</span> <span class="kn">import</span> <span class="p">(</span>
+</span><span id="L-38"><a href="#L-38"><span class="linenos">38</span></a>    <span class="n">MonoAudio</span><span class="p">,</span> <span class="n">RawUltrasound</span><span class="p">,</span> <span class="n">ThreeD_Ultrasound</span><span class="p">,</span> <span class="n">Video</span>
+</span><span id="L-39"><a href="#L-39"><span class="linenos">39</span></a><span class="p">)</span>
+</span><span id="L-40"><a href="#L-40"><span class="linenos">40</span></a><span class="kn">from</span> <span class="nn">.splines</span> <span class="kn">import</span> <span class="n">Splines</span>
 </span></pre></div>
 
 

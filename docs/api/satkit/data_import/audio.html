@@ -112,51 +112,49 @@
 </span><span id="L-56"><a href="#L-56"><span class="linenos"> 56</span></a><span class="sd">        _description_, by default True</span>
 </span><span id="L-57"><a href="#L-57"><span class="linenos"> 57</span></a><span class="sd">    path : Optional[Path], optional</span>
 </span><span id="L-58"><a href="#L-58"><span class="linenos"> 58</span></a><span class="sd">        _description_, by default None</span>
-</span><span id="L-59"><a href="#L-59"><span class="linenos"> 59</span></a><span class="sd">    detect_beep : bool, optional</span>
-</span><span id="L-60"><a href="#L-60"><span class="linenos"> 60</span></a><span class="sd">        _description_, by default False</span>
-</span><span id="L-61"><a href="#L-61"><span class="linenos"> 61</span></a><span class="sd">    &quot;&quot;&quot;</span>
-</span><span id="L-62"><a href="#L-62"><span class="linenos"> 62</span></a>    <span class="k">if</span> <span class="ow">not</span> <span class="n">path</span><span class="p">:</span>
-</span><span id="L-63"><a href="#L-63"><span class="linenos"> 63</span></a>        <span class="n">ult_wav_file</span> <span class="o">=</span> <span class="p">(</span><span class="n">recording</span><span class="o">.</span><span class="n">path</span><span class="o">/</span><span class="n">recording</span><span class="o">.</span><span class="n">basename</span><span class="p">)</span><span class="o">.</span><span class="n">with_suffix</span><span class="p">(</span><span class="s2">&quot;.wav&quot;</span><span class="p">)</span>
-</span><span id="L-64"><a href="#L-64"><span class="linenos"> 64</span></a>    <span class="k">else</span><span class="p">:</span>
-</span><span id="L-65"><a href="#L-65"><span class="linenos"> 65</span></a>        <span class="n">ult_wav_file</span> <span class="o">=</span> <span class="n">path</span>
-</span><span id="L-66"><a href="#L-66"><span class="linenos"> 66</span></a>
-</span><span id="L-67"><a href="#L-67"><span class="linenos"> 67</span></a>    <span class="k">if</span> <span class="n">ult_wav_file</span><span class="o">.</span><span class="n">is_file</span><span class="p">():</span>
-</span><span id="L-68"><a href="#L-68"><span class="linenos"> 68</span></a>        <span class="n">file_info</span> <span class="o">=</span> <span class="n">FileInformation</span><span class="p">(</span>
-</span><span id="L-69"><a href="#L-69"><span class="linenos"> 69</span></a>            <span class="n">recorded_path</span><span class="o">=</span><span class="n">Path</span><span class="p">(</span><span class="s2">&quot;&quot;</span><span class="p">),</span>
-</span><span id="L-70"><a href="#L-70"><span class="linenos"> 70</span></a>            <span class="n">recorded_data_file</span><span class="o">=</span><span class="n">ult_wav_file</span><span class="o">.</span><span class="n">name</span>
-</span><span id="L-71"><a href="#L-71"><span class="linenos"> 71</span></a>        <span class="p">)</span>
-</span><span id="L-72"><a href="#L-72"><span class="linenos"> 72</span></a>        <span class="k">if</span> <span class="n">preload</span> <span class="ow">and</span> <span class="n">data_run_params</span><span class="p">[</span><span class="s1">&#39;flags&#39;</span><span class="p">][</span><span class="s1">&#39;detect_beep&#39;</span><span class="p">]:</span>
-</span><span id="L-73"><a href="#L-73"><span class="linenos"> 73</span></a>            <span class="n">data</span><span class="p">,</span> <span class="n">go_signal</span><span class="p">,</span> <span class="n">has_speech</span> <span class="o">=</span> <span class="n">read_wav_and_detect_beep</span><span class="p">(</span>
-</span><span id="L-74"><a href="#L-74"><span class="linenos"> 74</span></a>                <span class="n">ult_wav_file</span><span class="p">)</span>
-</span><span id="L-75"><a href="#L-75"><span class="linenos"> 75</span></a>            <span class="n">waveform</span> <span class="o">=</span> <span class="n">MonoAudio</span><span class="p">(</span>
-</span><span id="L-76"><a href="#L-76"><span class="linenos"> 76</span></a>                <span class="n">recording</span><span class="o">=</span><span class="n">recording</span><span class="p">,</span>
-</span><span id="L-77"><a href="#L-77"><span class="linenos"> 77</span></a>                <span class="n">file_info</span><span class="o">=</span><span class="n">file_info</span><span class="p">,</span>
-</span><span id="L-78"><a href="#L-78"><span class="linenos"> 78</span></a>                <span class="n">parsed_data</span><span class="o">=</span><span class="n">data</span><span class="p">,</span>
-</span><span id="L-79"><a href="#L-79"><span class="linenos"> 79</span></a>                <span class="n">go_signal</span><span class="o">=</span><span class="n">go_signal</span><span class="p">,</span>
-</span><span id="L-80"><a href="#L-80"><span class="linenos"> 80</span></a>                <span class="n">has_speech</span><span class="o">=</span><span class="n">has_speech</span>
-</span><span id="L-81"><a href="#L-81"><span class="linenos"> 81</span></a>            <span class="p">)</span>
-</span><span id="L-82"><a href="#L-82"><span class="linenos"> 82</span></a>            <span class="n">recording</span><span class="o">.</span><span class="n">add_modality</span><span class="p">(</span><span class="n">waveform</span><span class="p">)</span>
-</span><span id="L-83"><a href="#L-83"><span class="linenos"> 83</span></a>        <span class="k">elif</span> <span class="n">preload</span><span class="p">:</span>
-</span><span id="L-84"><a href="#L-84"><span class="linenos"> 84</span></a>            <span class="n">data</span> <span class="o">=</span> <span class="n">read_wav</span><span class="p">(</span><span class="n">ult_wav_file</span><span class="p">)</span>
-</span><span id="L-85"><a href="#L-85"><span class="linenos"> 85</span></a>            <span class="n">waveform</span> <span class="o">=</span> <span class="n">MonoAudio</span><span class="p">(</span>
-</span><span id="L-86"><a href="#L-86"><span class="linenos"> 86</span></a>                <span class="n">recording</span><span class="o">=</span><span class="n">recording</span><span class="p">,</span>
-</span><span id="L-87"><a href="#L-87"><span class="linenos"> 87</span></a>                <span class="n">file_info</span><span class="o">=</span><span class="n">file_info</span><span class="p">,</span>
-</span><span id="L-88"><a href="#L-88"><span class="linenos"> 88</span></a>                <span class="n">parsed_data</span><span class="o">=</span><span class="n">data</span><span class="p">,</span>
-</span><span id="L-89"><a href="#L-89"><span class="linenos"> 89</span></a>            <span class="p">)</span>
-</span><span id="L-90"><a href="#L-90"><span class="linenos"> 90</span></a>            <span class="n">recording</span><span class="o">.</span><span class="n">add_modality</span><span class="p">(</span><span class="n">waveform</span><span class="p">)</span>
-</span><span id="L-91"><a href="#L-91"><span class="linenos"> 91</span></a>        <span class="k">else</span><span class="p">:</span>
-</span><span id="L-92"><a href="#L-92"><span class="linenos"> 92</span></a>            <span class="n">waveform</span> <span class="o">=</span> <span class="n">MonoAudio</span><span class="p">(</span>
-</span><span id="L-93"><a href="#L-93"><span class="linenos"> 93</span></a>                <span class="n">recording</span><span class="o">=</span><span class="n">recording</span><span class="p">,</span>
-</span><span id="L-94"><a href="#L-94"><span class="linenos"> 94</span></a>                <span class="n">file_info</span><span class="o">=</span><span class="n">file_info</span><span class="p">,</span>
-</span><span id="L-95"><a href="#L-95"><span class="linenos"> 95</span></a>            <span class="p">)</span>
-</span><span id="L-96"><a href="#L-96"><span class="linenos"> 96</span></a>            <span class="n">recording</span><span class="o">.</span><span class="n">add_modality</span><span class="p">(</span><span class="n">waveform</span><span class="p">)</span>
-</span><span id="L-97"><a href="#L-97"><span class="linenos"> 97</span></a>        <span class="n">_generic_io_logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
-</span><span id="L-98"><a href="#L-98"><span class="linenos"> 98</span></a>            <span class="s2">&quot;Added MonoAudio to Recording representing </span><span class="si">%s</span><span class="s2">.&quot;</span><span class="p">,</span>
-</span><span id="L-99"><a href="#L-99"><span class="linenos"> 99</span></a>            <span class="n">recording</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
-</span><span id="L-100"><a href="#L-100"><span class="linenos">100</span></a>    <span class="k">else</span><span class="p">:</span>
-</span><span id="L-101"><a href="#L-101"><span class="linenos">101</span></a>        <span class="n">notice</span> <span class="o">=</span> <span class="s1">&#39;Note: &#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">ult_wav_file</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot; does not exist. Excluding.&quot;</span>
-</span><span id="L-102"><a href="#L-102"><span class="linenos">102</span></a>        <span class="n">_generic_io_logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="n">notice</span><span class="p">)</span>
-</span><span id="L-103"><a href="#L-103"><span class="linenos">103</span></a>        <span class="n">recording</span><span class="o">.</span><span class="n">exclude</span><span class="p">()</span>
+</span><span id="L-59"><a href="#L-59"><span class="linenos"> 59</span></a><span class="sd">    &quot;&quot;&quot;</span>
+</span><span id="L-60"><a href="#L-60"><span class="linenos"> 60</span></a>    <span class="k">if</span> <span class="ow">not</span> <span class="n">path</span><span class="p">:</span>
+</span><span id="L-61"><a href="#L-61"><span class="linenos"> 61</span></a>        <span class="n">ult_wav_file</span> <span class="o">=</span> <span class="p">(</span><span class="n">recording</span><span class="o">.</span><span class="n">path</span><span class="o">/</span><span class="n">recording</span><span class="o">.</span><span class="n">basename</span><span class="p">)</span><span class="o">.</span><span class="n">with_suffix</span><span class="p">(</span><span class="s2">&quot;.wav&quot;</span><span class="p">)</span>
+</span><span id="L-62"><a href="#L-62"><span class="linenos"> 62</span></a>    <span class="k">else</span><span class="p">:</span>
+</span><span id="L-63"><a href="#L-63"><span class="linenos"> 63</span></a>        <span class="n">ult_wav_file</span> <span class="o">=</span> <span class="n">path</span>
+</span><span id="L-64"><a href="#L-64"><span class="linenos"> 64</span></a>
+</span><span id="L-65"><a href="#L-65"><span class="linenos"> 65</span></a>    <span class="k">if</span> <span class="n">ult_wav_file</span><span class="o">.</span><span class="n">is_file</span><span class="p">():</span>
+</span><span id="L-66"><a href="#L-66"><span class="linenos"> 66</span></a>        <span class="n">file_info</span> <span class="o">=</span> <span class="n">FileInformation</span><span class="p">(</span>
+</span><span id="L-67"><a href="#L-67"><span class="linenos"> 67</span></a>            <span class="n">recorded_path</span><span class="o">=</span><span class="n">Path</span><span class="p">(</span><span class="s2">&quot;.&quot;</span><span class="p">),</span>
+</span><span id="L-68"><a href="#L-68"><span class="linenos"> 68</span></a>            <span class="n">recorded_data_file</span><span class="o">=</span><span class="n">ult_wav_file</span><span class="o">.</span><span class="n">name</span>
+</span><span id="L-69"><a href="#L-69"><span class="linenos"> 69</span></a>        <span class="p">)</span>
+</span><span id="L-70"><a href="#L-70"><span class="linenos"> 70</span></a>        <span class="k">if</span> <span class="n">preload</span> <span class="ow">and</span> <span class="n">data_run_params</span><span class="p">[</span><span class="s1">&#39;flags&#39;</span><span class="p">][</span><span class="s1">&#39;detect_beep&#39;</span><span class="p">]:</span>
+</span><span id="L-71"><a href="#L-71"><span class="linenos"> 71</span></a>            <span class="n">data</span><span class="p">,</span> <span class="n">go_signal</span><span class="p">,</span> <span class="n">has_speech</span> <span class="o">=</span> <span class="n">read_wav_and_detect_beep</span><span class="p">(</span>
+</span><span id="L-72"><a href="#L-72"><span class="linenos"> 72</span></a>                <span class="n">ult_wav_file</span><span class="p">)</span>
+</span><span id="L-73"><a href="#L-73"><span class="linenos"> 73</span></a>            <span class="n">waveform</span> <span class="o">=</span> <span class="n">MonoAudio</span><span class="p">(</span>
+</span><span id="L-74"><a href="#L-74"><span class="linenos"> 74</span></a>                <span class="n">recording</span><span class="o">=</span><span class="n">recording</span><span class="p">,</span>
+</span><span id="L-75"><a href="#L-75"><span class="linenos"> 75</span></a>                <span class="n">file_info</span><span class="o">=</span><span class="n">file_info</span><span class="p">,</span>
+</span><span id="L-76"><a href="#L-76"><span class="linenos"> 76</span></a>                <span class="n">parsed_data</span><span class="o">=</span><span class="n">data</span><span class="p">,</span>
+</span><span id="L-77"><a href="#L-77"><span class="linenos"> 77</span></a>                <span class="n">go_signal</span><span class="o">=</span><span class="n">go_signal</span><span class="p">,</span>
+</span><span id="L-78"><a href="#L-78"><span class="linenos"> 78</span></a>                <span class="n">has_speech</span><span class="o">=</span><span class="n">has_speech</span>
+</span><span id="L-79"><a href="#L-79"><span class="linenos"> 79</span></a>            <span class="p">)</span>
+</span><span id="L-80"><a href="#L-80"><span class="linenos"> 80</span></a>            <span class="n">recording</span><span class="o">.</span><span class="n">add_modality</span><span class="p">(</span><span class="n">waveform</span><span class="p">)</span>
+</span><span id="L-81"><a href="#L-81"><span class="linenos"> 81</span></a>        <span class="k">elif</span> <span class="n">preload</span><span class="p">:</span>
+</span><span id="L-82"><a href="#L-82"><span class="linenos"> 82</span></a>            <span class="n">data</span> <span class="o">=</span> <span class="n">read_wav</span><span class="p">(</span><span class="n">ult_wav_file</span><span class="p">)</span>
+</span><span id="L-83"><a href="#L-83"><span class="linenos"> 83</span></a>            <span class="n">waveform</span> <span class="o">=</span> <span class="n">MonoAudio</span><span class="p">(</span>
+</span><span id="L-84"><a href="#L-84"><span class="linenos"> 84</span></a>                <span class="n">recording</span><span class="o">=</span><span class="n">recording</span><span class="p">,</span>
+</span><span id="L-85"><a href="#L-85"><span class="linenos"> 85</span></a>                <span class="n">file_info</span><span class="o">=</span><span class="n">file_info</span><span class="p">,</span>
+</span><span id="L-86"><a href="#L-86"><span class="linenos"> 86</span></a>                <span class="n">parsed_data</span><span class="o">=</span><span class="n">data</span><span class="p">,</span>
+</span><span id="L-87"><a href="#L-87"><span class="linenos"> 87</span></a>            <span class="p">)</span>
+</span><span id="L-88"><a href="#L-88"><span class="linenos"> 88</span></a>            <span class="n">recording</span><span class="o">.</span><span class="n">add_modality</span><span class="p">(</span><span class="n">waveform</span><span class="p">)</span>
+</span><span id="L-89"><a href="#L-89"><span class="linenos"> 89</span></a>        <span class="k">else</span><span class="p">:</span>
+</span><span id="L-90"><a href="#L-90"><span class="linenos"> 90</span></a>            <span class="n">waveform</span> <span class="o">=</span> <span class="n">MonoAudio</span><span class="p">(</span>
+</span><span id="L-91"><a href="#L-91"><span class="linenos"> 91</span></a>                <span class="n">recording</span><span class="o">=</span><span class="n">recording</span><span class="p">,</span>
+</span><span id="L-92"><a href="#L-92"><span class="linenos"> 92</span></a>                <span class="n">file_info</span><span class="o">=</span><span class="n">file_info</span><span class="p">,</span>
+</span><span id="L-93"><a href="#L-93"><span class="linenos"> 93</span></a>            <span class="p">)</span>
+</span><span id="L-94"><a href="#L-94"><span class="linenos"> 94</span></a>            <span class="n">recording</span><span class="o">.</span><span class="n">add_modality</span><span class="p">(</span><span class="n">waveform</span><span class="p">)</span>
+</span><span id="L-95"><a href="#L-95"><span class="linenos"> 95</span></a>        <span class="n">_generic_io_logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
+</span><span id="L-96"><a href="#L-96"><span class="linenos"> 96</span></a>            <span class="s2">&quot;Added MonoAudio to Recording representing </span><span class="si">%s</span><span class="s2">.&quot;</span><span class="p">,</span>
+</span><span id="L-97"><a href="#L-97"><span class="linenos"> 97</span></a>            <span class="n">recording</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+</span><span id="L-98"><a href="#L-98"><span class="linenos"> 98</span></a>    <span class="k">else</span><span class="p">:</span>
+</span><span id="L-99"><a href="#L-99"><span class="linenos"> 99</span></a>        <span class="n">notice</span> <span class="o">=</span> <span class="s1">&#39;Note: &#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">ult_wav_file</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot; does not exist. Excluding.&quot;</span>
+</span><span id="L-100"><a href="#L-100"><span class="linenos">100</span></a>        <span class="n">_generic_io_logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="n">notice</span><span class="p">)</span>
+</span><span id="L-101"><a href="#L-101"><span class="linenos">101</span></a>        <span class="n">recording</span><span class="o">.</span><span class="n">exclude</span><span class="p">()</span>
 </span></pre></div>
 
 
@@ -187,51 +185,49 @@
 </span><span id="add_audio-57"><a href="#add_audio-57"><span class="linenos"> 57</span></a><span class="sd">        _description_, by default True</span>
 </span><span id="add_audio-58"><a href="#add_audio-58"><span class="linenos"> 58</span></a><span class="sd">    path : Optional[Path], optional</span>
 </span><span id="add_audio-59"><a href="#add_audio-59"><span class="linenos"> 59</span></a><span class="sd">        _description_, by default None</span>
-</span><span id="add_audio-60"><a href="#add_audio-60"><span class="linenos"> 60</span></a><span class="sd">    detect_beep : bool, optional</span>
-</span><span id="add_audio-61"><a href="#add_audio-61"><span class="linenos"> 61</span></a><span class="sd">        _description_, by default False</span>
-</span><span id="add_audio-62"><a href="#add_audio-62"><span class="linenos"> 62</span></a><span class="sd">    &quot;&quot;&quot;</span>
-</span><span id="add_audio-63"><a href="#add_audio-63"><span class="linenos"> 63</span></a>    <span class="k">if</span> <span class="ow">not</span> <span class="n">path</span><span class="p">:</span>
-</span><span id="add_audio-64"><a href="#add_audio-64"><span class="linenos"> 64</span></a>        <span class="n">ult_wav_file</span> <span class="o">=</span> <span class="p">(</span><span class="n">recording</span><span class="o">.</span><span class="n">path</span><span class="o">/</span><span class="n">recording</span><span class="o">.</span><span class="n">basename</span><span class="p">)</span><span class="o">.</span><span class="n">with_suffix</span><span class="p">(</span><span class="s2">&quot;.wav&quot;</span><span class="p">)</span>
-</span><span id="add_audio-65"><a href="#add_audio-65"><span class="linenos"> 65</span></a>    <span class="k">else</span><span class="p">:</span>
-</span><span id="add_audio-66"><a href="#add_audio-66"><span class="linenos"> 66</span></a>        <span class="n">ult_wav_file</span> <span class="o">=</span> <span class="n">path</span>
-</span><span id="add_audio-67"><a href="#add_audio-67"><span class="linenos"> 67</span></a>
-</span><span id="add_audio-68"><a href="#add_audio-68"><span class="linenos"> 68</span></a>    <span class="k">if</span> <span class="n">ult_wav_file</span><span class="o">.</span><span class="n">is_file</span><span class="p">():</span>
-</span><span id="add_audio-69"><a href="#add_audio-69"><span class="linenos"> 69</span></a>        <span class="n">file_info</span> <span class="o">=</span> <span class="n">FileInformation</span><span class="p">(</span>
-</span><span id="add_audio-70"><a href="#add_audio-70"><span class="linenos"> 70</span></a>            <span class="n">recorded_path</span><span class="o">=</span><span class="n">Path</span><span class="p">(</span><span class="s2">&quot;&quot;</span><span class="p">),</span>
-</span><span id="add_audio-71"><a href="#add_audio-71"><span class="linenos"> 71</span></a>            <span class="n">recorded_data_file</span><span class="o">=</span><span class="n">ult_wav_file</span><span class="o">.</span><span class="n">name</span>
-</span><span id="add_audio-72"><a href="#add_audio-72"><span class="linenos"> 72</span></a>        <span class="p">)</span>
-</span><span id="add_audio-73"><a href="#add_audio-73"><span class="linenos"> 73</span></a>        <span class="k">if</span> <span class="n">preload</span> <span class="ow">and</span> <span class="n">data_run_params</span><span class="p">[</span><span class="s1">&#39;flags&#39;</span><span class="p">][</span><span class="s1">&#39;detect_beep&#39;</span><span class="p">]:</span>
-</span><span id="add_audio-74"><a href="#add_audio-74"><span class="linenos"> 74</span></a>            <span class="n">data</span><span class="p">,</span> <span class="n">go_signal</span><span class="p">,</span> <span class="n">has_speech</span> <span class="o">=</span> <span class="n">read_wav_and_detect_beep</span><span class="p">(</span>
-</span><span id="add_audio-75"><a href="#add_audio-75"><span class="linenos"> 75</span></a>                <span class="n">ult_wav_file</span><span class="p">)</span>
-</span><span id="add_audio-76"><a href="#add_audio-76"><span class="linenos"> 76</span></a>            <span class="n">waveform</span> <span class="o">=</span> <span class="n">MonoAudio</span><span class="p">(</span>
-</span><span id="add_audio-77"><a href="#add_audio-77"><span class="linenos"> 77</span></a>                <span class="n">recording</span><span class="o">=</span><span class="n">recording</span><span class="p">,</span>
-</span><span id="add_audio-78"><a href="#add_audio-78"><span class="linenos"> 78</span></a>                <span class="n">file_info</span><span class="o">=</span><span class="n">file_info</span><span class="p">,</span>
-</span><span id="add_audio-79"><a href="#add_audio-79"><span class="linenos"> 79</span></a>                <span class="n">parsed_data</span><span class="o">=</span><span class="n">data</span><span class="p">,</span>
-</span><span id="add_audio-80"><a href="#add_audio-80"><span class="linenos"> 80</span></a>                <span class="n">go_signal</span><span class="o">=</span><span class="n">go_signal</span><span class="p">,</span>
-</span><span id="add_audio-81"><a href="#add_audio-81"><span class="linenos"> 81</span></a>                <span class="n">has_speech</span><span class="o">=</span><span class="n">has_speech</span>
-</span><span id="add_audio-82"><a href="#add_audio-82"><span class="linenos"> 82</span></a>            <span class="p">)</span>
-</span><span id="add_audio-83"><a href="#add_audio-83"><span class="linenos"> 83</span></a>            <span class="n">recording</span><span class="o">.</span><span class="n">add_modality</span><span class="p">(</span><span class="n">waveform</span><span class="p">)</span>
-</span><span id="add_audio-84"><a href="#add_audio-84"><span class="linenos"> 84</span></a>        <span class="k">elif</span> <span class="n">preload</span><span class="p">:</span>
-</span><span id="add_audio-85"><a href="#add_audio-85"><span class="linenos"> 85</span></a>            <span class="n">data</span> <span class="o">=</span> <span class="n">read_wav</span><span class="p">(</span><span class="n">ult_wav_file</span><span class="p">)</span>
-</span><span id="add_audio-86"><a href="#add_audio-86"><span class="linenos"> 86</span></a>            <span class="n">waveform</span> <span class="o">=</span> <span class="n">MonoAudio</span><span class="p">(</span>
-</span><span id="add_audio-87"><a href="#add_audio-87"><span class="linenos"> 87</span></a>                <span class="n">recording</span><span class="o">=</span><span class="n">recording</span><span class="p">,</span>
-</span><span id="add_audio-88"><a href="#add_audio-88"><span class="linenos"> 88</span></a>                <span class="n">file_info</span><span class="o">=</span><span class="n">file_info</span><span class="p">,</span>
-</span><span id="add_audio-89"><a href="#add_audio-89"><span class="linenos"> 89</span></a>                <span class="n">parsed_data</span><span class="o">=</span><span class="n">data</span><span class="p">,</span>
-</span><span id="add_audio-90"><a href="#add_audio-90"><span class="linenos"> 90</span></a>            <span class="p">)</span>
-</span><span id="add_audio-91"><a href="#add_audio-91"><span class="linenos"> 91</span></a>            <span class="n">recording</span><span class="o">.</span><span class="n">add_modality</span><span class="p">(</span><span class="n">waveform</span><span class="p">)</span>
-</span><span id="add_audio-92"><a href="#add_audio-92"><span class="linenos"> 92</span></a>        <span class="k">else</span><span class="p">:</span>
-</span><span id="add_audio-93"><a href="#add_audio-93"><span class="linenos"> 93</span></a>            <span class="n">waveform</span> <span class="o">=</span> <span class="n">MonoAudio</span><span class="p">(</span>
-</span><span id="add_audio-94"><a href="#add_audio-94"><span class="linenos"> 94</span></a>                <span class="n">recording</span><span class="o">=</span><span class="n">recording</span><span class="p">,</span>
-</span><span id="add_audio-95"><a href="#add_audio-95"><span class="linenos"> 95</span></a>                <span class="n">file_info</span><span class="o">=</span><span class="n">file_info</span><span class="p">,</span>
-</span><span id="add_audio-96"><a href="#add_audio-96"><span class="linenos"> 96</span></a>            <span class="p">)</span>
-</span><span id="add_audio-97"><a href="#add_audio-97"><span class="linenos"> 97</span></a>            <span class="n">recording</span><span class="o">.</span><span class="n">add_modality</span><span class="p">(</span><span class="n">waveform</span><span class="p">)</span>
-</span><span id="add_audio-98"><a href="#add_audio-98"><span class="linenos"> 98</span></a>        <span class="n">_generic_io_logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
-</span><span id="add_audio-99"><a href="#add_audio-99"><span class="linenos"> 99</span></a>            <span class="s2">&quot;Added MonoAudio to Recording representing </span><span class="si">%s</span><span class="s2">.&quot;</span><span class="p">,</span>
-</span><span id="add_audio-100"><a href="#add_audio-100"><span class="linenos">100</span></a>            <span class="n">recording</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
-</span><span id="add_audio-101"><a href="#add_audio-101"><span class="linenos">101</span></a>    <span class="k">else</span><span class="p">:</span>
-</span><span id="add_audio-102"><a href="#add_audio-102"><span class="linenos">102</span></a>        <span class="n">notice</span> <span class="o">=</span> <span class="s1">&#39;Note: &#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">ult_wav_file</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot; does not exist. Excluding.&quot;</span>
-</span><span id="add_audio-103"><a href="#add_audio-103"><span class="linenos">103</span></a>        <span class="n">_generic_io_logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="n">notice</span><span class="p">)</span>
-</span><span id="add_audio-104"><a href="#add_audio-104"><span class="linenos">104</span></a>        <span class="n">recording</span><span class="o">.</span><span class="n">exclude</span><span class="p">()</span>
+</span><span id="add_audio-60"><a href="#add_audio-60"><span class="linenos"> 60</span></a><span class="sd">    &quot;&quot;&quot;</span>
+</span><span id="add_audio-61"><a href="#add_audio-61"><span class="linenos"> 61</span></a>    <span class="k">if</span> <span class="ow">not</span> <span class="n">path</span><span class="p">:</span>
+</span><span id="add_audio-62"><a href="#add_audio-62"><span class="linenos"> 62</span></a>        <span class="n">ult_wav_file</span> <span class="o">=</span> <span class="p">(</span><span class="n">recording</span><span class="o">.</span><span class="n">path</span><span class="o">/</span><span class="n">recording</span><span class="o">.</span><span class="n">basename</span><span class="p">)</span><span class="o">.</span><span class="n">with_suffix</span><span class="p">(</span><span class="s2">&quot;.wav&quot;</span><span class="p">)</span>
+</span><span id="add_audio-63"><a href="#add_audio-63"><span class="linenos"> 63</span></a>    <span class="k">else</span><span class="p">:</span>
+</span><span id="add_audio-64"><a href="#add_audio-64"><span class="linenos"> 64</span></a>        <span class="n">ult_wav_file</span> <span class="o">=</span> <span class="n">path</span>
+</span><span id="add_audio-65"><a href="#add_audio-65"><span class="linenos"> 65</span></a>
+</span><span id="add_audio-66"><a href="#add_audio-66"><span class="linenos"> 66</span></a>    <span class="k">if</span> <span class="n">ult_wav_file</span><span class="o">.</span><span class="n">is_file</span><span class="p">():</span>
+</span><span id="add_audio-67"><a href="#add_audio-67"><span class="linenos"> 67</span></a>        <span class="n">file_info</span> <span class="o">=</span> <span class="n">FileInformation</span><span class="p">(</span>
+</span><span id="add_audio-68"><a href="#add_audio-68"><span class="linenos"> 68</span></a>            <span class="n">recorded_path</span><span class="o">=</span><span class="n">Path</span><span class="p">(</span><span class="s2">&quot;.&quot;</span><span class="p">),</span>
+</span><span id="add_audio-69"><a href="#add_audio-69"><span class="linenos"> 69</span></a>            <span class="n">recorded_data_file</span><span class="o">=</span><span class="n">ult_wav_file</span><span class="o">.</span><span class="n">name</span>
+</span><span id="add_audio-70"><a href="#add_audio-70"><span class="linenos"> 70</span></a>        <span class="p">)</span>
+</span><span id="add_audio-71"><a href="#add_audio-71"><span class="linenos"> 71</span></a>        <span class="k">if</span> <span class="n">preload</span> <span class="ow">and</span> <span class="n">data_run_params</span><span class="p">[</span><span class="s1">&#39;flags&#39;</span><span class="p">][</span><span class="s1">&#39;detect_beep&#39;</span><span class="p">]:</span>
+</span><span id="add_audio-72"><a href="#add_audio-72"><span class="linenos"> 72</span></a>            <span class="n">data</span><span class="p">,</span> <span class="n">go_signal</span><span class="p">,</span> <span class="n">has_speech</span> <span class="o">=</span> <span class="n">read_wav_and_detect_beep</span><span class="p">(</span>
+</span><span id="add_audio-73"><a href="#add_audio-73"><span class="linenos"> 73</span></a>                <span class="n">ult_wav_file</span><span class="p">)</span>
+</span><span id="add_audio-74"><a href="#add_audio-74"><span class="linenos"> 74</span></a>            <span class="n">waveform</span> <span class="o">=</span> <span class="n">MonoAudio</span><span class="p">(</span>
+</span><span id="add_audio-75"><a href="#add_audio-75"><span class="linenos"> 75</span></a>                <span class="n">recording</span><span class="o">=</span><span class="n">recording</span><span class="p">,</span>
+</span><span id="add_audio-76"><a href="#add_audio-76"><span class="linenos"> 76</span></a>                <span class="n">file_info</span><span class="o">=</span><span class="n">file_info</span><span class="p">,</span>
+</span><span id="add_audio-77"><a href="#add_audio-77"><span class="linenos"> 77</span></a>                <span class="n">parsed_data</span><span class="o">=</span><span class="n">data</span><span class="p">,</span>
+</span><span id="add_audio-78"><a href="#add_audio-78"><span class="linenos"> 78</span></a>                <span class="n">go_signal</span><span class="o">=</span><span class="n">go_signal</span><span class="p">,</span>
+</span><span id="add_audio-79"><a href="#add_audio-79"><span class="linenos"> 79</span></a>                <span class="n">has_speech</span><span class="o">=</span><span class="n">has_speech</span>
+</span><span id="add_audio-80"><a href="#add_audio-80"><span class="linenos"> 80</span></a>            <span class="p">)</span>
+</span><span id="add_audio-81"><a href="#add_audio-81"><span class="linenos"> 81</span></a>            <span class="n">recording</span><span class="o">.</span><span class="n">add_modality</span><span class="p">(</span><span class="n">waveform</span><span class="p">)</span>
+</span><span id="add_audio-82"><a href="#add_audio-82"><span class="linenos"> 82</span></a>        <span class="k">elif</span> <span class="n">preload</span><span class="p">:</span>
+</span><span id="add_audio-83"><a href="#add_audio-83"><span class="linenos"> 83</span></a>            <span class="n">data</span> <span class="o">=</span> <span class="n">read_wav</span><span class="p">(</span><span class="n">ult_wav_file</span><span class="p">)</span>
+</span><span id="add_audio-84"><a href="#add_audio-84"><span class="linenos"> 84</span></a>            <span class="n">waveform</span> <span class="o">=</span> <span class="n">MonoAudio</span><span class="p">(</span>
+</span><span id="add_audio-85"><a href="#add_audio-85"><span class="linenos"> 85</span></a>                <span class="n">recording</span><span class="o">=</span><span class="n">recording</span><span class="p">,</span>
+</span><span id="add_audio-86"><a href="#add_audio-86"><span class="linenos"> 86</span></a>                <span class="n">file_info</span><span class="o">=</span><span class="n">file_info</span><span class="p">,</span>
+</span><span id="add_audio-87"><a href="#add_audio-87"><span class="linenos"> 87</span></a>                <span class="n">parsed_data</span><span class="o">=</span><span class="n">data</span><span class="p">,</span>
+</span><span id="add_audio-88"><a href="#add_audio-88"><span class="linenos"> 88</span></a>            <span class="p">)</span>
+</span><span id="add_audio-89"><a href="#add_audio-89"><span class="linenos"> 89</span></a>            <span class="n">recording</span><span class="o">.</span><span class="n">add_modality</span><span class="p">(</span><span class="n">waveform</span><span class="p">)</span>
+</span><span id="add_audio-90"><a href="#add_audio-90"><span class="linenos"> 90</span></a>        <span class="k">else</span><span class="p">:</span>
+</span><span id="add_audio-91"><a href="#add_audio-91"><span class="linenos"> 91</span></a>            <span class="n">waveform</span> <span class="o">=</span> <span class="n">MonoAudio</span><span class="p">(</span>
+</span><span id="add_audio-92"><a href="#add_audio-92"><span class="linenos"> 92</span></a>                <span class="n">recording</span><span class="o">=</span><span class="n">recording</span><span class="p">,</span>
+</span><span id="add_audio-93"><a href="#add_audio-93"><span class="linenos"> 93</span></a>                <span class="n">file_info</span><span class="o">=</span><span class="n">file_info</span><span class="p">,</span>
+</span><span id="add_audio-94"><a href="#add_audio-94"><span class="linenos"> 94</span></a>            <span class="p">)</span>
+</span><span id="add_audio-95"><a href="#add_audio-95"><span class="linenos"> 95</span></a>            <span class="n">recording</span><span class="o">.</span><span class="n">add_modality</span><span class="p">(</span><span class="n">waveform</span><span class="p">)</span>
+</span><span id="add_audio-96"><a href="#add_audio-96"><span class="linenos"> 96</span></a>        <span class="n">_generic_io_logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
+</span><span id="add_audio-97"><a href="#add_audio-97"><span class="linenos"> 97</span></a>            <span class="s2">&quot;Added MonoAudio to Recording representing </span><span class="si">%s</span><span class="s2">.&quot;</span><span class="p">,</span>
+</span><span id="add_audio-98"><a href="#add_audio-98"><span class="linenos"> 98</span></a>            <span class="n">recording</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+</span><span id="add_audio-99"><a href="#add_audio-99"><span class="linenos"> 99</span></a>    <span class="k">else</span><span class="p">:</span>
+</span><span id="add_audio-100"><a href="#add_audio-100"><span class="linenos">100</span></a>        <span class="n">notice</span> <span class="o">=</span> <span class="s1">&#39;Note: &#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">ult_wav_file</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot; does not exist. Excluding.&quot;</span>
+</span><span id="add_audio-101"><a href="#add_audio-101"><span class="linenos">101</span></a>        <span class="n">_generic_io_logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="n">notice</span><span class="p">)</span>
+</span><span id="add_audio-102"><a href="#add_audio-102"><span class="linenos">102</span></a>        <span class="n">recording</span><span class="o">.</span><span class="n">exclude</span><span class="p">()</span>
 </span></pre></div>
 
 
@@ -246,8 +242,6 @@ _description_</li>
 _description_, by default True</li>
 <li><strong>path</strong> (Optional[Path], optional):
 _description_, by default None</li>
-<li><strong>detect_beep</strong> (bool, optional):
-_description_, by default False</li>
 </ul>
 </div>
 

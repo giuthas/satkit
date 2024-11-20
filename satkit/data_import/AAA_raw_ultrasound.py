@@ -95,7 +95,8 @@ def _parse_ultrasound_meta_aaa(filename):
     Returns a dictionary which should contain the following keys:
         num_vectors -- number of scanlines in a frame
         pix_Ver_vector -- number of pixels in a scanline
-        zero_offset --
+        zero_offset -- number non-existing of pixels between probe origin and
+            first existing pixel
         bits_per_pixel -- byte length of a single pixel in the .ult file
         angle -- angle in radians between two scanlines
         kind -- type of probe used

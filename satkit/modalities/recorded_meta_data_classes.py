@@ -38,6 +38,7 @@ from satkit.data_structures import ModalityMetaData
 
 class RawUltrasoundMeta(ModalityMetaData):
     """
+    Metadata for RawUltrasound data.
 
     num_vectors -- number of scanlines in a frame
     pix_Ver_vector -- number of pixels in a scanline

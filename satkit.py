@@ -76,24 +76,6 @@ from satkit.scripting_interface import (
 )
 
 
-def downsample(
-        recording_session: Session,
-        data_run_config: DataRunConfig
-) -> None:
-    """
-    Downsample metrics in the session.
-
-    Parameters
-    ----------
-    recording_session : Session
-        _description_
-    data_run_config : DataRunConfig
-        _description_
-    """
-    for recording in recording_session:
-        downsample_metrics(recording, data_run_config.downsample)
-
-
 def data_run(
         recording_session: Session,
         configuration: config.Configuration,
@@ -142,8 +124,8 @@ def data_run(
         processing_functions=statistic_operation_dict)
 
     if data_run_config.downsample:
-        downsample(recording_session=recording_session,
-                   data_run_config=data_run_config)
+        for recording in recording_session:
+            downsample_metrics(recording, data_run_config.downsample)
 
     if data_run_config.peaks:
         modality_pattern = data_run_config.peaks.modality_pattern
@@ -188,15 +170,6 @@ def main():
 
     data_run(recording_session=recording_session,
              configuration=configuration)
-
-    # publish_aggregate_images(
-    #     recording_session, image_name='AggregateImage mean on RawUltrasound')
-    # publish_distance_matrix(
-    #     recording_session,
-    #     distance_matrix_name=(
-    #         'DistanceMatrix mean_squared_error on AggregateImage mean '
-    #         'on RawUltrasound')
-    # )
 
     logger.info('Data run ended.')
 

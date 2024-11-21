@@ -31,6 +31,30 @@ and this project uses [Semantic Versioning](https://semver.org/spec/v2.0.0.html)
   speech_articulation_toolkit.
 - See [Roadmap](Roadmap.markdown) for an overview of what to expect in 1.0.
 
+## [0.12.0] 
+
+### Added 
+ 
+- Introduced the concept of Scenarios: These are analysis results (i.e. derived 
+  data) that each have their own configuration. This makes it possible to run 
+  a given metric on the same data with conflicting parameters and save all 
+  results for later use.
+
+### Changed 
+
+- Major update to data management and the configuration system. 
+  - Data is now separated to recorded and derived. Former is data originating 
+    from outside sources and treated as immutable, latter is data originating 
+    from SATKIT.
+  - Data run parameters now live with the derived data.
+  - TextGrids can live in both recorded data and derived data, with
+    the derived version overriding recorded. This will have a future application  
+    in generating practice scenarios.
+
+### Fixed
+
+- [possibly] the issues in 0.11
+
 ## [0.11.0] 2024-11-20
 
 ### Added

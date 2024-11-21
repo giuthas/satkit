@@ -49,4 +49,6 @@ from .configuration_models import (
     MainConfig, PeakDetectionParams, PointAnnotationParams,
     SearchPattern, TimeseriesNormalisation)
 from .configuration_setup import Configuration
-from .exclusion_list_functions import apply_exclusion_list, load_exclusion_list
+from .exclusion_list_functions import (
+    apply_exclusion_list, load_exclusion_list, remove_excluded_recordings
+)

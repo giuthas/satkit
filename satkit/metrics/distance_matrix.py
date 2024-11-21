@@ -38,7 +38,7 @@ import logging
 import numpy as np
 from pydantic import PositiveInt
 
-
+from satkit.configuration import ExclusionList, load_exclusion_list
 from satkit.data_structures import (
     FileInformation, Modality, Session, Statistic, StatisticMetaData
 )
@@ -63,21 +63,35 @@ class DistanceMatrixParameters(StatisticMetaData):
         Whether to assign None to `parent.data` after deriving this Modality
         from the data. Currently, has no effect as deriving a DistanceMatrix at
         runtime is not yet supported.
-    slice_size : PositiveInt | None = None
-        Size of the slice to take from the parent Modality or Statistic, by
-        default None. This is used for example in simulating probe rotation by
-        sampling AggregateImages calculated from raw (uninterpolated) ultrasound
-        data.
-    slice_offset : PositiveInt | None = None
-        offset of the slice to take from the parent Modality or Statistic, by
-        default None. This is used for example in simulating probe rotation by
-        sampling AggregateImages calculated from raw (uninterpolated) ultrasound
-        data.
+    slice_max_step: PositiveInt | None
+        Simulate rotating the probe by slicing incrementally so that the sector
+        is always the same size. This parameter determines how many steps of
+        size one to take, by default None.
+    slice_step_to: PositiveInt | None
+        Instead of incrementally stepping with same size sectors, generate a
+        pair of maximally distant sectors for each step size ranging from one to
+        `slice_step_to`, by default None.
+    sort: bool
+        Sort the rows and columns of the matrix in order corresponding to the
+        alphabetical order of the prompts or according to `sort_criteria` if it
+        is defined. By default, False.
+    sort_criteria: list[str] | None
+        List of substrings to sort the rows and columns by, by default None. The
+        result will consist of blocks where in first block `sort_criteria[0] in
+        prompt` is True, and so on. Final block will consist of any Recordings
+        left after the list has been exhausted.
     """
     parent_name: str
     metric: str = 'mean_squared_error'
     release_data_memory: bool = True
     slice_max_step: PositiveInt | None = None
+    slice_step_to: PositiveInt | None = None
+    sort: bool = False
+    sort_criteria: list[str] | None = None
+    sorted_indeces: list[int] | None = None
+    sorted_prompts: list[str] | None = None
+    sorted_filenames: list[str] | None = None
+    exclusion_list: ExclusionList | None = None
 
 
 class DistanceMatrix(Statistic):
@@ -115,12 +129,21 @@ class DistanceMatrix(Statistic):
             Name of the DistanceMatrix instance.
         """
         name_string = cls.__name__ + " " + params.metric
-
         name_string = name_string + " on " + params.parent_name
 
         if params.slice_max_step:
             name_string = (
                     name_string + f" slice_max_step {params.slice_max_step}")
+        elif params.slice_step_to:
+            name_string = (
+                    name_string + f" slice_step_to {params.slice_step_to}")
+
+        if params.sort:
+            name_string = (
+                    name_string + f" sort {params.sort}")
+            if params.sort_criteria:
+                name_string = (
+                        name_string + f" sort_criteria specified")
 
         return name_string
 
@@ -130,6 +153,10 @@ class DistanceMatrix(Statistic):
             metric: list[str] | None = None,
             release_data_memory: bool = True,
             slice_max_step: int | None = None,
+            slice_step_to: int | None = None,
+            sort: bool = False,
+            sort_criteria: list[str] | None = None,
+            exclusion_list: ExclusionList | None = None
     ) -> dict[str: DistanceMatrixParameters]:
         """
         Generate DistanceMatrix names and metadata.
@@ -149,8 +176,23 @@ class DistanceMatrix(Statistic):
         release_data_memory: bool
             Should parent Modality's data be assigned to None after calculations
             are complete, by default True.
-        slice_max_step : int | None, optional
-            TODO 0.11: write a description
+        slice_max_step: PositiveInt | None
+            Simulate rotating the probe by slicing incrementally so that the
+            sector is always the same size. This parameter determines how many
+            steps of size one to take, by default None.
+        slice_step_to: PositiveInt | None
+            Instead of incrementally stepping with same size sectors, generate a
+            pair of maximally distant sectors for each step size ranging from
+            one to `slice_step_to`, by default None.
+        sort: bool
+            Sort the rows and columns of the matrix in order corresponding to
+            the alphabetical order of the prompts or according to
+            `sort_criteria` if it is defined. By default, False.
+        sort_criteria: list[str] | None
+            List of substrings to sort the rows and columns by, by default None.
+            The result will consist of blocks where in first block
+            `sort_criteria[0] in prompt` is True, and so on. Final block will
+            consist of any Recordings left after the list has been exhausted.
         Returns
         -------
         dict[str: DistanceMatrixParameters]
@@ -172,6 +214,10 @@ class DistanceMatrix(Statistic):
             'metric': metric,
             'release_data_memory': [release_data_memory],
             'slice_max_step': [slice_max_step],
+            'slice_step_to': [slice_step_to],
+            'sort': [sort],
+            'sort_criteria': [sort_criteria],
+            'exclusion_list': [exclusion_list],
         }
 
         distance_matrix_params = [DistanceMatrixParameters(**item)

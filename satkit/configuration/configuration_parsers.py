@@ -45,7 +45,7 @@ from pathlib import Path
 from strictyaml import (
     Bool, FixedSeq, Float, Int, Map,
     MapPattern, Optional, ScalarValidator, Seq, Str,
-    YAML, YAMLError, load
+    UniqueSeq, YAML, YAMLError, load
 )
 
 from satkit.constants import DEFAULT_ENCODING
@@ -228,6 +228,16 @@ def load_run_params(filepath: Path | str | None = None) -> YAML:
                     Optional("preload", default=True): Bool(),
                     Optional("release_data_memory", default=True): Bool(),
                 }),
+                Optional("distance_matrix_arguments"): Map({
+                    "metrics": Seq(Str()),
+                    Optional("exclusion_list"): PathValidator(),
+                    Optional("preload", default=True): Bool(),
+                    Optional("release_data_memory", default=False): Bool(),
+                    Optional('slice_max_step'): Int(),
+                    Optional('slice_step_to'): Int(),
+                    Optional('sort'): Bool(),
+                    Optional('sort_criteria'): UniqueSeq(Str()),
+                }),
                 Optional("pd_arguments"): Map({
                     "norms": Seq(Str()),
                     "timesteps": Seq(Int()),
@@ -242,12 +252,6 @@ def load_run_params(filepath: Path | str | None = None) -> YAML:
                     Optional('exclude_points'): FixedSeq([Int(), Int()]),
                     Optional('preload', default=True): Bool(),
                     Optional('release_data_memory', default=False): Bool(),
-                }),
-                Optional("distance_matrix_arguments"): Map({
-                    "metrics": Seq(Str()),
-                    Optional("preload", default=True): Bool(),
-                    Optional("release_data_memory", default=False): Bool(),
-                    Optional('slice_max_step'): Int(),
                 }),
                 Optional("peaks"): Map({
                     "modality_pattern": _search_pattern_schema,
@@ -346,6 +350,7 @@ def load_gui_params(filepath: Path | str | None = None) -> YAML:
                 ),
                 "pervasive_tiers": Seq(Str()),
                 Optional("xlim"): FixedSeq([Float(), Float()]),
+                Optional('auto_xlim', default=False): Bool(),
                 "default_font_size": Int(),
             })
             try:
@@ -361,6 +366,9 @@ def load_gui_params(filepath: Path | str | None = None) -> YAML:
         sys.exit()
 
     gui_params.update(_raw_gui_params_dict.data)
+
+    if 'xlim' in gui_params and 'auto_xlim' in gui_params:
+        gui_params['auto_xlim'] = False
 
     number_of_data_axes = 0
     if 'data_axes' in gui_params:

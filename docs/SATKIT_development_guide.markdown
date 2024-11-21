@@ -80,11 +80,17 @@ A release of SATKIT is created as follows:
 
 1. If planning a major or minor release (first or second version number
    increments), check that all features in the current roadmap are either
-   done (implemented and merged to local `devel`), or that all undone features are
+   done (implemented and merged to local `devel`, after which you should 
+   delete the feature branch: `git push -d <remote_name> <branchname>` and 
+   `git branch -d <branchname`)), or that all undone features are
    moved to the next release's roadmap.
    - This applies from version 1.0. Before that the roadmap is for 1.0 and
      minor releases are done when significant parts have been updated without
      fulfilling all of the promises in the roadmap.
+   - Check that there are no `# TODO [version number]:` comments (like `TODO 0.11:`) 
+     left for the version being released. If you find any either finish them or move 
+     them to a later version. Mostly these should be just documentation, but one 
+     never knows.
    - This is done in the `devel` branch.
 2. Send a pull request to the main repo either before or after the next stage.
    After the pull request has been processed rest of the release tasks are done
@@ -110,6 +116,7 @@ A release of SATKIT is created as follows:
      'rudimentary_tests.sh'.
 8. Fix any bugs that occur, run tests see that they pass, update the docs.
    - Check if [Changelog](Changelog.markdown) needs any final updates.
+     - Check also if any of the old 'known issues' or 'bugs' got fixed.
    - Rerun doc generation if there were any changes.
 9. Merge release branch to `main`.
 10. Release housekeeping:

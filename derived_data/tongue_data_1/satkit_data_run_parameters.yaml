@@ -50,16 +50,16 @@ aggregate_image_arguments:
   preload: True
   release_data_memory: True
 
-#pd_arguments:
-#  'norms':
-#    - 'l1'
-#    - 'l2'
-#  'timesteps':
-#    - 1
-#  mask_images: False
-#  pd_on_interpolated_data: False
-#  release_data_memory: True
-#  preload: True
+pd_arguments:
+  'norms':
+    - 'l1'
+    - 'l2'
+  'timesteps':
+    - 1
+  mask_images: False
+  pd_on_interpolated_data: False
+  release_data_memory: True
+  preload: True
 
 #spline_metric_arguments:
 #  'metrics':
@@ -73,9 +73,15 @@ aggregate_image_arguments:
 #  'preload': True
 
 distance_matrix_arguments:
+  exclusion_list: "alignment/data/satkit_exclusion_list.yaml"
   metrics:
     - 'mean_squared_error'
   preload: True
   release_data_memory: False
-  slice_max_step: 6
+#  slice_max_step: 6
+  slice_step_to: 6
+  sort: True
+  sort_criteria:
+    - 'i'
+    - 'o'
 

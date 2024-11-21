@@ -36,18 +36,19 @@ Importer for AAA raw ultrasound.
 import logging
 from contextlib import closing
 from datetime import datetime
-from math import inf
 from pathlib import Path
 
 from satkit.data_structures import (
     FileInformation, Recording, RecordingMetaData)
-from satkit.modalities import RawUltrasound
+from satkit.modalities import RawUltrasound, RawUltrasoundMeta
+from satkit.utility_functions import camel_to_snake
 
 _logger = logging.getLogger('satkit.AAA_raw_ultrasound')
 
 
 def parse_recording_meta_from_aaa_prompt_file(
-        filepath: str | Path) -> RecordingMetaData:
+        filepath: str | Path
+) -> RecordingMetaData:
     """
     Read an AAA .txt (not US.txt or .param) file and save prompt, 
     recording date and time, and participant name into the RecordingMetaData.
@@ -81,7 +82,7 @@ def parse_recording_meta_from_aaa_prompt_file(
     return meta
 
 
-def parse_ultrasound_meta_aaa(filename):
+def _parse_ultrasound_meta_aaa(filename):
     """
     Parse metadata from an AAA export file into a dictionary.
 
@@ -92,15 +93,16 @@ def parse_ultrasound_meta_aaa(filename):
     filename -- path and name of file to be parsed.
 
     Returns a dictionary which should contain the following keys:
-        NumVectors -- number of scanlines in a frame
-        PixPerVector -- number of pixels in a scanline
-        ZeroOffset --
-        BitsPerPixel -- byte length of a single pixel in the .ult file
-        Angle -- angle in radians between two scanlines
-        Kind -- type of probe used
-        PixelsPerMm -- depth resolution of a scanline
-        FramesPerSec -- framerate of ultrasound recording
-        TimeInSecsOfFirstFrame -- time from recording start to first frame
+        num_vectors -- number of scanlines in a frame
+        pix_Ver_vector -- number of pixels in a scanline
+        zero_offset -- number non-existing of pixels between probe origin and
+            first existing pixel
+        bits_per_pixel -- byte length of a single pixel in the .ult file
+        angle -- angle in radians between two scanlines
+        kind -- type of probe used
+        pixels_per_mm -- depth resolution of a scanline
+        frames_per_sec -- frame rate of ultrasound recording
+        time_in_secs_of_first_frame -- time from recording start to first frame
     """
     meta = {}
     with closing(open(filename, 'r', encoding='utf-8')) as metafile:
@@ -110,7 +112,7 @@ def parse_ultrasound_meta_aaa(filename):
                 value = int(value_str)
             except ValueError:
                 value = float(value_str)
-            meta[key] = value
+            meta[camel_to_snake(key)] = value
 
         _logger.debug(
             "Read and parsed ultrasound metafile %s.", filename)
@@ -141,6 +143,10 @@ def add_aaa_raw_ultrasound(
         Preloading ultrasound data has not been implemented yet. If you really,
         really want to, this is the function where to do that.
     """
+    _logger.debug(
+        "Trying to read RawUltrasound for Recording representing %s.",
+        recording.basename)
+
     if not path:
         ult_path = (recording.path/recording.basename).with_suffix(".ult")
         meta_path = recording.path/(recording.basename+"US.txt")
@@ -154,47 +160,43 @@ def add_aaa_raw_ultrasound(
         else:
             meta_path = path.with_suffix(".param")
 
+    if not meta_path.is_file():
+        notice = 'Note: ' + str(meta_path) + " does not exist. Excluding."
+        _logger.warning(notice)
+        recording.exclude()
+        return
+    elif not ult_path.is_file():
+        notice = 'Note: ' + str(ult_path) + " does not exist. Excluding."
+        _logger.warning(notice)
+        recording.exclude()
+        return
+    elif preload:
+        raise NotImplementedError(
+            "It looks like SATKIT is trying " +
+            "to preload ultrasound data. This may lead to Python's " +
+            "memory running out or the whole computer crashing.")
+
+    meta_dict = _parse_ultrasound_meta_aaa(meta_path)
+    # We pop the time_offset from the meta dict so that people will not
+    # accidentally rely on setting that to alter the time_offset of the
+    # ultrasound data in the Recording. This throws KeyError if the meta
+    # file didn't contain TimeInSecsOfFirstFrame.
+    ult_time_offset = meta_dict.pop('time_in_secs_of_first_frame')
+    meta = RawUltrasoundMeta(**meta_dict)
+
     file_info = FileInformation(
         recorded_path=Path(""),
         recorded_data_file=ult_path.name,
         recorded_meta_file=meta_path.name)
 
-    ult_time_offset = -inf
-    if meta_path.is_file():
-        meta = parse_ultrasound_meta_aaa(meta_path)
-        # We pop the timeoffset from the meta dict so that people will not
-        # accidentally rely on setting that to alter the timeoffset of the
-        # ultrasound data in the Recording. This throws KeyError if the meta
-        # file didn't contain TimeInSecsOfFirstFrame.
-        ult_time_offset = meta.pop('TimeInSecsOfFirstFrame')
-    else:
-        notice = 'Note: ' + str(meta_path) + " does not exist. Excluding."
-        _logger.warning(notice)
-        recording.exclude()
+    ultrasound = RawUltrasound(
+        recording=recording,
+        file_info=file_info,
+        time_offset=ult_time_offset,
+        meta_data=meta
+    )
+    recording.add_modality(ultrasound)
 
     _logger.debug(
-        "Trying to read RawUltrasound for Recording representing %s.",
+        "Added RawUltrasound to Recording representing %s.",
         recording.basename)
-
-    if ult_path.is_file():
-        if preload:
-            raise NotImplementedError(
-                "It looks like SATKIT is trying " +
-                "to preload ultrasound data. This may lead to Python's " +
-                "memory running out or the whole computer crashing.")
-        else:
-            ultrasound = RawUltrasound(
-                recording=recording,
-                file_info=file_info,
-                time_offset=ult_time_offset,
-                meta=meta
-            )
-            recording.add_modality(ultrasound)
-
-        _logger.debug(
-            "Added RawUltrasound to Recording representing %s.",
-            recording.basename)
-    else:
-        notice = 'Note: ' + str(ult_path) + " does not exist. Excluding."
-        _logger.warning(notice)
-        recording.exclude()

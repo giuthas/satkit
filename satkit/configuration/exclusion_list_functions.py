@@ -48,6 +48,45 @@ from satkit.data_structures import Recording, Session
 
 _logger = logging.getLogger('satkit.configuration')
 
+def remove_excluded_recordings(
+        recordings: list[Recording] | Session,
+        exclusion_list: ExclusionList
+) -> list[Recording]:
+    if not exclusion_list:
+        return recordings
+
+    accepted_recordings = []
+    for recording in recordings:
+        filename = recording.basename
+        include = True
+        if (exclusion_list.files is not None and
+                filename in exclusion_list.files):
+            _logger.info('Excluding %s: File is in exclusion list.',
+                         filename)
+            include = False
+
+        prompt = recording.meta_data.prompt
+
+        if exclusion_list.prompts is not None:
+            if prompt in exclusion_list.prompts:
+                _logger.info(
+                    'Excluding %s. Prompt: %s matches exclusion list.',
+                    filename, prompt)
+                include = False
+
+        if exclusion_list.parts_of_prompts is not None:
+            partials = [element
+                        for element in exclusion_list.parts_of_prompts
+                        if element in prompt]
+            if any(partials):
+                _logger.info(
+                    'Excluding %s. Prompt: %s matches exclusion list.',
+                    filename, prompt)
+                include = False
+        if include:
+            accepted_recordings.append(recording)
+    return accepted_recordings
+
 
 def apply_exclusion_list(
         recordings: list[Recording] | Session,
@@ -59,7 +98,7 @@ def apply_exclusion_list(
     ----------
     recordings : list[Recording]
         the list of Recordings
-    exclusion_list : Path
+    exclusion_list : ExclusionList
         _description_
     """
     if not exclusion_list:
@@ -140,14 +179,13 @@ def _read_exclusion_list_from_yaml(filepath: Path) -> ExclusionList:
                               str(filepath))
                 _logger.fatal(str(error))
                 raise
+            return ExclusionList(path=filepath, **raw_exclusion_dict.data)
     else:
         _logger.warning(
-            "Didn't find run exclusion list at %s.", str(filepath))
+            "Didn't find exclusion list at %s.", str(filepath))
         _logger.warning(
             "Continuing regardless.")
-        raw_exclusion_dict = {}
-
-    return ExclusionList(**raw_exclusion_dict.data)
+        return ExclusionList(path=filepath)
 
 
 def _read_file_exclusion_list_from_csv(filepath: Path) -> ExclusionList:
@@ -169,4 +207,4 @@ def _read_file_exclusion_list_from_csv(filepath: Path) -> ExclusionList:
             "Did not find the exclusion list at %s. Proceeding anyhow.",
             str(filepath))
 
-    return ExclusionList(files=excluded_files)
+    return ExclusionList(path=filepath, files=excluded_files)

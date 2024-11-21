@@ -34,13 +34,17 @@ Calculate DistanceMatrices between a Session's Recordings.
 """
 
 import logging
+from pathlib import Path
 from typing import Optional
 
 import numpy as np
-from icecream import ic
 
 from satkit.data_structures import FileInformation, Session
 from .distance_matrix import DistanceMatrix, DistanceMatrixParameters
+from ..configuration import (
+    ExclusionList, load_exclusion_list,
+    remove_excluded_recordings
+)
 from ..utility_functions import mean_squared_error
 
 _logger = logging.getLogger('satkit.session_mse')
@@ -73,7 +77,6 @@ def calculate_mse(images: list[np.ndarray]) -> np.ndarray:
 
     _logger.info("Calculating MSE. Image sizes are %s.",
                  str([image.shape for image in images]))
-    ic(np.max(images), np.min(images))
 
     for i, image1 in enumerate(images):
         for j in range(i + 1, len(images)):
@@ -90,10 +93,73 @@ def calculate_distance_matrix(
         parent_name: str,
         params: DistanceMatrixParameters
 ) -> DistanceMatrix | None:
-    images = [recording.statistics[parent_name].data
-              for recording in session.recordings
-              if parent_name in recording.statistics and
-              not recording.excluded]
+
+    recordings = remove_excluded_recordings(
+        recordings=session.recordings,
+        exclusion_list=params.exclusion_list)
+    if len(recordings) == 0:
+        _logger.info(
+            "Data object '%s' not found in recordings of session: %s.",
+            parent_name, session.name)
+        return None
+
+    if params.sort:
+        prompts = [
+            recording.meta_data.prompt for recording in recordings
+        ]
+        if params.sort_criteria is None:
+            prompts, indeces = zip(*sorted(zip(prompts, range(len(prompts)))))
+            sorted_recordings = [
+                recordings[index] for index in indeces
+            ]
+        else:
+            sorted_recordings = []
+            sorted_prompts = []
+            for key in params.sort_criteria:
+                block = [
+                    recording for recording in recordings
+                    if key in recording.meta_data.prompt
+                ]
+                if len(block) == 0:
+                    continue
+
+                prompts = [
+                    recording.meta_data.prompt for recording in block
+                ]
+                prompts, indeces = zip(
+                    *sorted(zip(prompts, range(len(prompts)))))
+                block = [
+                    block[index] for index in indeces
+                ]
+                sorted_recordings.extend(block)
+                sorted_prompts.extend(prompts)
+            remaining_prompts = set(prompts) - set(sorted_prompts)
+            if len(remaining_prompts) > 0:
+                last_block = [
+                    recording for recording in recordings
+                    if recording.meta_data.prompt in remaining_prompts]
+                prompts = [
+                    recording.meta_data.prompt for recording in last_block]
+                prompts, indeces = zip(
+                    *sorted(zip(prompts, range(len(prompts)))))
+                block = [last_block[index] for index in indeces]
+                sorted_recordings.extend(block)
+        sorted_indeces = []
+        for recording in sorted_recordings:
+            for i, unsorted in enumerate(recordings):
+                if unsorted == recording:
+                    sorted_indeces.append(i)
+                    break
+        recordings = sorted_recordings
+        params.sorted_indeces = sorted_indeces
+        params.sorted_prompts = [
+            recording.meta_data.prompt for recording in recordings]
+        params.sorted_filenames = [
+            recording.meta_data.basename for recording in recordings]
+    images = [
+        recording.statistics[parent_name].data for recording in recordings
+        if parent_name in recording.statistics
+    ]
 
     if params.slice_max_step:
         sliced_images = []
@@ -105,19 +171,38 @@ def calculate_distance_matrix(
                 image[:, begin:end] for image in images
             ]
             sliced_images.extend(new_images)
-        images = sliced_images
 
-    if not images:
-        _logger.info(
-            "Data object '%s' not found in recordings of session: %s.",
-            parent_name, session.name)
-        return None
+        match params.metric:
+            case 'mean_squared_error':
+                matrix = calculate_mse(sliced_images)
+            case _:
+                raise ValueError(f"Unknown metric {params.metric}.")
+    elif params.slice_step_to:
+        data_length = 2*len(images)
+        matrix = np.zeros((data_length, params.slice_step_to*data_length))
+        for step in range(params.slice_step_to):
+            sliced_images = []
+            first = [
+                image[:, :-(step+1)] for image in images
+            ]
+            sliced_images.extend(first)
+            second = [
+                image[:, (step+1):] for image in images
+            ]
+            sliced_images.extend(second)
+            match params.metric:
+                case 'mean_squared_error':
+                    new_values = calculate_mse(sliced_images)
+                case _:
+                    raise ValueError(f"Unknown metric {params.metric}.")
+            matrix[:, step * data_length:(step + 1) * data_length] = new_values
+    else:
+        match params.metric:
+            case 'mean_squared_error':
+                matrix = calculate_mse(images)
+            case _:
+                raise ValueError(f"Unknown metric {params.metric}.")
 
-    match params.metric:
-        case 'mean_squared_error':
-            matrix = calculate_mse(images)
-        case _:
-            raise ValueError(f"Unknown metric {params.metric}.")
 
     return DistanceMatrix(
         owner=session,
@@ -133,6 +218,10 @@ def add_distance_matrices(
         metrics: Optional[list[str]] = None,
         release_data_memory: bool = True,
         slice_max_step: int | None = None,
+        slice_step_to: int | None = None,
+        sort: bool = False,
+        sort_criteria: list[str] | None = None,
+        exclusion_list: Path | ExclusionList | None = None,
 ) -> None:
     if not preload:
         message = ("Looks like somebody is trying to leave Distance Matrices "
@@ -144,6 +233,9 @@ def add_distance_matrices(
     else:
         parent_name = parent.__name__
 
+    if isinstance(exclusion_list, Path):
+        exclusion_list = load_exclusion_list(exclusion_list)
+
     first_parent_in_session = next(
         recording.statistics[parent_name] for recording in session
         if parent_name in recording.statistics)
@@ -153,6 +245,10 @@ def add_distance_matrices(
         metric=metrics,
         release_data_memory=release_data_memory,
         slice_max_step=slice_max_step,
+        slice_step_to=slice_step_to,
+        sort=sort,
+        sort_criteria=sort_criteria,
+        exclusion_list=exclusion_list
     )
     missing_keys = set(all_requested).difference(
         session.statistics.keys())

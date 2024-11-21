@@ -326,11 +326,10 @@
     <property name="title">
      <string>Export</string>
     </property>
-    <addaction name="action_export_analysis"/>
-    <addaction name="action_export_aggregate_image"/>
+    <addaction name="action_export_aggregate_images"/>
     <addaction name="action_export_annotations_and_metadata"/>
-    <addaction name="action_export_distance_matrix"/>
-    <addaction name="action_export_figure"/>
+    <addaction name="action_export_distance_matrices"/>
+    <addaction name="action_export_main_figure"/>
     <addaction name="action_export_ultrasound_frame"/>
    </widget>
    <addaction name="menu_file"/>
@@ -429,9 +428,9 @@
     <string>Left</string>
    </property>
   </action>
-  <action name="action_export_figure">
+  <action name="action_export_main_figure">
    <property name="text">
-    <string>Export figure...</string>
+    <string>Export main figure...</string>
    </property>
    <property name="shortcut">
     <string>Ctrl+E</string>
@@ -452,9 +451,9 @@
     <string>foobar</string>
    </property>
   </action>
-  <action name="action_export_aggregate_image">
+  <action name="action_export_aggregate_images">
    <property name="text">
-    <string>Export aggregate image...</string>
+    <string>Export aggregate images...</string>
    </property>
   </action>
   <action name="action_save_all_textgrids">
@@ -475,9 +474,9 @@
     <string>Ctrl+Q</string>
    </property>
   </action>
-  <action name="action_export_distance_matrix">
+  <action name="action_export_distance_matrices">
    <property name="text">
-    <string>Export distance matrix...</string>
+    <string>Export distance matrices...</string>
    </property>
   </action>
  </widget>

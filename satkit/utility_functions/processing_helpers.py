@@ -31,6 +31,25 @@
 #
 
 import itertools
+import re
+
+
+def camel_to_snake(name: str) -> str:
+    """
+    Transform name from CamelCase to snake_case.
+
+    Parameters
+    ----------
+    name : str
+        Name to be converted to snake_case.
+
+    Returns
+    -------
+    str
+        The transformed name.
+    """
+    name = re.sub('(.)([A-Z][a-z]+)', r'\1_\2', name)
+    return re.sub('([a-z0-9])([A-Z])', r'\1_\2', name).lower()
 
 
 def product_dict(**kwargs):

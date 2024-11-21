@@ -57,14 +57,17 @@ from PyQt5.uic import loadUiType
 
 from satkit.data_structures import Session
 from satkit.configuration import (
-    GuiConfig, TimeseriesNormalisation, gui_params, config_dict
+    GuiConfig, TimeseriesNormalisation, config_dict
 )
 from satkit.export import (
     export_aggregate_image_and_meta,
     export_distance_matrix_and_meta,
-    export_ultrasound_frame_and_meta
+    export_session_and_recording_meta, export_ultrasound_frame_and_meta
 )
-from satkit.gui import BoundaryAnimator, ListSaveDialog, ReplaceDialog
+from satkit.gui import (
+    BoundaryAnimator, ImageSaveDialog, ListSaveDialog,
+    ReplaceDialog
+)
 from satkit.plot_and_publish import (
     get_colors_in_sequence,
     mark_peaks, plot_spline, plot_satgrid_tier, plot_spectrogram,
@@ -156,15 +159,15 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
             self.save_all_textgrids)
         # self.actionSaveToPickle.triggered.connect(self.save_to_pickle)
 
+        self.action_export_aggregate_images.triggered.connect(
+            self.export_aggregate_image)
         self.action_export_annotations_and_metadata.triggered.connect(
             self.export_annotations_and_meta_data)
-        self.action_export_figure.triggered.connect(self.export_figure)
+        self.action_export_distance_matrices.triggered.connect(
+            self.export_distance_matrix)
+        self.action_export_main_figure.triggered.connect(self.export_figure)
         self.action_export_ultrasound_frame.triggered.connect(
             self.export_ultrasound_frame)
-        self.action_export_aggregate_image.triggered.connect(
-            self.export_aggregate_image)
-        self.action_export_distance_matrix.triggered.connect(
-            self.export_distance_matrix)
 
         self.actionNext.triggered.connect(self.next)
         self.actionPrevious.triggered.connect(self.prev)
@@ -221,13 +224,13 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
         #     'key_release_event', self.on_key_release)
 
         matplotlib.rcParams.update(
-            {'font.size': gui_params['default_font_size']}
+            {'font.size': self.gui_config.default_font_size}
         )
 
         self.xlim = xlim
 
-        height_ratios = [gui_params['data_and_tier_height_ratios']["data"],
-                         gui_params['data_and_tier_height_ratios']["tier"]]
+        height_ratios = [self.gui_config.data_and_tier_height_ratios.data,
+                         self.gui_config.data_and_tier_height_ratios.tier]
         self.main_grid_spec = self.figure.add_gridspec(
             nrows=2,
             ncols=1,
@@ -236,26 +239,26 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
             height_ratios=height_ratios)
         self.tier_grid_spec = None
 
-        number_of_data_axes = gui_params['number_of_data_axes']
+        number_of_data_axes = self.gui_config.number_of_data_axes
         self.data_grid_spec = self.main_grid_spec[0].subgridspec(
             number_of_data_axes, 1, hspace=0, wspace=0)
 
         data_axes_params = None
-        if 'general_axes_params' in gui_params:
-            general_axes_params = gui_params['general_axes_params']
-            if 'data_axes' in general_axes_params:
-                data_axes_params = general_axes_params['data_axes']
+        if gui_config.general_axes_params:
+            general_axes_params = gui_config.general_axes_params
+            if general_axes_params is not None:
+                data_axes_params = general_axes_params
 
-        for i, axes_name in enumerate(gui_params['data_axes']):
+        for i, axes_name in enumerate(gui_config.data_axes):
             # There used to be a 'global' axes which has been moved to
             # 'general_axes_params' this may still cause problems with old
             # config files and should be fixed in them, not here.
             sharex = False
-            if 'sharex' in gui_params['data_axes'][axes_name]:
-                sharex = gui_params['data_axes'][axes_name]['sharex']
+            if gui_config.data_axes[axes_name].sharex:
+                sharex = gui_config.data_axes[axes_name].sharex
             elif (data_axes_params is not None and
-                  'sharex' in data_axes_params):
-                sharex = data_axes_params['sharex']
+                  data_axes_params.sharex is not None):
+                sharex = data_axes_params.sharex
 
             if i != 0 and sharex:
                 self.data_axes.append(
@@ -337,14 +340,11 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
         Updates the graphs but not the buttons.
         """
         self.clear_axes()
-        if self.current.excluded:
-            self.display_exclusion()
-        else:
-            self.draw_plots()
-            self.multicursor = MultiCursor(
-                self.canvas,
-                axes=self.data_axes + self.tier_axes,
-                color='deepskyblue', linestyle="--", lw=1)
+        self.draw_plots()
+        self.multicursor = MultiCursor(
+            self.canvas,
+            axes=self.data_axes + self.tier_axes,
+            color='deepskyblue', linestyle="--", lw=1)
         self.figure.canvas.draw()
 
         if self.display_tongue:
@@ -383,22 +383,22 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
         ylim : Optional[list[float, float]], optional
             y limits, by default None
         """
-        axes_params = gui_params['data_axes'][axes_name]
-        plot_modality_names = axes_params['modalities']
+        axes_params = self.gui_config.data_axes[axes_name]
+        plot_modality_names = axes_params.modalities
 
         if ylim is None:
             ylim = (-0.05, 1.05)
 
         y_offset = 0
-        if 'y_offset' in axes_params:
-            y_offset = axes_params['y_offset']
+        if axes_params.y_offset is not None:
+            y_offset = axes_params.y_offset
             ylim_adjustment = y_offset * len(plot_modality_names)
             if y_offset > 0:
                 ylim = (ylim[0], ylim[1] + ylim_adjustment)
             else:
                 ylim = (ylim[0] + ylim_adjustment, ylim[1])
 
-        if axes_params['colors_in_sequence']:
+        if axes_params.colors_in_sequence:
             colors = get_colors_in_sequence(len(plot_modality_names))
         else:
             colors = None
@@ -416,7 +416,7 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
                 sampling_step=i + 1,
                 label=f"{modality.sampling_rate / (i + 1):.2f} Hz"
             )
-            if 'mark_peaks' in axes_params and axes_params['mark_peaks']:
+            if axes_params.mark_peaks:
                 mark_peaks(self.data_axes[axes_number],
                            modality,
                            self.xlim,
@@ -435,7 +435,15 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
         """
         Updates title and graphs. Called by self.update().
         """
-        self.data_axes[0].set_title(self._get_long_title())
+        if self.current.excluded:
+            self.display_exclusion()
+
+        if 'MonoAudio' in self.current.modalities:
+            self.data_axes[0].set_title(self._get_long_title())
+        else:
+            self.data_axes[0].set_title(
+                self._get_long_title() + "\nNOTE: Audio missing.")
+            return
 
         for axes in self.tier_axes:
             axes.remove()
@@ -457,34 +465,32 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
         for axes in self.tier_axes[:-1]:
             axes.xaxis.set_tick_params(bottom=False, labelbottom=False)
 
-        # self.tier_axes[-1].xaxis.set_tick_params(labelbottom=True)
-        # ticks = self.tier_axes[-1].xaxis.set_tick_params(bottom=True,
-        #                                                  labelbottom=True)
+        if 'MonoAudio' not in self.current.modalities:
+            return
 
         audio = self.current.modalities['MonoAudio']
         stimulus_onset = audio.go_signal
         wav = audio.data
         wav_time = audio.timevector - stimulus_onset
 
-        # TODO find a less hacky way of setting the xlim for auto_x
-        l1 = self.current.modalities['PD l1 on RawUltrasound']
-        ultra_time = l1.timevector - stimulus_onset
-
-        if 'auto_x' in gui_params and gui_params['auto_x']:
-            # TODO: find the minimum and maximum timestamp of all the
-            # modalities being plotted. this can be really done only after
-            # plotting is controlled by config instead of manual code
-            self.xlim = (
-                np.min([np.min(wav_time), np.min(ultra_time)]),
-                np.max([np.max(wav_time), np.max(ultra_time)])
-            )
-        elif 'xlim' in gui_params:
-            self.xlim = gui_params['xlim']
-        else:
-            self.xlim = (-.25, 1.5)
+        self.xlim = (-.25, 1.5)
+        if self.gui_config.xlim is not None:
+            self.xlim = self.gui_config.xlim
+        elif self.gui_config.auto_xlim:
+            x_minimums = []
+            x_maximums = []
+            modalities_to_check = self.gui_config.plotted_modality_names()
+            modalities_to_check.add("MonoAudio")
+            for name in modalities_to_check:
+                if name in self.current:
+                    x_minimums.append(
+                        self.current[name].timevector[0] - stimulus_onset)
+                    x_maximums.append(
+                        self.current[name].timevector[-1] - stimulus_onset)
+            self.xlim = (np.min(x_minimums)-.05, np.max(x_maximums)+.05)
 
         axes_counter = 0
-        for axes_name in gui_params['data_axes']:
+        for axes_name in self.gui_config.data_axes:
             match axes_name:
                 case "spectrogram":
                     plot_spectrogram(self.data_axes[axes_counter],
@@ -515,16 +521,17 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
                              wav_time=wav_time,
                              xlim=self.xlim)
                 case _:
-                    self.plot_modality_axes(
-                        axes_number=axes_counter,
-                        axes_name=axes_name,
-                        zero_offset=stimulus_onset)
+                    if not self.current.excluded:
+                        self.plot_modality_axes(
+                            axes_number=axes_counter,
+                            axes_name=axes_name,
+                            zero_offset=stimulus_onset)
             axes_counter += 1
 
         self.data_axes[0].legend(
             loc='upper left')
 
-        # TODO: the sync is out with this one, but plotting a pd spectrum is
+        # TODO: the sync is iffy with this one, but plotting a pd spectrum is
         # still a good idea. Just need to get the FFT parameters tuned - if
         # that's even possible.
         # plot_spectrogram(self.data_axes[1],
@@ -550,7 +557,7 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
                 name, rotation=0, horizontalalignment="right",
                 verticalalignment="center")
             axis.set_xlim(self.xlim)
-            if name in gui_params["pervasive_tiers"]:
+            if name in self.gui_config.pervasive_tiers:
                 for data_axis in self.data_axes:
                     boundary_set = plot_satgrid_tier(
                         data_axis, tier, time_offset=stimulus_onset,
@@ -577,9 +584,9 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
             for axes in self.data_axes:
                 axes.axvline(x=self.current.annotations['selected_time'],
                              linestyle=':', color="deepskyblue", lw=1)
-            self.data_axes[-1].axvline(x=self.current.annotations
-            ['selected_time'],
-                                       linestyle=':', color="white", lw=1)
+            self.data_axes[-1].axvline(
+                x=self.current.annotations['selected_time'],
+                linestyle=':', color="white", lw=1)
             for axes in self.tier_axes:
                 axes.axvline(x=self.current.annotations['selected_time'],
                              linestyle=':', color="deepskyblue", lw=1)
@@ -862,60 +869,112 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
         Opens a filedialog to ask for the filename. Save format is determined
         by file extension.
         """
-        (filename, _) = QFileDialog.getSaveFileName(
-            self, 'Export figure', directory='.')
-        self.figure.savefig(filename, bbox_inches='tight', pad_inches=0.05)
+        suggested_path = Path.cwd() / "Satkit_figure.png"
+        filename, _ = ImageSaveDialog.get_selection(
+            name="Export the main figure",
+            save_path=suggested_path,
+            parent=self,
+        )
+        if filename is not None:
+            self.figure.savefig(filename, bbox_inches='tight', pad_inches=0.05)
+            export_session_and_recording_meta(
+                filename=filename, session=self.session, recording=self.current,
+                description="main GUI figure"
+            )
 
     def export_ultrasound_frame(self) -> None:
         """
-        Export the currently displayed ultrasound frame and its meta data.
+        Export the currently selected ultrasound frame and its meta data.
 
         The metadata is written to a separate `.txt` file of the same name as
         the image file.
         """
         # TODO: Add a check that grays out the export ultrasound figure when one
         # isn't available.
+
         if self.current.annotations['selection_index'] >= 0:
-            (filename, _) = QFileDialog.getSaveFileName(
-                self, 'Export ultrasound frame', directory='.')
+            suggested_path = Path.cwd() / "Raw_ultrasound_frame.png"
+            path, options = ImageSaveDialog.get_selection(
+                name="Export ultrasound frame",
+                save_path=suggested_path,
+                parent=self,
+                options={'Export interpolated frame': True}
+            )
+            if path is None:
+                return
+
+            if options['Export interpolated frame']:
+                ultrasound_modality = self.current['RawUltrasound']
+                interpolation_params = ultrasound_modality.interpolation_params
+            else:
+                interpolation_params = None
+
             export_ultrasound_frame_and_meta(
-                filename=filename,
-                figure=self.ultra_fig,
+                filepath=path,
                 session=self.session,
                 recording=self.current,
                 selection_index=self.current.annotations['selection_index'],
                 selection_time=self.current.annotations['selected_time'],
+                ultrasound=self.current['RawUltrasound'],
+                interpolation_params=interpolation_params
             )
 
     def export_aggregate_image(self) -> None:
+        """
+        Export AggregateImages connected with the current recording.
+        
+        The metadata is written to a separate `.txt` file of the same name as
+        the corresponding image file.
+        """
         statistics_names = self.current.statistics.keys()
         choice_list = [
             name for name in statistics_names if 'AggregateImage' in name]
-        image_list, path = ListSaveDialog.get_selection(
+        image_list, path, export_interpolated = ListSaveDialog.get_selection(
             name="Export AggregateImages",
             item_names=choice_list,
-            parent=self
+            parent=self,
+            option_label='Export interpolated image'
         )
-        # save the correct things
-        ic(image_list, path)
+        if image_list is None:
+            return
+
+        if export_interpolated:
+            ultrasound = "RawUltrasound"
+            ultrasound_modality = next(
+                recording[ultrasound] for recording in self.session
+                if ultrasound in recording
+            )
+            interpolation_params = ultrasound_modality.interpolation_params
+        else:
+            interpolation_params = None
+
         for image in image_list:
             export_aggregate_image_and_meta(
                 image=self.current.statistics[image],
                 session=self.session,
                 recording=self.current,
-                path=path)
+                path=path,
+                interpolation_params=interpolation_params,
+            )
 
     def export_distance_matrix(self) -> None:
+        """
+        Export DistanceMatrices connected with the current session.
+
+        The metadata is written to a separate `.txt` file of the same name as
+        the corresponding image file.
+        """
         statistics_names = self.session.statistics.keys()
         choice_list = [
             name for name in statistics_names if 'DistanceMatrix' in name]
-        matrix_list, path = ListSaveDialog.get_selection(
+        matrix_list, path, _ = ListSaveDialog.get_selection(
             name="Export DistanceMatrices",
             item_names=choice_list,
-            parent=self
+            parent=self,
         )
-        # save the correct things
-        ic(matrix_list, path)
+        if matrix_list is None:
+            return
+
         for matrix in matrix_list:
             export_distance_matrix_and_meta(
                 matrix=self.session.statistics[matrix],
@@ -1068,6 +1127,7 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
         self.update()
         QMainWindow.resizeEvent(self, event)
 
+    # noinspection PyPep8Naming
     def keyPressEvent(self, event):
         """
         Key press callback.
@@ -1077,28 +1137,30 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
         if event.key() == Qt.Key_Shift:
             self.shift_is_held = True
         if event.key() == Qt.Key_I:
-            gui_params['auto_x'] = False
+            self.gui_config.auto_xlim = False
             if self.current.annotations['selection_index'] >= 0:
                 center = self.current.annotations['selected_time']
             else:
                 center = (self.xlim[0] + self.xlim[1]) / 2.0
             length = (self.xlim[1] - self.xlim[0]) * .25
             self.xlim = (center - length, center + length)
-            if 'xlim' in gui_params:
-                gui_params['xlim'] = self.xlim
+            if self.gui_config.xlim is not None:
+                self.gui_config.xlim = self.xlim
             self.update()
         elif event.key() == Qt.Key_O:
-            gui_params['auto x'] = False
+            self.gui_config.auto_xlim = False
             center = (self.xlim[0] + self.xlim[1]) / 2.0
             length = self.xlim[1] - self.xlim[0]
             self.xlim = (center - length, center + length)
-            if 'xlim' in gui_params:
-                gui_params['xlim'] = self.xlim
+            if self.gui_config.xlim is not None:
+                self.gui_config.xlim = self.xlim
             self.update()
         elif event.key() == Qt.Key_A:
-            gui_params['auto_x'] = True
+            self.gui_config.auto_xlim = True
+            self.gui_config.xlim = None
             self.update()
 
+    # noinspection PyPep8Naming
     def keyReleaseEvent(self, event):
         """
         Key release callback.

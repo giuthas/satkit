@@ -218,9 +218,13 @@ class SplineMetricArguments(UpdatableBaseModel):
 
 class DistanceMatrixArguments(UpdatableBaseModel):
     metrics: list[str]
+    exclusion_list: Path
     preload: bool = True
     release_data_memory: bool = False
     slice_max_step: int | None = None
+    slice_step_to: int | None = None
+    sort: bool = False
+    sort_criteria: list[str] | None = None
 
 
 class PointAnnotationParams(UpdatableBaseModel):
@@ -306,16 +310,16 @@ class AxesParams(UpdatableBaseModel):
 
     Parameters
     ----------
-    colors_in_sequence : bool] 
+    colors_in_sequence : bool
         Should the line color rotation be ordered into a perceptual sequence,
         by default True
-    mark_peaks: bool] 
+    mark_peaks: bool
         Should peak detection peaks (if available) be marked on the plot. This
         might get confusing if there is more than one timeseries on this axes.
         By default, None
-    sharex: bool]  
+    sharex: bool
         Does this axes share x limits with other axes, by default None
-    y_offset: float]  
+    y_offset: float
         y_offset between the modalities timeseries, by default None
     """
     # TODO: these docstrings should contain links to full, simple examples of
@@ -333,10 +337,11 @@ class AxesDefinition(AxesParams):
 
     Parameters
     ----------
-    modalities: list[str]]  
+    modalities: list[str]
         List of the modalities to be plotted on this axes, by default None
     """
     modalities: list[str] | None = None
+    sharex: bool = True
 
 
 class GuiConfig(UpdatableBaseModel):
@@ -344,8 +349,27 @@ class GuiConfig(UpdatableBaseModel):
     general_axes_params: AxesParams
     data_axes: dict[str, AxesDefinition]
     pervasive_tiers: list[str]
-    xlim: FloatPair | None = None
+    xlim: FloatPair | str | None = None
+    auto_xlim: bool | None = None
     default_font_size: int
+
+    def plotted_modality_names(self) -> set[str]:
+        """
+        Return a set of the plotted modalities' names.
+
+        This is run across all of the data axes. If you want the names plotted
+        on a given axes, look them up from the `AxesDefinition`.
+
+        Returns
+        -------
+        set[str]
+            Set of strings containing the plotted modalities' names.
+        """
+        names = []
+        for axes_def in self.data_axes.values():
+            if axes_def.modalities is not None:
+                names.extend(axes_def.modalities)
+        return set(names)
 
     # TODO make a computed callback for getting params for a given axes so that
     # globals don't need to be copied over

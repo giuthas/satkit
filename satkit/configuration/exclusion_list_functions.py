@@ -59,21 +59,22 @@ def remove_excluded_recordings(
     for recording in recordings:
         filename = recording.basename
         include = True
-        if filename in exclusion_list.files:
+        if (exclusion_list.files is not None and
+                filename in exclusion_list.files):
             _logger.info('Excluding %s: File is in exclusion list.',
                          filename)
             include = False
 
         prompt = recording.meta_data.prompt
 
-        if exclusion_list.prompts:
+        if exclusion_list.prompts is not None:
             if prompt in exclusion_list.prompts:
                 _logger.info(
                     'Excluding %s. Prompt: %s matches exclusion list.',
                     filename, prompt)
                 include = False
 
-        if exclusion_list.parts_of_prompts:
+        if exclusion_list.parts_of_prompts is not None:
             partials = [element
                         for element in exclusion_list.parts_of_prompts
                         if element in prompt]
@@ -178,14 +179,13 @@ def _read_exclusion_list_from_yaml(filepath: Path) -> ExclusionList:
                               str(filepath))
                 _logger.fatal(str(error))
                 raise
+            return ExclusionList(path=filepath, **raw_exclusion_dict.data)
     else:
         _logger.warning(
-            "Didn't find run exclusion list at %s.", str(filepath))
+            "Didn't find exclusion list at %s.", str(filepath))
         _logger.warning(
             "Continuing regardless.")
-        raw_exclusion_dict = {}
-
-    return ExclusionList(path=filepath, **raw_exclusion_dict.data)
+        return ExclusionList(path=filepath)
 
 
 def _read_file_exclusion_list_from_csv(filepath: Path) -> ExclusionList:

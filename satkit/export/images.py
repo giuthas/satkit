@@ -40,13 +40,13 @@ from pathlib import Path
 import numpy as np
 from PIL import Image
 
-from satkit.modalities import RawUltrasound
 from satkit.data_structures import Recording, Session
 from satkit.data_structures.base_classes import DataAggregator, DataContainer
 from satkit.interpolate_raw_uti import to_fan_2d
 from satkit.metrics import (
     AggregateImage, DistanceMatrix
 )
+from satkit.modalities import RawUltrasound
 
 from .meta_data import (
     export_aggregate_image_meta,

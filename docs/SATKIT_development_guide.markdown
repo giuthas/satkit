@@ -114,6 +114,7 @@ A release of SATKIT is created as follows:
      'rudimentary_tests.sh'.
 8. Fix any bugs that occur, run tests see that they pass, update the docs.
    - Check if [Changelog](Changelog.markdown) needs any final updates.
+     - Check also if any of the old 'known issues' or 'bugs' got fixed.
    - Rerun doc generation if there were any changes.
 9. Merge release branch to `main`.
 10. Release housekeeping:

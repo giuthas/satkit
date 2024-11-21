@@ -98,7 +98,7 @@ def plot_timeseries(axes: Axes,
                     ylabel: str | None = None,
                     picker=None,
                     color: str | None = "deepskyblue",
-                    linestyle: tuple[int, tuple[int]] | str = "-",
+                    linestyle: tuple[int, tuple[int, int]] | str = "-",
                     label: str | None = None,
                     alpha: float = 1.0,
                     sampling_step: int = 1) -> Line2D:

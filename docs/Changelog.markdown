@@ -14,6 +14,7 @@ and this project uses [Semantic Versioning](https://semver.org/spec/v2.0.0.html)
 [//]: # (Testing for updates to tests.)
 [//]: # (Deprecated for soon-to-be removed features.)
 [//]: # (Removed for now removed features.)
+[//]: # (Bugs for any known issues, especially in use before 1.0.)
 [//]: # (Fixed for any bug fixes.)
 [//]: # (Security in case of vulnerabilities.)
 [//]: # (New contributors for first contributions.)
@@ -46,6 +47,16 @@ and this project uses [Semantic Versioning](https://semver.org/spec/v2.0.0.html)
 - Expanded SatGrid (the editable TextGrid extension) to include Points and Point
   Tiers.
 - Automatic x limits now work properly in the GUI.
+
+### Bugs
+
+- Displaying exclusion is not quite working with the new feature of exclusion
+  working both globally and per metric. This leads to some warnings when trying to
+  plot modalities that didn't get calculated. Will be fixed in the future as the
+  configuration system gets a makeover.
+- When data run config and exclusion are at odds (especially sort) there should
+  be an informative message to the user. This too will get better when the
+  configuration system gets a makeover.
 
 ## [0.10.1] 2024-10-18
 
@@ -104,7 +115,7 @@ and this project uses [Semantic Versioning](https://semver.org/spec/v2.0.0.html)
   - Functions for running metrics on the simulated data.
   - Lots of plotting routines to look at the results.
   
-Known issues:
+### Known issues:
 
 - Same as in 0.8.0 plus
 - Some perturbation related plotting functions have hard-coded subplot
@@ -118,7 +129,7 @@ Known issues:
   - Splines can be displayed on the ultrasound frame.
 - Some updates to clean the code in general.
 
-Known issues:
+### Known issues:
 
 - Same as in 0.7.0 plus
 - Synchronising spline metrics and splines with ultrasound is currently
@@ -143,7 +154,7 @@ Known issues:
     basis alongside the 'Yes to all' option, is to only have the latter.
 - Zooming in, out and to all now works with 'i', 'o' and 'a' respectively.
 
-Known issues:
+### Known issues:
 
 - ctrl+'i' and ctrl+'a' zoom but ctrl+'o' is bound to opening a recording
   session. The fix will be removing the first two bindings which are

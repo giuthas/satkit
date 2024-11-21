@@ -340,9 +340,6 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
         Updates the graphs but not the buttons.
         """
         self.clear_axes()
-        if self.current.excluded:
-            self.display_exclusion()
-
         self.draw_plots()
         self.multicursor = MultiCursor(
             self.canvas,
@@ -438,7 +435,15 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
         """
         Updates title and graphs. Called by self.update().
         """
-        self.data_axes[0].set_title(self._get_long_title())
+        if self.current.excluded:
+            self.display_exclusion()
+
+        if 'MonoAudio' in self.current.modalities:
+            self.data_axes[0].set_title(self._get_long_title())
+        else:
+            self.data_axes[0].set_title(
+                self._get_long_title() + "\nNOTE: Audio missing.")
+            return
 
         for axes in self.tier_axes:
             axes.remove()
@@ -459,6 +464,9 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
 
         for axes in self.tier_axes[:-1]:
             axes.xaxis.set_tick_params(bottom=False, labelbottom=False)
+
+        if 'MonoAudio' not in self.current.modalities:
+            return
 
         audio = self.current.modalities['MonoAudio']
         stimulus_onset = audio.go_signal

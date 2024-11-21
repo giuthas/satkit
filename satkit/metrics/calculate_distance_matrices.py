@@ -158,6 +158,7 @@ def calculate_distance_matrix(
             recording.meta_data.basename for recording in recordings]
     images = [
         recording.statistics[parent_name].data for recording in recordings
+        if parent_name in recording.statistics
     ]
 
     if params.slice_max_step:

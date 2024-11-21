@@ -40,7 +40,7 @@ from pathlib import Path
 import numpy as np
 from PIL import Image
 
-from local.depracated_code.recording import RawUltrasound
+from satkit.modalities import RawUltrasound
 from satkit.data_structures import Recording, Session
 from satkit.data_structures.base_classes import DataAggregator, DataContainer
 from satkit.interpolate_raw_uti import to_fan_2d

@@ -41,7 +41,6 @@ from textgrids.templates import (long_header, long_interval, long_point,
                                  long_tier)
 from typing_extensions import Self
 
-from satkit.configuration import config_dict
 from satkit.constants import IntervalCategory
 
 
@@ -205,19 +204,19 @@ class SatInterval(SatAnnotation):
         if self._next_interval:
             self._next_interval.begin = value
 
-    def is_at_time(self, time) -> bool:
+    def is_at_time(self, time: float, epsilon) -> bool:
         """
         Intervals are considered equivalent if the difference between their
         `begin` values is < epsilon. Epsilon is a constant defined in SATKIT's
         configuration.
         """
-        return abs(self.begin - time) < config_dict['epsilon']
+        return abs(self.begin - time) < epsilon
 
     def is_last(self) -> bool:
         """Is this the last Interval in this Tier."""
         return self._next_interval is None
 
-    def is_legal_value(self, time: float) -> bool:
+    def is_legal_value(self, time: float, epsilon: float) -> bool:
         """
         Check if the given time is between the previous and next boundary.
 
@@ -228,8 +227,8 @@ class SatInterval(SatAnnotation):
 
         Returns True, if time is  between the previous and next boundary.
         """
-        return (time + config_dict['epsilon'] < self._next_interval.begin and
-                time > config_dict['epsilon'] + self.prev.begin)
+        return (time + epsilon < self._next_interval.begin and
+                time > epsilon + self.prev.begin)
 
     def __repr__(self) -> str:
         return (f"{self.__class__.__name__}: text: '{self.label}'\t "
@@ -258,6 +257,12 @@ class SatTier(list):
             prev = current
             last_interval = interval
         self.append(SatInterval(last_interval.xmax, None, prev))
+
+    def __repr__(self) -> str:
+        representation = f"{self.__class__.__name__}:\n"
+        for interval in self:
+            representation += str(interval) + "\n"
+        return representation
 
     @property
     def begin(self) -> float:
@@ -291,13 +296,8 @@ class SatTier(list):
         """Is this Tier a PointTier."""
         return False
 
-    def __repr__(self) -> str:
-        representation = f"{self.__class__.__name__}:\n"
-        for interval in self:
-            representation += str(interval) + "\n"
-        return representation
-
-    def boundary_at_time(self, time) -> SatInterval | None:
+    def boundary_at_time(
+            self, time: float, epsilon: float) -> SatInterval | None:
         """
         If there is a boundary at time, return it.
 
@@ -307,7 +307,7 @@ class SatTier(list):
         timestamp.
         """
         for interval in self:
-            if interval.is_at_time(time):
+            if interval.is_at_time(time=time, epsilon=epsilon):
                 return interval
         return None
 

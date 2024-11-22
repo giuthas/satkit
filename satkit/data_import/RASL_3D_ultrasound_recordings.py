@@ -30,7 +30,6 @@
 # citations.bib in BibTeX format.
 #
 
-# Built in packages
 import csv
 import logging
 from contextlib import closing
@@ -38,22 +37,26 @@ from copy import deepcopy
 from pathlib import Path
 from typing import Dict, Optional
 
-from satkit.configuration import data_run_params
 from satkit.data_structures import (
     FileInformation, Recording, SessionConfig)
 
-from satkit.configuration.exclusion_list_functions import apply_exclusion_list
 from .three_dim_ultrasound import (add_rasl_3D_ultrasound,
                                    generateMeta,
                                    read_3D_meta_from_mat_file)
 from .audio import add_audio
 from .video import add_video
+from ..configuration import ExclusionList, PathStructure, apply_exclusion_list
 
 _logger = logging.getLogger('satkit.ThreeD_ultrasound')
 
 
 def generate_rasl_recording_list(
-        directory: Path, config: SessionConfig | None = None):
+        directory: Path,
+        config: SessionConfig | None = None,
+        exclusion_list: ExclusionList | None = None,
+        paths: PathStructure | None = None,
+        detect_beep: bool = False
+):
     """
     Produce an array of Recordings from a 3D4D ultrasound directory.
 
@@ -63,14 +66,14 @@ def generate_rasl_recording_list(
     excluded.
 
     If problems are found with a recording, exclusion is marked with
-    recordingObjet.excluded rather than not listing the recording. Log
+    `recordingObjet.excluded` rather than not listing the recording. Log
     file will show reasons of exclusion.
 
     The processed files are
     ultrasound and corresponding meta: .DCM, and
     audio waveform: .dat or .wav.
 
-    Additionally this will be added, but missing files are considered
+    Additionally, this will be added, but missing files are considered
     non-fatal:
     TextGrid: .textgrid.
 
@@ -118,7 +121,8 @@ def generate_rasl_recording_list(
                 dicom_dict[token['trial_number']],
                 token['dat_filename'],
                 directories)
-            # TODO: replace the call below with what ever is the new way of doing it.
+            # TODO: replace the call below with what ever is the new way of
+            # doing it.
             # recording.addMeta(token)
             recordings.append(recording)
         else:
@@ -128,12 +132,13 @@ def generate_rasl_recording_list(
 
     # TODO: this call is wrong, but will get fixed later.
     apply_exclusion_list(
-        data_run_params['data properties']['exclusion list'],
-        recordings)
+        recordings=recordings,
+        exclusion_list=exclusion_list,
+        )
 
     for recording in recordings:
         if not recording.excluded:
-            add_modalities(recording)
+            add_modalities(recording=recording, detect_beep=detect_beep)
 
     return sorted(recordings, key=lambda
                   token: token.meta_data.time_of_recording)
@@ -143,7 +148,7 @@ def generate_rasl_recording_list(
 
 def generate_recording_list_old_style(directory):
     """
-    Produce an array of Recordings from a 3D4D ultrasound directory without .mat notes file.
+    Produce an array of Recordings from a directory without .mat notes file.
 
     Prepare a list of Recording objects from the files exported by AAA
     into the named directory. File existence is tested for,
@@ -151,14 +156,14 @@ def generate_recording_list_old_style(directory):
     excluded.
 
     If problems are found with a recording, exclusion is marked with
-    recordingObjet.excluded rather than not listing the recording. Log
+    `recordingObjet.excluded` rather than not listing the recording. Log
     file will show reasons of exclusion.
 
     The processed files are
     ultrasound and corresponding meta: .DCM, and
     audio waveform: .dat or .wav.
 
-    Additionally this will be added, but missing files are considered
+    Additionally, this will be added, but missing files are considered
     non-fatal:
     TextGrid: .textgrid.
 
@@ -255,7 +260,7 @@ def generate_3D_ultrasound_recording(
         sound_name: str,
         meta: dict,
         directories: Optional[Dict[str, Path]] = None
-) -> None:
+) -> Recording:
     """
     Generate an UltrasoundRecording without Modalities.
 
@@ -302,8 +307,11 @@ def generate_3D_ultrasound_recording(
 
 
 def add_modalities(
-        recording: Recording, wav_preload: bool = True,
-        ult_preload: bool = False, video_preload: bool = False
+        recording: Recording,
+        wav_preload: bool = True,
+        detect_beep: bool = False,
+        ult_preload: bool = False,
+        video_preload: bool = False
 ) -> None:
     """
     Add audio and raw ultrasound data to the recording.
@@ -327,7 +335,8 @@ def add_modalities(
     _logger.info("Adding modalities to recording for %s.",
                  recording.basename)
 
-    add_audio(recording, wav_preload)
+    add_audio(
+        recording=recording, preload=wav_preload, detect_beep=detect_beep)
     add_rasl_3D_ultrasound(recording, ult_preload)
     add_video(recording, video_preload)
 

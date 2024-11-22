@@ -57,7 +57,7 @@ from PyQt5.uic import loadUiType
 
 from satkit.data_structures import Session
 from satkit.configuration import (
-    GuiConfig, TimeseriesNormalisation, config_dict
+    Configuration, TimeseriesNormalisation
 )
 from satkit.export import (
     export_aggregate_image_and_meta,
@@ -112,7 +112,7 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
             self,
             recording_session: Session,
             args: Namespace,
-            gui_config: GuiConfig,
+            config: Configuration,
             xlim: tuple[float, float] = (-0.25, 1.5),
             categories: list[str] | None = None,
             pickle_filename: Path | str | None = None
@@ -130,7 +130,8 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
         self.commandline_args = args
         self.display_tongue = args.displayTongue
 
-        self.gui_config = gui_config
+        self.main_config = config.main_config
+        self.gui_config = config.gui_config
 
         if categories is None:
             self.categories = PdQtAnnotator.default_categories
@@ -244,18 +245,18 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
             number_of_data_axes, 1, hspace=0, wspace=0)
 
         data_axes_params = None
-        if gui_config.general_axes_params:
-            general_axes_params = gui_config.general_axes_params
+        if self.gui_config.general_axes_params:
+            general_axes_params = self.gui_config.general_axes_params
             if general_axes_params is not None:
                 data_axes_params = general_axes_params
 
-        for i, axes_name in enumerate(gui_config.data_axes):
+        for i, axes_name in enumerate(self.gui_config.data_axes):
             # There used to be a 'global' axes which has been moved to
             # 'general_axes_params' this may still cause problems with old
             # config files and should be fixed in them, not here.
             sharex = False
-            if gui_config.data_axes[axes_name].sharex:
-                sharex = gui_config.data_axes[axes_name].sharex
+            if self.gui_config.data_axes[axes_name].sharex:
+                sharex = self.gui_config.data_axes[axes_name].sharex
             elif (data_axes_params is not None and
                   data_axes_params.sharex is not None):
                 sharex = data_axes_params.sharex
@@ -572,7 +573,11 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
             for boundaries, interval in zip(
                     boundaries_by_boundary, tier, strict=True):
                 animator = BoundaryAnimator(
-                    self, boundaries, interval, stimulus_onset)
+                    main_window=self,
+                    boundaries=boundaries,
+                    segment=interval,
+                    epsilon=self.main_config.epsilon,
+                    time_offset=stimulus_onset)
                 animator.connect()
                 self.animators.append(animator)
         if self.tier_axes:
@@ -639,7 +644,7 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
                 # ic(np.diff(time_diff, n=1))
                 # ic(np.max(np.abs(np.diff(time_diff, n=1))))
 
-                epsilon = max((config_dict['epsilon'], splines.time_precision))
+                epsilon = max((self.main_config.epsilon, splines.time_precision))
                 min_difference = abs(
                     splines.timevector[spline_index] - timestamp)
                 # maybe this instead when loading data

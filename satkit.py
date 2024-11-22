@@ -214,7 +214,7 @@ def main():
         app.annotator = PdQtAnnotator(
             recording_session=recording_session,
             args=cli.args,
-            gui_config=configuration.gui_config)
+            config=configuration)
         sys.exit(app.exec_())
 
 

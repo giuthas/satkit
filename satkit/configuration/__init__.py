@@ -39,7 +39,7 @@ interface provided by Configuration.
 
 from .configuration_parsers import (
     parse_config,
-    config_dict, data_run_params, gui_params, publish_params, PathValidator)
+    publish_params, PathValidator)
 from .configuration_classes import (
     ExclusionList, PathStructure,
     SplineConfig, SplineDataConfig, SplineImportConfig)

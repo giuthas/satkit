@@ -58,7 +58,9 @@ def generate_aaa_recording_list(
         directory: Path,
         owner: Session | None = None,
         import_config: SessionConfig | None = None,
-        paths: PathStructure | None = None) -> list[Recording]:
+        paths: PathStructure | None = None,
+        detect_beep: bool = False
+) -> list[Recording]:
     """
     Produce an array of Recordings from an AAA export directory.
 
@@ -68,7 +70,7 @@ def generate_aaa_recording_list(
 
     Each recording meta file (.txt, not US.txt) will be represented by a
     Recording object regardless of whether a complete set of files was found
-    for the recording. Exclusion is marked with recording.excluded rather than
+    for the recording. Exclusion is marked with `recording.excluded` rather than
     not listing the recording. Log file will show reasons of exclusion.
 
     The processed files are recording meta: .txt, ultrasound meta: US.txt or
@@ -78,7 +80,7 @@ def generate_aaa_recording_list(
     will be added to the Recordings, but any missing ones (or even all missing)
     are considered non-fatal.
 
-    Additionally these will be added, but missing files are considered
+    Additionally, these will be added, but missing files are considered
     non-fatal avi video: .avi, and TextGrid: .textgrid.
 
     directory -- the path to the directory to be processed. Returns an array of
@@ -102,7 +104,7 @@ def generate_aaa_recording_list(
     ult_prompt_files = [
         prompt_file
         for prompt_file in directory.glob('*' + SourceSuffix.AAA_PROMPT)
-        if not prompt_file in ult_meta_files]
+        if prompt_file not in ult_meta_files]
     ult_prompt_files = sorted(ult_prompt_files)
 
     # strip file extensions off of filepaths to get the base names
@@ -118,7 +120,8 @@ def generate_aaa_recording_list(
     if import_config and import_config.exclusion_list:
         apply_exclusion_list(recordings, import_config.exclusion_list)
 
-    add_modalities(recordings, directory)
+    add_modalities(
+        recording_list=recordings, directory=directory, detect_beep=detect_beep)
 
     return sorted(recordings, key=lambda
                   token: token.meta_data.time_of_recording)
@@ -173,6 +176,7 @@ def add_modalities(
         recording_list: list[Recording],
         directory: Path,
         wav_preload: bool = True,
+        detect_beep: bool = False,
         ult_preload: bool = False,
         video_preload: bool = False) -> None:
     """
@@ -198,7 +202,9 @@ def add_modalities(
             _AAA_logger.info("Adding modalities to recording for %s.",
                              recording.basename)
 
-            add_audio(recording, wav_preload)
+            add_audio(recording=recording,
+                      preload=wav_preload,
+                      detect_beep=detect_beep)
             add_aaa_raw_ultrasound(recording, ult_preload)
             add_video(recording, video_preload, Datasource.AAA)
 

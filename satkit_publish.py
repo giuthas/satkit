@@ -51,10 +51,11 @@ from satkit.annotations import (
 from satkit.annotations.peaks import annotations_to_dataframe
 import satkit.configuration as config
 
-from satkit.metrics import (add_pd,  add_spline_metric,
-                            downsample_metrics)
+from satkit.metrics import (
+    add_pd, add_spline_metric, downsample_metrics)
 from satkit.modalities import RawUltrasound, Splines
-from satkit.plot_and_publish import publish_session_pdf, publish_distribution_data
+from satkit.plot_and_publish import (
+    publish_session_pdf, publish_distribution_data)
 from satkit.plot_and_publish.publish import publish_distribution_data_seaborn
 from satkit.qt_annotator import PdQtAnnotator
 from satkit.scripting_interface import (
@@ -137,9 +138,9 @@ def main():
     process_modalities(recordings=recording_session.recordings,
                        processing_functions=function_dict)
 
-    # if 'peaks' in configuration.data_run_params:
+    # if data_run_config.peaks is not None:
     #     peaks, properties = find_gesture_peaks(
-    #         data, configuration.data_run_params['peaks'])
+    #         data, data_run_config.peaks)
     # else:
     #     peaks, properties = find_gesture_peaks(data)
 

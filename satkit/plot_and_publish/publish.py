@@ -60,6 +60,7 @@ import seaborn as sns
 from satkit.data_structures import Recording, Session
 
 from .plot import (plot_1d_modality, plot_satgrid_tier)
+from ..configuration.configuration_models import TimeseriesPlotConfig
 
 _plot_logger = logging.getLogger('satkit.publish')
 
@@ -225,7 +226,11 @@ def publish_distribution_data(
     pdf.savefig(plt.gcf())
 
 
-def recording_timeseries_figure(recording: Recording, pdf: PdfPages):
+def recording_timeseries_figure(
+        recording: Recording,
+        pdf: PdfPages,
+        timeseries_params: TimeseriesPlotConfig
+) -> None:
     """
     Create a figure from the recording and write it out to the pdf.
 
@@ -239,19 +244,21 @@ def recording_timeseries_figure(recording: Recording, pdf: PdfPages):
         The Recording to draw. 
     pdf : PdfPages
         A PdfPages instance to draw into.
+    timeseries_params : TimeseriesPlotConfig
+        Parameters to use in plotting the Recording's data.
     """
-    figure = plt.figure(figsize=publish_params['figure size'])
+    figure = plt.figure(figsize=timeseries_params.figure_size)
 
-    height_ratios = [3 for i in range(publish_params['subplot grid'][0])]
+    height_ratios = [3 for i in range(timeseries_params.subplot_grid[0])]
     height_ratios.append(1)
-    gridspec = GridSpec(nrows=publish_params['subplot grid'][0]+1,
-                        ncols=publish_params['subplot grid'][1],
+    gridspec = GridSpec(nrows=timeseries_params.subplot_grid[0] + 1,
+                        ncols=timeseries_params.subplot_grid[1],
                         hspace=0, wspace=0,
                         height_ratios=height_ratios)
 
-    keys = list(publish_params['subplots'].keys())
+    keys = list(timeseries_params.subplots.keys())
 
-    if publish_params['use go signal']:
+    if timeseries_params.use_go_signal:
         audio = recording['MonoAudio']
         time_offset = audio.go_signal
     else:
@@ -273,23 +280,23 @@ def recording_timeseries_figure(recording: Recording, pdf: PdfPages):
                 which='both',     # both major and minor ticks are affected
                 labelsize=8
             )
-            if 'yticks' in publish_params:
-                ax.set_yticks(publish_params['yticks'])
-                ax.set_yticklabels(publish_params['yticklabels'])
+            if timeseries_params.yticks is not None:
+                ax.set_yticks(timeseries_params.ytick_values)
+                ax.set_yticklabels(timeseries_params.ytick_labels)
 
-            modality = recording[publish_params['subplots'][key]]
+            modality = recording[timeseries_params.subplots[key]]
             line = plot_1d_modality(
-                ax, modality, time_offset, publish_params['xlim'],
-                normalise=publish_params['normalise'])
+                ax, modality, time_offset, timeseries_params.xlim,
+                normalise=timeseries_params.normalise)
 
             ax.legend(
                 [line], [modality.metadata.metric],
                 loc='upper left',
-                handlelength=publish_params["legend"]["handlelength"],
-                handletextpad=publish_params["legend"]["handletextpad"])
+                handlelength=timeseries_params.legend.handlelength,
+                handletextpad=timeseries_params.legend.handletextpad)
 
-            if publish_params['plotted tier'] in recording.satgrid:
-                tier = recording.satgrid[publish_params['plotted tier']]
+            if timeseries_params.plotted_tier in recording.satgrid:
+                tier = recording.satgrid[timeseries_params.plotted_tier]
 
                 plot_satgrid_tier(
                     ax, tier, time_offset=time_offset,
@@ -299,10 +306,10 @@ def recording_timeseries_figure(recording: Recording, pdf: PdfPages):
                 ax.yaxis.set_label_position("right")
                 ax.yaxis.tick_right()
         else:
-            if publish_params['plotted tier'] in recording.satgrid:
-                tier = recording.satgrid[publish_params['plotted tier']]
+            if timeseries_params.plotted_tier in recording.satgrid:
+                tier = recording.satgrid[timeseries_params.plotted_tier]
 
-                ax.set_xlim(publish_params['xlim'])
+                ax.set_xlim(timeseries_params.xlim)
                 ax.tick_params(
                     axis='y',         # changes apply to the x-axis
                     which='both',     # both major and minor ticks are affected
@@ -314,9 +321,9 @@ def recording_timeseries_figure(recording: Recording, pdf: PdfPages):
                     which='both',     # both major and minor ticks are affected
                     labelsize=8
                 )
-                if 'xticks' in publish_params:
-                    ax.set_xticks(publish_params['xticks'])
-                    ax.set_xticklabels(publish_params['xticklabels'])
+                if 'xticks' in timeseries_params:
+                    ax.set_xticks(timeseries_params.xtick_values)
+                    ax.set_xticklabels(timeseries_params.xtick_labels)
 
                 plot_satgrid_tier(
                     ax, tier, time_offset=time_offset,
@@ -332,7 +339,10 @@ def recording_timeseries_figure(recording: Recording, pdf: PdfPages):
     pdf.savefig(plt.gcf())
 
 
-def publish_session_pdf(recording_session: Session):
+def publish_session_pdf(
+        recording_session: Session,
+        timeseries_params: TimeseriesPlotConfig
+) -> None:
     """
     Draw all Recordings in the Session into a pdf file.
 
@@ -345,8 +355,14 @@ def publish_session_pdf(recording_session: Session):
     ----------
     recording_session : Session
         The Session containing the Recordings.
+    timeseries_params : TimeseriesPlotConfig
+        Parameters to use in plotting each Recording's data.
     """
-    with PdfPages(publish_params['output file']) as pdf:
+    with PdfPages(timeseries_params.output_file) as pdf:
         for recording in recording_session.recordings:
             if not recording.excluded:
-                recording_timeseries_figure(recording, pdf)
+                recording_timeseries_figure(
+                    recording=recording,
+                    pdf=pdf,
+                    timeseries_params=timeseries_params
+                )

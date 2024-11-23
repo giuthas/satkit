@@ -274,7 +274,9 @@ def main():
 
     # Plot the data into files if asked to.
     if cli.args.publish:
-        publish_session_pdf(recording_session)
+        publish_session_pdf(
+            recording_session=recording_session,
+            timeseries_params=configuration.publish_config.timeseries_plot)
 
     log_elapsed_time()
 
@@ -286,7 +288,7 @@ def main():
         app.annotator = PdQtAnnotator(
             recording_session=recording_session,
             args=cli.args,
-            gui_config=configuration.gui_config)
+            config=configuration)
         sys.exit(app.exec_())
 
 

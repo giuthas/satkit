@@ -422,6 +422,10 @@ class TimeseriesPlotConfig(PlotConfig):
     xticks: list[str] | None = None
     yticks: list[str] | None = None
 
+    @property
+    def xtick_labels(self) -> list[str]:
+        return self.xticks
+
     # @computed_field
     @property
     def xtick_values(self) -> np.ndarray | None:
@@ -436,6 +440,10 @@ class TimeseriesPlotConfig(PlotConfig):
         if self.xticks:
             return np.asarray(self.xticks, dtype=float)
         return None
+
+    @property
+    def ytick_labels(self) -> list[str]:
+        return self.yticks
 
     # @computed_field
     @property

@@ -38,8 +38,7 @@ interface provided by Configuration.
 """
 
 from .configuration_parsers import (
-    parse_config,
-    publish_params, PathValidator)
+    parse_config, PathValidator)
 from .configuration_classes import (
     ExclusionList, PathStructure,
     SplineConfig, SplineDataConfig, SplineImportConfig)

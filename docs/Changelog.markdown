@@ -31,6 +31,30 @@ and this project uses [Semantic Versioning](https://semver.org/spec/v2.0.0.html)
   speech_articulation_toolkit.
 - See [Roadmap](Roadmap.markdown) for an overview of what to expect in 1.0.
 
+## [0.12.0]
+
+### Highlights
+
+- Configuration system now works less globally and more on a study-by-study
+  basis. Local overrides global.
+- Exclusion is defined mainly separately for each operation/metric. This makes
+  it easier to -- among other things -- run several versions of a Session level
+  statistics.
+
+## Added
+
+- Saving Statistics implemented.
+
+## Changed
+
+- Per-study or Scenario configuration instead of global configuration.
+- Scenario based results saving too. 
+- Lots of internal changes.
+
+### Fixed
+
+- Saving should work again
+
 ## [0.11.0] 2024-11-20
 
 ### Added

@@ -41,7 +41,7 @@ import numpy as np
 # from icecream import ic
 
 from satkit.constants import SATKIT_FILE_VERSION, SatkitSuffix
-from satkit.data_structures import Modality, Recording, Session
+from satkit.data_structures import Modality, Recording, Session, Statistic
 from satkit.ui_callbacks import UiCallbacks, OverwriteConfirmation
 
 from .save_and_load_schemas import nested_text_converters
@@ -131,8 +131,9 @@ def save_modality_meta(
 
 def save_recording_meta(
         recording: Recording,
+        confirmation: OverwriteConfirmation,
         modalities_saves: dict,
-        confirmation: OverwriteConfirmation
+        statistics_saves: dict | None = None,
 ) -> tuple[str, OverwriteConfirmation]:
     """
     Save Recording meta.
@@ -159,6 +160,7 @@ def save_recording_meta(
     meta['format_version'] = SATKIT_FILE_VERSION
     meta['parameters'] = recording.meta_data.model_dump()
     meta['modalities'] = modalities_saves
+    meta['statistics'] = statistics_saves
 
     if not filepath.exists() or confirmation in [
             OverwriteConfirmation.YES, OverwriteConfirmation.YES_TO_ALL]:
@@ -175,7 +177,7 @@ def save_recording_meta(
 
 def save_modalities(
         recording: Recording, confirmation: OverwriteConfirmation | None
-) -> tuple[str, OverwriteConfirmation]:
+) -> tuple[dict, OverwriteConfirmation]:
     """
     Save derived Modalities and gather meta for all Modalities.
 
@@ -198,6 +200,104 @@ def save_modalities(
             else:
                 modality_meta['meta_name'] = None
         recording_meta[modality_name] = modality_meta
+    return recording_meta, confirmation
+
+
+def save_statistic_data(
+        statistic: Statistic,
+        confirmation: OverwriteConfirmation
+) -> tuple[str, OverwriteConfirmation]:
+    """
+    Save the data of a Modality.
+
+    This saves only Statistic.data.
+
+    Returns the filename of the
+    """
+    _logger.debug("Saving data for %s.", statistic.name)
+    suffix = statistic.name.replace(" ", "_")
+    filename = f"{statistic.owner.basename}.{suffix}{SatkitSuffix.DATA}"
+    filepath = statistic.owner.path / filename
+
+    if filepath.exists():
+        if confirmation is OverwriteConfirmation.NO_TO_ALL:
+            return filename, confirmation
+
+        if confirmation is not OverwriteConfirmation.YES_TO_ALL:
+            confirmation = UiCallbacks.get_overwrite_confirmation(
+                str(filepath))
+
+    if not filepath.exists() or confirmation in [
+            OverwriteConfirmation.YES, OverwriteConfirmation.YES_TO_ALL]:
+        np.savez(
+            filepath, data=statistic.data)
+
+        _logger.debug("Wrote file %s.", filename)
+
+    return filename, confirmation
+
+
+def save_statistic_meta(
+        statistic: Statistic, confirmation: OverwriteConfirmation
+) -> tuple[str, OverwriteConfirmation]:
+    """
+    Save meta data and annotations for a Modality.
+
+    Saved data includes sampling frequency and any processing metadata that is
+    needed to reconstruct the Modality.
+    """
+    _logger.debug("Saving meta for %s.", statistic.name)
+    suffix = statistic.name.replace(" ", "_")
+    filename = f"{statistic.owner.name}.{suffix}"
+    filename += SatkitSuffix.META
+    filepath = statistic.owner.path / filename
+
+    if filepath.exists():
+        if confirmation is OverwriteConfirmation.NO_TO_ALL:
+            return filename, confirmation
+
+        if confirmation is not OverwriteConfirmation.YES_TO_ALL:
+            confirmation = UiCallbacks.get_overwrite_confirmation(
+                str(filepath))
+
+    meta = OrderedDict()
+    meta['object_type'] = type(statistic).__name__
+    meta['name'] = statistic.name
+    meta['format_version'] = SATKIT_FILE_VERSION
+
+    parameters = statistic.get_meta().copy()
+    meta['parameters'] = parameters
+
+    if not filepath.exists() or confirmation in [
+            OverwriteConfirmation.YES, OverwriteConfirmation.YES_TO_ALL]:
+        try:
+            nestedtext.dump(meta, filepath, converters=nested_text_converters)
+            _logger.debug("Wrote file %s.", filename)
+        # except nestedtext.NestedTextError as e:
+        #     e.terminate()
+        except OSError as e:
+            _logger.critical(e)
+
+    return filename, confirmation
+
+
+def save_statistics(
+        recording: Recording, confirmation: OverwriteConfirmation | None
+) -> tuple[dict, OverwriteConfirmation]:
+    """
+    Save Statistics and gather meta for all Statistics.
+
+    Returns a dictionary of the data and meta paths of the Statistics.
+    """
+    recording_meta = {}
+    for statistic_name in recording.statistics:
+        statistic_meta = {}
+        statistic = recording[statistic_name]
+        (statistic_meta['data_name'], confirmation) = save_statistic_data(
+            statistic, confirmation)
+        (statistic_meta['meta_name'], confirmation) = save_statistic_meta(
+            statistic, confirmation)
+        recording_meta[statistic_name] = statistic_meta
     return recording_meta, confirmation
 
 

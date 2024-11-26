@@ -53,7 +53,7 @@ and this project uses [Semantic Versioning](https://semver.org/spec/v2.0.0.html)
 
 ### Fixed
 
-- Saving should work again
+- Saving should work again.
 
 ## [0.11.0] 2024-11-20
 

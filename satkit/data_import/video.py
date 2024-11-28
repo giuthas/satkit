@@ -85,7 +85,7 @@ def add_video(recording: Recording, preload: bool = False,
 
     if video_file.is_file():
         video = Video(
-            recording=recording,
+            owner=recording,
             data_path=video_file,
             meta=meta
         )

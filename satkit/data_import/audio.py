@@ -71,7 +71,7 @@ def add_audio(
             data, go_signal, has_speech = read_wav_and_detect_beep(
                 ult_wav_file)
             waveform = MonoAudio(
-                recording=recording,
+                owner=recording,
                 file_info=file_info,
                 parsed_data=data,
                 go_signal=go_signal,
@@ -81,14 +81,14 @@ def add_audio(
         elif preload:
             data = read_wav(ult_wav_file)
             waveform = MonoAudio(
-                recording=recording,
+                owner=recording,
                 file_info=file_info,
                 parsed_data=data,
             )
             recording.add_modality(waveform)
         else:
             waveform = MonoAudio(
-                recording=recording,
+                owner=recording,
                 file_info=file_info,
             )
             recording.add_modality(waveform)

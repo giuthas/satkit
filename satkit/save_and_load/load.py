@@ -44,38 +44,44 @@ import nestedtext
 from satkit.configuration import PathStructure
 from satkit.constants import SatkitConfigFile, SatkitSuffix
 from satkit.data_import import (
-    modality_adders, add_splines, load_session_config)
+    modality_adders, add_splines, load_session_config
+)
 from satkit.data_structures import (
-    ModalityData, Recording, Session, SessionConfig)
+    ModalityData, Recording, Session, SessionConfig
+)
 from satkit.data_structures.meta_data_classes import FileInformation
 from satkit.metrics import metrics
 
 from .save_and_load_schemas import (
     ModalityListingLoadSchema, ModalityLoadSchema, RecordingLoadSchema,
-    SessionLoadSchema)
+    SessionLoadSchema
+)
 
-_recording_loader_logger = logging.getLogger('satkit.recording_loader')
+_logger = logging.getLogger('satkit.recording_loader')
 
 
 def load_derived_modality(
         recording: Recording,
         path: Path,
-        modality_schema: ModalityListingLoadSchema) -> None:
+        modality_schema: ModalityListingLoadSchema
+) -> None:
     """
     Load a saved derived Modality meta and data and add them to the Recording. 
 
     Parameters
     ----------
+    recording : Recording
+        
     path : Path
         This is the path to the save files.
     modality_schema : ModalityListingLoadSchema
         This contains the name of the meta and data files.
     """
     if not modality_schema.meta_name:
-        _recording_loader_logger.info(
+        _logger.info(
             "Looks like %s doesn't have a metafile for one of the Modalities.",
             modality_schema.data_name)
-        _recording_loader_logger.info(
+        _logger.info(
             "Assuming the Modality to be batch loaded, so skipping.")
         return
     file_info = FileInformation(
@@ -83,8 +89,8 @@ def load_derived_modality(
         satkit_data_file=modality_schema.data_name,
         satkit_meta_file=modality_schema.meta_name,
     )
-    meta_path = path/modality_schema.meta_name
-    data_path = path/modality_schema.data_name
+    meta_path = path / modality_schema.meta_name
+    data_path = path / modality_schema.data_name
 
     raw_input = nestedtext.load(meta_path)
     meta = ModalityLoadSchema.model_validate(raw_input)
@@ -95,21 +101,23 @@ def load_derived_modality(
         saved_data['data'], sampling_rate=saved_data['sampling_rate'],
         timevector=saved_data['timevector'])
 
-    metric, parameter_schema = metrics[meta.object_type]
+    modality_constructor, parameter_schema = metrics[meta.object_type]
     for key in meta.parameters:
         if meta.parameters[key] == 'None':
             meta.parameters[key] = None
     parameters = parameter_schema(**meta.parameters)
-    modality = metric(recording=recording,
-                      file_info=file_info,
-                      parsed_data=modality_data,
-                      meta_data=parameters)
+    modality = modality_constructor(
+        owner=recording,
+        file_info=file_info,
+        parsed_data=modality_data,
+        meta_data=parameters)
 
     recording.add_modality(modality=modality)
 
 
 def read_recording_meta(
-        filepath: str | Path | TextIO) -> RecordingLoadSchema:
+        filepath: str | Path | TextIO
+) -> RecordingLoadSchema:
     """
     Read a Recording's saved metadata, validate it, and return it.
 
@@ -140,7 +148,7 @@ def load_recording(filepath: Path) -> Recording:
     Returns
     -------
     Recording
-        A Recording object with most of it's modalities loaded. Modalities like
+        A Recording object with most of its modalities loaded. Modalities like
         Splines that maybe stored in one file for several recordings aren't yet
         loaded at this point.
 
@@ -177,7 +185,7 @@ def load_recording(filepath: Path) -> Recording:
     for modality in meta.modalities:
         if modality in modality_adders:
             adder = modality_adders[modality]
-            path = meta.parameters.path/meta.modalities[modality].data_name
+            path = meta.parameters.path / meta.modalities[modality].data_name
             adder(recording, path=path)
         else:
             load_derived_modality(
@@ -209,7 +217,7 @@ def load_recordings(
     """
     if not recording_metafiles:
         recording_metafiles = directory.glob(
-            "*.Recording"+str(SatkitSuffix.META))
+            "*.Recording" + str(SatkitSuffix.META))
 
     recordings = [load_recording(directory / name)
                   for name in recording_metafiles]
@@ -220,8 +228,8 @@ def load_recordings(
 
 
 def load_recording_session(
-    directory: Path | str,
-    session_config_path: Path | None = None
+        directory: Path | str,
+        session_config_path: Path | None = None
 ) -> Session:
     """
     Load a recording session from a directory.
@@ -230,6 +238,8 @@ def load_recording_session(
     ----------
     directory: Path
         Root directory of the data.
+    session_config_path : Path | None
+        Path to the session configuration file. By default, None.
 
     Returns
     -------
@@ -243,7 +253,7 @@ def load_recording_session(
         session_config_path = directory / SatkitConfigFile.SESSION
 
     filename = f"{directory.parts[-1]}{'.Session'}{SatkitSuffix.META}"
-    filepath = directory/filename
+    filepath = directory / filename
 
     raw_input = nestedtext.load(filepath)
     meta = SessionLoadSchema.model_validate(raw_input)
@@ -260,7 +270,8 @@ def load_recording_session(
     # TODO: don't really know if the current FileInformation handles the
     # duality of config from user and saved meta too well.
     file_info = FileInformation(
-        satkit_meta_file=filename, satkit_path=directory,
+        satkit_meta_file=filename,
+        satkit_path=directory,
         recorded_path=directory,
         recorded_meta_file=session_config_path.name)
     session = Session(

@@ -385,13 +385,12 @@ class Modality(DataContainer, OrderedDict):
 
     def __init__(
             self,
-            recording: Recording,
+            owner: Recording,
             file_info: FileInformation,
             parsed_data: ModalityData | None = None,
             meta_data: ModalityMetaData | None = None,
             time_offset: float | None = None,
-            point_annotations: dict[
-                                   AnnotationType, PointAnnotations] | None =
+            point_annotations: dict[AnnotationType, PointAnnotations] | None =
             None
     ) -> None:
         """
@@ -420,7 +419,8 @@ class Modality(DataContainer, OrderedDict):
             parsed_data.timevector.
         """
         super().__init__(
-            owner=recording, meta_data=meta_data,
+            owner=owner,
+            meta_data=meta_data,
             file_info=file_info)
 
         if point_annotations:

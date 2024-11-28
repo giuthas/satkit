@@ -38,7 +38,7 @@ import logging
 import numpy as np
 from pydantic import PositiveInt
 
-from satkit.configuration import ExclusionList, load_exclusion_list
+from satkit.configuration import ExclusionList
 from satkit.data_structures import (
     FileInformation, Modality, Session, Statistic, StatisticMetaData
 )

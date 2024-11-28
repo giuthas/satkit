@@ -157,6 +157,8 @@ class DataObject(abc.ABC):
         Path
             The path or None if no path was set.
         """
+        if not self._file_info.recorded_data_file:
+            return None
         if self._file_info.recorded_data_file:
             return self.recorded_path / self._file_info.recorded_data_file
         return None
@@ -179,6 +181,8 @@ class DataObject(abc.ABC):
         Path
             The path or None if no path was set.
         """
+        if not self._file_info.recorded_meta_file:
+            return None
         if self._file_info.recorded_meta_file:
             return self.recorded_path / self._file_info.recorded_meta_file
         return None
@@ -197,6 +201,8 @@ class DataObject(abc.ABC):
         Path
             The path or None if no path was set.
         """
+        if not self._file_info.recorded_path:
+            return None
         if self.owner:
             return self.owner.recorded_path / self._file_info.recorded_path
         return self._file_info.recorded_path
@@ -215,6 +221,8 @@ class DataObject(abc.ABC):
         Path
             The path or None if no path was set.
         """
+        if not self._file_info.satkit_data_file:
+            return None
         return self.satkit_path / self._file_info.satkit_data_file
 
     @satkit_data_file.setter
@@ -238,6 +246,8 @@ class DataObject(abc.ABC):
         Path
             The path or None if no path was set.
         """
+        if not self._file_info.satkit_meta_file:
+            return None
         return self.satkit_path / self._file_info.satkit_meta_file
 
     @satkit_meta_file.setter
@@ -259,6 +269,8 @@ class DataObject(abc.ABC):
         Path
             The path or None if no path was set.
         """
+        if not self._file_info.satkit_path:
+            return None
         if self.owner:
             return self.owner.satkit_path / self._file_info.satkit_path
         return self._file_info.satkit_path

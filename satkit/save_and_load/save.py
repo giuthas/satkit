@@ -247,14 +247,17 @@ def save_statistic_meta(
     needed to reconstruct the Modality.
     """
     _logger.debug("Saving meta for %s.", statistic.name)
-    suffix = statistic.name.replace(" ", "_")
-    filename = f"{statistic.owner.name}.{suffix}"
-    filename += SatkitSuffix.META
-    filepath = statistic.owner.path / filename
+    if not statistic.satkit_meta_file:
+        suffix = statistic.name.replace(" ", "_")
+        filename = f"{statistic.owner.name}.{suffix}{SatkitSuffix.META}"
+        statistic.satkit_meta_file = filename
+
+    ## ehkä satkit_meta_name, satkit_meta_path?
+    filepath = statistic.satkit_meta_file
 
     if filepath.exists():
         if confirmation is OverwriteConfirmation.NO_TO_ALL:
-            return filename, confirmation
+            return statistic.satkit_meta_file, confirmation
 
         if confirmation is not OverwriteConfirmation.YES_TO_ALL:
             confirmation = UiCallbacks.get_overwrite_confirmation(
@@ -272,13 +275,14 @@ def save_statistic_meta(
             OverwriteConfirmation.YES, OverwriteConfirmation.YES_TO_ALL]:
         try:
             nestedtext.dump(meta, filepath, converters=nested_text_converters)
-            _logger.debug("Wrote file %s.", filename)
+            _logger.debug("Wrote file %s.",
+                          statistic.satkit_meta_file)
         # except nestedtext.NestedTextError as e:
         #     e.terminate()
         except OSError as e:
             _logger.critical(e)
 
-    return filename, confirmation
+    return statistic.satkit_meta_file, confirmation
 
 
 def save_statistics(

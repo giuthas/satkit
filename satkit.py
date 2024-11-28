@@ -57,10 +57,6 @@ from satkit.configuration import (
     apply_exclusion_list, DataRunConfig, load_exclusion_list
 )
 from satkit.data_structures import Session
-from satkit.export import (
-    publish_distance_matrix,
-    publish_aggregate_images
-)
 from satkit.metrics import (
     add_aggregate_images, add_distance_matrices, add_pd, add_spline_metric,
     downsample_metrics
@@ -190,15 +186,9 @@ def main():
              configuration=configuration)
 
     if configuration.publish_config is not None:
-        publish_aggregate_images(
-            session=recording_session,
-            image_name='AggregateImage mean on RawUltrasound')
-        publish_distance_matrix(
-            session=recording_session,
-            distance_matrix_name=(
-                'DistanceMatrix mean_squared_error on AggregateImage mean '
-                'on RawUltrasound')
-        )
+        # TODO 1.0: This should probably be its own CLI command.
+        logger.info(
+            "Currently publishing from the satkit.py script is disabled.")
 
     logger.info('Data run ended.')
 

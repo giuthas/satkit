@@ -51,9 +51,17 @@ and this project uses [Semantic Versioning](https://semver.org/spec/v2.0.0.html)
 - Scenario based results saving too. 
 - Lots of internal changes.
 
+### Removed
+
+- Removed the `publish_distance_matrix` and `publish_aggregate_images`
+  functions. The preferred way is to use the export functions which also
+  automatically export the meta data to keep track of where an exported/published
+  image came from.
+
+
 ### Fixed
 
-- Saving should work again.
+- Saving and loading works again.
 
 ## [0.11.0] 2024-11-20
 

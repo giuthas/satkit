@@ -104,43 +104,6 @@ def _publish_image(
         return image_file
 
 
-def publish_aggregate_images(
-        session: Session, image_name: str, image_format: str = ".png"
-) -> None:
-    """
-    Publish AggregateImages as image files.
-
-    Parameters
-    ----------
-    session : Session
-        Session containing the Recordings whose AggregateImages are being saved.
-    image_name : str
-        Name of the AggregateImage to publish.
-    image_format : str
-        File format to use, by default ".png".
-    """
-    for recording in session:
-        _publish_image(recording, image_name, image_format)
-
-
-def publish_distance_matrix(
-        session: Session, distance_matrix_name: str, image_format: str = ".png"
-) -> None:
-    """
-    Publish DistanceMatrix as an image file.
-
-    Parameters
-    ----------
-    session : Session
-        Session containing the DistanceMatrix which is being saved.
-    distance_matrix_name : str
-        Name of the DistanceMatrix to publish.
-    image_format : str
-        File format to use, by default ".png".
-    """
-    _publish_image(session, distance_matrix_name, image_format)
-
-
 def export_aggregate_image_and_meta(
         image: AggregateImage,
         session: Session,

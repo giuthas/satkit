@@ -50,8 +50,8 @@ from strictyaml import (
 
 from satkit.constants import DEFAULT_ENCODING
 
-from .configuration_classes import IntervalBoundary, IntervalCategory
-from .configuration_models import TimeseriesNormalisation
+from .configuration_models import (
+    IntervalBoundary, IntervalCategory, TimeseriesNormalisation)
 
 config_dict = {}
 data_run_params = {}
@@ -403,6 +403,7 @@ def load_publish_params(filepath: Path | str | None = None) -> YAML:
         with closing(
                 open(filepath, 'r', encoding=DEFAULT_ENCODING)) as yaml_file:
             schema = Map({
+                "publish_directory": PathValidator(),
                 Optional("timeseries_plot"): Map({
                     "output_file": Str(),
                     Optional("figure_size", default=[8.3, 11.7]): FixedSeq(

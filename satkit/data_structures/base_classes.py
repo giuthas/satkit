@@ -40,7 +40,7 @@ from pathlib import Path
 import numpy as np
 
 from satkit.errors import OverwriteError
-from satkit.external_class_extensions import EmptyStrAsNoneBaseModel
+from satkit.external_class_extensions import SatkitBaseModel
 
 from .meta_data_classes import FileInformation, StatisticMetaData
 
@@ -59,7 +59,7 @@ class DataObject(abc.ABC):
     """
 
     def __init__(self,
-                 meta_data: EmptyStrAsNoneBaseModel,
+                 meta_data: SatkitBaseModel,
                  owner: DataObject | None = None,
                  file_info: FileInformation | None = None,
                  ) -> None:
@@ -130,7 +130,7 @@ class DataObject(abc.ABC):
         return self._file_info
 
     @property
-    def meta_data(self) -> EmptyStrAsNoneBaseModel:
+    def meta_data(self) -> SatkitBaseModel:
         """
         Metadata of this DataObject.
 
@@ -140,7 +140,7 @@ class DataObject(abc.ABC):
 
         Returns
         -------
-        EmptyStrAsNoneBaseModel
+        SatkitBaseModel
             The meta data as a Pydantic model.
         """
         return self._meta_data
@@ -392,7 +392,7 @@ class DataAggregator(DataObject):
 
     def __init__(self,
                  name: str,
-                 meta_data: EmptyStrAsNoneBaseModel,
+                 meta_data: SatkitBaseModel,
                  owner: DataObject | None = None,
                  file_info: FileInformation | None = None,
                  statistics: dict[str, 'Statistic'] | None = None
@@ -465,11 +465,11 @@ class DataContainer(DataObject):
     """
     @classmethod
     @abc.abstractmethod
-    def generate_name(cls, params: EmptyStrAsNoneBaseModel) -> str:
+    def generate_name(cls, params: SatkitBaseModel) -> str:
         """Abstract version of generating a RecordingMetric name."""
 
     def __init__(self,
-                 meta_data: EmptyStrAsNoneBaseModel,
+                 meta_data: SatkitBaseModel,
                  owner: DataObject | None = None,
                  file_info: FileInformation | None = None,
                  ) -> None:
@@ -520,7 +520,7 @@ class Statistic(DataContainer):
 
     def __init__(
             self,
-            meta_data: EmptyStrAsNoneBaseModel,
+            meta_data: SatkitBaseModel,
             owner: DataAggregator | None = None,
             file_info: FileInformation | None = None,
             parsed_data: np.ndarray | None = None,
@@ -530,7 +530,7 @@ class Statistic(DataContainer):
 
         Parameters
         ----------
-        meta_data : EmptyStrAsNoneBaseModel
+        meta_data : SatkitBaseModel
             Parameters used in calculating this Statistic.
         owner : DataAggregator
             The owner of this Statistic. Usually this will be the object whose

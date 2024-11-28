@@ -193,6 +193,10 @@ class DistanceMatrix(Statistic):
             The result will consist of blocks where in first block
             `sort_criteria[0] in prompt` is True, and so on. Final block will
             consist of any Recordings left after the list has been exhausted.
+        exclusion_list : ExclusionList | None
+            The ExclusionList to apply when generating the DistanceMatrices. By
+            default, None.
+        
         Returns
         -------
         dict[str: DistanceMatrixParameters]

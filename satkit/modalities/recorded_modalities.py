@@ -114,11 +114,11 @@ class MonoAudio(Modality):
         """
         if data_run_params['flags']['detect beep']:
             parsed_data, go_signal, has_speech = read_wav_and_detect_beep(
-                self.recorded_data_file)
+                self.recorded_data_path)
             self.go_signal = go_signal
             self.has_speech = has_speech
             return parsed_data
-        return read_wav(self.recorded_data_file)
+        return read_wav(self.recorded_data_path)
 
     # TODO: uncomment and implement when implementing the save features.
     # def _load_data(self):
@@ -186,7 +186,7 @@ class RawUltrasound(Modality):
 
     def _read_data(self) -> ModalityData:
         return read_ult(
-            self.recorded_data_file, self.meta_data, self._time_offset)
+            self.recorded_data_path, self.meta_data, self._time_offset)
 
     def get_meta(self) -> dict:
         return self.meta
@@ -350,7 +350,7 @@ class Video(Modality):
 
     def _read_data(self) -> ModalityData:
         return read_avi(
-            self.recorded_data_file, self.meta, self._time_offset)
+            self.recorded_data_path, self.meta, self._time_offset)
 
     def get_meta(self) -> dict:
         return {'sampling_rate': self.sampling_rate}
@@ -437,7 +437,7 @@ class ThreeD_Ultrasound(Modality):
 
     def _read_data(self) -> ModalityData:
         return read_3d_ultrasound_dicom(
-            self.recorded_data_file,
+            self.recorded_data_path,
             self.meta,
             self._time_offset)
 

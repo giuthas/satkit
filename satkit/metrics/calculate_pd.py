@@ -173,7 +173,7 @@ def calculate_pd(
     """
 
     _logger.info('%s: Calculating PD on %s.',
-                 str(parent_modality.recorded_data_file),
+                 str(parent_modality.recorded_data_path),
                  parent_modality.name)
 
     data = parent_modality.data

@@ -88,7 +88,7 @@ class Splines(Modality):
 
     def _read_data(self) -> ModalityData:
         return read_splines(
-            self.recorded_data_file, self._meta_data, self._time_offset)
+            self.recorded_data_path, self._meta_data, self._time_offset)
 
     @property
     def data(self) -> np.ndarray:

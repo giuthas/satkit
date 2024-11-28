@@ -340,8 +340,11 @@ class DataObject(abc.ABC):
         return self._file_info.satkit_path
 
     @satkit_path.setter
-    def satkit_path(self, satkit_path: Path | None) -> None:
-        self._file_info.satkit_path = satkit_path
+    def satkit_path(self, satkit_path: str | Path | None) -> None:
+        if satkit_path is None or isinstance(satkit_path, Path):
+            self._file_info.satkit_path = satkit_path
+        else:
+            self._file_info.satkit_path = Path(satkit_path)
 
     @property
     def is_fully_initialised(self) -> bool:

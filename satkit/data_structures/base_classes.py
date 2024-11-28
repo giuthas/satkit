@@ -146,9 +146,9 @@ class DataObject(abc.ABC):
         return self._meta_data
 
     @property
-    def recorded_data_file(self) -> Path | None:
+    def recorded_data_path(self) -> Path | None:
         """
-        Path to the recorded raw data file of this DataObject.
+        Path of the recorded raw data file of this DataObject.
 
         May not be overwritten.
 
@@ -164,7 +164,21 @@ class DataObject(abc.ABC):
         return None
 
     @property
-    def recorded_meta_file(self) -> Path | None:
+    def recorded_data_name(self) -> str | None:
+        """
+        Name the recorded raw data file of this DataObject.
+
+        May not be overwritten.
+
+        Returns
+        -------
+        str
+            The name or None if no name was set.
+        """
+        return self._file_info.recorded_data_file
+
+    @property
+    def recorded_meta_path(self) -> Path | None:
         """
         Path to the recorded meta data file of this DataObject.
 
@@ -188,6 +202,20 @@ class DataObject(abc.ABC):
         return None
 
     @property
+    def recorded_meta_name(self) -> str | None:
+        """
+        Name the recorded raw data file of this DataObject.
+
+        May not be overwritten.
+
+        Returns
+        -------
+        str
+            The name or None if no name was set.
+        """
+        return self._file_info.recorded_meta_file
+
+    @property
     def recorded_path(self) -> Path | None:
         """
         Path to the recorded raw data files of this DataObject.
@@ -208,7 +236,7 @@ class DataObject(abc.ABC):
         return self._file_info.recorded_path
 
     @property
-    def satkit_data_file(self) -> Path | None:
+    def satkit_data_path(self) -> Path | None:
         """
         Path to the SATKIT (derived) data file of this DataObject.
 
@@ -225,15 +253,33 @@ class DataObject(abc.ABC):
             return None
         return self.satkit_path / self._file_info.satkit_data_file
 
-    @satkit_data_file.setter
-    def satkit_data_file(self, satkit_data_file: Path | None) -> None:
+    @satkit_data_path.setter
+    def satkit_data_path(self, satkit_data_file: Path | None) -> None:
         if satkit_data_file is None:
             self._file_info.satkit_data_file = None
         else:
             self._file_info.satkit_data_file = satkit_data_file.name
 
     @property
-    def satkit_meta_file(self) -> Path | None:
+    def satkit_data_name(self) -> str | None:
+        """
+        Name the SATKIT data file of this DataObject.
+
+        May be overwritten.
+
+        Returns
+        -------
+        str
+            The name or None if no name was set.
+        """
+        return self._file_info.satkit_data_file
+
+    @satkit_data_name.setter
+    def satkit_data_name(self, satkit_data_file: str | None) -> None:
+        self._file_info.satkit_data_file = satkit_data_file
+
+    @property
+    def satkit_meta_path(self) -> Path | None:
         """
         Path to the SATKIT meta data file of this DataObject.
 
@@ -250,12 +296,30 @@ class DataObject(abc.ABC):
             return None
         return self.satkit_path / self._file_info.satkit_meta_file
 
-    @satkit_meta_file.setter
-    def satkit_meta_file(self, satkit_meta_file: Path | None) -> None:
+    @satkit_meta_path.setter
+    def satkit_meta_path(self, satkit_meta_file: Path | None) -> None:
         if satkit_meta_file is None:
             self._file_info.satkit_meta_file = None
         else:
             self._file_info.satkit_meta_file = satkit_meta_file.name
+
+    @property
+    def satkit_meta_name(self) -> str | None:
+        """
+        Name the SATKIT meta data file of this DataObject.
+
+        May be overwritten.
+
+        Returns
+        -------
+        str
+            The name or None if no name was set.
+        """
+        return self._file_info.satkit_meta_file
+
+    @satkit_meta_name.setter
+    def satkit_meta_name(self, satkit_meta_file: str | None) -> None:
+        self._file_info.satkit_meta_file = satkit_meta_file
 
     @property
     def satkit_path(self) -> Path | None:

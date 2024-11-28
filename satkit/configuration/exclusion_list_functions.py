@@ -42,16 +42,31 @@ from icecream import ic
 from strictyaml import (Map, Optional, Seq, Str,
                         YAMLError, load)
 
-from .configuration_classes import ExclusionList
+from .configuration_models import ExclusionList
 from satkit.constants import SatkitSuffix, SourceSuffix
 from satkit.data_structures import Recording, Session
 
 _logger = logging.getLogger('satkit.configuration')
 
+
 def remove_excluded_recordings(
         recordings: list[Recording] | Session,
         exclusion_list: ExclusionList
 ) -> list[Recording]:
+    """
+    Filter a list of Recordings with the given exclusion list.
+
+    Parameters
+    ----------
+    recordings :
+        The list of Recordings to be filtered.
+    exclusion_list :
+        The ExclusionList to apply.
+    Returns
+    -------
+    list[Recording]
+        The filtered list of Recordings.
+    """
     if not exclusion_list:
         return recordings
 

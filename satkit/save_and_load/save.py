@@ -340,7 +340,7 @@ def save_recordings(
     return metafiles, confirmation
 
 
-def save_recording_session_meta(
+def save_session_meta(
         session: Session,
         recording_meta_files: list,
         confirmation: OverwriteConfirmation
@@ -387,7 +387,8 @@ def save_recording_session_meta(
     return filename, confirmation
 
 
-def save_recording_session(session: Session) -> None:
+def save_recording_session(
+        session: Session) -> tuple[str, OverwriteConfirmation]:
     """
     Save a recording session.
     """
@@ -397,4 +398,9 @@ def save_recording_session(session: Session) -> None:
         session.satkit_path = session.recorded_path
     recording_meta_files, confirmation = save_recordings(
         recordings=session.recordings, confirmation=None)
-    save_recording_session_meta(session, recording_meta_files, confirmation)
+    meta_name, confirmation = save_session_meta(
+        session=session,
+        recording_meta_files=recording_meta_files,
+        confirmation=confirmation)
+
+    return meta_name, confirmation

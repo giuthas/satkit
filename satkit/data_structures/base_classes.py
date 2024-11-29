@@ -501,6 +501,9 @@ class DataContainer(DataObject):
     @property
     @abc.abstractmethod
     def data(self) -> np.ndarray:
+        """
+        The data contained in this DataContainer as a numpy ndarray.
+        """
         pass
 
 

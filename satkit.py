@@ -177,7 +177,7 @@ def main():
     exclusion_list = None
     if cli.args.exclusion_filename:
         exclusion_list = load_exclusion_list(cli.args.exclusion_filename)
-    session = load_data(Path(cli.args.load_path))
+    session = load_data(Path(cli.args.load_path), configuration=configuration)
     apply_exclusion_list(session, exclusion_list=exclusion_list)
 
     log_elapsed_time()

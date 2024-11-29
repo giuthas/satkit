@@ -70,7 +70,7 @@ def _load_data_container_data_and_meta(
     Only a helper function, not for general use.
     """
     file_info = FileInformation(
-        satkit_path=path,
+        satkit_path=Path(""),
         satkit_data_file=data_container_schema.data_name,
         satkit_meta_file=data_container_schema.meta_name,
     )
@@ -238,7 +238,7 @@ def load_recording(filepath: Path) -> Recording:
     # TODO: new directory structure
     file_info = FileInformation(
         recorded_path=Path(""),
-        satkit_path=meta_path.parent,
+        satkit_path=Path(""),
         satkit_meta_file=meta_path.name)
     recording = Recording(meta.parameters, file_info=file_info)
 

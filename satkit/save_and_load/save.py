@@ -35,20 +35,32 @@ Functions for saving SATKIT data.
 
 from collections import OrderedDict
 import logging
+from pathlib import Path
 
 import nestedtext
 import numpy as np
-from icecream import ic
-
-# from icecream import ic
 
 from satkit.constants import SATKIT_FILE_VERSION, SatkitSuffix
 from satkit.data_structures import Modality, Recording, Session, Statistic
 from satkit.ui_callbacks import UiCallbacks, OverwriteConfirmation
 
 from .save_and_load_schemas import nested_text_converters
+from ..data_structures.base_classes import DataAggregator
 
 _logger = logging.getLogger('satkit._saver')
+
+def _save_aggregator_meta(
+        filepath: Path,
+        meta: dict,
+        confirmation: OverwriteConfirmation,
+) -> None:
+    if not filepath.exists() or confirmation in [
+            OverwriteConfirmation.YES, OverwriteConfirmation.YES_TO_ALL]:
+        try:
+            nestedtext.dump(meta, filepath, converters=nested_text_converters)
+            _logger.debug("Wrote file %s.", filepath)
+        except OSError as e:
+            _logger.critical(e)
 
 
 def save_modality_data(
@@ -164,15 +176,8 @@ def save_recording_meta(
     meta['modalities'] = modalities_saves
     meta['statistics'] = statistics_saves
 
-    if not filepath.exists() or confirmation in [
-            OverwriteConfirmation.YES, OverwriteConfirmation.YES_TO_ALL]:
-        try:
-            nestedtext.dump(meta, filepath, converters=nested_text_converters)
-            _logger.debug("Wrote file %s.", filename)
-        # except nestedtext.NestedTextError as e:
-        #     e.terminate()
-        except OSError as e:
-            _logger.critical(e)
+    _save_aggregator_meta(
+        filepath=filepath, meta=meta, confirmation=confirmation)
 
     return filename, confirmation
 
@@ -289,7 +294,7 @@ def save_statistic_meta(
 
 
 def save_statistics(
-        recording: Recording, confirmation: OverwriteConfirmation | None
+        aggregator: DataAggregator, confirmation: OverwriteConfirmation | None
 ) -> tuple[dict, OverwriteConfirmation]:
     """
     Save Statistics and gather meta for all Statistics.
@@ -297,9 +302,9 @@ def save_statistics(
     Returns a dictionary of the data and meta paths of the Statistics.
     """
     recording_meta = {}
-    for statistic_name in recording.statistics:
+    for statistic_name in aggregator.statistics:
         statistic_meta = {}
-        statistic = recording.statistics[statistic_name]
+        statistic = aggregator.statistics[statistic_name]
         if statistic.satkit_path is None:
             statistic.satkit_path = ""
         (statistic_meta['data_name'], confirmation) = save_statistic_data(
@@ -327,7 +332,7 @@ def save_recordings(
                 recording=recording,
                 confirmation=confirmation,)
             statistics_saves, confirmation = save_statistics(
-                recording=recording,
+                aggregator=recording,
                 confirmation=confirmation
             )
             metafile, confirmation = save_recording_meta(
@@ -342,8 +347,9 @@ def save_recordings(
 
 def save_session_meta(
         session: Session,
-        recording_meta_files: list,
-        confirmation: OverwriteConfirmation
+        recording_meta_files: list[str],
+        confirmation: OverwriteConfirmation,
+        statistics_saves: dict | None = None,
 ) -> tuple[str, OverwriteConfirmation]:
     """
     Save recording session metadata.
@@ -375,14 +381,10 @@ def save_session_meta(
 
     meta['parameters'] = parameters
     meta['recordings'] = recording_meta_files
+    meta['statistics'] = statistics_saves
 
-    if not filepath.exists() or confirmation in [
-            OverwriteConfirmation.YES, OverwriteConfirmation.YES_TO_ALL]:
-        try:
-            nestedtext.dump(meta, filepath, converters=nested_text_converters)
-            _logger.debug("Wrote file %s.", filename)
-        except OSError as e:
-            _logger.critical(e)
+    _save_aggregator_meta(
+        filepath=filepath, meta=meta, confirmation=confirmation)
 
     return filename, confirmation
 
@@ -398,9 +400,15 @@ def save_recording_session(
         session.satkit_path = session.recorded_path
     recording_meta_files, confirmation = save_recordings(
         recordings=session.recordings, confirmation=None)
+    statistics_saves, confirmation = save_statistics(
+        aggregator=session,
+        confirmation=confirmation
+    )
     meta_name, confirmation = save_session_meta(
         session=session,
         recording_meta_files=recording_meta_files,
-        confirmation=confirmation)
+        confirmation=confirmation,
+        statistics_saves=statistics_saves,
+    )
 
     return meta_name, confirmation

@@ -36,7 +36,7 @@ and this project uses [Semantic Versioning](https://semver.org/spec/v2.0.0.html)
 ### Highlights
 
 - Configuration system now works less globally and more on a study-by-study
-  basis. Local overrides global.
+  basis. Local configuration overrides global.
 - Exclusion is defined mainly separately for each operation/metric. This makes
   it easier to -- among other things -- run several versions of a Session level
   statistics.

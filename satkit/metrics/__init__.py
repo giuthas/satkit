@@ -47,8 +47,11 @@ from .spline_metric import (SplineMetric, SplineMetricParameters,
 # metrics is a mapping between a modality name and its actual type and the
 # validator model for its parameters.
 metrics = {
-    'AggregateImage': (AggregateImage, AggregateImageParameters),
-    'DistanceMatrix': (DistanceMatrix, DistanceMatrixParameters),
     'PD': (PD, PdParameters),
     'SplineMetric': (SplineMetric, SplineMetricParameters),
+}
+
+statistics = {
+    'AggregateImage': (AggregateImage, AggregateImageParameters),
+    'DistanceMatrix': (DistanceMatrix, DistanceMatrixParameters),
 }

@@ -1,6 +1,11 @@
 venv/
 .idea/
 
+#
+# Satkit generated files
+#
+*.meta
+*.npz
 
 ####
 # Groups of files 

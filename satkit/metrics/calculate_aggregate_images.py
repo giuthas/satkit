@@ -110,7 +110,7 @@ def add_aggregate_images(
             mean_image_on_interpolated_data=run_on_interpolated_data,
             release_data_memory=release_data_memory)
         missing_keys = set(all_requested).difference(
-            recording.keys())
+            recording.statistics.keys())
         to_be_computed = dict((key, value)
                               for key, value in all_requested.items()
                               if key in missing_keys)

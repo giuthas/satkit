@@ -57,10 +57,6 @@ from satkit.configuration import (
     apply_exclusion_list, DataRunConfig, load_exclusion_list
 )
 from satkit.data_structures import Session
-from satkit.export import (
-    publish_distance_matrix,
-    publish_aggregate_images
-)
 from satkit.metrics import (
     add_aggregate_images, add_distance_matrices, add_pd, add_spline_metric,
     downsample_metrics
@@ -95,7 +91,7 @@ def downsample(
 
 
 def data_run(
-        recording_session: Session,
+        session: Session,
         configuration: config.Configuration,
 ) -> None:
     data_run_config = configuration.data_run_config
@@ -125,7 +121,7 @@ def data_run(
             spline_metric_args.model_dump()
         )
 
-    process_modalities(recordings=recording_session,
+    process_modalities(recordings=session,
                        processing_functions=modality_operation_dict)
 
     statistic_operation_dict = {}
@@ -138,16 +134,16 @@ def data_run(
         )
 
     process_statistics_in_recordings(
-        session=recording_session,
+        session=session,
         processing_functions=statistic_operation_dict)
 
     if data_run_config.downsample:
-        downsample(recording_session=recording_session,
+        downsample(recording_session=session,
                    data_run_config=data_run_config)
 
     if data_run_config.peaks:
         modality_pattern = data_run_config.peaks.modality_pattern
-        for recording in recording_session:
+        for recording in session:
             if recording.excluded:
                 print(
                     f"in satkit.py: jumping over {recording.basename}")
@@ -181,28 +177,24 @@ def main():
     exclusion_list = None
     if cli.args.exclusion_filename:
         exclusion_list = load_exclusion_list(cli.args.exclusion_filename)
-    recording_session = load_data(Path(cli.args.load_path))
-    apply_exclusion_list(recording_session, exclusion_list=exclusion_list)
+    session = load_data(Path(cli.args.load_path))
+    apply_exclusion_list(session, exclusion_list=exclusion_list)
 
     log_elapsed_time()
 
-    data_run(recording_session=recording_session,
+    data_run(session=session,
              configuration=configuration)
 
-    # publish_aggregate_images(
-    #     recording_session, image_name='AggregateImage mean on RawUltrasound')
-    # publish_distance_matrix(
-    #     recording_session,
-    #     distance_matrix_name=(
-    #         'DistanceMatrix mean_squared_error on AggregateImage mean '
-    #         'on RawUltrasound')
-    # )
+    if configuration.publish_config is not None:
+        # TODO 1.0: This should probably be its own CLI command.
+        logger.info(
+            "Currently publishing from the satkit.py script is disabled.")
 
     logger.info('Data run ended.')
 
     # save before plotting just in case.
     if cli.args.output_filename:
-        save_data(Path(cli.args.output_filename), recording_session)
+        save_data(Path(cli.args.output_filename), session)
 
     log_elapsed_time()
 
@@ -212,7 +204,7 @@ def main():
         # Apparently the assignment to an unused variable is needed
         # to avoid a segfault.
         app.annotator = PdQtAnnotator(
-            recording_session=recording_session,
+            recording_session=session,
             args=cli.args,
             config=configuration)
         sys.exit(app.exec_())

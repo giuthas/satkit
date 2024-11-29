@@ -32,7 +32,7 @@
 """
 These are the code friendly wrappers for the configuration structures.
 
-configuration_parsers contains the actual parsing of strictyaml into
+`configuration_parsers` contains the actual parsing of strictyaml into
 comment-retaining dictionary-like structures. Here those structures get parsed
 into pydantic models that know what their fields actually are.
 
@@ -49,7 +49,9 @@ import numpy as np
 from pydantic import conlist
 
 from satkit.constants import (
-    IntervalBoundary, IntervalCategory
+    CoordinateSystems, Datasource,
+    IntervalBoundary, IntervalCategory,
+    SplineDataColumn, SplineMetaColumn
 )
 from satkit.external_class_extensions import UpdatableBaseModel
 
@@ -57,6 +59,67 @@ _logger = logging.getLogger('satkit.configuration_models')
 
 FloatPair = NewType('FloatPair', conlist(float, min_length=2, max_length=2))
 IntPair = NewType('IntPair', conlist(int, min_length=2, max_length=2))
+
+
+class ExclusionList(UpdatableBaseModel):
+    """
+    List of files, prompts, and parts of prompts to be excluded from analysis.
+    """
+    path: Path
+    files: list[str] | None = None
+    prompts: list[str] | None = None
+    parts_of_prompts: list[str] | None = None
+
+
+class SplineImportConfig(UpdatableBaseModel):
+    """
+    Spline import csv file configuration.
+
+    This describes how to interpret a csv file containing splines.
+    """
+    single_spline_file: bool
+    headers: bool
+    coordinates: CoordinateSystems
+    interleaved_coords: bool
+    meta_columns: tuple[SplineMetaColumn]
+    data_columns: tuple[SplineDataColumn]
+    spline_file: Path | None = None
+    spline_file_extension: str | None = None
+    delimiter: str = '\t'
+
+    def __post_init__(self):
+        """
+        Empty delimiter strings are replaced with a tabulator.
+        """
+        if not self.delimiter:
+            self.delimiter = '\t'
+
+
+class SplineDataConfig(UpdatableBaseModel):
+    """
+    Configuration options for processing and display of splines.
+    """
+    ignore_points: tuple[int] | None = None
+
+
+class SplineConfig(UpdatableBaseModel):
+    """
+    Configuration options for both import and processing of splines.
+    """
+    import_config: SplineImportConfig
+    data_config: SplineDataConfig
+
+
+class PathStructure(UpdatableBaseModel):
+    """
+    Path structure of a Session for both loading and saving.
+    """
+    root: Path
+    exclusion_list: Path | None = None
+    wav: Path | None = None
+    textgrid: Path | None = None
+    ultrasound: Path | None = None
+    spline_config: Path | None = None
 
 
 class MainConfig(UpdatableBaseModel):
@@ -470,6 +533,7 @@ class AnnotationStatsPlotConfig(PlotConfig):
 
 
 class PublishConfig(PlotConfig):
+    publish_directory: Path
     timeseries_plot: TimeseriesPlotConfig | None = None
     annotation_stats_plot: TimeseriesPlotConfig | None = None
 

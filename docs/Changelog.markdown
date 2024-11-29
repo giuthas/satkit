@@ -31,17 +31,28 @@ and this project uses [Semantic Versioning](https://semver.org/spec/v2.0.0.html)
   speech_articulation_toolkit.
 - See [Roadmap](Roadmap.markdown) for an overview of what to expect in 1.0.
 
-## [0.12.0] 
+## [0.12.0] needs to be cleaned of merge overlaps below
 
-### Added 
- 
+### Highlights
+
+- Configuration system now works less globally and more on a study-by-study
+  basis. Local configuration overrides global.
+- Exclusion is defined mainly separately for each operation/metric. This makes
+  it easier to -- among other things -- run several versions of a Session level
+  statistics.
+
+## Added
+
 - Introduced the concept of Scenarios: These are analysis results (i.e. derived 
   data) that each have their own configuration. This makes it possible to run 
   a given metric on the same data with conflicting parameters and save all 
   results for later use.
+- Statistics are now saved along with Modalities and the rest on 'Save all'.
 
-### Changed 
+## Changed
 
+- Per-study or Scenario configuration instead of global configuration.
+- Scenario based results saving too. 
 - Major update to data management and the configuration system. 
   - Data is now separated to recorded and derived. Former is data originating 
     from outside sources and treated as immutable, latter is data originating 
@@ -51,8 +62,17 @@ and this project uses [Semantic Versioning](https://semver.org/spec/v2.0.0.html)
     the derived version overriding recorded. This will have a future application  
     in generating practice scenarios.
 
+
+### Removed
+
+- Removed the `publish_distance_matrix` and `publish_aggregate_images`
+  functions. The preferred way is to use the export functions which also
+  automatically export the meta data to keep track of where an exported/published
+  image came from.
+
 ### Fixed
 
+- Saving and loading works again.
 - [possibly] the issues in 0.11
 
 ## [0.11.0] 2024-11-20

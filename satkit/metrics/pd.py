@@ -43,7 +43,8 @@ from pydantic import PositiveInt
 from satkit.constants import ImageMask
 from satkit.data_structures import (
     FileInformation, Modality, ModalityData,
-    ModalityMetaData, Recording)
+    ModalityMetaData, Recording
+)
 from satkit.utility_functions import product_dict
 
 _pd_logger = logging.getLogger('satkit.pd')
@@ -107,7 +108,7 @@ class PD(Modality):
         Generate a PD modality name to be used as its unique identifier.
 
         This static method **defines** what the names are. This implementation
-        pattern (PD.name calls this and any where that needs to guess what a
+        pattern (PD.name calls this and anywhere that needs to guess what a
         name would be calls this) is how all derived Modalities should work.
 
         Parameters
@@ -143,12 +144,12 @@ class PD(Modality):
 
     @staticmethod
     def get_names_and_meta(
-        modality: Union[Modality, str],
-        norms: list[str] = None,
-        timesteps: list[int] = None,
-        pd_on_interpolated_data: bool = False,
-        mask_images: bool = False,
-        release_data_memory: bool = True
+            modality: Union[Modality, str],
+            norms: list[str] = None,
+            timesteps: list[int] = None,
+            pd_on_interpolated_data: bool = False,
+            mask_images: bool = False,
+            release_data_memory: bool = True
     ) -> dict[str: PdParameters]:
         """
         Generate PD modality names and metadata.
@@ -204,23 +205,25 @@ class PD(Modality):
             'interpolated': [pd_on_interpolated_data],
             'release_data_memory': [release_data_memory]}
 
-        pdparams = [PdParameters(**item)
-                    for item in product_dict(**param_dict)]
+        pd_params = [PdParameters(**item)
+                     for item in product_dict(**param_dict)]
 
-        return {PD.generate_name(params): params for params in pdparams}
+        return {PD.generate_name(params): params for params in pd_params}
 
-    def __init__(self,
-                 recording: Recording,
-                 meta_data: PdParameters,
-                 file_info: FileInformation,
-                 parsed_data: Optional[ModalityData] = None,
-                 time_offset: Optional[float] = None) -> None:
+    def __init__(
+            self,
+            owner: Recording,
+            meta_data: PdParameters,
+            file_info: FileInformation,
+            parsed_data: Optional[ModalityData] = None,
+            time_offset: Optional[float] = None
+    ) -> None:
         """
         Build a Pixel Difference (PD) Modality       
 
         Parameters
         ----------
-        recording : Recording
+        owner : Recording
             the containing Recording.
         meta_data : PdParameters
             Parameters used in calculating this instance of PD.
@@ -242,7 +245,7 @@ class PD(Modality):
                 time_offset = parsed_data.timevector[0]
 
         super().__init__(
-            recording,
+            owner,
             meta_data=meta_data,
             file_info=file_info,
             parsed_data=parsed_data,

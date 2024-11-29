@@ -67,15 +67,7 @@ class StatisticLoadSchema(BaseModel):
     parameters: dict
 
 
-class ModalityListingLoadSchema(BaseModel):
-    """
-    Loading schema for the Statistic listing in a saved Recording or Session.
-    """
-    data_name: str
-    meta_name: Union[str, None]
-
-
-class ModalityLoadSchema(BaseModel):
+class DataContainerLoadSchema(BaseModel):
     """
     Loading schema for a saved Modality.
 
@@ -87,9 +79,9 @@ class ModalityLoadSchema(BaseModel):
     parameters: dict
 
 
-class ModalityListingLoadSchema(BaseModel):
+class DataContainerListingLoadSchema(BaseModel):
     """
-    Loading schema for the Modality listing in a saved Recording.
+    Loading schema for the DataContainer listings in a saved Recording.
     """
     data_name: str
     meta_name: Union[str, None]
@@ -105,7 +97,8 @@ class RecordingLoadSchema(BaseModel):
     name: str
     format_version: str
     parameters: RecordingMetaData
-    modalities: dict[str, ModalityListingLoadSchema]
+    modalities: dict[str, DataContainerListingLoadSchema]
+    statistics: dict[str, DataContainerListingLoadSchema]
 
 
 class SessionParameterLoadSchema(BaseModel):

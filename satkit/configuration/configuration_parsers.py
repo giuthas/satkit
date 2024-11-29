@@ -155,6 +155,11 @@ def parse_config(filepath: Path | str | None = None) -> None:
     load_main_config(filepath)
     load_gui_params(config_dict['gui_parameter_file'])
 
+    if 'data_run_parameters' in config_dict:
+        load_run_params(config_dict['data_run_parameters'])
+    if 'publish_parameters' in config_dict:
+        load_publish_params(config_dict['publish_parameters'])
+
 
 def load_main_config(filepath: Path | str | None = None) -> YAML:
     """
@@ -177,8 +182,8 @@ def load_main_config(filepath: Path | str | None = None) -> YAML:
             schema = Map({
                 "epsilon": Float(),
                 "mains_frequency": Float(),
-                "data_run_parameter_file": PathValidator(),
                 "gui_parameter_file": PathValidator(),
+                Optional("data_run_parameter_file"): PathValidator(),
                 Optional("publish_parameter_file"): PathValidator()
             })
             try:
@@ -217,6 +222,7 @@ def load_run_params(filepath: Path | str | None = None) -> YAML:
         with closing(
                 open(filepath, 'r', encoding=DEFAULT_ENCODING)) as yaml_file:
             schema = Map({
+                "recorded_data_path": PathValidator(),
                 Optional("output_directory"): PathValidator(),
                 "flags": Map({
                     "detect_beep": Bool(),

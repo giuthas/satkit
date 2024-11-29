@@ -124,12 +124,12 @@ class PathStructure(UpdatableBaseModel):
 
 class MainConfig(UpdatableBaseModel):
     """
-    _summary_
+    Main configuration data of SATKIT.
     """
     epsilon: float
     mains_frequency: float
-    data_run_parameter_file: Path
     gui_parameter_file: Path
+    data_run_parameter_file: Path | None = None
     publish_parameter_file: Path | None = None
 
 

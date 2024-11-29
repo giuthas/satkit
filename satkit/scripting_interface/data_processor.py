@@ -29,14 +29,19 @@
 # articles listed in README.markdown. They can also be found in
 # citations.bib in BibTeX format.
 #
+"""
+Process data: Add metrics and statistics.
+
+This is the mechanism for avoiding reading and re-reading raw data like
+ultrasound or video data that should only be read once, processed in as many
+ways as needed, and then expunged from memory to avoid running out of memory.
+"""
 
 import datetime
 import logging
 from dataclasses import dataclass
 from multiprocessing import Pool
 from typing import Callable
-
-from icecream import ic
 
 from satkit.data_structures import Modality, Recording, Session
 

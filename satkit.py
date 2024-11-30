@@ -48,17 +48,13 @@ from PyQt5 import QtWidgets
 # local modules
 from satkit import log_elapsed_time, set_logging_level
 import satkit.configuration as config
-
 from satkit.configuration import (
     apply_exclusion_list, load_exclusion_list
 )
 
 from satkit.qt_annotator import PdQtAnnotator
-from satkit.scripting_interface import (
-    SatkitArgumentParser,
-    load_data,  # multi_process_data,
-    save_data
-)
+from satkit.argument_parser import SatkitArgumentParser
+from satkit.data_loader import load_data
 from satkit.data_processor import (
     add_derived_data,
 )
@@ -101,7 +97,9 @@ def main():
 
     # save before plotting just in case.
     if cli.args.output_filename:
-        save_data(Path(cli.args.output_filename), session)
+        logger.critical(
+            "Old style data saving is no longer supported. "
+            "Use 'Save all' in the GUI or implement a better way :^)")
 
     log_elapsed_time()
 

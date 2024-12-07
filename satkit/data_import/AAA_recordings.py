@@ -37,6 +37,8 @@ Import data exported by AAA.
 import logging
 from pathlib import Path
 
+from tqdm import tqdm
+
 # Local packages
 from satkit.configuration import PathStructure
 from satkit.constants import Datasource, SourceSuffix
@@ -112,7 +114,7 @@ def generate_aaa_recording_list(
     recordings = [
         generate_ultrasound_recording(
             basename=basename, directory=Path(directory), owner=owner)
-        for basename in basenames
+        for basename in tqdm(basenames, desc="Generating Recordings")
     ]
 
     if import_config and import_config.exclusion_list:
@@ -193,7 +195,7 @@ def add_modalities(
     Throws KeyError if TimeInSecsOfFirstFrame is missing from the
     meta file: [directory]/basename + .txt.
     """
-    for recording in recording_list:
+    for recording in tqdm(recording_list, desc="Adding Modalities"):
         if not recording.excluded:
             _AAA_logger.info("Adding modalities to recording for %s.",
                              recording.basename)

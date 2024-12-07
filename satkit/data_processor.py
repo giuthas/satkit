@@ -43,9 +43,10 @@ from dataclasses import dataclass
 from multiprocessing import Pool
 from typing import Callable
 
+from tqdm import tqdm
+
 from satkit import configuration as config
 from satkit.annotations import add_peaks
-
 from satkit.data_structures import Modality, Recording, Session
 from satkit.metrics import (
     add_aggregate_images, add_distance_matrices, add_pd,
@@ -83,15 +84,15 @@ def process_modalities(
     """
 
     # calculate the metrics
-    for recording in recordings:
+    for recording in tqdm(recordings, desc="Deriving Modalities"):
         if recording.excluded:
             continue
 
-        for key in processing_functions:
+        for key in tqdm(processing_functions, desc=f"Running functions", leave=False):
             (function, modalities, arguments) = processing_functions[key]
             # TODO: Version 1.0: add a mechanism to change the arguments for
             # different modalities.
-            for modality in modalities:
+            for modality in tqdm(modalities, desc="Processing modalities", leave=False):
                 function(
                     recording,
                     modality,

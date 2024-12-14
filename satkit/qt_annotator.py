@@ -408,10 +408,11 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
                 self.data_axes[axes_number],
                 modality.data,
                 modality.timevector - zero_offset,
-                self.xlim, ylim,
+                self.xlim,
+                ylim=None,
                 color=colors[i],
                 linestyle=(0, (i + 1, i + 1)),
-                normalise=TimeseriesNormalisation(peak=True, bottom=True),
+                normalise=TimeseriesNormalisation(peak=False, bottom=False),
                 y_offset=i * y_offset,
                 sampling_step=i + 1,
                 label=f"{modality.sampling_rate / (i + 1):.2f} Hz"

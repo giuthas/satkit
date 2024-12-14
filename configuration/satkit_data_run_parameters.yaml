@@ -72,18 +72,18 @@ pd_arguments:
 #  'release_data_memory': False
 #  'preload': True
 
-distance_matrix_arguments:
-  exclusion_list: "alignment/data/satkit_exclusion_list.yaml"
-  metrics:
-    - 'mean_squared_error'
-  preload: True
-  release_data_memory: False
-#  slice_max_step: 6
-  slice_step_to: 6
-  sort: True
-  sort_criteria:
-    - 'i'
-    - 'o'
+#distance_matrix_arguments:
+#  exclusion_list: "alignment/data/satkit_exclusion_list.yaml"
+#  metrics:
+#    - 'mean_squared_error'
+#  preload: True
+#  release_data_memory: False
+##  slice_max_step: 6
+#  slice_step_to: 6
+#  sort: True
+#  sort_criteria:
+#    - 'i'
+#    - 'o'
 
 # Config for the yet-to-happen submodule CAST that is still a separate entity. 
 cast:

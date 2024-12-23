@@ -64,28 +64,29 @@ from satkit.data_processor import (
 )
 
 
-def main():
-    """Main to run the CLI and start the GUI."""
-
+def initialise_satkit():
     # Arguments need to be parsed before setting up logging so that we have
     # access to the verbosity argument.
     cli = SatkitArgumentParser("SATKIT")
-
     logger = set_logging_level(cli.args.verbose)
-
     # TODO: this should be done in one:
     if cli.args.configuration_filename:
         config.parse_config(cli.args.configuration_filename)
     else:
         config.parse_config()
     configuration = config.Configuration(cli.args.configuration_filename)
-
     exclusion_list = None
     if cli.args.exclusion_filename:
         exclusion_list = load_exclusion_list(cli.args.exclusion_filename)
     session = load_data(Path(cli.args.load_path))
     apply_exclusion_list(session, exclusion_list=exclusion_list)
+    return cli, configuration, logger, session
 
+
+def main():
+    """Main to run the CLI and start the GUI."""
+
+    cli, configuration, logger, session = initialise_satkit()
     log_elapsed_time()
 
     add_derived_data(session=session,

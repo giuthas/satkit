@@ -330,6 +330,7 @@ def load_gui_params(filepath: Path | str | None = None) -> YAML:
             "colors_in_sequence", default=True): Bool(),
         Optional("sharex"): Bool(),
         Optional("mark_peaks"): Bool(),
+        Optional("ylim"): FixedSeq([Float(), Float()]),
         Optional("y_offset"): Float(),
     }
 

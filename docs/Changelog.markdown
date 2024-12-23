@@ -35,30 +35,24 @@ and this project uses [Semantic Versioning](https://semver.org/spec/v2.0.0.html)
 
 ### Highlights
 
-- Configuration system now works less globally and more on a study-by-study
-  basis. Local configuration overrides global.
-- Exclusion is defined mainly separately for each operation/metric. This makes
-  it easier to -- among other things -- run several versions of a Session level
-  statistics.
+- Experimental interactive workflow supported by interface and data
+  initialisation being collected into some simple to use functions.
 
 ## Added
 
-- Statistics are now saved along with Modalities and the rest on 'Save all'.
-- Some helpful progress indicators to show how the data run is going.
+- Exporting data from modalities for external analysis.
+- An example script to run from the interactive interpreter or copy-paste into
+  it to get some data loaded and processable in interactive mode.
+- Some helpful progress indicators to show how the data loading is going.
 
 ## Changed
 
-- Per-study or Scenario configuration instead of global configuration.
-- Scenario based results saving too. 
-- Lots of internal changes.
+- A lot of functionality that lived in satkit.py is now in regular satkit
+  library functions.
 
 ### Removed
 
-- Removed the `publish_distance_matrix` and `publish_aggregate_images`
-  functions. The preferred way is to use the export functions which also
-  automatically export the meta data to keep track of where an exported/published
-  image came from.
-
+- Dismantled the `scripting_interface` submodule.
 
 ### Fixed
 

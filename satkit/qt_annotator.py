@@ -384,10 +384,15 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
             y limits, by default None
         """
         axes_params = self.gui_config.data_axes[axes_name]
+        data_axes_params = self.gui_config.general_axes_params.data_axes
         plot_modality_names = axes_params.modalities
 
         if ylim is None:
-            ylim = (-0.05, 1.05)
+            ic(self.gui_config.general_axes_params)
+            if data_axes_params is None or data_axes_params.ylim is None:
+                ylim = (-0.05, 1.05)
+            else:
+                ylim = data_axes_params.ylim
 
         y_offset = 0
         if axes_params.y_offset is not None:
@@ -409,9 +414,7 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
                 modality.data,
                 modality.timevector - zero_offset,
                 self.xlim,
-                # TODO: make this a config parameter - do the same to
-                # spectrogram
-                ylim=(800, 1600),
+                ylim=ylim,
                 color=colors[i],
                 linestyle=(0, (i + 1, i + 1)),
                 normalise=TimeseriesNormalisation(peak=False, bottom=False),
@@ -496,16 +499,24 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
         for axes_name in self.gui_config.data_axes:
             match axes_name:
                 case "spectrogram":
+                    if self.gui_config.data_axes[axes_name].ylim is not None:
+                        ylim = self.gui_config.data_axes[axes_name].ylim
+                    else:
+                        ylim = (0, 10500)
                     plot_spectrogram(self.data_axes[axes_counter],
                                      waveform=wav,
-                                     ylim=(0, 10500),
+                                     ylim=ylim,
                                      sampling_frequency=audio.sampling_rate,
                                      extent_on_x=(wav_time[0], wav_time[-1]))
                 case "spectrogram2":
+                    if self.gui_config.data_axes[axes_name].ylim is not None:
+                        ylim = self.gui_config.data_axes[axes_name].ylim
+                    else:
+                        ylim = (0, 10500)
                     plot_spectrogram2(
                         self.data_axes[axes_counter],
                         waveform=wav,
-                        ylim=(0, 10500),
+                        ylim=ylim,
                         sampling_frequency=audio.sampling_rate,
                         extent_on_x=(wav_time[0], wav_time[-1]))
                 # TODO: figure out if this should be just completely removed.
@@ -528,7 +539,9 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
                         self.plot_modality_axes(
                             axes_number=axes_counter,
                             axes_name=axes_name,
-                            zero_offset=stimulus_onset)
+                            zero_offset=stimulus_onset,
+                            ylim=self.gui_config.data_axes[axes_name].ylim,
+                        )
             axes_counter += 1
 
         self.data_axes[0].legend(

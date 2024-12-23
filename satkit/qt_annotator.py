@@ -409,7 +409,9 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
                 modality.data,
                 modality.timevector - zero_offset,
                 self.xlim,
-                ylim=[800,1600],
+                # TODO: make this a config parameter - do the same to
+                # spectrogram
+                ylim=(800, 1600),
                 color=colors[i],
                 linestyle=(0, (i + 1, i + 1)),
                 normalise=TimeseriesNormalisation(peak=False, bottom=False),

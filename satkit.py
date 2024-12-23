@@ -54,13 +54,14 @@ from satkit.annotations import (
 import satkit.configuration as config
 
 from satkit.configuration import (
-    apply_exclusion_list, DataRunConfig, load_exclusion_list
+    apply_exclusion_list, load_exclusion_list
 )
 from satkit.data_structures import Session
 from satkit.metrics import (
     add_aggregate_images, add_distance_matrices, add_pd, add_spline_metric,
-    downsample_metrics
+    downsample_metrics_in_session
 )
+
 from satkit.modalities import RawUltrasound, Splines
 from satkit.qt_annotator import PdQtAnnotator
 from satkit.scripting_interface import (
@@ -72,28 +73,26 @@ from satkit.scripting_interface import (
 )
 
 
-def downsample(
-        recording_session: Session,
-        data_run_config: DataRunConfig
-) -> None:
-    """
-    Downsample metrics in the session.
-
-    Parameters
-    ----------
-    recording_session : Session
-        _description_
-    data_run_config : DataRunConfig
-        _description_
-    """
-    for recording in recording_session:
-        downsample_metrics(recording, data_run_config.downsample)
-
-
-def data_run(
+def add_derived_data(
         session: Session,
         configuration: config.Configuration,
 ) -> None:
+    """
+    Add derived data to the Session according to the Configuration.
+
+    NOTE: This function will not delete existing data unless it is being
+    replaced (and the corresponding replace parameter is `True`). This means
+    that already existing derived data is retained.
+
+    Added data types include Modalities, Statistics and Annotations.
+
+    Parameters
+    ----------
+    session : Session
+        The Session to add derived data to.
+    configuration : Configuration
+        The configuration parameters to use in deriving the new derived data.
+    """
     data_run_config = configuration.data_run_config
 
     modality_operation_dict = {}
@@ -138,8 +137,8 @@ def data_run(
         processing_functions=statistic_operation_dict)
 
     if data_run_config.downsample:
-        downsample(recording_session=session,
-                   data_run_config=data_run_config)
+        downsample_metrics_in_session(recording_session=session,
+                                      data_run_config=data_run_config)
 
     if data_run_config.peaks:
         modality_pattern = data_run_config.peaks.modality_pattern
@@ -182,8 +181,8 @@ def main():
 
     log_elapsed_time()
 
-    data_run(session=session,
-             configuration=configuration)
+    add_derived_data(session=session,
+                     configuration=configuration)
 
     if configuration.publish_config is not None:
         # TODO 1.0: This should probably be its own CLI command.

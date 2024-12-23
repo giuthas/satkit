@@ -44,6 +44,8 @@ and this project uses [Semantic Versioning](https://semver.org/spec/v2.0.0.html)
 - An example script to run from the interactive interpreter or copy-paste into
   it to get some data loaded and processable in interactive mode.
 - Some helpful progress indicators to show how the data loading is going.
+- Y limits of modality axes and spectrograms can be controlled from the gui
+  parameter file.
 
 ## Changed
 

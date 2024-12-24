@@ -172,7 +172,7 @@ class PD(Modality):
         mask_images : bool, optional
             indicates if images should be masked, by default False
         release_data_memory: bool
-            Should parent Modlity's data be assigned to None after calculations
+            Should parent Modality's data be assigned to None after calculations
             are complete, by default True.
 
         Returns

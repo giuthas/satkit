@@ -38,6 +38,7 @@ import sys
 from argparse import Namespace
 from pathlib import Path
 
+from icecream import ic
 from PyQt5 import QtWidgets
 
 from satkit import configuration
@@ -59,7 +60,7 @@ from satkit.qt_annotator import PdQtAnnotator
 from satkit.utility_functions import set_logging_level
 
 
-def initialise_satkit():
+def initialise_satkit(path: Path | str | None = None):
     """
     Initialise the basic structures for running SATKIT.
 
@@ -75,6 +76,14 @@ def initialise_satkit():
         logger is an instance of logging.Logger, and
         session is an instance of Session.
     """
+    if path is not None:
+        if path is isinstance(path, Path):
+            path = str(path)
+        if sys.argv[0] == '':
+            sys.argv[0] = './satkit.py'
+        sys.argv.append(path)
+        ic(sys.argv)
+
     # Arguments need to be parsed before setting up logging so that we have
     # access to the verbosity argument.
     cli = SatkitArgumentParser("SATKIT")

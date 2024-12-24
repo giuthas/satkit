@@ -64,9 +64,9 @@ class PdParameters(ModalityMetaData):
         A  positive integer used as the timestep in calculating this Modality's
         data. Defaults to 1, which means comparison of consecutive frames.
     release_data_memory : bool
-        Wether to assign None to parent.data after deriving this Modality from
-        the data. Currently has no effect as deriving PD at runtime is not yet
-        supported.
+        Whether to assign None to `parent.data` after deriving this Modality
+        from the data. Currently, has no effect as deriving PD at runtime is not
+        yet supported.
     interpolated : bool
         Should this PD be calculated on interpolated images. Defaults to False
         for calculating PD on raw data. This one really can only be used on 2D

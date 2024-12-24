@@ -33,6 +33,8 @@
 """
 SATKIT -- The Speech Articulation ToolKIT
 
+# TODO 1.0 Add an example of running SATKIT from the interactive command line.
+
 SATKIT consists of several interdependent modules.
 
 ![SATKIT Module hierarchy](packages_satkit.png "SATKIT Module hierarchy")
@@ -48,9 +50,13 @@ graphical annotation tools derive from Annotator.
 import json
 import logging.config
 
-from satkit.utility_functions.logging_helpers import (
-    log_elapsed_time, set_logging_level
-)
+# from .utility_functions.logging_helpers import (
+#     log_elapsed_time, set_logging_level
+# )
+
+from .satkit import add_derived_data, initialise_satkit, run_annotator
+
+__all__ = [add_derived_data, initialise_satkit, run_annotator]
 
 # Load logging config from json file.
 LOG_CONFIG = "configuration/satkit_logging_configuration.json"
@@ -63,3 +69,4 @@ _satkit_logger = logging.getLogger('satkit')
 
 # Log that the logger was configured.
 _satkit_logger.info('Completed configuring logger.')
+

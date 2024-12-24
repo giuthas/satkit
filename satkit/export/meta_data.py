@@ -74,7 +74,7 @@ def _export_header(
     file_info: FileInformation | None = None,
 ) -> None:
     file.write(
-        f"Metadata for {object_name} extracted by "
+        f"Metadata for {object_name} exported by "
         f"SATKIT {SATKIT_VERSION} to\n")
     file.write(f"\t{filename}.\n\n")
     if file_info is not None:
@@ -91,13 +91,13 @@ def export_aggregate_image_meta(
     """
     Write ultrasound frame metadata to a human-readable text file.
 
-    The purpose of this function is to generate a file documenting an extracted
+    The purpose of this function is to generate a file documenting an exported
     ultrasound frame, so that it can be found again in its original context.
 
     Parameters
     ----------
     filename : str | Path
-        Filename or path of the extracted ultrasound frame.
+        Filename or path of the exported ultrasound frame.
     session : Session
         Session that the frame belongs to.
     recording : Recording
@@ -178,13 +178,13 @@ def export_ultrasound_frame_meta(
     """
     Write ultrasound frame metadata to a human-readable text file.
 
-    The purpose of this function is to generate a file documenting an extracted
+    The purpose of this function is to generate a file documenting an exported
     ultrasound frame, so that it can be found again in its original context.
 
     Parameters
     ----------
     filename : str | Path
-        Filename or path of the extracted ultrasound frame.
+        Filename or path of the exported ultrasound frame.
     session : Session
         Session that the frame belongs to.
     recording : Recording

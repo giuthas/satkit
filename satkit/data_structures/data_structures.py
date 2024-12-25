@@ -776,7 +776,7 @@ class Modality(DataContainer, OrderedDict):
                 self.recording.excluded = True
 
     @property
-    def is_derived_modality(self) -> bool:
+    def is_derived(self) -> bool:
         """
         Is this Modality a result of processing another.
 

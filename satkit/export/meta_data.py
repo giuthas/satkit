@@ -163,12 +163,42 @@ def export_modality_meta(
             filename=filename)
         _write_session_and_recording_meta(
             file=file, session=modality.owner.owner, recording=modality.owner)
+        file.write("\n")
         nestedtext.dump(
             obj=dict(sorted(modality.meta_data.model_dump().items())),
             dest=file,
             converters=nested_text_converters
         )
         _logger.debug("Wrote file %s.", str(meta_filepath))
+
+
+def export_derived_modalities_meta(
+        filename: Path | str,
+        recording: Recording,
+        description: str,
+) -> None:
+    filepath, meta_filepath = _paths_from_name(filename)
+    with meta_filepath.open('w', encoding='utf-8') as file:
+        _export_header(
+            file=file,
+            object_name=description,
+            filename=filename)
+        _write_session_and_recording_meta(
+            file=file, session=recording.owner, recording=recording)
+        file.write("\n")
+
+        modality_params = {
+            f"{modality_name} parameters": dict(
+                sorted(recording[modality_name].meta_data.model_dump().items()))
+            for modality_name in recording
+            if recording[modality_name].is_derived
+        }
+
+        nestedtext.dump(
+            obj=modality_params,
+            dest=file,
+            converters=nested_text_converters
+        )
 
 
 def export_session_and_recording_meta(

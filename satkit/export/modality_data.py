@@ -32,20 +32,27 @@
 """
 Transformers and exporters for Modality data.
 """
+
 from pathlib import Path
 
 import pandas as pd
 
 from satkit.data_structures import Modality, Recording
 
-from .meta_data import export_modality_meta
+from .meta_data import export_derived_modalities_meta, export_modality_meta
 
 
-def modality_data_to_dataframe(modality: Modality) -> pd.DataFrame:
+def modality_data_to_dataframe(
+        modality: Modality, use_long_time_name: bool = False
+) -> pd.DataFrame:
     data_name = modality.name_underscored
+    if use_long_time_name:
+        time_name = modality.name_underscored + '_time'
+    else:
+        time_name = 'time'
 
     new_df_dict = {
-        'time': modality.modality_data.timevector,
+        time_name: modality.modality_data.timevector,
         data_name: modality.modality_data.data,
     }
 
@@ -67,10 +74,24 @@ def modality_to_csv(path: Path | str, modality: Modality) -> None:
         description=f"Meta for {modality.name} exported to {path}",)
 
 
-def modalities_to_csv(path: Path | str, recording: Recording) -> None:
+def derived_modalities_to_csv(path: Path | str, recording: Recording) -> None:
     if isinstance(path, str):
         path = Path(path)
 
     if path.suffix != '.csv':
         path = path.with_suffix('.csv')
 
+    dataframe = pd.concat(
+        objs=[
+            modality_data_to_dataframe(recording[modality_name],
+                                       use_long_time_name=True)
+            for modality_name in recording
+            if recording[modality_name].is_derived
+        ],
+        axis='columns'
+    )
+    dataframe.to_csv(path, sep='\t', encoding='utf-8', index=False, header=True)
+    export_derived_modalities_meta(
+        filename=path,
+        recording=recording,
+        description="Meta for derived Modalities",)

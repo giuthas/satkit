@@ -40,7 +40,7 @@ from typing import TextIO
 import nestedtext
 
 from satkit.constants import SATKIT_VERSION
-from satkit.data_structures import FileInformation, Recording, Session
+from satkit.data_structures import FileInformation, Modality, Recording, Session
 from satkit.metrics import AggregateImageParameters, DistanceMatrixParameters
 from satkit.save_and_load import nested_text_converters
 
@@ -150,6 +150,27 @@ def export_distance_matrix_meta(
         _logger.debug("Wrote file %s.", str(meta_filepath))
 
 
+def export_modality_meta(
+        filename: Path | str,
+        modality: Modality,
+        description: str
+) -> None:
+    filepath, meta_filepath = _paths_from_name(filename)
+    with meta_filepath.open('w', encoding='utf-8') as file:
+        _export_header(
+            file=file,
+            object_name=description,
+            filename=filename)
+        _write_session_and_recording_meta(
+            file=file, session=modality.owner.owner, recording=modality.owner)
+        nestedtext.dump(
+            obj=dict(sorted(modality.meta_data.model_dump().items())),
+            dest=file,
+            converters=nested_text_converters
+        )
+        _logger.debug("Wrote file %s.", str(meta_filepath))
+
+
 def export_session_and_recording_meta(
         filename: Path | str,
         session: Session,
@@ -200,7 +221,7 @@ def export_ultrasound_frame_meta(
     with meta_filepath.open('w', encoding='utf-8') as file:
         _export_header(
             file=file,
-            object_name="AggregateImage",
+            object_name="Ultrasound frame",
             filename=filename)
         _write_session_and_recording_meta(
             file=file, session=session, recording=recording)

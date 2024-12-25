@@ -43,7 +43,7 @@ from dataclasses import dataclass
 from enum import Enum
 
 # TODO 1.0: Decouple program and file format versions at version 1.0.
-SATKIT_VERSION = '0.11'
+SATKIT_VERSION = '0.12'
 SATKIT_FILE_VERSION = SATKIT_VERSION
 
 DEFAULT_ENCODING = 'utf-8'

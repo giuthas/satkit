@@ -499,6 +499,18 @@ class DataContainer(DataObject):
         return self.__class__.generate_name(self._meta_data)
 
     @property
+    def name_underscored(self) -> str:
+        """
+        Name of this instance with spaces replaced with underscores.
+
+        Returns
+        -------
+        str
+            Name of this instance with spaces replaced with underscores.
+        """
+        return self.name.replace(" ", "_")
+
+    @property
     @abc.abstractmethod
     def data(self) -> np.ndarray:
         """

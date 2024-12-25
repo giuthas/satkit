@@ -75,6 +75,21 @@ def modality_to_csv(path: Path | str, modality: Modality) -> None:
 
 
 def derived_modalities_to_csv(path: Path | str, recording: Recording) -> None:
+    """
+
+
+    NOTE: Exporting modalities with different lengths is untested and exporting
+    modalities whose data is not 1-D will crash.
+
+    Parameters
+    ----------
+    path :
+    recording :
+
+    Returns
+    -------
+
+    """
     if isinstance(path, str):
         path = Path(path)
 

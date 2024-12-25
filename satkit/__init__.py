@@ -50,10 +50,6 @@ graphical annotation tools derive from Annotator.
 import json
 import logging.config
 
-# from .utility_functions.logging_helpers import (
-#     log_elapsed_time, set_logging_level
-# )
-
 from .satkit import add_derived_data, initialise_satkit, run_annotator
 
 __all__ = [add_derived_data, initialise_satkit, run_annotator]

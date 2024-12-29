@@ -31,7 +31,7 @@ and this project uses [Semantic Versioning](https://semver.org/spec/v2.0.0.html)
   speech_analysis_toolkit.
 - See [Roadmap](Roadmap.markdown) for an overview of what to expect in 1.0.
 
-## [0.12.0] needs to be cleaned of merge overlaps below
+## [0.12.0] 
 
 ### Highlights
 
@@ -41,22 +41,25 @@ and this project uses [Semantic Versioning](https://semver.org/spec/v2.0.0.html)
   - Also supported by temporary script file `satkit_interactive.py`.
     - Runs like `satkit.py` but instead of starting the GUI annotator, starts an 
       interactive Python session.
-- Exporting data from Modalities into DataFrames with label info from TextGrids
-  for external analysis.
+- Exporting data from Modalities into DataFrames for external analysis.
 
 ## Added
 
-- Exporting data from modalities for external analysis.
-- An example script to run from the interactive interpreter or copy-paste into
-  it to get some data loaded and processable in interactive mode.
+- Exporting data from modalities into DataFrames for external analysis.
+  - Includes an option of exporting with label info from TextGrids.
+  - Experimentally enabled export of several derived modalities into the same csv
+    file.
+- A script to run SATKIT as an interactive interpreter. 
+  - The same commands can obviously be copy-pasted into an interpreter to get some
+    data loaded and processable in interactive mode.
 - Some helpful progress indicators to show how the data loading is going.
 - Y limits of modality axes and spectrograms can be controlled from the gui
   parameter file.
 
 ## Changed
 
-- A lot of functionality that lived in satkit.py is now in regular satkit
-  library functions.
+- A lot of functionality that lived in `satkit.py` is now in regular satkit
+  library functions and in the new `satkit/satkit.py` module.
 
 ### Removed
 
@@ -65,6 +68,13 @@ and this project uses [Semantic Versioning](https://semver.org/spec/v2.0.0.html)
 ### Fixed
 
 - Saving and loading works again.
+
+### Bugs
+
+- Same as previous versions.
+- Command history does not yet work when running SATKIT as an interactive
+  interpreter with `satkit_interactive.py`.
+
 
 ## [0.11.0] 2024-11-20
 

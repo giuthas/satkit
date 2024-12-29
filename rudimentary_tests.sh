@@ -37,6 +37,8 @@
 # GUI. 
 #   - Just files, nothing fancy.
 ./satkit.py tongue_data_1_1/
+# The same but in interactive interpreter mode
+./satkit_interactive.py tongue_data_1_1/
 
 #   - Missing files
 ./satkit.py tongue_data_1_2/

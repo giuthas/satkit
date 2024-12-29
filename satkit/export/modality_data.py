@@ -67,7 +67,7 @@ def modality_data_to_dataframe(
 
     Returns
     -------
-        pd.DataFrame
+    pd.DataFrame
         The dataframe with columns for at least time stamps and the modality
         data, but also columns for each tier if `save_segmentation` is True.
     """

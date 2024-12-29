@@ -52,7 +52,7 @@ import logging.config
 
 from .satkit import add_derived_data, initialise_satkit, run_annotator
 
-__all__ = [add_derived_data, initialise_satkit, run_annotator]
+__all__ = ['add_derived_data', 'initialise_satkit', 'run_annotator']
 
 # Load logging config from json file.
 LOG_CONFIG = "configuration/satkit_logging_configuration.json"

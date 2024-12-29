@@ -70,7 +70,7 @@ def initialise_satkit(path: Path | str | None = None):
 
     Returns
     -------
-        tuple[cli, config, logger, session] where
+    tuple[cli, config, logger, session] where
         cli is an instance of SatkitArgumentParser,
         config is an instance of Configuration,
         logger is an instance of logging.Logger, and
@@ -121,6 +121,10 @@ def add_derived_data(
         The Session to add derived data to.
     config : Configuration
         The configuration parameters to use in deriving the new derived data.
+
+    Returns
+    -------
+    None
     """
     data_run_config = config.data_run_config
 

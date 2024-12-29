@@ -52,6 +52,9 @@ data_axes:
     modalities:
       - PD l2 on RawUltrasound
     sharex: True
+    ylim:
+      - 800
+      - 1600
   spectrogram2:
     sharex: True
   wav:

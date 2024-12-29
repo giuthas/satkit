@@ -40,7 +40,7 @@ from typing import TextIO
 import nestedtext
 
 from satkit.constants import SATKIT_VERSION
-from satkit.data_structures import FileInformation, Recording, Session
+from satkit.data_structures import FileInformation, Modality, Recording, Session
 from satkit.metrics import AggregateImageParameters, DistanceMatrixParameters
 from satkit.save_and_load import nested_text_converters
 
@@ -74,7 +74,7 @@ def _export_header(
     file_info: FileInformation | None = None,
 ) -> None:
     file.write(
-        f"Metadata for {object_name} extracted by "
+        f"Metadata for {object_name} exported by "
         f"SATKIT {SATKIT_VERSION} to\n")
     file.write(f"\t{filename}.\n\n")
     if file_info is not None:
@@ -91,13 +91,13 @@ def export_aggregate_image_meta(
     """
     Write ultrasound frame metadata to a human-readable text file.
 
-    The purpose of this function is to generate a file documenting an extracted
+    The purpose of this function is to generate a file documenting an exported
     ultrasound frame, so that it can be found again in its original context.
 
     Parameters
     ----------
     filename : str | Path
-        Filename or path of the extracted ultrasound frame.
+        Filename or path of the exported ultrasound frame.
     session : Session
         Session that the frame belongs to.
     recording : Recording
@@ -133,6 +133,18 @@ def export_distance_matrix_meta(
         session: Session,
         distance_matrix_meta: DistanceMatrixParameters,
 ) -> None:
+    """
+    Export the meta data for a DistanceMatrix.
+
+    Parameters
+    ----------
+    filename : str | Path
+        File to export to.
+    session : Session
+        The session whose DistanceMatrix is to be exported.
+    distance_matrix_meta :
+        The meta data to be exported.
+    """
     filepath, meta_filepath = _paths_from_name(filename)
     with meta_filepath.open('w', encoding='utf-8') as file:
         _export_header(
@@ -150,12 +162,104 @@ def export_distance_matrix_meta(
         _logger.debug("Wrote file %s.", str(meta_filepath))
 
 
+def export_modality_meta(
+        filename: Path | str,
+        modality: Modality,
+        description: str
+) -> None:
+    """
+    Export meta data for a Modality.
+
+    Parameters
+    ----------
+    filename : Path | str
+        File to export to.
+    modality : Modality
+        Modality whose meta data is to be exported.
+    description : str
+        Description added to the header of the export file.
+    """
+    filepath, meta_filepath = _paths_from_name(filename)
+    with meta_filepath.open('w', encoding='utf-8') as file:
+        _export_header(
+            file=file,
+            object_name=description,
+            filename=filename)
+        _write_session_and_recording_meta(
+            file=file, session=modality.owner.owner, recording=modality.owner)
+        file.write("\n")
+        nestedtext.dump(
+            obj=dict(sorted(modality.meta_data.model_dump().items())),
+            dest=file,
+            converters=nested_text_converters
+        )
+        _logger.debug("Wrote file %s.", str(meta_filepath))
+
+
+def export_derived_modalities_meta(
+        filename: Path | str,
+        recording: Recording,
+        description: str,
+) -> None:
+    """
+    Export meta data for derived Modalities.
+
+    NOTE: There is no meta data exporter for recorded modalities as we keep that
+    in the original format as written by what ever software recorded the data.
+
+    Parameters
+    ----------
+    filename : Path | str
+        File to export to.
+    recording : Recording
+        Recording that the Modalities belong to.
+    description : str
+        Description to be added to the header of the export file.
+    """
+    filepath, meta_filepath = _paths_from_name(filename)
+    with meta_filepath.open('w', encoding='utf-8') as file:
+        _export_header(
+            file=file,
+            object_name=description,
+            filename=filename)
+        _write_session_and_recording_meta(
+            file=file, session=recording.owner, recording=recording)
+        file.write("\n")
+
+        modality_params = {
+            f"{modality_name} parameters": dict(
+                sorted(recording[modality_name].meta_data.model_dump().items()))
+            for modality_name in recording
+            if recording[modality_name].is_derived
+        }
+
+        nestedtext.dump(
+            obj=modality_params,
+            dest=file,
+            converters=nested_text_converters
+        )
+
+
 def export_session_and_recording_meta(
         filename: Path | str,
         session: Session,
         recording: Recording,
         description: str
 ) -> None:
+    """
+    Export meta data for A Session and  a Recording.
+
+    Parameters
+    ----------
+    filename : Path | str
+        File to export to.
+    session : Session
+        The Session whose meta data is to be exported.
+    recording : Recording
+        The Recording whose meta data is to be exported.
+    description : str
+        Description to be added to the header of the export file.
+    """
     filepath, meta_filepath = _paths_from_name(filename)
     with meta_filepath.open('w', encoding='utf-8') as file:
         _export_header(
@@ -178,13 +282,13 @@ def export_ultrasound_frame_meta(
     """
     Write ultrasound frame metadata to a human-readable text file.
 
-    The purpose of this function is to generate a file documenting an extracted
+    The purpose of this function is to generate a file documenting an exported
     ultrasound frame, so that it can be found again in its original context.
 
     Parameters
     ----------
     filename : str | Path
-        Filename or path of the extracted ultrasound frame.
+        Filename or path of the exported ultrasound frame.
     session : Session
         Session that the frame belongs to.
     recording : Recording
@@ -200,7 +304,7 @@ def export_ultrasound_frame_meta(
     with meta_filepath.open('w', encoding='utf-8') as file:
         _export_header(
             file=file,
-            object_name="AggregateImage",
+            object_name="Ultrasound frame",
             filename=filename)
         _write_session_and_recording_meta(
             file=file, session=session, recording=recording)

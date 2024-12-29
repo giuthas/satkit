@@ -42,13 +42,13 @@ import numpy as np
 
 # local modules
 from satkit.data_structures import (
-    FileInformation, Modality, ModalityData, ModalityMetaData, Recording)
+    FileInformation, Modality, ModalityData, ModalityMetaData, Recording
+)
 from satkit.import_formats import (
     read_3d_ultrasound_dicom, read_avi, read_ult, read_wav,
     read_wav_and_detect_beep
 )
 from satkit.interpolate_raw_uti import to_fan, to_fan_2d
-from satkit.configuration import data_run_params
 from .recorded_meta_data_classes import RawUltrasoundMeta
 
 _logger = logging.getLogger('satkit.modalities')
@@ -72,13 +72,16 @@ class MonoAudio(Modality):
     def generate_name(cls, params: ModalityMetaData) -> str:
         return cls.__name__
 
-    def __init__(self,
-                 recording: Recording,
-                 file_info: FileInformation,
-                 parsed_data: ModalityData | None = None,
-                 time_offset: float | None = None,
-                 go_signal: float | None = None,
-                 has_speech: bool | None = None) -> None:
+    def __init__(
+            self,
+            owner: Recording,
+            file_info: FileInformation,
+            parsed_data: ModalityData | None = None,
+            time_offset: float | None = None,
+            detect_beep: bool = False,
+            go_signal: float | None = None,
+            has_speech: bool | None = None
+    ) -> None:
         """
         Create a MonoAudio track.
 
@@ -100,11 +103,12 @@ class MonoAudio(Modality):
             audio in the sample.
         """
         super().__init__(
-            recording=recording,
+            owner=owner,
             file_info=file_info,
             parsed_data=parsed_data,
             time_offset=time_offset)
 
+        self.detect_beep = detect_beep
         self.go_signal = go_signal
         self.has_speech = has_speech
 
@@ -112,23 +116,23 @@ class MonoAudio(Modality):
         """
         Read wav data, and possibly detect go-signal & speech.
         """
-        if data_run_params['flags']['detect beep']:
+        if self.detect_beep:
             parsed_data, go_signal, has_speech = read_wav_and_detect_beep(
-                self.recorded_data_file)
+                self.recorded_data_path)
             self.go_signal = go_signal
             self.has_speech = has_speech
             return parsed_data
-        return read_wav(self.recorded_data_file)
+        return read_wav(self.recorded_data_path)
 
     # TODO: uncomment and implement when implementing the save features.
     # def _load_data(self):
-        # """
-        # Call io functions to load wav data, and any wav related meta
-        # saved with it.
+    # """
+    # Call io functions to load wav data, and any wav related meta
+    # saved with it.
 
-        # The wav data itself is just the original file, but along that a
-        # metadata save file will be read as well to recover any go-signal or
-        # speech detection results. """
+    # The wav data itself is just the original file, but along that a
+    # metadata save file will be read as well to recover any go-signal or
+    # speech detection results. """
 
     def get_meta(self) -> dict:
         return {'sampling_rate': self.sampling_rate}
@@ -144,7 +148,7 @@ class RawUltrasound(Modality):
         return cls.__name__
 
     def __init__(self,
-                 recording: Recording,
+                 owner: Recording,
                  file_info: FileInformation,
                  parsed_data: ModalityData | None = None,
                  time_offset: float | None = None,
@@ -169,7 +173,7 @@ class RawUltrasound(Modality):
             Default is None.
         """
         super().__init__(
-            recording=recording,
+            owner=owner,
             file_info=file_info,
             parsed_data=parsed_data,
             time_offset=time_offset,
@@ -186,16 +190,16 @@ class RawUltrasound(Modality):
 
     def _read_data(self) -> ModalityData:
         return read_ult(
-            self.recorded_data_file, self.meta_data, self._time_offset)
+            self.recorded_data_path, self.meta_data, self._time_offset)
 
     def get_meta(self) -> dict:
         return self.meta
 
-    @ property
+    @property
     def data(self) -> np.ndarray:
         return super().data
 
-    @ data.setter
+    @data.setter
     def data(self, data) -> None:
         super()._data_setter(data)
 
@@ -230,7 +234,7 @@ class RawUltrasound(Modality):
         if self.video_has_been_stored:
             _logger.debug(
                 "Returning interpolated image from stored video.")
-            half_way = int(self.stored_video.shape[0]/2)
+            half_way = int(self.stored_video.shape[0] / 2)
             return self.stored_video[half_way, :, :].copy()
         elif self._stored_index and self._stored_index == index:
             _logger.debug(
@@ -282,6 +286,7 @@ class RawUltrasound(Modality):
             'num_vectors': self.meta_data.num_vectors,
         }
 
+
 class Video(Modality):
     """
     Video recording.
@@ -291,12 +296,12 @@ class Video(Modality):
         'FramesPerSec'
     ]
 
-    @ classmethod
+    @classmethod
     def generate_name(cls, params: ModalityMetaData) -> str:
         return cls.__name__
 
     def __init__(self,
-                 recording: Recording,
+                 owner: Recording,
                  file_info: FileInformation,
                  parsed_data: ModalityData | None = None,
                  time_offset: float | None = None,
@@ -343,14 +348,14 @@ class Video(Modality):
                 sys.exit()
 
         super().__init__(
-            recording=recording,
+            owner=owner,
             file_info=file_info,
             parsed_data=parsed_data,
             time_offset=time_offset)
 
     def _read_data(self) -> ModalityData:
         return read_avi(
-            self.recorded_data_file, self.meta, self._time_offset)
+            self.recorded_data_path, self.meta, self._time_offset)
 
     def get_meta(self) -> dict:
         return {'sampling_rate': self.sampling_rate}
@@ -372,12 +377,12 @@ class ThreeD_Ultrasound(Modality):
         'ZeroOffset'
     ]
 
-    @ classmethod
+    @classmethod
     def generate_name(cls, params: ModalityMetaData) -> str:
         return cls.__name__
 
     def __init__(self,
-                 recording: Recording,
+                 owner: Recording,
                  file_info: FileInformation,
                  parsed_data: ModalityData | None = None,
                  time_offset: float | None = None,
@@ -424,7 +429,7 @@ class ThreeD_Ultrasound(Modality):
         # Initialise super only after ensuring meta is correct,
         # because latter may already end the run.
         super().__init__(
-            recording=recording,
+            owner=owner,
             file_info=file_info,
             parsed_data=parsed_data,
             time_offset=time_offset)
@@ -437,15 +442,15 @@ class ThreeD_Ultrasound(Modality):
 
     def _read_data(self) -> ModalityData:
         return read_3d_ultrasound_dicom(
-            self.recorded_data_file,
+            self.recorded_data_path,
             self.meta,
             self._time_offset)
 
-    @ property
+    @property
     def data(self) -> np.ndarray:
         return super().data
 
-    @ data.setter
+    @data.setter
     def data(self, data) -> None:
         super()._data_setter(data)
 

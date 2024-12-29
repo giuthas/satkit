@@ -50,8 +50,8 @@ from strictyaml import (
 
 from satkit.constants import DEFAULT_ENCODING
 
-from .configuration_classes import IntervalBoundary, IntervalCategory
-from .configuration_models import TimeseriesNormalisation
+from .configuration_models import (
+    IntervalBoundary, IntervalCategory, TimeseriesNormalisation)
 
 config_dict = {}
 data_run_params = {}
@@ -153,10 +153,12 @@ def parse_config(filepath: Path | str | None = None) -> None:
     exist, report this and exit.
     """
     load_main_config(filepath)
-    load_run_params(config_dict['data_run_parameter_file'])
     load_gui_params(config_dict['gui_parameter_file'])
-    # load_plot_params(config['plotting_parameter_file'])
-    load_publish_params(config_dict['publish_parameter_file'])
+
+    if 'data_run_parameters' in config_dict:
+        load_run_params(config_dict['data_run_parameters'])
+    if 'publish_parameters' in config_dict:
+        load_publish_params(config_dict['publish_parameters'])
 
 
 def load_main_config(filepath: Path | str | None = None) -> YAML:
@@ -180,8 +182,8 @@ def load_main_config(filepath: Path | str | None = None) -> YAML:
             schema = Map({
                 "epsilon": Float(),
                 "mains_frequency": Float(),
-                "data_run_parameter_file": PathValidator(),
                 "gui_parameter_file": PathValidator(),
+                Optional("data_run_parameter_file"): PathValidator(),
                 Optional("publish_parameter_file"): PathValidator()
             })
             try:
@@ -220,6 +222,7 @@ def load_run_params(filepath: Path | str | None = None) -> YAML:
         with closing(
                 open(filepath, 'r', encoding=DEFAULT_ENCODING)) as yaml_file:
             schema = Map({
+                "recorded_data_path": PathValidator(),
                 Optional("output_directory"): PathValidator(),
                 "flags": Map({
                     "detect_beep": Bool(),
@@ -330,6 +333,7 @@ def load_gui_params(filepath: Path | str | None = None) -> YAML:
             "colors_in_sequence", default=True): Bool(),
         Optional("sharex"): Bool(),
         Optional("mark_peaks"): Bool(),
+        Optional("ylim"): FixedSeq([Float(), Float()]),
         Optional("y_offset"): Float(),
     }
 
@@ -403,6 +407,7 @@ def load_publish_params(filepath: Path | str | None = None) -> YAML:
         with closing(
                 open(filepath, 'r', encoding=DEFAULT_ENCODING)) as yaml_file:
             schema = Map({
+                "publish_directory": PathValidator(),
                 Optional("timeseries_plot"): Map({
                     "output_file": Str(),
                     Optional("figure_size", default=[8.3, 11.7]): FixedSeq(
@@ -449,57 +454,4 @@ def load_publish_params(filepath: Path | str | None = None) -> YAML:
 
     publish_params.update(_raw_publish_params_dict.data)
 
-    # if publish_params['xticks']:
-    #     publish_params['xticklabels'] = publish_params['xticks'].copy()
-    #     publish_params['xticks'] = np.asarray(
-    #         publish_params['xticks'], dtype=float)
-
-    # if publish_params['yticks']:
-    #     publish_params['yticklabels'] = publish_params['yticks'].copy()
-    #     publish_params['yticks'] = np.asarray(
-    #         publish_params['yticks'], dtype=float)
     return _raw_publish_params_dict
-
-
-def load_plot_params(filepath: Path | str | None = None) -> YAML:
-    """
-    Read the plot configuration file from filepath.
-
-    Not yet implemented. Will raise a NotImplementedError.
-    """
-
-    raise NotImplementedError
-
-    # if filepath is None:
-    #     print("Fatal error in loading run parameters: filepath is None")
-    #     sys.exit()
-    # elif isinstance(filepath, str):
-    #     filepath = Path(filepath)
-
-    # _logger.info("Loading plot configuration from %s", str(filepath))
-
-    # if filepath.is_file():
-    #     with closing(
-    #             open(filepath, 'r', encoding=DEFAULT_ENCODING)) as yaml_file:
-    #         schema = Map({
-    #             "data_and_tier_height_ratios": Map({
-    #                 "data": Int(),
-    #                 "tier": Int()
-    #             }),
-    #             "data_axes": Seq(Str()),
-    #             "pervasive_tiers": Seq(Str())
-    #         })
-    #         try:
-    #             _raw_plot_params_dict = load(yaml_file.read(), schema)
-    #         except YAMLError as error:
-    #             _logger.fatal("Fatal error in reading %s.",
-    #                           str(filepath))
-    #             _logger.fatal(str(error))
-    #             raise
-    # else:
-    #     _logger.fatal(
-    #         "Didn't find plot parameter file at %s.", str(filepath))
-    #     sys.exit()
-
-    # plot_params.update(_raw_plot_params_dict.data)
-    # return _raw_plot_params_dict

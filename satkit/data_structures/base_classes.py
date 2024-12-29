@@ -40,7 +40,7 @@ from pathlib import Path
 import numpy as np
 
 from satkit.errors import OverwriteError
-from satkit.external_class_extensions import EmptyStrAsNoneBaseModel
+from satkit.external_class_extensions import SatkitBaseModel
 
 from .meta_data_classes import FileInformation, StatisticMetaData
 
@@ -59,8 +59,8 @@ class DataObject(abc.ABC):
     """
 
     def __init__(self,
-                 meta_data: EmptyStrAsNoneBaseModel,
-                 owner: DataObject | None = None,
+                 meta_data: SatkitBaseModel,
+                 owner: DataAggregator | None = None,
                  file_info: FileInformation | None = None,
                  ) -> None:
         # The super().__init__() call below is needed to make sure that
@@ -118,6 +118,10 @@ class DataObject(abc.ABC):
         """
         The paths and filenames of this DataObject as a FileInformation object.
 
+        NOTE: Regularly you should not need to access this directly. Instead,
+        use the `[recorded|satkit]_path`, `[recorded|satkit]_data_file`, and
+        `[recorded|satkit]_meta_file` properties.
+
         Returns
         -------
         FileInformation
@@ -126,7 +130,7 @@ class DataObject(abc.ABC):
         return self._file_info
 
     @property
-    def meta_data(self) -> EmptyStrAsNoneBaseModel:
+    def meta_data(self) -> SatkitBaseModel:
         """
         Metadata of this DataObject.
 
@@ -136,27 +140,45 @@ class DataObject(abc.ABC):
 
         Returns
         -------
-        EmptyStrAsNoneBaseModel
+        SatkitBaseModel
             The meta data as a Pydantic model.
         """
         return self._meta_data
 
     @property
-    def recorded_data_file(self) -> Path | None:
+    def recorded_data_path(self) -> Path | None:
         """
-        Path to the recorded raw data file of this DataObject.
+        Path of the recorded raw data file of this DataObject.
+
+        May not be overwritten.
 
         Returns
         -------
         Path
             The path or None if no path was set.
         """
+        if not self._file_info.recorded_data_file:
+            return None
         if self._file_info.recorded_data_file:
             return self.recorded_path / self._file_info.recorded_data_file
         return None
 
     @property
-    def recorded_meta_file(self) -> Path | None:
+    def recorded_data_name(self) -> str | None:
+        """
+        Name the recorded raw data file of this DataObject.
+
+        May not be overwritten.
+
+        Returns
+        -------
+        str
+            The name or None if no name was set.
+        """
+        return self._file_info.recorded_data_file
+
+    @property
+    def recorded_meta_path(self) -> Path | None:
         """
         Path to the recorded meta data file of this DataObject.
 
@@ -166,14 +188,32 @@ class DataObject(abc.ABC):
         This file may also cover more than one recorded data file - usually a
         whole Session if not just a single recorded data file.
 
+        May not be overwritten.
+
         Returns
         -------
         Path
             The path or None if no path was set.
         """
+        if not self._file_info.recorded_meta_file:
+            return None
         if self._file_info.recorded_meta_file:
             return self.recorded_path / self._file_info.recorded_meta_file
         return None
+
+    @property
+    def recorded_meta_name(self) -> str | None:
+        """
+        Name the recorded raw data file of this DataObject.
+
+        May not be overwritten.
+
+        Returns
+        -------
+        str
+            The name or None if no name was set.
+        """
+        return self._file_info.recorded_meta_file
 
     @property
     def recorded_path(self) -> Path | None:
@@ -182,56 +222,129 @@ class DataObject(abc.ABC):
 
         This file will exist only for recorded data.
 
+        May not be overwritten.
+
         Returns
         -------
         Path
             The path or None if no path was set.
         """
+        if not self._file_info.recorded_path:
+            return None
         if self.owner:
             return self.owner.recorded_path / self._file_info.recorded_path
         return self._file_info.recorded_path
 
     @property
-    def satkit_data_file(self) -> Path | None:
+    def satkit_data_path(self) -> Path | None:
         """
         Path to the SATKIT (derived) data file of this DataObject.
 
         This file will exist only for saved derived data.
 
+        May be overwritten.
+
         Returns
         -------
         Path
             The path or None if no path was set.
         """
+        if not self._file_info.satkit_data_file:
+            return None
         return self.satkit_path / self._file_info.satkit_data_file
 
+    @satkit_data_path.setter
+    def satkit_data_path(self, satkit_data_file: Path | None) -> None:
+        if satkit_data_file is None:
+            self._file_info.satkit_data_file = None
+        else:
+            self._file_info.satkit_data_file = satkit_data_file.name
+
     @property
-    def satkit_meta_file(self) -> Path | None:
+    def satkit_data_name(self) -> str | None:
+        """
+        Name the SATKIT data file of this DataObject.
+
+        May be overwritten.
+
+        Returns
+        -------
+        str
+            The name or None if no name was set.
+        """
+        return self._file_info.satkit_data_file
+
+    @satkit_data_name.setter
+    def satkit_data_name(self, satkit_data_file: str | None) -> None:
+        self._file_info.satkit_data_file = satkit_data_file
+
+    @property
+    def satkit_meta_path(self) -> Path | None:
         """
         Path to the SATKIT meta data file of this DataObject.
 
         After saving this file will exist even for recorded data.
 
+        May be overwritten.
+
         Returns
         -------
         Path
             The path or None if no path was set.
         """
+        if not self._file_info.satkit_meta_file:
+            return None
         return self.satkit_path / self._file_info.satkit_meta_file
+
+    @satkit_meta_path.setter
+    def satkit_meta_path(self, satkit_meta_file: Path | None) -> None:
+        if satkit_meta_file is None:
+            self._file_info.satkit_meta_file = None
+        else:
+            self._file_info.satkit_meta_file = satkit_meta_file.name
+
+    @property
+    def satkit_meta_name(self) -> str | None:
+        """
+        Name the SATKIT meta data file of this DataObject.
+
+        May be overwritten.
+
+        Returns
+        -------
+        str
+            The name or None if no name was set.
+        """
+        return self._file_info.satkit_meta_file
+
+    @satkit_meta_name.setter
+    def satkit_meta_name(self, satkit_meta_file: str | None) -> None:
+        self._file_info.satkit_meta_file = satkit_meta_file
 
     @property
     def satkit_path(self) -> Path | None:
         """
         Path to the SATKIT files of this DataObject.
 
+        May be overwritten.
+
         Returns
         -------
         Path
             The path or None if no path was set.
         """
+        if not self._file_info.satkit_path:
+            return None
         if self.owner:
             return self.owner.satkit_path / self._file_info.satkit_path
         return self._file_info.satkit_path
+
+    @satkit_path.setter
+    def satkit_path(self, satkit_path: str | Path | None) -> None:
+        if satkit_path is None or isinstance(satkit_path, Path):
+            self._file_info.satkit_path = satkit_path
+        else:
+            self._file_info.satkit_path = Path(satkit_path)
 
     @property
     def is_fully_initialised(self) -> bool:
@@ -279,7 +392,7 @@ class DataAggregator(DataObject):
 
     def __init__(self,
                  name: str,
-                 meta_data: EmptyStrAsNoneBaseModel,
+                 meta_data: SatkitBaseModel,
                  owner: DataObject | None = None,
                  file_info: FileInformation | None = None,
                  statistics: dict[str, 'Statistic'] | None = None
@@ -352,11 +465,11 @@ class DataContainer(DataObject):
     """
     @classmethod
     @abc.abstractmethod
-    def generate_name(cls, params: EmptyStrAsNoneBaseModel) -> str:
+    def generate_name(cls, params: SatkitBaseModel) -> str:
         """Abstract version of generating a RecordingMetric name."""
 
     def __init__(self,
-                 meta_data: EmptyStrAsNoneBaseModel,
+                 meta_data: SatkitBaseModel,
                  owner: DataObject | None = None,
                  file_info: FileInformation | None = None,
                  ) -> None:
@@ -386,8 +499,23 @@ class DataContainer(DataObject):
         return self.__class__.generate_name(self._meta_data)
 
     @property
+    def name_underscored(self) -> str:
+        """
+        Name of this instance with spaces replaced with underscores.
+
+        Returns
+        -------
+        str
+            Name of this instance with spaces replaced with underscores.
+        """
+        return self.name.replace(" ", "_")
+
+    @property
     @abc.abstractmethod
     def data(self) -> np.ndarray:
+        """
+        The data contained in this DataContainer as a numpy ndarray.
+        """
         pass
 
 
@@ -407,7 +535,7 @@ class Statistic(DataContainer):
 
     def __init__(
             self,
-            meta_data: EmptyStrAsNoneBaseModel,
+            meta_data: SatkitBaseModel,
             owner: DataAggregator | None = None,
             file_info: FileInformation | None = None,
             parsed_data: np.ndarray | None = None,
@@ -417,7 +545,7 @@ class Statistic(DataContainer):
 
         Parameters
         ----------
-        meta_data : EmptyStrAsNoneBaseModel
+        meta_data : SatkitBaseModel
             Parameters used in calculating this Statistic.
         owner : DataAggregator
             The owner of this Statistic. Usually this will be the object whose

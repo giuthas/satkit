@@ -29,6 +29,7 @@
 ## articles listed in README.markdown. They can also be found in
 ## citations.bib in BibTeX format.
 ##
+publish_directory: test_publish
 
 timeseries_plot:
   output_file: test.pdf
@@ -37,7 +38,7 @@ timeseries_plot:
     - 3 # rows
     - 2 # columns
 
-  # How to pass normalisation etc into SATKIT?
+  # How to pass normalisation etc. into SATKIT?
   subplots:
     "1 1": "PD l0 on RawUltrasound"
     "1 2": "PD l0.5 on RawUltrasound"

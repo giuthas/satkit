@@ -70,7 +70,7 @@ class Splines(Modality):
         return cls.__name__
 
     def __init__(self,
-                 recording: Recording,
+                 owner: Recording,
                  metadata: SplineMetadata,
                  file_info: FileInformation,
                  parsed_data: Optional[ModalityData] = None,
@@ -80,7 +80,7 @@ class Splines(Modality):
         # Initialise super only after ensuring meta is correct,
         # because latter may already end the run.
         super().__init__(
-            recording=recording,
+            owner=owner,
             meta_data=metadata,
             file_info=file_info,
             parsed_data=parsed_data,
@@ -88,7 +88,7 @@ class Splines(Modality):
 
     def _read_data(self) -> ModalityData:
         return read_splines(
-            self.recorded_data_file, self._meta_data, self._time_offset)
+            self.recorded_data_path, self._meta_data, self._time_offset)
 
     @property
     def data(self) -> np.ndarray:

@@ -57,7 +57,7 @@ from PyQt5.uic import loadUiType
 
 from satkit.data_structures import Session
 from satkit.configuration import (
-    GuiConfig, TimeseriesNormalisation, config_dict
+    Configuration, TimeseriesNormalisation
 )
 from satkit.export import (
     export_aggregate_image_and_meta,
@@ -112,7 +112,7 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
             self,
             recording_session: Session,
             args: Namespace,
-            gui_config: GuiConfig,
+            config: Configuration,
             xlim: tuple[float, float] = (-0.25, 1.5),
             categories: list[str] | None = None,
             pickle_filename: Path | str | None = None
@@ -130,7 +130,8 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
         self.commandline_args = args
         self.display_tongue = args.displayTongue
 
-        self.gui_config = gui_config
+        self.main_config = config.main_config
+        self.gui_config = config.gui_config
 
         if categories is None:
             self.categories = PdQtAnnotator.default_categories
@@ -244,18 +245,18 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
             number_of_data_axes, 1, hspace=0, wspace=0)
 
         data_axes_params = None
-        if gui_config.general_axes_params:
-            general_axes_params = gui_config.general_axes_params
+        if self.gui_config.general_axes_params:
+            general_axes_params = self.gui_config.general_axes_params
             if general_axes_params is not None:
                 data_axes_params = general_axes_params
 
-        for i, axes_name in enumerate(gui_config.data_axes):
+        for i, axes_name in enumerate(self.gui_config.data_axes):
             # There used to be a 'global' axes which has been moved to
             # 'general_axes_params' this may still cause problems with old
             # config files and should be fixed in them, not here.
             sharex = False
-            if gui_config.data_axes[axes_name].sharex:
-                sharex = gui_config.data_axes[axes_name].sharex
+            if self.gui_config.data_axes[axes_name].sharex:
+                sharex = self.gui_config.data_axes[axes_name].sharex
             elif (data_axes_params is not None and
                   data_axes_params.sharex is not None):
                 sharex = data_axes_params.sharex
@@ -384,10 +385,15 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
             y limits, by default None
         """
         axes_params = self.gui_config.data_axes[axes_name]
+        data_axes_params = self.gui_config.general_axes_params.data_axes
         plot_modality_names = axes_params.modalities
 
         if ylim is None:
-            ylim = (-0.05, 1.05)
+            ic(self.gui_config.general_axes_params)
+            if data_axes_params is None or data_axes_params.ylim is None:
+                ylim = (-0.05, 1.05)
+            else:
+                ylim = data_axes_params.ylim
 
         y_offset = 0
         if axes_params.y_offset is not None:
@@ -408,10 +414,11 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
                 self.data_axes[axes_number],
                 modality.data,
                 modality.timevector - zero_offset,
-                self.xlim, ylim,
+                self.xlim,
+                ylim=ylim,
                 color=colors[i],
                 linestyle=(0, (i + 1, i + 1)),
-                normalise=TimeseriesNormalisation(peak=True, bottom=True),
+                normalise=TimeseriesNormalisation(peak=False, bottom=False),
                 y_offset=i * y_offset,
                 sampling_step=i + 1,
                 label=f"{modality.sampling_rate / (i + 1):.2f} Hz"
@@ -493,16 +500,24 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
         for axes_name in self.gui_config.data_axes:
             match axes_name:
                 case "spectrogram":
+                    if self.gui_config.data_axes[axes_name].ylim is not None:
+                        ylim = self.gui_config.data_axes[axes_name].ylim
+                    else:
+                        ylim = (0, 10500)
                     plot_spectrogram(self.data_axes[axes_counter],
                                      waveform=wav,
-                                     ylim=(0, 10500),
+                                     ylim=ylim,
                                      sampling_frequency=audio.sampling_rate,
                                      extent_on_x=(wav_time[0], wav_time[-1]))
                 case "spectrogram2":
+                    if self.gui_config.data_axes[axes_name].ylim is not None:
+                        ylim = self.gui_config.data_axes[axes_name].ylim
+                    else:
+                        ylim = (0, 10500)
                     plot_spectrogram2(
                         self.data_axes[axes_counter],
                         waveform=wav,
-                        ylim=(0, 10500),
+                        ylim=ylim,
                         sampling_frequency=audio.sampling_rate,
                         extent_on_x=(wav_time[0], wav_time[-1]))
                 # TODO: figure out if this should be just completely removed.
@@ -525,7 +540,9 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
                         self.plot_modality_axes(
                             axes_number=axes_counter,
                             axes_name=axes_name,
-                            zero_offset=stimulus_onset)
+                            zero_offset=stimulus_onset,
+                            ylim=self.gui_config.data_axes[axes_name].ylim,
+                        )
             axes_counter += 1
 
         self.data_axes[0].legend(
@@ -572,7 +589,11 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
             for boundaries, interval in zip(
                     boundaries_by_boundary, tier, strict=True):
                 animator = BoundaryAnimator(
-                    self, boundaries, interval, stimulus_onset)
+                    main_window=self,
+                    boundaries=boundaries,
+                    segment=interval,
+                    epsilon=self.main_config.epsilon,
+                    time_offset=stimulus_onset)
                 animator.connect()
                 self.animators.append(animator)
         if self.tier_axes:
@@ -639,7 +660,7 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
                 # ic(np.diff(time_diff, n=1))
                 # ic(np.max(np.abs(np.diff(time_diff, n=1))))
 
-                epsilon = max((config_dict['epsilon'], splines.time_precision))
+                epsilon = max((self.main_config.epsilon, splines.time_precision))
                 min_difference = abs(
                     splines.timevector[spline_index] - timestamp)
                 # maybe this instead when loading data

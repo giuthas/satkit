@@ -35,6 +35,8 @@ General purpose utility functions.
 
 from .computational import (
     cartesian_to_polar, polar_to_cartesian, mean_squared_error,
-    normalise_timeseries)
+    normalise_timeseries
+)
+from .logging_helpers import log_elapsed_time, set_logging_level
 from .processing_helpers import camel_to_snake, product_dict
 from .types import is_sequence_form

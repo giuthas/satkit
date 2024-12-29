@@ -46,7 +46,7 @@ _logger = logging.getLogger('satkit.base_model_extensions')
 # UpdatableBaseModel.
 
 
-class EmptyStrAsNoneBaseModel(BaseModel):
+class SatkitBaseModel(BaseModel):
     """
     A BaseModel which accepts empty strings for any field as None.
     """
@@ -71,7 +71,7 @@ class EmptyStrAsNoneBaseModel(BaseModel):
         return input_string
 
 
-class UpdatableBaseModel(EmptyStrAsNoneBaseModel):
+class UpdatableBaseModel(SatkitBaseModel):
     """
     A BaseModel which can be updated with new data.
 

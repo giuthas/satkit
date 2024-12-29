@@ -43,7 +43,7 @@ from dataclasses import dataclass
 from enum import Enum
 
 # TODO 1.0: Decouple program and file format versions at version 1.0.
-SATKIT_VERSION = '0.11'
+SATKIT_VERSION = '0.12'
 SATKIT_FILE_VERSION = SATKIT_VERSION
 
 DEFAULT_ENCODING = 'utf-8'
@@ -52,9 +52,6 @@ DEFAULT_ENCODING = 'utf-8'
 class ImageMask(Enum):
     """
     Accepted image masking options in calculating PD.
-
-    If both imagemask and interpolated data are chosen, the masking will happen
-    before interpolation.
     """
     TOP = "top"
     BOTTOM = "bottom"
@@ -162,7 +159,7 @@ class SatkitConfigFile:
 
 
 @dataclass(frozen=True)
-class SatkitSuffix():
+class SatkitSuffix:
     """
     Suffixes for files saved by SATKIT.
 
@@ -172,21 +169,21 @@ class SatkitSuffix():
     """
     CONFIG = ".yaml"
     DATA = ".npz"
-    META = ".satkit_meta"
+    META = ".meta"
 
 
 class SavedObjectTypes(Enum):
     """
     Represent type of a saved satkit object in .satkit_meta.
     """
-    # TODO 1.1: Check if this is actually in use.
+    # TODO 1.0: Check if this is actually in use.
     SESSION = "Session"
     RECORDING = "Recording"
     MODALITY = "Modality"
 
 
 @dataclass(frozen=True)
-class SourceSuffix():
+class SourceSuffix:
     """
     Suffixes for files imported by SATKIT.
 
@@ -194,7 +191,7 @@ class SourceSuffix():
     recognising what SATKIT is being asked to import.
 
     Note that AAA_ULTRA_META_OLD is not a proper suffix and won't be recognised
-    by pathlib and Path as such. Instead do this
+    by pathlib and Path as such. Instead, do this
     ```python
     directory_path = Path(from_some_source)
     directory_path/(name_string + SourceSuffix.AAA_ULTRA_META_OLD) 
@@ -224,7 +221,8 @@ class SourceSuffix():
 #     str
 #         The suffix.
 #     """
-#     # TODO 1.1: This is one possibility for not having hardcoded file suffixes.
+#     # TODO 1.1: This is one possibility for not having hardcoded file
+#     # suffixes.
 #     # Another is to let all the classes take care of it themselves and make it
 #     # into a Protocol (Python version of an interface).
 #     suffix = SatkitSuffix.META

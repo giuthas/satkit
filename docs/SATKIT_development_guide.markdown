@@ -80,7 +80,9 @@ A release of SATKIT is created as follows:
 
 1. If planning a major or minor release (first or second version number
    increments), check that all features in the current roadmap are either
-   done (implemented and merged to local `devel`), or that all undone features are
+   done (implemented and merged to local `devel`, after which you should 
+   delete the feature branch: `git push -d <remote_name> <branchname>` and 
+   `git branch -d <branchname`)), or that all undone features are
    moved to the next release's roadmap.
    - This applies from version 1.0. Before that the roadmap is for 1.0 and
      minor releases are done when significant parts have been updated without
@@ -94,11 +96,12 @@ A release of SATKIT is created as follows:
    After the pull request has been processed rest of the release tasks are done
    in the main repo.
 3. Update documentation and version numbers
-   - Version number lives in at least README.md and constants.py. File version
-     number will be different from program version number after 1.0.
+   - Version number lives in at least:
      - [README](../README.md),
      - [constants.py](../satkit/constants.py), and
      - [pyproject.toml](../pyproject.toml).
+     - File version number will be different from program version number after
+       1.0.
    - [Changelog](Changelog.markdown)
    - [Generated documentation](../devel/doc_generation_commands)
    - [License headers](../devel/licenseheaders_command)

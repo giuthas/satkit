@@ -60,7 +60,7 @@ class DataObject(abc.ABC):
 
     def __init__(self,
                  meta_data: SatkitBaseModel,
-                 owner: DataObject | None = None,
+                 owner: DataAggregator | None = None,
                  file_info: FileInformation | None = None,
                  ) -> None:
         # The super().__init__() call below is needed to make sure that

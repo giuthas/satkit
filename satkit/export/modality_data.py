@@ -43,7 +43,9 @@ from .meta_data import export_derived_modalities_meta, export_modality_meta
 
 
 def modality_data_to_dataframe(
-        modality: Modality, use_long_time_name: bool = False
+        modality: Modality,
+        use_long_time_name: bool = False,
+        save_segmentation: bool = False
 ) -> pd.DataFrame:
     data_name = modality.name_underscored
     if use_long_time_name:
@@ -56,17 +58,24 @@ def modality_data_to_dataframe(
         data_name: modality.modality_data.data,
     }
 
+    if save_segmentation:
+        label_dict = modality.owner.satgrid.get_labels(new_df_dict[time_name])
+        new_df_dict.update(label_dict)
+
     return pd.DataFrame(new_df_dict)
 
 
-def modality_to_csv(path: Path | str, modality: Modality) -> None:
+def modality_to_csv(
+        path: Path | str, modality: Modality, save_segmentation: bool = False
+) -> None:
     if isinstance(path, str):
         path = Path(path)
 
     if path.suffix != '.csv':
         path = path.with_suffix('.csv')
 
-    dataframe = modality_data_to_dataframe(modality)
+    dataframe = modality_data_to_dataframe(
+        modality=modality, save_segmentation=save_segmentation)
     dataframe.to_csv(path, sep='\t', encoding='utf-8', index=False, header=True)
     export_modality_meta(
         filename=path,
@@ -79,7 +88,7 @@ def derived_modalities_to_csv(path: Path | str, recording: Recording) -> None:
 
 
     NOTE: Exporting modalities with different lengths is untested and exporting
-    modalities whose data is not 1-D will crash.
+    modalities whose data is not 1-D will raise an Error.
 
     Parameters
     ----------

@@ -377,6 +377,7 @@ class Modality(DataContainer, OrderedDict):
     by `modality[annotation_type]`, because a Modality is also a OrderedDict of
     its Annotations.
     """
+    owner: Recording
 
     @classmethod
     @abc.abstractmethod

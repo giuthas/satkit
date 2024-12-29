@@ -133,6 +133,18 @@ def export_distance_matrix_meta(
         session: Session,
         distance_matrix_meta: DistanceMatrixParameters,
 ) -> None:
+    """
+    Export the meta data for a DistanceMatrix.
+
+    Parameters
+    ----------
+    filename : str | Path
+        File to export to.
+    session : Session
+        The session whose DistanceMatrix is to be exported.
+    distance_matrix_meta :
+        The meta data to be exported.
+    """
     filepath, meta_filepath = _paths_from_name(filename)
     with meta_filepath.open('w', encoding='utf-8') as file:
         _export_header(
@@ -155,6 +167,18 @@ def export_modality_meta(
         modality: Modality,
         description: str
 ) -> None:
+    """
+    Export meta data for a Modality.
+
+    Parameters
+    ----------
+    filename : Path | str
+        File to export to.
+    modality : Modality
+        Modality whose meta data is to be exported.
+    description : str
+        Description added to the header of the export file.
+    """
     filepath, meta_filepath = _paths_from_name(filename)
     with meta_filepath.open('w', encoding='utf-8') as file:
         _export_header(
@@ -177,6 +201,21 @@ def export_derived_modalities_meta(
         recording: Recording,
         description: str,
 ) -> None:
+    """
+    Export meta data for derived Modalities.
+
+    NOTE: There is no meta data exporter for recorded modalities as we keep that
+    in the original format as written by what ever software recorded the data.
+
+    Parameters
+    ----------
+    filename : Path | str
+        File to export to.
+    recording : Recording
+        Recording that the Modalities belong to.
+    description : str
+        Description to be added to the header of the export file.
+    """
     filepath, meta_filepath = _paths_from_name(filename)
     with meta_filepath.open('w', encoding='utf-8') as file:
         _export_header(
@@ -207,6 +246,20 @@ def export_session_and_recording_meta(
         recording: Recording,
         description: str
 ) -> None:
+    """
+    Export meta data for A Session and  a Recording.
+
+    Parameters
+    ----------
+    filename : Path | str
+        File to export to.
+    session : Session
+        The Session whose meta data is to be exported.
+    recording : Recording
+        The Recording whose meta data is to be exported.
+    description : str
+        Description to be added to the header of the export file.
+    """
     filepath, meta_filepath = _paths_from_name(filename)
     with meta_filepath.open('w', encoding='utf-8') as file:
         _export_header(

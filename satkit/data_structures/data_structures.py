@@ -126,6 +126,7 @@ class Recording(DataAggregator, UserDict):
     (with correct arguments) and doing any updates to `self.meta['textgrid']`
     that are necessary.
     """
+    owner: Session
 
     def __init__(
             self,

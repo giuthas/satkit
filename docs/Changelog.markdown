@@ -35,8 +35,14 @@ and this project uses [Semantic Versioning](https://semver.org/spec/v2.0.0.html)
 
 ### Highlights
 
-- Experimental interactive workflow supported by interface and data
-  initialisation being collected into some simple to use functions.
+- Experimental interactive workflow. 
+  - Supported by interface and data initialisation being collected into some
+    simple-to-use functions.
+  - Also supported by temporary script file `satkit_interactive.py`.
+    - Runs like `satkit.py` but instead of starting the GUI annotator, starts an 
+      interactive Python session.
+- Exporting data from Modalities into DataFrames with label info from TextGrids
+  for external analysis.
 
 ## Added
 

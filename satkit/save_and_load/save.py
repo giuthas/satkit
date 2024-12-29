@@ -49,6 +49,7 @@ from ..data_structures.base_classes import DataAggregator
 
 _logger = logging.getLogger('satkit._saver')
 
+
 def _save_aggregator_meta(
         filepath: Path,
         meta: dict,
@@ -70,7 +71,7 @@ def save_modality_data(
     """
     Save the data of a Modality.
 
-    This saves only ModalityData.data and ModalityData.timevector.
+    This saves only `ModalityData.data` and ModalityData.timevector.
 
     Returns the filename of the 
     """

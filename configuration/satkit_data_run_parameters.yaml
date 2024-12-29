@@ -84,16 +84,3 @@ pd_arguments:
 #  sort_criteria:
 #    - 'i'
 #    - 'o'
-
-# Config for the yet-to-happen submodule CAST that is still a separate entity. 
-cast:
-  # Consists of words followed by their segments in arbitrary transcription.  
-  pronunciation_dictionary: local_data/gam_mono_and_disyllables_for_automatic_segmentation.csv
-
-  # Speaker id is used in the output csv file.
-  speaker_id: gam-1-2
-
-  cast_flags:
-    only_words: False # Add only Utterance and Word Tiers.
-    utterance: True # Add Utterance Tier.
-    file: False # Add File Tier.

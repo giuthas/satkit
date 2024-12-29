@@ -97,7 +97,7 @@ def initialise_satkit(path: Path | str | None = None):
     exclusion_list = None
     if cli.args.exclusion_filename:
         exclusion_list = load_exclusion_list(cli.args.exclusion_filename)
-    session = load_data(Path(cli.args.load_path))
+    session = load_data(Path(cli.args.load_path), config)
     apply_exclusion_list(session, exclusion_list=exclusion_list)
     return cli, config, logger, session
 
@@ -110,7 +110,7 @@ def add_derived_data(
     Add derived data to the Session according to the Configuration.
 
     NOTE: This function will not delete existing data unless it is being
-    replaced (and the corresponding replace parameter is `True`). This means
+    replaced (and the corresponding `replace` parameter is `True`). This means
     that already existing derived data is retained.
 
     Added data types include Modalities, Statistics and Annotations.

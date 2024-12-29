@@ -126,9 +126,13 @@ def modality_to_csv(
         description=f"Meta for {modality.name} exported to {path}",)
 
 
-def derived_modalities_to_csv(path: Path | str, recording: Recording) -> None:
+def derived_modalities_to_csv(
+        path: Path | str,
+        recording: Recording,
+        save_segmentation: bool = False,
+) -> None:
     """
-    Attempt to export all derived Modalities of a Recording to a csv file.
+    Export all derived Modalities of a Recording to a csv file.
 
     NOTE: Exporting modalities with different lengths is untested and exporting
     modalities whose data is not 1-D will raise an Error.
@@ -139,6 +143,9 @@ def derived_modalities_to_csv(path: Path | str, recording: Recording) -> None:
         Path to export to.
     recording : Recording
         Recording whose derived Modalities to export.
+    save_segmentation : bool, optional
+        Should we include columns for each Tier of the corresponding TextGrid,
+        by default False.
     """
     if isinstance(path, str):
         path = Path(path)
@@ -148,8 +155,11 @@ def derived_modalities_to_csv(path: Path | str, recording: Recording) -> None:
 
     dataframe = pd.concat(
         objs=[
-            modality_data_to_dataframe(recording[modality_name],
-                                       use_long_time_name=True)
+            modality_data_to_dataframe(
+                recording[modality_name],
+                use_long_time_name=True,
+                save_segmentation=save_segmentation,
+            )
             for modality_name in recording
             if recording[modality_name].is_derived
         ],

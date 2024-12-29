@@ -28,7 +28,7 @@ and this project uses [Semantic Versioning](https://semver.org/spec/v2.0.0.html)
 ### Added
 
 - SATKIT will soon be available on pypi, probably under the long name:
-  speech_articulation_toolkit.
+  speech_analysis_toolkit.
 - See [Roadmap](Roadmap.markdown) for an overview of what to expect in 1.0.
 
 ## [0.12.0] needs to be cleaned of merge overlaps below

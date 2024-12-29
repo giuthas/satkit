@@ -37,6 +37,9 @@ from .images import (
     export_ultrasound_frame_and_meta,
 )
 from .meta_data import (
-    export_aggregate_image_meta, export_session_and_recording_meta,
-    export_ultrasound_frame_meta
+    export_aggregate_image_meta, export_derived_modalities_meta,
+    export_session_and_recording_meta, export_ultrasound_frame_meta
+)
+from .modality_data import (
+    modality_data_to_dataframe, modality_to_csv, derived_modalities_to_csv
 )

@@ -49,6 +49,7 @@ from ..data_structures.base_classes import DataAggregator
 
 _logger = logging.getLogger('satkit._saver')
 
+
 def _save_aggregator_meta(
         filepath: Path,
         meta: dict,
@@ -70,12 +71,12 @@ def save_modality_data(
     """
     Save the data of a Modality.
 
-    This saves only ModalityData.data and ModalityData.timevector.
+    This saves only `ModalityData.data` and ModalityData.timevector.
 
     Returns the filename of the 
     """
     _logger.debug("Saving data for %s.", modality.name)
-    suffix = modality.name.replace(" ", "_")
+    suffix = modality.name_underscored
     filename = f"{modality.recording.basename}.{suffix}{SatkitSuffix.DATA}"
     filepath = modality.recording.path/filename
 
@@ -109,7 +110,7 @@ def save_modality_meta(
     needed to reconstruct the Modality. 
     """
     _logger.debug("Saving meta for %s.", modality.name)
-    suffix = modality.name.replace(" ", "_")
+    suffix = modality.name_underscored
     filename = f"{modality.recording.basename}.{suffix}"
     filename += SatkitSuffix.META
     filepath = modality.recording.path/filename
@@ -194,7 +195,7 @@ def save_modalities(
     for modality_name in recording:
         modality_meta = {}
         modality = recording[modality_name]
-        if modality.is_derived_modality:
+        if modality.is_derived:
             (modality_meta['data_name'], confirmation) = save_modality_data(
                 modality, confirmation)
             (modality_meta['meta_name'], confirmation) = save_modality_meta(
@@ -223,7 +224,7 @@ def save_statistic_data(
     """
     _logger.debug("Saving data for %s.", statistic.name)
     if not statistic.satkit_data_name:
-        suffix = statistic.name.replace(" ", "_")
+        suffix = statistic.name_underscored
         filename = f"{statistic.owner.name}.{suffix}{SatkitSuffix.DATA}"
         statistic.satkit_data_name = filename
 
@@ -257,7 +258,7 @@ def save_statistic_meta(
     """
     _logger.debug("Saving meta for %s.", statistic.name)
     if not statistic.satkit_meta_name:
-        suffix = statistic.name.replace(" ", "_")
+        suffix = statistic.name_underscored
         filename = f"{statistic.owner.name}.{suffix}{SatkitSuffix.META}"
         statistic.satkit_meta_name = filename
 

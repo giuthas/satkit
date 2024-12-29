@@ -126,6 +126,7 @@ class Recording(DataAggregator, UserDict):
     (with correct arguments) and doing any updates to `self.meta['textgrid']`
     that are necessary.
     """
+    owner: Session
 
     def __init__(
             self,
@@ -377,6 +378,7 @@ class Modality(DataContainer, OrderedDict):
     by `modality[annotation_type]`, because a Modality is also a OrderedDict of
     its Annotations.
     """
+    owner: Recording
 
     @classmethod
     @abc.abstractmethod
@@ -776,7 +778,7 @@ class Modality(DataContainer, OrderedDict):
                 self.recording.excluded = True
 
     @property
-    def is_derived_modality(self) -> bool:
+    def is_derived(self) -> bool:
         """
         Is this Modality a result of processing another.
 

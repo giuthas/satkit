@@ -39,9 +39,10 @@ import dataclasses
 
 # from icecream import ic
 
-from satkit.configuration import SearchPattern, DownsampleParams
+from satkit.configuration import DataRunConfig, SearchPattern, DownsampleParams
 from satkit.data_structures import (
-    Modality, ModalityData, ModalityMetaData, Recording)
+    Modality, ModalityData, ModalityMetaData, Recording, Session
+)
 
 
 def downsample_modality(
@@ -180,3 +181,21 @@ def _downsample_metrics(
             "Downsampling without matching the downsampling "
             "step to the timestep of the modality has not been "
             "implemented yet.")
+
+
+def downsample_metrics_in_session(
+        recording_session: Session,
+        data_run_config: DataRunConfig
+) -> None:
+    """
+    Downsample metrics in the session.
+
+    Parameters
+    ----------
+    recording_session : Session
+        _description_
+    data_run_config : DataRunConfig
+        _description_
+    """
+    for recording in recording_session:
+        downsample_metrics(recording, data_run_config.downsample)

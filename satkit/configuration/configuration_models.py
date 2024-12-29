@@ -391,6 +391,7 @@ class AxesParams(UpdatableBaseModel):
     colors_in_sequence: bool = True
     mark_peaks: bool | None = None
     sharex: bool | None = None
+    ylim: tuple[float, float] | None = None
     y_offset: float | None = None
 
 
@@ -401,15 +402,20 @@ class AxesDefinition(AxesParams):
     Parameters
     ----------
     modalities: list[str]
-        List of the modalities to be plotted on this axes, by default None
+        List of the modalities to be plotted on these axes, by default None
     """
     modalities: list[str] | None = None
     sharex: bool = True
 
 
+class GeneralAxesParams(UpdatableBaseModel):
+    data_axes: AxesParams | None = None
+    tier_axes: AxesParams | None = None
+
+
 class GuiConfig(UpdatableBaseModel):
     data_and_tier_height_ratios: HeightRatios
-    general_axes_params: AxesParams
+    general_axes_params: GeneralAxesParams
     data_axes: dict[str, AxesDefinition]
     pervasive_tiers: list[str]
     xlim: FloatPair | str | None = None

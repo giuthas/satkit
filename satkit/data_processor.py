@@ -43,6 +43,8 @@ from dataclasses import dataclass
 from multiprocessing import Pool
 from typing import Callable
 
+from tqdm import tqdm
+
 from satkit.data_structures import Modality, Recording, Session
 
 _logger = logging.getLogger('satkit.scripting')
@@ -75,15 +77,15 @@ def process_modalities(
     """
 
     # calculate the metrics
-    for recording in recordings:
+    for recording in tqdm(recordings, desc="Deriving Modalities"):
         if recording.excluded:
             continue
 
-        for key in processing_functions:
+        for key in tqdm(processing_functions, desc=f"Running functions", leave=False):
             (function, modalities, arguments) = processing_functions[key]
             # TODO: Version 1.0: add a mechanism to change the arguments for
             # different modalities.
-            for modality in modalities:
+            for modality in tqdm(modalities, desc="Processing modalities", leave=False):
                 function(
                     recording,
                     modality,
@@ -107,7 +109,7 @@ def process_statistics_in_recordings(
         'arguments' is a dict of arguments for the function.
     """
 
-    for key in processing_functions:
+    for key in tqdm(processing_functions, desc="Making Session Statistics"):
         (function, statistics, arguments) = processing_functions[key]
         # TODO: Version 1.0: add a mechanism to change the arguments for
         # different modalities.
@@ -117,7 +119,7 @@ def process_statistics_in_recordings(
                 statistic,
                 **arguments)
 
-    _logger.info('Modalities processed at %s.', str(datetime.datetime.now()))
+    _logger.info('Statistics processed at %s.', str(datetime.datetime.now()))
 
 
 def multi_process_data(
@@ -134,3 +136,5 @@ def multi_process_data(
         pool.map(operation.processing_function, arguments)
 
     _logger.info('Data run ended at %s.', str(datetime.datetime.now()))
+
+

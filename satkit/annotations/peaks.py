@@ -520,7 +520,10 @@ def save_peaks(
         l1_bottom = recording['PD l1 bottom on RawUltrasound']
 
         audio = recording['MonoAudio']
-        stimulus_onset = audio.go_signal
+        if audio.go_signal is None:
+            stimulus_onset = 0
+        else:
+            stimulus_onset = audio.go_signal
         ultra_time = l1.timevector - stimulus_onset
 
         end_time = 0

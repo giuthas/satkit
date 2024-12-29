@@ -476,7 +476,11 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
             return
 
         audio = self.current.modalities['MonoAudio']
-        stimulus_onset = audio.go_signal
+        if audio.go_signal is None:
+            stimulus_onset = 0
+        else:
+            stimulus_onset = audio.go_signal
+
         wav = audio.data
         wav_time = audio.timevector - stimulus_onset
 
@@ -724,7 +728,10 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
 
     def _update_pd_onset(self):
         audio = self.current.modalities['MonoAudio']
-        stimulus_onset = audio.go_signal
+        if audio.go_signal is None:
+            stimulus_onset = 0
+        else:
+            stimulus_onset = audio.go_signal
 
         if 'PD l1 on RawUltrasound' in self.current.modalities:
             pd_metrics = self.current.modalities['PD l1 on RawUltrasound']
@@ -1125,7 +1132,10 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
         #     self.current.annotations['selected_time'] = event.pickx
 
         audio = self.current.modalities['MonoAudio']
-        stimulus_onset = audio.go_signal
+        if audio.go_signal is None:
+            stimulus_onset = 0
+        else:
+            stimulus_onset = audio.go_signal
 
         timevector = (
             self.current.modalities['PD l1 on RawUltrasound'].timevector)

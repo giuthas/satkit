@@ -387,19 +387,18 @@ class SatTier(list):
 
     def get_labels(self, time_vector: np.ndarray) -> np.ndarray:
         """
+        Get the labels at the times in the `time_vector`.
 
         Parameters
         ----------
-        time_vector :
+        time_vector : np.ndarray
+            Time stamps to retrieve the labels for.
 
         Returns
         -------
-
+            np.ndarray
+            This array contains the labels as little endian Unicode strings.
         """
-        just_labels = [element.label for element in self]
-        print(just_labels)
-        just_labels = [label for label in just_labels if label is not None]
-        print(just_labels)
         max_label = max(
             [len(element.label) for element in self
              if element.label is not None]
@@ -411,14 +410,16 @@ class SatTier(list):
 
     def label_at(self, time: float) -> str:
         """
+        Get the label at the given time.
 
         Parameters
         ----------
-        time :
+        time : float
+            Time in seconds to retrieve the label for.
 
         Returns
         -------
-
+            The label string.
         """
         if time < self.begin or time > self.end:
             return ""

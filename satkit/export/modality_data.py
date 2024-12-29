@@ -47,6 +47,30 @@ def modality_data_to_dataframe(
         use_long_time_name: bool = False,
         save_segmentation: bool = False
 ) -> pd.DataFrame:
+    """
+    Transforms Modality data to a Pandas dataframe.
+
+    Use with care as a long recording with a complex TextGrid may end up being
+    quite large when represented as a DataFrame.
+
+    Parameters
+    ----------
+    modality : Modality
+        Modality whose data is to be transformed.
+    use_long_time_name : bool, optional
+        Should the column name for used for time include the Modality name, by
+        default False.
+    save_segmentation : bool, optional
+        Should we include columns for each Tier of the corresponding TextGrid,
+        by default False. If these are included they will contain the
+        corresponding label at each time stamp.
+
+    Returns
+    -------
+        pd.DataFrame
+        The dataframe with columns for at least time stamps and the modality
+        data, but also columns for each tier if `save_segmentation` is True.
+    """
     data_name = modality.name_underscored
     if use_long_time_name:
         time_name = modality.name_underscored + '_time'
@@ -66,8 +90,26 @@ def modality_data_to_dataframe(
 
 
 def modality_to_csv(
-        path: Path | str, modality: Modality, save_segmentation: bool = False
+        path: Path | str,
+        modality: Modality,
+        save_segmentation: bool = False,
+        separator: str = '\t'
 ) -> None:
+    """
+    Save the Modality to a csv file.
+
+    Parameters
+    ----------
+    path : Path | str
+        Path to the export to.
+    modality : Modality
+        Modality to export.
+    save_segmentation : bool, optional
+        Should we include columns for each Tier of the corresponding TextGrid,
+        by default False.
+    separator : str, optional
+        Separator to use in the csv file, by default '\t'.
+    """
     if isinstance(path, str):
         path = Path(path)
 
@@ -76,7 +118,8 @@ def modality_to_csv(
 
     dataframe = modality_data_to_dataframe(
         modality=modality, save_segmentation=save_segmentation)
-    dataframe.to_csv(path, sep='\t', encoding='utf-8', index=False, header=True)
+    dataframe.to_csv(
+        path, sep=separator, encoding='utf-8', index=False, header=True)
     export_modality_meta(
         filename=path,
         modality=modality,
@@ -85,19 +128,17 @@ def modality_to_csv(
 
 def derived_modalities_to_csv(path: Path | str, recording: Recording) -> None:
     """
-
+    Attempt to export all derived Modalities of a Recording to a csv file.
 
     NOTE: Exporting modalities with different lengths is untested and exporting
     modalities whose data is not 1-D will raise an Error.
 
     Parameters
     ----------
-    path :
-    recording :
-
-    Returns
-    -------
-
+    path : Path | str
+        Path to export to.
+    recording : Recording
+        Recording whose derived Modalities to export.
     """
     if isinstance(path, str):
         path = Path(path)

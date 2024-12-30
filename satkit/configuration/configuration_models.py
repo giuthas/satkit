@@ -352,6 +352,7 @@ class CastParams(UpdatableBaseModel):
 
 
 class DataRunConfig(UpdatableBaseModel):
+    flags: DataRunFlags
     output_directory: Path | None = None
     aggregate_image_arguments: AggregateImageArguments | None = None
     pd_arguments: PdArguments | None = None

@@ -81,7 +81,10 @@ def load_data(path: Path, configuration: Configuration) -> Session:
         logger.critical('Exiting.')
         sys.exit()
     elif path.is_dir():
-        session = read_recording_session_from_dir(path)
+        session = read_recording_session_from_dir(
+            recorded_data_path=path,
+            detect_beep=configuration.data_run_config.flags.detect_beep
+        )
     elif path.suffix == '.satkit_meta':
         session = load_recording_session(path)
     else:
@@ -96,7 +99,9 @@ def load_data(path: Path, configuration: Configuration) -> Session:
 
 
 def read_recording_session_from_dir(
-        recorded_data_path: Path) -> Session:
+        recorded_data_path: Path,
+        detect_beep: bool = False
+) -> Session:
     """
     Wrapper for reading data from a directory full of files.
 
@@ -123,10 +128,11 @@ def read_recording_session_from_dir(
             recorded_data_path, session_config_path)
 
         if session_config.data_source == Datasource.AAA:
-
             recordings = generate_aaa_recording_list(
                 directory=recorded_data_path,
-                import_config=session_config)
+                import_config=session_config,
+                detect_beep=detect_beep
+            )
 
             session = Session(
                 name=containing_dir, paths=paths, config=session_config,
@@ -138,7 +144,10 @@ def read_recording_session_from_dir(
                 "Loading RASL data hasn't been implemented yet.")
 
     if list(recorded_data_path.glob('*' + SourceSuffix.AAA_ULTRA)):
-        recordings = generate_aaa_recording_list(recorded_data_path)
+        recordings = generate_aaa_recording_list(
+            directory=recorded_data_path,
+            detect_beep=detect_beep
+        )
 
         paths = PathStructure(root=recorded_data_path)
         session_config = SessionConfig(data_source=Datasource.AAA)

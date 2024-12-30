@@ -107,6 +107,8 @@ A release of SATKIT is created as follows:
    - [License headers](../devel/licenseheaders_command)
 4. Create a new release candidate branch named 'vX.Y.Z' e.g. 'v0.7.0' from the
    `devel` branch.
+   - You can save a bit of work by keeping this branch only local unless the 
+     release does not get done in one working session. 
 5. Merge `main` to the release branch (not the other way around).
 6. Check that conda environments are up-to-date. It is especially possible that
    satkit-stable is neither up to date with satkit-devel, nor tested.

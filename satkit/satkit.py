@@ -38,7 +38,6 @@ import sys
 from argparse import Namespace
 from pathlib import Path
 
-from icecream import ic
 from PyQt5 import QtWidgets
 
 from satkit import configuration
@@ -82,7 +81,6 @@ def initialise_satkit(path: Path | str | None = None):
         if sys.argv[0] == '':
             sys.argv[0] = './satkit.py'
         sys.argv.append(path)
-        ic(sys.argv)
 
     # Arguments need to be parsed before setting up logging so that we have
     # access to the verbosity argument.
@@ -216,4 +214,3 @@ def run_annotator(
         args=args,
         config=config)
     sys.exit(app.exec_())
-

@@ -31,6 +31,21 @@ and this project uses [Semantic Versioning](https://semver.org/spec/v2.0.0.html)
   speech_analysis_toolkit.
 - See [Roadmap](Roadmap.markdown) for an overview of what to expect in 1.0.
 
+## [0.13.0]
+
+### Highlights
+
+- Production version of downsampling functionality based on paper published at
+  ISSP 2024.
+
+### Added
+
+-
+
+### Changed
+
+-
+
 ## [0.12.0] 2024-12-29
 
 ### Highlights

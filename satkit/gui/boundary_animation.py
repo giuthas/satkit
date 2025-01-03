@@ -65,14 +65,18 @@ class BoundaryAnimator:
 
     lock = None  # only one boundary can be animated at a time
 
-    def __init__(self,
-                 main_window,
-                 boundaries: List[AnimatableBoundary],
-                 segment: SatInterval,
-                 time_offset=0):
+    def __init__(
+            self,
+            main_window,
+            boundaries: List[AnimatableBoundary],
+            segment: SatInterval,
+            epsilon: float,
+            time_offset=0
+    ):
         self.main_window = main_window
         self.boundaries = boundaries
         self.segment = segment
+        self.epsilon = epsilon
         self.time_offset = time_offset
 
         self.press = None
@@ -117,7 +121,8 @@ class BoundaryAnimator:
                     self.coincident_boundaries.append(animator)
                     print(
                         f"self: {self.segment.label} {self.segment.begin} "
-                        f"other:{animator.segment.label} {animator.segment.begin}")
+                        f"other:{animator.segment.label}"
+                        f" {animator.segment.begin}")
 
         is_inaxes = False
         for boundary in self.boundaries:
@@ -183,11 +188,13 @@ class BoundaryAnimator:
         x0, xpress = self.press
         dx = event.xdata - xpress
         # Prevent boundary crossings.
-        if self.segment.is_legal_value(x0[0]+dx+self.time_offset):
+        if self.segment.is_legal_value(
+                time=x0[0] + dx + self.time_offset, epsilon=self.epsilon
+        ):
             for i, boundary in enumerate(self.boundaries):
                 self.segment.begin = x0[0] + dx + self.time_offset
 
-                boundary.line.set(xdata=x0+dx)
+                boundary.line.set(xdata=x0 + dx)
 
                 if boundary.prev_text:
                     boundary.prev_text.set(

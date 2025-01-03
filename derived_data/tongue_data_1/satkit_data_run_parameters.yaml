@@ -34,14 +34,14 @@
 # available and represented by None. If you want to specify current working
 # directory, use '.'
 
+# Path to the recorded data
+recorded_data_path: "../../recorded_data/tongue_data_1"
+
 flags:
   detect_beep: True # Should onset beep detection be run?
   test: False # Run on only the first 10 recordings.
 
-# This is where SATKIT will save results of data processing. Please note that
-# once exclusion list or similar things can be edited in SATKIT, they will by
-# default be saved at their original locations.
-output_directory:
+# exclusion_list:
 
 aggregate_image_arguments:
   metrics:
@@ -84,3 +84,4 @@ pd_arguments:
 #  sort_criteria:
 #    - 'i'
 #    - 'o'
+

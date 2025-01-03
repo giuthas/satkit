@@ -37,10 +37,8 @@ import logging
 import sys
 from pathlib import Path
 
-# from icecream import ic
-
 from satkit.audio_processing import MainsFilter
-from satkit.configuration import config_dict, PathStructure
+from satkit.configuration import Configuration, PathStructure
 from satkit.constants import (
     Datasource, SourceSuffix, SatkitSuffix, SatkitConfigFile)
 from satkit.data_import import (
@@ -51,11 +49,11 @@ from satkit.save_and_load import load_recording_session
 
 logger = logging.getLogger('satkit.scripting')
 
-# TODO: change the name of this file to data_importer and move it to a more
+# TODO 1.0: change the name of this file to data_importer and move it to a more
 # appropriate submodule.
 
 
-def load_data(path: Path) -> Session:
+def load_data(path: Path, configuration: Configuration) -> Session:
     """
     Handle loading data from individual files or a previously saved session.
 
@@ -63,16 +61,17 @@ def load_data(path: Path) -> Session:
     ----------
     path : Path
         Directory or SATKIT metafile to read the Session from.
-
+    configuration : Configuration
+        Satkit configuration.
     Returns
     -------
     Session
         The generated Session object with the exclusion list applied.
     """
-    if config_dict['mains_frequency']:
+    if configuration.main_config.mains_frequency:
         MainsFilter.generate_mains_filter(
             44100,
-            config_dict['mains_frequency'])
+            configuration.main_config.mains_frequency)
     else:
         MainsFilter.generate_mains_filter(44100, 50)
 
@@ -82,7 +81,10 @@ def load_data(path: Path) -> Session:
         logger.critical('Exiting.')
         sys.exit()
     elif path.is_dir():
-        session = read_recording_session_from_dir(path)
+        session = read_recording_session_from_dir(
+            recorded_data_path=path,
+            detect_beep=configuration.data_run_config.flags.detect_beep
+        )
     elif path.suffix == '.satkit_meta':
         session = load_recording_session(path)
     else:
@@ -97,7 +99,9 @@ def load_data(path: Path) -> Session:
 
 
 def read_recording_session_from_dir(
-        recorded_data_path: Path) -> Session:
+        recorded_data_path: Path,
+        detect_beep: bool = False
+) -> Session:
     """
     Wrapper for reading data from a directory full of files.
 
@@ -124,9 +128,11 @@ def read_recording_session_from_dir(
             recorded_data_path, session_config_path)
 
         if session_config.data_source == Datasource.AAA:
-
             recordings = generate_aaa_recording_list(
-                recorded_data_path, session_config)
+                directory=recorded_data_path,
+                import_config=session_config,
+                detect_beep=detect_beep
+            )
 
             session = Session(
                 name=containing_dir, paths=paths, config=session_config,
@@ -138,7 +144,10 @@ def read_recording_session_from_dir(
                 "Loading RASL data hasn't been implemented yet.")
 
     if list(recorded_data_path.glob('*' + SourceSuffix.AAA_ULTRA)):
-        recordings = generate_aaa_recording_list(recorded_data_path)
+        recordings = generate_aaa_recording_list(
+            directory=recorded_data_path,
+            detect_beep=detect_beep
+        )
 
         paths = PathStructure(root=recorded_data_path)
         session_config = SessionConfig(data_source=Datasource.AAA)

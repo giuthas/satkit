@@ -35,7 +35,7 @@ from .calculate_distance_matrices import add_distance_matrices
 from .calculate_pd import add_pd
 from .calculate_spline_metric import add_spline_metric
 
-from .downsample_metric import downsample_metrics
+from .downsample_metric import downsample_metrics_in_session, downsample_metrics
 
 from .aggregate_image import AggregateImage, AggregateImageParameters
 from .distance_matrix import DistanceMatrix, DistanceMatrixParameters
@@ -47,8 +47,11 @@ from .spline_metric import (SplineMetric, SplineMetricParameters,
 # metrics is a mapping between a modality name and its actual type and the
 # validator model for its parameters.
 metrics = {
-    'AggregateImage': (AggregateImage, AggregateImageParameters),
-    'DistanceMatrix': (DistanceMatrix, DistanceMatrixParameters),
     'PD': (PD, PdParameters),
     'SplineMetric': (SplineMetric, SplineMetricParameters),
+}
+
+statistics = {
+    'AggregateImage': (AggregateImage, AggregateImageParameters),
+    'DistanceMatrix': (DistanceMatrix, DistanceMatrixParameters),
 }

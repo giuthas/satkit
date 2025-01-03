@@ -96,16 +96,19 @@ A release of SATKIT is created as follows:
    After the pull request has been processed rest of the release tasks are done
    in the main repo.
 3. Update documentation and version numbers
-   - Version number lives in at least README.md and constants.py. File version
-     number will be different from program version number after 1.0.
+   - Version number lives in at least:
      - [README](../README.md),
      - [constants.py](../satkit/constants.py), and
      - [pyproject.toml](../pyproject.toml).
+     - File version number will be different from program version number after
+       1.0.
    - [Changelog](Changelog.markdown)
    - [Generated documentation](../devel/doc_generation_commands)
    - [License headers](../devel/licenseheaders_command)
 4. Create a new release candidate branch named 'vX.Y.Z' e.g. 'v0.7.0' from the
    `devel` branch.
+   - You can save a bit of work by keeping this branch only local unless the 
+     release does not get done in one working session. 
 5. Merge `main` to the release branch (not the other way around).
 6. Check that conda environments are up-to-date. It is especially possible that
    satkit-stable is neither up to date with satkit-devel, nor tested.

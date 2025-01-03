@@ -42,7 +42,7 @@ from pydantic import PositiveInt
 from satkit.configuration import PointAnnotationParams
 from satkit.configuration import ExclusionList, SplineConfig
 from satkit.constants import AnnotationType, Datasource
-from satkit.external_class_extensions import EmptyStrAsNoneBaseModel
+from satkit.external_class_extensions import SatkitBaseModel
 from satkit.utility_functions.types import is_sequence_form
 
 _datastructures_logger = logging.getLogger('satkit.data_structures')
@@ -96,7 +96,7 @@ class ModalityData:
     timevector: np.ndarray
 
 
-class ModalityMetaData(EmptyStrAsNoneBaseModel):
+class ModalityMetaData(SatkitBaseModel):
     """
     Baseclass of Modalities' metadata classes.
     """
@@ -206,7 +206,7 @@ class PointAnnotations:
                 self.properties[key] = self.properties[key][selected]
 
 
-class RecordingMetaData(EmptyStrAsNoneBaseModel):
+class RecordingMetaData(SatkitBaseModel):
     """Basic metadata that any Recording should reasonably have."""
     prompt: str
     time_of_recording: datetime
@@ -216,7 +216,7 @@ class RecordingMetaData(EmptyStrAsNoneBaseModel):
     path: Path
 
 
-class SessionConfig(EmptyStrAsNoneBaseModel):
+class SessionConfig(SatkitBaseModel):
     """
     Description of a Session for import into SATKIT.
     """
@@ -225,7 +225,7 @@ class SessionConfig(EmptyStrAsNoneBaseModel):
     spline_config: SplineConfig | None = None
 
 
-class StatisticMetaData(EmptyStrAsNoneBaseModel):
+class StatisticMetaData(SatkitBaseModel):
     """
     Baseclass of Statistics' metadata classes.
     """

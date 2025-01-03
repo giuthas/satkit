@@ -93,15 +93,18 @@ class SplineMetricParameters(ModalityMetaData):
 
     Parameters
     ----------
-    metric : str
+    metric : SplineMetricEnum
         A string specifying this Modality's metric. Defaults to the l1 norm.
-    timestep : int 
+    timestep : PositiveInt
         A  positive integer used as the timestep in calculating this Modality's
         data. Defaults to 1, which means comparison of consecutive frames.
     release_data_memory : bool
-        Wether to assign None to parent.data after deriving this Modality from
-        the data. Currently has no effect as deriving SplineMetric at runtime
-        is not yet supported.
+        Whether to assign None to `parent.data` after deriving this Modality
+        from the data. Currently, has no effect as deriving SplineMetric at
+        runtime is not yet supported.
+    exclude_points : tuple[int, int]
+        How many points to exclude from the (beginning, end) of the spline,
+        by default, None.
     """
     parent_name: str
     metric: SplineMetricEnum = SplineDiffsEnum.MPBPD
@@ -121,14 +124,12 @@ class SplineMetric(Modality):
         Generate a SplineMetric name to be used as its unique identifier.
 
         This static method **defines** what the names are. This implementation
-        pattern (SplineMetric.name calls this and any where that needs to guess
+        pattern (SplineMetric.name calls this and anywhere that needs to guess
         what a name would be calls this) is how all derived Modalities should
         work.
 
         Parameters
         ----------
-        modality : Modality
-            Parent Modality that SplineMetric is calculated on.
         params : SplineMetricParameters
             The parameters of the SplineMetric instance. Note that this
             SplineMetricParameters instance does not need to be attached to a
@@ -175,8 +176,11 @@ class SplineMetric(Modality):
             list of metrics to be calculated, defaults to 'l2'.
         timesteps : List[int], optional
             list of timesteps to be used, defaults to 1.
+        exclude_points : tuple[int, int]
+            How many points to exclude from the (beginning, end) of the spline,
+            by default, None.
         release_data_memory: bool
-            Should parent Modlity's data be assigned to None after calculations
+            Should parent Modality's data be assigned to None after calculations
             are complete, by default False.
 
         Returns
@@ -206,7 +210,7 @@ class SplineMetric(Modality):
                 for params in spline_metric_params}
 
     def __init__(self,
-                 recording: Recording,
+                 owner: Recording,
                  metadata: SplineMetricParameters,
                  file_info: FileInformation,
                  parsed_data: Optional[ModalityData] = None,
@@ -216,7 +220,7 @@ class SplineMetric(Modality):
 
         Parameters
         ----------
-        recording : Recording
+        owner : Recording
             the containing Recording.
         metadata : SplineMetricParameters
             Parameters used in calculating this instance of SplineMetric.
@@ -229,7 +233,7 @@ class SplineMetric(Modality):
             a timevector the time_offset will be applied on reading the data
             from file.
         time_offset : Optional[float], optional
-            timeoffset in seconds against the Recordings baseline. If not
+            Time offset in seconds against the Recordings baseline. If not
             specified or 0, timeOffset will be copied from dataModality, by
             default None
         """
@@ -239,7 +243,7 @@ class SplineMetric(Modality):
                 time_offset = parsed_data.timevector[0]
 
         super().__init__(
-            recording,
+            owner=owner,
             meta_data=metadata,
             file_info=file_info,
             parsed_data=parsed_data,

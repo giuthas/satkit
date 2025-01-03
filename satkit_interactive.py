@@ -1,3 +1,4 @@
+#!/usr/bin/env python3
 #
 # Copyright (c) 2019-2024
 # Pertti Palo, Scott Moisik, Matthew Faytak, and Motoki Saito.
@@ -29,30 +30,36 @@
 # articles listed in README.markdown. They can also be found in
 # citations.bib in BibTeX format.
 #
+"""
+Experimental interactive interpreter mode
+"""
+import code
 
-import logging
-from pathlib import Path
-from typing import List
-
-# import satkit.io as satkit_io
-from satkit.data_structures import Recording, Session
-
-logger = logging.getLogger('satkit.scripting')
+from satkit import (
+    add_derived_data, initialise_satkit
+)
+from satkit.utility_functions import log_elapsed_time
 
 
+def main():
+    """Main to initialise SATKIT and start the interactive interpreter."""
 
-def save_data(path: Path, recordings: List[Recording] | Session):
-    if path.suffix == '.pickle':
-        logger.info(
-            "Pickling is currently disabled. Did NOT write file %s.", str(path))
-        # satkit_io.save2pickle(
-        #     recordings,
-        #     path)
-        # logger.info(
-        #     "Wrote data to file %s.", str(path))
-    elif path.suffix == '.json':
-        logger.error(
-            'Unsupported filetype: %s.', str(path))
-    else:
-        logger.error(
-            'Unsupported filetype: %s.', str(path))
+    cli, configuration, logger, session = initialise_satkit()
+    log_elapsed_time(logger)
+
+    add_derived_data(session=session, config=configuration)
+    log_elapsed_time(logger)
+
+    # TODO 1.0: Probably better doing this with IPython than the history-less
+    # standard library version
+    # import IPython
+    # IPython.embed()
+    code.interact(
+        banner="SATKIT Interactive Console",
+        local=locals(),
+        exitmsg="Exiting SATKIT Interactive Console",
+    )
+
+
+if __name__ == '__main__':
+    main()

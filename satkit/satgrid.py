@@ -33,19 +33,19 @@
 SatGrid and its components are a GUI friendly encapsulation of
 `textgrids.TextGrid`.
 """
-
+from abc import ABC, abstractmethod
 from collections import OrderedDict
 
+import numpy as np
 from textgrids import Interval, Point, TextGrid, Tier, Transcript
 from textgrids.templates import (long_header, long_interval, long_point,
                                  long_tier)
 from typing_extensions import Self
 
-from satkit.configuration import config_dict
 from satkit.constants import IntervalCategory
 
 
-class SatAnnotation:
+class SatAnnotation(ABC):
     """Base class for Textgrid Point and Interval to enable editing with GUI."""
 
     def __init__(
@@ -55,6 +55,24 @@ class SatAnnotation:
     ) -> None:
         self._time = time
         self.label = label
+
+    @abstractmethod
+    def contains(self, time: float) -> bool:
+        """
+        Does this Interval contain `time` or is this Point at `time`.
+
+        'Being at time' is defined in the sense of 'within epsilon of time'.
+
+        Parameters
+        ----------
+        time : float
+            The time in seconds to test against this Annotation.
+
+        Returns
+        -------
+            bool
+            True if `time` is in this Interval or at this Point.
+        """
 
 
 class SatPoint(SatAnnotation):
@@ -97,6 +115,12 @@ class SatPoint(SatAnnotation):
     @time.setter
     def time(self, time: float) -> None:
         self._time = time
+
+    def contains(self, time: float) -> bool:
+        epsilon = config_dict['epsilon']
+        if self._time - epsilon < time < self._time + epsilon:
+            return True
+        return False
 
 
 class SatInterval(SatAnnotation):
@@ -144,6 +168,10 @@ class SatInterval(SatAnnotation):
         self._next_interval = next_interval
         if self.next:
             self.next.prev = self
+
+    def __repr__(self) -> str:
+        return (f"{self.__class__.__name__}: text: '{self.label}'\t "
+                f"begin: {self.begin}, end: {self.end}")
 
     @property
     def next(self) -> Self | None:
@@ -205,19 +233,19 @@ class SatInterval(SatAnnotation):
         if self._next_interval:
             self._next_interval.begin = value
 
-    def is_at_time(self, time) -> bool:
+    def is_at_time(self, time: float, epsilon) -> bool:
         """
         Intervals are considered equivalent if the difference between their
         `begin` values is < epsilon. Epsilon is a constant defined in SATKIT's
         configuration.
         """
-        return abs(self.begin - time) < config_dict['epsilon']
+        return abs(self.begin - time) < epsilon
 
     def is_last(self) -> bool:
         """Is this the last Interval in this Tier."""
         return self._next_interval is None
 
-    def is_legal_value(self, time: float) -> bool:
+    def is_legal_value(self, time: float, epsilon: float) -> bool:
         """
         Check if the given time is between the previous and next boundary.
 
@@ -228,12 +256,13 @@ class SatInterval(SatAnnotation):
 
         Returns True, if time is  between the previous and next boundary.
         """
-        return (time + config_dict['epsilon'] < self._next_interval.begin and
-                time > config_dict['epsilon'] + self.prev.begin)
+        return (time + epsilon < self._next_interval.begin and
+                time > epsilon + self.prev.begin)
 
-    def __repr__(self) -> str:
-        return (f"{self.__class__.__name__}: text: '{self.label}'\t "
-                f"begin: {self.begin}, end: {self.end}")
+    def contains(self, time: float) -> bool:
+        if self.begin < time < self.end:
+            return True
+        return False
 
 
 class SatTier(list):
@@ -258,6 +287,12 @@ class SatTier(list):
             prev = current
             last_interval = interval
         self.append(SatInterval(last_interval.xmax, None, prev))
+
+    def __repr__(self) -> str:
+        representation = f"{self.__class__.__name__}:\n"
+        for interval in self:
+            representation += str(interval) + "\n"
+        return representation
 
     @property
     def begin(self) -> float:
@@ -291,13 +326,8 @@ class SatTier(list):
         """Is this Tier a PointTier."""
         return False
 
-    def __repr__(self) -> str:
-        representation = f"{self.__class__.__name__}:\n"
-        for interval in self:
-            representation += str(interval) + "\n"
-        return representation
-
-    def boundary_at_time(self, time) -> SatInterval | None:
+    def boundary_at_time(
+            self, time: float, epsilon: float) -> SatInterval | None:
         """
         If there is a boundary at time, return it.
 
@@ -307,7 +337,7 @@ class SatTier(list):
         timestamp.
         """
         for interval in self:
-            if interval.is_at_time(time):
+            if interval.is_at_time(time=time, epsilon=epsilon):
                 return interval
         return None
 
@@ -354,6 +384,49 @@ class SatTier(list):
             for interval in reversed(self):
                 if interval.label == label:
                     return interval
+
+    def get_labels(self, time_vector: np.ndarray) -> np.ndarray:
+        """
+        Get the labels at the times in the `time_vector`.
+
+        Parameters
+        ----------
+        time_vector : np.ndarray
+            Time stamps to retrieve the labels for.
+
+        Returns
+        -------
+            np.ndarray
+            This array contains the labels as little endian Unicode strings.
+        """
+        max_label = max(
+            [len(element.label) for element in self
+             if element.label is not None]
+        )
+        labels = np.empty(len(time_vector), dtype=f"<U{max_label}")
+        for (i, time) in enumerate(time_vector):
+            labels[i] = self.label_at(time)
+        return labels
+
+    def label_at(self, time: float) -> str:
+        """
+        Get the label at the given time.
+
+        Parameters
+        ----------
+        time : float
+            Time in seconds to retrieve the label for.
+
+        Returns
+        -------
+            The label string.
+        """
+        if time < self.begin or time > self.end:
+            return ""
+
+        for element in self:
+            if element.contains(time):
+                return element.label
 
 
 class SatGrid(OrderedDict):
@@ -437,3 +510,21 @@ class SatGrid(OrderedDict):
                     # elem.end (which is elem.next.begin) above.
                     pass
         return out
+
+    def get_labels(self, time_vector: np.ndarray) -> dict[str, np.ndarray]:
+        """
+        Get the
+
+        Parameters
+        ----------
+        time_vector :
+
+        Returns
+        -------
+
+        """
+        labels = {}
+        for tier_name in self:
+            labels[tier_name] = self[tier_name].get_labels(time_vector)
+
+        return labels

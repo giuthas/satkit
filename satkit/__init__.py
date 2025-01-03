@@ -33,12 +33,14 @@
 """
 SATKIT -- The Speech Articulation ToolKIT
 
+# TODO 1.0 Add an example of running SATKIT from the interactive command line.
+
 SATKIT consists of several interdependent modules.
 
 ![SATKIT Module hierarchy](packages_satkit.png "SATKIT Module hierarchy")
 
 SATKIT's data structures are built around two class hierarchies: 
-The Recording and the Modality. Similarly the commandline interface -- and 
+The Recording and the Modality. Similarly, the commandline interface -- and
 the batch processing of data -- is handled by classes that extend CLI and 
 graphical annotation tools derive from Annotator.
 
@@ -48,8 +50,9 @@ graphical annotation tools derive from Annotator.
 import json
 import logging.config
 
-# import satkit.configuration.configuration as configuration
-from satkit.utility_functions.logging_helpers import log_elapsed_time, set_logging_level
+from .satkit import add_derived_data, initialise_satkit, run_annotator
+
+__all__ = ['add_derived_data', 'initialise_satkit', 'run_annotator']
 
 # Load logging config from json file.
 LOG_CONFIG = "configuration/satkit_logging_configuration.json"
@@ -63,11 +66,3 @@ _satkit_logger = logging.getLogger('satkit')
 # Log that the logger was configured.
 _satkit_logger.info('Completed configuring logger.')
 
-# Config should be loaded before parsing arguments, because it may affect
-# how arguments are parsed, and parsed arguments may change config variables.
-
-# TODO: later on make this more complex: parts of config that could be changed by
-# args first, args second, rest of config last. should probably be close to
-# where different commands will eventually be dealt with
-
-# configuration.load_config()

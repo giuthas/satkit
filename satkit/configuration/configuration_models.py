@@ -32,7 +32,7 @@
 """
 These are the code friendly wrappers for the configuration structures.
 
-configuration_parsers contains the actual parsing of strictyaml into
+`configuration_parsers` contains the actual parsing of strictyaml into
 comment-retaining dictionary-like structures. Here those structures get parsed
 into pydantic models that know what their fields actually are.
 
@@ -49,7 +49,9 @@ import numpy as np
 from pydantic import conlist
 
 from satkit.constants import (
-    IntervalBoundary, IntervalCategory
+    CoordinateSystems, Datasource,
+    IntervalBoundary, IntervalCategory,
+    SplineDataColumn, SplineMetaColumn
 )
 from satkit.external_class_extensions import UpdatableBaseModel
 
@@ -59,14 +61,75 @@ FloatPair = NewType('FloatPair', conlist(float, min_length=2, max_length=2))
 IntPair = NewType('IntPair', conlist(int, min_length=2, max_length=2))
 
 
+class ExclusionList(UpdatableBaseModel):
+    """
+    List of files, prompts, and parts of prompts to be excluded from analysis.
+    """
+    path: Path
+    files: list[str] | None = None
+    prompts: list[str] | None = None
+    parts_of_prompts: list[str] | None = None
+
+
+class SplineImportConfig(UpdatableBaseModel):
+    """
+    Spline import csv file configuration.
+
+    This describes how to interpret a csv file containing splines.
+    """
+    single_spline_file: bool
+    headers: bool
+    coordinates: CoordinateSystems
+    interleaved_coords: bool
+    meta_columns: tuple[SplineMetaColumn]
+    data_columns: tuple[SplineDataColumn]
+    spline_file: Path | None = None
+    spline_file_extension: str | None = None
+    delimiter: str = '\t'
+
+    def __post_init__(self):
+        """
+        Empty delimiter strings are replaced with a tabulator.
+        """
+        if not self.delimiter:
+            self.delimiter = '\t'
+
+
+class SplineDataConfig(UpdatableBaseModel):
+    """
+    Configuration options for processing and display of splines.
+    """
+    ignore_points: tuple[int] | None = None
+
+
+class SplineConfig(UpdatableBaseModel):
+    """
+    Configuration options for both import and processing of splines.
+    """
+    import_config: SplineImportConfig
+    data_config: SplineDataConfig
+
+
+class PathStructure(UpdatableBaseModel):
+    """
+    Path structure of a Session for both loading and saving.
+    """
+    root: Path
+    exclusion_list: Path | None = None
+    wav: Path | None = None
+    textgrid: Path | None = None
+    ultrasound: Path | None = None
+    spline_config: Path | None = None
+
+
 class MainConfig(UpdatableBaseModel):
     """
-    _summary_
+    Main configuration data of SATKIT.
     """
     epsilon: float
     mains_frequency: float
-    data_run_parameter_file: Path
     gui_parameter_file: Path
+    data_run_parameter_file: Path | None = None
     publish_parameter_file: Path | None = None
 
 
@@ -289,6 +352,7 @@ class CastParams(UpdatableBaseModel):
 
 
 class DataRunConfig(UpdatableBaseModel):
+    flags: DataRunFlags
     output_directory: Path | None = None
     aggregate_image_arguments: AggregateImageArguments | None = None
     pd_arguments: PdArguments | None = None
@@ -328,6 +392,7 @@ class AxesParams(UpdatableBaseModel):
     colors_in_sequence: bool = True
     mark_peaks: bool | None = None
     sharex: bool | None = None
+    ylim: tuple[float, float] | None = None
     y_offset: float | None = None
 
 
@@ -338,15 +403,20 @@ class AxesDefinition(AxesParams):
     Parameters
     ----------
     modalities: list[str]
-        List of the modalities to be plotted on this axes, by default None
+        List of the modalities to be plotted on these axes, by default None
     """
     modalities: list[str] | None = None
     sharex: bool = True
 
 
+class GeneralAxesParams(UpdatableBaseModel):
+    data_axes: AxesParams | None = None
+    tier_axes: AxesParams | None = None
+
+
 class GuiConfig(UpdatableBaseModel):
     data_and_tier_height_ratios: HeightRatios
-    general_axes_params: AxesParams
+    general_axes_params: GeneralAxesParams
     data_axes: dict[str, AxesDefinition]
     pervasive_tiers: list[str]
     xlim: FloatPair | str | None = None
@@ -422,6 +492,10 @@ class TimeseriesPlotConfig(PlotConfig):
     xticks: list[str] | None = None
     yticks: list[str] | None = None
 
+    @property
+    def xtick_labels(self) -> list[str]:
+        return self.xticks
+
     # @computed_field
     @property
     def xtick_values(self) -> np.ndarray | None:
@@ -436,6 +510,10 @@ class TimeseriesPlotConfig(PlotConfig):
         if self.xticks:
             return np.asarray(self.xticks, dtype=float)
         return None
+
+    @property
+    def ytick_labels(self) -> list[str]:
+        return self.yticks
 
     # @computed_field
     @property
@@ -462,6 +540,7 @@ class AnnotationStatsPlotConfig(PlotConfig):
 
 
 class PublishConfig(PlotConfig):
+    publish_directory: Path
     timeseries_plot: TimeseriesPlotConfig | None = None
     annotation_stats_plot: TimeseriesPlotConfig | None = None
 

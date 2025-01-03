@@ -76,13 +76,13 @@ def make_session_config(
         data_root: Path,
         raw_config: dict) -> tuple[PathStructure, SessionConfig]:
     """
-    Parse needed fields and create the new SessionImportConfig.
+    Parse needed fields and create a new SessionImportConfig.
 
     Parameters
     ----------
     data_root : Path
         Path to the root directory for the data. If all data is in the same
-        directory, this is that directory. Otherwise this is the deepest common
+        directory, this is that directory. Otherwise, this is the deepest common
         path among data types.
     raw_config : dict
         The raw config read from a yaml file.
@@ -118,7 +118,7 @@ def load_session_config(
     ----------
     data_root : Path
         Path to the root directory for the data. If all data is in the same
-        directory, this is that directory. Otherwise this is the deepest common
+        directory, this is that directory. Otherwise, this is the deepest common
         path among data types.
     filepath : Union[Path, str]
         Path or str to the Session import configuration file.

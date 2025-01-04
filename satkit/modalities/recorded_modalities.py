@@ -49,7 +49,7 @@ from satkit.import_formats import (
     read_wav_and_detect_beep
 )
 from satkit.interpolate_raw_uti import to_fan, to_fan_2d
-from .recorded_meta_data_classes import RawUltrasoundMeta
+from .recorded_metadata_classes import RawUltrasoundMeta
 
 _logger = logging.getLogger('satkit.modalities')
 

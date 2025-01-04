@@ -39,7 +39,7 @@ import pandas as pd
 
 from satkit.data_structures import Modality, Recording
 
-from .meta_data import export_derived_modalities_meta, export_modality_meta
+from .metadata import export_derived_modalities_meta, export_modality_meta
 
 
 def modality_data_to_dataframe(

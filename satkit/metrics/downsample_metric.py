@@ -50,7 +50,7 @@ from satkit.data_structures import (
 def downsample_modality(
         modality: Modality,
         downsampling_ratio: int,
-        meta_data: ModalityMetaData
+        metadata: ModalityMetaData
 ) -> Modality:
     """
     Downsample the Modality by the given ratio and return results as a new
@@ -62,7 +62,7 @@ def downsample_modality(
         The original Modality.
     downsampling_ratio : int
         Ratio by which to downsample.
-    meta_data : ModalityMetaData
+    metadata : ModalityMetaData
         Metadata for the new downsampled Modality.
 
     Returns
@@ -86,7 +86,7 @@ def downsample_modality(
     return modality.__class__(
         modality.recording,
         parsed_data=modality_data,
-        meta_data=meta_data,
+        metadata=metadata,
         file_info=file_info,
         time_offset=modality.time_offset)
 

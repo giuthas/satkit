@@ -48,7 +48,7 @@ from satkit.metrics import (
 )
 from satkit.modalities import RawUltrasound
 
-from .meta_data import (
+from .metadata import (
     export_aggregate_image_meta,
     export_distance_matrix_meta,
     export_ultrasound_frame_meta

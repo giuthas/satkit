@@ -277,7 +277,7 @@ class DistanceMatrix(Statistic):
         dict
             The meta data in a dict.
         """
-        return self.meta_data.model_dump()
+        return self.metadata.model_dump()
 
     @property
     def name(self) -> str:
@@ -289,4 +289,4 @@ class DistanceMatrix(Statistic):
 
         This overrides the default behaviour of Modality.name.
         """
-        return DistanceMatrix.generate_name(self.meta_data)
+        return DistanceMatrix.generate_name(self.metadata)

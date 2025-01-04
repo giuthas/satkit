@@ -69,6 +69,8 @@ downsample:
   downsampling_ratios:
     - 1
     - 2
+    - 3
+    - 4
 
 #spline_metric_arguments:
 #  'metrics':

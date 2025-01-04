@@ -126,7 +126,7 @@ def generate_aaa_recording_list(
         recording_list=recordings, directory=directory, detect_beep=detect_beep)
 
     return sorted(recordings, key=lambda
-                  token: token.meta_data.time_of_recording)
+                  token: token.metadata.time_of_recording)
 
 
 def generate_ultrasound_recording(

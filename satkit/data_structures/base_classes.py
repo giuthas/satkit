@@ -130,7 +130,7 @@ class DataObject(abc.ABC):
         return self._file_info
 
     @property
-    def meta_data(self) -> SatkitBaseModel:
+    def metadata(self) -> SatkitBaseModel:
         """
         Metadata of this DataObject.
 
@@ -379,7 +379,7 @@ class DataObject(abc.ABC):
         dict
             The meta data in a dict.
         """
-        return self.meta_data.model_dump()
+        return self.metadata.model_dump()
 
 
 class DataAggregator(DataObject):

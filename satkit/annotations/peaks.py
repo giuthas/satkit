@@ -219,7 +219,7 @@ def _setup_peak_extraction_variables(
     exclude = ("water swallow", "bite plate")
     recordings = [
         recording for recording in recordings
-        if not any(prompt in recording.meta_data.prompt for prompt in exclude)
+        if not any(prompt in recording.metadata.prompt for prompt in exclude)
     ]
 
     modality_params = PD.get_names_and_meta(
@@ -392,7 +392,7 @@ def count_number_of_peaks(
     exclusion = ("water swallow", "bite plate")
     recordings = [
         recording for recording in recordings
-        if not any(prompt in recording.meta_data.prompt for prompt in exclusion)
+        if not any(prompt in recording.metadata.prompt for prompt in exclusion)
     ]
 
     peak_numbers = np.zeros(
@@ -514,7 +514,7 @@ def save_peaks(
         if 'utterance' not in recording.satgrid:
             continue
         basename = recording.basename
-        prompt = recording.meta_data.prompt
+        prompt = recording.metadata.prompt
 
         l1 = recording['PD l1 on RawUltrasound']
         l1_bottom = recording['PD l1 bottom on RawUltrasound']

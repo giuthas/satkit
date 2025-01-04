@@ -261,7 +261,7 @@ class PD(Modality):
 
     def get_meta(self) -> dict:
         # This conversion is done to keep nestedtext working.
-        meta = self.meta_data.model_dump()
+        meta = self.metadata.model_dump()
         meta['image_mask'] = str(meta['image_mask'])
         return meta
 
@@ -275,4 +275,4 @@ class PD(Modality):
 
         This overrides the default behaviour of Modality.name.
         """
-        return PD.generate_name(self.meta_data)
+        return PD.generate_name(self.metadata)

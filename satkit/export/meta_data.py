@@ -61,10 +61,10 @@ def _paths_from_name(filename: str | Path) -> tuple[Path, Path]:
 def _write_session_and_recording_meta(
         file: TextIOWrapper | TextIO, session: Session, recording: Recording):
     file.write(f"Session path: {session.recorded_path}\n")
-    file.write(f"Participant ID: {recording.meta_data.participant_id}\n")
+    file.write(f"Participant ID: {recording.metadata.participant_id}\n")
     file.write(f"Recording filename: {recording.name}\n")
-    file.write(f"Recorded at: {recording.meta_data.time_of_recording}\n")
-    file.write(f"Prompt: {recording.meta_data.prompt}\n")
+    file.write(f"Recorded at: {recording.metadata.time_of_recording}\n")
+    file.write(f"Prompt: {recording.metadata.prompt}\n")
 
 
 def _export_header(
@@ -152,7 +152,7 @@ def export_distance_matrix_meta(
             object_name="DistanceMatrix",
             filename=filename)
         file.write(f"Session path: {session.recorded_path}\n")
-        participant_id = session.recordings[0].meta_data.participant_id
+        participant_id = session.recordings[0].metadata.participant_id
         file.write(f"Participant ID: {participant_id}\n\n")
 
         nestedtext.dump(
@@ -189,7 +189,7 @@ def export_modality_meta(
             file=file, session=modality.owner.owner, recording=modality.owner)
         file.write("\n")
         nestedtext.dump(
-            obj=dict(sorted(modality.meta_data.model_dump().items())),
+            obj=dict(sorted(modality.metadata.model_dump().items())),
             dest=file,
             converters=nested_text_converters
         )
@@ -228,7 +228,7 @@ def export_derived_modalities_meta(
 
         modality_params = {
             f"{modality_name} parameters": dict(
-                sorted(recording[modality_name].meta_data.model_dump().items()))
+                sorted(recording[modality_name].metadata.model_dump().items()))
             for modality_name in recording
             if recording[modality_name].is_derived
         }

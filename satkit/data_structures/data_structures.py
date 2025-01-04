@@ -188,20 +188,20 @@ class Recording(DataAggregator, UserDict):
     @property
     def path(self) -> Path:
         """Path to this recording."""
-        return self.meta_data.path
+        return self.metadata.path
 
     @path.setter
     def path(self, path: Path) -> None:
-        self.meta_data.path = path
+        self.metadata.path = path
 
     @property
     def basename(self) -> str:
         """Filename of this Recording without extensions."""
-        return self.meta_data.basename
+        return self.metadata.basename
 
     @basename.setter
     def basename(self, basename: str) -> None:
-        self.meta_data.basename = basename
+        self.metadata.basename = basename
 
     def _read_textgrid(self) -> textgrids.TextGrid | None:
         """
@@ -236,8 +236,8 @@ class Recording(DataAggregator, UserDict):
         str
             prompt followed by time of recording.
         """
-        return (f"{self.meta_data.prompt} "
-                f"{str(self.meta_data.time_of_recording)}")
+        return (f"{self.metadata.prompt} "
+                f"{str(self.metadata.time_of_recording)}")
 
     def exclude(self) -> None:
         """
@@ -323,7 +323,7 @@ class Recording(DataAggregator, UserDict):
                     "correctly.", self.basename)
                 textgrid = textgrids.TextGrid()
                 interval = textgrids.Interval(
-                    text=self.meta_data.prompt,
+                    text=self.metadata.prompt,
                     xmin=self['MonoAudio'].min_time,
                     xmax=self['MonoAudio'].max_time,
                 )

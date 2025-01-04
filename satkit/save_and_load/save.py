@@ -173,7 +173,7 @@ def save_recording_meta(
     meta['object_type'] = type(recording).__name__
     meta['name'] = recording.basename
     meta['format_version'] = SATKIT_FILE_VERSION
-    meta['parameters'] = recording.meta_data.model_dump()
+    meta['parameters'] = recording.metadata.model_dump()
     meta['modalities'] = modalities_saves
     meta['statistics'] = statistics_saves
 
@@ -378,7 +378,7 @@ def save_session_meta(
 
     parameters = OrderedDict()
     parameters['path'] = str(session.paths.root)
-    parameters['datasource'] = session.meta_data.data_source.value
+    parameters['datasource'] = session.metadata.data_source.value
 
     meta['parameters'] = parameters
     meta['recordings'] = recording_meta_files

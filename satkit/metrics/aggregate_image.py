@@ -207,4 +207,4 @@ class AggregateImage(Statistic):
         The name will be of the form
         'AggregateImage [metric name] on [data modality class name]'.
         """
-        return AggregateImage.generate_name(self.meta_data)
+        return AggregateImage.generate_name(self.metadata)

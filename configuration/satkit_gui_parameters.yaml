@@ -51,6 +51,7 @@ data_axes:
   PD:
     modalities:
       - PD l2 on RawUltrasound
+      - PD l2 on RawUltrasound
     sharex: True
     ylim:
       - 800

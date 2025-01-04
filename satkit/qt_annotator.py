@@ -319,7 +319,7 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
         Private helper function for generating the title.
         """
         text = 'Recording: ' + str(self.index + 1) + '/' + str(self.max_index)
-        text += ', prompt: ' + self.current.meta_data.prompt
+        text += ', prompt: ' + self.current.metadata.prompt
         return text
 
     def _get_long_title(self):
@@ -327,8 +327,8 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
         Private helper function for generating a longer title for a figure.
         """
         text = 'Recording: ' + str(self.index + 1) + '/' + str(self.max_index)
-        text += ', Speaker: ' + str(self.current.meta_data.participant_id)
-        text += ', prompt: ' + self.current.meta_data.prompt
+        text += ', Speaker: ' + str(self.current.metadata.participant_id)
+        text += ', prompt: ' + self.current.metadata.prompt
         return text
 
     def clear_axes(self):
@@ -409,6 +409,7 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
         else:
             colors = None
         for i, name in enumerate(plot_modality_names):
+            ic(self.current.modalities)
             modality = self.current.modalities[name]
             plot_timeseries(
                 self.data_axes[axes_number],
@@ -678,7 +679,7 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
                     _logger.info("Minimal difference: %f, epsilon: %f",
                                  min_difference, epsilon)
 
-                spline_config = self.session.meta_data.spline_config
+                spline_config = self.session.metadata.spline_config
                 if spline_config.data_config:
                     limits = spline_config.data_config.ignore_points
                     plot_spline(self.ultra_axes,
@@ -1037,9 +1038,9 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
                 annotations = recording.annotations.copy()
                 annotations['basename'] = recording.basename
                 annotations['date_and_time'] = (
-                    recording.meta_data.time_of_recording)
-                annotations['prompt'] = recording.meta_data.prompt
-                annotations['word'] = recording.meta_data.prompt.split()[0]
+                    recording.metadata.time_of_recording)
+                annotations['prompt'] = recording.metadata.prompt
+                annotations['word'] = recording.metadata.prompt.split()[0]
 
                 word_dur = -1.0
                 acoustic_onset = -1.0
@@ -1085,7 +1086,7 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
                 else:
                     annotations['first_sound_type'] = 'C'
 
-                annotations['C1'] = recording.meta_data.prompt[0]
+                annotations['C1'] = recording.metadata.prompt[0]
                 writer.writerow(annotations)
             _logger.info(
                 "Wrote onset data in file %s.", filename)

@@ -57,9 +57,11 @@ def downsample_modality(
     Parameters
     ----------
     modality : Modality
-        The original Modality
+        The original Modality.
     downsampling_ratio : int
-        Ratio by which to downsample
+        Ratio by which to downsample.
+    meta_data : ModalityMetaData
+        Metadata for the new downsampled Modality.
 
     Returns
     -------
@@ -67,7 +69,7 @@ def downsample_modality(
         This Modality will match the type and metadata of the original, but
         will have the metadata fields that describe downsampling updated
         correctly. The Modality's data and timevector will have been
-        downsampled its and name will show the downsampling ratio used.
+        downsampled and its name will show the downsampling ratio used.
     """
     data = modality.data[::downsampling_ratio]
     timevector = modality.timevector[::downsampling_ratio]
@@ -121,7 +123,7 @@ def downsample_metrics(
 def _downsample_metrics(
         recording: Recording,
         modality_pattern: SearchPattern,
-        downsampling_ratios: tuple[int],
+        downsampling_ratios: list[int],
         match_timestep: bool = True
 ) -> None:
     """

@@ -61,6 +61,15 @@ pd_arguments:
   release_data_memory: True
   preload: True
 
+downsample:
+  modality_pattern:
+    pattern: "l[0-9]"
+    is_regexp: True
+  match_timestep: True
+  downsampling_ratios:
+    - 1
+    - 2
+
 #spline_metric_arguments:
 #  'metrics':
 #    - 'annd'

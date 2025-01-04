@@ -42,7 +42,7 @@ import numpy as np
 from satkit.errors import OverwriteError
 from satkit.external_class_extensions import SatkitBaseModel
 
-from .meta_data_classes import FileInformation, StatisticMetaData
+from .metadata_classes import FileInformation, StatisticMetaData
 
 _datastructures_logger = logging.getLogger('satkit.data_structures')
 
@@ -59,7 +59,7 @@ class DataObject(abc.ABC):
     """
 
     def __init__(self,
-                 meta_data: SatkitBaseModel,
+                 metadata: SatkitBaseModel,
                  owner: DataAggregator | None = None,
                  file_info: FileInformation | None = None,
                  ) -> None:
@@ -68,7 +68,7 @@ class DataObject(abc.ABC):
         # initialised properly.
         super().__init__()
 
-        self._meta_data = meta_data
+        self._metadata = metadata
         self.owner = owner
         self._file_info = file_info
 
@@ -100,11 +100,11 @@ class DataObject(abc.ABC):
         In most cases name is supposed to be implemented with the following
         idiom:
         ```python
-        return NAME_OF_THIS_CLASS.generate_name(self.meta_data)
+        return NAME_OF_THIS_CLASS.generate_name(self.metadata)
         ```
         For example, for PD:
         ```python
-        return PD.generate_name(self.meta_data)
+        return PD.generate_name(self.metadata)
         ```
 
         Returns
@@ -143,7 +143,7 @@ class DataObject(abc.ABC):
         SatkitBaseModel
             The meta data as a Pydantic model.
         """
-        return self._meta_data
+        return self._metadata
 
     @property
     def recorded_data_path(self) -> Path | None:
@@ -392,13 +392,13 @@ class DataAggregator(DataObject):
 
     def __init__(self,
                  name: str,
-                 meta_data: SatkitBaseModel,
+                 metadata: SatkitBaseModel,
                  owner: DataObject | None = None,
                  file_info: FileInformation | None = None,
                  statistics: dict[str, 'Statistic'] | None = None
                  ) -> None:
         super().__init__(
-            owner=owner, meta_data=meta_data, file_info=file_info)
+            owner=owner, metadata=metadata, file_info=file_info)
 
         self._name = name
         self.statistics = {}
@@ -469,12 +469,12 @@ class DataContainer(DataObject):
         """Abstract version of generating a RecordingMetric name."""
 
     def __init__(self,
-                 meta_data: SatkitBaseModel,
+                 metadata: SatkitBaseModel,
                  owner: DataObject | None = None,
                  file_info: FileInformation | None = None,
                  ) -> None:
         super().__init__(
-            owner=owner, meta_data=meta_data, file_info=file_info)
+            owner=owner, metadata=metadata, file_info=file_info)
 
     @property
     def name(self) -> str:
@@ -484,11 +484,11 @@ class DataContainer(DataObject):
         In most cases name is supposed to be overridden with the following
         idiom:
         ```python
-        return NAME_OF_THIS_CLASS.generate_name(self.meta_data)
+        return NAME_OF_THIS_CLASS.generate_name(self.metadata)
         ```
         For example, for PD:
         ```python
-        return PD.generate_name(self.meta_data)
+        return PD.generate_name(self.metadata)
         ```
 
         Returns
@@ -496,7 +496,7 @@ class DataContainer(DataObject):
         str
             Name of this instance.
         """
-        return self.__class__.generate_name(self._meta_data)
+        return self.__class__.generate_name(self._metadata)
 
     @property
     def name_underscored(self) -> str:
@@ -535,7 +535,7 @@ class Statistic(DataContainer):
 
     def __init__(
             self,
-            meta_data: SatkitBaseModel,
+            metadata: SatkitBaseModel,
             owner: DataAggregator | None = None,
             file_info: FileInformation | None = None,
             parsed_data: np.ndarray | None = None,
@@ -545,7 +545,7 @@ class Statistic(DataContainer):
 
         Parameters
         ----------
-        meta_data : SatkitBaseModel
+        metadata : SatkitBaseModel
             Parameters used in calculating this Statistic.
         owner : DataAggregator
             The owner of this Statistic. Usually this will be the object whose
@@ -559,7 +559,7 @@ class Statistic(DataContainer):
             the actual statistic, by default None
         """
         super().__init__(
-            owner=owner, meta_data=meta_data, file_info=file_info)
+            owner=owner, metadata=metadata, file_info=file_info)
         self._data = parsed_data
 
     @property

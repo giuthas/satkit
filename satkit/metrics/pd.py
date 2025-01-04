@@ -213,7 +213,7 @@ class PD(Modality):
     def __init__(
             self,
             owner: Recording,
-            meta_data: PdParameters,
+            metadata: PdParameters,
             file_info: FileInformation,
             parsed_data: Optional[ModalityData] = None,
             time_offset: Optional[float] = None
@@ -225,7 +225,7 @@ class PD(Modality):
         ----------
         owner : Recording
             the containing Recording.
-        meta_data : PdParameters
+        metadata : PdParameters
             Parameters used in calculating this instance of PD.
         file_info : FileInformation
             Save paths for numerical and meta data.
@@ -246,7 +246,7 @@ class PD(Modality):
 
         super().__init__(
             owner,
-            meta_data=meta_data,
+            metadata=metadata,
             file_info=file_info,
             parsed_data=parsed_data,
             time_offset=time_offset)

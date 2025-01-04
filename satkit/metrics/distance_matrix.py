@@ -233,7 +233,7 @@ class DistanceMatrix(Statistic):
     def __init__(
             self,
             owner: Session,
-            meta_data: DistanceMatrixParameters,
+            metadata: DistanceMatrixParameters,
             file_info: FileInformation,
             parsed_data: np.ndarray | None = None,
     ) -> None:
@@ -244,7 +244,7 @@ class DistanceMatrix(Statistic):
         ----------
         owner : Session
             Containing Session.
-        meta_data : DistanceMatrixParameters
+        metadata : DistanceMatrixParameters
             Parameters used in calculating this instance of DistanceMatrix.
         file_info : FileInformation
             FileInformation -- if any -- for this DistanceMatrix.
@@ -253,7 +253,7 @@ class DistanceMatrix(Statistic):
         """
         super().__init__(
             owner=owner,
-            meta_data=meta_data,
+            metadata=metadata,
             file_info=file_info,
             parsed_data=parsed_data, )
 

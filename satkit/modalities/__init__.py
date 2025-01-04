@@ -33,7 +33,7 @@
 Modalities and metadata for recorded (external) data.
 """
 
-from .recorded_meta_data_classes import RawUltrasoundMeta
+from .recorded_metadata_classes import RawUltrasoundMeta
 from .recorded_modalities import (
     MonoAudio, RawUltrasound, ThreeD_Ultrasound, Video
 )

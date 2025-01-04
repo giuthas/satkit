@@ -163,7 +163,7 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
         self.action_export_aggregate_images.triggered.connect(
             self.export_aggregate_image)
         self.action_export_annotations_and_metadata.triggered.connect(
-            self.export_annotations_and_meta_data)
+            self.export_annotations_and_metadata)
         self.action_export_distance_matrices.triggered.connect(
             self.export_distance_matrix)
         self.action_export_main_figure.triggered.connect(self.export_figure)
@@ -185,7 +185,7 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
         self.prevButton.clicked.connect(self.prev)
         self.saveButton.clicked.connect(self.save_all)
         self.exportButton.clicked.connect(
-            self.export_annotations_and_meta_data)
+            self.export_annotations_and_metadata)
 
         go_validator = QIntValidator(1, self.max_index + 1, self)
         self.goLineEdit.setValidator(go_validator)
@@ -1010,7 +1010,7 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
                 session=self.session,
                 path=path)
 
-    def export_annotations_and_meta_data(self) -> None:
+    def export_annotations_and_metadata(self) -> None:
         """
         Export annotations and some other meta data.
         """

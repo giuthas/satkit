@@ -235,7 +235,7 @@ def calculate_pd(
         pds.append(
             PD(
                 owner=parent_modality.recording,
-                meta_data=param_set,
+                metadata=param_set,
                 file_info=file_info,
                 parsed_data=modality_data))
 

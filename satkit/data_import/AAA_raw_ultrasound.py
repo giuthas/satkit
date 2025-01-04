@@ -193,7 +193,7 @@ def add_aaa_raw_ultrasound(
         owner=recording,
         file_info=file_info,
         time_offset=ult_time_offset,
-        meta_data=meta
+        metadata=meta
     )
     recording.add_modality(ultrasound)
 

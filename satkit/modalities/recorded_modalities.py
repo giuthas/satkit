@@ -152,7 +152,7 @@ class RawUltrasound(Modality):
                  file_info: FileInformation,
                  parsed_data: ModalityData | None = None,
                  time_offset: float | None = None,
-                 meta_data: RawUltrasoundMeta | None = None
+                 metadata: RawUltrasoundMeta | None = None
                  ) -> None:
         """
         Create a RawUltrasound Modality.
@@ -177,7 +177,7 @@ class RawUltrasound(Modality):
             file_info=file_info,
             parsed_data=parsed_data,
             time_offset=time_offset,
-            meta_data=meta_data
+            metadata=metadata
         )
 
         # TODO: these are related to GUI and should really be in a decorator

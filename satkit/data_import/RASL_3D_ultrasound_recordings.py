@@ -293,13 +293,13 @@ def generate_3D_ultrasound_recording(
 
     if textgrid.is_file():
         recording = Recording(
-            meta_data=meta,
+            metadata=meta,
             file_info=file_info,
             textgrid_path=textgrid
         )
     else:
         recording = Recording(
-            meta_data=meta,
+            metadata=meta,
             file_info=file_info,
         )
 

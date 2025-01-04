@@ -76,7 +76,7 @@ def calculate_aggregate_image(
     file_info = FileInformation()
     return AggregateImage(
         modality.recording,
-        meta_data=params,
+        metadata=params,
         file_info=file_info,
         parsed_data=aggregate_image)
 

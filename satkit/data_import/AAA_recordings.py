@@ -160,14 +160,14 @@ def generate_ultrasound_recording(
     if textgrid.is_file():
         recording = Recording(
             owner=owner,
-            meta_data=meta,
+            metadata=meta,
             file_info=file_info,
             textgrid_path=textgrid
         )
     else:
         recording = Recording(
             owner=owner,
-            meta_data=meta,
+            metadata=meta,
             file_info=file_info,
         )
 

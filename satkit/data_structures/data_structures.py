@@ -51,7 +51,7 @@ from satkit.errors import (
 )
 from satkit.satgrid import SatGrid
 from .base_classes import DataAggregator, DataContainer, Statistic
-from .meta_data_classes import (
+from .metadata_classes import (
     FileInformation, ModalityData, ModalityMetaData, PointAnnotations,
     RecordingMetaData, SessionConfig
 )
@@ -82,7 +82,7 @@ class Session(DataAggregator, UserList):
             statistics: dict[str, Statistic] | None = None
     ) -> None:
         super().__init__(
-            owner=None, name=name, meta_data=config,
+            owner=None, name=name, metadata=config,
             file_info=file_info, statistics=statistics)
 
         for recording in recordings:
@@ -130,7 +130,7 @@ class Recording(DataAggregator, UserDict):
 
     def __init__(
             self,
-            meta_data: RecordingMetaData,
+            metadata: RecordingMetaData,
             file_info: FileInformation,
             owner: Session | None = None,
             excluded: bool = False,
@@ -148,7 +148,7 @@ class Recording(DataAggregator, UserDict):
 
         Parameters
         ----------
-        meta_data : RecordingMetaData
+        metadata : RecordingMetaData
             Some of the contents of the meta data are available as properties.
         excluded : bool, optional
             _description_, by default False
@@ -156,15 +156,15 @@ class Recording(DataAggregator, UserDict):
             _description_, by default ""
         """
         super().__init__(
-            owner=owner, name=meta_data.basename,
-            meta_data=meta_data, file_info=file_info)
+            owner=owner, name=metadata.basename,
+            metadata=metadata, file_info=file_info)
 
         self.excluded = excluded
 
         self.textgrid_path = textgrid_path
         if not self.textgrid_path:
-            self.textgrid_path = meta_data.path.joinpath(
-                meta_data.basename + ".TextGrid")
+            self.textgrid_path = metadata.path.joinpath(
+                metadata.basename + ".TextGrid")
         self.textgrid = self._read_textgrid()
         if self.textgrid:
             self.satgrid = SatGrid(self.textgrid)
@@ -390,7 +390,7 @@ class Modality(DataContainer, OrderedDict):
             owner: Recording,
             file_info: FileInformation,
             parsed_data: ModalityData | None = None,
-            meta_data: ModalityMetaData | None = None,
+            metadata: ModalityMetaData | None = None,
             time_offset: float | None = None,
             point_annotations: dict[AnnotationType, PointAnnotations] | None =
             None
@@ -422,7 +422,7 @@ class Modality(DataContainer, OrderedDict):
         """
         super().__init__(
             owner=owner,
-            meta_data=meta_data,
+            metadata=metadata,
             file_info=file_info)
 
         if point_annotations:
@@ -481,7 +481,7 @@ class Modality(DataContainer, OrderedDict):
         if self._file_info.satkit_data_file:
             return self._load_data()
 
-        if self._meta_data.parent_name:
+        if self._metadata.parent_name:
             return self._derive_data()
 
         raise MissingDataError(
@@ -648,7 +648,7 @@ class Modality(DataContainer, OrderedDict):
     @property
     def parent_name(self) -> str:
         """Name of the Modality this Modality was derived from, if any."""
-        return self._meta_data.parent_name
+        return self._metadata.parent_name
 
     @property
     def time_offset(self):
@@ -784,6 +784,6 @@ class Modality(DataContainer, OrderedDict):
 
         This cannot be set from the outside.
         """
-        if self._meta_data and self._meta_data.parent_name:
+        if self._metadata and self._metadata.parent_name:
             return True
         return False

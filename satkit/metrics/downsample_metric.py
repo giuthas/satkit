@@ -37,6 +37,8 @@ Downsampling of metrics and possibly other timeseries data.
 import re
 import dataclasses
 
+from icecream import ic
+
 # from icecream import ic
 
 from satkit.configuration import DataRunConfig, SearchPattern, DownsampleParams
@@ -153,7 +155,8 @@ def _downsample_metrics(
         pattern = re.compile(modality_pattern.pattern)
         modalities = [recording[key]
                       for key in recording
-                      if pattern.match(key)]
+                      if pattern.search(key)]
+        ic(modality_pattern, modalities)
     else:
         pattern = modality_pattern.pattern
         modalities = [recording[key]

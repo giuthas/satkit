@@ -112,6 +112,8 @@ def polar_to_cartesian(
             coords = np.apply_along_axis(
                 polar_to_cartesian, 1, r_phi)
         ```
+    angle_offset : float
+        Offset for the angle in radians, by default 0.
 
     Returns
     -------

@@ -106,10 +106,12 @@ def polar_to_cartesian(
 
         This maybe passed in as 1D array which will then be reshaped into a 2*x
         array. This makes it possible to apply the transformation with 
-        `   r_phi = self.data[:, 0:2, :]
+        ```python
+            r_phi = self.data[:, 0:2, :]
             r_phi = r_phi.reshape([self.data.shape[0], -1])
             coords = np.apply_along_axis(
-                polar_to_cartesian, 1, r_phi)`
+                polar_to_cartesian, 1, r_phi)
+        ```
 
     Returns
     -------

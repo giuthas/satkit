@@ -38,11 +38,8 @@ import logging
 from collections import OrderedDict, UserDict, UserList
 from pathlib import Path
 
-# Numerical arrays and more
 import numpy as np
-# Praat textgrids
 import textgrids
-from icecream import ic
 
 from satkit.configuration import PathStructure
 from satkit.constants import AnnotationType
@@ -55,8 +52,6 @@ from .metadata_classes import (
     FileInformation, ModalityData, ModalityMetaData, PointAnnotations,
     RecordingMetaData, SessionConfig
 )
-
-# from icecream import ic
 
 _logger = logging.getLogger('satkit.data_structures')
 

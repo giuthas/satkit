@@ -389,7 +389,6 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
         plot_modality_names = axes_params.modalities
 
         if ylim is None:
-            ic(self.gui_config.general_axes_params)
             if data_axes_params is None or data_axes_params.ylim is None:
                 ylim = (-0.05, 1.05)
             else:

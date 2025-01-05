@@ -37,7 +37,6 @@ import logging
 import sys
 from copy import deepcopy
 
-# from icecream import ic
 import numpy as np
 
 # local modules

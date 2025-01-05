@@ -36,8 +36,6 @@ Perturbation series plots.
 
 from typing import Optional
 
-# from icecream import ic
-
 import numpy as np
 
 import matplotlib.pyplot as plt

@@ -55,8 +55,6 @@ from matplotlib.gridspec import GridSpec
 import pandas
 import seaborn as sns
 
-# from icecream import ic
-
 from satkit.data_structures import Recording, Session
 
 from .plot import (plot_1d_modality, plot_satgrid_tier)

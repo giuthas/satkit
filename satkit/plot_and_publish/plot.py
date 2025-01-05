@@ -45,8 +45,6 @@ from scipy import interpolate
 from scipy.signal import ShortTimeFFT
 from scipy.signal.windows import kaiser
 
-# from icecream import ic
-
 from satkit.configuration import TimeseriesNormalisation
 from satkit.constants import AnnotationType
 from satkit.data_structures import Modality

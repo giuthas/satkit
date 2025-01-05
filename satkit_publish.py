@@ -35,7 +35,6 @@
 import sys
 from pathlib import Path
 
-# from icecream import ic
 from matplotlib.backends.backend_pdf import PdfPages
 
 import numpy as np

@@ -36,8 +36,6 @@ Tools for working with simulated tongue contours.
 
 from typing import Optional, Union
 
-# from icecream import ic
-
 import numpy as np
 
 from satkit.external_class_extensions import (

@@ -37,8 +37,6 @@ from typing import Optional
 
 import numpy as np
 
-# from icecream import ic
-
 from satkit.configuration import TimeseriesNormalisation
 
 

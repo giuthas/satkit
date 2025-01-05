@@ -45,7 +45,6 @@ import os
 import logging
 
 import numpy as np
-from icecream import ic
 
 from scipy.integrate import simpson
 from scipy.signal import butter, filtfilt

@@ -35,8 +35,6 @@ Plotting routines for simulation results.
 
 from typing import Optional
 
-# from icecream import ic
-
 import numpy as np
 
 from matplotlib.axes import Axes

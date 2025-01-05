@@ -37,7 +37,6 @@ import logging
 from typing import Optional
 
 import numpy as np
-# from icecream import ic
 
 from satkit.constants import CoordinateSystems
 from satkit.data_structures import (

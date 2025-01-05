@@ -35,8 +35,6 @@ This module contains functions used to apply metrics to simulated data.
 
 from typing import Annotated, Callable, Optional
 
-# from icecream import ic
-
 import numpy as np
 from pydantic import BaseModel
 

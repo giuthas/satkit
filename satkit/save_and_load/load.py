@@ -39,7 +39,6 @@ from typing import Any, TextIO
 
 import numpy as np
 import nestedtext
-# from icecream import ic
 
 from satkit.configuration import PathStructure
 from satkit.constants import SatkitConfigFile, SatkitSuffix

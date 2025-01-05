@@ -36,8 +36,6 @@ Plot metric rays on contours for different perturbations.
 
 from typing import Optional
 
-# from icecream import ic
-
 import numpy as np
 
 import matplotlib.font_manager as fm

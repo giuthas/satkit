@@ -40,8 +40,6 @@ from tqdm import tqdm
 
 from satkit.errors import UltrasoundInterpolationError
 
-from icecream import ic
-
 _logger = logging.getLogger('satkit.interpolate_raw_uti')
 
 

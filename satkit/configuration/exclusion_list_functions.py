@@ -38,7 +38,6 @@ import logging
 from contextlib import closing
 from pathlib import Path
 
-from icecream import ic
 from strictyaml import (Map, Optional, Seq, Str,
                         YAMLError, load)
 

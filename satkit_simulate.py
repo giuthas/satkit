@@ -69,7 +69,7 @@ def main() -> None:
     """
     Main to create plots for the Ultrafest 2024 paper.
     """
-    # TODO 0.13: fix this
+    # TODO 0.14: move this to config, remove references to ultrafest 2024
     save_path = Path("ultrafest2024/")
     if not save_path.exists():
         save_path.mkdir()

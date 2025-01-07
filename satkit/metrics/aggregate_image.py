@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2019-2024
+# Copyright (c) 2019-2025
 # Pertti Palo, Scott Moisik, Matthew Faytak, and Motoki Saito.
 #
 # This file is part of Speech Articulation ToolKIT
@@ -167,7 +167,7 @@ class AggregateImage(Statistic):
     def __init__(
             self,
             owner: Recording | Session,
-            meta_data: AggregateImageParameters,
+            metadata: AggregateImageParameters,
             file_info: FileInformation,
             parsed_data: np.ndarray | None = None,
     ) -> None:
@@ -178,7 +178,7 @@ class AggregateImage(Statistic):
         ----------
         owner : Recording | Session
             the Recording or Session that this AggregateImage was calculated on.
-        meta_data : AggregateImageParameters
+        metadata : AggregateImageParameters
             Parameters used in calculating this instance of AggregateImage.
         file_info : FileInformation
             FileInformation -- if any -- for this AggregateImage.
@@ -187,7 +187,7 @@ class AggregateImage(Statistic):
         """
         super().__init__(
             owner=owner,
-            meta_data=meta_data,
+            metadata=metadata,
             file_info=file_info,
             parsed_data=parsed_data,)
 
@@ -207,4 +207,4 @@ class AggregateImage(Statistic):
         The name will be of the form
         'AggregateImage [metric name] on [data modality class name]'.
         """
-        return AggregateImage.generate_name(self.meta_data)
+        return AggregateImage.generate_name(self.metadata)

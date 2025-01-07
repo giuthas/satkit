@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2019-2024
+# Copyright (c) 2019-2025
 # Pertti Palo, Scott Moisik, Matthew Faytak, and Motoki Saito.
 #
 # This file is part of Speech Articulation ToolKIT
@@ -327,17 +327,23 @@ def load_gui_params(filepath: Path | str | None = None) -> YAML:
 
     _logger.info("Loading GUI configuration from %s", str(filepath))
 
+    # TODO 0.14: make sure that normalise gets included here and in config
+    # models.
     axes_params_dict = {
         Optional(
             "colors_in_sequence", default=True): Bool(),
-        Optional("sharex"): Bool(),
+        Optional("legend"): Bool(),
         Optional("mark_peaks"): Bool(),
+        Optional("sharex"): Bool(),
         Optional("ylim"): FixedSeq([Float(), Float()]),
         Optional("y_offset"): Float(),
     }
 
     axes_definition_dict = axes_params_dict | {
-        Optional("modalities"): Seq(Str())}
+        Optional("modalities"): Seq(Str()),
+        Optional("modality_names"): Seq(Str()),
+    }
+
 
     if filepath.is_file():
         with closing(
@@ -373,16 +379,6 @@ def load_gui_params(filepath: Path | str | None = None) -> YAML:
 
     gui_params.update(_raw_gui_params_dict.data)
 
-    if 'xlim' in gui_params and 'auto_xlim' in gui_params:
-        gui_params['auto_xlim'] = False
-
-    number_of_data_axes = 0
-    if 'data_axes' in gui_params:
-        if 'global' in gui_params['data_axes']:
-            number_of_data_axes = len(gui_params['data_axes']) - 1
-        else:
-            number_of_data_axes = len(gui_params['data_axes'])
-    gui_params.update({'number_of_data_axes': number_of_data_axes})
     return _raw_gui_params_dict
 
 

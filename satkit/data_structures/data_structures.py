@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2019-2024
+# Copyright (c) 2019-2025
 # Pertti Palo, Scott Moisik, Matthew Faytak, and Motoki Saito.
 #
 # This file is part of Speech Articulation ToolKIT
@@ -36,13 +36,11 @@ from __future__ import annotations
 import abc
 import logging
 from collections import OrderedDict, UserDict, UserList
+from difflib import get_close_matches
 from pathlib import Path
 
-# Numerical arrays and more
 import numpy as np
-# Praat textgrids
 import textgrids
-from icecream import ic
 
 from satkit.configuration import PathStructure
 from satkit.constants import AnnotationType
@@ -51,12 +49,11 @@ from satkit.errors import (
 )
 from satkit.satgrid import SatGrid
 from .base_classes import DataAggregator, DataContainer, Statistic
-from .meta_data_classes import (
+from .metadata_classes import (
     FileInformation, ModalityData, ModalityMetaData, PointAnnotations,
     RecordingMetaData, SessionConfig
 )
-
-# from icecream import ic
+from ..utility_functions import split_by
 
 _logger = logging.getLogger('satkit.data_structures')
 
@@ -82,7 +79,7 @@ class Session(DataAggregator, UserList):
             statistics: dict[str, Statistic] | None = None
     ) -> None:
         super().__init__(
-            owner=None, name=name, meta_data=config,
+            owner=None, name=name, metadata=config,
             file_info=file_info, statistics=statistics)
 
         for recording in recordings:
@@ -130,7 +127,7 @@ class Recording(DataAggregator, UserDict):
 
     def __init__(
             self,
-            meta_data: RecordingMetaData,
+            metadata: RecordingMetaData,
             file_info: FileInformation,
             owner: Session | None = None,
             excluded: bool = False,
@@ -148,7 +145,7 @@ class Recording(DataAggregator, UserDict):
 
         Parameters
         ----------
-        meta_data : RecordingMetaData
+        metadata : RecordingMetaData
             Some of the contents of the meta data are available as properties.
         excluded : bool, optional
             _description_, by default False
@@ -156,15 +153,15 @@ class Recording(DataAggregator, UserDict):
             _description_, by default ""
         """
         super().__init__(
-            owner=owner, name=meta_data.basename,
-            meta_data=meta_data, file_info=file_info)
+            owner=owner, name=metadata.basename,
+            metadata=metadata, file_info=file_info)
 
         self.excluded = excluded
 
         self.textgrid_path = textgrid_path
         if not self.textgrid_path:
-            self.textgrid_path = meta_data.path.joinpath(
-                meta_data.basename + ".TextGrid")
+            self.textgrid_path = metadata.path.joinpath(
+                metadata.basename + ".TextGrid")
         self.textgrid = self._read_textgrid()
         if self.textgrid:
             self.satgrid = SatGrid(self.textgrid)
@@ -188,20 +185,20 @@ class Recording(DataAggregator, UserDict):
     @property
     def path(self) -> Path:
         """Path to this recording."""
-        return self.meta_data.path
+        return self.metadata.path
 
     @path.setter
     def path(self, path: Path) -> None:
-        self.meta_data.path = path
+        self.metadata.path = path
 
     @property
     def basename(self) -> str:
         """Filename of this Recording without extensions."""
-        return self.meta_data.basename
+        return self.metadata.basename
 
     @basename.setter
     def basename(self, basename: str) -> None:
-        self.meta_data.basename = basename
+        self.metadata.basename = basename
 
     def _read_textgrid(self) -> textgrids.TextGrid | None:
         """
@@ -236,8 +233,8 @@ class Recording(DataAggregator, UserDict):
         str
             prompt followed by time of recording.
         """
-        return (f"{self.meta_data.prompt} "
-                f"{str(self.meta_data.time_of_recording)}")
+        return (f"{self.metadata.prompt} "
+                f"{str(self.metadata.time_of_recording)}")
 
     def exclude(self) -> None:
         """
@@ -323,7 +320,7 @@ class Recording(DataAggregator, UserDict):
                     "correctly.", self.basename)
                 textgrid = textgrids.TextGrid()
                 interval = textgrids.Interval(
-                    text=self.meta_data.prompt,
+                    text=self.metadata.prompt,
                     xmin=self['MonoAudio'].min_time,
                     xmax=self['MonoAudio'].max_time,
                 )
@@ -390,7 +387,7 @@ class Modality(DataContainer, OrderedDict):
             owner: Recording,
             file_info: FileInformation,
             parsed_data: ModalityData | None = None,
-            meta_data: ModalityMetaData | None = None,
+            metadata: ModalityMetaData | None = None,
             time_offset: float | None = None,
             point_annotations: dict[AnnotationType, PointAnnotations] | None =
             None
@@ -422,7 +419,7 @@ class Modality(DataContainer, OrderedDict):
         """
         super().__init__(
             owner=owner,
-            meta_data=meta_data,
+            metadata=metadata,
             file_info=file_info)
 
         if point_annotations:
@@ -481,7 +478,7 @@ class Modality(DataContainer, OrderedDict):
         if self._file_info.satkit_data_file:
             return self._load_data()
 
-        if self._meta_data.parent_name:
+        if self._metadata.parent_name:
             return self._derive_data()
 
         raise MissingDataError(
@@ -648,7 +645,7 @@ class Modality(DataContainer, OrderedDict):
     @property
     def parent_name(self) -> str:
         """Name of the Modality this Modality was derived from, if any."""
-        return self._meta_data.parent_name
+        return self._metadata.parent_name
 
     @property
     def time_offset(self):
@@ -784,6 +781,104 @@ class Modality(DataContainer, OrderedDict):
 
         This cannot be set from the outside.
         """
-        if self._meta_data and self._meta_data.parent_name:
+        if self._metadata and self._metadata.parent_name:
             return True
         return False
+
+    def process_format_directive(
+            self,
+            directive: str,
+            index: int
+    ) -> str:
+        """
+        Process a string formatting directive.
+
+        Fills the string with requested information form this Modality.
+
+        Parameters
+        ----------
+        directive : str
+            The directive in the format "[field_name]:[format]" where field_name
+            is an accepted field name either from this Modality or its
+            metadata.
+        index : int
+            Index within the legend being created. Currently discarded.
+
+        Returns
+        -------
+        str
+            The filled and formatted string.
+        """
+        if ":" in directive:
+            field_name, format_specifier = directive.split(sep=":", maxsplit=1)
+        else:
+            field_name = directive
+            format_specifier = None
+
+        if field_name == "sampling_rate":
+            if format_specifier is not None:
+                return format(self.sampling_rate, format_specifier)
+            return str(self.sampling_rate)
+        elif field_name in self.metadata.__dict__:
+            if format_specifier is not None:
+                return format(
+                    self.metadata.__dict__[field_name], format_specifier)
+            return str(self.metadata.__dict__[field_name])
+        else:
+            _logger.error(
+                "Field name '%s' not found in metadata of %s.",
+                field_name, self.name)
+            _logger.error(
+                "Valid names are\n'%s', and 'sampling_rate'.",
+                str("', '".join(list(self.metadata.__dict__.keys()))))
+            _logger.error(
+                "Did you mean '%s'?",
+                "', '".join(get_close_matches(field_name,
+                                              self.metadata.__dict__.keys()))
+            )
+            # DO NOT add the field_name to the below. It is a variable read from
+            # a file and using it in an f-string is a very serious security
+            # risk.
+            raise ValueError(
+                f"Missing field name in {self.name} and its metadata.",
+            )
+
+    def format_legend(
+            self,
+            index: int,
+            format_strings: list[str] | None,
+            delimiters: str = "{}"
+    ) -> str:
+        """
+        Fill and format a legend string from this Modality.
+
+        If the format_strings are None, then we return the name of this
+        Modality.
+
+        Parameters
+        ----------
+        index : int
+            Index within the legend being created. Currently discarded.
+        format_strings : list[str]
+            The combined format strings for the whole plot, possibly None.
+        delimiters :
+            The delimiter character(s) for the fields.
+
+        Returns
+        -------
+        str
+            The filled and formatted legend string.
+        """
+        if format_strings is None:
+            return self.name
+
+        result = ""
+        format_string = format_strings[index]
+        for chunk, is_directive in split_by(format_string, delimiters):
+            if not is_directive:
+                result += chunk
+            else:
+                result += self.process_format_directive(
+                    directive=chunk, index=index)
+
+        return result

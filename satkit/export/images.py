@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2019-2024
+# Copyright (c) 2019-2025
 # Pertti Palo, Scott Moisik, Matthew Faytak, and Motoki Saito.
 #
 # This file is part of Speech Articulation ToolKIT
@@ -48,7 +48,7 @@ from satkit.metrics import (
 )
 from satkit.modalities import RawUltrasound
 
-from .meta_data import (
+from .metadata import (
     export_aggregate_image_meta,
     export_distance_matrix_meta,
     export_ultrasound_frame_meta
@@ -138,7 +138,7 @@ def export_aggregate_image_and_meta(
         filename=filepath.with_suffix(".txt"),
         session=session,
         recording=recording,
-        aggregate_meta=image.meta_data,
+        aggregate_meta=image.metadata,
         interpolation_params=interpolation_params
     )
 
@@ -154,7 +154,7 @@ def export_distance_matrix_and_meta(
     export_distance_matrix_meta(
         filename=path.with_suffix(".txt"),
         session=session,
-        distance_matrix_meta=matrix.meta_data,
+        distance_matrix_meta=matrix.metadata,
     )
 
 

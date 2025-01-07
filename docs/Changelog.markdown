@@ -31,6 +31,25 @@ and this project uses [Semantic Versioning](https://semver.org/spec/v2.0.0.html)
   speech_analysis_toolkit.
 - See [Roadmap](Roadmap.markdown) for an overview of what to expect in 1.0.
 
+## [0.13.0] 2025-01-07
+
+### Highlights
+
+- Production version of downsampling functionality based on paper published at
+  ISSP 2024.
+
+### Added
+
+- Downsampling of derived modalities.
+- Modality legend names and formatting from config.
+
+### Bugs
+
+- Docs are not necessarily fully generated due to some naming issues. This
+  should be fixed in 0.14.
+- SatPoint in SatGrid references the old config_dict global variable. This will
+  make any calls to `SatPoint.contains` crash. This will be fixed in 0.14.
+
 ## [0.12.0] 2024-12-29
 
 ### Highlights

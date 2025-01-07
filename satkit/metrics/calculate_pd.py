@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2019-2024
+# Copyright (c) 2019-2025
 # Pertti Palo, Scott Moisik, Matthew Faytak, and Motoki Saito.
 #
 # This file is part of Speech Articulation ToolKIT
@@ -235,7 +235,7 @@ def calculate_pd(
         pds.append(
             PD(
                 owner=parent_modality.recording,
-                meta_data=param_set,
+                metadata=param_set,
                 file_info=file_info,
                 parsed_data=modality_data))
 

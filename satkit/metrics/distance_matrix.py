@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2019-2024
+# Copyright (c) 2019-2025
 # Pertti Palo, Scott Moisik, Matthew Faytak, and Motoki Saito.
 #
 # This file is part of Speech Articulation ToolKIT
@@ -233,7 +233,7 @@ class DistanceMatrix(Statistic):
     def __init__(
             self,
             owner: Session,
-            meta_data: DistanceMatrixParameters,
+            metadata: DistanceMatrixParameters,
             file_info: FileInformation,
             parsed_data: np.ndarray | None = None,
     ) -> None:
@@ -244,7 +244,7 @@ class DistanceMatrix(Statistic):
         ----------
         owner : Session
             Containing Session.
-        meta_data : DistanceMatrixParameters
+        metadata : DistanceMatrixParameters
             Parameters used in calculating this instance of DistanceMatrix.
         file_info : FileInformation
             FileInformation -- if any -- for this DistanceMatrix.
@@ -253,7 +253,7 @@ class DistanceMatrix(Statistic):
         """
         super().__init__(
             owner=owner,
-            meta_data=meta_data,
+            metadata=metadata,
             file_info=file_info,
             parsed_data=parsed_data, )
 
@@ -277,7 +277,7 @@ class DistanceMatrix(Statistic):
         dict
             The meta data in a dict.
         """
-        return self.meta_data.model_dump()
+        return self.metadata.model_dump()
 
     @property
     def name(self) -> str:
@@ -289,4 +289,4 @@ class DistanceMatrix(Statistic):
 
         This overrides the default behaviour of Modality.name.
         """
-        return DistanceMatrix.generate_name(self.meta_data)
+        return DistanceMatrix.generate_name(self.metadata)

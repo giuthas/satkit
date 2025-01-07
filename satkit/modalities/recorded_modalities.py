@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2019-2024
+# Copyright (c) 2019-2025
 # Pertti Palo, Scott Moisik, Matthew Faytak, and Motoki Saito.
 #
 # This file is part of Speech Articulation ToolKIT
@@ -37,7 +37,6 @@ import logging
 import sys
 from copy import deepcopy
 
-# from icecream import ic
 import numpy as np
 
 # local modules
@@ -49,7 +48,7 @@ from satkit.import_formats import (
     read_wav_and_detect_beep
 )
 from satkit.interpolate_raw_uti import to_fan, to_fan_2d
-from .recorded_meta_data_classes import RawUltrasoundMeta
+from .recorded_metadata_classes import RawUltrasoundMeta
 
 _logger = logging.getLogger('satkit.modalities')
 
@@ -152,7 +151,7 @@ class RawUltrasound(Modality):
                  file_info: FileInformation,
                  parsed_data: ModalityData | None = None,
                  time_offset: float | None = None,
-                 meta_data: RawUltrasoundMeta | None = None
+                 metadata: RawUltrasoundMeta | None = None
                  ) -> None:
         """
         Create a RawUltrasound Modality.
@@ -177,7 +176,7 @@ class RawUltrasound(Modality):
             file_info=file_info,
             parsed_data=parsed_data,
             time_offset=time_offset,
-            meta_data=meta_data
+            metadata=metadata
         )
 
         # TODO: these are related to GUI and should really be in a decorator
@@ -190,7 +189,7 @@ class RawUltrasound(Modality):
 
     def _read_data(self) -> ModalityData:
         return read_ult(
-            self.recorded_data_path, self.meta_data, self._time_offset)
+            self.recorded_data_path, self.metadata, self._time_offset)
 
     def get_meta(self) -> dict:
         return self.meta
@@ -280,10 +279,10 @@ class RawUltrasound(Modality):
     @property
     def interpolation_params(self) -> dict:
         return {
-            'angle': self.meta_data.angle,
-            'zero_offset': self.meta_data.zero_offset,
-            'pixels_per_mm': self.meta_data.pixels_per_mm,
-            'num_vectors': self.meta_data.num_vectors,
+            'angle': self.metadata.angle,
+            'zero_offset': self.metadata.zero_offset,
+            'pixels_per_mm': self.metadata.pixels_per_mm,
+            'num_vectors': self.metadata.num_vectors,
         }
 
 

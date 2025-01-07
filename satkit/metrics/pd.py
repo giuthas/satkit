@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2019-2024
+# Copyright (c) 2019-2025
 # Pertti Palo, Scott Moisik, Matthew Faytak, and Motoki Saito.
 #
 # This file is part of Speech Articulation ToolKIT
@@ -213,7 +213,7 @@ class PD(Modality):
     def __init__(
             self,
             owner: Recording,
-            meta_data: PdParameters,
+            metadata: PdParameters,
             file_info: FileInformation,
             parsed_data: Optional[ModalityData] = None,
             time_offset: Optional[float] = None
@@ -225,7 +225,7 @@ class PD(Modality):
         ----------
         owner : Recording
             the containing Recording.
-        meta_data : PdParameters
+        metadata : PdParameters
             Parameters used in calculating this instance of PD.
         file_info : FileInformation
             Save paths for numerical and meta data.
@@ -246,7 +246,7 @@ class PD(Modality):
 
         super().__init__(
             owner,
-            meta_data=meta_data,
+            metadata=metadata,
             file_info=file_info,
             parsed_data=parsed_data,
             time_offset=time_offset)
@@ -261,7 +261,7 @@ class PD(Modality):
 
     def get_meta(self) -> dict:
         # This conversion is done to keep nestedtext working.
-        meta = self.meta_data.model_dump()
+        meta = self.metadata.model_dump()
         meta['image_mask'] = str(meta['image_mask'])
         return meta
 
@@ -275,4 +275,4 @@ class PD(Modality):
 
         This overrides the default behaviour of Modality.name.
         """
-        return PD.generate_name(self.meta_data)
+        return PD.generate_name(self.metadata)

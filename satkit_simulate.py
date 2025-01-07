@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 #
-# Copyright (c) 2019-2024
+# Copyright (c) 2019-2025
 # Pertti Palo, Scott Moisik, Matthew Faytak, and Motoki Saito.
 #
 # This file is part of Speech Articulation ToolKIT
@@ -39,8 +39,6 @@ Original version for Ultrafest 2024.
 from functools import partial
 from pathlib import Path
 
-# from icecream import ic
-
 import numpy as np
 
 import matplotlib.pyplot as plt
@@ -71,6 +69,7 @@ def main() -> None:
     """
     Main to create plots for the Ultrafest 2024 paper.
     """
+    # TODO 0.14: move this to config, remove references to ultrafest 2024
     save_path = Path("ultrafest2024/")
     if not save_path.exists():
         save_path.mkdir()

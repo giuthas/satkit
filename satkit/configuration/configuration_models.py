@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2019-2024
+# Copyright (c) 2019-2025
 # Pertti Palo, Scott Moisik, Matthew Faytak, and Motoki Saito.
 #
 # This file is part of Speech Articulation ToolKIT
@@ -390,7 +390,9 @@ class AxesParams(UpdatableBaseModel):
     # the corresponding yaml files
 
     colors_in_sequence: bool = True
+    legend: bool = True
     mark_peaks: bool | None = None
+    normalise: TimeseriesNormalisation | None = None
     sharex: bool | None = None
     ylim: tuple[float, float] | None = None
     y_offset: float | None = None
@@ -406,6 +408,7 @@ class AxesDefinition(AxesParams):
         List of the modalities to be plotted on these axes, by default None
     """
     modalities: list[str] | None = None
+    modality_names: list[str] | None = None
     sharex: bool = True
 
 

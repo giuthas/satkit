@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 #
-# Copyright (c) 2019-2024
+# Copyright (c) 2019-2025
 # Pertti Palo, Scott Moisik, Matthew Faytak, and Motoki Saito.
 #
 # This file is part of Speech Articulation ToolKIT
@@ -181,7 +181,7 @@ def add_derived_data(
             for modality_name in recording:
                 # TODO make this deal with both strings and regexps as the
                 # modality pattern
-                if modality_pattern.match(modality_name):
+                if modality_pattern.search(modality_name):
                     add_peaks(
                         recording[modality_name],
                         config.data_run_config.peaks,

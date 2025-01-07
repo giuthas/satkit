@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2019-2024
+# Copyright (c) 2019-2025
 # Pertti Palo, Scott Moisik, Matthew Faytak, and Motoki Saito.
 #
 # This file is part of Speech Articulation ToolKIT
@@ -38,7 +38,7 @@ SATKIT's datastructures and are not meant to be directly inherited from.
 
 from .base_classes import Statistic
 from .data_structures import Modality, Recording, Session
-from .meta_data_classes import (
+from .metadata_classes import (
     FileInformation,
     ModalityData, ModalityMetaData, PointAnnotations,
     RecordingMetaData, SessionConfig, StatisticMetaData

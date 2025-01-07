@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2019-2024
+# Copyright (c) 2019-2025
 # Pertti Palo, Scott Moisik, Matthew Faytak, and Motoki Saito.
 #
 # This file is part of Speech Articulation ToolKIT
@@ -105,7 +105,7 @@ def calculate_distance_matrix(
 
     if params.sort:
         prompts = [
-            recording.meta_data.prompt for recording in recordings
+            recording.metadata.prompt for recording in recordings
         ]
         if params.sort_criteria is None:
             prompts, indeces = zip(*sorted(zip(prompts, range(len(prompts)))))
@@ -118,13 +118,13 @@ def calculate_distance_matrix(
             for key in params.sort_criteria:
                 block = [
                     recording for recording in recordings
-                    if key in recording.meta_data.prompt
+                    if key in recording.metadata.prompt
                 ]
                 if len(block) == 0:
                     continue
 
                 prompts = [
-                    recording.meta_data.prompt for recording in block
+                    recording.metadata.prompt for recording in block
                 ]
                 prompts, indeces = zip(
                     *sorted(zip(prompts, range(len(prompts)))))
@@ -137,9 +137,9 @@ def calculate_distance_matrix(
             if len(remaining_prompts) > 0:
                 last_block = [
                     recording for recording in recordings
-                    if recording.meta_data.prompt in remaining_prompts]
+                    if recording.metadata.prompt in remaining_prompts]
                 prompts = [
-                    recording.meta_data.prompt for recording in last_block]
+                    recording.metadata.prompt for recording in last_block]
                 prompts, indeces = zip(
                     *sorted(zip(prompts, range(len(prompts)))))
                 block = [last_block[index] for index in indeces]
@@ -153,9 +153,9 @@ def calculate_distance_matrix(
         recordings = sorted_recordings
         params.sorted_indeces = sorted_indeces
         params.sorted_prompts = [
-            recording.meta_data.prompt for recording in recordings]
+            recording.metadata.prompt for recording in recordings]
         params.sorted_filenames = [
-            recording.meta_data.basename for recording in recordings]
+            recording.metadata.basename for recording in recordings]
     images = [
         recording.statistics[parent_name].data for recording in recordings
         if parent_name in recording.statistics
@@ -206,7 +206,7 @@ def calculate_distance_matrix(
 
     return DistanceMatrix(
         owner=session,
-        meta_data=params,
+        metadata=params,
         file_info=FileInformation(),
         parsed_data=matrix, )
 

@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2019-2024
+# Copyright (c) 2019-2025
 # Pertti Palo, Scott Moisik, Matthew Faytak, and Motoki Saito.
 #
 # This file is part of Speech Articulation ToolKIT
@@ -43,7 +43,6 @@ from pathlib import Path
 import numpy as np
 import matplotlib
 import matplotlib.pyplot as plt
-from icecream import ic
 from matplotlib.backends.backend_qt5agg import \
     FigureCanvasQTAgg as FigureCanvas
 # Plotting functions and hooks for GUI
@@ -57,7 +56,7 @@ from PyQt5.uic import loadUiType
 
 from satkit.data_structures import Session
 from satkit.configuration import (
-    Configuration, TimeseriesNormalisation
+    Configuration
 )
 from satkit.export import (
     export_aggregate_image_and_meta,
@@ -163,7 +162,7 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
         self.action_export_aggregate_images.triggered.connect(
             self.export_aggregate_image)
         self.action_export_annotations_and_metadata.triggered.connect(
-            self.export_annotations_and_meta_data)
+            self.export_annotations_and_metadata)
         self.action_export_distance_matrices.triggered.connect(
             self.export_distance_matrix)
         self.action_export_main_figure.triggered.connect(self.export_figure)
@@ -185,7 +184,7 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
         self.prevButton.clicked.connect(self.prev)
         self.saveButton.clicked.connect(self.save_all)
         self.exportButton.clicked.connect(
-            self.export_annotations_and_meta_data)
+            self.export_annotations_and_metadata)
 
         go_validator = QIntValidator(1, self.max_index + 1, self)
         self.goLineEdit.setValidator(go_validator)
@@ -319,7 +318,7 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
         Private helper function for generating the title.
         """
         text = 'Recording: ' + str(self.index + 1) + '/' + str(self.max_index)
-        text += ', prompt: ' + self.current.meta_data.prompt
+        text += ', prompt: ' + self.current.metadata.prompt
         return text
 
     def _get_long_title(self):
@@ -327,8 +326,8 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
         Private helper function for generating a longer title for a figure.
         """
         text = 'Recording: ' + str(self.index + 1) + '/' + str(self.max_index)
-        text += ', Speaker: ' + str(self.current.meta_data.participant_id)
-        text += ', prompt: ' + self.current.meta_data.prompt
+        text += ', Speaker: ' + str(self.current.metadata.participant_id)
+        text += ', prompt: ' + self.current.metadata.prompt
         return text
 
     def clear_axes(self):
@@ -389,11 +388,17 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
         plot_modality_names = axes_params.modalities
 
         if ylim is None:
-            ic(self.gui_config.general_axes_params)
-            if data_axes_params is None or data_axes_params.ylim is None:
+            if data_axes_params is None and axes_params is None:
                 ylim = (-0.05, 1.05)
-            else:
+            elif data_axes_params.ylim is None and axes_params.ylim is None:
+                if not data_axes_params.auto_ylim and not axes_params.auto_ylim:
+                    ylim = (-0.05, 1.05)
+                else:
+                    ylim = None
+            elif axes_params.ylim is None:
                 ylim = data_axes_params.ylim
+            else:
+                ylim = axes_params.ylim
 
         y_offset = 0
         if axes_params.y_offset is not None:
@@ -418,10 +423,12 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
                 ylim=ylim,
                 color=colors[i],
                 linestyle=(0, (i + 1, i + 1)),
-                normalise=TimeseriesNormalisation(peak=False, bottom=False),
+                normalise=axes_params.normalise,
                 y_offset=i * y_offset,
-                sampling_step=i + 1,
-                label=f"{modality.sampling_rate / (i + 1):.2f} Hz"
+                label=modality.format_legend(
+                    index=i,
+                    format_strings=axes_params.modality_names
+                )
             )
             if axes_params.mark_peaks:
                 mark_peaks(self.data_axes[axes_number],
@@ -430,6 +437,11 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
                            display_prominence_values=True,
                            time_offset=zero_offset)
             self.data_axes[axes_number].set_ylabel(axes_name)
+
+        if axes_params.legend:
+            self.data_axes[axes_number].legend(
+                loc='upper left',
+            )
 
     def display_exclusion(self):
         """
@@ -549,8 +561,8 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
                         )
             axes_counter += 1
 
-        self.data_axes[0].legend(
-            loc='upper left')
+        # self.data_axes[0].legend(
+        #     loc='upper left')
 
         # TODO: the sync is iffy with this one, but plotting a pd spectrum is
         # still a good idea. Just need to get the FFT parameters tuned - if
@@ -678,7 +690,7 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
                     _logger.info("Minimal difference: %f, epsilon: %f",
                                  min_difference, epsilon)
 
-                spline_config = self.session.meta_data.spline_config
+                spline_config = self.session.metadata.spline_config
                 if spline_config.data_config:
                     limits = spline_config.data_config.ignore_points
                     plot_spline(self.ultra_axes,
@@ -1009,7 +1021,7 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
                 session=self.session,
                 path=path)
 
-    def export_annotations_and_meta_data(self) -> None:
+    def export_annotations_and_metadata(self) -> None:
         """
         Export annotations and some other meta data.
         """
@@ -1037,9 +1049,9 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
                 annotations = recording.annotations.copy()
                 annotations['basename'] = recording.basename
                 annotations['date_and_time'] = (
-                    recording.meta_data.time_of_recording)
-                annotations['prompt'] = recording.meta_data.prompt
-                annotations['word'] = recording.meta_data.prompt.split()[0]
+                    recording.metadata.time_of_recording)
+                annotations['prompt'] = recording.metadata.prompt
+                annotations['word'] = recording.metadata.prompt.split()[0]
 
                 word_dur = -1.0
                 acoustic_onset = -1.0
@@ -1085,7 +1097,7 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
                 else:
                     annotations['first_sound_type'] = 'C'
 
-                annotations['C1'] = recording.meta_data.prompt[0]
+                annotations['C1'] = recording.metadata.prompt[0]
                 writer.writerow(annotations)
             _logger.info(
                 "Wrote onset data in file %s.", filename)

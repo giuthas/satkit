@@ -99,7 +99,7 @@
                         <label class="view-source-button" for="mod-aggregate_image-view-source"><span>View Source</span></label>
 
                         <div class="pdoc-code codehilite"><pre><span></span><span id="L-1"><a href="#L-1"><span class="linenos">  1</span></a><span class="c1">#</span>
-</span><span id="L-2"><a href="#L-2"><span class="linenos">  2</span></a><span class="c1"># Copyright (c) 2019-2024</span>
+</span><span id="L-2"><a href="#L-2"><span class="linenos">  2</span></a><span class="c1"># Copyright (c) 2019-2025</span>
 </span><span id="L-3"><a href="#L-3"><span class="linenos">  3</span></a><span class="c1"># Pertti Palo, Scott Moisik, Matthew Faytak, and Motoki Saito.</span>
 </span><span id="L-4"><a href="#L-4"><span class="linenos">  4</span></a><span class="c1">#</span>
 </span><span id="L-5"><a href="#L-5"><span class="linenos">  5</span></a><span class="c1"># This file is part of Speech Articulation ToolKIT</span>
@@ -267,7 +267,7 @@
 </span><span id="L-167"><a href="#L-167"><span class="linenos">167</span></a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
 </span><span id="L-168"><a href="#L-168"><span class="linenos">168</span></a>            <span class="bp">self</span><span class="p">,</span>
 </span><span id="L-169"><a href="#L-169"><span class="linenos">169</span></a>            <span class="n">owner</span><span class="p">:</span> <span class="n">Recording</span> <span class="o">|</span> <span class="n">Session</span><span class="p">,</span>
-</span><span id="L-170"><a href="#L-170"><span class="linenos">170</span></a>            <span class="n">meta_data</span><span class="p">:</span> <span class="n">AggregateImageParameters</span><span class="p">,</span>
+</span><span id="L-170"><a href="#L-170"><span class="linenos">170</span></a>            <span class="n">metadata</span><span class="p">:</span> <span class="n">AggregateImageParameters</span><span class="p">,</span>
 </span><span id="L-171"><a href="#L-171"><span class="linenos">171</span></a>            <span class="n">file_info</span><span class="p">:</span> <span class="n">FileInformation</span><span class="p">,</span>
 </span><span id="L-172"><a href="#L-172"><span class="linenos">172</span></a>            <span class="n">parsed_data</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
 </span><span id="L-173"><a href="#L-173"><span class="linenos">173</span></a>    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
@@ -278,7 +278,7 @@
 </span><span id="L-178"><a href="#L-178"><span class="linenos">178</span></a><span class="sd">        ----------</span>
 </span><span id="L-179"><a href="#L-179"><span class="linenos">179</span></a><span class="sd">        owner : Recording | Session</span>
 </span><span id="L-180"><a href="#L-180"><span class="linenos">180</span></a><span class="sd">            the Recording or Session that this AggregateImage was calculated on.</span>
-</span><span id="L-181"><a href="#L-181"><span class="linenos">181</span></a><span class="sd">        meta_data : AggregateImageParameters</span>
+</span><span id="L-181"><a href="#L-181"><span class="linenos">181</span></a><span class="sd">        metadata : AggregateImageParameters</span>
 </span><span id="L-182"><a href="#L-182"><span class="linenos">182</span></a><span class="sd">            Parameters used in calculating this instance of AggregateImage.</span>
 </span><span id="L-183"><a href="#L-183"><span class="linenos">183</span></a><span class="sd">        file_info : FileInformation</span>
 </span><span id="L-184"><a href="#L-184"><span class="linenos">184</span></a><span class="sd">            FileInformation -- if any -- for this AggregateImage.</span>
@@ -287,7 +287,7 @@
 </span><span id="L-187"><a href="#L-187"><span class="linenos">187</span></a><span class="sd">        &quot;&quot;&quot;</span>
 </span><span id="L-188"><a href="#L-188"><span class="linenos">188</span></a>        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span>
 </span><span id="L-189"><a href="#L-189"><span class="linenos">189</span></a>            <span class="n">owner</span><span class="o">=</span><span class="n">owner</span><span class="p">,</span>
-</span><span id="L-190"><a href="#L-190"><span class="linenos">190</span></a>            <span class="n">meta_data</span><span class="o">=</span><span class="n">meta_data</span><span class="p">,</span>
+</span><span id="L-190"><a href="#L-190"><span class="linenos">190</span></a>            <span class="n">metadata</span><span class="o">=</span><span class="n">metadata</span><span class="p">,</span>
 </span><span id="L-191"><a href="#L-191"><span class="linenos">191</span></a>            <span class="n">file_info</span><span class="o">=</span><span class="n">file_info</span><span class="p">,</span>
 </span><span id="L-192"><a href="#L-192"><span class="linenos">192</span></a>            <span class="n">parsed_data</span><span class="o">=</span><span class="n">parsed_data</span><span class="p">,)</span>
 </span><span id="L-193"><a href="#L-193"><span class="linenos">193</span></a>
@@ -307,7 +307,7 @@
 </span><span id="L-207"><a href="#L-207"><span class="linenos">207</span></a><span class="sd">        The name will be of the form</span>
 </span><span id="L-208"><a href="#L-208"><span class="linenos">208</span></a><span class="sd">        &#39;AggregateImage [metric name] on [data modality class name]&#39;.</span>
 </span><span id="L-209"><a href="#L-209"><span class="linenos">209</span></a><span class="sd">        &quot;&quot;&quot;</span>
-</span><span id="L-210"><a href="#L-210"><span class="linenos">210</span></a>        <span class="k">return</span> <span class="n">AggregateImage</span><span class="o">.</span><span class="n">generate_name</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">meta_data</span><span class="p">)</span>
+</span><span id="L-210"><a href="#L-210"><span class="linenos">210</span></a>        <span class="k">return</span> <span class="n">AggregateImage</span><span class="o">.</span><span class="n">generate_name</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">metadata</span><span class="p">)</span>
 </span></pre></div>
 
 
@@ -317,7 +317,7 @@
 <div class="attr class">
             
     <span class="def">class</span>
-    <span class="name">AggregateImageParameters</span><wbr>(<span class="base"><a href="../data_structures/meta_data_classes.html#StatisticMetaData">satkit.data_structures.meta_data_classes.StatisticMetaData</a></span>):
+    <span class="name">AggregateImageParameters</span><wbr>(<span class="base"><a href="../data_structures/metadata_classes.html#StatisticMetaData">satkit.data_structures.metadata_classes.StatisticMetaData</a></span>):
 
                 <label class="view-source-button" for="AggregateImageParameters-view-source"><span>View Source</span></label>
 
@@ -483,8 +483,8 @@ is not yet supported.</li>
                 <dd id="AggregateImageParameters.update_forward_refs" class="function">update_forward_refs</dd>
 
             </div>
-            <div><dt><a href="../external_class_extensions/base_model_extensions.html#EmptyStrAsNoneBaseModel">satkit.external_class_extensions.base_model_extensions.EmptyStrAsNoneBaseModel</a></dt>
-                                <dd id="AggregateImageParameters.empty_str_to_none" class="function"><a href="../external_class_extensions/base_model_extensions.html#EmptyStrAsNoneBaseModel.empty_str_to_none">empty_str_to_none</a></dd>
+            <div><dt><a href="../external_class_extensions/base_model_extensions.html#SatkitBaseModel">satkit.external_class_extensions.base_model_extensions.SatkitBaseModel</a></dt>
+                                <dd id="AggregateImageParameters.empty_str_to_none" class="function"><a href="../external_class_extensions/base_model_extensions.html#SatkitBaseModel.empty_str_to_none">empty_str_to_none</a></dd>
 
             </div>
                                 </dl>
@@ -598,7 +598,7 @@ is not yet supported.</li>
 </span><span id="AggregateImage-168"><a href="#AggregateImage-168"><span class="linenos">168</span></a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
 </span><span id="AggregateImage-169"><a href="#AggregateImage-169"><span class="linenos">169</span></a>            <span class="bp">self</span><span class="p">,</span>
 </span><span id="AggregateImage-170"><a href="#AggregateImage-170"><span class="linenos">170</span></a>            <span class="n">owner</span><span class="p">:</span> <span class="n">Recording</span> <span class="o">|</span> <span class="n">Session</span><span class="p">,</span>
-</span><span id="AggregateImage-171"><a href="#AggregateImage-171"><span class="linenos">171</span></a>            <span class="n">meta_data</span><span class="p">:</span> <span class="n">AggregateImageParameters</span><span class="p">,</span>
+</span><span id="AggregateImage-171"><a href="#AggregateImage-171"><span class="linenos">171</span></a>            <span class="n">metadata</span><span class="p">:</span> <span class="n">AggregateImageParameters</span><span class="p">,</span>
 </span><span id="AggregateImage-172"><a href="#AggregateImage-172"><span class="linenos">172</span></a>            <span class="n">file_info</span><span class="p">:</span> <span class="n">FileInformation</span><span class="p">,</span>
 </span><span id="AggregateImage-173"><a href="#AggregateImage-173"><span class="linenos">173</span></a>            <span class="n">parsed_data</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
 </span><span id="AggregateImage-174"><a href="#AggregateImage-174"><span class="linenos">174</span></a>    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
@@ -609,7 +609,7 @@ is not yet supported.</li>
 </span><span id="AggregateImage-179"><a href="#AggregateImage-179"><span class="linenos">179</span></a><span class="sd">        ----------</span>
 </span><span id="AggregateImage-180"><a href="#AggregateImage-180"><span class="linenos">180</span></a><span class="sd">        owner : Recording | Session</span>
 </span><span id="AggregateImage-181"><a href="#AggregateImage-181"><span class="linenos">181</span></a><span class="sd">            the Recording or Session that this AggregateImage was calculated on.</span>
-</span><span id="AggregateImage-182"><a href="#AggregateImage-182"><span class="linenos">182</span></a><span class="sd">        meta_data : AggregateImageParameters</span>
+</span><span id="AggregateImage-182"><a href="#AggregateImage-182"><span class="linenos">182</span></a><span class="sd">        metadata : AggregateImageParameters</span>
 </span><span id="AggregateImage-183"><a href="#AggregateImage-183"><span class="linenos">183</span></a><span class="sd">            Parameters used in calculating this instance of AggregateImage.</span>
 </span><span id="AggregateImage-184"><a href="#AggregateImage-184"><span class="linenos">184</span></a><span class="sd">        file_info : FileInformation</span>
 </span><span id="AggregateImage-185"><a href="#AggregateImage-185"><span class="linenos">185</span></a><span class="sd">            FileInformation -- if any -- for this AggregateImage.</span>
@@ -618,7 +618,7 @@ is not yet supported.</li>
 </span><span id="AggregateImage-188"><a href="#AggregateImage-188"><span class="linenos">188</span></a><span class="sd">        &quot;&quot;&quot;</span>
 </span><span id="AggregateImage-189"><a href="#AggregateImage-189"><span class="linenos">189</span></a>        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span>
 </span><span id="AggregateImage-190"><a href="#AggregateImage-190"><span class="linenos">190</span></a>            <span class="n">owner</span><span class="o">=</span><span class="n">owner</span><span class="p">,</span>
-</span><span id="AggregateImage-191"><a href="#AggregateImage-191"><span class="linenos">191</span></a>            <span class="n">meta_data</span><span class="o">=</span><span class="n">meta_data</span><span class="p">,</span>
+</span><span id="AggregateImage-191"><a href="#AggregateImage-191"><span class="linenos">191</span></a>            <span class="n">metadata</span><span class="o">=</span><span class="n">metadata</span><span class="p">,</span>
 </span><span id="AggregateImage-192"><a href="#AggregateImage-192"><span class="linenos">192</span></a>            <span class="n">file_info</span><span class="o">=</span><span class="n">file_info</span><span class="p">,</span>
 </span><span id="AggregateImage-193"><a href="#AggregateImage-193"><span class="linenos">193</span></a>            <span class="n">parsed_data</span><span class="o">=</span><span class="n">parsed_data</span><span class="p">,)</span>
 </span><span id="AggregateImage-194"><a href="#AggregateImage-194"><span class="linenos">194</span></a>
@@ -638,7 +638,7 @@ is not yet supported.</li>
 </span><span id="AggregateImage-208"><a href="#AggregateImage-208"><span class="linenos">208</span></a><span class="sd">        The name will be of the form</span>
 </span><span id="AggregateImage-209"><a href="#AggregateImage-209"><span class="linenos">209</span></a><span class="sd">        &#39;AggregateImage [metric name] on [data modality class name]&#39;.</span>
 </span><span id="AggregateImage-210"><a href="#AggregateImage-210"><span class="linenos">210</span></a><span class="sd">        &quot;&quot;&quot;</span>
-</span><span id="AggregateImage-211"><a href="#AggregateImage-211"><span class="linenos">211</span></a>        <span class="k">return</span> <span class="n">AggregateImage</span><span class="o">.</span><span class="n">generate_name</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">meta_data</span><span class="p">)</span>
+</span><span id="AggregateImage-211"><a href="#AggregateImage-211"><span class="linenos">211</span></a>        <span class="k">return</span> <span class="n">AggregateImage</span><span class="o">.</span><span class="n">generate_name</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">metadata</span><span class="p">)</span>
 </span></pre></div>
 
 
@@ -653,7 +653,7 @@ added.</p>
                                         <input id="AggregateImage.__init__-view-source" class="view-source-toggle-state" type="checkbox" aria-hidden="true" tabindex="-1">
 <div class="attr function">
             
-        <span class="name">AggregateImage</span><span class="signature pdoc-code multiline">(<span class="param">	<span class="n">owner</span><span class="p">:</span> <span class="n"><a href="../data_structures/data_structures.html#Recording">satkit.data_structures.data_structures.Recording</a></span> <span class="o">|</span> <span class="n"><a href="../data_structures/data_structures.html#Session">satkit.data_structures.data_structures.Session</a></span>,</span><span class="param">	<span class="n">meta_data</span><span class="p">:</span> <span class="n"><a href="#AggregateImageParameters">AggregateImageParameters</a></span>,</span><span class="param">	<span class="n">file_info</span><span class="p">:</span> <span class="n"><a href="../data_structures/meta_data_classes.html#FileInformation">satkit.data_structures.meta_data_classes.FileInformation</a></span>,</span><span class="param">	<span class="n">parsed_data</span><span class="p">:</span> <span class="n">numpy</span><span class="o">.</span><span class="n">ndarray</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span></span>)</span>
+        <span class="name">AggregateImage</span><span class="signature pdoc-code multiline">(<span class="param">	<span class="n">owner</span><span class="p">:</span> <span class="n"><a href="../data_structures/data_structures.html#Recording">satkit.data_structures.data_structures.Recording</a></span> <span class="o">|</span> <span class="n"><a href="../data_structures/data_structures.html#Session">satkit.data_structures.data_structures.Session</a></span>,</span><span class="param">	<span class="n">metadata</span><span class="p">:</span> <span class="n"><a href="#AggregateImageParameters">AggregateImageParameters</a></span>,</span><span class="param">	<span class="n">file_info</span><span class="p">:</span> <span class="n"><a href="../data_structures/metadata_classes.html#FileInformation">satkit.data_structures.metadata_classes.FileInformation</a></span>,</span><span class="param">	<span class="n">parsed_data</span><span class="p">:</span> <span class="n">numpy</span><span class="o">.</span><span class="n">ndarray</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span></span>)</span>
 
                 <label class="view-source-button" for="AggregateImage.__init__-view-source"><span>View Source</span></label>
 
@@ -662,7 +662,7 @@ added.</p>
             <div class="pdoc-code codehilite"><pre><span></span><span id="AggregateImage.__init__-168"><a href="#AggregateImage.__init__-168"><span class="linenos">168</span></a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
 </span><span id="AggregateImage.__init__-169"><a href="#AggregateImage.__init__-169"><span class="linenos">169</span></a>            <span class="bp">self</span><span class="p">,</span>
 </span><span id="AggregateImage.__init__-170"><a href="#AggregateImage.__init__-170"><span class="linenos">170</span></a>            <span class="n">owner</span><span class="p">:</span> <span class="n">Recording</span> <span class="o">|</span> <span class="n">Session</span><span class="p">,</span>
-</span><span id="AggregateImage.__init__-171"><a href="#AggregateImage.__init__-171"><span class="linenos">171</span></a>            <span class="n">meta_data</span><span class="p">:</span> <span class="n">AggregateImageParameters</span><span class="p">,</span>
+</span><span id="AggregateImage.__init__-171"><a href="#AggregateImage.__init__-171"><span class="linenos">171</span></a>            <span class="n">metadata</span><span class="p">:</span> <span class="n">AggregateImageParameters</span><span class="p">,</span>
 </span><span id="AggregateImage.__init__-172"><a href="#AggregateImage.__init__-172"><span class="linenos">172</span></a>            <span class="n">file_info</span><span class="p">:</span> <span class="n">FileInformation</span><span class="p">,</span>
 </span><span id="AggregateImage.__init__-173"><a href="#AggregateImage.__init__-173"><span class="linenos">173</span></a>            <span class="n">parsed_data</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
 </span><span id="AggregateImage.__init__-174"><a href="#AggregateImage.__init__-174"><span class="linenos">174</span></a>    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
@@ -673,7 +673,7 @@ added.</p>
 </span><span id="AggregateImage.__init__-179"><a href="#AggregateImage.__init__-179"><span class="linenos">179</span></a><span class="sd">        ----------</span>
 </span><span id="AggregateImage.__init__-180"><a href="#AggregateImage.__init__-180"><span class="linenos">180</span></a><span class="sd">        owner : Recording | Session</span>
 </span><span id="AggregateImage.__init__-181"><a href="#AggregateImage.__init__-181"><span class="linenos">181</span></a><span class="sd">            the Recording or Session that this AggregateImage was calculated on.</span>
-</span><span id="AggregateImage.__init__-182"><a href="#AggregateImage.__init__-182"><span class="linenos">182</span></a><span class="sd">        meta_data : AggregateImageParameters</span>
+</span><span id="AggregateImage.__init__-182"><a href="#AggregateImage.__init__-182"><span class="linenos">182</span></a><span class="sd">        metadata : AggregateImageParameters</span>
 </span><span id="AggregateImage.__init__-183"><a href="#AggregateImage.__init__-183"><span class="linenos">183</span></a><span class="sd">            Parameters used in calculating this instance of AggregateImage.</span>
 </span><span id="AggregateImage.__init__-184"><a href="#AggregateImage.__init__-184"><span class="linenos">184</span></a><span class="sd">        file_info : FileInformation</span>
 </span><span id="AggregateImage.__init__-185"><a href="#AggregateImage.__init__-185"><span class="linenos">185</span></a><span class="sd">            FileInformation -- if any -- for this AggregateImage.</span>
@@ -682,7 +682,7 @@ added.</p>
 </span><span id="AggregateImage.__init__-188"><a href="#AggregateImage.__init__-188"><span class="linenos">188</span></a><span class="sd">        &quot;&quot;&quot;</span>
 </span><span id="AggregateImage.__init__-189"><a href="#AggregateImage.__init__-189"><span class="linenos">189</span></a>        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span>
 </span><span id="AggregateImage.__init__-190"><a href="#AggregateImage.__init__-190"><span class="linenos">190</span></a>            <span class="n">owner</span><span class="o">=</span><span class="n">owner</span><span class="p">,</span>
-</span><span id="AggregateImage.__init__-191"><a href="#AggregateImage.__init__-191"><span class="linenos">191</span></a>            <span class="n">meta_data</span><span class="o">=</span><span class="n">meta_data</span><span class="p">,</span>
+</span><span id="AggregateImage.__init__-191"><a href="#AggregateImage.__init__-191"><span class="linenos">191</span></a>            <span class="n">metadata</span><span class="o">=</span><span class="n">metadata</span><span class="p">,</span>
 </span><span id="AggregateImage.__init__-192"><a href="#AggregateImage.__init__-192"><span class="linenos">192</span></a>            <span class="n">file_info</span><span class="o">=</span><span class="n">file_info</span><span class="p">,</span>
 </span><span id="AggregateImage.__init__-193"><a href="#AggregateImage.__init__-193"><span class="linenos">193</span></a>            <span class="n">parsed_data</span><span class="o">=</span><span class="n">parsed_data</span><span class="p">,)</span>
 </span></pre></div>
@@ -695,7 +695,7 @@ added.</p>
 <ul>
 <li><strong>owner</strong> (Recording | Session):
 the Recording or Session that this AggregateImage was calculated on.</li>
-<li><strong>meta_data</strong> (AggregateImageParameters):
+<li><strong>metadata</strong> (AggregateImageParameters):
 Parameters used in calculating this instance of AggregateImage.</li>
 <li><strong>file_info</strong> (FileInformation):
 FileInformation -- if any -- for this AggregateImage.</li>
@@ -895,7 +895,7 @@ the AggregateImageParameter objects.</li>
 </span><span id="AggregateImage.name-208"><a href="#AggregateImage.name-208"><span class="linenos">208</span></a><span class="sd">        The name will be of the form</span>
 </span><span id="AggregateImage.name-209"><a href="#AggregateImage.name-209"><span class="linenos">209</span></a><span class="sd">        &#39;AggregateImage [metric name] on [data modality class name]&#39;.</span>
 </span><span id="AggregateImage.name-210"><a href="#AggregateImage.name-210"><span class="linenos">210</span></a><span class="sd">        &quot;&quot;&quot;</span>
-</span><span id="AggregateImage.name-211"><a href="#AggregateImage.name-211"><span class="linenos">211</span></a>        <span class="k">return</span> <span class="n">AggregateImage</span><span class="o">.</span><span class="n">generate_name</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">meta_data</span><span class="p">)</span>
+</span><span id="AggregateImage.name-211"><a href="#AggregateImage.name-211"><span class="linenos">211</span></a>        <span class="k">return</span> <span class="n">AggregateImage</span><span class="o">.</span><span class="n">generate_name</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">metadata</span><span class="p">)</span>
 </span></pre></div>
 
 
@@ -914,15 +914,23 @@ the AggregateImageParameter objects.</li>
                                 <dd id="AggregateImage.data" class="variable"><a href="../data_structures/base_classes.html#Statistic.data">data</a></dd>
 
             </div>
+            <div><dt><a href="../data_structures/base_classes.html#DataContainer">satkit.data_structures.base_classes.DataContainer</a></dt>
+                                <dd id="AggregateImage.name_underscored" class="variable"><a href="../data_structures/base_classes.html#DataContainer.name_underscored">name_underscored</a></dd>
+
+            </div>
             <div><dt><a href="../data_structures/base_classes.html#DataObject">satkit.data_structures.base_classes.DataObject</a></dt>
                                 <dd id="AggregateImage.owner" class="variable"><a href="../data_structures/base_classes.html#DataObject.owner">owner</a></dd>
                 <dd id="AggregateImage.file_info" class="variable"><a href="../data_structures/base_classes.html#DataObject.file_info">file_info</a></dd>
-                <dd id="AggregateImage.meta_data" class="variable"><a href="../data_structures/base_classes.html#DataObject.meta_data">meta_data</a></dd>
-                <dd id="AggregateImage.recorded_data_file" class="variable"><a href="../data_structures/base_classes.html#DataObject.recorded_data_file">recorded_data_file</a></dd>
-                <dd id="AggregateImage.recorded_meta_file" class="variable"><a href="../data_structures/base_classes.html#DataObject.recorded_meta_file">recorded_meta_file</a></dd>
+                <dd id="AggregateImage.metadata" class="variable"><a href="../data_structures/base_classes.html#DataObject.metadata">metadata</a></dd>
+                <dd id="AggregateImage.recorded_data_path" class="variable"><a href="../data_structures/base_classes.html#DataObject.recorded_data_path">recorded_data_path</a></dd>
+                <dd id="AggregateImage.recorded_data_name" class="variable"><a href="../data_structures/base_classes.html#DataObject.recorded_data_name">recorded_data_name</a></dd>
+                <dd id="AggregateImage.recorded_meta_path" class="variable"><a href="../data_structures/base_classes.html#DataObject.recorded_meta_path">recorded_meta_path</a></dd>
+                <dd id="AggregateImage.recorded_meta_name" class="variable"><a href="../data_structures/base_classes.html#DataObject.recorded_meta_name">recorded_meta_name</a></dd>
                 <dd id="AggregateImage.recorded_path" class="variable"><a href="../data_structures/base_classes.html#DataObject.recorded_path">recorded_path</a></dd>
-                <dd id="AggregateImage.satkit_data_file" class="variable"><a href="../data_structures/base_classes.html#DataObject.satkit_data_file">satkit_data_file</a></dd>
-                <dd id="AggregateImage.satkit_meta_file" class="variable"><a href="../data_structures/base_classes.html#DataObject.satkit_meta_file">satkit_meta_file</a></dd>
+                <dd id="AggregateImage.satkit_data_path" class="variable"><a href="../data_structures/base_classes.html#DataObject.satkit_data_path">satkit_data_path</a></dd>
+                <dd id="AggregateImage.satkit_data_name" class="variable"><a href="../data_structures/base_classes.html#DataObject.satkit_data_name">satkit_data_name</a></dd>
+                <dd id="AggregateImage.satkit_meta_path" class="variable"><a href="../data_structures/base_classes.html#DataObject.satkit_meta_path">satkit_meta_path</a></dd>
+                <dd id="AggregateImage.satkit_meta_name" class="variable"><a href="../data_structures/base_classes.html#DataObject.satkit_meta_name">satkit_meta_name</a></dd>
                 <dd id="AggregateImage.satkit_path" class="variable"><a href="../data_structures/base_classes.html#DataObject.satkit_path">satkit_path</a></dd>
                 <dd id="AggregateImage.is_fully_initialised" class="variable"><a href="../data_structures/base_classes.html#DataObject.is_fully_initialised">is_fully_initialised</a></dd>
                 <dd id="AggregateImage.get_meta" class="function"><a href="../data_structures/base_classes.html#DataObject.get_meta">get_meta</a></dd>

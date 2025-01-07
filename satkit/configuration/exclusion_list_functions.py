@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2019-2024
+# Copyright (c) 2019-2025
 # Pertti Palo, Scott Moisik, Matthew Faytak, and Motoki Saito.
 #
 # This file is part of Speech Articulation ToolKIT
@@ -38,7 +38,6 @@ import logging
 from contextlib import closing
 from pathlib import Path
 
-from icecream import ic
 from strictyaml import (Map, Optional, Seq, Str,
                         YAMLError, load)
 
@@ -80,7 +79,7 @@ def remove_excluded_recordings(
                          filename)
             include = False
 
-        prompt = recording.meta_data.prompt
+        prompt = recording.metadata.prompt
 
         if exclusion_list.prompts is not None:
             if prompt in exclusion_list.prompts:
@@ -127,7 +126,7 @@ def apply_exclusion_list(
                          filename)
             recording.exclude()
 
-        prompt = recording.meta_data.prompt
+        prompt = recording.metadata.prompt
 
         if exclusion_list.prompts:
             if prompt in exclusion_list.prompts:

@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2019-2024
+# Copyright (c) 2019-2025
 # Pertti Palo, Scott Moisik, Matthew Faytak, and Motoki Saito.
 #
 # This file is part of Speech Articulation ToolKIT
@@ -39,8 +39,6 @@ from scipy import ndimage
 from tqdm import tqdm
 
 from satkit.errors import UltrasoundInterpolationError
-
-from icecream import ic
 
 _logger = logging.getLogger('satkit.interpolate_raw_uti')
 

@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2019-2024
+# Copyright (c) 2019-2025
 # Pertti Palo, Scott Moisik, Matthew Faytak, and Motoki Saito.
 #
 # This file is part of Speech Articulation ToolKIT
@@ -37,12 +37,11 @@ import logging
 from typing import Optional
 
 import numpy as np
-# from icecream import ic
 
 from satkit.constants import CoordinateSystems
 from satkit.data_structures import (
     Modality, ModalityData, ModalityMetaData, Recording)
-from satkit.data_structures.meta_data_classes import FileInformation
+from satkit.data_structures.metadata_classes import FileInformation
 from satkit.utility_functions.computational import (
     cartesian_to_polar, polar_to_cartesian)
 from satkit.import_formats import read_splines
@@ -81,14 +80,14 @@ class Splines(Modality):
         # because latter may already end the run.
         super().__init__(
             owner=owner,
-            meta_data=metadata,
+            metadata=metadata,
             file_info=file_info,
             parsed_data=parsed_data,
             time_offset=time_offset)
 
     def _read_data(self) -> ModalityData:
         return read_splines(
-            self.recorded_data_path, self._meta_data, self._time_offset)
+            self.recorded_data_path, self._metadata, self._time_offset)
 
     @property
     def data(self) -> np.ndarray:
@@ -99,7 +98,7 @@ class Splines(Modality):
         super()._data_setter(data)
 
     def get_meta(self) -> dict:
-        return self._meta_data
+        return self._metadata
 
     @property
     def in_polar(self) -> np.ndarray:
@@ -111,7 +110,7 @@ class Splines(Modality):
         np.ndarray
             The coordinates
         """
-        if self._meta_data.coordinates is CoordinateSystems.POLAR:
+        if self._metadata.coordinates is CoordinateSystems.POLAR:
             return self.data
         else:
             cartesian = self.data[:, 0:2, :]
@@ -131,7 +130,7 @@ class Splines(Modality):
         np.ndarray
             The coordinates
         """
-        if self._meta_data.coordinates is CoordinateSystems.CARTESIAN:
+        if self._metadata.coordinates is CoordinateSystems.CARTESIAN:
             return self.data[index, :, :]
         else:
             return polar_to_cartesian(self.data[index, :, :], np.pi/2)
@@ -146,7 +145,7 @@ class Splines(Modality):
         np.ndarray
             The coordinates
         """
-        if self._meta_data.coordinates is CoordinateSystems.CARTESIAN:
+        if self._metadata.coordinates is CoordinateSystems.CARTESIAN:
             return self.data
         else:
             r_phi = self.data[:, 0:2, :]

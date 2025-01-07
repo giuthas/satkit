@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2019-2024
+# Copyright (c) 2019-2025
 # Pertti Palo, Scott Moisik, Matthew Faytak, and Motoki Saito.
 #
 # This file is part of Speech Articulation ToolKIT
@@ -244,12 +244,11 @@ class SplineMetric(Modality):
 
         super().__init__(
             owner=owner,
-            meta_data=metadata,
+            metadata=metadata,
             file_info=file_info,
             parsed_data=parsed_data,
-            time_offset=time_offset)
-
-        self.meta_data = metadata
+            time_offset=time_offset,
+        )
 
     def _derive_data(self) -> Tuple[np.ndarray, np.ndarray, float]:
         """
@@ -261,7 +260,7 @@ class SplineMetric(Modality):
 
     def get_meta(self) -> dict:
         # This conversion is done to keep nestedtext working.
-        meta = self.meta_data.model_dump()
+        meta = self.metadata.model_dump()
         return meta
 
     @property
@@ -274,4 +273,4 @@ class SplineMetric(Modality):
 
         This overrides the default behaviour of Modality.name.
         """
-        return SplineMetric.generate_name(self.meta_data)
+        return SplineMetric.generate_name(self.metadata)

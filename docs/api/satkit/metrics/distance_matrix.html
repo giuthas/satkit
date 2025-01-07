@@ -126,7 +126,7 @@
                         <label class="view-source-button" for="mod-distance_matrix-view-source"><span>View Source</span></label>
 
                         <div class="pdoc-code codehilite"><pre><span></span><span id="L-1"><a href="#L-1"><span class="linenos">  1</span></a><span class="c1">#</span>
-</span><span id="L-2"><a href="#L-2"><span class="linenos">  2</span></a><span class="c1"># Copyright (c) 2019-2024</span>
+</span><span id="L-2"><a href="#L-2"><span class="linenos">  2</span></a><span class="c1"># Copyright (c) 2019-2025</span>
 </span><span id="L-3"><a href="#L-3"><span class="linenos">  3</span></a><span class="c1"># Pertti Palo, Scott Moisik, Matthew Faytak, and Motoki Saito.</span>
 </span><span id="L-4"><a href="#L-4"><span class="linenos">  4</span></a><span class="c1">#</span>
 </span><span id="L-5"><a href="#L-5"><span class="linenos">  5</span></a><span class="c1"># This file is part of Speech Articulation ToolKIT</span>
@@ -165,7 +165,7 @@
 </span><span id="L-38"><a href="#L-38"><span class="linenos"> 38</span></a><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 </span><span id="L-39"><a href="#L-39"><span class="linenos"> 39</span></a><span class="kn">from</span> <span class="nn">pydantic</span> <span class="kn">import</span> <span class="n">PositiveInt</span>
 </span><span id="L-40"><a href="#L-40"><span class="linenos"> 40</span></a>
-</span><span id="L-41"><a href="#L-41"><span class="linenos"> 41</span></a><span class="kn">from</span> <span class="nn">satkit.configuration</span> <span class="kn">import</span> <span class="n">ExclusionList</span><span class="p">,</span> <span class="n">load_exclusion_list</span>
+</span><span id="L-41"><a href="#L-41"><span class="linenos"> 41</span></a><span class="kn">from</span> <span class="nn">satkit.configuration</span> <span class="kn">import</span> <span class="n">ExclusionList</span>
 </span><span id="L-42"><a href="#L-42"><span class="linenos"> 42</span></a><span class="kn">from</span> <span class="nn">satkit.data_structures</span> <span class="kn">import</span> <span class="p">(</span>
 </span><span id="L-43"><a href="#L-43"><span class="linenos"> 43</span></a>    <span class="n">FileInformation</span><span class="p">,</span> <span class="n">Modality</span><span class="p">,</span> <span class="n">Session</span><span class="p">,</span> <span class="n">Statistic</span><span class="p">,</span> <span class="n">StatisticMetaData</span>
 </span><span id="L-44"><a href="#L-44"><span class="linenos"> 44</span></a><span class="p">)</span>
@@ -320,99 +320,103 @@
 </span><span id="L-193"><a href="#L-193"><span class="linenos">193</span></a><span class="sd">            The result will consist of blocks where in first block</span>
 </span><span id="L-194"><a href="#L-194"><span class="linenos">194</span></a><span class="sd">            `sort_criteria[0] in prompt` is True, and so on. Final block will</span>
 </span><span id="L-195"><a href="#L-195"><span class="linenos">195</span></a><span class="sd">            consist of any Recordings left after the list has been exhausted.</span>
-</span><span id="L-196"><a href="#L-196"><span class="linenos">196</span></a><span class="sd">        Returns</span>
-</span><span id="L-197"><a href="#L-197"><span class="linenos">197</span></a><span class="sd">        -------</span>
-</span><span id="L-198"><a href="#L-198"><span class="linenos">198</span></a><span class="sd">        dict[str: DistanceMatrixParameters]</span>
-</span><span id="L-199"><a href="#L-199"><span class="linenos">199</span></a><span class="sd">            Dictionary where the names of the DistanceMatrices index the </span>
-</span><span id="L-200"><a href="#L-200"><span class="linenos">200</span></a><span class="sd">            DistanceMatrixParameter objects.</span>
-</span><span id="L-201"><a href="#L-201"><span class="linenos">201</span></a><span class="sd">        &quot;&quot;&quot;</span>
-</span><span id="L-202"><a href="#L-202"><span class="linenos">202</span></a>        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">parent</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
-</span><span id="L-203"><a href="#L-203"><span class="linenos">203</span></a>            <span class="n">parent_name</span> <span class="o">=</span> <span class="n">parent</span>
-</span><span id="L-204"><a href="#L-204"><span class="linenos">204</span></a>        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">parent</span><span class="p">,</span> <span class="n">Statistic</span><span class="p">)</span> <span class="ow">or</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">parent</span><span class="p">,</span> <span class="n">Modality</span><span class="p">):</span>
-</span><span id="L-205"><a href="#L-205"><span class="linenos">205</span></a>            <span class="n">parent_name</span> <span class="o">=</span> <span class="n">parent</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span>
-</span><span id="L-206"><a href="#L-206"><span class="linenos">206</span></a>        <span class="k">else</span><span class="p">:</span>
-</span><span id="L-207"><a href="#L-207"><span class="linenos">207</span></a>            <span class="n">parent_name</span> <span class="o">=</span> <span class="n">parent</span><span class="o">.</span><span class="vm">__name__</span>
-</span><span id="L-208"><a href="#L-208"><span class="linenos">208</span></a>
-</span><span id="L-209"><a href="#L-209"><span class="linenos">209</span></a>        <span class="k">if</span> <span class="ow">not</span> <span class="n">metric</span><span class="p">:</span>
-</span><span id="L-210"><a href="#L-210"><span class="linenos">210</span></a>            <span class="n">metric</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;mean_squared_error&#39;</span><span class="p">]</span>
-</span><span id="L-211"><a href="#L-211"><span class="linenos">211</span></a>
-</span><span id="L-212"><a href="#L-212"><span class="linenos">212</span></a>        <span class="n">param_dict</span> <span class="o">=</span> <span class="p">{</span>
-</span><span id="L-213"><a href="#L-213"><span class="linenos">213</span></a>            <span class="s1">&#39;parent_name&#39;</span><span class="p">:</span> <span class="p">[</span><span class="n">parent_name</span><span class="p">],</span>
-</span><span id="L-214"><a href="#L-214"><span class="linenos">214</span></a>            <span class="s1">&#39;metric&#39;</span><span class="p">:</span> <span class="n">metric</span><span class="p">,</span>
-</span><span id="L-215"><a href="#L-215"><span class="linenos">215</span></a>            <span class="s1">&#39;release_data_memory&#39;</span><span class="p">:</span> <span class="p">[</span><span class="n">release_data_memory</span><span class="p">],</span>
-</span><span id="L-216"><a href="#L-216"><span class="linenos">216</span></a>            <span class="s1">&#39;slice_max_step&#39;</span><span class="p">:</span> <span class="p">[</span><span class="n">slice_max_step</span><span class="p">],</span>
-</span><span id="L-217"><a href="#L-217"><span class="linenos">217</span></a>            <span class="s1">&#39;slice_step_to&#39;</span><span class="p">:</span> <span class="p">[</span><span class="n">slice_step_to</span><span class="p">],</span>
-</span><span id="L-218"><a href="#L-218"><span class="linenos">218</span></a>            <span class="s1">&#39;sort&#39;</span><span class="p">:</span> <span class="p">[</span><span class="n">sort</span><span class="p">],</span>
-</span><span id="L-219"><a href="#L-219"><span class="linenos">219</span></a>            <span class="s1">&#39;sort_criteria&#39;</span><span class="p">:</span> <span class="p">[</span><span class="n">sort_criteria</span><span class="p">],</span>
-</span><span id="L-220"><a href="#L-220"><span class="linenos">220</span></a>            <span class="s1">&#39;exclusion_list&#39;</span><span class="p">:</span> <span class="p">[</span><span class="n">exclusion_list</span><span class="p">],</span>
-</span><span id="L-221"><a href="#L-221"><span class="linenos">221</span></a>        <span class="p">}</span>
-</span><span id="L-222"><a href="#L-222"><span class="linenos">222</span></a>
-</span><span id="L-223"><a href="#L-223"><span class="linenos">223</span></a>        <span class="n">distance_matrix_params</span> <span class="o">=</span> <span class="p">[</span><span class="n">DistanceMatrixParameters</span><span class="p">(</span><span class="o">**</span><span class="n">item</span><span class="p">)</span>
-</span><span id="L-224"><a href="#L-224"><span class="linenos">224</span></a>                                  <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">product_dict</span><span class="p">(</span><span class="o">**</span><span class="n">param_dict</span><span class="p">)]</span>
-</span><span id="L-225"><a href="#L-225"><span class="linenos">225</span></a>
-</span><span id="L-226"><a href="#L-226"><span class="linenos">226</span></a>        <span class="k">return</span> <span class="p">{</span><span class="n">DistanceMatrix</span><span class="o">.</span><span class="n">generate_name</span><span class="p">(</span><span class="n">params</span><span class="p">):</span> <span class="n">params</span>
-</span><span id="L-227"><a href="#L-227"><span class="linenos">227</span></a>                <span class="k">for</span> <span class="n">params</span> <span class="ow">in</span> <span class="n">distance_matrix_params</span><span class="p">}</span>
-</span><span id="L-228"><a href="#L-228"><span class="linenos">228</span></a>
-</span><span id="L-229"><a href="#L-229"><span class="linenos">229</span></a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
-</span><span id="L-230"><a href="#L-230"><span class="linenos">230</span></a>            <span class="bp">self</span><span class="p">,</span>
-</span><span id="L-231"><a href="#L-231"><span class="linenos">231</span></a>            <span class="n">owner</span><span class="p">:</span> <span class="n">Session</span><span class="p">,</span>
-</span><span id="L-232"><a href="#L-232"><span class="linenos">232</span></a>            <span class="n">meta_data</span><span class="p">:</span> <span class="n">DistanceMatrixParameters</span><span class="p">,</span>
-</span><span id="L-233"><a href="#L-233"><span class="linenos">233</span></a>            <span class="n">file_info</span><span class="p">:</span> <span class="n">FileInformation</span><span class="p">,</span>
-</span><span id="L-234"><a href="#L-234"><span class="linenos">234</span></a>            <span class="n">parsed_data</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-</span><span id="L-235"><a href="#L-235"><span class="linenos">235</span></a>    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-</span><span id="L-236"><a href="#L-236"><span class="linenos">236</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-</span><span id="L-237"><a href="#L-237"><span class="linenos">237</span></a><span class="sd">        Build a DistanceMatrix.</span>
-</span><span id="L-238"><a href="#L-238"><span class="linenos">238</span></a>
-</span><span id="L-239"><a href="#L-239"><span class="linenos">239</span></a><span class="sd">        Parameters</span>
-</span><span id="L-240"><a href="#L-240"><span class="linenos">240</span></a><span class="sd">        ----------</span>
-</span><span id="L-241"><a href="#L-241"><span class="linenos">241</span></a><span class="sd">        owner : Session</span>
-</span><span id="L-242"><a href="#L-242"><span class="linenos">242</span></a><span class="sd">            Containing Session.</span>
-</span><span id="L-243"><a href="#L-243"><span class="linenos">243</span></a><span class="sd">        meta_data : DistanceMatrixParameters</span>
-</span><span id="L-244"><a href="#L-244"><span class="linenos">244</span></a><span class="sd">            Parameters used in calculating this instance of DistanceMatrix.</span>
-</span><span id="L-245"><a href="#L-245"><span class="linenos">245</span></a><span class="sd">        file_info : FileInformation</span>
-</span><span id="L-246"><a href="#L-246"><span class="linenos">246</span></a><span class="sd">            FileInformation -- if any -- for this DistanceMatrix.</span>
-</span><span id="L-247"><a href="#L-247"><span class="linenos">247</span></a><span class="sd">        parsed_data : Optional[np.ndarray], optional</span>
-</span><span id="L-248"><a href="#L-248"><span class="linenos">248</span></a><span class="sd">            The distance matrix itself, by default None</span>
-</span><span id="L-249"><a href="#L-249"><span class="linenos">249</span></a><span class="sd">        &quot;&quot;&quot;</span>
-</span><span id="L-250"><a href="#L-250"><span class="linenos">250</span></a>        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span>
-</span><span id="L-251"><a href="#L-251"><span class="linenos">251</span></a>            <span class="n">owner</span><span class="o">=</span><span class="n">owner</span><span class="p">,</span>
-</span><span id="L-252"><a href="#L-252"><span class="linenos">252</span></a>            <span class="n">meta_data</span><span class="o">=</span><span class="n">meta_data</span><span class="p">,</span>
-</span><span id="L-253"><a href="#L-253"><span class="linenos">253</span></a>            <span class="n">file_info</span><span class="o">=</span><span class="n">file_info</span><span class="p">,</span>
-</span><span id="L-254"><a href="#L-254"><span class="linenos">254</span></a>            <span class="n">parsed_data</span><span class="o">=</span><span class="n">parsed_data</span><span class="p">,</span> <span class="p">)</span>
-</span><span id="L-255"><a href="#L-255"><span class="linenos">255</span></a>
-</span><span id="L-256"><a href="#L-256"><span class="linenos">256</span></a>    <span class="k">def</span> <span class="nf">_derive_data</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="nb">float</span><span class="p">]:</span>
-</span><span id="L-257"><a href="#L-257"><span class="linenos">257</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-</span><span id="L-258"><a href="#L-258"><span class="linenos">258</span></a><span class="sd">        Calculate the distance matrix on the data Session parent.       </span>
-</span><span id="L-259"><a href="#L-259"><span class="linenos">259</span></a><span class="sd">        &quot;&quot;&quot;</span>
-</span><span id="L-260"><a href="#L-260"><span class="linenos">260</span></a>        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span>
-</span><span id="L-261"><a href="#L-261"><span class="linenos">261</span></a>            <span class="s2">&quot;Currently MSE Modalities have to be &quot;</span>
-</span><span id="L-262"><a href="#L-262"><span class="linenos">262</span></a>            <span class="s2">&quot;calculated at instantiation time.&quot;</span><span class="p">)</span>
-</span><span id="L-263"><a href="#L-263"><span class="linenos">263</span></a>
-</span><span id="L-264"><a href="#L-264"><span class="linenos">264</span></a>    <span class="k">def</span> <span class="nf">get_meta</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
-</span><span id="L-265"><a href="#L-265"><span class="linenos">265</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-</span><span id="L-266"><a href="#L-266"><span class="linenos">266</span></a><span class="sd">        Get meta data as a dict.</span>
+</span><span id="L-196"><a href="#L-196"><span class="linenos">196</span></a><span class="sd">        exclusion_list : ExclusionList | None</span>
+</span><span id="L-197"><a href="#L-197"><span class="linenos">197</span></a><span class="sd">            The ExclusionList to apply when generating the DistanceMatrices. By</span>
+</span><span id="L-198"><a href="#L-198"><span class="linenos">198</span></a><span class="sd">            default, None.</span>
+</span><span id="L-199"><a href="#L-199"><span class="linenos">199</span></a><span class="sd">        </span>
+</span><span id="L-200"><a href="#L-200"><span class="linenos">200</span></a><span class="sd">        Returns</span>
+</span><span id="L-201"><a href="#L-201"><span class="linenos">201</span></a><span class="sd">        -------</span>
+</span><span id="L-202"><a href="#L-202"><span class="linenos">202</span></a><span class="sd">        dict[str: DistanceMatrixParameters]</span>
+</span><span id="L-203"><a href="#L-203"><span class="linenos">203</span></a><span class="sd">            Dictionary where the names of the DistanceMatrices index the </span>
+</span><span id="L-204"><a href="#L-204"><span class="linenos">204</span></a><span class="sd">            DistanceMatrixParameter objects.</span>
+</span><span id="L-205"><a href="#L-205"><span class="linenos">205</span></a><span class="sd">        &quot;&quot;&quot;</span>
+</span><span id="L-206"><a href="#L-206"><span class="linenos">206</span></a>        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">parent</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+</span><span id="L-207"><a href="#L-207"><span class="linenos">207</span></a>            <span class="n">parent_name</span> <span class="o">=</span> <span class="n">parent</span>
+</span><span id="L-208"><a href="#L-208"><span class="linenos">208</span></a>        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">parent</span><span class="p">,</span> <span class="n">Statistic</span><span class="p">)</span> <span class="ow">or</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">parent</span><span class="p">,</span> <span class="n">Modality</span><span class="p">):</span>
+</span><span id="L-209"><a href="#L-209"><span class="linenos">209</span></a>            <span class="n">parent_name</span> <span class="o">=</span> <span class="n">parent</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span>
+</span><span id="L-210"><a href="#L-210"><span class="linenos">210</span></a>        <span class="k">else</span><span class="p">:</span>
+</span><span id="L-211"><a href="#L-211"><span class="linenos">211</span></a>            <span class="n">parent_name</span> <span class="o">=</span> <span class="n">parent</span><span class="o">.</span><span class="vm">__name__</span>
+</span><span id="L-212"><a href="#L-212"><span class="linenos">212</span></a>
+</span><span id="L-213"><a href="#L-213"><span class="linenos">213</span></a>        <span class="k">if</span> <span class="ow">not</span> <span class="n">metric</span><span class="p">:</span>
+</span><span id="L-214"><a href="#L-214"><span class="linenos">214</span></a>            <span class="n">metric</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;mean_squared_error&#39;</span><span class="p">]</span>
+</span><span id="L-215"><a href="#L-215"><span class="linenos">215</span></a>
+</span><span id="L-216"><a href="#L-216"><span class="linenos">216</span></a>        <span class="n">param_dict</span> <span class="o">=</span> <span class="p">{</span>
+</span><span id="L-217"><a href="#L-217"><span class="linenos">217</span></a>            <span class="s1">&#39;parent_name&#39;</span><span class="p">:</span> <span class="p">[</span><span class="n">parent_name</span><span class="p">],</span>
+</span><span id="L-218"><a href="#L-218"><span class="linenos">218</span></a>            <span class="s1">&#39;metric&#39;</span><span class="p">:</span> <span class="n">metric</span><span class="p">,</span>
+</span><span id="L-219"><a href="#L-219"><span class="linenos">219</span></a>            <span class="s1">&#39;release_data_memory&#39;</span><span class="p">:</span> <span class="p">[</span><span class="n">release_data_memory</span><span class="p">],</span>
+</span><span id="L-220"><a href="#L-220"><span class="linenos">220</span></a>            <span class="s1">&#39;slice_max_step&#39;</span><span class="p">:</span> <span class="p">[</span><span class="n">slice_max_step</span><span class="p">],</span>
+</span><span id="L-221"><a href="#L-221"><span class="linenos">221</span></a>            <span class="s1">&#39;slice_step_to&#39;</span><span class="p">:</span> <span class="p">[</span><span class="n">slice_step_to</span><span class="p">],</span>
+</span><span id="L-222"><a href="#L-222"><span class="linenos">222</span></a>            <span class="s1">&#39;sort&#39;</span><span class="p">:</span> <span class="p">[</span><span class="n">sort</span><span class="p">],</span>
+</span><span id="L-223"><a href="#L-223"><span class="linenos">223</span></a>            <span class="s1">&#39;sort_criteria&#39;</span><span class="p">:</span> <span class="p">[</span><span class="n">sort_criteria</span><span class="p">],</span>
+</span><span id="L-224"><a href="#L-224"><span class="linenos">224</span></a>            <span class="s1">&#39;exclusion_list&#39;</span><span class="p">:</span> <span class="p">[</span><span class="n">exclusion_list</span><span class="p">],</span>
+</span><span id="L-225"><a href="#L-225"><span class="linenos">225</span></a>        <span class="p">}</span>
+</span><span id="L-226"><a href="#L-226"><span class="linenos">226</span></a>
+</span><span id="L-227"><a href="#L-227"><span class="linenos">227</span></a>        <span class="n">distance_matrix_params</span> <span class="o">=</span> <span class="p">[</span><span class="n">DistanceMatrixParameters</span><span class="p">(</span><span class="o">**</span><span class="n">item</span><span class="p">)</span>
+</span><span id="L-228"><a href="#L-228"><span class="linenos">228</span></a>                                  <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">product_dict</span><span class="p">(</span><span class="o">**</span><span class="n">param_dict</span><span class="p">)]</span>
+</span><span id="L-229"><a href="#L-229"><span class="linenos">229</span></a>
+</span><span id="L-230"><a href="#L-230"><span class="linenos">230</span></a>        <span class="k">return</span> <span class="p">{</span><span class="n">DistanceMatrix</span><span class="o">.</span><span class="n">generate_name</span><span class="p">(</span><span class="n">params</span><span class="p">):</span> <span class="n">params</span>
+</span><span id="L-231"><a href="#L-231"><span class="linenos">231</span></a>                <span class="k">for</span> <span class="n">params</span> <span class="ow">in</span> <span class="n">distance_matrix_params</span><span class="p">}</span>
+</span><span id="L-232"><a href="#L-232"><span class="linenos">232</span></a>
+</span><span id="L-233"><a href="#L-233"><span class="linenos">233</span></a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+</span><span id="L-234"><a href="#L-234"><span class="linenos">234</span></a>            <span class="bp">self</span><span class="p">,</span>
+</span><span id="L-235"><a href="#L-235"><span class="linenos">235</span></a>            <span class="n">owner</span><span class="p">:</span> <span class="n">Session</span><span class="p">,</span>
+</span><span id="L-236"><a href="#L-236"><span class="linenos">236</span></a>            <span class="n">metadata</span><span class="p">:</span> <span class="n">DistanceMatrixParameters</span><span class="p">,</span>
+</span><span id="L-237"><a href="#L-237"><span class="linenos">237</span></a>            <span class="n">file_info</span><span class="p">:</span> <span class="n">FileInformation</span><span class="p">,</span>
+</span><span id="L-238"><a href="#L-238"><span class="linenos">238</span></a>            <span class="n">parsed_data</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+</span><span id="L-239"><a href="#L-239"><span class="linenos">239</span></a>    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+</span><span id="L-240"><a href="#L-240"><span class="linenos">240</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+</span><span id="L-241"><a href="#L-241"><span class="linenos">241</span></a><span class="sd">        Build a DistanceMatrix.</span>
+</span><span id="L-242"><a href="#L-242"><span class="linenos">242</span></a>
+</span><span id="L-243"><a href="#L-243"><span class="linenos">243</span></a><span class="sd">        Parameters</span>
+</span><span id="L-244"><a href="#L-244"><span class="linenos">244</span></a><span class="sd">        ----------</span>
+</span><span id="L-245"><a href="#L-245"><span class="linenos">245</span></a><span class="sd">        owner : Session</span>
+</span><span id="L-246"><a href="#L-246"><span class="linenos">246</span></a><span class="sd">            Containing Session.</span>
+</span><span id="L-247"><a href="#L-247"><span class="linenos">247</span></a><span class="sd">        metadata : DistanceMatrixParameters</span>
+</span><span id="L-248"><a href="#L-248"><span class="linenos">248</span></a><span class="sd">            Parameters used in calculating this instance of DistanceMatrix.</span>
+</span><span id="L-249"><a href="#L-249"><span class="linenos">249</span></a><span class="sd">        file_info : FileInformation</span>
+</span><span id="L-250"><a href="#L-250"><span class="linenos">250</span></a><span class="sd">            FileInformation -- if any -- for this DistanceMatrix.</span>
+</span><span id="L-251"><a href="#L-251"><span class="linenos">251</span></a><span class="sd">        parsed_data : Optional[np.ndarray], optional</span>
+</span><span id="L-252"><a href="#L-252"><span class="linenos">252</span></a><span class="sd">            The distance matrix itself, by default None</span>
+</span><span id="L-253"><a href="#L-253"><span class="linenos">253</span></a><span class="sd">        &quot;&quot;&quot;</span>
+</span><span id="L-254"><a href="#L-254"><span class="linenos">254</span></a>        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span>
+</span><span id="L-255"><a href="#L-255"><span class="linenos">255</span></a>            <span class="n">owner</span><span class="o">=</span><span class="n">owner</span><span class="p">,</span>
+</span><span id="L-256"><a href="#L-256"><span class="linenos">256</span></a>            <span class="n">metadata</span><span class="o">=</span><span class="n">metadata</span><span class="p">,</span>
+</span><span id="L-257"><a href="#L-257"><span class="linenos">257</span></a>            <span class="n">file_info</span><span class="o">=</span><span class="n">file_info</span><span class="p">,</span>
+</span><span id="L-258"><a href="#L-258"><span class="linenos">258</span></a>            <span class="n">parsed_data</span><span class="o">=</span><span class="n">parsed_data</span><span class="p">,</span> <span class="p">)</span>
+</span><span id="L-259"><a href="#L-259"><span class="linenos">259</span></a>
+</span><span id="L-260"><a href="#L-260"><span class="linenos">260</span></a>    <span class="k">def</span> <span class="nf">_derive_data</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="nb">float</span><span class="p">]:</span>
+</span><span id="L-261"><a href="#L-261"><span class="linenos">261</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+</span><span id="L-262"><a href="#L-262"><span class="linenos">262</span></a><span class="sd">        Calculate the distance matrix on the data Session parent.       </span>
+</span><span id="L-263"><a href="#L-263"><span class="linenos">263</span></a><span class="sd">        &quot;&quot;&quot;</span>
+</span><span id="L-264"><a href="#L-264"><span class="linenos">264</span></a>        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span>
+</span><span id="L-265"><a href="#L-265"><span class="linenos">265</span></a>            <span class="s2">&quot;Currently MSE Modalities have to be &quot;</span>
+</span><span id="L-266"><a href="#L-266"><span class="linenos">266</span></a>            <span class="s2">&quot;calculated at instantiation time.&quot;</span><span class="p">)</span>
 </span><span id="L-267"><a href="#L-267"><span class="linenos">267</span></a>
-</span><span id="L-268"><a href="#L-268"><span class="linenos">268</span></a><span class="sd">        This is a helper method for saving as nested text. Allows for rewriting</span>
-</span><span id="L-269"><a href="#L-269"><span class="linenos">269</span></a><span class="sd">        any fields that need a simpler representation.</span>
-</span><span id="L-270"><a href="#L-270"><span class="linenos">270</span></a>
-</span><span id="L-271"><a href="#L-271"><span class="linenos">271</span></a><span class="sd">        Returns</span>
-</span><span id="L-272"><a href="#L-272"><span class="linenos">272</span></a><span class="sd">        -------</span>
-</span><span id="L-273"><a href="#L-273"><span class="linenos">273</span></a><span class="sd">        dict</span>
-</span><span id="L-274"><a href="#L-274"><span class="linenos">274</span></a><span class="sd">            The meta data in a dict.</span>
-</span><span id="L-275"><a href="#L-275"><span class="linenos">275</span></a><span class="sd">        &quot;&quot;&quot;</span>
-</span><span id="L-276"><a href="#L-276"><span class="linenos">276</span></a>        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">meta_data</span><span class="o">.</span><span class="n">model_dump</span><span class="p">()</span>
-</span><span id="L-277"><a href="#L-277"><span class="linenos">277</span></a>
-</span><span id="L-278"><a href="#L-278"><span class="linenos">278</span></a>    <span class="nd">@property</span>
-</span><span id="L-279"><a href="#L-279"><span class="linenos">279</span></a>    <span class="k">def</span> <span class="nf">name</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-</span><span id="L-280"><a href="#L-280"><span class="linenos">280</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-</span><span id="L-281"><a href="#L-281"><span class="linenos">281</span></a><span class="sd">        Identity, metric, and parent data class.</span>
-</span><span id="L-282"><a href="#L-282"><span class="linenos">282</span></a>
-</span><span id="L-283"><a href="#L-283"><span class="linenos">283</span></a><span class="sd">        The name will be of the form</span>
-</span><span id="L-284"><a href="#L-284"><span class="linenos">284</span></a><span class="sd">        &#39;DistanceMatrix [metric name] on [data modality class name]&#39;.</span>
-</span><span id="L-285"><a href="#L-285"><span class="linenos">285</span></a>
-</span><span id="L-286"><a href="#L-286"><span class="linenos">286</span></a><span class="sd">        This overrides the default behaviour of Modality.name.</span>
-</span><span id="L-287"><a href="#L-287"><span class="linenos">287</span></a><span class="sd">        &quot;&quot;&quot;</span>
-</span><span id="L-288"><a href="#L-288"><span class="linenos">288</span></a>        <span class="k">return</span> <span class="n">DistanceMatrix</span><span class="o">.</span><span class="n">generate_name</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">meta_data</span><span class="p">)</span>
+</span><span id="L-268"><a href="#L-268"><span class="linenos">268</span></a>    <span class="k">def</span> <span class="nf">get_meta</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
+</span><span id="L-269"><a href="#L-269"><span class="linenos">269</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+</span><span id="L-270"><a href="#L-270"><span class="linenos">270</span></a><span class="sd">        Get meta data as a dict.</span>
+</span><span id="L-271"><a href="#L-271"><span class="linenos">271</span></a>
+</span><span id="L-272"><a href="#L-272"><span class="linenos">272</span></a><span class="sd">        This is a helper method for saving as nested text. Allows for rewriting</span>
+</span><span id="L-273"><a href="#L-273"><span class="linenos">273</span></a><span class="sd">        any fields that need a simpler representation.</span>
+</span><span id="L-274"><a href="#L-274"><span class="linenos">274</span></a>
+</span><span id="L-275"><a href="#L-275"><span class="linenos">275</span></a><span class="sd">        Returns</span>
+</span><span id="L-276"><a href="#L-276"><span class="linenos">276</span></a><span class="sd">        -------</span>
+</span><span id="L-277"><a href="#L-277"><span class="linenos">277</span></a><span class="sd">        dict</span>
+</span><span id="L-278"><a href="#L-278"><span class="linenos">278</span></a><span class="sd">            The meta data in a dict.</span>
+</span><span id="L-279"><a href="#L-279"><span class="linenos">279</span></a><span class="sd">        &quot;&quot;&quot;</span>
+</span><span id="L-280"><a href="#L-280"><span class="linenos">280</span></a>        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">metadata</span><span class="o">.</span><span class="n">model_dump</span><span class="p">()</span>
+</span><span id="L-281"><a href="#L-281"><span class="linenos">281</span></a>
+</span><span id="L-282"><a href="#L-282"><span class="linenos">282</span></a>    <span class="nd">@property</span>
+</span><span id="L-283"><a href="#L-283"><span class="linenos">283</span></a>    <span class="k">def</span> <span class="nf">name</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+</span><span id="L-284"><a href="#L-284"><span class="linenos">284</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+</span><span id="L-285"><a href="#L-285"><span class="linenos">285</span></a><span class="sd">        Identity, metric, and parent data class.</span>
+</span><span id="L-286"><a href="#L-286"><span class="linenos">286</span></a>
+</span><span id="L-287"><a href="#L-287"><span class="linenos">287</span></a><span class="sd">        The name will be of the form</span>
+</span><span id="L-288"><a href="#L-288"><span class="linenos">288</span></a><span class="sd">        &#39;DistanceMatrix [metric name] on [data modality class name]&#39;.</span>
+</span><span id="L-289"><a href="#L-289"><span class="linenos">289</span></a>
+</span><span id="L-290"><a href="#L-290"><span class="linenos">290</span></a><span class="sd">        This overrides the default behaviour of Modality.name.</span>
+</span><span id="L-291"><a href="#L-291"><span class="linenos">291</span></a><span class="sd">        &quot;&quot;&quot;</span>
+</span><span id="L-292"><a href="#L-292"><span class="linenos">292</span></a>        <span class="k">return</span> <span class="n">DistanceMatrix</span><span class="o">.</span><span class="n">generate_name</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">metadata</span><span class="p">)</span>
 </span></pre></div>
 
 
@@ -422,7 +426,7 @@
 <div class="attr class">
             
     <span class="def">class</span>
-    <span class="name">DistanceMatrixParameters</span><wbr>(<span class="base"><a href="../data_structures/meta_data_classes.html#StatisticMetaData">satkit.data_structures.meta_data_classes.StatisticMetaData</a></span>):
+    <span class="name">DistanceMatrixParameters</span><wbr>(<span class="base"><a href="../data_structures/metadata_classes.html#StatisticMetaData">satkit.data_structures.metadata_classes.StatisticMetaData</a></span>):
 
                 <label class="view-source-button" for="DistanceMatrixParameters-view-source"><span>View Source</span></label>
 
@@ -624,7 +628,7 @@ left after the list has been exhausted.</li>
                             </div>
                             <div id="DistanceMatrixParameters.exclusion_list" class="classattr">
                                 <div class="attr variable">
-            <span class="name">exclusion_list</span><span class="annotation">: <a href="../configuration/configuration_classes.html#ExclusionList">satkit.configuration.configuration_classes.ExclusionList</a> | None</span>
+            <span class="name">exclusion_list</span><span class="annotation">: <a href="../configuration/configuration_models.html#ExclusionList">satkit.configuration.configuration_models.ExclusionList</a> | None</span>
 
         
     </div>
@@ -702,8 +706,8 @@ left after the list has been exhausted.</li>
                 <dd id="DistanceMatrixParameters.update_forward_refs" class="function">update_forward_refs</dd>
 
             </div>
-            <div><dt><a href="../external_class_extensions/base_model_extensions.html#EmptyStrAsNoneBaseModel">satkit.external_class_extensions.base_model_extensions.EmptyStrAsNoneBaseModel</a></dt>
-                                <dd id="DistanceMatrixParameters.empty_str_to_none" class="function"><a href="../external_class_extensions/base_model_extensions.html#EmptyStrAsNoneBaseModel.empty_str_to_none">empty_str_to_none</a></dd>
+            <div><dt><a href="../external_class_extensions/base_model_extensions.html#SatkitBaseModel">satkit.external_class_extensions.base_model_extensions.SatkitBaseModel</a></dt>
+                                <dd id="DistanceMatrixParameters.empty_str_to_none" class="function"><a href="../external_class_extensions/base_model_extensions.html#SatkitBaseModel.empty_str_to_none">empty_str_to_none</a></dd>
 
             </div>
                                 </dl>
@@ -819,99 +823,103 @@ left after the list has been exhausted.</li>
 </span><span id="DistanceMatrix-194"><a href="#DistanceMatrix-194"><span class="linenos">194</span></a><span class="sd">            The result will consist of blocks where in first block</span>
 </span><span id="DistanceMatrix-195"><a href="#DistanceMatrix-195"><span class="linenos">195</span></a><span class="sd">            `sort_criteria[0] in prompt` is True, and so on. Final block will</span>
 </span><span id="DistanceMatrix-196"><a href="#DistanceMatrix-196"><span class="linenos">196</span></a><span class="sd">            consist of any Recordings left after the list has been exhausted.</span>
-</span><span id="DistanceMatrix-197"><a href="#DistanceMatrix-197"><span class="linenos">197</span></a><span class="sd">        Returns</span>
-</span><span id="DistanceMatrix-198"><a href="#DistanceMatrix-198"><span class="linenos">198</span></a><span class="sd">        -------</span>
-</span><span id="DistanceMatrix-199"><a href="#DistanceMatrix-199"><span class="linenos">199</span></a><span class="sd">        dict[str: DistanceMatrixParameters]</span>
-</span><span id="DistanceMatrix-200"><a href="#DistanceMatrix-200"><span class="linenos">200</span></a><span class="sd">            Dictionary where the names of the DistanceMatrices index the </span>
-</span><span id="DistanceMatrix-201"><a href="#DistanceMatrix-201"><span class="linenos">201</span></a><span class="sd">            DistanceMatrixParameter objects.</span>
-</span><span id="DistanceMatrix-202"><a href="#DistanceMatrix-202"><span class="linenos">202</span></a><span class="sd">        &quot;&quot;&quot;</span>
-</span><span id="DistanceMatrix-203"><a href="#DistanceMatrix-203"><span class="linenos">203</span></a>        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">parent</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
-</span><span id="DistanceMatrix-204"><a href="#DistanceMatrix-204"><span class="linenos">204</span></a>            <span class="n">parent_name</span> <span class="o">=</span> <span class="n">parent</span>
-</span><span id="DistanceMatrix-205"><a href="#DistanceMatrix-205"><span class="linenos">205</span></a>        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">parent</span><span class="p">,</span> <span class="n">Statistic</span><span class="p">)</span> <span class="ow">or</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">parent</span><span class="p">,</span> <span class="n">Modality</span><span class="p">):</span>
-</span><span id="DistanceMatrix-206"><a href="#DistanceMatrix-206"><span class="linenos">206</span></a>            <span class="n">parent_name</span> <span class="o">=</span> <span class="n">parent</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span>
-</span><span id="DistanceMatrix-207"><a href="#DistanceMatrix-207"><span class="linenos">207</span></a>        <span class="k">else</span><span class="p">:</span>
-</span><span id="DistanceMatrix-208"><a href="#DistanceMatrix-208"><span class="linenos">208</span></a>            <span class="n">parent_name</span> <span class="o">=</span> <span class="n">parent</span><span class="o">.</span><span class="vm">__name__</span>
-</span><span id="DistanceMatrix-209"><a href="#DistanceMatrix-209"><span class="linenos">209</span></a>
-</span><span id="DistanceMatrix-210"><a href="#DistanceMatrix-210"><span class="linenos">210</span></a>        <span class="k">if</span> <span class="ow">not</span> <span class="n">metric</span><span class="p">:</span>
-</span><span id="DistanceMatrix-211"><a href="#DistanceMatrix-211"><span class="linenos">211</span></a>            <span class="n">metric</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;mean_squared_error&#39;</span><span class="p">]</span>
-</span><span id="DistanceMatrix-212"><a href="#DistanceMatrix-212"><span class="linenos">212</span></a>
-</span><span id="DistanceMatrix-213"><a href="#DistanceMatrix-213"><span class="linenos">213</span></a>        <span class="n">param_dict</span> <span class="o">=</span> <span class="p">{</span>
-</span><span id="DistanceMatrix-214"><a href="#DistanceMatrix-214"><span class="linenos">214</span></a>            <span class="s1">&#39;parent_name&#39;</span><span class="p">:</span> <span class="p">[</span><span class="n">parent_name</span><span class="p">],</span>
-</span><span id="DistanceMatrix-215"><a href="#DistanceMatrix-215"><span class="linenos">215</span></a>            <span class="s1">&#39;metric&#39;</span><span class="p">:</span> <span class="n">metric</span><span class="p">,</span>
-</span><span id="DistanceMatrix-216"><a href="#DistanceMatrix-216"><span class="linenos">216</span></a>            <span class="s1">&#39;release_data_memory&#39;</span><span class="p">:</span> <span class="p">[</span><span class="n">release_data_memory</span><span class="p">],</span>
-</span><span id="DistanceMatrix-217"><a href="#DistanceMatrix-217"><span class="linenos">217</span></a>            <span class="s1">&#39;slice_max_step&#39;</span><span class="p">:</span> <span class="p">[</span><span class="n">slice_max_step</span><span class="p">],</span>
-</span><span id="DistanceMatrix-218"><a href="#DistanceMatrix-218"><span class="linenos">218</span></a>            <span class="s1">&#39;slice_step_to&#39;</span><span class="p">:</span> <span class="p">[</span><span class="n">slice_step_to</span><span class="p">],</span>
-</span><span id="DistanceMatrix-219"><a href="#DistanceMatrix-219"><span class="linenos">219</span></a>            <span class="s1">&#39;sort&#39;</span><span class="p">:</span> <span class="p">[</span><span class="n">sort</span><span class="p">],</span>
-</span><span id="DistanceMatrix-220"><a href="#DistanceMatrix-220"><span class="linenos">220</span></a>            <span class="s1">&#39;sort_criteria&#39;</span><span class="p">:</span> <span class="p">[</span><span class="n">sort_criteria</span><span class="p">],</span>
-</span><span id="DistanceMatrix-221"><a href="#DistanceMatrix-221"><span class="linenos">221</span></a>            <span class="s1">&#39;exclusion_list&#39;</span><span class="p">:</span> <span class="p">[</span><span class="n">exclusion_list</span><span class="p">],</span>
-</span><span id="DistanceMatrix-222"><a href="#DistanceMatrix-222"><span class="linenos">222</span></a>        <span class="p">}</span>
-</span><span id="DistanceMatrix-223"><a href="#DistanceMatrix-223"><span class="linenos">223</span></a>
-</span><span id="DistanceMatrix-224"><a href="#DistanceMatrix-224"><span class="linenos">224</span></a>        <span class="n">distance_matrix_params</span> <span class="o">=</span> <span class="p">[</span><span class="n">DistanceMatrixParameters</span><span class="p">(</span><span class="o">**</span><span class="n">item</span><span class="p">)</span>
-</span><span id="DistanceMatrix-225"><a href="#DistanceMatrix-225"><span class="linenos">225</span></a>                                  <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">product_dict</span><span class="p">(</span><span class="o">**</span><span class="n">param_dict</span><span class="p">)]</span>
-</span><span id="DistanceMatrix-226"><a href="#DistanceMatrix-226"><span class="linenos">226</span></a>
-</span><span id="DistanceMatrix-227"><a href="#DistanceMatrix-227"><span class="linenos">227</span></a>        <span class="k">return</span> <span class="p">{</span><span class="n">DistanceMatrix</span><span class="o">.</span><span class="n">generate_name</span><span class="p">(</span><span class="n">params</span><span class="p">):</span> <span class="n">params</span>
-</span><span id="DistanceMatrix-228"><a href="#DistanceMatrix-228"><span class="linenos">228</span></a>                <span class="k">for</span> <span class="n">params</span> <span class="ow">in</span> <span class="n">distance_matrix_params</span><span class="p">}</span>
-</span><span id="DistanceMatrix-229"><a href="#DistanceMatrix-229"><span class="linenos">229</span></a>
-</span><span id="DistanceMatrix-230"><a href="#DistanceMatrix-230"><span class="linenos">230</span></a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
-</span><span id="DistanceMatrix-231"><a href="#DistanceMatrix-231"><span class="linenos">231</span></a>            <span class="bp">self</span><span class="p">,</span>
-</span><span id="DistanceMatrix-232"><a href="#DistanceMatrix-232"><span class="linenos">232</span></a>            <span class="n">owner</span><span class="p">:</span> <span class="n">Session</span><span class="p">,</span>
-</span><span id="DistanceMatrix-233"><a href="#DistanceMatrix-233"><span class="linenos">233</span></a>            <span class="n">meta_data</span><span class="p">:</span> <span class="n">DistanceMatrixParameters</span><span class="p">,</span>
-</span><span id="DistanceMatrix-234"><a href="#DistanceMatrix-234"><span class="linenos">234</span></a>            <span class="n">file_info</span><span class="p">:</span> <span class="n">FileInformation</span><span class="p">,</span>
-</span><span id="DistanceMatrix-235"><a href="#DistanceMatrix-235"><span class="linenos">235</span></a>            <span class="n">parsed_data</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-</span><span id="DistanceMatrix-236"><a href="#DistanceMatrix-236"><span class="linenos">236</span></a>    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-</span><span id="DistanceMatrix-237"><a href="#DistanceMatrix-237"><span class="linenos">237</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-</span><span id="DistanceMatrix-238"><a href="#DistanceMatrix-238"><span class="linenos">238</span></a><span class="sd">        Build a DistanceMatrix.</span>
-</span><span id="DistanceMatrix-239"><a href="#DistanceMatrix-239"><span class="linenos">239</span></a>
-</span><span id="DistanceMatrix-240"><a href="#DistanceMatrix-240"><span class="linenos">240</span></a><span class="sd">        Parameters</span>
-</span><span id="DistanceMatrix-241"><a href="#DistanceMatrix-241"><span class="linenos">241</span></a><span class="sd">        ----------</span>
-</span><span id="DistanceMatrix-242"><a href="#DistanceMatrix-242"><span class="linenos">242</span></a><span class="sd">        owner : Session</span>
-</span><span id="DistanceMatrix-243"><a href="#DistanceMatrix-243"><span class="linenos">243</span></a><span class="sd">            Containing Session.</span>
-</span><span id="DistanceMatrix-244"><a href="#DistanceMatrix-244"><span class="linenos">244</span></a><span class="sd">        meta_data : DistanceMatrixParameters</span>
-</span><span id="DistanceMatrix-245"><a href="#DistanceMatrix-245"><span class="linenos">245</span></a><span class="sd">            Parameters used in calculating this instance of DistanceMatrix.</span>
-</span><span id="DistanceMatrix-246"><a href="#DistanceMatrix-246"><span class="linenos">246</span></a><span class="sd">        file_info : FileInformation</span>
-</span><span id="DistanceMatrix-247"><a href="#DistanceMatrix-247"><span class="linenos">247</span></a><span class="sd">            FileInformation -- if any -- for this DistanceMatrix.</span>
-</span><span id="DistanceMatrix-248"><a href="#DistanceMatrix-248"><span class="linenos">248</span></a><span class="sd">        parsed_data : Optional[np.ndarray], optional</span>
-</span><span id="DistanceMatrix-249"><a href="#DistanceMatrix-249"><span class="linenos">249</span></a><span class="sd">            The distance matrix itself, by default None</span>
-</span><span id="DistanceMatrix-250"><a href="#DistanceMatrix-250"><span class="linenos">250</span></a><span class="sd">        &quot;&quot;&quot;</span>
-</span><span id="DistanceMatrix-251"><a href="#DistanceMatrix-251"><span class="linenos">251</span></a>        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span>
-</span><span id="DistanceMatrix-252"><a href="#DistanceMatrix-252"><span class="linenos">252</span></a>            <span class="n">owner</span><span class="o">=</span><span class="n">owner</span><span class="p">,</span>
-</span><span id="DistanceMatrix-253"><a href="#DistanceMatrix-253"><span class="linenos">253</span></a>            <span class="n">meta_data</span><span class="o">=</span><span class="n">meta_data</span><span class="p">,</span>
-</span><span id="DistanceMatrix-254"><a href="#DistanceMatrix-254"><span class="linenos">254</span></a>            <span class="n">file_info</span><span class="o">=</span><span class="n">file_info</span><span class="p">,</span>
-</span><span id="DistanceMatrix-255"><a href="#DistanceMatrix-255"><span class="linenos">255</span></a>            <span class="n">parsed_data</span><span class="o">=</span><span class="n">parsed_data</span><span class="p">,</span> <span class="p">)</span>
-</span><span id="DistanceMatrix-256"><a href="#DistanceMatrix-256"><span class="linenos">256</span></a>
-</span><span id="DistanceMatrix-257"><a href="#DistanceMatrix-257"><span class="linenos">257</span></a>    <span class="k">def</span> <span class="nf">_derive_data</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="nb">float</span><span class="p">]:</span>
-</span><span id="DistanceMatrix-258"><a href="#DistanceMatrix-258"><span class="linenos">258</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-</span><span id="DistanceMatrix-259"><a href="#DistanceMatrix-259"><span class="linenos">259</span></a><span class="sd">        Calculate the distance matrix on the data Session parent.       </span>
-</span><span id="DistanceMatrix-260"><a href="#DistanceMatrix-260"><span class="linenos">260</span></a><span class="sd">        &quot;&quot;&quot;</span>
-</span><span id="DistanceMatrix-261"><a href="#DistanceMatrix-261"><span class="linenos">261</span></a>        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span>
-</span><span id="DistanceMatrix-262"><a href="#DistanceMatrix-262"><span class="linenos">262</span></a>            <span class="s2">&quot;Currently MSE Modalities have to be &quot;</span>
-</span><span id="DistanceMatrix-263"><a href="#DistanceMatrix-263"><span class="linenos">263</span></a>            <span class="s2">&quot;calculated at instantiation time.&quot;</span><span class="p">)</span>
-</span><span id="DistanceMatrix-264"><a href="#DistanceMatrix-264"><span class="linenos">264</span></a>
-</span><span id="DistanceMatrix-265"><a href="#DistanceMatrix-265"><span class="linenos">265</span></a>    <span class="k">def</span> <span class="nf">get_meta</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
-</span><span id="DistanceMatrix-266"><a href="#DistanceMatrix-266"><span class="linenos">266</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-</span><span id="DistanceMatrix-267"><a href="#DistanceMatrix-267"><span class="linenos">267</span></a><span class="sd">        Get meta data as a dict.</span>
+</span><span id="DistanceMatrix-197"><a href="#DistanceMatrix-197"><span class="linenos">197</span></a><span class="sd">        exclusion_list : ExclusionList | None</span>
+</span><span id="DistanceMatrix-198"><a href="#DistanceMatrix-198"><span class="linenos">198</span></a><span class="sd">            The ExclusionList to apply when generating the DistanceMatrices. By</span>
+</span><span id="DistanceMatrix-199"><a href="#DistanceMatrix-199"><span class="linenos">199</span></a><span class="sd">            default, None.</span>
+</span><span id="DistanceMatrix-200"><a href="#DistanceMatrix-200"><span class="linenos">200</span></a><span class="sd">        </span>
+</span><span id="DistanceMatrix-201"><a href="#DistanceMatrix-201"><span class="linenos">201</span></a><span class="sd">        Returns</span>
+</span><span id="DistanceMatrix-202"><a href="#DistanceMatrix-202"><span class="linenos">202</span></a><span class="sd">        -------</span>
+</span><span id="DistanceMatrix-203"><a href="#DistanceMatrix-203"><span class="linenos">203</span></a><span class="sd">        dict[str: DistanceMatrixParameters]</span>
+</span><span id="DistanceMatrix-204"><a href="#DistanceMatrix-204"><span class="linenos">204</span></a><span class="sd">            Dictionary where the names of the DistanceMatrices index the </span>
+</span><span id="DistanceMatrix-205"><a href="#DistanceMatrix-205"><span class="linenos">205</span></a><span class="sd">            DistanceMatrixParameter objects.</span>
+</span><span id="DistanceMatrix-206"><a href="#DistanceMatrix-206"><span class="linenos">206</span></a><span class="sd">        &quot;&quot;&quot;</span>
+</span><span id="DistanceMatrix-207"><a href="#DistanceMatrix-207"><span class="linenos">207</span></a>        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">parent</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+</span><span id="DistanceMatrix-208"><a href="#DistanceMatrix-208"><span class="linenos">208</span></a>            <span class="n">parent_name</span> <span class="o">=</span> <span class="n">parent</span>
+</span><span id="DistanceMatrix-209"><a href="#DistanceMatrix-209"><span class="linenos">209</span></a>        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">parent</span><span class="p">,</span> <span class="n">Statistic</span><span class="p">)</span> <span class="ow">or</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">parent</span><span class="p">,</span> <span class="n">Modality</span><span class="p">):</span>
+</span><span id="DistanceMatrix-210"><a href="#DistanceMatrix-210"><span class="linenos">210</span></a>            <span class="n">parent_name</span> <span class="o">=</span> <span class="n">parent</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span>
+</span><span id="DistanceMatrix-211"><a href="#DistanceMatrix-211"><span class="linenos">211</span></a>        <span class="k">else</span><span class="p">:</span>
+</span><span id="DistanceMatrix-212"><a href="#DistanceMatrix-212"><span class="linenos">212</span></a>            <span class="n">parent_name</span> <span class="o">=</span> <span class="n">parent</span><span class="o">.</span><span class="vm">__name__</span>
+</span><span id="DistanceMatrix-213"><a href="#DistanceMatrix-213"><span class="linenos">213</span></a>
+</span><span id="DistanceMatrix-214"><a href="#DistanceMatrix-214"><span class="linenos">214</span></a>        <span class="k">if</span> <span class="ow">not</span> <span class="n">metric</span><span class="p">:</span>
+</span><span id="DistanceMatrix-215"><a href="#DistanceMatrix-215"><span class="linenos">215</span></a>            <span class="n">metric</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;mean_squared_error&#39;</span><span class="p">]</span>
+</span><span id="DistanceMatrix-216"><a href="#DistanceMatrix-216"><span class="linenos">216</span></a>
+</span><span id="DistanceMatrix-217"><a href="#DistanceMatrix-217"><span class="linenos">217</span></a>        <span class="n">param_dict</span> <span class="o">=</span> <span class="p">{</span>
+</span><span id="DistanceMatrix-218"><a href="#DistanceMatrix-218"><span class="linenos">218</span></a>            <span class="s1">&#39;parent_name&#39;</span><span class="p">:</span> <span class="p">[</span><span class="n">parent_name</span><span class="p">],</span>
+</span><span id="DistanceMatrix-219"><a href="#DistanceMatrix-219"><span class="linenos">219</span></a>            <span class="s1">&#39;metric&#39;</span><span class="p">:</span> <span class="n">metric</span><span class="p">,</span>
+</span><span id="DistanceMatrix-220"><a href="#DistanceMatrix-220"><span class="linenos">220</span></a>            <span class="s1">&#39;release_data_memory&#39;</span><span class="p">:</span> <span class="p">[</span><span class="n">release_data_memory</span><span class="p">],</span>
+</span><span id="DistanceMatrix-221"><a href="#DistanceMatrix-221"><span class="linenos">221</span></a>            <span class="s1">&#39;slice_max_step&#39;</span><span class="p">:</span> <span class="p">[</span><span class="n">slice_max_step</span><span class="p">],</span>
+</span><span id="DistanceMatrix-222"><a href="#DistanceMatrix-222"><span class="linenos">222</span></a>            <span class="s1">&#39;slice_step_to&#39;</span><span class="p">:</span> <span class="p">[</span><span class="n">slice_step_to</span><span class="p">],</span>
+</span><span id="DistanceMatrix-223"><a href="#DistanceMatrix-223"><span class="linenos">223</span></a>            <span class="s1">&#39;sort&#39;</span><span class="p">:</span> <span class="p">[</span><span class="n">sort</span><span class="p">],</span>
+</span><span id="DistanceMatrix-224"><a href="#DistanceMatrix-224"><span class="linenos">224</span></a>            <span class="s1">&#39;sort_criteria&#39;</span><span class="p">:</span> <span class="p">[</span><span class="n">sort_criteria</span><span class="p">],</span>
+</span><span id="DistanceMatrix-225"><a href="#DistanceMatrix-225"><span class="linenos">225</span></a>            <span class="s1">&#39;exclusion_list&#39;</span><span class="p">:</span> <span class="p">[</span><span class="n">exclusion_list</span><span class="p">],</span>
+</span><span id="DistanceMatrix-226"><a href="#DistanceMatrix-226"><span class="linenos">226</span></a>        <span class="p">}</span>
+</span><span id="DistanceMatrix-227"><a href="#DistanceMatrix-227"><span class="linenos">227</span></a>
+</span><span id="DistanceMatrix-228"><a href="#DistanceMatrix-228"><span class="linenos">228</span></a>        <span class="n">distance_matrix_params</span> <span class="o">=</span> <span class="p">[</span><span class="n">DistanceMatrixParameters</span><span class="p">(</span><span class="o">**</span><span class="n">item</span><span class="p">)</span>
+</span><span id="DistanceMatrix-229"><a href="#DistanceMatrix-229"><span class="linenos">229</span></a>                                  <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">product_dict</span><span class="p">(</span><span class="o">**</span><span class="n">param_dict</span><span class="p">)]</span>
+</span><span id="DistanceMatrix-230"><a href="#DistanceMatrix-230"><span class="linenos">230</span></a>
+</span><span id="DistanceMatrix-231"><a href="#DistanceMatrix-231"><span class="linenos">231</span></a>        <span class="k">return</span> <span class="p">{</span><span class="n">DistanceMatrix</span><span class="o">.</span><span class="n">generate_name</span><span class="p">(</span><span class="n">params</span><span class="p">):</span> <span class="n">params</span>
+</span><span id="DistanceMatrix-232"><a href="#DistanceMatrix-232"><span class="linenos">232</span></a>                <span class="k">for</span> <span class="n">params</span> <span class="ow">in</span> <span class="n">distance_matrix_params</span><span class="p">}</span>
+</span><span id="DistanceMatrix-233"><a href="#DistanceMatrix-233"><span class="linenos">233</span></a>
+</span><span id="DistanceMatrix-234"><a href="#DistanceMatrix-234"><span class="linenos">234</span></a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+</span><span id="DistanceMatrix-235"><a href="#DistanceMatrix-235"><span class="linenos">235</span></a>            <span class="bp">self</span><span class="p">,</span>
+</span><span id="DistanceMatrix-236"><a href="#DistanceMatrix-236"><span class="linenos">236</span></a>            <span class="n">owner</span><span class="p">:</span> <span class="n">Session</span><span class="p">,</span>
+</span><span id="DistanceMatrix-237"><a href="#DistanceMatrix-237"><span class="linenos">237</span></a>            <span class="n">metadata</span><span class="p">:</span> <span class="n">DistanceMatrixParameters</span><span class="p">,</span>
+</span><span id="DistanceMatrix-238"><a href="#DistanceMatrix-238"><span class="linenos">238</span></a>            <span class="n">file_info</span><span class="p">:</span> <span class="n">FileInformation</span><span class="p">,</span>
+</span><span id="DistanceMatrix-239"><a href="#DistanceMatrix-239"><span class="linenos">239</span></a>            <span class="n">parsed_data</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+</span><span id="DistanceMatrix-240"><a href="#DistanceMatrix-240"><span class="linenos">240</span></a>    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+</span><span id="DistanceMatrix-241"><a href="#DistanceMatrix-241"><span class="linenos">241</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+</span><span id="DistanceMatrix-242"><a href="#DistanceMatrix-242"><span class="linenos">242</span></a><span class="sd">        Build a DistanceMatrix.</span>
+</span><span id="DistanceMatrix-243"><a href="#DistanceMatrix-243"><span class="linenos">243</span></a>
+</span><span id="DistanceMatrix-244"><a href="#DistanceMatrix-244"><span class="linenos">244</span></a><span class="sd">        Parameters</span>
+</span><span id="DistanceMatrix-245"><a href="#DistanceMatrix-245"><span class="linenos">245</span></a><span class="sd">        ----------</span>
+</span><span id="DistanceMatrix-246"><a href="#DistanceMatrix-246"><span class="linenos">246</span></a><span class="sd">        owner : Session</span>
+</span><span id="DistanceMatrix-247"><a href="#DistanceMatrix-247"><span class="linenos">247</span></a><span class="sd">            Containing Session.</span>
+</span><span id="DistanceMatrix-248"><a href="#DistanceMatrix-248"><span class="linenos">248</span></a><span class="sd">        metadata : DistanceMatrixParameters</span>
+</span><span id="DistanceMatrix-249"><a href="#DistanceMatrix-249"><span class="linenos">249</span></a><span class="sd">            Parameters used in calculating this instance of DistanceMatrix.</span>
+</span><span id="DistanceMatrix-250"><a href="#DistanceMatrix-250"><span class="linenos">250</span></a><span class="sd">        file_info : FileInformation</span>
+</span><span id="DistanceMatrix-251"><a href="#DistanceMatrix-251"><span class="linenos">251</span></a><span class="sd">            FileInformation -- if any -- for this DistanceMatrix.</span>
+</span><span id="DistanceMatrix-252"><a href="#DistanceMatrix-252"><span class="linenos">252</span></a><span class="sd">        parsed_data : Optional[np.ndarray], optional</span>
+</span><span id="DistanceMatrix-253"><a href="#DistanceMatrix-253"><span class="linenos">253</span></a><span class="sd">            The distance matrix itself, by default None</span>
+</span><span id="DistanceMatrix-254"><a href="#DistanceMatrix-254"><span class="linenos">254</span></a><span class="sd">        &quot;&quot;&quot;</span>
+</span><span id="DistanceMatrix-255"><a href="#DistanceMatrix-255"><span class="linenos">255</span></a>        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span>
+</span><span id="DistanceMatrix-256"><a href="#DistanceMatrix-256"><span class="linenos">256</span></a>            <span class="n">owner</span><span class="o">=</span><span class="n">owner</span><span class="p">,</span>
+</span><span id="DistanceMatrix-257"><a href="#DistanceMatrix-257"><span class="linenos">257</span></a>            <span class="n">metadata</span><span class="o">=</span><span class="n">metadata</span><span class="p">,</span>
+</span><span id="DistanceMatrix-258"><a href="#DistanceMatrix-258"><span class="linenos">258</span></a>            <span class="n">file_info</span><span class="o">=</span><span class="n">file_info</span><span class="p">,</span>
+</span><span id="DistanceMatrix-259"><a href="#DistanceMatrix-259"><span class="linenos">259</span></a>            <span class="n">parsed_data</span><span class="o">=</span><span class="n">parsed_data</span><span class="p">,</span> <span class="p">)</span>
+</span><span id="DistanceMatrix-260"><a href="#DistanceMatrix-260"><span class="linenos">260</span></a>
+</span><span id="DistanceMatrix-261"><a href="#DistanceMatrix-261"><span class="linenos">261</span></a>    <span class="k">def</span> <span class="nf">_derive_data</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="nb">float</span><span class="p">]:</span>
+</span><span id="DistanceMatrix-262"><a href="#DistanceMatrix-262"><span class="linenos">262</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+</span><span id="DistanceMatrix-263"><a href="#DistanceMatrix-263"><span class="linenos">263</span></a><span class="sd">        Calculate the distance matrix on the data Session parent.       </span>
+</span><span id="DistanceMatrix-264"><a href="#DistanceMatrix-264"><span class="linenos">264</span></a><span class="sd">        &quot;&quot;&quot;</span>
+</span><span id="DistanceMatrix-265"><a href="#DistanceMatrix-265"><span class="linenos">265</span></a>        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span>
+</span><span id="DistanceMatrix-266"><a href="#DistanceMatrix-266"><span class="linenos">266</span></a>            <span class="s2">&quot;Currently MSE Modalities have to be &quot;</span>
+</span><span id="DistanceMatrix-267"><a href="#DistanceMatrix-267"><span class="linenos">267</span></a>            <span class="s2">&quot;calculated at instantiation time.&quot;</span><span class="p">)</span>
 </span><span id="DistanceMatrix-268"><a href="#DistanceMatrix-268"><span class="linenos">268</span></a>
-</span><span id="DistanceMatrix-269"><a href="#DistanceMatrix-269"><span class="linenos">269</span></a><span class="sd">        This is a helper method for saving as nested text. Allows for rewriting</span>
-</span><span id="DistanceMatrix-270"><a href="#DistanceMatrix-270"><span class="linenos">270</span></a><span class="sd">        any fields that need a simpler representation.</span>
-</span><span id="DistanceMatrix-271"><a href="#DistanceMatrix-271"><span class="linenos">271</span></a>
-</span><span id="DistanceMatrix-272"><a href="#DistanceMatrix-272"><span class="linenos">272</span></a><span class="sd">        Returns</span>
-</span><span id="DistanceMatrix-273"><a href="#DistanceMatrix-273"><span class="linenos">273</span></a><span class="sd">        -------</span>
-</span><span id="DistanceMatrix-274"><a href="#DistanceMatrix-274"><span class="linenos">274</span></a><span class="sd">        dict</span>
-</span><span id="DistanceMatrix-275"><a href="#DistanceMatrix-275"><span class="linenos">275</span></a><span class="sd">            The meta data in a dict.</span>
-</span><span id="DistanceMatrix-276"><a href="#DistanceMatrix-276"><span class="linenos">276</span></a><span class="sd">        &quot;&quot;&quot;</span>
-</span><span id="DistanceMatrix-277"><a href="#DistanceMatrix-277"><span class="linenos">277</span></a>        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">meta_data</span><span class="o">.</span><span class="n">model_dump</span><span class="p">()</span>
-</span><span id="DistanceMatrix-278"><a href="#DistanceMatrix-278"><span class="linenos">278</span></a>
-</span><span id="DistanceMatrix-279"><a href="#DistanceMatrix-279"><span class="linenos">279</span></a>    <span class="nd">@property</span>
-</span><span id="DistanceMatrix-280"><a href="#DistanceMatrix-280"><span class="linenos">280</span></a>    <span class="k">def</span> <span class="nf">name</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-</span><span id="DistanceMatrix-281"><a href="#DistanceMatrix-281"><span class="linenos">281</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-</span><span id="DistanceMatrix-282"><a href="#DistanceMatrix-282"><span class="linenos">282</span></a><span class="sd">        Identity, metric, and parent data class.</span>
-</span><span id="DistanceMatrix-283"><a href="#DistanceMatrix-283"><span class="linenos">283</span></a>
-</span><span id="DistanceMatrix-284"><a href="#DistanceMatrix-284"><span class="linenos">284</span></a><span class="sd">        The name will be of the form</span>
-</span><span id="DistanceMatrix-285"><a href="#DistanceMatrix-285"><span class="linenos">285</span></a><span class="sd">        &#39;DistanceMatrix [metric name] on [data modality class name]&#39;.</span>
-</span><span id="DistanceMatrix-286"><a href="#DistanceMatrix-286"><span class="linenos">286</span></a>
-</span><span id="DistanceMatrix-287"><a href="#DistanceMatrix-287"><span class="linenos">287</span></a><span class="sd">        This overrides the default behaviour of Modality.name.</span>
-</span><span id="DistanceMatrix-288"><a href="#DistanceMatrix-288"><span class="linenos">288</span></a><span class="sd">        &quot;&quot;&quot;</span>
-</span><span id="DistanceMatrix-289"><a href="#DistanceMatrix-289"><span class="linenos">289</span></a>        <span class="k">return</span> <span class="n">DistanceMatrix</span><span class="o">.</span><span class="n">generate_name</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">meta_data</span><span class="p">)</span>
+</span><span id="DistanceMatrix-269"><a href="#DistanceMatrix-269"><span class="linenos">269</span></a>    <span class="k">def</span> <span class="nf">get_meta</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
+</span><span id="DistanceMatrix-270"><a href="#DistanceMatrix-270"><span class="linenos">270</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+</span><span id="DistanceMatrix-271"><a href="#DistanceMatrix-271"><span class="linenos">271</span></a><span class="sd">        Get meta data as a dict.</span>
+</span><span id="DistanceMatrix-272"><a href="#DistanceMatrix-272"><span class="linenos">272</span></a>
+</span><span id="DistanceMatrix-273"><a href="#DistanceMatrix-273"><span class="linenos">273</span></a><span class="sd">        This is a helper method for saving as nested text. Allows for rewriting</span>
+</span><span id="DistanceMatrix-274"><a href="#DistanceMatrix-274"><span class="linenos">274</span></a><span class="sd">        any fields that need a simpler representation.</span>
+</span><span id="DistanceMatrix-275"><a href="#DistanceMatrix-275"><span class="linenos">275</span></a>
+</span><span id="DistanceMatrix-276"><a href="#DistanceMatrix-276"><span class="linenos">276</span></a><span class="sd">        Returns</span>
+</span><span id="DistanceMatrix-277"><a href="#DistanceMatrix-277"><span class="linenos">277</span></a><span class="sd">        -------</span>
+</span><span id="DistanceMatrix-278"><a href="#DistanceMatrix-278"><span class="linenos">278</span></a><span class="sd">        dict</span>
+</span><span id="DistanceMatrix-279"><a href="#DistanceMatrix-279"><span class="linenos">279</span></a><span class="sd">            The meta data in a dict.</span>
+</span><span id="DistanceMatrix-280"><a href="#DistanceMatrix-280"><span class="linenos">280</span></a><span class="sd">        &quot;&quot;&quot;</span>
+</span><span id="DistanceMatrix-281"><a href="#DistanceMatrix-281"><span class="linenos">281</span></a>        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">metadata</span><span class="o">.</span><span class="n">model_dump</span><span class="p">()</span>
+</span><span id="DistanceMatrix-282"><a href="#DistanceMatrix-282"><span class="linenos">282</span></a>
+</span><span id="DistanceMatrix-283"><a href="#DistanceMatrix-283"><span class="linenos">283</span></a>    <span class="nd">@property</span>
+</span><span id="DistanceMatrix-284"><a href="#DistanceMatrix-284"><span class="linenos">284</span></a>    <span class="k">def</span> <span class="nf">name</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+</span><span id="DistanceMatrix-285"><a href="#DistanceMatrix-285"><span class="linenos">285</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+</span><span id="DistanceMatrix-286"><a href="#DistanceMatrix-286"><span class="linenos">286</span></a><span class="sd">        Identity, metric, and parent data class.</span>
+</span><span id="DistanceMatrix-287"><a href="#DistanceMatrix-287"><span class="linenos">287</span></a>
+</span><span id="DistanceMatrix-288"><a href="#DistanceMatrix-288"><span class="linenos">288</span></a><span class="sd">        The name will be of the form</span>
+</span><span id="DistanceMatrix-289"><a href="#DistanceMatrix-289"><span class="linenos">289</span></a><span class="sd">        &#39;DistanceMatrix [metric name] on [data modality class name]&#39;.</span>
+</span><span id="DistanceMatrix-290"><a href="#DistanceMatrix-290"><span class="linenos">290</span></a>
+</span><span id="DistanceMatrix-291"><a href="#DistanceMatrix-291"><span class="linenos">291</span></a><span class="sd">        This overrides the default behaviour of Modality.name.</span>
+</span><span id="DistanceMatrix-292"><a href="#DistanceMatrix-292"><span class="linenos">292</span></a><span class="sd">        &quot;&quot;&quot;</span>
+</span><span id="DistanceMatrix-293"><a href="#DistanceMatrix-293"><span class="linenos">293</span></a>        <span class="k">return</span> <span class="n">DistanceMatrix</span><span class="o">.</span><span class="n">generate_name</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">metadata</span><span class="p">)</span>
 </span></pre></div>
 
 
@@ -926,38 +934,38 @@ images, same for a selected period, etc.</p>
                                         <input id="DistanceMatrix.__init__-view-source" class="view-source-toggle-state" type="checkbox" aria-hidden="true" tabindex="-1">
 <div class="attr function">
             
-        <span class="name">DistanceMatrix</span><span class="signature pdoc-code multiline">(<span class="param">	<span class="n">owner</span><span class="p">:</span> <span class="n"><a href="../data_structures/data_structures.html#Session">satkit.data_structures.data_structures.Session</a></span>,</span><span class="param">	<span class="n">meta_data</span><span class="p">:</span> <span class="n"><a href="#DistanceMatrixParameters">DistanceMatrixParameters</a></span>,</span><span class="param">	<span class="n">file_info</span><span class="p">:</span> <span class="n"><a href="../data_structures/meta_data_classes.html#FileInformation">satkit.data_structures.meta_data_classes.FileInformation</a></span>,</span><span class="param">	<span class="n">parsed_data</span><span class="p">:</span> <span class="n">numpy</span><span class="o">.</span><span class="n">ndarray</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span></span>)</span>
+        <span class="name">DistanceMatrix</span><span class="signature pdoc-code multiline">(<span class="param">	<span class="n">owner</span><span class="p">:</span> <span class="n"><a href="../data_structures/data_structures.html#Session">satkit.data_structures.data_structures.Session</a></span>,</span><span class="param">	<span class="n">metadata</span><span class="p">:</span> <span class="n"><a href="#DistanceMatrixParameters">DistanceMatrixParameters</a></span>,</span><span class="param">	<span class="n">file_info</span><span class="p">:</span> <span class="n"><a href="../data_structures/metadata_classes.html#FileInformation">satkit.data_structures.metadata_classes.FileInformation</a></span>,</span><span class="param">	<span class="n">parsed_data</span><span class="p">:</span> <span class="n">numpy</span><span class="o">.</span><span class="n">ndarray</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span></span>)</span>
 
                 <label class="view-source-button" for="DistanceMatrix.__init__-view-source"><span>View Source</span></label>
 
     </div>
     <a class="headerlink" href="#DistanceMatrix.__init__"></a>
-            <div class="pdoc-code codehilite"><pre><span></span><span id="DistanceMatrix.__init__-230"><a href="#DistanceMatrix.__init__-230"><span class="linenos">230</span></a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
-</span><span id="DistanceMatrix.__init__-231"><a href="#DistanceMatrix.__init__-231"><span class="linenos">231</span></a>            <span class="bp">self</span><span class="p">,</span>
-</span><span id="DistanceMatrix.__init__-232"><a href="#DistanceMatrix.__init__-232"><span class="linenos">232</span></a>            <span class="n">owner</span><span class="p">:</span> <span class="n">Session</span><span class="p">,</span>
-</span><span id="DistanceMatrix.__init__-233"><a href="#DistanceMatrix.__init__-233"><span class="linenos">233</span></a>            <span class="n">meta_data</span><span class="p">:</span> <span class="n">DistanceMatrixParameters</span><span class="p">,</span>
-</span><span id="DistanceMatrix.__init__-234"><a href="#DistanceMatrix.__init__-234"><span class="linenos">234</span></a>            <span class="n">file_info</span><span class="p">:</span> <span class="n">FileInformation</span><span class="p">,</span>
-</span><span id="DistanceMatrix.__init__-235"><a href="#DistanceMatrix.__init__-235"><span class="linenos">235</span></a>            <span class="n">parsed_data</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-</span><span id="DistanceMatrix.__init__-236"><a href="#DistanceMatrix.__init__-236"><span class="linenos">236</span></a>    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-</span><span id="DistanceMatrix.__init__-237"><a href="#DistanceMatrix.__init__-237"><span class="linenos">237</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-</span><span id="DistanceMatrix.__init__-238"><a href="#DistanceMatrix.__init__-238"><span class="linenos">238</span></a><span class="sd">        Build a DistanceMatrix.</span>
-</span><span id="DistanceMatrix.__init__-239"><a href="#DistanceMatrix.__init__-239"><span class="linenos">239</span></a>
-</span><span id="DistanceMatrix.__init__-240"><a href="#DistanceMatrix.__init__-240"><span class="linenos">240</span></a><span class="sd">        Parameters</span>
-</span><span id="DistanceMatrix.__init__-241"><a href="#DistanceMatrix.__init__-241"><span class="linenos">241</span></a><span class="sd">        ----------</span>
-</span><span id="DistanceMatrix.__init__-242"><a href="#DistanceMatrix.__init__-242"><span class="linenos">242</span></a><span class="sd">        owner : Session</span>
-</span><span id="DistanceMatrix.__init__-243"><a href="#DistanceMatrix.__init__-243"><span class="linenos">243</span></a><span class="sd">            Containing Session.</span>
-</span><span id="DistanceMatrix.__init__-244"><a href="#DistanceMatrix.__init__-244"><span class="linenos">244</span></a><span class="sd">        meta_data : DistanceMatrixParameters</span>
-</span><span id="DistanceMatrix.__init__-245"><a href="#DistanceMatrix.__init__-245"><span class="linenos">245</span></a><span class="sd">            Parameters used in calculating this instance of DistanceMatrix.</span>
-</span><span id="DistanceMatrix.__init__-246"><a href="#DistanceMatrix.__init__-246"><span class="linenos">246</span></a><span class="sd">        file_info : FileInformation</span>
-</span><span id="DistanceMatrix.__init__-247"><a href="#DistanceMatrix.__init__-247"><span class="linenos">247</span></a><span class="sd">            FileInformation -- if any -- for this DistanceMatrix.</span>
-</span><span id="DistanceMatrix.__init__-248"><a href="#DistanceMatrix.__init__-248"><span class="linenos">248</span></a><span class="sd">        parsed_data : Optional[np.ndarray], optional</span>
-</span><span id="DistanceMatrix.__init__-249"><a href="#DistanceMatrix.__init__-249"><span class="linenos">249</span></a><span class="sd">            The distance matrix itself, by default None</span>
-</span><span id="DistanceMatrix.__init__-250"><a href="#DistanceMatrix.__init__-250"><span class="linenos">250</span></a><span class="sd">        &quot;&quot;&quot;</span>
-</span><span id="DistanceMatrix.__init__-251"><a href="#DistanceMatrix.__init__-251"><span class="linenos">251</span></a>        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span>
-</span><span id="DistanceMatrix.__init__-252"><a href="#DistanceMatrix.__init__-252"><span class="linenos">252</span></a>            <span class="n">owner</span><span class="o">=</span><span class="n">owner</span><span class="p">,</span>
-</span><span id="DistanceMatrix.__init__-253"><a href="#DistanceMatrix.__init__-253"><span class="linenos">253</span></a>            <span class="n">meta_data</span><span class="o">=</span><span class="n">meta_data</span><span class="p">,</span>
-</span><span id="DistanceMatrix.__init__-254"><a href="#DistanceMatrix.__init__-254"><span class="linenos">254</span></a>            <span class="n">file_info</span><span class="o">=</span><span class="n">file_info</span><span class="p">,</span>
-</span><span id="DistanceMatrix.__init__-255"><a href="#DistanceMatrix.__init__-255"><span class="linenos">255</span></a>            <span class="n">parsed_data</span><span class="o">=</span><span class="n">parsed_data</span><span class="p">,</span> <span class="p">)</span>
+            <div class="pdoc-code codehilite"><pre><span></span><span id="DistanceMatrix.__init__-234"><a href="#DistanceMatrix.__init__-234"><span class="linenos">234</span></a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+</span><span id="DistanceMatrix.__init__-235"><a href="#DistanceMatrix.__init__-235"><span class="linenos">235</span></a>            <span class="bp">self</span><span class="p">,</span>
+</span><span id="DistanceMatrix.__init__-236"><a href="#DistanceMatrix.__init__-236"><span class="linenos">236</span></a>            <span class="n">owner</span><span class="p">:</span> <span class="n">Session</span><span class="p">,</span>
+</span><span id="DistanceMatrix.__init__-237"><a href="#DistanceMatrix.__init__-237"><span class="linenos">237</span></a>            <span class="n">metadata</span><span class="p">:</span> <span class="n">DistanceMatrixParameters</span><span class="p">,</span>
+</span><span id="DistanceMatrix.__init__-238"><a href="#DistanceMatrix.__init__-238"><span class="linenos">238</span></a>            <span class="n">file_info</span><span class="p">:</span> <span class="n">FileInformation</span><span class="p">,</span>
+</span><span id="DistanceMatrix.__init__-239"><a href="#DistanceMatrix.__init__-239"><span class="linenos">239</span></a>            <span class="n">parsed_data</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+</span><span id="DistanceMatrix.__init__-240"><a href="#DistanceMatrix.__init__-240"><span class="linenos">240</span></a>    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+</span><span id="DistanceMatrix.__init__-241"><a href="#DistanceMatrix.__init__-241"><span class="linenos">241</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+</span><span id="DistanceMatrix.__init__-242"><a href="#DistanceMatrix.__init__-242"><span class="linenos">242</span></a><span class="sd">        Build a DistanceMatrix.</span>
+</span><span id="DistanceMatrix.__init__-243"><a href="#DistanceMatrix.__init__-243"><span class="linenos">243</span></a>
+</span><span id="DistanceMatrix.__init__-244"><a href="#DistanceMatrix.__init__-244"><span class="linenos">244</span></a><span class="sd">        Parameters</span>
+</span><span id="DistanceMatrix.__init__-245"><a href="#DistanceMatrix.__init__-245"><span class="linenos">245</span></a><span class="sd">        ----------</span>
+</span><span id="DistanceMatrix.__init__-246"><a href="#DistanceMatrix.__init__-246"><span class="linenos">246</span></a><span class="sd">        owner : Session</span>
+</span><span id="DistanceMatrix.__init__-247"><a href="#DistanceMatrix.__init__-247"><span class="linenos">247</span></a><span class="sd">            Containing Session.</span>
+</span><span id="DistanceMatrix.__init__-248"><a href="#DistanceMatrix.__init__-248"><span class="linenos">248</span></a><span class="sd">        metadata : DistanceMatrixParameters</span>
+</span><span id="DistanceMatrix.__init__-249"><a href="#DistanceMatrix.__init__-249"><span class="linenos">249</span></a><span class="sd">            Parameters used in calculating this instance of DistanceMatrix.</span>
+</span><span id="DistanceMatrix.__init__-250"><a href="#DistanceMatrix.__init__-250"><span class="linenos">250</span></a><span class="sd">        file_info : FileInformation</span>
+</span><span id="DistanceMatrix.__init__-251"><a href="#DistanceMatrix.__init__-251"><span class="linenos">251</span></a><span class="sd">            FileInformation -- if any -- for this DistanceMatrix.</span>
+</span><span id="DistanceMatrix.__init__-252"><a href="#DistanceMatrix.__init__-252"><span class="linenos">252</span></a><span class="sd">        parsed_data : Optional[np.ndarray], optional</span>
+</span><span id="DistanceMatrix.__init__-253"><a href="#DistanceMatrix.__init__-253"><span class="linenos">253</span></a><span class="sd">            The distance matrix itself, by default None</span>
+</span><span id="DistanceMatrix.__init__-254"><a href="#DistanceMatrix.__init__-254"><span class="linenos">254</span></a><span class="sd">        &quot;&quot;&quot;</span>
+</span><span id="DistanceMatrix.__init__-255"><a href="#DistanceMatrix.__init__-255"><span class="linenos">255</span></a>        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span>
+</span><span id="DistanceMatrix.__init__-256"><a href="#DistanceMatrix.__init__-256"><span class="linenos">256</span></a>            <span class="n">owner</span><span class="o">=</span><span class="n">owner</span><span class="p">,</span>
+</span><span id="DistanceMatrix.__init__-257"><a href="#DistanceMatrix.__init__-257"><span class="linenos">257</span></a>            <span class="n">metadata</span><span class="o">=</span><span class="n">metadata</span><span class="p">,</span>
+</span><span id="DistanceMatrix.__init__-258"><a href="#DistanceMatrix.__init__-258"><span class="linenos">258</span></a>            <span class="n">file_info</span><span class="o">=</span><span class="n">file_info</span><span class="p">,</span>
+</span><span id="DistanceMatrix.__init__-259"><a href="#DistanceMatrix.__init__-259"><span class="linenos">259</span></a>            <span class="n">parsed_data</span><span class="o">=</span><span class="n">parsed_data</span><span class="p">,</span> <span class="p">)</span>
 </span></pre></div>
 
 
@@ -968,7 +976,7 @@ images, same for a selected period, etc.</p>
 <ul>
 <li><strong>owner</strong> (Session):
 Containing Session.</li>
-<li><strong>meta_data</strong> (DistanceMatrixParameters):
+<li><strong>metadata</strong> (DistanceMatrixParameters):
 Parameters used in calculating this instance of DistanceMatrix.</li>
 <li><strong>file_info</strong> (FileInformation):
 FileInformation -- if any -- for this DistanceMatrix.</li>
@@ -1077,7 +1085,7 @@ DistanceMatrix instance.</li>
                     <div class="decorator">@staticmethod</div>
 
         <span class="def">def</span>
-        <span class="name">get_names_and_meta</span><span class="signature pdoc-code multiline">(<span class="param">	<span class="n">parent</span><span class="p">:</span> <span class="n"><a href="../data_structures/data_structures.html#Modality">satkit.data_structures.data_structures.Modality</a></span> <span class="o">|</span> <span class="n"><a href="../data_structures/base_classes.html#Statistic">satkit.data_structures.base_classes.Statistic</a></span>,</span><span class="param">	<span class="n">metric</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>,</span><span class="param">	<span class="n">release_data_memory</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span>,</span><span class="param">	<span class="n">slice_max_step</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>,</span><span class="param">	<span class="n">slice_step_to</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>,</span><span class="param">	<span class="n">sort</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span>,</span><span class="param">	<span class="n">sort_criteria</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>,</span><span class="param">	<span class="n">exclusion_list</span><span class="p">:</span> <span class="n"><a href="../configuration/configuration_classes.html#ExclusionList">satkit.configuration.configuration_classes.ExclusionList</a></span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span></span><span class="return-annotation">) -> dict[slice(&lt;class &#x27;str&#x27;&gt;, &lt;class &#x27;<a href="#DistanceMatrixParameters">DistanceMatrixParameters</a>&#x27;&gt;, None)]:</span></span>
+        <span class="name">get_names_and_meta</span><span class="signature pdoc-code multiline">(<span class="param">	<span class="n">parent</span><span class="p">:</span> <span class="n"><a href="../data_structures/data_structures.html#Modality">satkit.data_structures.data_structures.Modality</a></span> <span class="o">|</span> <span class="n"><a href="../data_structures/base_classes.html#Statistic">satkit.data_structures.base_classes.Statistic</a></span>,</span><span class="param">	<span class="n">metric</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>,</span><span class="param">	<span class="n">release_data_memory</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span>,</span><span class="param">	<span class="n">slice_max_step</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>,</span><span class="param">	<span class="n">slice_step_to</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>,</span><span class="param">	<span class="n">sort</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span>,</span><span class="param">	<span class="n">sort_criteria</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>,</span><span class="param">	<span class="n">exclusion_list</span><span class="p">:</span> <span class="n"><a href="../configuration/configuration_models.html#ExclusionList">satkit.configuration.configuration_models.ExclusionList</a></span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span></span><span class="return-annotation">) -> dict[slice(&lt;class &#x27;str&#x27;&gt;, &lt;class &#x27;<a href="#DistanceMatrixParameters">DistanceMatrixParameters</a>&#x27;&gt;, None)]:</span></span>
 
                 <label class="view-source-button" for="DistanceMatrix.get_names_and_meta-view-source"><span>View Source</span></label>
 
@@ -1129,38 +1137,42 @@ DistanceMatrix instance.</li>
 </span><span id="DistanceMatrix.get_names_and_meta-194"><a href="#DistanceMatrix.get_names_and_meta-194"><span class="linenos">194</span></a><span class="sd">            The result will consist of blocks where in first block</span>
 </span><span id="DistanceMatrix.get_names_and_meta-195"><a href="#DistanceMatrix.get_names_and_meta-195"><span class="linenos">195</span></a><span class="sd">            `sort_criteria[0] in prompt` is True, and so on. Final block will</span>
 </span><span id="DistanceMatrix.get_names_and_meta-196"><a href="#DistanceMatrix.get_names_and_meta-196"><span class="linenos">196</span></a><span class="sd">            consist of any Recordings left after the list has been exhausted.</span>
-</span><span id="DistanceMatrix.get_names_and_meta-197"><a href="#DistanceMatrix.get_names_and_meta-197"><span class="linenos">197</span></a><span class="sd">        Returns</span>
-</span><span id="DistanceMatrix.get_names_and_meta-198"><a href="#DistanceMatrix.get_names_and_meta-198"><span class="linenos">198</span></a><span class="sd">        -------</span>
-</span><span id="DistanceMatrix.get_names_and_meta-199"><a href="#DistanceMatrix.get_names_and_meta-199"><span class="linenos">199</span></a><span class="sd">        dict[str: DistanceMatrixParameters]</span>
-</span><span id="DistanceMatrix.get_names_and_meta-200"><a href="#DistanceMatrix.get_names_and_meta-200"><span class="linenos">200</span></a><span class="sd">            Dictionary where the names of the DistanceMatrices index the </span>
-</span><span id="DistanceMatrix.get_names_and_meta-201"><a href="#DistanceMatrix.get_names_and_meta-201"><span class="linenos">201</span></a><span class="sd">            DistanceMatrixParameter objects.</span>
-</span><span id="DistanceMatrix.get_names_and_meta-202"><a href="#DistanceMatrix.get_names_and_meta-202"><span class="linenos">202</span></a><span class="sd">        &quot;&quot;&quot;</span>
-</span><span id="DistanceMatrix.get_names_and_meta-203"><a href="#DistanceMatrix.get_names_and_meta-203"><span class="linenos">203</span></a>        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">parent</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
-</span><span id="DistanceMatrix.get_names_and_meta-204"><a href="#DistanceMatrix.get_names_and_meta-204"><span class="linenos">204</span></a>            <span class="n">parent_name</span> <span class="o">=</span> <span class="n">parent</span>
-</span><span id="DistanceMatrix.get_names_and_meta-205"><a href="#DistanceMatrix.get_names_and_meta-205"><span class="linenos">205</span></a>        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">parent</span><span class="p">,</span> <span class="n">Statistic</span><span class="p">)</span> <span class="ow">or</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">parent</span><span class="p">,</span> <span class="n">Modality</span><span class="p">):</span>
-</span><span id="DistanceMatrix.get_names_and_meta-206"><a href="#DistanceMatrix.get_names_and_meta-206"><span class="linenos">206</span></a>            <span class="n">parent_name</span> <span class="o">=</span> <span class="n">parent</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span>
-</span><span id="DistanceMatrix.get_names_and_meta-207"><a href="#DistanceMatrix.get_names_and_meta-207"><span class="linenos">207</span></a>        <span class="k">else</span><span class="p">:</span>
-</span><span id="DistanceMatrix.get_names_and_meta-208"><a href="#DistanceMatrix.get_names_and_meta-208"><span class="linenos">208</span></a>            <span class="n">parent_name</span> <span class="o">=</span> <span class="n">parent</span><span class="o">.</span><span class="vm">__name__</span>
-</span><span id="DistanceMatrix.get_names_and_meta-209"><a href="#DistanceMatrix.get_names_and_meta-209"><span class="linenos">209</span></a>
-</span><span id="DistanceMatrix.get_names_and_meta-210"><a href="#DistanceMatrix.get_names_and_meta-210"><span class="linenos">210</span></a>        <span class="k">if</span> <span class="ow">not</span> <span class="n">metric</span><span class="p">:</span>
-</span><span id="DistanceMatrix.get_names_and_meta-211"><a href="#DistanceMatrix.get_names_and_meta-211"><span class="linenos">211</span></a>            <span class="n">metric</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;mean_squared_error&#39;</span><span class="p">]</span>
-</span><span id="DistanceMatrix.get_names_and_meta-212"><a href="#DistanceMatrix.get_names_and_meta-212"><span class="linenos">212</span></a>
-</span><span id="DistanceMatrix.get_names_and_meta-213"><a href="#DistanceMatrix.get_names_and_meta-213"><span class="linenos">213</span></a>        <span class="n">param_dict</span> <span class="o">=</span> <span class="p">{</span>
-</span><span id="DistanceMatrix.get_names_and_meta-214"><a href="#DistanceMatrix.get_names_and_meta-214"><span class="linenos">214</span></a>            <span class="s1">&#39;parent_name&#39;</span><span class="p">:</span> <span class="p">[</span><span class="n">parent_name</span><span class="p">],</span>
-</span><span id="DistanceMatrix.get_names_and_meta-215"><a href="#DistanceMatrix.get_names_and_meta-215"><span class="linenos">215</span></a>            <span class="s1">&#39;metric&#39;</span><span class="p">:</span> <span class="n">metric</span><span class="p">,</span>
-</span><span id="DistanceMatrix.get_names_and_meta-216"><a href="#DistanceMatrix.get_names_and_meta-216"><span class="linenos">216</span></a>            <span class="s1">&#39;release_data_memory&#39;</span><span class="p">:</span> <span class="p">[</span><span class="n">release_data_memory</span><span class="p">],</span>
-</span><span id="DistanceMatrix.get_names_and_meta-217"><a href="#DistanceMatrix.get_names_and_meta-217"><span class="linenos">217</span></a>            <span class="s1">&#39;slice_max_step&#39;</span><span class="p">:</span> <span class="p">[</span><span class="n">slice_max_step</span><span class="p">],</span>
-</span><span id="DistanceMatrix.get_names_and_meta-218"><a href="#DistanceMatrix.get_names_and_meta-218"><span class="linenos">218</span></a>            <span class="s1">&#39;slice_step_to&#39;</span><span class="p">:</span> <span class="p">[</span><span class="n">slice_step_to</span><span class="p">],</span>
-</span><span id="DistanceMatrix.get_names_and_meta-219"><a href="#DistanceMatrix.get_names_and_meta-219"><span class="linenos">219</span></a>            <span class="s1">&#39;sort&#39;</span><span class="p">:</span> <span class="p">[</span><span class="n">sort</span><span class="p">],</span>
-</span><span id="DistanceMatrix.get_names_and_meta-220"><a href="#DistanceMatrix.get_names_and_meta-220"><span class="linenos">220</span></a>            <span class="s1">&#39;sort_criteria&#39;</span><span class="p">:</span> <span class="p">[</span><span class="n">sort_criteria</span><span class="p">],</span>
-</span><span id="DistanceMatrix.get_names_and_meta-221"><a href="#DistanceMatrix.get_names_and_meta-221"><span class="linenos">221</span></a>            <span class="s1">&#39;exclusion_list&#39;</span><span class="p">:</span> <span class="p">[</span><span class="n">exclusion_list</span><span class="p">],</span>
-</span><span id="DistanceMatrix.get_names_and_meta-222"><a href="#DistanceMatrix.get_names_and_meta-222"><span class="linenos">222</span></a>        <span class="p">}</span>
-</span><span id="DistanceMatrix.get_names_and_meta-223"><a href="#DistanceMatrix.get_names_and_meta-223"><span class="linenos">223</span></a>
-</span><span id="DistanceMatrix.get_names_and_meta-224"><a href="#DistanceMatrix.get_names_and_meta-224"><span class="linenos">224</span></a>        <span class="n">distance_matrix_params</span> <span class="o">=</span> <span class="p">[</span><span class="n">DistanceMatrixParameters</span><span class="p">(</span><span class="o">**</span><span class="n">item</span><span class="p">)</span>
-</span><span id="DistanceMatrix.get_names_and_meta-225"><a href="#DistanceMatrix.get_names_and_meta-225"><span class="linenos">225</span></a>                                  <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">product_dict</span><span class="p">(</span><span class="o">**</span><span class="n">param_dict</span><span class="p">)]</span>
-</span><span id="DistanceMatrix.get_names_and_meta-226"><a href="#DistanceMatrix.get_names_and_meta-226"><span class="linenos">226</span></a>
-</span><span id="DistanceMatrix.get_names_and_meta-227"><a href="#DistanceMatrix.get_names_and_meta-227"><span class="linenos">227</span></a>        <span class="k">return</span> <span class="p">{</span><span class="n">DistanceMatrix</span><span class="o">.</span><span class="n">generate_name</span><span class="p">(</span><span class="n">params</span><span class="p">):</span> <span class="n">params</span>
-</span><span id="DistanceMatrix.get_names_and_meta-228"><a href="#DistanceMatrix.get_names_and_meta-228"><span class="linenos">228</span></a>                <span class="k">for</span> <span class="n">params</span> <span class="ow">in</span> <span class="n">distance_matrix_params</span><span class="p">}</span>
+</span><span id="DistanceMatrix.get_names_and_meta-197"><a href="#DistanceMatrix.get_names_and_meta-197"><span class="linenos">197</span></a><span class="sd">        exclusion_list : ExclusionList | None</span>
+</span><span id="DistanceMatrix.get_names_and_meta-198"><a href="#DistanceMatrix.get_names_and_meta-198"><span class="linenos">198</span></a><span class="sd">            The ExclusionList to apply when generating the DistanceMatrices. By</span>
+</span><span id="DistanceMatrix.get_names_and_meta-199"><a href="#DistanceMatrix.get_names_and_meta-199"><span class="linenos">199</span></a><span class="sd">            default, None.</span>
+</span><span id="DistanceMatrix.get_names_and_meta-200"><a href="#DistanceMatrix.get_names_and_meta-200"><span class="linenos">200</span></a><span class="sd">        </span>
+</span><span id="DistanceMatrix.get_names_and_meta-201"><a href="#DistanceMatrix.get_names_and_meta-201"><span class="linenos">201</span></a><span class="sd">        Returns</span>
+</span><span id="DistanceMatrix.get_names_and_meta-202"><a href="#DistanceMatrix.get_names_and_meta-202"><span class="linenos">202</span></a><span class="sd">        -------</span>
+</span><span id="DistanceMatrix.get_names_and_meta-203"><a href="#DistanceMatrix.get_names_and_meta-203"><span class="linenos">203</span></a><span class="sd">        dict[str: DistanceMatrixParameters]</span>
+</span><span id="DistanceMatrix.get_names_and_meta-204"><a href="#DistanceMatrix.get_names_and_meta-204"><span class="linenos">204</span></a><span class="sd">            Dictionary where the names of the DistanceMatrices index the </span>
+</span><span id="DistanceMatrix.get_names_and_meta-205"><a href="#DistanceMatrix.get_names_and_meta-205"><span class="linenos">205</span></a><span class="sd">            DistanceMatrixParameter objects.</span>
+</span><span id="DistanceMatrix.get_names_and_meta-206"><a href="#DistanceMatrix.get_names_and_meta-206"><span class="linenos">206</span></a><span class="sd">        &quot;&quot;&quot;</span>
+</span><span id="DistanceMatrix.get_names_and_meta-207"><a href="#DistanceMatrix.get_names_and_meta-207"><span class="linenos">207</span></a>        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">parent</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+</span><span id="DistanceMatrix.get_names_and_meta-208"><a href="#DistanceMatrix.get_names_and_meta-208"><span class="linenos">208</span></a>            <span class="n">parent_name</span> <span class="o">=</span> <span class="n">parent</span>
+</span><span id="DistanceMatrix.get_names_and_meta-209"><a href="#DistanceMatrix.get_names_and_meta-209"><span class="linenos">209</span></a>        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">parent</span><span class="p">,</span> <span class="n">Statistic</span><span class="p">)</span> <span class="ow">or</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">parent</span><span class="p">,</span> <span class="n">Modality</span><span class="p">):</span>
+</span><span id="DistanceMatrix.get_names_and_meta-210"><a href="#DistanceMatrix.get_names_and_meta-210"><span class="linenos">210</span></a>            <span class="n">parent_name</span> <span class="o">=</span> <span class="n">parent</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span>
+</span><span id="DistanceMatrix.get_names_and_meta-211"><a href="#DistanceMatrix.get_names_and_meta-211"><span class="linenos">211</span></a>        <span class="k">else</span><span class="p">:</span>
+</span><span id="DistanceMatrix.get_names_and_meta-212"><a href="#DistanceMatrix.get_names_and_meta-212"><span class="linenos">212</span></a>            <span class="n">parent_name</span> <span class="o">=</span> <span class="n">parent</span><span class="o">.</span><span class="vm">__name__</span>
+</span><span id="DistanceMatrix.get_names_and_meta-213"><a href="#DistanceMatrix.get_names_and_meta-213"><span class="linenos">213</span></a>
+</span><span id="DistanceMatrix.get_names_and_meta-214"><a href="#DistanceMatrix.get_names_and_meta-214"><span class="linenos">214</span></a>        <span class="k">if</span> <span class="ow">not</span> <span class="n">metric</span><span class="p">:</span>
+</span><span id="DistanceMatrix.get_names_and_meta-215"><a href="#DistanceMatrix.get_names_and_meta-215"><span class="linenos">215</span></a>            <span class="n">metric</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;mean_squared_error&#39;</span><span class="p">]</span>
+</span><span id="DistanceMatrix.get_names_and_meta-216"><a href="#DistanceMatrix.get_names_and_meta-216"><span class="linenos">216</span></a>
+</span><span id="DistanceMatrix.get_names_and_meta-217"><a href="#DistanceMatrix.get_names_and_meta-217"><span class="linenos">217</span></a>        <span class="n">param_dict</span> <span class="o">=</span> <span class="p">{</span>
+</span><span id="DistanceMatrix.get_names_and_meta-218"><a href="#DistanceMatrix.get_names_and_meta-218"><span class="linenos">218</span></a>            <span class="s1">&#39;parent_name&#39;</span><span class="p">:</span> <span class="p">[</span><span class="n">parent_name</span><span class="p">],</span>
+</span><span id="DistanceMatrix.get_names_and_meta-219"><a href="#DistanceMatrix.get_names_and_meta-219"><span class="linenos">219</span></a>            <span class="s1">&#39;metric&#39;</span><span class="p">:</span> <span class="n">metric</span><span class="p">,</span>
+</span><span id="DistanceMatrix.get_names_and_meta-220"><a href="#DistanceMatrix.get_names_and_meta-220"><span class="linenos">220</span></a>            <span class="s1">&#39;release_data_memory&#39;</span><span class="p">:</span> <span class="p">[</span><span class="n">release_data_memory</span><span class="p">],</span>
+</span><span id="DistanceMatrix.get_names_and_meta-221"><a href="#DistanceMatrix.get_names_and_meta-221"><span class="linenos">221</span></a>            <span class="s1">&#39;slice_max_step&#39;</span><span class="p">:</span> <span class="p">[</span><span class="n">slice_max_step</span><span class="p">],</span>
+</span><span id="DistanceMatrix.get_names_and_meta-222"><a href="#DistanceMatrix.get_names_and_meta-222"><span class="linenos">222</span></a>            <span class="s1">&#39;slice_step_to&#39;</span><span class="p">:</span> <span class="p">[</span><span class="n">slice_step_to</span><span class="p">],</span>
+</span><span id="DistanceMatrix.get_names_and_meta-223"><a href="#DistanceMatrix.get_names_and_meta-223"><span class="linenos">223</span></a>            <span class="s1">&#39;sort&#39;</span><span class="p">:</span> <span class="p">[</span><span class="n">sort</span><span class="p">],</span>
+</span><span id="DistanceMatrix.get_names_and_meta-224"><a href="#DistanceMatrix.get_names_and_meta-224"><span class="linenos">224</span></a>            <span class="s1">&#39;sort_criteria&#39;</span><span class="p">:</span> <span class="p">[</span><span class="n">sort_criteria</span><span class="p">],</span>
+</span><span id="DistanceMatrix.get_names_and_meta-225"><a href="#DistanceMatrix.get_names_and_meta-225"><span class="linenos">225</span></a>            <span class="s1">&#39;exclusion_list&#39;</span><span class="p">:</span> <span class="p">[</span><span class="n">exclusion_list</span><span class="p">],</span>
+</span><span id="DistanceMatrix.get_names_and_meta-226"><a href="#DistanceMatrix.get_names_and_meta-226"><span class="linenos">226</span></a>        <span class="p">}</span>
+</span><span id="DistanceMatrix.get_names_and_meta-227"><a href="#DistanceMatrix.get_names_and_meta-227"><span class="linenos">227</span></a>
+</span><span id="DistanceMatrix.get_names_and_meta-228"><a href="#DistanceMatrix.get_names_and_meta-228"><span class="linenos">228</span></a>        <span class="n">distance_matrix_params</span> <span class="o">=</span> <span class="p">[</span><span class="n">DistanceMatrixParameters</span><span class="p">(</span><span class="o">**</span><span class="n">item</span><span class="p">)</span>
+</span><span id="DistanceMatrix.get_names_and_meta-229"><a href="#DistanceMatrix.get_names_and_meta-229"><span class="linenos">229</span></a>                                  <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">product_dict</span><span class="p">(</span><span class="o">**</span><span class="n">param_dict</span><span class="p">)]</span>
+</span><span id="DistanceMatrix.get_names_and_meta-230"><a href="#DistanceMatrix.get_names_and_meta-230"><span class="linenos">230</span></a>
+</span><span id="DistanceMatrix.get_names_and_meta-231"><a href="#DistanceMatrix.get_names_and_meta-231"><span class="linenos">231</span></a>        <span class="k">return</span> <span class="p">{</span><span class="n">DistanceMatrix</span><span class="o">.</span><span class="n">generate_name</span><span class="p">(</span><span class="n">params</span><span class="p">):</span> <span class="n">params</span>
+</span><span id="DistanceMatrix.get_names_and_meta-232"><a href="#DistanceMatrix.get_names_and_meta-232"><span class="linenos">232</span></a>                <span class="k">for</span> <span class="n">params</span> <span class="ow">in</span> <span class="n">distance_matrix_params</span><span class="p">}</span>
 </span></pre></div>
 
 
@@ -1199,6 +1211,9 @@ List of substrings to sort the rows and columns by, by default None.
 The result will consist of blocks where in first block
 <code>sort_criteria[0] in prompt</code> is True, and so on. Final block will
 consist of any Recordings left after the list has been exhausted.</li>
+<li><strong>exclusion_list</strong> (ExclusionList | None):
+The ExclusionList to apply when generating the DistanceMatrices. By
+default, None.</li>
 </ul>
 
 <h6 id="returns">Returns</h6>
@@ -1223,19 +1238,19 @@ DistanceMatrixParameter objects.</li>
 
     </div>
     <a class="headerlink" href="#DistanceMatrix.get_meta"></a>
-            <div class="pdoc-code codehilite"><pre><span></span><span id="DistanceMatrix.get_meta-265"><a href="#DistanceMatrix.get_meta-265"><span class="linenos">265</span></a>    <span class="k">def</span> <span class="nf">get_meta</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
-</span><span id="DistanceMatrix.get_meta-266"><a href="#DistanceMatrix.get_meta-266"><span class="linenos">266</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-</span><span id="DistanceMatrix.get_meta-267"><a href="#DistanceMatrix.get_meta-267"><span class="linenos">267</span></a><span class="sd">        Get meta data as a dict.</span>
-</span><span id="DistanceMatrix.get_meta-268"><a href="#DistanceMatrix.get_meta-268"><span class="linenos">268</span></a>
-</span><span id="DistanceMatrix.get_meta-269"><a href="#DistanceMatrix.get_meta-269"><span class="linenos">269</span></a><span class="sd">        This is a helper method for saving as nested text. Allows for rewriting</span>
-</span><span id="DistanceMatrix.get_meta-270"><a href="#DistanceMatrix.get_meta-270"><span class="linenos">270</span></a><span class="sd">        any fields that need a simpler representation.</span>
-</span><span id="DistanceMatrix.get_meta-271"><a href="#DistanceMatrix.get_meta-271"><span class="linenos">271</span></a>
-</span><span id="DistanceMatrix.get_meta-272"><a href="#DistanceMatrix.get_meta-272"><span class="linenos">272</span></a><span class="sd">        Returns</span>
-</span><span id="DistanceMatrix.get_meta-273"><a href="#DistanceMatrix.get_meta-273"><span class="linenos">273</span></a><span class="sd">        -------</span>
-</span><span id="DistanceMatrix.get_meta-274"><a href="#DistanceMatrix.get_meta-274"><span class="linenos">274</span></a><span class="sd">        dict</span>
-</span><span id="DistanceMatrix.get_meta-275"><a href="#DistanceMatrix.get_meta-275"><span class="linenos">275</span></a><span class="sd">            The meta data in a dict.</span>
-</span><span id="DistanceMatrix.get_meta-276"><a href="#DistanceMatrix.get_meta-276"><span class="linenos">276</span></a><span class="sd">        &quot;&quot;&quot;</span>
-</span><span id="DistanceMatrix.get_meta-277"><a href="#DistanceMatrix.get_meta-277"><span class="linenos">277</span></a>        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">meta_data</span><span class="o">.</span><span class="n">model_dump</span><span class="p">()</span>
+            <div class="pdoc-code codehilite"><pre><span></span><span id="DistanceMatrix.get_meta-269"><a href="#DistanceMatrix.get_meta-269"><span class="linenos">269</span></a>    <span class="k">def</span> <span class="nf">get_meta</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
+</span><span id="DistanceMatrix.get_meta-270"><a href="#DistanceMatrix.get_meta-270"><span class="linenos">270</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+</span><span id="DistanceMatrix.get_meta-271"><a href="#DistanceMatrix.get_meta-271"><span class="linenos">271</span></a><span class="sd">        Get meta data as a dict.</span>
+</span><span id="DistanceMatrix.get_meta-272"><a href="#DistanceMatrix.get_meta-272"><span class="linenos">272</span></a>
+</span><span id="DistanceMatrix.get_meta-273"><a href="#DistanceMatrix.get_meta-273"><span class="linenos">273</span></a><span class="sd">        This is a helper method for saving as nested text. Allows for rewriting</span>
+</span><span id="DistanceMatrix.get_meta-274"><a href="#DistanceMatrix.get_meta-274"><span class="linenos">274</span></a><span class="sd">        any fields that need a simpler representation.</span>
+</span><span id="DistanceMatrix.get_meta-275"><a href="#DistanceMatrix.get_meta-275"><span class="linenos">275</span></a>
+</span><span id="DistanceMatrix.get_meta-276"><a href="#DistanceMatrix.get_meta-276"><span class="linenos">276</span></a><span class="sd">        Returns</span>
+</span><span id="DistanceMatrix.get_meta-277"><a href="#DistanceMatrix.get_meta-277"><span class="linenos">277</span></a><span class="sd">        -------</span>
+</span><span id="DistanceMatrix.get_meta-278"><a href="#DistanceMatrix.get_meta-278"><span class="linenos">278</span></a><span class="sd">        dict</span>
+</span><span id="DistanceMatrix.get_meta-279"><a href="#DistanceMatrix.get_meta-279"><span class="linenos">279</span></a><span class="sd">            The meta data in a dict.</span>
+</span><span id="DistanceMatrix.get_meta-280"><a href="#DistanceMatrix.get_meta-280"><span class="linenos">280</span></a><span class="sd">        &quot;&quot;&quot;</span>
+</span><span id="DistanceMatrix.get_meta-281"><a href="#DistanceMatrix.get_meta-281"><span class="linenos">281</span></a>        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">metadata</span><span class="o">.</span><span class="n">model_dump</span><span class="p">()</span>
 </span></pre></div>
 
 
@@ -1262,17 +1277,17 @@ any fields that need a simpler representation.</p>
 
     </div>
     <a class="headerlink" href="#DistanceMatrix.name"></a>
-            <div class="pdoc-code codehilite"><pre><span></span><span id="DistanceMatrix.name-279"><a href="#DistanceMatrix.name-279"><span class="linenos">279</span></a>    <span class="nd">@property</span>
-</span><span id="DistanceMatrix.name-280"><a href="#DistanceMatrix.name-280"><span class="linenos">280</span></a>    <span class="k">def</span> <span class="nf">name</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-</span><span id="DistanceMatrix.name-281"><a href="#DistanceMatrix.name-281"><span class="linenos">281</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-</span><span id="DistanceMatrix.name-282"><a href="#DistanceMatrix.name-282"><span class="linenos">282</span></a><span class="sd">        Identity, metric, and parent data class.</span>
-</span><span id="DistanceMatrix.name-283"><a href="#DistanceMatrix.name-283"><span class="linenos">283</span></a>
-</span><span id="DistanceMatrix.name-284"><a href="#DistanceMatrix.name-284"><span class="linenos">284</span></a><span class="sd">        The name will be of the form</span>
-</span><span id="DistanceMatrix.name-285"><a href="#DistanceMatrix.name-285"><span class="linenos">285</span></a><span class="sd">        &#39;DistanceMatrix [metric name] on [data modality class name]&#39;.</span>
-</span><span id="DistanceMatrix.name-286"><a href="#DistanceMatrix.name-286"><span class="linenos">286</span></a>
-</span><span id="DistanceMatrix.name-287"><a href="#DistanceMatrix.name-287"><span class="linenos">287</span></a><span class="sd">        This overrides the default behaviour of Modality.name.</span>
-</span><span id="DistanceMatrix.name-288"><a href="#DistanceMatrix.name-288"><span class="linenos">288</span></a><span class="sd">        &quot;&quot;&quot;</span>
-</span><span id="DistanceMatrix.name-289"><a href="#DistanceMatrix.name-289"><span class="linenos">289</span></a>        <span class="k">return</span> <span class="n">DistanceMatrix</span><span class="o">.</span><span class="n">generate_name</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">meta_data</span><span class="p">)</span>
+            <div class="pdoc-code codehilite"><pre><span></span><span id="DistanceMatrix.name-283"><a href="#DistanceMatrix.name-283"><span class="linenos">283</span></a>    <span class="nd">@property</span>
+</span><span id="DistanceMatrix.name-284"><a href="#DistanceMatrix.name-284"><span class="linenos">284</span></a>    <span class="k">def</span> <span class="nf">name</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+</span><span id="DistanceMatrix.name-285"><a href="#DistanceMatrix.name-285"><span class="linenos">285</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+</span><span id="DistanceMatrix.name-286"><a href="#DistanceMatrix.name-286"><span class="linenos">286</span></a><span class="sd">        Identity, metric, and parent data class.</span>
+</span><span id="DistanceMatrix.name-287"><a href="#DistanceMatrix.name-287"><span class="linenos">287</span></a>
+</span><span id="DistanceMatrix.name-288"><a href="#DistanceMatrix.name-288"><span class="linenos">288</span></a><span class="sd">        The name will be of the form</span>
+</span><span id="DistanceMatrix.name-289"><a href="#DistanceMatrix.name-289"><span class="linenos">289</span></a><span class="sd">        &#39;DistanceMatrix [metric name] on [data modality class name]&#39;.</span>
+</span><span id="DistanceMatrix.name-290"><a href="#DistanceMatrix.name-290"><span class="linenos">290</span></a>
+</span><span id="DistanceMatrix.name-291"><a href="#DistanceMatrix.name-291"><span class="linenos">291</span></a><span class="sd">        This overrides the default behaviour of Modality.name.</span>
+</span><span id="DistanceMatrix.name-292"><a href="#DistanceMatrix.name-292"><span class="linenos">292</span></a><span class="sd">        &quot;&quot;&quot;</span>
+</span><span id="DistanceMatrix.name-293"><a href="#DistanceMatrix.name-293"><span class="linenos">293</span></a>        <span class="k">return</span> <span class="n">DistanceMatrix</span><span class="o">.</span><span class="n">generate_name</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">metadata</span><span class="p">)</span>
 </span></pre></div>
 
 
@@ -1293,15 +1308,23 @@ any fields that need a simpler representation.</p>
                                 <dd id="DistanceMatrix.data" class="variable"><a href="../data_structures/base_classes.html#Statistic.data">data</a></dd>
 
             </div>
+            <div><dt><a href="../data_structures/base_classes.html#DataContainer">satkit.data_structures.base_classes.DataContainer</a></dt>
+                                <dd id="DistanceMatrix.name_underscored" class="variable"><a href="../data_structures/base_classes.html#DataContainer.name_underscored">name_underscored</a></dd>
+
+            </div>
             <div><dt><a href="../data_structures/base_classes.html#DataObject">satkit.data_structures.base_classes.DataObject</a></dt>
                                 <dd id="DistanceMatrix.owner" class="variable"><a href="../data_structures/base_classes.html#DataObject.owner">owner</a></dd>
                 <dd id="DistanceMatrix.file_info" class="variable"><a href="../data_structures/base_classes.html#DataObject.file_info">file_info</a></dd>
-                <dd id="DistanceMatrix.meta_data" class="variable"><a href="../data_structures/base_classes.html#DataObject.meta_data">meta_data</a></dd>
-                <dd id="DistanceMatrix.recorded_data_file" class="variable"><a href="../data_structures/base_classes.html#DataObject.recorded_data_file">recorded_data_file</a></dd>
-                <dd id="DistanceMatrix.recorded_meta_file" class="variable"><a href="../data_structures/base_classes.html#DataObject.recorded_meta_file">recorded_meta_file</a></dd>
+                <dd id="DistanceMatrix.metadata" class="variable"><a href="../data_structures/base_classes.html#DataObject.metadata">metadata</a></dd>
+                <dd id="DistanceMatrix.recorded_data_path" class="variable"><a href="../data_structures/base_classes.html#DataObject.recorded_data_path">recorded_data_path</a></dd>
+                <dd id="DistanceMatrix.recorded_data_name" class="variable"><a href="../data_structures/base_classes.html#DataObject.recorded_data_name">recorded_data_name</a></dd>
+                <dd id="DistanceMatrix.recorded_meta_path" class="variable"><a href="../data_structures/base_classes.html#DataObject.recorded_meta_path">recorded_meta_path</a></dd>
+                <dd id="DistanceMatrix.recorded_meta_name" class="variable"><a href="../data_structures/base_classes.html#DataObject.recorded_meta_name">recorded_meta_name</a></dd>
                 <dd id="DistanceMatrix.recorded_path" class="variable"><a href="../data_structures/base_classes.html#DataObject.recorded_path">recorded_path</a></dd>
-                <dd id="DistanceMatrix.satkit_data_file" class="variable"><a href="../data_structures/base_classes.html#DataObject.satkit_data_file">satkit_data_file</a></dd>
-                <dd id="DistanceMatrix.satkit_meta_file" class="variable"><a href="../data_structures/base_classes.html#DataObject.satkit_meta_file">satkit_meta_file</a></dd>
+                <dd id="DistanceMatrix.satkit_data_path" class="variable"><a href="../data_structures/base_classes.html#DataObject.satkit_data_path">satkit_data_path</a></dd>
+                <dd id="DistanceMatrix.satkit_data_name" class="variable"><a href="../data_structures/base_classes.html#DataObject.satkit_data_name">satkit_data_name</a></dd>
+                <dd id="DistanceMatrix.satkit_meta_path" class="variable"><a href="../data_structures/base_classes.html#DataObject.satkit_meta_path">satkit_meta_path</a></dd>
+                <dd id="DistanceMatrix.satkit_meta_name" class="variable"><a href="../data_structures/base_classes.html#DataObject.satkit_meta_name">satkit_meta_name</a></dd>
                 <dd id="DistanceMatrix.satkit_path" class="variable"><a href="../data_structures/base_classes.html#DataObject.satkit_path">satkit_path</a></dd>
                 <dd id="DistanceMatrix.is_fully_initialised" class="variable"><a href="../data_structures/base_classes.html#DataObject.is_fully_initialised">is_fully_initialised</a></dd>
 

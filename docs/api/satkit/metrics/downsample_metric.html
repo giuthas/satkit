@@ -36,6 +36,9 @@
             <li>
                     <a class="function" href="#downsample_metrics">downsample_metrics</a>
             </li>
+            <li>
+                    <a class="function" href="#downsample_metrics_in_session">downsample_metrics_in_session</a>
+            </li>
     </ul>
 
 
@@ -61,7 +64,7 @@
 
                         <div class="pdoc-code codehilite"><pre><span></span><span id="L-1"><a href="#L-1"><span class="linenos">  1</span></a><span class="ch">#!/usr/bin/env python3</span>
 </span><span id="L-2"><a href="#L-2"><span class="linenos">  2</span></a><span class="c1">#</span>
-</span><span id="L-3"><a href="#L-3"><span class="linenos">  3</span></a><span class="c1"># Copyright (c) 2019-2024</span>
+</span><span id="L-3"><a href="#L-3"><span class="linenos">  3</span></a><span class="c1"># Copyright (c) 2019-2025</span>
 </span><span id="L-4"><a href="#L-4"><span class="linenos">  4</span></a><span class="c1"># Pertti Palo, Scott Moisik, Matthew Faytak, and Motoki Saito.</span>
 </span><span id="L-5"><a href="#L-5"><span class="linenos">  5</span></a><span class="c1">#</span>
 </span><span id="L-6"><a href="#L-6"><span class="linenos">  6</span></a><span class="c1"># This file is part of Speech Articulation ToolKIT</span>
@@ -98,149 +101,134 @@
 </span><span id="L-37"><a href="#L-37"><span class="linenos"> 37</span></a><span class="kn">import</span> <span class="nn">re</span>
 </span><span id="L-38"><a href="#L-38"><span class="linenos"> 38</span></a><span class="kn">import</span> <span class="nn">dataclasses</span>
 </span><span id="L-39"><a href="#L-39"><span class="linenos"> 39</span></a>
-</span><span id="L-40"><a href="#L-40"><span class="linenos"> 40</span></a><span class="c1"># from icecream import ic</span>
-</span><span id="L-41"><a href="#L-41"><span class="linenos"> 41</span></a>
-</span><span id="L-42"><a href="#L-42"><span class="linenos"> 42</span></a><span class="kn">from</span> <span class="nn">satkit.configuration</span> <span class="kn">import</span> <span class="n">SearchPattern</span><span class="p">,</span> <span class="n">DownsampleParams</span>
-</span><span id="L-43"><a href="#L-43"><span class="linenos"> 43</span></a><span class="kn">from</span> <span class="nn">satkit.data_structures</span> <span class="kn">import</span> <span class="p">(</span>
-</span><span id="L-44"><a href="#L-44"><span class="linenos"> 44</span></a>    <span class="n">Modality</span><span class="p">,</span> <span class="n">ModalityData</span><span class="p">,</span> <span class="n">ModalityMetaData</span><span class="p">,</span> <span class="n">Recording</span><span class="p">)</span>
+</span><span id="L-40"><a href="#L-40"><span class="linenos"> 40</span></a><span class="kn">from</span> <span class="nn">satkit.configuration</span> <span class="kn">import</span> <span class="n">DataRunConfig</span><span class="p">,</span> <span class="n">DownsampleParams</span>
+</span><span id="L-41"><a href="#L-41"><span class="linenos"> 41</span></a><span class="kn">from</span> <span class="nn">satkit.data_structures</span> <span class="kn">import</span> <span class="p">(</span>
+</span><span id="L-42"><a href="#L-42"><span class="linenos"> 42</span></a>    <span class="n">Modality</span><span class="p">,</span> <span class="n">ModalityData</span><span class="p">,</span> <span class="n">ModalityMetaData</span><span class="p">,</span> <span class="n">Recording</span><span class="p">,</span> <span class="n">Session</span>
+</span><span id="L-43"><a href="#L-43"><span class="linenos"> 43</span></a><span class="p">)</span>
+</span><span id="L-44"><a href="#L-44"><span class="linenos"> 44</span></a>
 </span><span id="L-45"><a href="#L-45"><span class="linenos"> 45</span></a>
-</span><span id="L-46"><a href="#L-46"><span class="linenos"> 46</span></a>
-</span><span id="L-47"><a href="#L-47"><span class="linenos"> 47</span></a><span class="k">def</span> <span class="nf">downsample_modality</span><span class="p">(</span>
-</span><span id="L-48"><a href="#L-48"><span class="linenos"> 48</span></a>        <span class="n">modality</span><span class="p">:</span> <span class="n">Modality</span><span class="p">,</span>
-</span><span id="L-49"><a href="#L-49"><span class="linenos"> 49</span></a>        <span class="n">downsampling_ratio</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
-</span><span id="L-50"><a href="#L-50"><span class="linenos"> 50</span></a>        <span class="n">meta_data</span><span class="p">:</span> <span class="n">ModalityMetaData</span>
-</span><span id="L-51"><a href="#L-51"><span class="linenos"> 51</span></a><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Modality</span><span class="p">:</span>
-</span><span id="L-52"><a href="#L-52"><span class="linenos"> 52</span></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-</span><span id="L-53"><a href="#L-53"><span class="linenos"> 53</span></a><span class="sd">    Downsample the Modality by the given ratio and return results as a new</span>
-</span><span id="L-54"><a href="#L-54"><span class="linenos"> 54</span></a><span class="sd">    Modality. </span>
-</span><span id="L-55"><a href="#L-55"><span class="linenos"> 55</span></a>
-</span><span id="L-56"><a href="#L-56"><span class="linenos"> 56</span></a><span class="sd">    Parameters</span>
-</span><span id="L-57"><a href="#L-57"><span class="linenos"> 57</span></a><span class="sd">    ----------</span>
-</span><span id="L-58"><a href="#L-58"><span class="linenos"> 58</span></a><span class="sd">    modality : Modality</span>
-</span><span id="L-59"><a href="#L-59"><span class="linenos"> 59</span></a><span class="sd">        The original Modality</span>
-</span><span id="L-60"><a href="#L-60"><span class="linenos"> 60</span></a><span class="sd">    downsampling_ratio : int</span>
-</span><span id="L-61"><a href="#L-61"><span class="linenos"> 61</span></a><span class="sd">        Ratio by which to downsample</span>
-</span><span id="L-62"><a href="#L-62"><span class="linenos"> 62</span></a>
-</span><span id="L-63"><a href="#L-63"><span class="linenos"> 63</span></a><span class="sd">    Returns</span>
-</span><span id="L-64"><a href="#L-64"><span class="linenos"> 64</span></a><span class="sd">    -------</span>
-</span><span id="L-65"><a href="#L-65"><span class="linenos"> 65</span></a><span class="sd">    Modality</span>
-</span><span id="L-66"><a href="#L-66"><span class="linenos"> 66</span></a><span class="sd">        This Modality will match the type and metadata of the original, but</span>
-</span><span id="L-67"><a href="#L-67"><span class="linenos"> 67</span></a><span class="sd">        will have the metadata fields that describe downsampling updated</span>
-</span><span id="L-68"><a href="#L-68"><span class="linenos"> 68</span></a><span class="sd">        correctly. The Modality&#39;s data and timevector will have been</span>
-</span><span id="L-69"><a href="#L-69"><span class="linenos"> 69</span></a><span class="sd">        downsampled its and name will show the downsampling ratio used.</span>
-</span><span id="L-70"><a href="#L-70"><span class="linenos"> 70</span></a><span class="sd">    &quot;&quot;&quot;</span>
-</span><span id="L-71"><a href="#L-71"><span class="linenos"> 71</span></a>    <span class="n">data</span> <span class="o">=</span> <span class="n">modality</span><span class="o">.</span><span class="n">data</span><span class="p">[::</span><span class="n">downsampling_ratio</span><span class="p">]</span>
-</span><span id="L-72"><a href="#L-72"><span class="linenos"> 72</span></a>    <span class="n">timevector</span> <span class="o">=</span> <span class="n">modality</span><span class="o">.</span><span class="n">timevector</span><span class="p">[::</span><span class="n">downsampling_ratio</span><span class="p">]</span>
-</span><span id="L-73"><a href="#L-73"><span class="linenos"> 73</span></a>    <span class="n">sampling_rate</span> <span class="o">=</span> <span class="n">modality</span><span class="o">.</span><span class="n">sampling_rate</span><span class="o">/</span><span class="n">downsampling_ratio</span>
-</span><span id="L-74"><a href="#L-74"><span class="linenos"> 74</span></a>
-</span><span id="L-75"><a href="#L-75"><span class="linenos"> 75</span></a>    <span class="n">modality_data</span> <span class="o">=</span> <span class="n">ModalityData</span><span class="p">(</span>
-</span><span id="L-76"><a href="#L-76"><span class="linenos"> 76</span></a>        <span class="n">data</span><span class="o">=</span><span class="n">data</span><span class="p">,</span> <span class="n">timevector</span><span class="o">=</span><span class="n">timevector</span><span class="p">,</span> <span class="n">sampling_rate</span><span class="o">=</span><span class="n">sampling_rate</span><span class="p">)</span>
-</span><span id="L-77"><a href="#L-77"><span class="linenos"> 77</span></a>
-</span><span id="L-78"><a href="#L-78"><span class="linenos"> 78</span></a>    <span class="c1"># replace makes a shallow copy when nothing is marked for replacing.</span>
-</span><span id="L-79"><a href="#L-79"><span class="linenos"> 79</span></a>    <span class="n">file_info</span> <span class="o">=</span> <span class="n">dataclasses</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="n">modality</span><span class="o">.</span><span class="n">file_info</span><span class="p">)</span>
-</span><span id="L-80"><a href="#L-80"><span class="linenos"> 80</span></a>
-</span><span id="L-81"><a href="#L-81"><span class="linenos"> 81</span></a>    <span class="k">return</span> <span class="n">modality</span><span class="o">.</span><span class="vm">__class__</span><span class="p">(</span>
-</span><span id="L-82"><a href="#L-82"><span class="linenos"> 82</span></a>        <span class="n">modality</span><span class="o">.</span><span class="n">recording</span><span class="p">,</span>
-</span><span id="L-83"><a href="#L-83"><span class="linenos"> 83</span></a>        <span class="n">parsed_data</span><span class="o">=</span><span class="n">modality_data</span><span class="p">,</span>
-</span><span id="L-84"><a href="#L-84"><span class="linenos"> 84</span></a>        <span class="n">meta_data</span><span class="o">=</span><span class="n">meta_data</span><span class="p">,</span>
-</span><span id="L-85"><a href="#L-85"><span class="linenos"> 85</span></a>        <span class="n">file_info</span><span class="o">=</span><span class="n">file_info</span><span class="p">,</span>
-</span><span id="L-86"><a href="#L-86"><span class="linenos"> 86</span></a>        <span class="n">time_offset</span><span class="o">=</span><span class="n">modality</span><span class="o">.</span><span class="n">time_offset</span><span class="p">)</span>
-</span><span id="L-87"><a href="#L-87"><span class="linenos"> 87</span></a>
+</span><span id="L-46"><a href="#L-46"><span class="linenos"> 46</span></a><span class="k">def</span> <span class="nf">downsample_modality</span><span class="p">(</span>
+</span><span id="L-47"><a href="#L-47"><span class="linenos"> 47</span></a>        <span class="n">modality</span><span class="p">:</span> <span class="n">Modality</span><span class="p">,</span>
+</span><span id="L-48"><a href="#L-48"><span class="linenos"> 48</span></a>        <span class="n">downsampling_ratio</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+</span><span id="L-49"><a href="#L-49"><span class="linenos"> 49</span></a>        <span class="n">metadata</span><span class="p">:</span> <span class="n">ModalityMetaData</span>
+</span><span id="L-50"><a href="#L-50"><span class="linenos"> 50</span></a><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Modality</span><span class="p">:</span>
+</span><span id="L-51"><a href="#L-51"><span class="linenos"> 51</span></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+</span><span id="L-52"><a href="#L-52"><span class="linenos"> 52</span></a><span class="sd">    Downsample the Modality by the given ratio and return results as a new</span>
+</span><span id="L-53"><a href="#L-53"><span class="linenos"> 53</span></a><span class="sd">    Modality. </span>
+</span><span id="L-54"><a href="#L-54"><span class="linenos"> 54</span></a>
+</span><span id="L-55"><a href="#L-55"><span class="linenos"> 55</span></a><span class="sd">    Parameters</span>
+</span><span id="L-56"><a href="#L-56"><span class="linenos"> 56</span></a><span class="sd">    ----------</span>
+</span><span id="L-57"><a href="#L-57"><span class="linenos"> 57</span></a><span class="sd">    modality : Modality</span>
+</span><span id="L-58"><a href="#L-58"><span class="linenos"> 58</span></a><span class="sd">        The original Modality.</span>
+</span><span id="L-59"><a href="#L-59"><span class="linenos"> 59</span></a><span class="sd">    downsampling_ratio : int</span>
+</span><span id="L-60"><a href="#L-60"><span class="linenos"> 60</span></a><span class="sd">        Ratio by which to downsample.</span>
+</span><span id="L-61"><a href="#L-61"><span class="linenos"> 61</span></a><span class="sd">    metadata : ModalityMetaData</span>
+</span><span id="L-62"><a href="#L-62"><span class="linenos"> 62</span></a><span class="sd">        Metadata for the new downsampled Modality.</span>
+</span><span id="L-63"><a href="#L-63"><span class="linenos"> 63</span></a>
+</span><span id="L-64"><a href="#L-64"><span class="linenos"> 64</span></a><span class="sd">    Returns</span>
+</span><span id="L-65"><a href="#L-65"><span class="linenos"> 65</span></a><span class="sd">    -------</span>
+</span><span id="L-66"><a href="#L-66"><span class="linenos"> 66</span></a><span class="sd">    Modality</span>
+</span><span id="L-67"><a href="#L-67"><span class="linenos"> 67</span></a><span class="sd">        This Modality will match the type and metadata of the original, but</span>
+</span><span id="L-68"><a href="#L-68"><span class="linenos"> 68</span></a><span class="sd">        will have the metadata fields that describe downsampling updated</span>
+</span><span id="L-69"><a href="#L-69"><span class="linenos"> 69</span></a><span class="sd">        correctly. The Modality&#39;s data and timevector will have been</span>
+</span><span id="L-70"><a href="#L-70"><span class="linenos"> 70</span></a><span class="sd">        downsampled and its name will show the downsampling ratio used.</span>
+</span><span id="L-71"><a href="#L-71"><span class="linenos"> 71</span></a><span class="sd">    &quot;&quot;&quot;</span>
+</span><span id="L-72"><a href="#L-72"><span class="linenos"> 72</span></a>    <span class="n">data</span> <span class="o">=</span> <span class="n">modality</span><span class="o">.</span><span class="n">data</span><span class="p">[::</span><span class="n">downsampling_ratio</span><span class="p">]</span>
+</span><span id="L-73"><a href="#L-73"><span class="linenos"> 73</span></a>    <span class="n">timevector</span> <span class="o">=</span> <span class="n">modality</span><span class="o">.</span><span class="n">timevector</span><span class="p">[::</span><span class="n">downsampling_ratio</span><span class="p">]</span>
+</span><span id="L-74"><a href="#L-74"><span class="linenos"> 74</span></a>    <span class="n">sampling_rate</span> <span class="o">=</span> <span class="n">modality</span><span class="o">.</span><span class="n">sampling_rate</span> <span class="o">/</span> <span class="n">downsampling_ratio</span>
+</span><span id="L-75"><a href="#L-75"><span class="linenos"> 75</span></a>
+</span><span id="L-76"><a href="#L-76"><span class="linenos"> 76</span></a>    <span class="n">modality_data</span> <span class="o">=</span> <span class="n">ModalityData</span><span class="p">(</span>
+</span><span id="L-77"><a href="#L-77"><span class="linenos"> 77</span></a>        <span class="n">data</span><span class="o">=</span><span class="n">data</span><span class="p">,</span> <span class="n">timevector</span><span class="o">=</span><span class="n">timevector</span><span class="p">,</span> <span class="n">sampling_rate</span><span class="o">=</span><span class="n">sampling_rate</span><span class="p">)</span>
+</span><span id="L-78"><a href="#L-78"><span class="linenos"> 78</span></a>
+</span><span id="L-79"><a href="#L-79"><span class="linenos"> 79</span></a>    <span class="c1"># replace makes a shallow copy when nothing is marked for replacing.</span>
+</span><span id="L-80"><a href="#L-80"><span class="linenos"> 80</span></a>    <span class="n">file_info</span> <span class="o">=</span> <span class="n">dataclasses</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="n">modality</span><span class="o">.</span><span class="n">file_info</span><span class="p">)</span>
+</span><span id="L-81"><a href="#L-81"><span class="linenos"> 81</span></a>
+</span><span id="L-82"><a href="#L-82"><span class="linenos"> 82</span></a>    <span class="k">return</span> <span class="n">modality</span><span class="o">.</span><span class="vm">__class__</span><span class="p">(</span>
+</span><span id="L-83"><a href="#L-83"><span class="linenos"> 83</span></a>        <span class="n">modality</span><span class="o">.</span><span class="n">recording</span><span class="p">,</span>
+</span><span id="L-84"><a href="#L-84"><span class="linenos"> 84</span></a>        <span class="n">parsed_data</span><span class="o">=</span><span class="n">modality_data</span><span class="p">,</span>
+</span><span id="L-85"><a href="#L-85"><span class="linenos"> 85</span></a>        <span class="n">metadata</span><span class="o">=</span><span class="n">metadata</span><span class="p">,</span>
+</span><span id="L-86"><a href="#L-86"><span class="linenos"> 86</span></a>        <span class="n">file_info</span><span class="o">=</span><span class="n">file_info</span><span class="p">,</span>
+</span><span id="L-87"><a href="#L-87"><span class="linenos"> 87</span></a>        <span class="n">time_offset</span><span class="o">=</span><span class="n">modality</span><span class="o">.</span><span class="n">time_offset</span><span class="p">)</span>
 </span><span id="L-88"><a href="#L-88"><span class="linenos"> 88</span></a>
-</span><span id="L-89"><a href="#L-89"><span class="linenos"> 89</span></a><span class="k">def</span> <span class="nf">downsample_metrics</span><span class="p">(</span>
-</span><span id="L-90"><a href="#L-90"><span class="linenos"> 90</span></a>        <span class="n">recording</span><span class="p">:</span> <span class="n">Recording</span><span class="p">,</span>
-</span><span id="L-91"><a href="#L-91"><span class="linenos"> 91</span></a>        <span class="n">downsampling_parameters</span><span class="p">:</span> <span class="n">DownsampleParams</span>
-</span><span id="L-92"><a href="#L-92"><span class="linenos"> 92</span></a><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-</span><span id="L-93"><a href="#L-93"><span class="linenos"> 93</span></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-</span><span id="L-94"><a href="#L-94"><span class="linenos"> 94</span></a><span class="sd">    Apply downsampling to Modalities matching the pattern and add them back to</span>
-</span><span id="L-95"><a href="#L-95"><span class="linenos"> 95</span></a><span class="sd">    the Recording.</span>
-</span><span id="L-96"><a href="#L-96"><span class="linenos"> 96</span></a>
-</span><span id="L-97"><a href="#L-97"><span class="linenos"> 97</span></a><span class="sd">    Parameters</span>
-</span><span id="L-98"><a href="#L-98"><span class="linenos"> 98</span></a><span class="sd">    ----------</span>
-</span><span id="L-99"><a href="#L-99"><span class="linenos"> 99</span></a><span class="sd">    recording : Recording</span>
-</span><span id="L-100"><a href="#L-100"><span class="linenos">100</span></a><span class="sd">        The Recording which contains the Modalities and to which the new</span>
-</span><span id="L-101"><a href="#L-101"><span class="linenos">101</span></a><span class="sd">        downsampled modalities will be added.</span>
-</span><span id="L-102"><a href="#L-102"><span class="linenos">102</span></a><span class="sd">    downsampling_parameters : DownsampleParams</span>
-</span><span id="L-103"><a href="#L-103"><span class="linenos">103</span></a><span class="sd">        Parameters for the downsampling. See the DownsampleParams class for</span>
-</span><span id="L-104"><a href="#L-104"><span class="linenos">104</span></a><span class="sd">        details.</span>
-</span><span id="L-105"><a href="#L-105"><span class="linenos">105</span></a>
-</span><span id="L-106"><a href="#L-106"><span class="linenos">106</span></a><span class="sd">    Raises</span>
-</span><span id="L-107"><a href="#L-107"><span class="linenos">107</span></a><span class="sd">    ------</span>
-</span><span id="L-108"><a href="#L-108"><span class="linenos">108</span></a><span class="sd">    NotImplementedError</span>
-</span><span id="L-109"><a href="#L-109"><span class="linenos">109</span></a><span class="sd">        For now only match_timestep = True is allowed.</span>
-</span><span id="L-110"><a href="#L-110"><span class="linenos">110</span></a><span class="sd">    &quot;&quot;&quot;</span>
-</span><span id="L-111"><a href="#L-111"><span class="linenos">111</span></a>    <span class="c1"># TODO either expose the original interface in the next function or merge</span>
-</span><span id="L-112"><a href="#L-112"><span class="linenos">112</span></a>    <span class="c1"># it into this one</span>
-</span><span id="L-113"><a href="#L-113"><span class="linenos">113</span></a>    <span class="n">_downsample_metrics</span><span class="p">(</span>
-</span><span id="L-114"><a href="#L-114"><span class="linenos">114</span></a>        <span class="n">recording</span><span class="o">=</span><span class="n">recording</span><span class="p">,</span>
-</span><span id="L-115"><a href="#L-115"><span class="linenos">115</span></a>        <span class="n">modality_pattern</span><span class="o">=</span><span class="n">downsampling_parameters</span><span class="o">.</span><span class="n">modality_pattern</span><span class="p">,</span>
-</span><span id="L-116"><a href="#L-116"><span class="linenos">116</span></a>        <span class="n">downsampling_ratios</span><span class="o">=</span><span class="n">downsampling_parameters</span><span class="o">.</span><span class="n">downsampling_ratios</span><span class="p">,</span>
-</span><span id="L-117"><a href="#L-117"><span class="linenos">117</span></a>        <span class="n">match_timestep</span><span class="o">=</span><span class="n">downsampling_parameters</span><span class="o">.</span><span class="n">match_timestep</span><span class="p">)</span>
-</span><span id="L-118"><a href="#L-118"><span class="linenos">118</span></a>
-</span><span id="L-119"><a href="#L-119"><span class="linenos">119</span></a>
-</span><span id="L-120"><a href="#L-120"><span class="linenos">120</span></a><span class="k">def</span> <span class="nf">_downsample_metrics</span><span class="p">(</span>
-</span><span id="L-121"><a href="#L-121"><span class="linenos">121</span></a>        <span class="n">recording</span><span class="p">:</span> <span class="n">Recording</span><span class="p">,</span>
-</span><span id="L-122"><a href="#L-122"><span class="linenos">122</span></a>        <span class="n">modality_pattern</span><span class="p">:</span> <span class="n">SearchPattern</span><span class="p">,</span>
-</span><span id="L-123"><a href="#L-123"><span class="linenos">123</span></a>        <span class="n">downsampling_ratios</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">],</span>
-</span><span id="L-124"><a href="#L-124"><span class="linenos">124</span></a>        <span class="n">match_timestep</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span>
-</span><span id="L-125"><a href="#L-125"><span class="linenos">125</span></a><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-</span><span id="L-126"><a href="#L-126"><span class="linenos">126</span></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-</span><span id="L-127"><a href="#L-127"><span class="linenos">127</span></a><span class="sd">    Apply downsampling to Modalities matching the pattern and add them back to</span>
-</span><span id="L-128"><a href="#L-128"><span class="linenos">128</span></a><span class="sd">    the Recording.</span>
-</span><span id="L-129"><a href="#L-129"><span class="linenos">129</span></a>
-</span><span id="L-130"><a href="#L-130"><span class="linenos">130</span></a><span class="sd">    Parameters</span>
-</span><span id="L-131"><a href="#L-131"><span class="linenos">131</span></a><span class="sd">    ----------</span>
-</span><span id="L-132"><a href="#L-132"><span class="linenos">132</span></a><span class="sd">    recording : Recording</span>
-</span><span id="L-133"><a href="#L-133"><span class="linenos">133</span></a><span class="sd">        The Recording which contains the Modalities and to which the new</span>
-</span><span id="L-134"><a href="#L-134"><span class="linenos">134</span></a><span class="sd">        downsampled modalities will be added.</span>
-</span><span id="L-135"><a href="#L-135"><span class="linenos">135</span></a><span class="sd">    modality_pattern : str</span>
-</span><span id="L-136"><a href="#L-136"><span class="linenos">136</span></a><span class="sd">        Simple search string to used to find the modalities.</span>
-</span><span id="L-137"><a href="#L-137"><span class="linenos">137</span></a><span class="sd">    downsampling_ratios : tuple[int]</span>
-</span><span id="L-138"><a href="#L-138"><span class="linenos">138</span></a><span class="sd">        Which downsampling ratios should be attempted. Depending on the next</span>
-</span><span id="L-139"><a href="#L-139"><span class="linenos">139</span></a><span class="sd">        parameter all might not actually be used.</span>
-</span><span id="L-140"><a href="#L-140"><span class="linenos">140</span></a><span class="sd">    match_timestep : bool, optional</span>
-</span><span id="L-141"><a href="#L-141"><span class="linenos">141</span></a><span class="sd">        If the timestep of the Modality to be downsampled should match the</span>
-</span><span id="L-142"><a href="#L-142"><span class="linenos">142</span></a><span class="sd">        downsampling_ratio, by default True</span>
-</span><span id="L-143"><a href="#L-143"><span class="linenos">143</span></a>
-</span><span id="L-144"><a href="#L-144"><span class="linenos">144</span></a><span class="sd">    Raises</span>
-</span><span id="L-145"><a href="#L-145"><span class="linenos">145</span></a><span class="sd">    ------</span>
-</span><span id="L-146"><a href="#L-146"><span class="linenos">146</span></a><span class="sd">    NotImplementedError</span>
-</span><span id="L-147"><a href="#L-147"><span class="linenos">147</span></a><span class="sd">        For now only match_timestep = True is allowed.</span>
-</span><span id="L-148"><a href="#L-148"><span class="linenos">148</span></a><span class="sd">    &quot;&quot;&quot;</span>
-</span><span id="L-149"><a href="#L-149"><span class="linenos">149</span></a>    <span class="k">if</span> <span class="n">modality_pattern</span><span class="o">.</span><span class="n">is_regexp</span><span class="p">:</span>
-</span><span id="L-150"><a href="#L-150"><span class="linenos">150</span></a>        <span class="n">pattern</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="n">modality_pattern</span><span class="o">.</span><span class="n">pattern</span><span class="p">)</span>
-</span><span id="L-151"><a href="#L-151"><span class="linenos">151</span></a>        <span class="n">modalities</span> <span class="o">=</span> <span class="p">[</span><span class="n">recording</span><span class="p">[</span><span class="n">key</span><span class="p">]</span>
-</span><span id="L-152"><a href="#L-152"><span class="linenos">152</span></a>                      <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">recording</span>
-</span><span id="L-153"><a href="#L-153"><span class="linenos">153</span></a>                      <span class="k">if</span> <span class="n">pattern</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="n">key</span><span class="p">)]</span>
-</span><span id="L-154"><a href="#L-154"><span class="linenos">154</span></a>    <span class="k">else</span><span class="p">:</span>
-</span><span id="L-155"><a href="#L-155"><span class="linenos">155</span></a>        <span class="n">pattern</span> <span class="o">=</span> <span class="n">modality_pattern</span><span class="o">.</span><span class="n">pattern</span>
-</span><span id="L-156"><a href="#L-156"><span class="linenos">156</span></a>        <span class="n">modalities</span> <span class="o">=</span> <span class="p">[</span><span class="n">recording</span><span class="p">[</span><span class="n">key</span><span class="p">]</span>
-</span><span id="L-157"><a href="#L-157"><span class="linenos">157</span></a>                      <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">recording</span>
-</span><span id="L-158"><a href="#L-158"><span class="linenos">158</span></a>                      <span class="k">if</span> <span class="n">pattern</span> <span class="ow">in</span> <span class="n">key</span><span class="p">]</span>
-</span><span id="L-159"><a href="#L-159"><span class="linenos">159</span></a>
-</span><span id="L-160"><a href="#L-160"><span class="linenos">160</span></a>    <span class="k">if</span> <span class="n">match_timestep</span><span class="p">:</span>
-</span><span id="L-161"><a href="#L-161"><span class="linenos">161</span></a>        <span class="n">modalities</span> <span class="o">=</span> <span class="p">[</span>
-</span><span id="L-162"><a href="#L-162"><span class="linenos">162</span></a>            <span class="n">modality</span> <span class="k">for</span> <span class="n">modality</span> <span class="ow">in</span> <span class="n">modalities</span>
-</span><span id="L-163"><a href="#L-163"><span class="linenos">163</span></a>            <span class="k">if</span> <span class="n">modality</span><span class="o">.</span><span class="n">metadata</span><span class="o">.</span><span class="n">timestep</span> <span class="ow">in</span> <span class="n">downsampling_ratios</span><span class="p">]</span>
-</span><span id="L-164"><a href="#L-164"><span class="linenos">164</span></a>
-</span><span id="L-165"><a href="#L-165"><span class="linenos">165</span></a>        <span class="k">for</span> <span class="n">modality</span> <span class="ow">in</span> <span class="n">modalities</span><span class="p">:</span>
-</span><span id="L-166"><a href="#L-166"><span class="linenos">166</span></a>            <span class="n">downsampling_ratio</span> <span class="o">=</span> <span class="n">modality</span><span class="o">.</span><span class="n">metadata</span><span class="o">.</span><span class="n">timestep</span>
-</span><span id="L-167"><a href="#L-167"><span class="linenos">167</span></a>            <span class="n">metadata</span> <span class="o">=</span> <span class="n">modality</span><span class="o">.</span><span class="n">metadata</span><span class="o">.</span><span class="n">model_copy</span><span class="p">()</span>
-</span><span id="L-168"><a href="#L-168"><span class="linenos">168</span></a>            <span class="n">metadata</span><span class="o">.</span><span class="n">is_downsampled</span> <span class="o">=</span> <span class="kc">True</span>
-</span><span id="L-169"><a href="#L-169"><span class="linenos">169</span></a>            <span class="n">metadata</span><span class="o">.</span><span class="n">downsampling_ratio</span> <span class="o">=</span> <span class="n">downsampling_ratio</span>
-</span><span id="L-170"><a href="#L-170"><span class="linenos">170</span></a>            <span class="n">metadata</span><span class="o">.</span><span class="n">timestep_matched_downsampling</span> <span class="o">=</span> <span class="p">(</span>
-</span><span id="L-171"><a href="#L-171"><span class="linenos">171</span></a>                <span class="n">downsampling_ratio</span> <span class="o">==</span> <span class="n">metadata</span><span class="o">.</span><span class="n">timestep</span><span class="p">)</span>
-</span><span id="L-172"><a href="#L-172"><span class="linenos">172</span></a>            <span class="n">name</span> <span class="o">=</span> <span class="n">modality</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="n">generate_name</span><span class="p">(</span><span class="n">metadata</span><span class="p">)</span>
-</span><span id="L-173"><a href="#L-173"><span class="linenos">173</span></a>            <span class="k">if</span> <span class="n">name</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">recording</span><span class="p">:</span>
-</span><span id="L-174"><a href="#L-174"><span class="linenos">174</span></a>                <span class="n">downsampled</span> <span class="o">=</span> <span class="n">downsample_modality</span><span class="p">(</span>
-</span><span id="L-175"><a href="#L-175"><span class="linenos">175</span></a>                    <span class="n">modality</span><span class="p">,</span> <span class="n">downsampling_ratio</span><span class="p">,</span> <span class="n">metadata</span><span class="p">)</span>
-</span><span id="L-176"><a href="#L-176"><span class="linenos">176</span></a>                <span class="n">recording</span><span class="o">.</span><span class="n">add_modality</span><span class="p">(</span><span class="n">downsampled</span><span class="p">)</span>
-</span><span id="L-177"><a href="#L-177"><span class="linenos">177</span></a>
-</span><span id="L-178"><a href="#L-178"><span class="linenos">178</span></a>    <span class="k">else</span><span class="p">:</span>
-</span><span id="L-179"><a href="#L-179"><span class="linenos">179</span></a>        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span>
-</span><span id="L-180"><a href="#L-180"><span class="linenos">180</span></a>            <span class="s2">&quot;Downsampling without matching the downsampling &quot;</span>
-</span><span id="L-181"><a href="#L-181"><span class="linenos">181</span></a>            <span class="s2">&quot;step to the timestep of the modality has not been &quot;</span>
-</span><span id="L-182"><a href="#L-182"><span class="linenos">182</span></a>            <span class="s2">&quot;implemented yet.&quot;</span><span class="p">)</span>
+</span><span id="L-89"><a href="#L-89"><span class="linenos"> 89</span></a>
+</span><span id="L-90"><a href="#L-90"><span class="linenos"> 90</span></a><span class="k">def</span> <span class="nf">downsample_metrics</span><span class="p">(</span>
+</span><span id="L-91"><a href="#L-91"><span class="linenos"> 91</span></a>        <span class="n">recording</span><span class="p">:</span> <span class="n">Recording</span><span class="p">,</span>
+</span><span id="L-92"><a href="#L-92"><span class="linenos"> 92</span></a>        <span class="n">downsampling_parameters</span><span class="p">:</span> <span class="n">DownsampleParams</span>
+</span><span id="L-93"><a href="#L-93"><span class="linenos"> 93</span></a><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+</span><span id="L-94"><a href="#L-94"><span class="linenos"> 94</span></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+</span><span id="L-95"><a href="#L-95"><span class="linenos"> 95</span></a><span class="sd">    Apply downsampling to Modalities matching the pattern and add them back to</span>
+</span><span id="L-96"><a href="#L-96"><span class="linenos"> 96</span></a><span class="sd">    the Recording.</span>
+</span><span id="L-97"><a href="#L-97"><span class="linenos"> 97</span></a>
+</span><span id="L-98"><a href="#L-98"><span class="linenos"> 98</span></a><span class="sd">    Parameters</span>
+</span><span id="L-99"><a href="#L-99"><span class="linenos"> 99</span></a><span class="sd">    ----------</span>
+</span><span id="L-100"><a href="#L-100"><span class="linenos">100</span></a><span class="sd">    recording : Recording</span>
+</span><span id="L-101"><a href="#L-101"><span class="linenos">101</span></a><span class="sd">        The Recording which contains the Modalities and to which the new</span>
+</span><span id="L-102"><a href="#L-102"><span class="linenos">102</span></a><span class="sd">        downsampled modalities will be added.</span>
+</span><span id="L-103"><a href="#L-103"><span class="linenos">103</span></a><span class="sd">    downsampling_parameters : DownsampleParams</span>
+</span><span id="L-104"><a href="#L-104"><span class="linenos">104</span></a><span class="sd">        Parameters for the downsampling. See the DownsampleParams class for</span>
+</span><span id="L-105"><a href="#L-105"><span class="linenos">105</span></a><span class="sd">        details.</span>
+</span><span id="L-106"><a href="#L-106"><span class="linenos">106</span></a>
+</span><span id="L-107"><a href="#L-107"><span class="linenos">107</span></a><span class="sd">    Raises</span>
+</span><span id="L-108"><a href="#L-108"><span class="linenos">108</span></a><span class="sd">    ------</span>
+</span><span id="L-109"><a href="#L-109"><span class="linenos">109</span></a><span class="sd">    NotImplementedError</span>
+</span><span id="L-110"><a href="#L-110"><span class="linenos">110</span></a><span class="sd">        For now only match_timestep = True is allowed.</span>
+</span><span id="L-111"><a href="#L-111"><span class="linenos">111</span></a><span class="sd">    &quot;&quot;&quot;</span>
+</span><span id="L-112"><a href="#L-112"><span class="linenos">112</span></a>    <span class="n">modality_pattern</span> <span class="o">=</span> <span class="n">downsampling_parameters</span><span class="o">.</span><span class="n">modality_pattern</span>
+</span><span id="L-113"><a href="#L-113"><span class="linenos">113</span></a>    <span class="n">downsampling_ratios</span> <span class="o">=</span> <span class="n">downsampling_parameters</span><span class="o">.</span><span class="n">downsampling_ratios</span>
+</span><span id="L-114"><a href="#L-114"><span class="linenos">114</span></a>    <span class="n">match_timestep</span> <span class="o">=</span> <span class="n">downsampling_parameters</span><span class="o">.</span><span class="n">match_timestep</span>
+</span><span id="L-115"><a href="#L-115"><span class="linenos">115</span></a>
+</span><span id="L-116"><a href="#L-116"><span class="linenos">116</span></a>    <span class="k">if</span> <span class="n">modality_pattern</span><span class="o">.</span><span class="n">is_regexp</span><span class="p">:</span>
+</span><span id="L-117"><a href="#L-117"><span class="linenos">117</span></a>        <span class="n">pattern</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="n">modality_pattern</span><span class="o">.</span><span class="n">pattern</span><span class="p">)</span>
+</span><span id="L-118"><a href="#L-118"><span class="linenos">118</span></a>        <span class="n">modalities</span> <span class="o">=</span> <span class="p">[</span><span class="n">recording</span><span class="p">[</span><span class="n">key</span><span class="p">]</span>
+</span><span id="L-119"><a href="#L-119"><span class="linenos">119</span></a>                      <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">recording</span>
+</span><span id="L-120"><a href="#L-120"><span class="linenos">120</span></a>                      <span class="k">if</span> <span class="n">pattern</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">key</span><span class="p">)]</span>
+</span><span id="L-121"><a href="#L-121"><span class="linenos">121</span></a>    <span class="k">else</span><span class="p">:</span>
+</span><span id="L-122"><a href="#L-122"><span class="linenos">122</span></a>        <span class="n">pattern</span> <span class="o">=</span> <span class="n">modality_pattern</span><span class="o">.</span><span class="n">pattern</span>
+</span><span id="L-123"><a href="#L-123"><span class="linenos">123</span></a>        <span class="n">modalities</span> <span class="o">=</span> <span class="p">[</span><span class="n">recording</span><span class="p">[</span><span class="n">key</span><span class="p">]</span>
+</span><span id="L-124"><a href="#L-124"><span class="linenos">124</span></a>                      <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">recording</span>
+</span><span id="L-125"><a href="#L-125"><span class="linenos">125</span></a>                      <span class="k">if</span> <span class="n">pattern</span> <span class="ow">in</span> <span class="n">key</span><span class="p">]</span>
+</span><span id="L-126"><a href="#L-126"><span class="linenos">126</span></a>
+</span><span id="L-127"><a href="#L-127"><span class="linenos">127</span></a>    <span class="k">if</span> <span class="n">match_timestep</span><span class="p">:</span>
+</span><span id="L-128"><a href="#L-128"><span class="linenos">128</span></a>        <span class="n">modalities</span> <span class="o">=</span> <span class="p">[</span>
+</span><span id="L-129"><a href="#L-129"><span class="linenos">129</span></a>            <span class="n">modality</span> <span class="k">for</span> <span class="n">modality</span> <span class="ow">in</span> <span class="n">modalities</span>
+</span><span id="L-130"><a href="#L-130"><span class="linenos">130</span></a>            <span class="k">if</span> <span class="n">modality</span><span class="o">.</span><span class="n">metadata</span><span class="o">.</span><span class="n">timestep</span> <span class="ow">in</span> <span class="n">downsampling_ratios</span><span class="p">]</span>
+</span><span id="L-131"><a href="#L-131"><span class="linenos">131</span></a>
+</span><span id="L-132"><a href="#L-132"><span class="linenos">132</span></a>        <span class="k">for</span> <span class="n">modality</span> <span class="ow">in</span> <span class="n">modalities</span><span class="p">:</span>
+</span><span id="L-133"><a href="#L-133"><span class="linenos">133</span></a>            <span class="n">downsampling_ratio</span> <span class="o">=</span> <span class="n">modality</span><span class="o">.</span><span class="n">metadata</span><span class="o">.</span><span class="n">timestep</span>
+</span><span id="L-134"><a href="#L-134"><span class="linenos">134</span></a>            <span class="n">metadata</span> <span class="o">=</span> <span class="n">modality</span><span class="o">.</span><span class="n">metadata</span><span class="o">.</span><span class="n">model_copy</span><span class="p">()</span>
+</span><span id="L-135"><a href="#L-135"><span class="linenos">135</span></a>            <span class="n">metadata</span><span class="o">.</span><span class="n">is_downsampled</span> <span class="o">=</span> <span class="kc">True</span>
+</span><span id="L-136"><a href="#L-136"><span class="linenos">136</span></a>            <span class="n">metadata</span><span class="o">.</span><span class="n">downsampling_ratio</span> <span class="o">=</span> <span class="n">downsampling_ratio</span>
+</span><span id="L-137"><a href="#L-137"><span class="linenos">137</span></a>            <span class="n">metadata</span><span class="o">.</span><span class="n">timestep_matched_downsampling</span> <span class="o">=</span> <span class="p">(</span>
+</span><span id="L-138"><a href="#L-138"><span class="linenos">138</span></a>                    <span class="n">downsampling_ratio</span> <span class="o">==</span> <span class="n">metadata</span><span class="o">.</span><span class="n">timestep</span><span class="p">)</span>
+</span><span id="L-139"><a href="#L-139"><span class="linenos">139</span></a>            <span class="n">name</span> <span class="o">=</span> <span class="n">modality</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="n">generate_name</span><span class="p">(</span><span class="n">metadata</span><span class="p">)</span>
+</span><span id="L-140"><a href="#L-140"><span class="linenos">140</span></a>            <span class="k">if</span> <span class="n">name</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">recording</span><span class="p">:</span>
+</span><span id="L-141"><a href="#L-141"><span class="linenos">141</span></a>                <span class="n">downsampled</span> <span class="o">=</span> <span class="n">downsample_modality</span><span class="p">(</span>
+</span><span id="L-142"><a href="#L-142"><span class="linenos">142</span></a>                    <span class="n">modality</span><span class="p">,</span> <span class="n">downsampling_ratio</span><span class="p">,</span> <span class="n">metadata</span><span class="p">)</span>
+</span><span id="L-143"><a href="#L-143"><span class="linenos">143</span></a>                <span class="n">recording</span><span class="o">.</span><span class="n">add_modality</span><span class="p">(</span><span class="n">downsampled</span><span class="p">)</span>
+</span><span id="L-144"><a href="#L-144"><span class="linenos">144</span></a>
+</span><span id="L-145"><a href="#L-145"><span class="linenos">145</span></a>    <span class="k">else</span><span class="p">:</span>
+</span><span id="L-146"><a href="#L-146"><span class="linenos">146</span></a>        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span>
+</span><span id="L-147"><a href="#L-147"><span class="linenos">147</span></a>            <span class="s2">&quot;Downsampling without matching the downsampling &quot;</span>
+</span><span id="L-148"><a href="#L-148"><span class="linenos">148</span></a>            <span class="s2">&quot;step to the timestep of the modality has not been &quot;</span>
+</span><span id="L-149"><a href="#L-149"><span class="linenos">149</span></a>            <span class="s2">&quot;implemented yet.&quot;</span><span class="p">)</span>
+</span><span id="L-150"><a href="#L-150"><span class="linenos">150</span></a>
+</span><span id="L-151"><a href="#L-151"><span class="linenos">151</span></a>
+</span><span id="L-152"><a href="#L-152"><span class="linenos">152</span></a><span class="k">def</span> <span class="nf">downsample_metrics_in_session</span><span class="p">(</span>
+</span><span id="L-153"><a href="#L-153"><span class="linenos">153</span></a>        <span class="n">recording_session</span><span class="p">:</span> <span class="n">Session</span><span class="p">,</span>
+</span><span id="L-154"><a href="#L-154"><span class="linenos">154</span></a>        <span class="n">data_run_config</span><span class="p">:</span> <span class="n">DataRunConfig</span>
+</span><span id="L-155"><a href="#L-155"><span class="linenos">155</span></a><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+</span><span id="L-156"><a href="#L-156"><span class="linenos">156</span></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+</span><span id="L-157"><a href="#L-157"><span class="linenos">157</span></a><span class="sd">    Downsample metrics in the session.</span>
+</span><span id="L-158"><a href="#L-158"><span class="linenos">158</span></a>
+</span><span id="L-159"><a href="#L-159"><span class="linenos">159</span></a><span class="sd">    Parameters</span>
+</span><span id="L-160"><a href="#L-160"><span class="linenos">160</span></a><span class="sd">    ----------</span>
+</span><span id="L-161"><a href="#L-161"><span class="linenos">161</span></a><span class="sd">    recording_session : Session</span>
+</span><span id="L-162"><a href="#L-162"><span class="linenos">162</span></a><span class="sd">        _description_</span>
+</span><span id="L-163"><a href="#L-163"><span class="linenos">163</span></a><span class="sd">    data_run_config : DataRunConfig</span>
+</span><span id="L-164"><a href="#L-164"><span class="linenos">164</span></a><span class="sd">        _description_</span>
+</span><span id="L-165"><a href="#L-165"><span class="linenos">165</span></a><span class="sd">    &quot;&quot;&quot;</span>
+</span><span id="L-166"><a href="#L-166"><span class="linenos">166</span></a>    <span class="k">for</span> <span class="n">recording</span> <span class="ow">in</span> <span class="n">recording_session</span><span class="p">:</span>
+</span><span id="L-167"><a href="#L-167"><span class="linenos">167</span></a>        <span class="n">downsample_metrics</span><span class="p">(</span><span class="n">recording</span><span class="p">,</span> <span class="n">data_run_config</span><span class="o">.</span><span class="n">downsample</span><span class="p">)</span>
 </span></pre></div>
 
 
@@ -250,52 +238,54 @@
 <div class="attr function">
             
         <span class="def">def</span>
-        <span class="name">downsample_modality</span><span class="signature pdoc-code multiline">(<span class="param">	<span class="n">modality</span><span class="p">:</span> <span class="n"><a href="../data_structures/data_structures.html#Modality">satkit.data_structures.data_structures.Modality</a></span>,</span><span class="param">	<span class="n">downsampling_ratio</span><span class="p">:</span> <span class="nb">int</span>,</span><span class="param">	<span class="n">meta_data</span><span class="p">:</span> <span class="n"><a href="../data_structures/meta_data_classes.html#ModalityMetaData">satkit.data_structures.meta_data_classes.ModalityMetaData</a></span></span><span class="return-annotation">) -> <span class="n"><a href="../data_structures/data_structures.html#Modality">satkit.data_structures.data_structures.Modality</a></span>:</span></span>
+        <span class="name">downsample_modality</span><span class="signature pdoc-code multiline">(<span class="param">	<span class="n">modality</span><span class="p">:</span> <span class="n"><a href="../data_structures/data_structures.html#Modality">satkit.data_structures.data_structures.Modality</a></span>,</span><span class="param">	<span class="n">downsampling_ratio</span><span class="p">:</span> <span class="nb">int</span>,</span><span class="param">	<span class="n">metadata</span><span class="p">:</span> <span class="n"><a href="../data_structures/metadata_classes.html#ModalityMetaData">satkit.data_structures.metadata_classes.ModalityMetaData</a></span></span><span class="return-annotation">) -> <span class="n"><a href="../data_structures/data_structures.html#Modality">satkit.data_structures.data_structures.Modality</a></span>:</span></span>
 
                 <label class="view-source-button" for="downsample_modality-view-source"><span>View Source</span></label>
 
     </div>
     <a class="headerlink" href="#downsample_modality"></a>
-            <div class="pdoc-code codehilite"><pre><span></span><span id="downsample_modality-48"><a href="#downsample_modality-48"><span class="linenos">48</span></a><span class="k">def</span> <span class="nf">downsample_modality</span><span class="p">(</span>
-</span><span id="downsample_modality-49"><a href="#downsample_modality-49"><span class="linenos">49</span></a>        <span class="n">modality</span><span class="p">:</span> <span class="n">Modality</span><span class="p">,</span>
-</span><span id="downsample_modality-50"><a href="#downsample_modality-50"><span class="linenos">50</span></a>        <span class="n">downsampling_ratio</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
-</span><span id="downsample_modality-51"><a href="#downsample_modality-51"><span class="linenos">51</span></a>        <span class="n">meta_data</span><span class="p">:</span> <span class="n">ModalityMetaData</span>
-</span><span id="downsample_modality-52"><a href="#downsample_modality-52"><span class="linenos">52</span></a><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Modality</span><span class="p">:</span>
-</span><span id="downsample_modality-53"><a href="#downsample_modality-53"><span class="linenos">53</span></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-</span><span id="downsample_modality-54"><a href="#downsample_modality-54"><span class="linenos">54</span></a><span class="sd">    Downsample the Modality by the given ratio and return results as a new</span>
-</span><span id="downsample_modality-55"><a href="#downsample_modality-55"><span class="linenos">55</span></a><span class="sd">    Modality. </span>
-</span><span id="downsample_modality-56"><a href="#downsample_modality-56"><span class="linenos">56</span></a>
-</span><span id="downsample_modality-57"><a href="#downsample_modality-57"><span class="linenos">57</span></a><span class="sd">    Parameters</span>
-</span><span id="downsample_modality-58"><a href="#downsample_modality-58"><span class="linenos">58</span></a><span class="sd">    ----------</span>
-</span><span id="downsample_modality-59"><a href="#downsample_modality-59"><span class="linenos">59</span></a><span class="sd">    modality : Modality</span>
-</span><span id="downsample_modality-60"><a href="#downsample_modality-60"><span class="linenos">60</span></a><span class="sd">        The original Modality</span>
-</span><span id="downsample_modality-61"><a href="#downsample_modality-61"><span class="linenos">61</span></a><span class="sd">    downsampling_ratio : int</span>
-</span><span id="downsample_modality-62"><a href="#downsample_modality-62"><span class="linenos">62</span></a><span class="sd">        Ratio by which to downsample</span>
-</span><span id="downsample_modality-63"><a href="#downsample_modality-63"><span class="linenos">63</span></a>
-</span><span id="downsample_modality-64"><a href="#downsample_modality-64"><span class="linenos">64</span></a><span class="sd">    Returns</span>
-</span><span id="downsample_modality-65"><a href="#downsample_modality-65"><span class="linenos">65</span></a><span class="sd">    -------</span>
-</span><span id="downsample_modality-66"><a href="#downsample_modality-66"><span class="linenos">66</span></a><span class="sd">    Modality</span>
-</span><span id="downsample_modality-67"><a href="#downsample_modality-67"><span class="linenos">67</span></a><span class="sd">        This Modality will match the type and metadata of the original, but</span>
-</span><span id="downsample_modality-68"><a href="#downsample_modality-68"><span class="linenos">68</span></a><span class="sd">        will have the metadata fields that describe downsampling updated</span>
-</span><span id="downsample_modality-69"><a href="#downsample_modality-69"><span class="linenos">69</span></a><span class="sd">        correctly. The Modality&#39;s data and timevector will have been</span>
-</span><span id="downsample_modality-70"><a href="#downsample_modality-70"><span class="linenos">70</span></a><span class="sd">        downsampled its and name will show the downsampling ratio used.</span>
-</span><span id="downsample_modality-71"><a href="#downsample_modality-71"><span class="linenos">71</span></a><span class="sd">    &quot;&quot;&quot;</span>
-</span><span id="downsample_modality-72"><a href="#downsample_modality-72"><span class="linenos">72</span></a>    <span class="n">data</span> <span class="o">=</span> <span class="n">modality</span><span class="o">.</span><span class="n">data</span><span class="p">[::</span><span class="n">downsampling_ratio</span><span class="p">]</span>
-</span><span id="downsample_modality-73"><a href="#downsample_modality-73"><span class="linenos">73</span></a>    <span class="n">timevector</span> <span class="o">=</span> <span class="n">modality</span><span class="o">.</span><span class="n">timevector</span><span class="p">[::</span><span class="n">downsampling_ratio</span><span class="p">]</span>
-</span><span id="downsample_modality-74"><a href="#downsample_modality-74"><span class="linenos">74</span></a>    <span class="n">sampling_rate</span> <span class="o">=</span> <span class="n">modality</span><span class="o">.</span><span class="n">sampling_rate</span><span class="o">/</span><span class="n">downsampling_ratio</span>
-</span><span id="downsample_modality-75"><a href="#downsample_modality-75"><span class="linenos">75</span></a>
-</span><span id="downsample_modality-76"><a href="#downsample_modality-76"><span class="linenos">76</span></a>    <span class="n">modality_data</span> <span class="o">=</span> <span class="n">ModalityData</span><span class="p">(</span>
-</span><span id="downsample_modality-77"><a href="#downsample_modality-77"><span class="linenos">77</span></a>        <span class="n">data</span><span class="o">=</span><span class="n">data</span><span class="p">,</span> <span class="n">timevector</span><span class="o">=</span><span class="n">timevector</span><span class="p">,</span> <span class="n">sampling_rate</span><span class="o">=</span><span class="n">sampling_rate</span><span class="p">)</span>
-</span><span id="downsample_modality-78"><a href="#downsample_modality-78"><span class="linenos">78</span></a>
-</span><span id="downsample_modality-79"><a href="#downsample_modality-79"><span class="linenos">79</span></a>    <span class="c1"># replace makes a shallow copy when nothing is marked for replacing.</span>
-</span><span id="downsample_modality-80"><a href="#downsample_modality-80"><span class="linenos">80</span></a>    <span class="n">file_info</span> <span class="o">=</span> <span class="n">dataclasses</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="n">modality</span><span class="o">.</span><span class="n">file_info</span><span class="p">)</span>
-</span><span id="downsample_modality-81"><a href="#downsample_modality-81"><span class="linenos">81</span></a>
-</span><span id="downsample_modality-82"><a href="#downsample_modality-82"><span class="linenos">82</span></a>    <span class="k">return</span> <span class="n">modality</span><span class="o">.</span><span class="vm">__class__</span><span class="p">(</span>
-</span><span id="downsample_modality-83"><a href="#downsample_modality-83"><span class="linenos">83</span></a>        <span class="n">modality</span><span class="o">.</span><span class="n">recording</span><span class="p">,</span>
-</span><span id="downsample_modality-84"><a href="#downsample_modality-84"><span class="linenos">84</span></a>        <span class="n">parsed_data</span><span class="o">=</span><span class="n">modality_data</span><span class="p">,</span>
-</span><span id="downsample_modality-85"><a href="#downsample_modality-85"><span class="linenos">85</span></a>        <span class="n">meta_data</span><span class="o">=</span><span class="n">meta_data</span><span class="p">,</span>
-</span><span id="downsample_modality-86"><a href="#downsample_modality-86"><span class="linenos">86</span></a>        <span class="n">file_info</span><span class="o">=</span><span class="n">file_info</span><span class="p">,</span>
-</span><span id="downsample_modality-87"><a href="#downsample_modality-87"><span class="linenos">87</span></a>        <span class="n">time_offset</span><span class="o">=</span><span class="n">modality</span><span class="o">.</span><span class="n">time_offset</span><span class="p">)</span>
+            <div class="pdoc-code codehilite"><pre><span></span><span id="downsample_modality-47"><a href="#downsample_modality-47"><span class="linenos">47</span></a><span class="k">def</span> <span class="nf">downsample_modality</span><span class="p">(</span>
+</span><span id="downsample_modality-48"><a href="#downsample_modality-48"><span class="linenos">48</span></a>        <span class="n">modality</span><span class="p">:</span> <span class="n">Modality</span><span class="p">,</span>
+</span><span id="downsample_modality-49"><a href="#downsample_modality-49"><span class="linenos">49</span></a>        <span class="n">downsampling_ratio</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+</span><span id="downsample_modality-50"><a href="#downsample_modality-50"><span class="linenos">50</span></a>        <span class="n">metadata</span><span class="p">:</span> <span class="n">ModalityMetaData</span>
+</span><span id="downsample_modality-51"><a href="#downsample_modality-51"><span class="linenos">51</span></a><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Modality</span><span class="p">:</span>
+</span><span id="downsample_modality-52"><a href="#downsample_modality-52"><span class="linenos">52</span></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+</span><span id="downsample_modality-53"><a href="#downsample_modality-53"><span class="linenos">53</span></a><span class="sd">    Downsample the Modality by the given ratio and return results as a new</span>
+</span><span id="downsample_modality-54"><a href="#downsample_modality-54"><span class="linenos">54</span></a><span class="sd">    Modality. </span>
+</span><span id="downsample_modality-55"><a href="#downsample_modality-55"><span class="linenos">55</span></a>
+</span><span id="downsample_modality-56"><a href="#downsample_modality-56"><span class="linenos">56</span></a><span class="sd">    Parameters</span>
+</span><span id="downsample_modality-57"><a href="#downsample_modality-57"><span class="linenos">57</span></a><span class="sd">    ----------</span>
+</span><span id="downsample_modality-58"><a href="#downsample_modality-58"><span class="linenos">58</span></a><span class="sd">    modality : Modality</span>
+</span><span id="downsample_modality-59"><a href="#downsample_modality-59"><span class="linenos">59</span></a><span class="sd">        The original Modality.</span>
+</span><span id="downsample_modality-60"><a href="#downsample_modality-60"><span class="linenos">60</span></a><span class="sd">    downsampling_ratio : int</span>
+</span><span id="downsample_modality-61"><a href="#downsample_modality-61"><span class="linenos">61</span></a><span class="sd">        Ratio by which to downsample.</span>
+</span><span id="downsample_modality-62"><a href="#downsample_modality-62"><span class="linenos">62</span></a><span class="sd">    metadata : ModalityMetaData</span>
+</span><span id="downsample_modality-63"><a href="#downsample_modality-63"><span class="linenos">63</span></a><span class="sd">        Metadata for the new downsampled Modality.</span>
+</span><span id="downsample_modality-64"><a href="#downsample_modality-64"><span class="linenos">64</span></a>
+</span><span id="downsample_modality-65"><a href="#downsample_modality-65"><span class="linenos">65</span></a><span class="sd">    Returns</span>
+</span><span id="downsample_modality-66"><a href="#downsample_modality-66"><span class="linenos">66</span></a><span class="sd">    -------</span>
+</span><span id="downsample_modality-67"><a href="#downsample_modality-67"><span class="linenos">67</span></a><span class="sd">    Modality</span>
+</span><span id="downsample_modality-68"><a href="#downsample_modality-68"><span class="linenos">68</span></a><span class="sd">        This Modality will match the type and metadata of the original, but</span>
+</span><span id="downsample_modality-69"><a href="#downsample_modality-69"><span class="linenos">69</span></a><span class="sd">        will have the metadata fields that describe downsampling updated</span>
+</span><span id="downsample_modality-70"><a href="#downsample_modality-70"><span class="linenos">70</span></a><span class="sd">        correctly. The Modality&#39;s data and timevector will have been</span>
+</span><span id="downsample_modality-71"><a href="#downsample_modality-71"><span class="linenos">71</span></a><span class="sd">        downsampled and its name will show the downsampling ratio used.</span>
+</span><span id="downsample_modality-72"><a href="#downsample_modality-72"><span class="linenos">72</span></a><span class="sd">    &quot;&quot;&quot;</span>
+</span><span id="downsample_modality-73"><a href="#downsample_modality-73"><span class="linenos">73</span></a>    <span class="n">data</span> <span class="o">=</span> <span class="n">modality</span><span class="o">.</span><span class="n">data</span><span class="p">[::</span><span class="n">downsampling_ratio</span><span class="p">]</span>
+</span><span id="downsample_modality-74"><a href="#downsample_modality-74"><span class="linenos">74</span></a>    <span class="n">timevector</span> <span class="o">=</span> <span class="n">modality</span><span class="o">.</span><span class="n">timevector</span><span class="p">[::</span><span class="n">downsampling_ratio</span><span class="p">]</span>
+</span><span id="downsample_modality-75"><a href="#downsample_modality-75"><span class="linenos">75</span></a>    <span class="n">sampling_rate</span> <span class="o">=</span> <span class="n">modality</span><span class="o">.</span><span class="n">sampling_rate</span> <span class="o">/</span> <span class="n">downsampling_ratio</span>
+</span><span id="downsample_modality-76"><a href="#downsample_modality-76"><span class="linenos">76</span></a>
+</span><span id="downsample_modality-77"><a href="#downsample_modality-77"><span class="linenos">77</span></a>    <span class="n">modality_data</span> <span class="o">=</span> <span class="n">ModalityData</span><span class="p">(</span>
+</span><span id="downsample_modality-78"><a href="#downsample_modality-78"><span class="linenos">78</span></a>        <span class="n">data</span><span class="o">=</span><span class="n">data</span><span class="p">,</span> <span class="n">timevector</span><span class="o">=</span><span class="n">timevector</span><span class="p">,</span> <span class="n">sampling_rate</span><span class="o">=</span><span class="n">sampling_rate</span><span class="p">)</span>
+</span><span id="downsample_modality-79"><a href="#downsample_modality-79"><span class="linenos">79</span></a>
+</span><span id="downsample_modality-80"><a href="#downsample_modality-80"><span class="linenos">80</span></a>    <span class="c1"># replace makes a shallow copy when nothing is marked for replacing.</span>
+</span><span id="downsample_modality-81"><a href="#downsample_modality-81"><span class="linenos">81</span></a>    <span class="n">file_info</span> <span class="o">=</span> <span class="n">dataclasses</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="n">modality</span><span class="o">.</span><span class="n">file_info</span><span class="p">)</span>
+</span><span id="downsample_modality-82"><a href="#downsample_modality-82"><span class="linenos">82</span></a>
+</span><span id="downsample_modality-83"><a href="#downsample_modality-83"><span class="linenos">83</span></a>    <span class="k">return</span> <span class="n">modality</span><span class="o">.</span><span class="vm">__class__</span><span class="p">(</span>
+</span><span id="downsample_modality-84"><a href="#downsample_modality-84"><span class="linenos">84</span></a>        <span class="n">modality</span><span class="o">.</span><span class="n">recording</span><span class="p">,</span>
+</span><span id="downsample_modality-85"><a href="#downsample_modality-85"><span class="linenos">85</span></a>        <span class="n">parsed_data</span><span class="o">=</span><span class="n">modality_data</span><span class="p">,</span>
+</span><span id="downsample_modality-86"><a href="#downsample_modality-86"><span class="linenos">86</span></a>        <span class="n">metadata</span><span class="o">=</span><span class="n">metadata</span><span class="p">,</span>
+</span><span id="downsample_modality-87"><a href="#downsample_modality-87"><span class="linenos">87</span></a>        <span class="n">file_info</span><span class="o">=</span><span class="n">file_info</span><span class="p">,</span>
+</span><span id="downsample_modality-88"><a href="#downsample_modality-88"><span class="linenos">88</span></a>        <span class="n">time_offset</span><span class="o">=</span><span class="n">modality</span><span class="o">.</span><span class="n">time_offset</span><span class="p">)</span>
 </span></pre></div>
 
 
@@ -306,9 +296,11 @@ Modality. </p>
 
 <ul>
 <li><strong>modality</strong> (Modality):
-The original Modality</li>
+The original Modality.</li>
 <li><strong>downsampling_ratio</strong> (int):
-Ratio by which to downsample</li>
+Ratio by which to downsample.</li>
+<li><strong>metadata</strong> (ModalityMetaData):
+Metadata for the new downsampled Modality.</li>
 </ul>
 
 <h6 id="returns">Returns</h6>
@@ -317,7 +309,7 @@ Ratio by which to downsample</li>
 <li><strong>Modality</strong>: This Modality will match the type and metadata of the original, but
 will have the metadata fields that describe downsampling updated
 correctly. The Modality's data and timevector will have been
-downsampled its and name will show the downsampling ratio used.</li>
+downsampled and its name will show the downsampling ratio used.</li>
 </ul>
 </div>
 
@@ -334,35 +326,66 @@ downsampled its and name will show the downsampling ratio used.</li>
 
     </div>
     <a class="headerlink" href="#downsample_metrics"></a>
-            <div class="pdoc-code codehilite"><pre><span></span><span id="downsample_metrics-90"><a href="#downsample_metrics-90"><span class="linenos"> 90</span></a><span class="k">def</span> <span class="nf">downsample_metrics</span><span class="p">(</span>
-</span><span id="downsample_metrics-91"><a href="#downsample_metrics-91"><span class="linenos"> 91</span></a>        <span class="n">recording</span><span class="p">:</span> <span class="n">Recording</span><span class="p">,</span>
-</span><span id="downsample_metrics-92"><a href="#downsample_metrics-92"><span class="linenos"> 92</span></a>        <span class="n">downsampling_parameters</span><span class="p">:</span> <span class="n">DownsampleParams</span>
-</span><span id="downsample_metrics-93"><a href="#downsample_metrics-93"><span class="linenos"> 93</span></a><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-</span><span id="downsample_metrics-94"><a href="#downsample_metrics-94"><span class="linenos"> 94</span></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-</span><span id="downsample_metrics-95"><a href="#downsample_metrics-95"><span class="linenos"> 95</span></a><span class="sd">    Apply downsampling to Modalities matching the pattern and add them back to</span>
-</span><span id="downsample_metrics-96"><a href="#downsample_metrics-96"><span class="linenos"> 96</span></a><span class="sd">    the Recording.</span>
-</span><span id="downsample_metrics-97"><a href="#downsample_metrics-97"><span class="linenos"> 97</span></a>
-</span><span id="downsample_metrics-98"><a href="#downsample_metrics-98"><span class="linenos"> 98</span></a><span class="sd">    Parameters</span>
-</span><span id="downsample_metrics-99"><a href="#downsample_metrics-99"><span class="linenos"> 99</span></a><span class="sd">    ----------</span>
-</span><span id="downsample_metrics-100"><a href="#downsample_metrics-100"><span class="linenos">100</span></a><span class="sd">    recording : Recording</span>
-</span><span id="downsample_metrics-101"><a href="#downsample_metrics-101"><span class="linenos">101</span></a><span class="sd">        The Recording which contains the Modalities and to which the new</span>
-</span><span id="downsample_metrics-102"><a href="#downsample_metrics-102"><span class="linenos">102</span></a><span class="sd">        downsampled modalities will be added.</span>
-</span><span id="downsample_metrics-103"><a href="#downsample_metrics-103"><span class="linenos">103</span></a><span class="sd">    downsampling_parameters : DownsampleParams</span>
-</span><span id="downsample_metrics-104"><a href="#downsample_metrics-104"><span class="linenos">104</span></a><span class="sd">        Parameters for the downsampling. See the DownsampleParams class for</span>
-</span><span id="downsample_metrics-105"><a href="#downsample_metrics-105"><span class="linenos">105</span></a><span class="sd">        details.</span>
-</span><span id="downsample_metrics-106"><a href="#downsample_metrics-106"><span class="linenos">106</span></a>
-</span><span id="downsample_metrics-107"><a href="#downsample_metrics-107"><span class="linenos">107</span></a><span class="sd">    Raises</span>
-</span><span id="downsample_metrics-108"><a href="#downsample_metrics-108"><span class="linenos">108</span></a><span class="sd">    ------</span>
-</span><span id="downsample_metrics-109"><a href="#downsample_metrics-109"><span class="linenos">109</span></a><span class="sd">    NotImplementedError</span>
-</span><span id="downsample_metrics-110"><a href="#downsample_metrics-110"><span class="linenos">110</span></a><span class="sd">        For now only match_timestep = True is allowed.</span>
-</span><span id="downsample_metrics-111"><a href="#downsample_metrics-111"><span class="linenos">111</span></a><span class="sd">    &quot;&quot;&quot;</span>
-</span><span id="downsample_metrics-112"><a href="#downsample_metrics-112"><span class="linenos">112</span></a>    <span class="c1"># TODO either expose the original interface in the next function or merge</span>
-</span><span id="downsample_metrics-113"><a href="#downsample_metrics-113"><span class="linenos">113</span></a>    <span class="c1"># it into this one</span>
-</span><span id="downsample_metrics-114"><a href="#downsample_metrics-114"><span class="linenos">114</span></a>    <span class="n">_downsample_metrics</span><span class="p">(</span>
-</span><span id="downsample_metrics-115"><a href="#downsample_metrics-115"><span class="linenos">115</span></a>        <span class="n">recording</span><span class="o">=</span><span class="n">recording</span><span class="p">,</span>
-</span><span id="downsample_metrics-116"><a href="#downsample_metrics-116"><span class="linenos">116</span></a>        <span class="n">modality_pattern</span><span class="o">=</span><span class="n">downsampling_parameters</span><span class="o">.</span><span class="n">modality_pattern</span><span class="p">,</span>
-</span><span id="downsample_metrics-117"><a href="#downsample_metrics-117"><span class="linenos">117</span></a>        <span class="n">downsampling_ratios</span><span class="o">=</span><span class="n">downsampling_parameters</span><span class="o">.</span><span class="n">downsampling_ratios</span><span class="p">,</span>
-</span><span id="downsample_metrics-118"><a href="#downsample_metrics-118"><span class="linenos">118</span></a>        <span class="n">match_timestep</span><span class="o">=</span><span class="n">downsampling_parameters</span><span class="o">.</span><span class="n">match_timestep</span><span class="p">)</span>
+            <div class="pdoc-code codehilite"><pre><span></span><span id="downsample_metrics-91"><a href="#downsample_metrics-91"><span class="linenos"> 91</span></a><span class="k">def</span> <span class="nf">downsample_metrics</span><span class="p">(</span>
+</span><span id="downsample_metrics-92"><a href="#downsample_metrics-92"><span class="linenos"> 92</span></a>        <span class="n">recording</span><span class="p">:</span> <span class="n">Recording</span><span class="p">,</span>
+</span><span id="downsample_metrics-93"><a href="#downsample_metrics-93"><span class="linenos"> 93</span></a>        <span class="n">downsampling_parameters</span><span class="p">:</span> <span class="n">DownsampleParams</span>
+</span><span id="downsample_metrics-94"><a href="#downsample_metrics-94"><span class="linenos"> 94</span></a><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+</span><span id="downsample_metrics-95"><a href="#downsample_metrics-95"><span class="linenos"> 95</span></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+</span><span id="downsample_metrics-96"><a href="#downsample_metrics-96"><span class="linenos"> 96</span></a><span class="sd">    Apply downsampling to Modalities matching the pattern and add them back to</span>
+</span><span id="downsample_metrics-97"><a href="#downsample_metrics-97"><span class="linenos"> 97</span></a><span class="sd">    the Recording.</span>
+</span><span id="downsample_metrics-98"><a href="#downsample_metrics-98"><span class="linenos"> 98</span></a>
+</span><span id="downsample_metrics-99"><a href="#downsample_metrics-99"><span class="linenos"> 99</span></a><span class="sd">    Parameters</span>
+</span><span id="downsample_metrics-100"><a href="#downsample_metrics-100"><span class="linenos">100</span></a><span class="sd">    ----------</span>
+</span><span id="downsample_metrics-101"><a href="#downsample_metrics-101"><span class="linenos">101</span></a><span class="sd">    recording : Recording</span>
+</span><span id="downsample_metrics-102"><a href="#downsample_metrics-102"><span class="linenos">102</span></a><span class="sd">        The Recording which contains the Modalities and to which the new</span>
+</span><span id="downsample_metrics-103"><a href="#downsample_metrics-103"><span class="linenos">103</span></a><span class="sd">        downsampled modalities will be added.</span>
+</span><span id="downsample_metrics-104"><a href="#downsample_metrics-104"><span class="linenos">104</span></a><span class="sd">    downsampling_parameters : DownsampleParams</span>
+</span><span id="downsample_metrics-105"><a href="#downsample_metrics-105"><span class="linenos">105</span></a><span class="sd">        Parameters for the downsampling. See the DownsampleParams class for</span>
+</span><span id="downsample_metrics-106"><a href="#downsample_metrics-106"><span class="linenos">106</span></a><span class="sd">        details.</span>
+</span><span id="downsample_metrics-107"><a href="#downsample_metrics-107"><span class="linenos">107</span></a>
+</span><span id="downsample_metrics-108"><a href="#downsample_metrics-108"><span class="linenos">108</span></a><span class="sd">    Raises</span>
+</span><span id="downsample_metrics-109"><a href="#downsample_metrics-109"><span class="linenos">109</span></a><span class="sd">    ------</span>
+</span><span id="downsample_metrics-110"><a href="#downsample_metrics-110"><span class="linenos">110</span></a><span class="sd">    NotImplementedError</span>
+</span><span id="downsample_metrics-111"><a href="#downsample_metrics-111"><span class="linenos">111</span></a><span class="sd">        For now only match_timestep = True is allowed.</span>
+</span><span id="downsample_metrics-112"><a href="#downsample_metrics-112"><span class="linenos">112</span></a><span class="sd">    &quot;&quot;&quot;</span>
+</span><span id="downsample_metrics-113"><a href="#downsample_metrics-113"><span class="linenos">113</span></a>    <span class="n">modality_pattern</span> <span class="o">=</span> <span class="n">downsampling_parameters</span><span class="o">.</span><span class="n">modality_pattern</span>
+</span><span id="downsample_metrics-114"><a href="#downsample_metrics-114"><span class="linenos">114</span></a>    <span class="n">downsampling_ratios</span> <span class="o">=</span> <span class="n">downsampling_parameters</span><span class="o">.</span><span class="n">downsampling_ratios</span>
+</span><span id="downsample_metrics-115"><a href="#downsample_metrics-115"><span class="linenos">115</span></a>    <span class="n">match_timestep</span> <span class="o">=</span> <span class="n">downsampling_parameters</span><span class="o">.</span><span class="n">match_timestep</span>
+</span><span id="downsample_metrics-116"><a href="#downsample_metrics-116"><span class="linenos">116</span></a>
+</span><span id="downsample_metrics-117"><a href="#downsample_metrics-117"><span class="linenos">117</span></a>    <span class="k">if</span> <span class="n">modality_pattern</span><span class="o">.</span><span class="n">is_regexp</span><span class="p">:</span>
+</span><span id="downsample_metrics-118"><a href="#downsample_metrics-118"><span class="linenos">118</span></a>        <span class="n">pattern</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="n">modality_pattern</span><span class="o">.</span><span class="n">pattern</span><span class="p">)</span>
+</span><span id="downsample_metrics-119"><a href="#downsample_metrics-119"><span class="linenos">119</span></a>        <span class="n">modalities</span> <span class="o">=</span> <span class="p">[</span><span class="n">recording</span><span class="p">[</span><span class="n">key</span><span class="p">]</span>
+</span><span id="downsample_metrics-120"><a href="#downsample_metrics-120"><span class="linenos">120</span></a>                      <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">recording</span>
+</span><span id="downsample_metrics-121"><a href="#downsample_metrics-121"><span class="linenos">121</span></a>                      <span class="k">if</span> <span class="n">pattern</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">key</span><span class="p">)]</span>
+</span><span id="downsample_metrics-122"><a href="#downsample_metrics-122"><span class="linenos">122</span></a>    <span class="k">else</span><span class="p">:</span>
+</span><span id="downsample_metrics-123"><a href="#downsample_metrics-123"><span class="linenos">123</span></a>        <span class="n">pattern</span> <span class="o">=</span> <span class="n">modality_pattern</span><span class="o">.</span><span class="n">pattern</span>
+</span><span id="downsample_metrics-124"><a href="#downsample_metrics-124"><span class="linenos">124</span></a>        <span class="n">modalities</span> <span class="o">=</span> <span class="p">[</span><span class="n">recording</span><span class="p">[</span><span class="n">key</span><span class="p">]</span>
+</span><span id="downsample_metrics-125"><a href="#downsample_metrics-125"><span class="linenos">125</span></a>                      <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">recording</span>
+</span><span id="downsample_metrics-126"><a href="#downsample_metrics-126"><span class="linenos">126</span></a>                      <span class="k">if</span> <span class="n">pattern</span> <span class="ow">in</span> <span class="n">key</span><span class="p">]</span>
+</span><span id="downsample_metrics-127"><a href="#downsample_metrics-127"><span class="linenos">127</span></a>
+</span><span id="downsample_metrics-128"><a href="#downsample_metrics-128"><span class="linenos">128</span></a>    <span class="k">if</span> <span class="n">match_timestep</span><span class="p">:</span>
+</span><span id="downsample_metrics-129"><a href="#downsample_metrics-129"><span class="linenos">129</span></a>        <span class="n">modalities</span> <span class="o">=</span> <span class="p">[</span>
+</span><span id="downsample_metrics-130"><a href="#downsample_metrics-130"><span class="linenos">130</span></a>            <span class="n">modality</span> <span class="k">for</span> <span class="n">modality</span> <span class="ow">in</span> <span class="n">modalities</span>
+</span><span id="downsample_metrics-131"><a href="#downsample_metrics-131"><span class="linenos">131</span></a>            <span class="k">if</span> <span class="n">modality</span><span class="o">.</span><span class="n">metadata</span><span class="o">.</span><span class="n">timestep</span> <span class="ow">in</span> <span class="n">downsampling_ratios</span><span class="p">]</span>
+</span><span id="downsample_metrics-132"><a href="#downsample_metrics-132"><span class="linenos">132</span></a>
+</span><span id="downsample_metrics-133"><a href="#downsample_metrics-133"><span class="linenos">133</span></a>        <span class="k">for</span> <span class="n">modality</span> <span class="ow">in</span> <span class="n">modalities</span><span class="p">:</span>
+</span><span id="downsample_metrics-134"><a href="#downsample_metrics-134"><span class="linenos">134</span></a>            <span class="n">downsampling_ratio</span> <span class="o">=</span> <span class="n">modality</span><span class="o">.</span><span class="n">metadata</span><span class="o">.</span><span class="n">timestep</span>
+</span><span id="downsample_metrics-135"><a href="#downsample_metrics-135"><span class="linenos">135</span></a>            <span class="n">metadata</span> <span class="o">=</span> <span class="n">modality</span><span class="o">.</span><span class="n">metadata</span><span class="o">.</span><span class="n">model_copy</span><span class="p">()</span>
+</span><span id="downsample_metrics-136"><a href="#downsample_metrics-136"><span class="linenos">136</span></a>            <span class="n">metadata</span><span class="o">.</span><span class="n">is_downsampled</span> <span class="o">=</span> <span class="kc">True</span>
+</span><span id="downsample_metrics-137"><a href="#downsample_metrics-137"><span class="linenos">137</span></a>            <span class="n">metadata</span><span class="o">.</span><span class="n">downsampling_ratio</span> <span class="o">=</span> <span class="n">downsampling_ratio</span>
+</span><span id="downsample_metrics-138"><a href="#downsample_metrics-138"><span class="linenos">138</span></a>            <span class="n">metadata</span><span class="o">.</span><span class="n">timestep_matched_downsampling</span> <span class="o">=</span> <span class="p">(</span>
+</span><span id="downsample_metrics-139"><a href="#downsample_metrics-139"><span class="linenos">139</span></a>                    <span class="n">downsampling_ratio</span> <span class="o">==</span> <span class="n">metadata</span><span class="o">.</span><span class="n">timestep</span><span class="p">)</span>
+</span><span id="downsample_metrics-140"><a href="#downsample_metrics-140"><span class="linenos">140</span></a>            <span class="n">name</span> <span class="o">=</span> <span class="n">modality</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="n">generate_name</span><span class="p">(</span><span class="n">metadata</span><span class="p">)</span>
+</span><span id="downsample_metrics-141"><a href="#downsample_metrics-141"><span class="linenos">141</span></a>            <span class="k">if</span> <span class="n">name</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">recording</span><span class="p">:</span>
+</span><span id="downsample_metrics-142"><a href="#downsample_metrics-142"><span class="linenos">142</span></a>                <span class="n">downsampled</span> <span class="o">=</span> <span class="n">downsample_modality</span><span class="p">(</span>
+</span><span id="downsample_metrics-143"><a href="#downsample_metrics-143"><span class="linenos">143</span></a>                    <span class="n">modality</span><span class="p">,</span> <span class="n">downsampling_ratio</span><span class="p">,</span> <span class="n">metadata</span><span class="p">)</span>
+</span><span id="downsample_metrics-144"><a href="#downsample_metrics-144"><span class="linenos">144</span></a>                <span class="n">recording</span><span class="o">.</span><span class="n">add_modality</span><span class="p">(</span><span class="n">downsampled</span><span class="p">)</span>
+</span><span id="downsample_metrics-145"><a href="#downsample_metrics-145"><span class="linenos">145</span></a>
+</span><span id="downsample_metrics-146"><a href="#downsample_metrics-146"><span class="linenos">146</span></a>    <span class="k">else</span><span class="p">:</span>
+</span><span id="downsample_metrics-147"><a href="#downsample_metrics-147"><span class="linenos">147</span></a>        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span>
+</span><span id="downsample_metrics-148"><a href="#downsample_metrics-148"><span class="linenos">148</span></a>            <span class="s2">&quot;Downsampling without matching the downsampling &quot;</span>
+</span><span id="downsample_metrics-149"><a href="#downsample_metrics-149"><span class="linenos">149</span></a>            <span class="s2">&quot;step to the timestep of the modality has not been &quot;</span>
+</span><span id="downsample_metrics-150"><a href="#downsample_metrics-150"><span class="linenos">150</span></a>            <span class="s2">&quot;implemented yet.&quot;</span><span class="p">)</span>
 </span></pre></div>
 
 
@@ -384,6 +407,50 @@ details.</li>
 
 <ul>
 <li><strong>NotImplementedError</strong>: For now only match_timestep = True is allowed.</li>
+</ul>
+</div>
+
+
+                </section>
+                <section id="downsample_metrics_in_session">
+                            <input id="downsample_metrics_in_session-view-source" class="view-source-toggle-state" type="checkbox" aria-hidden="true" tabindex="-1">
+<div class="attr function">
+            
+        <span class="def">def</span>
+        <span class="name">downsample_metrics_in_session</span><span class="signature pdoc-code multiline">(<span class="param">	<span class="n">recording_session</span><span class="p">:</span> <span class="n"><a href="../data_structures/data_structures.html#Session">satkit.data_structures.data_structures.Session</a></span>,</span><span class="param">	<span class="n">data_run_config</span><span class="p">:</span> <span class="n"><a href="../configuration/configuration_models.html#DataRunConfig">satkit.configuration.configuration_models.DataRunConfig</a></span></span><span class="return-annotation">) -> <span class="kc">None</span>:</span></span>
+
+                <label class="view-source-button" for="downsample_metrics_in_session-view-source"><span>View Source</span></label>
+
+    </div>
+    <a class="headerlink" href="#downsample_metrics_in_session"></a>
+            <div class="pdoc-code codehilite"><pre><span></span><span id="downsample_metrics_in_session-153"><a href="#downsample_metrics_in_session-153"><span class="linenos">153</span></a><span class="k">def</span> <span class="nf">downsample_metrics_in_session</span><span class="p">(</span>
+</span><span id="downsample_metrics_in_session-154"><a href="#downsample_metrics_in_session-154"><span class="linenos">154</span></a>        <span class="n">recording_session</span><span class="p">:</span> <span class="n">Session</span><span class="p">,</span>
+</span><span id="downsample_metrics_in_session-155"><a href="#downsample_metrics_in_session-155"><span class="linenos">155</span></a>        <span class="n">data_run_config</span><span class="p">:</span> <span class="n">DataRunConfig</span>
+</span><span id="downsample_metrics_in_session-156"><a href="#downsample_metrics_in_session-156"><span class="linenos">156</span></a><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+</span><span id="downsample_metrics_in_session-157"><a href="#downsample_metrics_in_session-157"><span class="linenos">157</span></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+</span><span id="downsample_metrics_in_session-158"><a href="#downsample_metrics_in_session-158"><span class="linenos">158</span></a><span class="sd">    Downsample metrics in the session.</span>
+</span><span id="downsample_metrics_in_session-159"><a href="#downsample_metrics_in_session-159"><span class="linenos">159</span></a>
+</span><span id="downsample_metrics_in_session-160"><a href="#downsample_metrics_in_session-160"><span class="linenos">160</span></a><span class="sd">    Parameters</span>
+</span><span id="downsample_metrics_in_session-161"><a href="#downsample_metrics_in_session-161"><span class="linenos">161</span></a><span class="sd">    ----------</span>
+</span><span id="downsample_metrics_in_session-162"><a href="#downsample_metrics_in_session-162"><span class="linenos">162</span></a><span class="sd">    recording_session : Session</span>
+</span><span id="downsample_metrics_in_session-163"><a href="#downsample_metrics_in_session-163"><span class="linenos">163</span></a><span class="sd">        _description_</span>
+</span><span id="downsample_metrics_in_session-164"><a href="#downsample_metrics_in_session-164"><span class="linenos">164</span></a><span class="sd">    data_run_config : DataRunConfig</span>
+</span><span id="downsample_metrics_in_session-165"><a href="#downsample_metrics_in_session-165"><span class="linenos">165</span></a><span class="sd">        _description_</span>
+</span><span id="downsample_metrics_in_session-166"><a href="#downsample_metrics_in_session-166"><span class="linenos">166</span></a><span class="sd">    &quot;&quot;&quot;</span>
+</span><span id="downsample_metrics_in_session-167"><a href="#downsample_metrics_in_session-167"><span class="linenos">167</span></a>    <span class="k">for</span> <span class="n">recording</span> <span class="ow">in</span> <span class="n">recording_session</span><span class="p">:</span>
+</span><span id="downsample_metrics_in_session-168"><a href="#downsample_metrics_in_session-168"><span class="linenos">168</span></a>        <span class="n">downsample_metrics</span><span class="p">(</span><span class="n">recording</span><span class="p">,</span> <span class="n">data_run_config</span><span class="o">.</span><span class="n">downsample</span><span class="p">)</span>
+</span></pre></div>
+
+
+            <div class="docstring"><p>Downsample metrics in the session.</p>
+
+<h6 id="parameters">Parameters</h6>
+
+<ul>
+<li><strong>recording_session</strong> (Session):
+_description_</li>
+<li><strong>data_run_config</strong> (DataRunConfig):
+_description_</li>
 </ul>
 </div>
 

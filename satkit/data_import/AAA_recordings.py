@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2019-2024
+# Copyright (c) 2019-2025
 # Pertti Palo, Scott Moisik, Matthew Faytak, and Motoki Saito.
 #
 # This file is part of Speech Articulation ToolKIT
@@ -126,7 +126,7 @@ def generate_aaa_recording_list(
         recording_list=recordings, directory=directory, detect_beep=detect_beep)
 
     return sorted(recordings, key=lambda
-                  token: token.meta_data.time_of_recording)
+                  token: token.metadata.time_of_recording)
 
 
 def generate_ultrasound_recording(
@@ -160,14 +160,14 @@ def generate_ultrasound_recording(
     if textgrid.is_file():
         recording = Recording(
             owner=owner,
-            meta_data=meta,
+            metadata=meta,
             file_info=file_info,
             textgrid_path=textgrid
         )
     else:
         recording = Recording(
             owner=owner,
-            meta_data=meta,
+            metadata=meta,
             file_info=file_info,
         )
 

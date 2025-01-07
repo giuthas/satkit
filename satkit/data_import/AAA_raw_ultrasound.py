@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2019-2024
+# Copyright (c) 2019-2025
 # Pertti Palo, Scott Moisik, Matthew Faytak, and Motoki Saito.
 #
 # This file is part of Speech Articulation ToolKIT
@@ -193,7 +193,7 @@ def add_aaa_raw_ultrasound(
         owner=recording,
         file_info=file_info,
         time_offset=ult_time_offset,
-        meta_data=meta
+        metadata=meta
     )
     recording.add_modality(ultrasound)
 

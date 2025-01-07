@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2019-2024
+# Copyright (c) 2019-2025
 # Pertti Palo, Scott Moisik, Matthew Faytak, and Motoki Saito.
 #
 # This file is part of Speech Articulation ToolKIT
@@ -39,7 +39,6 @@ from typing import Any, TextIO
 
 import numpy as np
 import nestedtext
-# from icecream import ic
 
 from satkit.configuration import PathStructure
 from satkit.constants import SatkitConfigFile, SatkitSuffix
@@ -49,12 +48,12 @@ from satkit.data_import import (
 from satkit.data_structures import (
     ModalityData, Recording, Session, SessionConfig
 )
-from satkit.data_structures.meta_data_classes import FileInformation
+from satkit.data_structures.metadata_classes import FileInformation
 from satkit.metrics import metrics, statistics
 
 from .save_and_load_schemas import (
-    DataContainerListingLoadSchema, DataContainerLoadSchema, RecordingLoadSchema,
-    SessionLoadSchema
+    DataContainerListingLoadSchema, DataContainerLoadSchema,
+    RecordingLoadSchema, SessionLoadSchema
 )
 
 _logger = logging.getLogger('satkit.recording_loader')
@@ -126,7 +125,7 @@ def load_derived_modality(
         owner=recording,
         file_info=file_info,
         parsed_data=modality_data,
-        meta_data=parameters)
+        metadata=parameters)
 
     recording.add_modality(modality=modality)
 
@@ -170,7 +169,7 @@ def load_statistic(
         owner=owner,
         file_info=file_info,
         parsed_data=statistic_data,
-        meta_data=parameters)
+        metadata=parameters)
 
     owner.add_statistic(statistic=statistic)
 

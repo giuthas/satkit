@@ -60,7 +60,7 @@
                         <label class="view-source-button" for="mod-AAA_raw_ultrasound-view-source"><span>View Source</span></label>
 
                         <div class="pdoc-code codehilite"><pre><span></span><span id="L-1"><a href="#L-1"><span class="linenos">  1</span></a><span class="c1">#</span>
-</span><span id="L-2"><a href="#L-2"><span class="linenos">  2</span></a><span class="c1"># Copyright (c) 2019-2024</span>
+</span><span id="L-2"><a href="#L-2"><span class="linenos">  2</span></a><span class="c1"># Copyright (c) 2019-2025</span>
 </span><span id="L-3"><a href="#L-3"><span class="linenos">  3</span></a><span class="c1"># Pertti Palo, Scott Moisik, Matthew Faytak, and Motoki Saito.</span>
 </span><span id="L-4"><a href="#L-4"><span class="linenos">  4</span></a><span class="c1">#</span>
 </span><span id="L-5"><a href="#L-5"><span class="linenos">  5</span></a><span class="c1"># This file is part of Speech Articulation ToolKIT</span>
@@ -251,10 +251,10 @@
 </span><span id="L-190"><a href="#L-190"><span class="linenos">190</span></a>        <span class="n">recorded_meta_file</span><span class="o">=</span><span class="n">meta_path</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
 </span><span id="L-191"><a href="#L-191"><span class="linenos">191</span></a>
 </span><span id="L-192"><a href="#L-192"><span class="linenos">192</span></a>    <span class="n">ultrasound</span> <span class="o">=</span> <span class="n">RawUltrasound</span><span class="p">(</span>
-</span><span id="L-193"><a href="#L-193"><span class="linenos">193</span></a>        <span class="n">recording</span><span class="o">=</span><span class="n">recording</span><span class="p">,</span>
+</span><span id="L-193"><a href="#L-193"><span class="linenos">193</span></a>        <span class="n">owner</span><span class="o">=</span><span class="n">recording</span><span class="p">,</span>
 </span><span id="L-194"><a href="#L-194"><span class="linenos">194</span></a>        <span class="n">file_info</span><span class="o">=</span><span class="n">file_info</span><span class="p">,</span>
 </span><span id="L-195"><a href="#L-195"><span class="linenos">195</span></a>        <span class="n">time_offset</span><span class="o">=</span><span class="n">ult_time_offset</span><span class="p">,</span>
-</span><span id="L-196"><a href="#L-196"><span class="linenos">196</span></a>        <span class="n">meta_data</span><span class="o">=</span><span class="n">meta</span>
+</span><span id="L-196"><a href="#L-196"><span class="linenos">196</span></a>        <span class="n">metadata</span><span class="o">=</span><span class="n">meta</span>
 </span><span id="L-197"><a href="#L-197"><span class="linenos">197</span></a>    <span class="p">)</span>
 </span><span id="L-198"><a href="#L-198"><span class="linenos">198</span></a>    <span class="n">recording</span><span class="o">.</span><span class="n">add_modality</span><span class="p">(</span><span class="n">ultrasound</span><span class="p">)</span>
 </span><span id="L-199"><a href="#L-199"><span class="linenos">199</span></a>
@@ -270,7 +270,7 @@
 <div class="attr function">
             
         <span class="def">def</span>
-        <span class="name">parse_recording_meta_from_aaa_prompt_file</span><span class="signature pdoc-code multiline">(<span class="param">	<span class="n">filepath</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span></span><span class="return-annotation">) -> <span class="n"><a href="../data_structures/meta_data_classes.html#RecordingMetaData">satkit.data_structures.meta_data_classes.RecordingMetaData</a></span>:</span></span>
+        <span class="name">parse_recording_meta_from_aaa_prompt_file</span><span class="signature pdoc-code multiline">(<span class="param">	<span class="n">filepath</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span></span><span class="return-annotation">) -> <span class="n"><a href="../data_structures/metadata_classes.html#RecordingMetaData">satkit.data_structures.metadata_classes.RecordingMetaData</a></span>:</span></span>
 
                 <label class="view-source-button" for="parse_recording_meta_from_aaa_prompt_file-view-source"><span>View Source</span></label>
 
@@ -400,10 +400,10 @@ recording date and time, and participant name into the RecordingMetaData.</p>
 </span><span id="add_aaa_raw_ultrasound-191"><a href="#add_aaa_raw_ultrasound-191"><span class="linenos">191</span></a>        <span class="n">recorded_meta_file</span><span class="o">=</span><span class="n">meta_path</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
 </span><span id="add_aaa_raw_ultrasound-192"><a href="#add_aaa_raw_ultrasound-192"><span class="linenos">192</span></a>
 </span><span id="add_aaa_raw_ultrasound-193"><a href="#add_aaa_raw_ultrasound-193"><span class="linenos">193</span></a>    <span class="n">ultrasound</span> <span class="o">=</span> <span class="n">RawUltrasound</span><span class="p">(</span>
-</span><span id="add_aaa_raw_ultrasound-194"><a href="#add_aaa_raw_ultrasound-194"><span class="linenos">194</span></a>        <span class="n">recording</span><span class="o">=</span><span class="n">recording</span><span class="p">,</span>
+</span><span id="add_aaa_raw_ultrasound-194"><a href="#add_aaa_raw_ultrasound-194"><span class="linenos">194</span></a>        <span class="n">owner</span><span class="o">=</span><span class="n">recording</span><span class="p">,</span>
 </span><span id="add_aaa_raw_ultrasound-195"><a href="#add_aaa_raw_ultrasound-195"><span class="linenos">195</span></a>        <span class="n">file_info</span><span class="o">=</span><span class="n">file_info</span><span class="p">,</span>
 </span><span id="add_aaa_raw_ultrasound-196"><a href="#add_aaa_raw_ultrasound-196"><span class="linenos">196</span></a>        <span class="n">time_offset</span><span class="o">=</span><span class="n">ult_time_offset</span><span class="p">,</span>
-</span><span id="add_aaa_raw_ultrasound-197"><a href="#add_aaa_raw_ultrasound-197"><span class="linenos">197</span></a>        <span class="n">meta_data</span><span class="o">=</span><span class="n">meta</span>
+</span><span id="add_aaa_raw_ultrasound-197"><a href="#add_aaa_raw_ultrasound-197"><span class="linenos">197</span></a>        <span class="n">metadata</span><span class="o">=</span><span class="n">meta</span>
 </span><span id="add_aaa_raw_ultrasound-198"><a href="#add_aaa_raw_ultrasound-198"><span class="linenos">198</span></a>    <span class="p">)</span>
 </span><span id="add_aaa_raw_ultrasound-199"><a href="#add_aaa_raw_ultrasound-199"><span class="linenos">199</span></a>    <span class="n">recording</span><span class="o">.</span><span class="n">add_modality</span><span class="p">(</span><span class="n">ultrasound</span><span class="p">)</span>
 </span><span id="add_aaa_raw_ultrasound-200"><a href="#add_aaa_raw_ultrasound-200"><span class="linenos">200</span></a>

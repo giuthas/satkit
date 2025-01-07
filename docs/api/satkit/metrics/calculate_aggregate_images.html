@@ -60,7 +60,7 @@
                         <label class="view-source-button" for="mod-calculate_aggregate_images-view-source"><span>View Source</span></label>
 
                         <div class="pdoc-code codehilite"><pre><span></span><span id="L-1"><a href="#L-1"><span class="linenos">  1</span></a><span class="c1">#</span>
-</span><span id="L-2"><a href="#L-2"><span class="linenos">  2</span></a><span class="c1"># Copyright (c) 2019-2024</span>
+</span><span id="L-2"><a href="#L-2"><span class="linenos">  2</span></a><span class="c1"># Copyright (c) 2019-2025</span>
 </span><span id="L-3"><a href="#L-3"><span class="linenos">  3</span></a><span class="c1"># Pertti Palo, Scott Moisik, Matthew Faytak, and Motoki Saito.</span>
 </span><span id="L-4"><a href="#L-4"><span class="linenos">  4</span></a><span class="c1">#</span>
 </span><span id="L-5"><a href="#L-5"><span class="linenos">  5</span></a><span class="c1"># This file is part of Speech Articulation ToolKIT</span>
@@ -137,7 +137,7 @@
 </span><span id="L-76"><a href="#L-76"><span class="linenos"> 76</span></a>    <span class="n">file_info</span> <span class="o">=</span> <span class="n">FileInformation</span><span class="p">()</span>
 </span><span id="L-77"><a href="#L-77"><span class="linenos"> 77</span></a>    <span class="k">return</span> <span class="n">AggregateImage</span><span class="p">(</span>
 </span><span id="L-78"><a href="#L-78"><span class="linenos"> 78</span></a>        <span class="n">modality</span><span class="o">.</span><span class="n">recording</span><span class="p">,</span>
-</span><span id="L-79"><a href="#L-79"><span class="linenos"> 79</span></a>        <span class="n">meta_data</span><span class="o">=</span><span class="n">params</span><span class="p">,</span>
+</span><span id="L-79"><a href="#L-79"><span class="linenos"> 79</span></a>        <span class="n">metadata</span><span class="o">=</span><span class="n">params</span><span class="p">,</span>
 </span><span id="L-80"><a href="#L-80"><span class="linenos"> 80</span></a>        <span class="n">file_info</span><span class="o">=</span><span class="n">file_info</span><span class="p">,</span>
 </span><span id="L-81"><a href="#L-81"><span class="linenos"> 81</span></a>        <span class="n">parsed_data</span><span class="o">=</span><span class="n">aggregate_image</span><span class="p">)</span>
 </span><span id="L-82"><a href="#L-82"><span class="linenos"> 82</span></a>
@@ -171,7 +171,7 @@
 </span><span id="L-110"><a href="#L-110"><span class="linenos">110</span></a>            <span class="n">mean_image_on_interpolated_data</span><span class="o">=</span><span class="n">run_on_interpolated_data</span><span class="p">,</span>
 </span><span id="L-111"><a href="#L-111"><span class="linenos">111</span></a>            <span class="n">release_data_memory</span><span class="o">=</span><span class="n">release_data_memory</span><span class="p">)</span>
 </span><span id="L-112"><a href="#L-112"><span class="linenos">112</span></a>        <span class="n">missing_keys</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">all_requested</span><span class="p">)</span><span class="o">.</span><span class="n">difference</span><span class="p">(</span>
-</span><span id="L-113"><a href="#L-113"><span class="linenos">113</span></a>            <span class="n">recording</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
+</span><span id="L-113"><a href="#L-113"><span class="linenos">113</span></a>            <span class="n">recording</span><span class="o">.</span><span class="n">statistics</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
 </span><span id="L-114"><a href="#L-114"><span class="linenos">114</span></a>        <span class="n">to_be_computed</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">((</span><span class="n">key</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span>
 </span><span id="L-115"><a href="#L-115"><span class="linenos">115</span></a>                              <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">all_requested</span><span class="o">.</span><span class="n">items</span><span class="p">()</span>
 </span><span id="L-116"><a href="#L-116"><span class="linenos">116</span></a>                              <span class="k">if</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">missing_keys</span><span class="p">)</span>
@@ -235,7 +235,7 @@
 </span><span id="calculate_aggregate_image-77"><a href="#calculate_aggregate_image-77"><span class="linenos">77</span></a>    <span class="n">file_info</span> <span class="o">=</span> <span class="n">FileInformation</span><span class="p">()</span>
 </span><span id="calculate_aggregate_image-78"><a href="#calculate_aggregate_image-78"><span class="linenos">78</span></a>    <span class="k">return</span> <span class="n">AggregateImage</span><span class="p">(</span>
 </span><span id="calculate_aggregate_image-79"><a href="#calculate_aggregate_image-79"><span class="linenos">79</span></a>        <span class="n">modality</span><span class="o">.</span><span class="n">recording</span><span class="p">,</span>
-</span><span id="calculate_aggregate_image-80"><a href="#calculate_aggregate_image-80"><span class="linenos">80</span></a>        <span class="n">meta_data</span><span class="o">=</span><span class="n">params</span><span class="p">,</span>
+</span><span id="calculate_aggregate_image-80"><a href="#calculate_aggregate_image-80"><span class="linenos">80</span></a>        <span class="n">metadata</span><span class="o">=</span><span class="n">params</span><span class="p">,</span>
 </span><span id="calculate_aggregate_image-81"><a href="#calculate_aggregate_image-81"><span class="linenos">81</span></a>        <span class="n">file_info</span><span class="o">=</span><span class="n">file_info</span><span class="p">,</span>
 </span><span id="calculate_aggregate_image-82"><a href="#calculate_aggregate_image-82"><span class="linenos">82</span></a>        <span class="n">parsed_data</span><span class="o">=</span><span class="n">aggregate_image</span><span class="p">)</span>
 </span></pre></div>
@@ -305,7 +305,7 @@ Parameters for calculating the aggregate.</li>
 </span><span id="add_aggregate_images-111"><a href="#add_aggregate_images-111"><span class="linenos">111</span></a>            <span class="n">mean_image_on_interpolated_data</span><span class="o">=</span><span class="n">run_on_interpolated_data</span><span class="p">,</span>
 </span><span id="add_aggregate_images-112"><a href="#add_aggregate_images-112"><span class="linenos">112</span></a>            <span class="n">release_data_memory</span><span class="o">=</span><span class="n">release_data_memory</span><span class="p">)</span>
 </span><span id="add_aggregate_images-113"><a href="#add_aggregate_images-113"><span class="linenos">113</span></a>        <span class="n">missing_keys</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">all_requested</span><span class="p">)</span><span class="o">.</span><span class="n">difference</span><span class="p">(</span>
-</span><span id="add_aggregate_images-114"><a href="#add_aggregate_images-114"><span class="linenos">114</span></a>            <span class="n">recording</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
+</span><span id="add_aggregate_images-114"><a href="#add_aggregate_images-114"><span class="linenos">114</span></a>            <span class="n">recording</span><span class="o">.</span><span class="n">statistics</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
 </span><span id="add_aggregate_images-115"><a href="#add_aggregate_images-115"><span class="linenos">115</span></a>        <span class="n">to_be_computed</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">((</span><span class="n">key</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span>
 </span><span id="add_aggregate_images-116"><a href="#add_aggregate_images-116"><span class="linenos">116</span></a>                              <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">all_requested</span><span class="o">.</span><span class="n">items</span><span class="p">()</span>
 </span><span id="add_aggregate_images-117"><a href="#add_aggregate_images-117"><span class="linenos">117</span></a>                              <span class="k">if</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">missing_keys</span><span class="p">)</span>

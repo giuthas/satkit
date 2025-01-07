@@ -109,8 +109,8 @@ def downsample_metrics(
     NotImplementedError
         For now only match_timestep = True is allowed.
     """
-    # TODO either expose the original interface in the next function or merge
-    # it into this one
+    # TODO 0.13 either expose the original interface in the next function or
+    # merge it into this one
     _downsample_metrics(
         recording=recording,
         modality_pattern=downsampling_parameters.modality_pattern,

@@ -30,14 +30,50 @@
 # citations.bib in BibTeX format.
 #
 """
-General purpose utility functions.
+String formatter functions.
 """
+from typing import Generator
 
-from .computational import (
-    cartesian_to_polar, polar_to_cartesian, mean_squared_error,
-    normalise_timeseries
-)
-from .logging_helpers import log_elapsed_time, set_logging_level
-from .processing_helpers import camel_to_snake, product_dict
-from .string_formatters import format_modality_legend
-from .types import is_sequence_form
+from ..data_structures import Modality
+
+def _split_by(
+        string: str,
+        delimiters: str = "{}"
+) -> Generator[(str, bool), None, None]:
+    while len(string) > 0:
+        directive = string[0] == delimiters[0]
+        if directive:
+            result, string = string[1:].split(sep=delimiters[-1], maxsplit=1)
+        else:
+            result, string = string[1:].split(sep=delimiters[0], maxsplit=1)
+        yield result, directive
+
+
+def process_directive(
+        directive: str,
+        modality: Modality,
+        index: int
+) -> str:
+    field_name, format_specifier = directive.split(sep=":", maxsplit=1)
+    format_specifier = "{" + format_specifier + "}"
+    if field_name == "sampling_rate":
+        return format_specifier.format(modality.sampling_rate)
+    else:
+        return format_specifier.format(
+            modality.modality_data.__dict__[field_name])
+
+
+def format_modality_legend(
+    modality: Modality,
+    index: int,
+    format_string: str,
+    delimiters: str = "{}"
+) -> str:
+    result = ""
+    for chunk, is_directive in _split_by(format_string, delimiters):
+        if not is_directive:
+            result += chunk
+        else:
+            result += process_directive(chunk, modality, index)
+
+    return result

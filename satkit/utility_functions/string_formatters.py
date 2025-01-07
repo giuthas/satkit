@@ -34,6 +34,8 @@ String formatter functions.
 """
 from typing import Generator
 
+from icecream import ic
+
 
 def split_by(
         string: str,
@@ -63,10 +65,12 @@ def split_by(
             result, string = string[1:].split(sep=delimiters[-1], maxsplit=1)
         else:
             if delimiters[0] in string[1:]:
-                result, string = string[1:].split(sep=delimiters[0], maxsplit=1)
+                result, string = string.split(sep=delimiters[0], maxsplit=1)
+                string = "{" + string
             else:
                 result = string
                 string = ""
+        ic(result, string, directive)
         yield result, directive
 
 

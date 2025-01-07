@@ -40,6 +40,7 @@ from pathlib import Path
 
 import numpy as np
 import textgrids
+from icecream import ic
 
 from satkit.configuration import PathStructure
 from satkit.constants import AnnotationType
@@ -810,12 +811,13 @@ class Modality(DataContainer, OrderedDict):
         """
         if ":" in directive:
             field_name, format_specifier = directive.split(sep=":", maxsplit=1)
-            format_specifier = "{" + format_specifier + "}"
+            # format_specifier = "{" + format_specifier + "}"
             if field_name == "sampling_rate":
-                return format_specifier.format(self.sampling_rate)
+                ic(format_specifier)
+                return format(self.sampling_rate, format_specifier)
             else:
-                return format_specifier.format(
-                    self.metadata.__dict__[field_name])
+                return format(
+                    self.metadata.__dict__[field_name], format_specifier)
         else:
             return self.metadata.__dict__[directive]
 

@@ -4,4 +4,4 @@ pdoc -d numpy -o docs/api satkit/*
 
 # and some diagrams to be linked as well.
 # Needs Graphviz to work properly
-pyreverse -o png -p satkit -d docs satkit
+pyreverse -o png -p satkit -d docs/api satkit

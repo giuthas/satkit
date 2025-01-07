@@ -66,7 +66,7 @@
                         <label class="view-source-button" for="mod-computational-view-source"><span>View Source</span></label>
 
                         <div class="pdoc-code codehilite"><pre><span></span><span id="L-1"><a href="#L-1"><span class="linenos">  1</span></a><span class="c1">#</span>
-</span><span id="L-2"><a href="#L-2"><span class="linenos">  2</span></a><span class="c1"># Copyright (c) 2019-2024</span>
+</span><span id="L-2"><a href="#L-2"><span class="linenos">  2</span></a><span class="c1"># Copyright (c) 2019-2025</span>
 </span><span id="L-3"><a href="#L-3"><span class="linenos">  3</span></a><span class="c1"># Pertti Palo, Scott Moisik, Matthew Faytak, and Motoki Saito.</span>
 </span><span id="L-4"><a href="#L-4"><span class="linenos">  4</span></a><span class="c1">#</span>
 </span><span id="L-5"><a href="#L-5"><span class="linenos">  5</span></a><span class="c1"># This file is part of Speech Articulation ToolKIT</span>
@@ -100,85 +100,85 @@
 </span><span id="L-33"><a href="#L-33"><span class="linenos"> 33</span></a><span class="sd">Computation helper functions.</span>
 </span><span id="L-34"><a href="#L-34"><span class="linenos"> 34</span></a><span class="sd">&quot;&quot;&quot;</span>
 </span><span id="L-35"><a href="#L-35"><span class="linenos"> 35</span></a>
-</span><span id="L-36"><a href="#L-36"><span class="linenos"> 36</span></a><span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Optional</span>
+</span><span id="L-36"><a href="#L-36"><span class="linenos"> 36</span></a><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 </span><span id="L-37"><a href="#L-37"><span class="linenos"> 37</span></a>
-</span><span id="L-38"><a href="#L-38"><span class="linenos"> 38</span></a><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+</span><span id="L-38"><a href="#L-38"><span class="linenos"> 38</span></a><span class="kn">from</span> <span class="nn">satkit.configuration</span> <span class="kn">import</span> <span class="n">TimeseriesNormalisation</span>
 </span><span id="L-39"><a href="#L-39"><span class="linenos"> 39</span></a>
-</span><span id="L-40"><a href="#L-40"><span class="linenos"> 40</span></a><span class="c1"># from icecream import ic</span>
-</span><span id="L-41"><a href="#L-41"><span class="linenos"> 41</span></a>
-</span><span id="L-42"><a href="#L-42"><span class="linenos"> 42</span></a><span class="kn">from</span> <span class="nn">satkit.configuration</span> <span class="kn">import</span> <span class="n">TimeseriesNormalisation</span>
-</span><span id="L-43"><a href="#L-43"><span class="linenos"> 43</span></a>
-</span><span id="L-44"><a href="#L-44"><span class="linenos"> 44</span></a>
-</span><span id="L-45"><a href="#L-45"><span class="linenos"> 45</span></a><span class="k">def</span> <span class="nf">normalise_timeseries</span><span class="p">(</span>
-</span><span id="L-46"><a href="#L-46"><span class="linenos"> 46</span></a>        <span class="n">data</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
-</span><span id="L-47"><a href="#L-47"><span class="linenos"> 47</span></a>        <span class="n">normalisation</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">TimeseriesNormalisation</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
-</span><span id="L-48"><a href="#L-48"><span class="linenos"> 48</span></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-</span><span id="L-49"><a href="#L-49"><span class="linenos"> 49</span></a><span class="sd">    Apply the specified normalisation to the data and return it. </span>
-</span><span id="L-50"><a href="#L-50"><span class="linenos"> 50</span></a>
-</span><span id="L-51"><a href="#L-51"><span class="linenos"> 51</span></a><span class="sd">    Parameters</span>
-</span><span id="L-52"><a href="#L-52"><span class="linenos"> 52</span></a><span class="sd">    ----------</span>
-</span><span id="L-53"><a href="#L-53"><span class="linenos"> 53</span></a><span class="sd">    data : np.ndarray</span>
-</span><span id="L-54"><a href="#L-54"><span class="linenos"> 54</span></a><span class="sd">        The data to normalise. Currently assumed to be a 1D-array.</span>
-</span><span id="L-55"><a href="#L-55"><span class="linenos"> 55</span></a><span class="sd">    normalisation : Optional[TimeseriesNormalisation]</span>
-</span><span id="L-56"><a href="#L-56"><span class="linenos"> 56</span></a><span class="sd">        TimeseriesNormalisation object specifying the normalisation to apply.</span>
-</span><span id="L-57"><a href="#L-57"><span class="linenos"> 57</span></a>
-</span><span id="L-58"><a href="#L-58"><span class="linenos"> 58</span></a><span class="sd">    Returns</span>
-</span><span id="L-59"><a href="#L-59"><span class="linenos"> 59</span></a><span class="sd">    -------</span>
-</span><span id="L-60"><a href="#L-60"><span class="linenos"> 60</span></a><span class="sd">    np.ndarray</span>
-</span><span id="L-61"><a href="#L-61"><span class="linenos"> 61</span></a><span class="sd">        Normalised data. Defaults to original data if no normalisation is</span>
-</span><span id="L-62"><a href="#L-62"><span class="linenos"> 62</span></a><span class="sd">        either specified or the normalisation argument is None.</span>
-</span><span id="L-63"><a href="#L-63"><span class="linenos"> 63</span></a><span class="sd">    &quot;&quot;&quot;</span>
-</span><span id="L-64"><a href="#L-64"><span class="linenos"> 64</span></a>    <span class="k">if</span> <span class="n">normalisation</span><span class="p">:</span>
-</span><span id="L-65"><a href="#L-65"><span class="linenos"> 65</span></a>        <span class="k">if</span> <span class="n">normalisation</span><span class="o">.</span><span class="n">bottom</span><span class="p">:</span>
-</span><span id="L-66"><a href="#L-66"><span class="linenos"> 66</span></a>            <span class="n">data</span> <span class="o">=</span> <span class="n">data</span> <span class="o">-</span> <span class="n">np</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
-</span><span id="L-67"><a href="#L-67"><span class="linenos"> 67</span></a>        <span class="k">if</span> <span class="n">normalisation</span><span class="o">.</span><span class="n">peak</span><span class="p">:</span>
-</span><span id="L-68"><a href="#L-68"><span class="linenos"> 68</span></a>            <span class="n">data</span> <span class="o">=</span> <span class="n">data</span><span class="o">/</span><span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
-</span><span id="L-69"><a href="#L-69"><span class="linenos"> 69</span></a>    <span class="k">return</span> <span class="n">data</span>
-</span><span id="L-70"><a href="#L-70"><span class="linenos"> 70</span></a>
+</span><span id="L-40"><a href="#L-40"><span class="linenos"> 40</span></a>
+</span><span id="L-41"><a href="#L-41"><span class="linenos"> 41</span></a><span class="k">def</span> <span class="nf">normalise_timeseries</span><span class="p">(</span>
+</span><span id="L-42"><a href="#L-42"><span class="linenos"> 42</span></a>        <span class="n">data</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+</span><span id="L-43"><a href="#L-43"><span class="linenos"> 43</span></a>        <span class="n">normalisation</span><span class="p">:</span> <span class="n">TimeseriesNormalisation</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+</span><span id="L-44"><a href="#L-44"><span class="linenos"> 44</span></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+</span><span id="L-45"><a href="#L-45"><span class="linenos"> 45</span></a><span class="sd">    Apply the specified normalisation to the data and return it. </span>
+</span><span id="L-46"><a href="#L-46"><span class="linenos"> 46</span></a>
+</span><span id="L-47"><a href="#L-47"><span class="linenos"> 47</span></a><span class="sd">    Parameters</span>
+</span><span id="L-48"><a href="#L-48"><span class="linenos"> 48</span></a><span class="sd">    ----------</span>
+</span><span id="L-49"><a href="#L-49"><span class="linenos"> 49</span></a><span class="sd">    data : np.ndarray</span>
+</span><span id="L-50"><a href="#L-50"><span class="linenos"> 50</span></a><span class="sd">        The data to normalise. Currently assumed to be a 1D-array.</span>
+</span><span id="L-51"><a href="#L-51"><span class="linenos"> 51</span></a><span class="sd">    normalisation : Optional[TimeseriesNormalisation]</span>
+</span><span id="L-52"><a href="#L-52"><span class="linenos"> 52</span></a><span class="sd">        TimeseriesNormalisation object specifying the normalisation to apply.</span>
+</span><span id="L-53"><a href="#L-53"><span class="linenos"> 53</span></a>
+</span><span id="L-54"><a href="#L-54"><span class="linenos"> 54</span></a><span class="sd">    Returns</span>
+</span><span id="L-55"><a href="#L-55"><span class="linenos"> 55</span></a><span class="sd">    -------</span>
+</span><span id="L-56"><a href="#L-56"><span class="linenos"> 56</span></a><span class="sd">    np.ndarray</span>
+</span><span id="L-57"><a href="#L-57"><span class="linenos"> 57</span></a><span class="sd">        Normalised data. Defaults to original data if no normalisation is</span>
+</span><span id="L-58"><a href="#L-58"><span class="linenos"> 58</span></a><span class="sd">        either specified or the normalisation argument is None.</span>
+</span><span id="L-59"><a href="#L-59"><span class="linenos"> 59</span></a><span class="sd">    &quot;&quot;&quot;</span>
+</span><span id="L-60"><a href="#L-60"><span class="linenos"> 60</span></a>    <span class="k">if</span> <span class="n">normalisation</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+</span><span id="L-61"><a href="#L-61"><span class="linenos"> 61</span></a>        <span class="k">if</span> <span class="n">normalisation</span><span class="o">.</span><span class="n">bottom</span><span class="p">:</span>
+</span><span id="L-62"><a href="#L-62"><span class="linenos"> 62</span></a>            <span class="n">data</span> <span class="o">=</span> <span class="n">data</span> <span class="o">-</span> <span class="n">np</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+</span><span id="L-63"><a href="#L-63"><span class="linenos"> 63</span></a>        <span class="k">if</span> <span class="n">normalisation</span><span class="o">.</span><span class="n">peak</span><span class="p">:</span>
+</span><span id="L-64"><a href="#L-64"><span class="linenos"> 64</span></a>            <span class="n">data</span> <span class="o">=</span> <span class="n">data</span><span class="o">/</span><span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+</span><span id="L-65"><a href="#L-65"><span class="linenos"> 65</span></a>    <span class="k">return</span> <span class="n">data</span>
+</span><span id="L-66"><a href="#L-66"><span class="linenos"> 66</span></a>
+</span><span id="L-67"><a href="#L-67"><span class="linenos"> 67</span></a>
+</span><span id="L-68"><a href="#L-68"><span class="linenos"> 68</span></a><span class="k">def</span> <span class="nf">cartesian_to_polar</span><span class="p">(</span><span class="n">xy_array</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+</span><span id="L-69"><a href="#L-69"><span class="linenos"> 69</span></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+</span><span id="L-70"><a href="#L-70"><span class="linenos"> 70</span></a><span class="sd">    Transform an array of 2D Cartesian coordinates to polar coordinates.</span>
 </span><span id="L-71"><a href="#L-71"><span class="linenos"> 71</span></a>
-</span><span id="L-72"><a href="#L-72"><span class="linenos"> 72</span></a><span class="k">def</span> <span class="nf">cartesian_to_polar</span><span class="p">(</span><span class="n">xy_array</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
-</span><span id="L-73"><a href="#L-73"><span class="linenos"> 73</span></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-</span><span id="L-74"><a href="#L-74"><span class="linenos"> 74</span></a><span class="sd">    Transform an array of 2D Cartesian coordinates to polar coordinates.</span>
-</span><span id="L-75"><a href="#L-75"><span class="linenos"> 75</span></a>
-</span><span id="L-76"><a href="#L-76"><span class="linenos"> 76</span></a><span class="sd">    Parameters</span>
-</span><span id="L-77"><a href="#L-77"><span class="linenos"> 77</span></a><span class="sd">    ----------</span>
-</span><span id="L-78"><a href="#L-78"><span class="linenos"> 78</span></a><span class="sd">    xy_array : np.ndarray</span>
-</span><span id="L-79"><a href="#L-79"><span class="linenos"> 79</span></a><span class="sd">        axes order is x-y, spline points</span>
+</span><span id="L-72"><a href="#L-72"><span class="linenos"> 72</span></a><span class="sd">    Parameters</span>
+</span><span id="L-73"><a href="#L-73"><span class="linenos"> 73</span></a><span class="sd">    ----------</span>
+</span><span id="L-74"><a href="#L-74"><span class="linenos"> 74</span></a><span class="sd">    xy_array : np.ndarray</span>
+</span><span id="L-75"><a href="#L-75"><span class="linenos"> 75</span></a><span class="sd">        axes order is x-y, spline points</span>
+</span><span id="L-76"><a href="#L-76"><span class="linenos"> 76</span></a>
+</span><span id="L-77"><a href="#L-77"><span class="linenos"> 77</span></a><span class="sd">        This maybe passed in as 1D array which will then be reshaped into a 2*x</span>
+</span><span id="L-78"><a href="#L-78"><span class="linenos"> 78</span></a><span class="sd">        array. This makes it possible to apply the transformation with</span>
+</span><span id="L-79"><a href="#L-79"><span class="linenos"> 79</span></a><span class="sd">        `np.apply_along_axis`.</span>
 </span><span id="L-80"><a href="#L-80"><span class="linenos"> 80</span></a>
-</span><span id="L-81"><a href="#L-81"><span class="linenos"> 81</span></a><span class="sd">        This maybe passed in as 1D array which will then be reshaped into a 2*x</span>
-</span><span id="L-82"><a href="#L-82"><span class="linenos"> 82</span></a><span class="sd">        array. This makes it possible to apply the transformation with</span>
-</span><span id="L-83"><a href="#L-83"><span class="linenos"> 83</span></a><span class="sd">        `np.apply_along_axis`.</span>
-</span><span id="L-84"><a href="#L-84"><span class="linenos"> 84</span></a>
-</span><span id="L-85"><a href="#L-85"><span class="linenos"> 85</span></a><span class="sd">    Returns</span>
-</span><span id="L-86"><a href="#L-86"><span class="linenos"> 86</span></a><span class="sd">    -------</span>
-</span><span id="L-87"><a href="#L-87"><span class="linenos"> 87</span></a><span class="sd">    np.ndarray</span>
-</span><span id="L-88"><a href="#L-88"><span class="linenos"> 88</span></a><span class="sd">        axes order is r-phi, spline points</span>
-</span><span id="L-89"><a href="#L-89"><span class="linenos"> 89</span></a><span class="sd">    &quot;&quot;&quot;</span>
-</span><span id="L-90"><a href="#L-90"><span class="linenos"> 90</span></a>    <span class="k">if</span> <span class="n">xy_array</span><span class="o">.</span><span class="n">ndim</span> <span class="o">==</span> <span class="mi">1</span> <span class="ow">and</span> <span class="n">xy_array</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">%</span> <span class="mi">2</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
-</span><span id="L-91"><a href="#L-91"><span class="linenos"> 91</span></a>        <span class="n">xy_array</span> <span class="o">=</span> <span class="n">xy_array</span><span class="o">.</span><span class="n">reshape</span><span class="p">((</span><span class="mi">2</span><span class="p">,</span> <span class="n">xy_array</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">//</span><span class="mi">2</span><span class="p">))</span>
+</span><span id="L-81"><a href="#L-81"><span class="linenos"> 81</span></a><span class="sd">    Returns</span>
+</span><span id="L-82"><a href="#L-82"><span class="linenos"> 82</span></a><span class="sd">    -------</span>
+</span><span id="L-83"><a href="#L-83"><span class="linenos"> 83</span></a><span class="sd">    np.ndarray</span>
+</span><span id="L-84"><a href="#L-84"><span class="linenos"> 84</span></a><span class="sd">        axes order is r-phi, spline points</span>
+</span><span id="L-85"><a href="#L-85"><span class="linenos"> 85</span></a><span class="sd">    &quot;&quot;&quot;</span>
+</span><span id="L-86"><a href="#L-86"><span class="linenos"> 86</span></a>    <span class="k">if</span> <span class="n">xy_array</span><span class="o">.</span><span class="n">ndim</span> <span class="o">==</span> <span class="mi">1</span> <span class="ow">and</span> <span class="n">xy_array</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">%</span> <span class="mi">2</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+</span><span id="L-87"><a href="#L-87"><span class="linenos"> 87</span></a>        <span class="n">xy_array</span> <span class="o">=</span> <span class="n">xy_array</span><span class="o">.</span><span class="n">reshape</span><span class="p">((</span><span class="mi">2</span><span class="p">,</span> <span class="n">xy_array</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">//</span><span class="mi">2</span><span class="p">))</span>
+</span><span id="L-88"><a href="#L-88"><span class="linenos"> 88</span></a>
+</span><span id="L-89"><a href="#L-89"><span class="linenos"> 89</span></a>    <span class="n">r</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">((</span><span class="n">xy_array</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="mi">0</span><span class="p">))</span>
+</span><span id="L-90"><a href="#L-90"><span class="linenos"> 90</span></a>    <span class="n">phi</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arctan2</span><span class="p">(</span><span class="n">xy_array</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="p">:],</span> <span class="n">xy_array</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="p">:])</span>
+</span><span id="L-91"><a href="#L-91"><span class="linenos"> 91</span></a>    <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">stack</span><span class="p">(</span><span class="n">r</span><span class="p">,</span> <span class="n">phi</span><span class="p">)</span>
 </span><span id="L-92"><a href="#L-92"><span class="linenos"> 92</span></a>
-</span><span id="L-93"><a href="#L-93"><span class="linenos"> 93</span></a>    <span class="n">r</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">((</span><span class="n">xy_array</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="mi">0</span><span class="p">))</span>
-</span><span id="L-94"><a href="#L-94"><span class="linenos"> 94</span></a>    <span class="n">phi</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arctan2</span><span class="p">(</span><span class="n">xy_array</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="p">:],</span> <span class="n">xy_array</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="p">:])</span>
-</span><span id="L-95"><a href="#L-95"><span class="linenos"> 95</span></a>    <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">stack</span><span class="p">(</span><span class="n">r</span><span class="p">,</span> <span class="n">phi</span><span class="p">)</span>
-</span><span id="L-96"><a href="#L-96"><span class="linenos"> 96</span></a>
-</span><span id="L-97"><a href="#L-97"><span class="linenos"> 97</span></a>
-</span><span id="L-98"><a href="#L-98"><span class="linenos"> 98</span></a><span class="k">def</span> <span class="nf">polar_to_cartesian</span><span class="p">(</span>
-</span><span id="L-99"><a href="#L-99"><span class="linenos"> 99</span></a>        <span class="n">r_phi_array</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
-</span><span id="L-100"><a href="#L-100"><span class="linenos">100</span></a>        <span class="n">angle_offset</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mi">0</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
-</span><span id="L-101"><a href="#L-101"><span class="linenos">101</span></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-</span><span id="L-102"><a href="#L-102"><span class="linenos">102</span></a><span class="sd">    Transform an array of 2D polar coordinates to Cartesian coordinates.</span>
-</span><span id="L-103"><a href="#L-103"><span class="linenos">103</span></a>
-</span><span id="L-104"><a href="#L-104"><span class="linenos">104</span></a><span class="sd">    Parameters</span>
-</span><span id="L-105"><a href="#L-105"><span class="linenos">105</span></a><span class="sd">    ----------</span>
-</span><span id="L-106"><a href="#L-106"><span class="linenos">106</span></a><span class="sd">    r_phi_array : np.ndarray</span>
-</span><span id="L-107"><a href="#L-107"><span class="linenos">107</span></a><span class="sd">        axes order is r-phi, spline points </span>
-</span><span id="L-108"><a href="#L-108"><span class="linenos">108</span></a>
-</span><span id="L-109"><a href="#L-109"><span class="linenos">109</span></a><span class="sd">        This maybe passed in as 1D array which will then be reshaped into a 2*x</span>
-</span><span id="L-110"><a href="#L-110"><span class="linenos">110</span></a><span class="sd">        array. This makes it possible to apply the transformation with </span>
-</span><span id="L-111"><a href="#L-111"><span class="linenos">111</span></a><span class="sd">        `   r_phi = self.data[:, 0:2, :]</span>
-</span><span id="L-112"><a href="#L-112"><span class="linenos">112</span></a><span class="sd">            r_phi = r_phi.reshape([self.data.shape[0], -1])</span>
-</span><span id="L-113"><a href="#L-113"><span class="linenos">113</span></a><span class="sd">            coords = np.apply_along_axis(</span>
-</span><span id="L-114"><a href="#L-114"><span class="linenos">114</span></a><span class="sd">                polar_to_cartesian, 1, r_phi)`</span>
+</span><span id="L-93"><a href="#L-93"><span class="linenos"> 93</span></a>
+</span><span id="L-94"><a href="#L-94"><span class="linenos"> 94</span></a><span class="k">def</span> <span class="nf">polar_to_cartesian</span><span class="p">(</span>
+</span><span id="L-95"><a href="#L-95"><span class="linenos"> 95</span></a>        <span class="n">r_phi_array</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+</span><span id="L-96"><a href="#L-96"><span class="linenos"> 96</span></a>        <span class="n">angle_offset</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mi">0</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+</span><span id="L-97"><a href="#L-97"><span class="linenos"> 97</span></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+</span><span id="L-98"><a href="#L-98"><span class="linenos"> 98</span></a><span class="sd">    Transform an array of 2D polar coordinates to Cartesian coordinates.</span>
+</span><span id="L-99"><a href="#L-99"><span class="linenos"> 99</span></a>
+</span><span id="L-100"><a href="#L-100"><span class="linenos">100</span></a><span class="sd">    Parameters</span>
+</span><span id="L-101"><a href="#L-101"><span class="linenos">101</span></a><span class="sd">    ----------</span>
+</span><span id="L-102"><a href="#L-102"><span class="linenos">102</span></a><span class="sd">    r_phi_array : np.ndarray</span>
+</span><span id="L-103"><a href="#L-103"><span class="linenos">103</span></a><span class="sd">        axes order is r-phi, spline points </span>
+</span><span id="L-104"><a href="#L-104"><span class="linenos">104</span></a>
+</span><span id="L-105"><a href="#L-105"><span class="linenos">105</span></a><span class="sd">        This maybe passed in as 1D array which will then be reshaped into a 2*x</span>
+</span><span id="L-106"><a href="#L-106"><span class="linenos">106</span></a><span class="sd">        array. This makes it possible to apply the transformation with </span>
+</span><span id="L-107"><a href="#L-107"><span class="linenos">107</span></a><span class="sd">        ```python</span>
+</span><span id="L-108"><a href="#L-108"><span class="linenos">108</span></a><span class="sd">            r_phi = self.data[:, 0:2, :]</span>
+</span><span id="L-109"><a href="#L-109"><span class="linenos">109</span></a><span class="sd">            r_phi = r_phi.reshape([self.data.shape[0], -1])</span>
+</span><span id="L-110"><a href="#L-110"><span class="linenos">110</span></a><span class="sd">            coords = np.apply_along_axis(</span>
+</span><span id="L-111"><a href="#L-111"><span class="linenos">111</span></a><span class="sd">                polar_to_cartesian, 1, r_phi)</span>
+</span><span id="L-112"><a href="#L-112"><span class="linenos">112</span></a><span class="sd">        ```</span>
+</span><span id="L-113"><a href="#L-113"><span class="linenos">113</span></a><span class="sd">    angle_offset : float</span>
+</span><span id="L-114"><a href="#L-114"><span class="linenos">114</span></a><span class="sd">        Offset for the angle in radians, by default 0.</span>
 </span><span id="L-115"><a href="#L-115"><span class="linenos">115</span></a>
 </span><span id="L-116"><a href="#L-116"><span class="linenos">116</span></a><span class="sd">    Returns</span>
 </span><span id="L-117"><a href="#L-117"><span class="linenos">117</span></a><span class="sd">    -------</span>
@@ -219,37 +219,37 @@
 <div class="attr function">
             
         <span class="def">def</span>
-        <span class="name">normalise_timeseries</span><span class="signature pdoc-code multiline">(<span class="param">	<span class="n">data</span><span class="p">:</span> <span class="n">numpy</span><span class="o">.</span><span class="n">ndarray</span>,</span><span class="param">	<span class="n">normalisation</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n"><a href="../configuration/configuration_models.html#TimeseriesNormalisation">satkit.configuration.configuration_models.TimeseriesNormalisation</a></span><span class="p">]</span></span><span class="return-annotation">) -> <span class="n">numpy</span><span class="o">.</span><span class="n">ndarray</span>:</span></span>
+        <span class="name">normalise_timeseries</span><span class="signature pdoc-code multiline">(<span class="param">	<span class="n">data</span><span class="p">:</span> <span class="n">numpy</span><span class="o">.</span><span class="n">ndarray</span>,</span><span class="param">	<span class="n">normalisation</span><span class="p">:</span> <span class="n"><a href="../configuration/configuration_models.html#TimeseriesNormalisation">satkit.configuration.configuration_models.TimeseriesNormalisation</a></span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span></span><span class="return-annotation">) -> <span class="n">numpy</span><span class="o">.</span><span class="n">ndarray</span>:</span></span>
 
                 <label class="view-source-button" for="normalise_timeseries-view-source"><span>View Source</span></label>
 
     </div>
     <a class="headerlink" href="#normalise_timeseries"></a>
-            <div class="pdoc-code codehilite"><pre><span></span><span id="normalise_timeseries-46"><a href="#normalise_timeseries-46"><span class="linenos">46</span></a><span class="k">def</span> <span class="nf">normalise_timeseries</span><span class="p">(</span>
-</span><span id="normalise_timeseries-47"><a href="#normalise_timeseries-47"><span class="linenos">47</span></a>        <span class="n">data</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
-</span><span id="normalise_timeseries-48"><a href="#normalise_timeseries-48"><span class="linenos">48</span></a>        <span class="n">normalisation</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">TimeseriesNormalisation</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
-</span><span id="normalise_timeseries-49"><a href="#normalise_timeseries-49"><span class="linenos">49</span></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-</span><span id="normalise_timeseries-50"><a href="#normalise_timeseries-50"><span class="linenos">50</span></a><span class="sd">    Apply the specified normalisation to the data and return it. </span>
-</span><span id="normalise_timeseries-51"><a href="#normalise_timeseries-51"><span class="linenos">51</span></a>
-</span><span id="normalise_timeseries-52"><a href="#normalise_timeseries-52"><span class="linenos">52</span></a><span class="sd">    Parameters</span>
-</span><span id="normalise_timeseries-53"><a href="#normalise_timeseries-53"><span class="linenos">53</span></a><span class="sd">    ----------</span>
-</span><span id="normalise_timeseries-54"><a href="#normalise_timeseries-54"><span class="linenos">54</span></a><span class="sd">    data : np.ndarray</span>
-</span><span id="normalise_timeseries-55"><a href="#normalise_timeseries-55"><span class="linenos">55</span></a><span class="sd">        The data to normalise. Currently assumed to be a 1D-array.</span>
-</span><span id="normalise_timeseries-56"><a href="#normalise_timeseries-56"><span class="linenos">56</span></a><span class="sd">    normalisation : Optional[TimeseriesNormalisation]</span>
-</span><span id="normalise_timeseries-57"><a href="#normalise_timeseries-57"><span class="linenos">57</span></a><span class="sd">        TimeseriesNormalisation object specifying the normalisation to apply.</span>
-</span><span id="normalise_timeseries-58"><a href="#normalise_timeseries-58"><span class="linenos">58</span></a>
-</span><span id="normalise_timeseries-59"><a href="#normalise_timeseries-59"><span class="linenos">59</span></a><span class="sd">    Returns</span>
-</span><span id="normalise_timeseries-60"><a href="#normalise_timeseries-60"><span class="linenos">60</span></a><span class="sd">    -------</span>
-</span><span id="normalise_timeseries-61"><a href="#normalise_timeseries-61"><span class="linenos">61</span></a><span class="sd">    np.ndarray</span>
-</span><span id="normalise_timeseries-62"><a href="#normalise_timeseries-62"><span class="linenos">62</span></a><span class="sd">        Normalised data. Defaults to original data if no normalisation is</span>
-</span><span id="normalise_timeseries-63"><a href="#normalise_timeseries-63"><span class="linenos">63</span></a><span class="sd">        either specified or the normalisation argument is None.</span>
-</span><span id="normalise_timeseries-64"><a href="#normalise_timeseries-64"><span class="linenos">64</span></a><span class="sd">    &quot;&quot;&quot;</span>
-</span><span id="normalise_timeseries-65"><a href="#normalise_timeseries-65"><span class="linenos">65</span></a>    <span class="k">if</span> <span class="n">normalisation</span><span class="p">:</span>
-</span><span id="normalise_timeseries-66"><a href="#normalise_timeseries-66"><span class="linenos">66</span></a>        <span class="k">if</span> <span class="n">normalisation</span><span class="o">.</span><span class="n">bottom</span><span class="p">:</span>
-</span><span id="normalise_timeseries-67"><a href="#normalise_timeseries-67"><span class="linenos">67</span></a>            <span class="n">data</span> <span class="o">=</span> <span class="n">data</span> <span class="o">-</span> <span class="n">np</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
-</span><span id="normalise_timeseries-68"><a href="#normalise_timeseries-68"><span class="linenos">68</span></a>        <span class="k">if</span> <span class="n">normalisation</span><span class="o">.</span><span class="n">peak</span><span class="p">:</span>
-</span><span id="normalise_timeseries-69"><a href="#normalise_timeseries-69"><span class="linenos">69</span></a>            <span class="n">data</span> <span class="o">=</span> <span class="n">data</span><span class="o">/</span><span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
-</span><span id="normalise_timeseries-70"><a href="#normalise_timeseries-70"><span class="linenos">70</span></a>    <span class="k">return</span> <span class="n">data</span>
+            <div class="pdoc-code codehilite"><pre><span></span><span id="normalise_timeseries-42"><a href="#normalise_timeseries-42"><span class="linenos">42</span></a><span class="k">def</span> <span class="nf">normalise_timeseries</span><span class="p">(</span>
+</span><span id="normalise_timeseries-43"><a href="#normalise_timeseries-43"><span class="linenos">43</span></a>        <span class="n">data</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+</span><span id="normalise_timeseries-44"><a href="#normalise_timeseries-44"><span class="linenos">44</span></a>        <span class="n">normalisation</span><span class="p">:</span> <span class="n">TimeseriesNormalisation</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+</span><span id="normalise_timeseries-45"><a href="#normalise_timeseries-45"><span class="linenos">45</span></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+</span><span id="normalise_timeseries-46"><a href="#normalise_timeseries-46"><span class="linenos">46</span></a><span class="sd">    Apply the specified normalisation to the data and return it. </span>
+</span><span id="normalise_timeseries-47"><a href="#normalise_timeseries-47"><span class="linenos">47</span></a>
+</span><span id="normalise_timeseries-48"><a href="#normalise_timeseries-48"><span class="linenos">48</span></a><span class="sd">    Parameters</span>
+</span><span id="normalise_timeseries-49"><a href="#normalise_timeseries-49"><span class="linenos">49</span></a><span class="sd">    ----------</span>
+</span><span id="normalise_timeseries-50"><a href="#normalise_timeseries-50"><span class="linenos">50</span></a><span class="sd">    data : np.ndarray</span>
+</span><span id="normalise_timeseries-51"><a href="#normalise_timeseries-51"><span class="linenos">51</span></a><span class="sd">        The data to normalise. Currently assumed to be a 1D-array.</span>
+</span><span id="normalise_timeseries-52"><a href="#normalise_timeseries-52"><span class="linenos">52</span></a><span class="sd">    normalisation : Optional[TimeseriesNormalisation]</span>
+</span><span id="normalise_timeseries-53"><a href="#normalise_timeseries-53"><span class="linenos">53</span></a><span class="sd">        TimeseriesNormalisation object specifying the normalisation to apply.</span>
+</span><span id="normalise_timeseries-54"><a href="#normalise_timeseries-54"><span class="linenos">54</span></a>
+</span><span id="normalise_timeseries-55"><a href="#normalise_timeseries-55"><span class="linenos">55</span></a><span class="sd">    Returns</span>
+</span><span id="normalise_timeseries-56"><a href="#normalise_timeseries-56"><span class="linenos">56</span></a><span class="sd">    -------</span>
+</span><span id="normalise_timeseries-57"><a href="#normalise_timeseries-57"><span class="linenos">57</span></a><span class="sd">    np.ndarray</span>
+</span><span id="normalise_timeseries-58"><a href="#normalise_timeseries-58"><span class="linenos">58</span></a><span class="sd">        Normalised data. Defaults to original data if no normalisation is</span>
+</span><span id="normalise_timeseries-59"><a href="#normalise_timeseries-59"><span class="linenos">59</span></a><span class="sd">        either specified or the normalisation argument is None.</span>
+</span><span id="normalise_timeseries-60"><a href="#normalise_timeseries-60"><span class="linenos">60</span></a><span class="sd">    &quot;&quot;&quot;</span>
+</span><span id="normalise_timeseries-61"><a href="#normalise_timeseries-61"><span class="linenos">61</span></a>    <span class="k">if</span> <span class="n">normalisation</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+</span><span id="normalise_timeseries-62"><a href="#normalise_timeseries-62"><span class="linenos">62</span></a>        <span class="k">if</span> <span class="n">normalisation</span><span class="o">.</span><span class="n">bottom</span><span class="p">:</span>
+</span><span id="normalise_timeseries-63"><a href="#normalise_timeseries-63"><span class="linenos">63</span></a>            <span class="n">data</span> <span class="o">=</span> <span class="n">data</span> <span class="o">-</span> <span class="n">np</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+</span><span id="normalise_timeseries-64"><a href="#normalise_timeseries-64"><span class="linenos">64</span></a>        <span class="k">if</span> <span class="n">normalisation</span><span class="o">.</span><span class="n">peak</span><span class="p">:</span>
+</span><span id="normalise_timeseries-65"><a href="#normalise_timeseries-65"><span class="linenos">65</span></a>            <span class="n">data</span> <span class="o">=</span> <span class="n">data</span><span class="o">/</span><span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+</span><span id="normalise_timeseries-66"><a href="#normalise_timeseries-66"><span class="linenos">66</span></a>    <span class="k">return</span> <span class="n">data</span>
 </span></pre></div>
 
 
@@ -285,30 +285,30 @@ either specified or the normalisation argument is None.</li>
 
     </div>
     <a class="headerlink" href="#cartesian_to_polar"></a>
-            <div class="pdoc-code codehilite"><pre><span></span><span id="cartesian_to_polar-73"><a href="#cartesian_to_polar-73"><span class="linenos">73</span></a><span class="k">def</span> <span class="nf">cartesian_to_polar</span><span class="p">(</span><span class="n">xy_array</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
-</span><span id="cartesian_to_polar-74"><a href="#cartesian_to_polar-74"><span class="linenos">74</span></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-</span><span id="cartesian_to_polar-75"><a href="#cartesian_to_polar-75"><span class="linenos">75</span></a><span class="sd">    Transform an array of 2D Cartesian coordinates to polar coordinates.</span>
-</span><span id="cartesian_to_polar-76"><a href="#cartesian_to_polar-76"><span class="linenos">76</span></a>
-</span><span id="cartesian_to_polar-77"><a href="#cartesian_to_polar-77"><span class="linenos">77</span></a><span class="sd">    Parameters</span>
-</span><span id="cartesian_to_polar-78"><a href="#cartesian_to_polar-78"><span class="linenos">78</span></a><span class="sd">    ----------</span>
-</span><span id="cartesian_to_polar-79"><a href="#cartesian_to_polar-79"><span class="linenos">79</span></a><span class="sd">    xy_array : np.ndarray</span>
-</span><span id="cartesian_to_polar-80"><a href="#cartesian_to_polar-80"><span class="linenos">80</span></a><span class="sd">        axes order is x-y, spline points</span>
+            <div class="pdoc-code codehilite"><pre><span></span><span id="cartesian_to_polar-69"><a href="#cartesian_to_polar-69"><span class="linenos">69</span></a><span class="k">def</span> <span class="nf">cartesian_to_polar</span><span class="p">(</span><span class="n">xy_array</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+</span><span id="cartesian_to_polar-70"><a href="#cartesian_to_polar-70"><span class="linenos">70</span></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+</span><span id="cartesian_to_polar-71"><a href="#cartesian_to_polar-71"><span class="linenos">71</span></a><span class="sd">    Transform an array of 2D Cartesian coordinates to polar coordinates.</span>
+</span><span id="cartesian_to_polar-72"><a href="#cartesian_to_polar-72"><span class="linenos">72</span></a>
+</span><span id="cartesian_to_polar-73"><a href="#cartesian_to_polar-73"><span class="linenos">73</span></a><span class="sd">    Parameters</span>
+</span><span id="cartesian_to_polar-74"><a href="#cartesian_to_polar-74"><span class="linenos">74</span></a><span class="sd">    ----------</span>
+</span><span id="cartesian_to_polar-75"><a href="#cartesian_to_polar-75"><span class="linenos">75</span></a><span class="sd">    xy_array : np.ndarray</span>
+</span><span id="cartesian_to_polar-76"><a href="#cartesian_to_polar-76"><span class="linenos">76</span></a><span class="sd">        axes order is x-y, spline points</span>
+</span><span id="cartesian_to_polar-77"><a href="#cartesian_to_polar-77"><span class="linenos">77</span></a>
+</span><span id="cartesian_to_polar-78"><a href="#cartesian_to_polar-78"><span class="linenos">78</span></a><span class="sd">        This maybe passed in as 1D array which will then be reshaped into a 2*x</span>
+</span><span id="cartesian_to_polar-79"><a href="#cartesian_to_polar-79"><span class="linenos">79</span></a><span class="sd">        array. This makes it possible to apply the transformation with</span>
+</span><span id="cartesian_to_polar-80"><a href="#cartesian_to_polar-80"><span class="linenos">80</span></a><span class="sd">        `np.apply_along_axis`.</span>
 </span><span id="cartesian_to_polar-81"><a href="#cartesian_to_polar-81"><span class="linenos">81</span></a>
-</span><span id="cartesian_to_polar-82"><a href="#cartesian_to_polar-82"><span class="linenos">82</span></a><span class="sd">        This maybe passed in as 1D array which will then be reshaped into a 2*x</span>
-</span><span id="cartesian_to_polar-83"><a href="#cartesian_to_polar-83"><span class="linenos">83</span></a><span class="sd">        array. This makes it possible to apply the transformation with</span>
-</span><span id="cartesian_to_polar-84"><a href="#cartesian_to_polar-84"><span class="linenos">84</span></a><span class="sd">        `np.apply_along_axis`.</span>
-</span><span id="cartesian_to_polar-85"><a href="#cartesian_to_polar-85"><span class="linenos">85</span></a>
-</span><span id="cartesian_to_polar-86"><a href="#cartesian_to_polar-86"><span class="linenos">86</span></a><span class="sd">    Returns</span>
-</span><span id="cartesian_to_polar-87"><a href="#cartesian_to_polar-87"><span class="linenos">87</span></a><span class="sd">    -------</span>
-</span><span id="cartesian_to_polar-88"><a href="#cartesian_to_polar-88"><span class="linenos">88</span></a><span class="sd">    np.ndarray</span>
-</span><span id="cartesian_to_polar-89"><a href="#cartesian_to_polar-89"><span class="linenos">89</span></a><span class="sd">        axes order is r-phi, spline points</span>
-</span><span id="cartesian_to_polar-90"><a href="#cartesian_to_polar-90"><span class="linenos">90</span></a><span class="sd">    &quot;&quot;&quot;</span>
-</span><span id="cartesian_to_polar-91"><a href="#cartesian_to_polar-91"><span class="linenos">91</span></a>    <span class="k">if</span> <span class="n">xy_array</span><span class="o">.</span><span class="n">ndim</span> <span class="o">==</span> <span class="mi">1</span> <span class="ow">and</span> <span class="n">xy_array</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">%</span> <span class="mi">2</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
-</span><span id="cartesian_to_polar-92"><a href="#cartesian_to_polar-92"><span class="linenos">92</span></a>        <span class="n">xy_array</span> <span class="o">=</span> <span class="n">xy_array</span><span class="o">.</span><span class="n">reshape</span><span class="p">((</span><span class="mi">2</span><span class="p">,</span> <span class="n">xy_array</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">//</span><span class="mi">2</span><span class="p">))</span>
-</span><span id="cartesian_to_polar-93"><a href="#cartesian_to_polar-93"><span class="linenos">93</span></a>
-</span><span id="cartesian_to_polar-94"><a href="#cartesian_to_polar-94"><span class="linenos">94</span></a>    <span class="n">r</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">((</span><span class="n">xy_array</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="mi">0</span><span class="p">))</span>
-</span><span id="cartesian_to_polar-95"><a href="#cartesian_to_polar-95"><span class="linenos">95</span></a>    <span class="n">phi</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arctan2</span><span class="p">(</span><span class="n">xy_array</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="p">:],</span> <span class="n">xy_array</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="p">:])</span>
-</span><span id="cartesian_to_polar-96"><a href="#cartesian_to_polar-96"><span class="linenos">96</span></a>    <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">stack</span><span class="p">(</span><span class="n">r</span><span class="p">,</span> <span class="n">phi</span><span class="p">)</span>
+</span><span id="cartesian_to_polar-82"><a href="#cartesian_to_polar-82"><span class="linenos">82</span></a><span class="sd">    Returns</span>
+</span><span id="cartesian_to_polar-83"><a href="#cartesian_to_polar-83"><span class="linenos">83</span></a><span class="sd">    -------</span>
+</span><span id="cartesian_to_polar-84"><a href="#cartesian_to_polar-84"><span class="linenos">84</span></a><span class="sd">    np.ndarray</span>
+</span><span id="cartesian_to_polar-85"><a href="#cartesian_to_polar-85"><span class="linenos">85</span></a><span class="sd">        axes order is r-phi, spline points</span>
+</span><span id="cartesian_to_polar-86"><a href="#cartesian_to_polar-86"><span class="linenos">86</span></a><span class="sd">    &quot;&quot;&quot;</span>
+</span><span id="cartesian_to_polar-87"><a href="#cartesian_to_polar-87"><span class="linenos">87</span></a>    <span class="k">if</span> <span class="n">xy_array</span><span class="o">.</span><span class="n">ndim</span> <span class="o">==</span> <span class="mi">1</span> <span class="ow">and</span> <span class="n">xy_array</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">%</span> <span class="mi">2</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+</span><span id="cartesian_to_polar-88"><a href="#cartesian_to_polar-88"><span class="linenos">88</span></a>        <span class="n">xy_array</span> <span class="o">=</span> <span class="n">xy_array</span><span class="o">.</span><span class="n">reshape</span><span class="p">((</span><span class="mi">2</span><span class="p">,</span> <span class="n">xy_array</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">//</span><span class="mi">2</span><span class="p">))</span>
+</span><span id="cartesian_to_polar-89"><a href="#cartesian_to_polar-89"><span class="linenos">89</span></a>
+</span><span id="cartesian_to_polar-90"><a href="#cartesian_to_polar-90"><span class="linenos">90</span></a>    <span class="n">r</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">((</span><span class="n">xy_array</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="mi">0</span><span class="p">))</span>
+</span><span id="cartesian_to_polar-91"><a href="#cartesian_to_polar-91"><span class="linenos">91</span></a>    <span class="n">phi</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arctan2</span><span class="p">(</span><span class="n">xy_array</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="p">:],</span> <span class="n">xy_array</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="p">:])</span>
+</span><span id="cartesian_to_polar-92"><a href="#cartesian_to_polar-92"><span class="linenos">92</span></a>    <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">stack</span><span class="p">(</span><span class="n">r</span><span class="p">,</span> <span class="n">phi</span><span class="p">)</span>
 </span></pre></div>
 
 
@@ -345,23 +345,27 @@ array. This makes it possible to apply the transformation with
 
     </div>
     <a class="headerlink" href="#polar_to_cartesian"></a>
-            <div class="pdoc-code codehilite"><pre><span></span><span id="polar_to_cartesian-99"><a href="#polar_to_cartesian-99"><span class="linenos"> 99</span></a><span class="k">def</span> <span class="nf">polar_to_cartesian</span><span class="p">(</span>
-</span><span id="polar_to_cartesian-100"><a href="#polar_to_cartesian-100"><span class="linenos">100</span></a>        <span class="n">r_phi_array</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
-</span><span id="polar_to_cartesian-101"><a href="#polar_to_cartesian-101"><span class="linenos">101</span></a>        <span class="n">angle_offset</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mi">0</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
-</span><span id="polar_to_cartesian-102"><a href="#polar_to_cartesian-102"><span class="linenos">102</span></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-</span><span id="polar_to_cartesian-103"><a href="#polar_to_cartesian-103"><span class="linenos">103</span></a><span class="sd">    Transform an array of 2D polar coordinates to Cartesian coordinates.</span>
-</span><span id="polar_to_cartesian-104"><a href="#polar_to_cartesian-104"><span class="linenos">104</span></a>
-</span><span id="polar_to_cartesian-105"><a href="#polar_to_cartesian-105"><span class="linenos">105</span></a><span class="sd">    Parameters</span>
-</span><span id="polar_to_cartesian-106"><a href="#polar_to_cartesian-106"><span class="linenos">106</span></a><span class="sd">    ----------</span>
-</span><span id="polar_to_cartesian-107"><a href="#polar_to_cartesian-107"><span class="linenos">107</span></a><span class="sd">    r_phi_array : np.ndarray</span>
-</span><span id="polar_to_cartesian-108"><a href="#polar_to_cartesian-108"><span class="linenos">108</span></a><span class="sd">        axes order is r-phi, spline points </span>
-</span><span id="polar_to_cartesian-109"><a href="#polar_to_cartesian-109"><span class="linenos">109</span></a>
-</span><span id="polar_to_cartesian-110"><a href="#polar_to_cartesian-110"><span class="linenos">110</span></a><span class="sd">        This maybe passed in as 1D array which will then be reshaped into a 2*x</span>
-</span><span id="polar_to_cartesian-111"><a href="#polar_to_cartesian-111"><span class="linenos">111</span></a><span class="sd">        array. This makes it possible to apply the transformation with </span>
-</span><span id="polar_to_cartesian-112"><a href="#polar_to_cartesian-112"><span class="linenos">112</span></a><span class="sd">        `   r_phi = self.data[:, 0:2, :]</span>
-</span><span id="polar_to_cartesian-113"><a href="#polar_to_cartesian-113"><span class="linenos">113</span></a><span class="sd">            r_phi = r_phi.reshape([self.data.shape[0], -1])</span>
-</span><span id="polar_to_cartesian-114"><a href="#polar_to_cartesian-114"><span class="linenos">114</span></a><span class="sd">            coords = np.apply_along_axis(</span>
-</span><span id="polar_to_cartesian-115"><a href="#polar_to_cartesian-115"><span class="linenos">115</span></a><span class="sd">                polar_to_cartesian, 1, r_phi)`</span>
+            <div class="pdoc-code codehilite"><pre><span></span><span id="polar_to_cartesian-95"><a href="#polar_to_cartesian-95"><span class="linenos"> 95</span></a><span class="k">def</span> <span class="nf">polar_to_cartesian</span><span class="p">(</span>
+</span><span id="polar_to_cartesian-96"><a href="#polar_to_cartesian-96"><span class="linenos"> 96</span></a>        <span class="n">r_phi_array</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+</span><span id="polar_to_cartesian-97"><a href="#polar_to_cartesian-97"><span class="linenos"> 97</span></a>        <span class="n">angle_offset</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mi">0</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+</span><span id="polar_to_cartesian-98"><a href="#polar_to_cartesian-98"><span class="linenos"> 98</span></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+</span><span id="polar_to_cartesian-99"><a href="#polar_to_cartesian-99"><span class="linenos"> 99</span></a><span class="sd">    Transform an array of 2D polar coordinates to Cartesian coordinates.</span>
+</span><span id="polar_to_cartesian-100"><a href="#polar_to_cartesian-100"><span class="linenos">100</span></a>
+</span><span id="polar_to_cartesian-101"><a href="#polar_to_cartesian-101"><span class="linenos">101</span></a><span class="sd">    Parameters</span>
+</span><span id="polar_to_cartesian-102"><a href="#polar_to_cartesian-102"><span class="linenos">102</span></a><span class="sd">    ----------</span>
+</span><span id="polar_to_cartesian-103"><a href="#polar_to_cartesian-103"><span class="linenos">103</span></a><span class="sd">    r_phi_array : np.ndarray</span>
+</span><span id="polar_to_cartesian-104"><a href="#polar_to_cartesian-104"><span class="linenos">104</span></a><span class="sd">        axes order is r-phi, spline points </span>
+</span><span id="polar_to_cartesian-105"><a href="#polar_to_cartesian-105"><span class="linenos">105</span></a>
+</span><span id="polar_to_cartesian-106"><a href="#polar_to_cartesian-106"><span class="linenos">106</span></a><span class="sd">        This maybe passed in as 1D array which will then be reshaped into a 2*x</span>
+</span><span id="polar_to_cartesian-107"><a href="#polar_to_cartesian-107"><span class="linenos">107</span></a><span class="sd">        array. This makes it possible to apply the transformation with </span>
+</span><span id="polar_to_cartesian-108"><a href="#polar_to_cartesian-108"><span class="linenos">108</span></a><span class="sd">        ```python</span>
+</span><span id="polar_to_cartesian-109"><a href="#polar_to_cartesian-109"><span class="linenos">109</span></a><span class="sd">            r_phi = self.data[:, 0:2, :]</span>
+</span><span id="polar_to_cartesian-110"><a href="#polar_to_cartesian-110"><span class="linenos">110</span></a><span class="sd">            r_phi = r_phi.reshape([self.data.shape[0], -1])</span>
+</span><span id="polar_to_cartesian-111"><a href="#polar_to_cartesian-111"><span class="linenos">111</span></a><span class="sd">            coords = np.apply_along_axis(</span>
+</span><span id="polar_to_cartesian-112"><a href="#polar_to_cartesian-112"><span class="linenos">112</span></a><span class="sd">                polar_to_cartesian, 1, r_phi)</span>
+</span><span id="polar_to_cartesian-113"><a href="#polar_to_cartesian-113"><span class="linenos">113</span></a><span class="sd">        ```</span>
+</span><span id="polar_to_cartesian-114"><a href="#polar_to_cartesian-114"><span class="linenos">114</span></a><span class="sd">    angle_offset : float</span>
+</span><span id="polar_to_cartesian-115"><a href="#polar_to_cartesian-115"><span class="linenos">115</span></a><span class="sd">        Offset for the angle in radians, by default 0.</span>
 </span><span id="polar_to_cartesian-116"><a href="#polar_to_cartesian-116"><span class="linenos">116</span></a>
 </span><span id="polar_to_cartesian-117"><a href="#polar_to_cartesian-117"><span class="linenos">117</span></a><span class="sd">    Returns</span>
 </span><span id="polar_to_cartesian-118"><a href="#polar_to_cartesian-118"><span class="linenos">118</span></a><span class="sd">    -------</span>
@@ -386,11 +390,17 @@ array. This makes it possible to apply the transformation with
 axes order is r-phi, spline points </p>
 
 <p>This maybe passed in as 1D array which will then be reshaped into a 2*x
-array. This makes it possible to apply the transformation with 
-<code>r_phi = self.data[:, 0:2, :]
-   r_phi = r_phi.reshape([self.data.shape[0], -1])
-   coords = np.apply_along_axis(
-       polar_to_cartesian, 1, r_phi)</code></p></li>
+array. This makes it possible to apply the transformation with </p>
+
+<div class="pdoc-code codehilite">
+<pre><span></span><code>    <span class="n">r_phi</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">:</span><span class="mi">2</span><span class="p">,</span> <span class="p">:]</span>
+   <span class="n">r_phi</span> <span class="o">=</span> <span class="n">r_phi</span><span class="o">.</span><span class="n">reshape</span><span class="p">([</span><span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="o">-</span><span class="mi">1</span><span class="p">])</span>
+   <span class="n">coords</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">apply_along_axis</span><span class="p">(</span>
+       <span class="n">polar_to_cartesian</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="n">r_phi</span><span class="p">)</span>
+</code></pre>
+</div></li>
+<li><p><strong>angle_offset</strong> (float):
+Offset for the angle in radians, by default 0.</p></li>
 </ul>
 
 <h6 id="returns">Returns</h6>

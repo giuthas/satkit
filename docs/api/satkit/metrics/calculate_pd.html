@@ -64,7 +64,7 @@
                         <label class="view-source-button" for="mod-calculate_pd-view-source"><span>View Source</span></label>
 
                         <div class="pdoc-code codehilite"><pre><span></span><span id="L-1"><a href="#L-1"><span class="linenos">  1</span></a><span class="c1">#</span>
-</span><span id="L-2"><a href="#L-2"><span class="linenos">  2</span></a><span class="c1"># Copyright (c) 2019-2024</span>
+</span><span id="L-2"><a href="#L-2"><span class="linenos">  2</span></a><span class="c1"># Copyright (c) 2019-2025</span>
 </span><span id="L-3"><a href="#L-3"><span class="linenos">  3</span></a><span class="c1"># Pertti Palo, Scott Moisik, Matthew Faytak, and Motoki Saito.</span>
 </span><span id="L-4"><a href="#L-4"><span class="linenos">  4</span></a><span class="c1">#</span>
 </span><span id="L-5"><a href="#L-5"><span class="linenos">  5</span></a><span class="c1"># This file is part of Speech Articulation ToolKIT</span>
@@ -238,7 +238,7 @@
 </span><span id="L-173"><a href="#L-173"><span class="linenos">173</span></a><span class="sd">    &quot;&quot;&quot;</span>
 </span><span id="L-174"><a href="#L-174"><span class="linenos">174</span></a>
 </span><span id="L-175"><a href="#L-175"><span class="linenos">175</span></a>    <span class="n">_logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;</span><span class="si">%s</span><span class="s1">: Calculating PD on </span><span class="si">%s</span><span class="s1">.&#39;</span><span class="p">,</span>
-</span><span id="L-176"><a href="#L-176"><span class="linenos">176</span></a>                 <span class="nb">str</span><span class="p">(</span><span class="n">parent_modality</span><span class="o">.</span><span class="n">recorded_data_file</span><span class="p">),</span>
+</span><span id="L-176"><a href="#L-176"><span class="linenos">176</span></a>                 <span class="nb">str</span><span class="p">(</span><span class="n">parent_modality</span><span class="o">.</span><span class="n">recorded_data_path</span><span class="p">),</span>
 </span><span id="L-177"><a href="#L-177"><span class="linenos">177</span></a>                 <span class="n">parent_modality</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
 </span><span id="L-178"><a href="#L-178"><span class="linenos">178</span></a>
 </span><span id="L-179"><a href="#L-179"><span class="linenos">179</span></a>    <span class="n">data</span> <span class="o">=</span> <span class="n">parent_modality</span><span class="o">.</span><span class="n">data</span>
@@ -299,8 +299,8 @@
 </span><span id="L-234"><a href="#L-234"><span class="linenos">234</span></a>        <span class="n">file_info</span> <span class="o">=</span> <span class="n">FileInformation</span><span class="p">()</span>
 </span><span id="L-235"><a href="#L-235"><span class="linenos">235</span></a>        <span class="n">pds</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
 </span><span id="L-236"><a href="#L-236"><span class="linenos">236</span></a>            <span class="n">PD</span><span class="p">(</span>
-</span><span id="L-237"><a href="#L-237"><span class="linenos">237</span></a>                <span class="n">recording</span><span class="o">=</span><span class="n">parent_modality</span><span class="o">.</span><span class="n">recording</span><span class="p">,</span>
-</span><span id="L-238"><a href="#L-238"><span class="linenos">238</span></a>                <span class="n">meta_data</span><span class="o">=</span><span class="n">param_set</span><span class="p">,</span>
+</span><span id="L-237"><a href="#L-237"><span class="linenos">237</span></a>                <span class="n">owner</span><span class="o">=</span><span class="n">parent_modality</span><span class="o">.</span><span class="n">recording</span><span class="p">,</span>
+</span><span id="L-238"><a href="#L-238"><span class="linenos">238</span></a>                <span class="n">metadata</span><span class="o">=</span><span class="n">param_set</span><span class="p">,</span>
 </span><span id="L-239"><a href="#L-239"><span class="linenos">239</span></a>                <span class="n">file_info</span><span class="o">=</span><span class="n">file_info</span><span class="p">,</span>
 </span><span id="L-240"><a href="#L-240"><span class="linenos">240</span></a>                <span class="n">parsed_data</span><span class="o">=</span><span class="n">modality_data</span><span class="p">))</span>
 </span><span id="L-241"><a href="#L-241"><span class="linenos">241</span></a>
@@ -590,7 +590,7 @@ _description_</li>
 </span><span id="calculate_pd-174"><a href="#calculate_pd-174"><span class="linenos">174</span></a><span class="sd">    &quot;&quot;&quot;</span>
 </span><span id="calculate_pd-175"><a href="#calculate_pd-175"><span class="linenos">175</span></a>
 </span><span id="calculate_pd-176"><a href="#calculate_pd-176"><span class="linenos">176</span></a>    <span class="n">_logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;</span><span class="si">%s</span><span class="s1">: Calculating PD on </span><span class="si">%s</span><span class="s1">.&#39;</span><span class="p">,</span>
-</span><span id="calculate_pd-177"><a href="#calculate_pd-177"><span class="linenos">177</span></a>                 <span class="nb">str</span><span class="p">(</span><span class="n">parent_modality</span><span class="o">.</span><span class="n">recorded_data_file</span><span class="p">),</span>
+</span><span id="calculate_pd-177"><a href="#calculate_pd-177"><span class="linenos">177</span></a>                 <span class="nb">str</span><span class="p">(</span><span class="n">parent_modality</span><span class="o">.</span><span class="n">recorded_data_path</span><span class="p">),</span>
 </span><span id="calculate_pd-178"><a href="#calculate_pd-178"><span class="linenos">178</span></a>                 <span class="n">parent_modality</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
 </span><span id="calculate_pd-179"><a href="#calculate_pd-179"><span class="linenos">179</span></a>
 </span><span id="calculate_pd-180"><a href="#calculate_pd-180"><span class="linenos">180</span></a>    <span class="n">data</span> <span class="o">=</span> <span class="n">parent_modality</span><span class="o">.</span><span class="n">data</span>
@@ -651,8 +651,8 @@ _description_</li>
 </span><span id="calculate_pd-235"><a href="#calculate_pd-235"><span class="linenos">235</span></a>        <span class="n">file_info</span> <span class="o">=</span> <span class="n">FileInformation</span><span class="p">()</span>
 </span><span id="calculate_pd-236"><a href="#calculate_pd-236"><span class="linenos">236</span></a>        <span class="n">pds</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
 </span><span id="calculate_pd-237"><a href="#calculate_pd-237"><span class="linenos">237</span></a>            <span class="n">PD</span><span class="p">(</span>
-</span><span id="calculate_pd-238"><a href="#calculate_pd-238"><span class="linenos">238</span></a>                <span class="n">recording</span><span class="o">=</span><span class="n">parent_modality</span><span class="o">.</span><span class="n">recording</span><span class="p">,</span>
-</span><span id="calculate_pd-239"><a href="#calculate_pd-239"><span class="linenos">239</span></a>                <span class="n">meta_data</span><span class="o">=</span><span class="n">param_set</span><span class="p">,</span>
+</span><span id="calculate_pd-238"><a href="#calculate_pd-238"><span class="linenos">238</span></a>                <span class="n">owner</span><span class="o">=</span><span class="n">parent_modality</span><span class="o">.</span><span class="n">recording</span><span class="p">,</span>
+</span><span id="calculate_pd-239"><a href="#calculate_pd-239"><span class="linenos">239</span></a>                <span class="n">metadata</span><span class="o">=</span><span class="n">param_set</span><span class="p">,</span>
 </span><span id="calculate_pd-240"><a href="#calculate_pd-240"><span class="linenos">240</span></a>                <span class="n">file_info</span><span class="o">=</span><span class="n">file_info</span><span class="p">,</span>
 </span><span id="calculate_pd-241"><a href="#calculate_pd-241"><span class="linenos">241</span></a>                <span class="n">parsed_data</span><span class="o">=</span><span class="n">modality_data</span><span class="p">))</span>
 </span><span id="calculate_pd-242"><a href="#calculate_pd-242"><span class="linenos">242</span></a>

@@ -64,7 +64,7 @@
                         <label class="view-source-button" for="mod-logging_helpers-view-source"><span>View Source</span></label>
 
                         <div class="pdoc-code codehilite"><pre><span></span><span id="L-1"><a href="#L-1"><span class="linenos"> 1</span></a><span class="c1">#</span>
-</span><span id="L-2"><a href="#L-2"><span class="linenos"> 2</span></a><span class="c1"># Copyright (c) 2019-2024</span>
+</span><span id="L-2"><a href="#L-2"><span class="linenos"> 2</span></a><span class="c1"># Copyright (c) 2019-2025</span>
 </span><span id="L-3"><a href="#L-3"><span class="linenos"> 3</span></a><span class="c1"># Pertti Palo, Scott Moisik, Matthew Faytak, and Motoki Saito.</span>
 </span><span id="L-4"><a href="#L-4"><span class="linenos"> 4</span></a><span class="c1">#</span>
 </span><span id="L-5"><a href="#L-5"><span class="linenos"> 5</span></a><span class="c1"># This file is part of Speech Articulation ToolKIT</span>
@@ -102,55 +102,64 @@
 </span><span id="L-37"><a href="#L-37"><span class="linenos">37</span></a><span class="n">start_time</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
 </span><span id="L-38"><a href="#L-38"><span class="linenos">38</span></a><span class="n">last_log_time</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
 </span><span id="L-39"><a href="#L-39"><span class="linenos">39</span></a>
-</span><span id="L-40"><a href="#L-40"><span class="linenos">40</span></a><span class="n">_satkit_logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="s1">&#39;satkit&#39;</span><span class="p">)</span>
-</span><span id="L-41"><a href="#L-41"><span class="linenos">41</span></a>
-</span><span id="L-42"><a href="#L-42"><span class="linenos">42</span></a><span class="k">def</span> <span class="nf">set_logging_level</span><span class="p">(</span><span class="n">verbosity</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]):</span>
-</span><span id="L-43"><a href="#L-43"><span class="linenos">43</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Set up logging with the logging module.</span>
-</span><span id="L-44"><a href="#L-44"><span class="linenos">44</span></a>
-</span><span id="L-45"><a href="#L-45"><span class="linenos">45</span></a><span class="sd">        Main thing to do is set the level of printed output based on the</span>
-</span><span id="L-46"><a href="#L-46"><span class="linenos">46</span></a><span class="sd">        verbosity argument.</span>
-</span><span id="L-47"><a href="#L-47"><span class="linenos">47</span></a><span class="sd">        &quot;&quot;&quot;</span>
-</span><span id="L-48"><a href="#L-48"><span class="linenos">48</span></a>        <span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="s1">&#39;satkit&#39;</span><span class="p">)</span>
-</span><span id="L-49"><a href="#L-49"><span class="linenos">49</span></a>        <span class="n">logger</span><span class="o">.</span><span class="n">setLevel</span><span class="p">(</span><span class="n">logging</span><span class="o">.</span><span class="n">DEBUG</span><span class="p">)</span>
-</span><span id="L-50"><a href="#L-50"><span class="linenos">50</span></a>
-</span><span id="L-51"><a href="#L-51"><span class="linenos">51</span></a>        <span class="c1"># also log to the console at a level determined by the --verbose flag</span>
-</span><span id="L-52"><a href="#L-52"><span class="linenos">52</span></a>        <span class="n">console_handler</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">StreamHandler</span><span class="p">()</span>  <span class="c1"># sys.stderr</span>
-</span><span id="L-53"><a href="#L-53"><span class="linenos">53</span></a>
-</span><span id="L-54"><a href="#L-54"><span class="linenos">54</span></a>        <span class="c1"># Set the level of logging messages that will be printed to</span>
-</span><span id="L-55"><a href="#L-55"><span class="linenos">55</span></a>        <span class="c1"># console/stderr.</span>
-</span><span id="L-56"><a href="#L-56"><span class="linenos">56</span></a>        <span class="k">if</span> <span class="ow">not</span> <span class="n">verbosity</span><span class="p">:</span>
-</span><span id="L-57"><a href="#L-57"><span class="linenos">57</span></a>            <span class="n">console_handler</span><span class="o">.</span><span class="n">setLevel</span><span class="p">(</span><span class="s1">&#39;WARNING&#39;</span><span class="p">)</span>
-</span><span id="L-58"><a href="#L-58"><span class="linenos">58</span></a>        <span class="k">elif</span> <span class="n">verbosity</span> <span class="o">&lt;</span> <span class="mi">1</span><span class="p">:</span>
-</span><span id="L-59"><a href="#L-59"><span class="linenos">59</span></a>            <span class="n">console_handler</span><span class="o">.</span><span class="n">setLevel</span><span class="p">(</span><span class="s1">&#39;ERROR&#39;</span><span class="p">)</span>
-</span><span id="L-60"><a href="#L-60"><span class="linenos">60</span></a>        <span class="k">elif</span> <span class="n">verbosity</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
-</span><span id="L-61"><a href="#L-61"><span class="linenos">61</span></a>            <span class="n">console_handler</span><span class="o">.</span><span class="n">setLevel</span><span class="p">(</span><span class="s1">&#39;WARNING&#39;</span><span class="p">)</span>
-</span><span id="L-62"><a href="#L-62"><span class="linenos">62</span></a>        <span class="k">elif</span> <span class="n">verbosity</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
-</span><span id="L-63"><a href="#L-63"><span class="linenos">63</span></a>            <span class="n">console_handler</span><span class="o">.</span><span class="n">setLevel</span><span class="p">(</span><span class="s1">&#39;INFO&#39;</span><span class="p">)</span>
-</span><span id="L-64"><a href="#L-64"><span class="linenos">64</span></a>        <span class="k">elif</span> <span class="n">verbosity</span> <span class="o">&gt;=</span> <span class="mi">3</span><span class="p">:</span>
-</span><span id="L-65"><a href="#L-65"><span class="linenos">65</span></a>            <span class="n">console_handler</span><span class="o">.</span><span class="n">setLevel</span><span class="p">(</span><span class="s1">&#39;DEBUG&#39;</span><span class="p">)</span>
-</span><span id="L-66"><a href="#L-66"><span class="linenos">66</span></a>        <span class="k">else</span><span class="p">:</span>
-</span><span id="L-67"><a href="#L-67"><span class="linenos">67</span></a>            <span class="n">logging</span><span class="o">.</span><span class="n">critical</span><span class="p">(</span><span class="s2">&quot;Negative argument </span><span class="si">%s</span><span class="s2"> to verbose!&quot;</span><span class="p">,</span>
-</span><span id="L-68"><a href="#L-68"><span class="linenos">68</span></a>                <span class="nb">str</span><span class="p">(</span><span class="n">verbosity</span><span class="p">))</span>
-</span><span id="L-69"><a href="#L-69"><span class="linenos">69</span></a>        <span class="n">logger</span><span class="o">.</span><span class="n">addHandler</span><span class="p">(</span><span class="n">console_handler</span><span class="p">)</span>
-</span><span id="L-70"><a href="#L-70"><span class="linenos">70</span></a>
-</span><span id="L-71"><a href="#L-71"><span class="linenos">71</span></a>        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;Data run started.&#39;</span><span class="p">)</span>
-</span><span id="L-72"><a href="#L-72"><span class="linenos">72</span></a>        
-</span><span id="L-73"><a href="#L-73"><span class="linenos">73</span></a>        <span class="k">return</span> <span class="n">logger</span>
-</span><span id="L-74"><a href="#L-74"><span class="linenos">74</span></a>
-</span><span id="L-75"><a href="#L-75"><span class="linenos">75</span></a><span class="k">def</span> <span class="nf">log_elapsed_time</span><span class="p">():</span>
-</span><span id="L-76"><a href="#L-76"><span class="linenos">76</span></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-</span><span id="L-77"><a href="#L-77"><span class="linenos">77</span></a><span class="sd">    Log the time elapsed since logging began.</span>
-</span><span id="L-78"><a href="#L-78"><span class="linenos">78</span></a><span class="sd">    </span>
-</span><span id="L-79"><a href="#L-79"><span class="linenos">79</span></a><span class="sd">    Also logs the time since the last call to this function.</span>
-</span><span id="L-80"><a href="#L-80"><span class="linenos">80</span></a><span class="sd">    &quot;&quot;&quot;</span>
-</span><span id="L-81"><a href="#L-81"><span class="linenos">81</span></a>    <span class="k">global</span> <span class="n">start_time</span><span class="p">,</span> <span class="n">last_log_time</span>
-</span><span id="L-82"><a href="#L-82"><span class="linenos">82</span></a>    <span class="n">current_time</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
-</span><span id="L-83"><a href="#L-83"><span class="linenos">83</span></a>    <span class="n">elapsed_time</span> <span class="o">=</span> <span class="n">current_time</span> <span class="o">-</span> <span class="n">start_time</span>
-</span><span id="L-84"><a href="#L-84"><span class="linenos">84</span></a>    <span class="n">since_last_log</span> <span class="o">=</span> <span class="n">current_time</span> <span class="o">-</span> <span class="n">last_log_time</span>
-</span><span id="L-85"><a href="#L-85"><span class="linenos">85</span></a>    <span class="n">log_text</span> <span class="o">=</span> <span class="s1">&#39;Elapsed time from start: </span><span class="si">%f</span><span class="s1">, from last logged time: </span><span class="si">%f</span><span class="s1">&#39;</span><span class="o">%</span><span class="p">(</span>
-</span><span id="L-86"><a href="#L-86"><span class="linenos">86</span></a>        <span class="n">elapsed_time</span><span class="p">,</span> <span class="n">since_last_log</span><span class="p">)</span>
-</span><span id="L-87"><a href="#L-87"><span class="linenos">87</span></a>    <span class="n">_satkit_logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="n">log_text</span><span class="p">)</span>
-</span><span id="L-88"><a href="#L-88"><span class="linenos">88</span></a>    <span class="n">last_log_time</span> <span class="o">=</span> <span class="n">current_time</span>
+</span><span id="L-40"><a href="#L-40"><span class="linenos">40</span></a>
+</span><span id="L-41"><a href="#L-41"><span class="linenos">41</span></a><span class="c1"># Do not do anything like this as any logging done here needs to be done with</span>
+</span><span id="L-42"><a href="#L-42"><span class="linenos">42</span></a><span class="c1"># passed arguments instead. Otherwise, there will be trouble with circular</span>
+</span><span id="L-43"><a href="#L-43"><span class="linenos">43</span></a><span class="c1"># imports as this module will get imported before logging is actually properly</span>
+</span><span id="L-44"><a href="#L-44"><span class="linenos">44</span></a><span class="c1"># setup.</span>
+</span><span id="L-45"><a href="#L-45"><span class="linenos">45</span></a><span class="c1"># _satkit_logger = logging.getLogger(&#39;satkit&#39;)</span>
+</span><span id="L-46"><a href="#L-46"><span class="linenos">46</span></a>
+</span><span id="L-47"><a href="#L-47"><span class="linenos">47</span></a>
+</span><span id="L-48"><a href="#L-48"><span class="linenos">48</span></a><span class="k">def</span> <span class="nf">set_logging_level</span><span class="p">(</span><span class="n">verbosity</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]):</span>
+</span><span id="L-49"><a href="#L-49"><span class="linenos">49</span></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+</span><span id="L-50"><a href="#L-50"><span class="linenos">50</span></a><span class="sd">    Set up logging with the logging module.</span>
+</span><span id="L-51"><a href="#L-51"><span class="linenos">51</span></a>
+</span><span id="L-52"><a href="#L-52"><span class="linenos">52</span></a><span class="sd">    Main thing to do is set the level of printed output based on the</span>
+</span><span id="L-53"><a href="#L-53"><span class="linenos">53</span></a><span class="sd">    verbosity argument.</span>
+</span><span id="L-54"><a href="#L-54"><span class="linenos">54</span></a><span class="sd">    &quot;&quot;&quot;</span>
+</span><span id="L-55"><a href="#L-55"><span class="linenos">55</span></a>    <span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="s1">&#39;satkit&#39;</span><span class="p">)</span>
+</span><span id="L-56"><a href="#L-56"><span class="linenos">56</span></a>    <span class="n">logger</span><span class="o">.</span><span class="n">setLevel</span><span class="p">(</span><span class="n">logging</span><span class="o">.</span><span class="n">DEBUG</span><span class="p">)</span>
+</span><span id="L-57"><a href="#L-57"><span class="linenos">57</span></a>
+</span><span id="L-58"><a href="#L-58"><span class="linenos">58</span></a>    <span class="c1"># also log to the console at a level determined by the --verbose flag</span>
+</span><span id="L-59"><a href="#L-59"><span class="linenos">59</span></a>    <span class="n">console_handler</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">StreamHandler</span><span class="p">()</span>  <span class="c1"># sys.stderr</span>
+</span><span id="L-60"><a href="#L-60"><span class="linenos">60</span></a>
+</span><span id="L-61"><a href="#L-61"><span class="linenos">61</span></a>    <span class="c1"># Set the level of logging messages that will be printed to</span>
+</span><span id="L-62"><a href="#L-62"><span class="linenos">62</span></a>    <span class="c1"># console/stderr.</span>
+</span><span id="L-63"><a href="#L-63"><span class="linenos">63</span></a>    <span class="k">if</span> <span class="ow">not</span> <span class="n">verbosity</span><span class="p">:</span>
+</span><span id="L-64"><a href="#L-64"><span class="linenos">64</span></a>        <span class="n">console_handler</span><span class="o">.</span><span class="n">setLevel</span><span class="p">(</span><span class="s1">&#39;WARNING&#39;</span><span class="p">)</span>
+</span><span id="L-65"><a href="#L-65"><span class="linenos">65</span></a>    <span class="k">elif</span> <span class="n">verbosity</span> <span class="o">&lt;</span> <span class="mi">1</span><span class="p">:</span>
+</span><span id="L-66"><a href="#L-66"><span class="linenos">66</span></a>        <span class="n">console_handler</span><span class="o">.</span><span class="n">setLevel</span><span class="p">(</span><span class="s1">&#39;ERROR&#39;</span><span class="p">)</span>
+</span><span id="L-67"><a href="#L-67"><span class="linenos">67</span></a>    <span class="k">elif</span> <span class="n">verbosity</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+</span><span id="L-68"><a href="#L-68"><span class="linenos">68</span></a>        <span class="n">console_handler</span><span class="o">.</span><span class="n">setLevel</span><span class="p">(</span><span class="s1">&#39;WARNING&#39;</span><span class="p">)</span>
+</span><span id="L-69"><a href="#L-69"><span class="linenos">69</span></a>    <span class="k">elif</span> <span class="n">verbosity</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
+</span><span id="L-70"><a href="#L-70"><span class="linenos">70</span></a>        <span class="n">console_handler</span><span class="o">.</span><span class="n">setLevel</span><span class="p">(</span><span class="s1">&#39;INFO&#39;</span><span class="p">)</span>
+</span><span id="L-71"><a href="#L-71"><span class="linenos">71</span></a>    <span class="k">elif</span> <span class="n">verbosity</span> <span class="o">&gt;=</span> <span class="mi">3</span><span class="p">:</span>
+</span><span id="L-72"><a href="#L-72"><span class="linenos">72</span></a>        <span class="n">console_handler</span><span class="o">.</span><span class="n">setLevel</span><span class="p">(</span><span class="s1">&#39;DEBUG&#39;</span><span class="p">)</span>
+</span><span id="L-73"><a href="#L-73"><span class="linenos">73</span></a>    <span class="k">else</span><span class="p">:</span>
+</span><span id="L-74"><a href="#L-74"><span class="linenos">74</span></a>        <span class="n">logging</span><span class="o">.</span><span class="n">critical</span><span class="p">(</span>
+</span><span id="L-75"><a href="#L-75"><span class="linenos">75</span></a>            <span class="s2">&quot;Negative argument </span><span class="si">%s</span><span class="s2"> to verbose!&quot;</span><span class="p">,</span>
+</span><span id="L-76"><a href="#L-76"><span class="linenos">76</span></a>            <span class="nb">str</span><span class="p">(</span><span class="n">verbosity</span><span class="p">))</span>
+</span><span id="L-77"><a href="#L-77"><span class="linenos">77</span></a>    <span class="n">logger</span><span class="o">.</span><span class="n">addHandler</span><span class="p">(</span><span class="n">console_handler</span><span class="p">)</span>
+</span><span id="L-78"><a href="#L-78"><span class="linenos">78</span></a>
+</span><span id="L-79"><a href="#L-79"><span class="linenos">79</span></a>    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;Data run started.&#39;</span><span class="p">)</span>
+</span><span id="L-80"><a href="#L-80"><span class="linenos">80</span></a>
+</span><span id="L-81"><a href="#L-81"><span class="linenos">81</span></a>    <span class="k">return</span> <span class="n">logger</span>
+</span><span id="L-82"><a href="#L-82"><span class="linenos">82</span></a>
+</span><span id="L-83"><a href="#L-83"><span class="linenos">83</span></a>
+</span><span id="L-84"><a href="#L-84"><span class="linenos">84</span></a><span class="k">def</span> <span class="nf">log_elapsed_time</span><span class="p">(</span><span class="n">logger</span><span class="p">:</span> <span class="n">logging</span><span class="o">.</span><span class="n">Logger</span><span class="p">):</span>
+</span><span id="L-85"><a href="#L-85"><span class="linenos">85</span></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+</span><span id="L-86"><a href="#L-86"><span class="linenos">86</span></a><span class="sd">    Log the time elapsed since logging began.</span>
+</span><span id="L-87"><a href="#L-87"><span class="linenos">87</span></a><span class="sd">    </span>
+</span><span id="L-88"><a href="#L-88"><span class="linenos">88</span></a><span class="sd">    Also logs the time since the last call to this function.</span>
+</span><span id="L-89"><a href="#L-89"><span class="linenos">89</span></a><span class="sd">    &quot;&quot;&quot;</span>
+</span><span id="L-90"><a href="#L-90"><span class="linenos">90</span></a>    <span class="k">global</span> <span class="n">start_time</span><span class="p">,</span> <span class="n">last_log_time</span>
+</span><span id="L-91"><a href="#L-91"><span class="linenos">91</span></a>    <span class="n">current_time</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+</span><span id="L-92"><a href="#L-92"><span class="linenos">92</span></a>    <span class="n">elapsed_time</span> <span class="o">=</span> <span class="n">current_time</span> <span class="o">-</span> <span class="n">start_time</span>
+</span><span id="L-93"><a href="#L-93"><span class="linenos">93</span></a>    <span class="n">since_last_log</span> <span class="o">=</span> <span class="n">current_time</span> <span class="o">-</span> <span class="n">last_log_time</span>
+</span><span id="L-94"><a href="#L-94"><span class="linenos">94</span></a>    <span class="n">log_text</span> <span class="o">=</span> <span class="s1">&#39;Elapsed time from start: </span><span class="si">%f</span><span class="s1">, from last logged time: </span><span class="si">%f</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="p">(</span>
+</span><span id="L-95"><a href="#L-95"><span class="linenos">95</span></a>        <span class="n">elapsed_time</span><span class="p">,</span> <span class="n">since_last_log</span><span class="p">)</span>
+</span><span id="L-96"><a href="#L-96"><span class="linenos">96</span></a>    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="n">log_text</span><span class="p">)</span>
+</span><span id="L-97"><a href="#L-97"><span class="linenos">97</span></a>    <span class="n">last_log_time</span> <span class="o">=</span> <span class="n">current_time</span>
 </span></pre></div>
 
 
@@ -158,7 +167,7 @@
                 <section id="start_time">
                     <div class="attr variable">
             <span class="name">start_time</span>        =
-<span class="default_value">1732125539.0082133</span>
+<span class="default_value">1736278783.4628787</span>
 
         
     </div>
@@ -170,7 +179,7 @@
                 <section id="last_log_time">
                     <div class="attr variable">
             <span class="name">last_log_time</span>        =
-<span class="default_value">1732125539.0082135</span>
+<span class="default_value">1736278783.462879</span>
 
         
     </div>
@@ -190,38 +199,40 @@
 
     </div>
     <a class="headerlink" href="#set_logging_level"></a>
-            <div class="pdoc-code codehilite"><pre><span></span><span id="set_logging_level-43"><a href="#set_logging_level-43"><span class="linenos">43</span></a><span class="k">def</span> <span class="nf">set_logging_level</span><span class="p">(</span><span class="n">verbosity</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]):</span>
-</span><span id="set_logging_level-44"><a href="#set_logging_level-44"><span class="linenos">44</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Set up logging with the logging module.</span>
-</span><span id="set_logging_level-45"><a href="#set_logging_level-45"><span class="linenos">45</span></a>
-</span><span id="set_logging_level-46"><a href="#set_logging_level-46"><span class="linenos">46</span></a><span class="sd">        Main thing to do is set the level of printed output based on the</span>
-</span><span id="set_logging_level-47"><a href="#set_logging_level-47"><span class="linenos">47</span></a><span class="sd">        verbosity argument.</span>
-</span><span id="set_logging_level-48"><a href="#set_logging_level-48"><span class="linenos">48</span></a><span class="sd">        &quot;&quot;&quot;</span>
-</span><span id="set_logging_level-49"><a href="#set_logging_level-49"><span class="linenos">49</span></a>        <span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="s1">&#39;satkit&#39;</span><span class="p">)</span>
-</span><span id="set_logging_level-50"><a href="#set_logging_level-50"><span class="linenos">50</span></a>        <span class="n">logger</span><span class="o">.</span><span class="n">setLevel</span><span class="p">(</span><span class="n">logging</span><span class="o">.</span><span class="n">DEBUG</span><span class="p">)</span>
-</span><span id="set_logging_level-51"><a href="#set_logging_level-51"><span class="linenos">51</span></a>
-</span><span id="set_logging_level-52"><a href="#set_logging_level-52"><span class="linenos">52</span></a>        <span class="c1"># also log to the console at a level determined by the --verbose flag</span>
-</span><span id="set_logging_level-53"><a href="#set_logging_level-53"><span class="linenos">53</span></a>        <span class="n">console_handler</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">StreamHandler</span><span class="p">()</span>  <span class="c1"># sys.stderr</span>
-</span><span id="set_logging_level-54"><a href="#set_logging_level-54"><span class="linenos">54</span></a>
-</span><span id="set_logging_level-55"><a href="#set_logging_level-55"><span class="linenos">55</span></a>        <span class="c1"># Set the level of logging messages that will be printed to</span>
-</span><span id="set_logging_level-56"><a href="#set_logging_level-56"><span class="linenos">56</span></a>        <span class="c1"># console/stderr.</span>
-</span><span id="set_logging_level-57"><a href="#set_logging_level-57"><span class="linenos">57</span></a>        <span class="k">if</span> <span class="ow">not</span> <span class="n">verbosity</span><span class="p">:</span>
-</span><span id="set_logging_level-58"><a href="#set_logging_level-58"><span class="linenos">58</span></a>            <span class="n">console_handler</span><span class="o">.</span><span class="n">setLevel</span><span class="p">(</span><span class="s1">&#39;WARNING&#39;</span><span class="p">)</span>
-</span><span id="set_logging_level-59"><a href="#set_logging_level-59"><span class="linenos">59</span></a>        <span class="k">elif</span> <span class="n">verbosity</span> <span class="o">&lt;</span> <span class="mi">1</span><span class="p">:</span>
-</span><span id="set_logging_level-60"><a href="#set_logging_level-60"><span class="linenos">60</span></a>            <span class="n">console_handler</span><span class="o">.</span><span class="n">setLevel</span><span class="p">(</span><span class="s1">&#39;ERROR&#39;</span><span class="p">)</span>
-</span><span id="set_logging_level-61"><a href="#set_logging_level-61"><span class="linenos">61</span></a>        <span class="k">elif</span> <span class="n">verbosity</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
-</span><span id="set_logging_level-62"><a href="#set_logging_level-62"><span class="linenos">62</span></a>            <span class="n">console_handler</span><span class="o">.</span><span class="n">setLevel</span><span class="p">(</span><span class="s1">&#39;WARNING&#39;</span><span class="p">)</span>
-</span><span id="set_logging_level-63"><a href="#set_logging_level-63"><span class="linenos">63</span></a>        <span class="k">elif</span> <span class="n">verbosity</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
-</span><span id="set_logging_level-64"><a href="#set_logging_level-64"><span class="linenos">64</span></a>            <span class="n">console_handler</span><span class="o">.</span><span class="n">setLevel</span><span class="p">(</span><span class="s1">&#39;INFO&#39;</span><span class="p">)</span>
-</span><span id="set_logging_level-65"><a href="#set_logging_level-65"><span class="linenos">65</span></a>        <span class="k">elif</span> <span class="n">verbosity</span> <span class="o">&gt;=</span> <span class="mi">3</span><span class="p">:</span>
-</span><span id="set_logging_level-66"><a href="#set_logging_level-66"><span class="linenos">66</span></a>            <span class="n">console_handler</span><span class="o">.</span><span class="n">setLevel</span><span class="p">(</span><span class="s1">&#39;DEBUG&#39;</span><span class="p">)</span>
-</span><span id="set_logging_level-67"><a href="#set_logging_level-67"><span class="linenos">67</span></a>        <span class="k">else</span><span class="p">:</span>
-</span><span id="set_logging_level-68"><a href="#set_logging_level-68"><span class="linenos">68</span></a>            <span class="n">logging</span><span class="o">.</span><span class="n">critical</span><span class="p">(</span><span class="s2">&quot;Negative argument </span><span class="si">%s</span><span class="s2"> to verbose!&quot;</span><span class="p">,</span>
-</span><span id="set_logging_level-69"><a href="#set_logging_level-69"><span class="linenos">69</span></a>                <span class="nb">str</span><span class="p">(</span><span class="n">verbosity</span><span class="p">))</span>
-</span><span id="set_logging_level-70"><a href="#set_logging_level-70"><span class="linenos">70</span></a>        <span class="n">logger</span><span class="o">.</span><span class="n">addHandler</span><span class="p">(</span><span class="n">console_handler</span><span class="p">)</span>
-</span><span id="set_logging_level-71"><a href="#set_logging_level-71"><span class="linenos">71</span></a>
-</span><span id="set_logging_level-72"><a href="#set_logging_level-72"><span class="linenos">72</span></a>        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;Data run started.&#39;</span><span class="p">)</span>
-</span><span id="set_logging_level-73"><a href="#set_logging_level-73"><span class="linenos">73</span></a>        
-</span><span id="set_logging_level-74"><a href="#set_logging_level-74"><span class="linenos">74</span></a>        <span class="k">return</span> <span class="n">logger</span>
+            <div class="pdoc-code codehilite"><pre><span></span><span id="set_logging_level-49"><a href="#set_logging_level-49"><span class="linenos">49</span></a><span class="k">def</span> <span class="nf">set_logging_level</span><span class="p">(</span><span class="n">verbosity</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]):</span>
+</span><span id="set_logging_level-50"><a href="#set_logging_level-50"><span class="linenos">50</span></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+</span><span id="set_logging_level-51"><a href="#set_logging_level-51"><span class="linenos">51</span></a><span class="sd">    Set up logging with the logging module.</span>
+</span><span id="set_logging_level-52"><a href="#set_logging_level-52"><span class="linenos">52</span></a>
+</span><span id="set_logging_level-53"><a href="#set_logging_level-53"><span class="linenos">53</span></a><span class="sd">    Main thing to do is set the level of printed output based on the</span>
+</span><span id="set_logging_level-54"><a href="#set_logging_level-54"><span class="linenos">54</span></a><span class="sd">    verbosity argument.</span>
+</span><span id="set_logging_level-55"><a href="#set_logging_level-55"><span class="linenos">55</span></a><span class="sd">    &quot;&quot;&quot;</span>
+</span><span id="set_logging_level-56"><a href="#set_logging_level-56"><span class="linenos">56</span></a>    <span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="s1">&#39;satkit&#39;</span><span class="p">)</span>
+</span><span id="set_logging_level-57"><a href="#set_logging_level-57"><span class="linenos">57</span></a>    <span class="n">logger</span><span class="o">.</span><span class="n">setLevel</span><span class="p">(</span><span class="n">logging</span><span class="o">.</span><span class="n">DEBUG</span><span class="p">)</span>
+</span><span id="set_logging_level-58"><a href="#set_logging_level-58"><span class="linenos">58</span></a>
+</span><span id="set_logging_level-59"><a href="#set_logging_level-59"><span class="linenos">59</span></a>    <span class="c1"># also log to the console at a level determined by the --verbose flag</span>
+</span><span id="set_logging_level-60"><a href="#set_logging_level-60"><span class="linenos">60</span></a>    <span class="n">console_handler</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">StreamHandler</span><span class="p">()</span>  <span class="c1"># sys.stderr</span>
+</span><span id="set_logging_level-61"><a href="#set_logging_level-61"><span class="linenos">61</span></a>
+</span><span id="set_logging_level-62"><a href="#set_logging_level-62"><span class="linenos">62</span></a>    <span class="c1"># Set the level of logging messages that will be printed to</span>
+</span><span id="set_logging_level-63"><a href="#set_logging_level-63"><span class="linenos">63</span></a>    <span class="c1"># console/stderr.</span>
+</span><span id="set_logging_level-64"><a href="#set_logging_level-64"><span class="linenos">64</span></a>    <span class="k">if</span> <span class="ow">not</span> <span class="n">verbosity</span><span class="p">:</span>
+</span><span id="set_logging_level-65"><a href="#set_logging_level-65"><span class="linenos">65</span></a>        <span class="n">console_handler</span><span class="o">.</span><span class="n">setLevel</span><span class="p">(</span><span class="s1">&#39;WARNING&#39;</span><span class="p">)</span>
+</span><span id="set_logging_level-66"><a href="#set_logging_level-66"><span class="linenos">66</span></a>    <span class="k">elif</span> <span class="n">verbosity</span> <span class="o">&lt;</span> <span class="mi">1</span><span class="p">:</span>
+</span><span id="set_logging_level-67"><a href="#set_logging_level-67"><span class="linenos">67</span></a>        <span class="n">console_handler</span><span class="o">.</span><span class="n">setLevel</span><span class="p">(</span><span class="s1">&#39;ERROR&#39;</span><span class="p">)</span>
+</span><span id="set_logging_level-68"><a href="#set_logging_level-68"><span class="linenos">68</span></a>    <span class="k">elif</span> <span class="n">verbosity</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+</span><span id="set_logging_level-69"><a href="#set_logging_level-69"><span class="linenos">69</span></a>        <span class="n">console_handler</span><span class="o">.</span><span class="n">setLevel</span><span class="p">(</span><span class="s1">&#39;WARNING&#39;</span><span class="p">)</span>
+</span><span id="set_logging_level-70"><a href="#set_logging_level-70"><span class="linenos">70</span></a>    <span class="k">elif</span> <span class="n">verbosity</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
+</span><span id="set_logging_level-71"><a href="#set_logging_level-71"><span class="linenos">71</span></a>        <span class="n">console_handler</span><span class="o">.</span><span class="n">setLevel</span><span class="p">(</span><span class="s1">&#39;INFO&#39;</span><span class="p">)</span>
+</span><span id="set_logging_level-72"><a href="#set_logging_level-72"><span class="linenos">72</span></a>    <span class="k">elif</span> <span class="n">verbosity</span> <span class="o">&gt;=</span> <span class="mi">3</span><span class="p">:</span>
+</span><span id="set_logging_level-73"><a href="#set_logging_level-73"><span class="linenos">73</span></a>        <span class="n">console_handler</span><span class="o">.</span><span class="n">setLevel</span><span class="p">(</span><span class="s1">&#39;DEBUG&#39;</span><span class="p">)</span>
+</span><span id="set_logging_level-74"><a href="#set_logging_level-74"><span class="linenos">74</span></a>    <span class="k">else</span><span class="p">:</span>
+</span><span id="set_logging_level-75"><a href="#set_logging_level-75"><span class="linenos">75</span></a>        <span class="n">logging</span><span class="o">.</span><span class="n">critical</span><span class="p">(</span>
+</span><span id="set_logging_level-76"><a href="#set_logging_level-76"><span class="linenos">76</span></a>            <span class="s2">&quot;Negative argument </span><span class="si">%s</span><span class="s2"> to verbose!&quot;</span><span class="p">,</span>
+</span><span id="set_logging_level-77"><a href="#set_logging_level-77"><span class="linenos">77</span></a>            <span class="nb">str</span><span class="p">(</span><span class="n">verbosity</span><span class="p">))</span>
+</span><span id="set_logging_level-78"><a href="#set_logging_level-78"><span class="linenos">78</span></a>    <span class="n">logger</span><span class="o">.</span><span class="n">addHandler</span><span class="p">(</span><span class="n">console_handler</span><span class="p">)</span>
+</span><span id="set_logging_level-79"><a href="#set_logging_level-79"><span class="linenos">79</span></a>
+</span><span id="set_logging_level-80"><a href="#set_logging_level-80"><span class="linenos">80</span></a>    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;Data run started.&#39;</span><span class="p">)</span>
+</span><span id="set_logging_level-81"><a href="#set_logging_level-81"><span class="linenos">81</span></a>
+</span><span id="set_logging_level-82"><a href="#set_logging_level-82"><span class="linenos">82</span></a>    <span class="k">return</span> <span class="n">logger</span>
 </span></pre></div>
 
 
@@ -238,26 +249,26 @@ verbosity argument.</p>
 <div class="attr function">
             
         <span class="def">def</span>
-        <span class="name">log_elapsed_time</span><span class="signature pdoc-code condensed">(<span class="return-annotation">):</span></span>
+        <span class="name">log_elapsed_time</span><span class="signature pdoc-code condensed">(<span class="param"><span class="n">logger</span><span class="p">:</span> <span class="n">logging</span><span class="o">.</span><span class="n">Logger</span></span><span class="return-annotation">):</span></span>
 
                 <label class="view-source-button" for="log_elapsed_time-view-source"><span>View Source</span></label>
 
     </div>
     <a class="headerlink" href="#log_elapsed_time"></a>
-            <div class="pdoc-code codehilite"><pre><span></span><span id="log_elapsed_time-76"><a href="#log_elapsed_time-76"><span class="linenos">76</span></a><span class="k">def</span> <span class="nf">log_elapsed_time</span><span class="p">():</span>
-</span><span id="log_elapsed_time-77"><a href="#log_elapsed_time-77"><span class="linenos">77</span></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-</span><span id="log_elapsed_time-78"><a href="#log_elapsed_time-78"><span class="linenos">78</span></a><span class="sd">    Log the time elapsed since logging began.</span>
-</span><span id="log_elapsed_time-79"><a href="#log_elapsed_time-79"><span class="linenos">79</span></a><span class="sd">    </span>
-</span><span id="log_elapsed_time-80"><a href="#log_elapsed_time-80"><span class="linenos">80</span></a><span class="sd">    Also logs the time since the last call to this function.</span>
-</span><span id="log_elapsed_time-81"><a href="#log_elapsed_time-81"><span class="linenos">81</span></a><span class="sd">    &quot;&quot;&quot;</span>
-</span><span id="log_elapsed_time-82"><a href="#log_elapsed_time-82"><span class="linenos">82</span></a>    <span class="k">global</span> <span class="n">start_time</span><span class="p">,</span> <span class="n">last_log_time</span>
-</span><span id="log_elapsed_time-83"><a href="#log_elapsed_time-83"><span class="linenos">83</span></a>    <span class="n">current_time</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
-</span><span id="log_elapsed_time-84"><a href="#log_elapsed_time-84"><span class="linenos">84</span></a>    <span class="n">elapsed_time</span> <span class="o">=</span> <span class="n">current_time</span> <span class="o">-</span> <span class="n">start_time</span>
-</span><span id="log_elapsed_time-85"><a href="#log_elapsed_time-85"><span class="linenos">85</span></a>    <span class="n">since_last_log</span> <span class="o">=</span> <span class="n">current_time</span> <span class="o">-</span> <span class="n">last_log_time</span>
-</span><span id="log_elapsed_time-86"><a href="#log_elapsed_time-86"><span class="linenos">86</span></a>    <span class="n">log_text</span> <span class="o">=</span> <span class="s1">&#39;Elapsed time from start: </span><span class="si">%f</span><span class="s1">, from last logged time: </span><span class="si">%f</span><span class="s1">&#39;</span><span class="o">%</span><span class="p">(</span>
-</span><span id="log_elapsed_time-87"><a href="#log_elapsed_time-87"><span class="linenos">87</span></a>        <span class="n">elapsed_time</span><span class="p">,</span> <span class="n">since_last_log</span><span class="p">)</span>
-</span><span id="log_elapsed_time-88"><a href="#log_elapsed_time-88"><span class="linenos">88</span></a>    <span class="n">_satkit_logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="n">log_text</span><span class="p">)</span>
-</span><span id="log_elapsed_time-89"><a href="#log_elapsed_time-89"><span class="linenos">89</span></a>    <span class="n">last_log_time</span> <span class="o">=</span> <span class="n">current_time</span>
+            <div class="pdoc-code codehilite"><pre><span></span><span id="log_elapsed_time-85"><a href="#log_elapsed_time-85"><span class="linenos">85</span></a><span class="k">def</span> <span class="nf">log_elapsed_time</span><span class="p">(</span><span class="n">logger</span><span class="p">:</span> <span class="n">logging</span><span class="o">.</span><span class="n">Logger</span><span class="p">):</span>
+</span><span id="log_elapsed_time-86"><a href="#log_elapsed_time-86"><span class="linenos">86</span></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+</span><span id="log_elapsed_time-87"><a href="#log_elapsed_time-87"><span class="linenos">87</span></a><span class="sd">    Log the time elapsed since logging began.</span>
+</span><span id="log_elapsed_time-88"><a href="#log_elapsed_time-88"><span class="linenos">88</span></a><span class="sd">    </span>
+</span><span id="log_elapsed_time-89"><a href="#log_elapsed_time-89"><span class="linenos">89</span></a><span class="sd">    Also logs the time since the last call to this function.</span>
+</span><span id="log_elapsed_time-90"><a href="#log_elapsed_time-90"><span class="linenos">90</span></a><span class="sd">    &quot;&quot;&quot;</span>
+</span><span id="log_elapsed_time-91"><a href="#log_elapsed_time-91"><span class="linenos">91</span></a>    <span class="k">global</span> <span class="n">start_time</span><span class="p">,</span> <span class="n">last_log_time</span>
+</span><span id="log_elapsed_time-92"><a href="#log_elapsed_time-92"><span class="linenos">92</span></a>    <span class="n">current_time</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+</span><span id="log_elapsed_time-93"><a href="#log_elapsed_time-93"><span class="linenos">93</span></a>    <span class="n">elapsed_time</span> <span class="o">=</span> <span class="n">current_time</span> <span class="o">-</span> <span class="n">start_time</span>
+</span><span id="log_elapsed_time-94"><a href="#log_elapsed_time-94"><span class="linenos">94</span></a>    <span class="n">since_last_log</span> <span class="o">=</span> <span class="n">current_time</span> <span class="o">-</span> <span class="n">last_log_time</span>
+</span><span id="log_elapsed_time-95"><a href="#log_elapsed_time-95"><span class="linenos">95</span></a>    <span class="n">log_text</span> <span class="o">=</span> <span class="s1">&#39;Elapsed time from start: </span><span class="si">%f</span><span class="s1">, from last logged time: </span><span class="si">%f</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="p">(</span>
+</span><span id="log_elapsed_time-96"><a href="#log_elapsed_time-96"><span class="linenos">96</span></a>        <span class="n">elapsed_time</span><span class="p">,</span> <span class="n">since_last_log</span><span class="p">)</span>
+</span><span id="log_elapsed_time-97"><a href="#log_elapsed_time-97"><span class="linenos">97</span></a>    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="n">log_text</span><span class="p">)</span>
+</span><span id="log_elapsed_time-98"><a href="#log_elapsed_time-98"><span class="linenos">98</span></a>    <span class="n">last_log_time</span> <span class="o">=</span> <span class="n">current_time</span>
 </span></pre></div>
 
 

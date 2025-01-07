@@ -32,6 +32,7 @@
                     <li><a href="utility_functions/computational.html">computational</a></li>
                     <li><a href="utility_functions/logging_helpers.html">logging_helpers</a></li>
                     <li><a href="utility_functions/processing_helpers.html">processing_helpers</a></li>
+                    <li><a href="utility_functions/string_formatters.html">string_formatters</a></li>
                     <li><a href="utility_functions/types.html">types</a></li>
             </ul>
 
@@ -57,7 +58,7 @@
                         <label class="view-source-button" for="mod-utility_functions-view-source"><span>View Source</span></label>
 
                         <div class="pdoc-code codehilite"><pre><span></span><span id="L-1"><a href="#L-1"><span class="linenos"> 1</span></a><span class="c1">#</span>
-</span><span id="L-2"><a href="#L-2"><span class="linenos"> 2</span></a><span class="c1"># Copyright (c) 2019-2024</span>
+</span><span id="L-2"><a href="#L-2"><span class="linenos"> 2</span></a><span class="c1"># Copyright (c) 2019-2025</span>
 </span><span id="L-3"><a href="#L-3"><span class="linenos"> 3</span></a><span class="c1"># Pertti Palo, Scott Moisik, Matthew Faytak, and Motoki Saito.</span>
 </span><span id="L-4"><a href="#L-4"><span class="linenos"> 4</span></a><span class="c1">#</span>
 </span><span id="L-5"><a href="#L-5"><span class="linenos"> 5</span></a><span class="c1"># This file is part of Speech Articulation ToolKIT</span>
@@ -93,9 +94,12 @@
 </span><span id="L-35"><a href="#L-35"><span class="linenos">35</span></a>
 </span><span id="L-36"><a href="#L-36"><span class="linenos">36</span></a><span class="kn">from</span> <span class="nn">.computational</span> <span class="kn">import</span> <span class="p">(</span>
 </span><span id="L-37"><a href="#L-37"><span class="linenos">37</span></a>    <span class="n">cartesian_to_polar</span><span class="p">,</span> <span class="n">polar_to_cartesian</span><span class="p">,</span> <span class="n">mean_squared_error</span><span class="p">,</span>
-</span><span id="L-38"><a href="#L-38"><span class="linenos">38</span></a>    <span class="n">normalise_timeseries</span><span class="p">)</span>
-</span><span id="L-39"><a href="#L-39"><span class="linenos">39</span></a><span class="kn">from</span> <span class="nn">.processing_helpers</span> <span class="kn">import</span> <span class="n">camel_to_snake</span><span class="p">,</span> <span class="n">product_dict</span>
-</span><span id="L-40"><a href="#L-40"><span class="linenos">40</span></a><span class="kn">from</span> <span class="nn">.types</span> <span class="kn">import</span> <span class="n">is_sequence_form</span>
+</span><span id="L-38"><a href="#L-38"><span class="linenos">38</span></a>    <span class="n">normalise_timeseries</span>
+</span><span id="L-39"><a href="#L-39"><span class="linenos">39</span></a><span class="p">)</span>
+</span><span id="L-40"><a href="#L-40"><span class="linenos">40</span></a><span class="kn">from</span> <span class="nn">.logging_helpers</span> <span class="kn">import</span> <span class="n">log_elapsed_time</span><span class="p">,</span> <span class="n">set_logging_level</span>
+</span><span id="L-41"><a href="#L-41"><span class="linenos">41</span></a><span class="kn">from</span> <span class="nn">.processing_helpers</span> <span class="kn">import</span> <span class="n">camel_to_snake</span><span class="p">,</span> <span class="n">product_dict</span>
+</span><span id="L-42"><a href="#L-42"><span class="linenos">42</span></a><span class="kn">from</span> <span class="nn">.string_formatters</span> <span class="kn">import</span> <span class="n">split_by</span>
+</span><span id="L-43"><a href="#L-43"><span class="linenos">43</span></a><span class="kn">from</span> <span class="nn">.types</span> <span class="kn">import</span> <span class="n">is_sequence_form</span>
 </span></pre></div>
 
 

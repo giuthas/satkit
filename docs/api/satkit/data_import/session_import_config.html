@@ -69,7 +69,7 @@
                         <label class="view-source-button" for="mod-session_import_config-view-source"><span>View Source</span></label>
 
                         <div class="pdoc-code codehilite"><pre><span></span><span id="L-1"><a href="#L-1"><span class="linenos">  1</span></a><span class="c1">#</span>
-</span><span id="L-2"><a href="#L-2"><span class="linenos">  2</span></a><span class="c1"># Copyright (c) 2019-2024</span>
+</span><span id="L-2"><a href="#L-2"><span class="linenos">  2</span></a><span class="c1"># Copyright (c) 2019-2025</span>
 </span><span id="L-3"><a href="#L-3"><span class="linenos">  3</span></a><span class="c1"># Pertti Palo, Scott Moisik, Matthew Faytak, and Motoki Saito.</span>
 </span><span id="L-4"><a href="#L-4"><span class="linenos">  4</span></a><span class="c1">#</span>
 </span><span id="L-5"><a href="#L-5"><span class="linenos">  5</span></a><span class="c1"># This file is part of Speech Articulation ToolKIT</span>
@@ -146,13 +146,13 @@
 </span><span id="L-76"><a href="#L-76"><span class="linenos"> 76</span></a>        <span class="n">data_root</span><span class="p">:</span> <span class="n">Path</span><span class="p">,</span>
 </span><span id="L-77"><a href="#L-77"><span class="linenos"> 77</span></a>        <span class="n">raw_config</span><span class="p">:</span> <span class="nb">dict</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">PathStructure</span><span class="p">,</span> <span class="n">SessionConfig</span><span class="p">]:</span>
 </span><span id="L-78"><a href="#L-78"><span class="linenos"> 78</span></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-</span><span id="L-79"><a href="#L-79"><span class="linenos"> 79</span></a><span class="sd">    Parse needed fields and create the new SessionImportConfig.</span>
+</span><span id="L-79"><a href="#L-79"><span class="linenos"> 79</span></a><span class="sd">    Parse needed fields and create a new SessionImportConfig.</span>
 </span><span id="L-80"><a href="#L-80"><span class="linenos"> 80</span></a>
 </span><span id="L-81"><a href="#L-81"><span class="linenos"> 81</span></a><span class="sd">    Parameters</span>
 </span><span id="L-82"><a href="#L-82"><span class="linenos"> 82</span></a><span class="sd">    ----------</span>
 </span><span id="L-83"><a href="#L-83"><span class="linenos"> 83</span></a><span class="sd">    data_root : Path</span>
 </span><span id="L-84"><a href="#L-84"><span class="linenos"> 84</span></a><span class="sd">        Path to the root directory for the data. If all data is in the same</span>
-</span><span id="L-85"><a href="#L-85"><span class="linenos"> 85</span></a><span class="sd">        directory, this is that directory. Otherwise this is the deepest common</span>
+</span><span id="L-85"><a href="#L-85"><span class="linenos"> 85</span></a><span class="sd">        directory, this is that directory. Otherwise, this is the deepest common</span>
 </span><span id="L-86"><a href="#L-86"><span class="linenos"> 86</span></a><span class="sd">        path among data types.</span>
 </span><span id="L-87"><a href="#L-87"><span class="linenos"> 87</span></a><span class="sd">    raw_config : dict</span>
 </span><span id="L-88"><a href="#L-88"><span class="linenos"> 88</span></a><span class="sd">        The raw config read from a yaml file.</span>
@@ -188,7 +188,7 @@
 </span><span id="L-118"><a href="#L-118"><span class="linenos">118</span></a><span class="sd">    ----------</span>
 </span><span id="L-119"><a href="#L-119"><span class="linenos">119</span></a><span class="sd">    data_root : Path</span>
 </span><span id="L-120"><a href="#L-120"><span class="linenos">120</span></a><span class="sd">        Path to the root directory for the data. If all data is in the same</span>
-</span><span id="L-121"><a href="#L-121"><span class="linenos">121</span></a><span class="sd">        directory, this is that directory. Otherwise this is the deepest common</span>
+</span><span id="L-121"><a href="#L-121"><span class="linenos">121</span></a><span class="sd">        directory, this is that directory. Otherwise, this is the deepest common</span>
 </span><span id="L-122"><a href="#L-122"><span class="linenos">122</span></a><span class="sd">        path among data types.</span>
 </span><span id="L-123"><a href="#L-123"><span class="linenos">123</span></a><span class="sd">    filepath : Union[Path, str]</span>
 </span><span id="L-124"><a href="#L-124"><span class="linenos">124</span></a><span class="sd">        Path or str to the Session import configuration file.</span>
@@ -311,7 +311,7 @@
 <div class="attr function">
             
         <span class="def">def</span>
-        <span class="name">make_session_config</span><span class="signature pdoc-code multiline">(<span class="param">	<span class="n">data_root</span><span class="p">:</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span>,</span><span class="param">	<span class="n">raw_config</span><span class="p">:</span> <span class="nb">dict</span></span><span class="return-annotation">) -> <span class="nb">tuple</span><span class="p">[</span><span class="n"><a href="../configuration/configuration_classes.html#PathStructure">satkit.configuration.configuration_classes.PathStructure</a></span><span class="p">,</span> <span class="n"><a href="../data_structures/meta_data_classes.html#SessionConfig">satkit.data_structures.meta_data_classes.SessionConfig</a></span><span class="p">]</span>:</span></span>
+        <span class="name">make_session_config</span><span class="signature pdoc-code multiline">(<span class="param">	<span class="n">data_root</span><span class="p">:</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span>,</span><span class="param">	<span class="n">raw_config</span><span class="p">:</span> <span class="nb">dict</span></span><span class="return-annotation">) -> <span class="nb">tuple</span><span class="p">[</span><span class="n"><a href="../configuration/configuration_models.html#PathStructure">satkit.configuration.configuration_models.PathStructure</a></span><span class="p">,</span> <span class="n"><a href="../data_structures/metadata_classes.html#SessionConfig">satkit.data_structures.metadata_classes.SessionConfig</a></span><span class="p">]</span>:</span></span>
 
                 <label class="view-source-button" for="make_session_config-view-source"><span>View Source</span></label>
 
@@ -321,13 +321,13 @@
 </span><span id="make_session_config-77"><a href="#make_session_config-77"><span class="linenos"> 77</span></a>        <span class="n">data_root</span><span class="p">:</span> <span class="n">Path</span><span class="p">,</span>
 </span><span id="make_session_config-78"><a href="#make_session_config-78"><span class="linenos"> 78</span></a>        <span class="n">raw_config</span><span class="p">:</span> <span class="nb">dict</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">PathStructure</span><span class="p">,</span> <span class="n">SessionConfig</span><span class="p">]:</span>
 </span><span id="make_session_config-79"><a href="#make_session_config-79"><span class="linenos"> 79</span></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-</span><span id="make_session_config-80"><a href="#make_session_config-80"><span class="linenos"> 80</span></a><span class="sd">    Parse needed fields and create the new SessionImportConfig.</span>
+</span><span id="make_session_config-80"><a href="#make_session_config-80"><span class="linenos"> 80</span></a><span class="sd">    Parse needed fields and create a new SessionImportConfig.</span>
 </span><span id="make_session_config-81"><a href="#make_session_config-81"><span class="linenos"> 81</span></a>
 </span><span id="make_session_config-82"><a href="#make_session_config-82"><span class="linenos"> 82</span></a><span class="sd">    Parameters</span>
 </span><span id="make_session_config-83"><a href="#make_session_config-83"><span class="linenos"> 83</span></a><span class="sd">    ----------</span>
 </span><span id="make_session_config-84"><a href="#make_session_config-84"><span class="linenos"> 84</span></a><span class="sd">    data_root : Path</span>
 </span><span id="make_session_config-85"><a href="#make_session_config-85"><span class="linenos"> 85</span></a><span class="sd">        Path to the root directory for the data. If all data is in the same</span>
-</span><span id="make_session_config-86"><a href="#make_session_config-86"><span class="linenos"> 86</span></a><span class="sd">        directory, this is that directory. Otherwise this is the deepest common</span>
+</span><span id="make_session_config-86"><a href="#make_session_config-86"><span class="linenos"> 86</span></a><span class="sd">        directory, this is that directory. Otherwise, this is the deepest common</span>
 </span><span id="make_session_config-87"><a href="#make_session_config-87"><span class="linenos"> 87</span></a><span class="sd">        path among data types.</span>
 </span><span id="make_session_config-88"><a href="#make_session_config-88"><span class="linenos"> 88</span></a><span class="sd">    raw_config : dict</span>
 </span><span id="make_session_config-89"><a href="#make_session_config-89"><span class="linenos"> 89</span></a><span class="sd">        The raw config read from a yaml file.</span>
@@ -354,14 +354,14 @@
 </span></pre></div>
 
 
-            <div class="docstring"><p>Parse needed fields and create the new SessionImportConfig.</p>
+            <div class="docstring"><p>Parse needed fields and create a new SessionImportConfig.</p>
 
 <h6 id="parameters">Parameters</h6>
 
 <ul>
 <li><strong>data_root</strong> (Path):
 Path to the root directory for the data. If all data is in the same
-directory, this is that directory. Otherwise this is the deepest common
+directory, this is that directory. Otherwise, this is the deepest common
 path among data types.</li>
 <li><strong>raw_config</strong> (dict):
 The raw config read from a yaml file.</li>
@@ -381,7 +381,7 @@ The raw config read from a yaml file.</li>
 <div class="attr function">
             
         <span class="def">def</span>
-        <span class="name">load_session_config</span><span class="signature pdoc-code multiline">(<span class="param">	<span class="n">data_root</span><span class="p">:</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span>,</span><span class="param">	<span class="n">filepath</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">,</span> <span class="nb">str</span><span class="p">]</span></span><span class="return-annotation">) -> <span class="nb">tuple</span><span class="p">[</span><span class="n"><a href="../configuration/configuration_classes.html#PathStructure">satkit.configuration.configuration_classes.PathStructure</a></span><span class="p">,</span> <span class="n"><a href="../data_structures/meta_data_classes.html#SessionConfig">satkit.data_structures.meta_data_classes.SessionConfig</a></span><span class="p">]</span>:</span></span>
+        <span class="name">load_session_config</span><span class="signature pdoc-code multiline">(<span class="param">	<span class="n">data_root</span><span class="p">:</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span>,</span><span class="param">	<span class="n">filepath</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">,</span> <span class="nb">str</span><span class="p">]</span></span><span class="return-annotation">) -> <span class="nb">tuple</span><span class="p">[</span><span class="n"><a href="../configuration/configuration_models.html#PathStructure">satkit.configuration.configuration_models.PathStructure</a></span><span class="p">,</span> <span class="n"><a href="../data_structures/metadata_classes.html#SessionConfig">satkit.data_structures.metadata_classes.SessionConfig</a></span><span class="p">]</span>:</span></span>
 
                 <label class="view-source-button" for="load_session_config-view-source"><span>View Source</span></label>
 
@@ -397,7 +397,7 @@ The raw config read from a yaml file.</li>
 </span><span id="load_session_config-119"><a href="#load_session_config-119"><span class="linenos">119</span></a><span class="sd">    ----------</span>
 </span><span id="load_session_config-120"><a href="#load_session_config-120"><span class="linenos">120</span></a><span class="sd">    data_root : Path</span>
 </span><span id="load_session_config-121"><a href="#load_session_config-121"><span class="linenos">121</span></a><span class="sd">        Path to the root directory for the data. If all data is in the same</span>
-</span><span id="load_session_config-122"><a href="#load_session_config-122"><span class="linenos">122</span></a><span class="sd">        directory, this is that directory. Otherwise this is the deepest common</span>
+</span><span id="load_session_config-122"><a href="#load_session_config-122"><span class="linenos">122</span></a><span class="sd">        directory, this is that directory. Otherwise, this is the deepest common</span>
 </span><span id="load_session_config-123"><a href="#load_session_config-123"><span class="linenos">123</span></a><span class="sd">        path among data types.</span>
 </span><span id="load_session_config-124"><a href="#load_session_config-124"><span class="linenos">124</span></a><span class="sd">    filepath : Union[Path, str]</span>
 </span><span id="load_session_config-125"><a href="#load_session_config-125"><span class="linenos">125</span></a><span class="sd">        Path or str to the Session import configuration file.</span>
@@ -445,7 +445,7 @@ The raw config read from a yaml file.</li>
 <ul>
 <li><strong>data_root</strong> (Path):
 Path to the root directory for the data. If all data is in the same
-directory, this is that directory. Otherwise this is the deepest common
+directory, this is that directory. Otherwise, this is the deepest common
 path among data types.</li>
 <li><strong>filepath</strong> (Union[Path, str]):
 Path or str to the Session import configuration file.</li>

@@ -31,19 +31,19 @@
             <h2>API Documentation</h2>
                 <ul class="memberlist">
             <li>
-                    <a class="class" href="#EmptyStrAsNoneBaseModel">EmptyStrAsNoneBaseModel</a>
+                    <a class="class" href="#SatkitBaseModel">SatkitBaseModel</a>
                             <ul class="memberlist">
                         <li>
-                                <a class="function" href="#EmptyStrAsNoneBaseModel.empty_str_to_none">empty_str_to_none</a>
+                                <a class="function" href="#SatkitBaseModel.empty_str_to_none">empty_str_to_none</a>
                         </li>
                         <li>
-                                <a class="variable" href="#EmptyStrAsNoneBaseModel.model_config">model_config</a>
+                                <a class="variable" href="#SatkitBaseModel.model_config">model_config</a>
                         </li>
                         <li>
-                                <a class="variable" href="#EmptyStrAsNoneBaseModel.model_fields">model_fields</a>
+                                <a class="variable" href="#SatkitBaseModel.model_fields">model_fields</a>
                         </li>
                         <li>
-                                <a class="variable" href="#EmptyStrAsNoneBaseModel.model_computed_fields">model_computed_fields</a>
+                                <a class="variable" href="#SatkitBaseModel.model_computed_fields">model_computed_fields</a>
                         </li>
                 </ul>
 
@@ -90,7 +90,7 @@
                         <label class="view-source-button" for="mod-base_model_extensions-view-source"><span>View Source</span></label>
 
                         <div class="pdoc-code codehilite"><pre><span></span><span id="L-1"><a href="#L-1"><span class="linenos">  1</span></a><span class="c1">#</span>
-</span><span id="L-2"><a href="#L-2"><span class="linenos">  2</span></a><span class="c1"># Copyright (c) 2019-2024</span>
+</span><span id="L-2"><a href="#L-2"><span class="linenos">  2</span></a><span class="c1"># Copyright (c) 2019-2025</span>
 </span><span id="L-3"><a href="#L-3"><span class="linenos">  3</span></a><span class="c1"># Pertti Palo, Scott Moisik, Matthew Faytak, and Motoki Saito.</span>
 </span><span id="L-4"><a href="#L-4"><span class="linenos">  4</span></a><span class="c1">#</span>
 </span><span id="L-5"><a href="#L-5"><span class="linenos">  5</span></a><span class="c1"># This file is part of Speech Articulation ToolKIT</span>
@@ -137,7 +137,7 @@
 </span><span id="L-46"><a href="#L-46"><span class="linenos"> 46</span></a><span class="c1"># UpdatableBaseModel.</span>
 </span><span id="L-47"><a href="#L-47"><span class="linenos"> 47</span></a>
 </span><span id="L-48"><a href="#L-48"><span class="linenos"> 48</span></a>
-</span><span id="L-49"><a href="#L-49"><span class="linenos"> 49</span></a><span class="k">class</span> <span class="nc">EmptyStrAsNoneBaseModel</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">):</span>
+</span><span id="L-49"><a href="#L-49"><span class="linenos"> 49</span></a><span class="k">class</span> <span class="nc">SatkitBaseModel</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">):</span>
 </span><span id="L-50"><a href="#L-50"><span class="linenos"> 50</span></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 </span><span id="L-51"><a href="#L-51"><span class="linenos"> 51</span></a><span class="sd">    A BaseModel which accepts empty strings for any field as None.</span>
 </span><span id="L-52"><a href="#L-52"><span class="linenos"> 52</span></a><span class="sd">    &quot;&quot;&quot;</span>
@@ -162,7 +162,7 @@
 </span><span id="L-71"><a href="#L-71"><span class="linenos"> 71</span></a>        <span class="k">return</span> <span class="n">input_string</span>
 </span><span id="L-72"><a href="#L-72"><span class="linenos"> 72</span></a>
 </span><span id="L-73"><a href="#L-73"><span class="linenos"> 73</span></a>
-</span><span id="L-74"><a href="#L-74"><span class="linenos"> 74</span></a><span class="k">class</span> <span class="nc">UpdatableBaseModel</span><span class="p">(</span><span class="n">EmptyStrAsNoneBaseModel</span><span class="p">):</span>
+</span><span id="L-74"><a href="#L-74"><span class="linenos"> 74</span></a><span class="k">class</span> <span class="nc">UpdatableBaseModel</span><span class="p">(</span><span class="n">SatkitBaseModel</span><span class="p">):</span>
 </span><span id="L-75"><a href="#L-75"><span class="linenos"> 75</span></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 </span><span id="L-76"><a href="#L-76"><span class="linenos"> 76</span></a><span class="sd">    A BaseModel which can be updated with new data.</span>
 </span><span id="L-77"><a href="#L-77"><span class="linenos"> 77</span></a>
@@ -200,40 +200,40 @@
 
 
             </section>
-                <section id="EmptyStrAsNoneBaseModel">
-                            <input id="EmptyStrAsNoneBaseModel-view-source" class="view-source-toggle-state" type="checkbox" aria-hidden="true" tabindex="-1">
+                <section id="SatkitBaseModel">
+                            <input id="SatkitBaseModel-view-source" class="view-source-toggle-state" type="checkbox" aria-hidden="true" tabindex="-1">
 <div class="attr class">
             
     <span class="def">class</span>
-    <span class="name">EmptyStrAsNoneBaseModel</span><wbr>(<span class="base">pydantic.main.BaseModel</span>):
+    <span class="name">SatkitBaseModel</span><wbr>(<span class="base">pydantic.main.BaseModel</span>):
 
-                <label class="view-source-button" for="EmptyStrAsNoneBaseModel-view-source"><span>View Source</span></label>
+                <label class="view-source-button" for="SatkitBaseModel-view-source"><span>View Source</span></label>
 
     </div>
-    <a class="headerlink" href="#EmptyStrAsNoneBaseModel"></a>
-            <div class="pdoc-code codehilite"><pre><span></span><span id="EmptyStrAsNoneBaseModel-50"><a href="#EmptyStrAsNoneBaseModel-50"><span class="linenos">50</span></a><span class="k">class</span> <span class="nc">EmptyStrAsNoneBaseModel</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">):</span>
-</span><span id="EmptyStrAsNoneBaseModel-51"><a href="#EmptyStrAsNoneBaseModel-51"><span class="linenos">51</span></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-</span><span id="EmptyStrAsNoneBaseModel-52"><a href="#EmptyStrAsNoneBaseModel-52"><span class="linenos">52</span></a><span class="sd">    A BaseModel which accepts empty strings for any field as None.</span>
-</span><span id="EmptyStrAsNoneBaseModel-53"><a href="#EmptyStrAsNoneBaseModel-53"><span class="linenos">53</span></a><span class="sd">    &quot;&quot;&quot;</span>
-</span><span id="EmptyStrAsNoneBaseModel-54"><a href="#EmptyStrAsNoneBaseModel-54"><span class="linenos">54</span></a>    <span class="nd">@model_validator</span><span class="p">(</span><span class="n">mode</span><span class="o">=</span><span class="s2">&quot;before&quot;</span><span class="p">)</span>
-</span><span id="EmptyStrAsNoneBaseModel-55"><a href="#EmptyStrAsNoneBaseModel-55"><span class="linenos">55</span></a>    <span class="nd">@classmethod</span>
-</span><span id="EmptyStrAsNoneBaseModel-56"><a href="#EmptyStrAsNoneBaseModel-56"><span class="linenos">56</span></a>    <span class="k">def</span> <span class="nf">empty_str_to_none</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">input_string</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
-</span><span id="EmptyStrAsNoneBaseModel-57"><a href="#EmptyStrAsNoneBaseModel-57"><span class="linenos">57</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-</span><span id="EmptyStrAsNoneBaseModel-58"><a href="#EmptyStrAsNoneBaseModel-58"><span class="linenos">58</span></a><span class="sd">        Validate empty strings to None, but non-empties to themselves.</span>
-</span><span id="EmptyStrAsNoneBaseModel-59"><a href="#EmptyStrAsNoneBaseModel-59"><span class="linenos">59</span></a>
-</span><span id="EmptyStrAsNoneBaseModel-60"><a href="#EmptyStrAsNoneBaseModel-60"><span class="linenos">60</span></a><span class="sd">        Parameters</span>
-</span><span id="EmptyStrAsNoneBaseModel-61"><a href="#EmptyStrAsNoneBaseModel-61"><span class="linenos">61</span></a><span class="sd">        ----------</span>
-</span><span id="EmptyStrAsNoneBaseModel-62"><a href="#EmptyStrAsNoneBaseModel-62"><span class="linenos">62</span></a><span class="sd">        input_string : str</span>
-</span><span id="EmptyStrAsNoneBaseModel-63"><a href="#EmptyStrAsNoneBaseModel-63"><span class="linenos">63</span></a><span class="sd">            String to be validated.</span>
-</span><span id="EmptyStrAsNoneBaseModel-64"><a href="#EmptyStrAsNoneBaseModel-64"><span class="linenos">64</span></a>
-</span><span id="EmptyStrAsNoneBaseModel-65"><a href="#EmptyStrAsNoneBaseModel-65"><span class="linenos">65</span></a><span class="sd">        Returns</span>
-</span><span id="EmptyStrAsNoneBaseModel-66"><a href="#EmptyStrAsNoneBaseModel-66"><span class="linenos">66</span></a><span class="sd">        -------</span>
-</span><span id="EmptyStrAsNoneBaseModel-67"><a href="#EmptyStrAsNoneBaseModel-67"><span class="linenos">67</span></a><span class="sd">        Optional[str]</span>
-</span><span id="EmptyStrAsNoneBaseModel-68"><a href="#EmptyStrAsNoneBaseModel-68"><span class="linenos">68</span></a><span class="sd">            None for empty string, otherwise the string itself.</span>
-</span><span id="EmptyStrAsNoneBaseModel-69"><a href="#EmptyStrAsNoneBaseModel-69"><span class="linenos">69</span></a><span class="sd">        &quot;&quot;&quot;</span>
-</span><span id="EmptyStrAsNoneBaseModel-70"><a href="#EmptyStrAsNoneBaseModel-70"><span class="linenos">70</span></a>        <span class="k">if</span> <span class="n">input_string</span> <span class="o">==</span> <span class="s1">&#39;&#39;</span><span class="p">:</span>
-</span><span id="EmptyStrAsNoneBaseModel-71"><a href="#EmptyStrAsNoneBaseModel-71"><span class="linenos">71</span></a>            <span class="n">input_string</span> <span class="o">=</span> <span class="kc">None</span>
-</span><span id="EmptyStrAsNoneBaseModel-72"><a href="#EmptyStrAsNoneBaseModel-72"><span class="linenos">72</span></a>        <span class="k">return</span> <span class="n">input_string</span>
+    <a class="headerlink" href="#SatkitBaseModel"></a>
+            <div class="pdoc-code codehilite"><pre><span></span><span id="SatkitBaseModel-50"><a href="#SatkitBaseModel-50"><span class="linenos">50</span></a><span class="k">class</span> <span class="nc">SatkitBaseModel</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">):</span>
+</span><span id="SatkitBaseModel-51"><a href="#SatkitBaseModel-51"><span class="linenos">51</span></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+</span><span id="SatkitBaseModel-52"><a href="#SatkitBaseModel-52"><span class="linenos">52</span></a><span class="sd">    A BaseModel which accepts empty strings for any field as None.</span>
+</span><span id="SatkitBaseModel-53"><a href="#SatkitBaseModel-53"><span class="linenos">53</span></a><span class="sd">    &quot;&quot;&quot;</span>
+</span><span id="SatkitBaseModel-54"><a href="#SatkitBaseModel-54"><span class="linenos">54</span></a>    <span class="nd">@model_validator</span><span class="p">(</span><span class="n">mode</span><span class="o">=</span><span class="s2">&quot;before&quot;</span><span class="p">)</span>
+</span><span id="SatkitBaseModel-55"><a href="#SatkitBaseModel-55"><span class="linenos">55</span></a>    <span class="nd">@classmethod</span>
+</span><span id="SatkitBaseModel-56"><a href="#SatkitBaseModel-56"><span class="linenos">56</span></a>    <span class="k">def</span> <span class="nf">empty_str_to_none</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">input_string</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+</span><span id="SatkitBaseModel-57"><a href="#SatkitBaseModel-57"><span class="linenos">57</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+</span><span id="SatkitBaseModel-58"><a href="#SatkitBaseModel-58"><span class="linenos">58</span></a><span class="sd">        Validate empty strings to None, but non-empties to themselves.</span>
+</span><span id="SatkitBaseModel-59"><a href="#SatkitBaseModel-59"><span class="linenos">59</span></a>
+</span><span id="SatkitBaseModel-60"><a href="#SatkitBaseModel-60"><span class="linenos">60</span></a><span class="sd">        Parameters</span>
+</span><span id="SatkitBaseModel-61"><a href="#SatkitBaseModel-61"><span class="linenos">61</span></a><span class="sd">        ----------</span>
+</span><span id="SatkitBaseModel-62"><a href="#SatkitBaseModel-62"><span class="linenos">62</span></a><span class="sd">        input_string : str</span>
+</span><span id="SatkitBaseModel-63"><a href="#SatkitBaseModel-63"><span class="linenos">63</span></a><span class="sd">            String to be validated.</span>
+</span><span id="SatkitBaseModel-64"><a href="#SatkitBaseModel-64"><span class="linenos">64</span></a>
+</span><span id="SatkitBaseModel-65"><a href="#SatkitBaseModel-65"><span class="linenos">65</span></a><span class="sd">        Returns</span>
+</span><span id="SatkitBaseModel-66"><a href="#SatkitBaseModel-66"><span class="linenos">66</span></a><span class="sd">        -------</span>
+</span><span id="SatkitBaseModel-67"><a href="#SatkitBaseModel-67"><span class="linenos">67</span></a><span class="sd">        Optional[str]</span>
+</span><span id="SatkitBaseModel-68"><a href="#SatkitBaseModel-68"><span class="linenos">68</span></a><span class="sd">            None for empty string, otherwise the string itself.</span>
+</span><span id="SatkitBaseModel-69"><a href="#SatkitBaseModel-69"><span class="linenos">69</span></a><span class="sd">        &quot;&quot;&quot;</span>
+</span><span id="SatkitBaseModel-70"><a href="#SatkitBaseModel-70"><span class="linenos">70</span></a>        <span class="k">if</span> <span class="n">input_string</span> <span class="o">==</span> <span class="s1">&#39;&#39;</span><span class="p">:</span>
+</span><span id="SatkitBaseModel-71"><a href="#SatkitBaseModel-71"><span class="linenos">71</span></a>            <span class="n">input_string</span> <span class="o">=</span> <span class="kc">None</span>
+</span><span id="SatkitBaseModel-72"><a href="#SatkitBaseModel-72"><span class="linenos">72</span></a>        <span class="k">return</span> <span class="n">input_string</span>
 </span></pre></div>
 
 
@@ -241,8 +241,8 @@
 </div>
 
 
-                            <div id="EmptyStrAsNoneBaseModel.empty_str_to_none" class="classattr">
-                                        <input id="EmptyStrAsNoneBaseModel.empty_str_to_none-view-source" class="view-source-toggle-state" type="checkbox" aria-hidden="true" tabindex="-1">
+                            <div id="SatkitBaseModel.empty_str_to_none" class="classattr">
+                                        <input id="SatkitBaseModel.empty_str_to_none-view-source" class="view-source-toggle-state" type="checkbox" aria-hidden="true" tabindex="-1">
 <div class="attr function">
                     <div class="decorator">@model_validator(mode=&#39;before&#39;)</div>
         <div class="decorator">@classmethod</div>
@@ -250,29 +250,29 @@
         <span class="def">def</span>
         <span class="name">empty_str_to_none</span><span class="signature pdoc-code condensed">(<span class="param"><span class="bp">cls</span>, </span><span class="param"><span class="n">input_string</span><span class="p">:</span> <span class="nb">str</span></span><span class="return-annotation">) -> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span>:</span></span>
 
-                <label class="view-source-button" for="EmptyStrAsNoneBaseModel.empty_str_to_none-view-source"><span>View Source</span></label>
+                <label class="view-source-button" for="SatkitBaseModel.empty_str_to_none-view-source"><span>View Source</span></label>
 
     </div>
-    <a class="headerlink" href="#EmptyStrAsNoneBaseModel.empty_str_to_none"></a>
-            <div class="pdoc-code codehilite"><pre><span></span><span id="EmptyStrAsNoneBaseModel.empty_str_to_none-54"><a href="#EmptyStrAsNoneBaseModel.empty_str_to_none-54"><span class="linenos">54</span></a>    <span class="nd">@model_validator</span><span class="p">(</span><span class="n">mode</span><span class="o">=</span><span class="s2">&quot;before&quot;</span><span class="p">)</span>
-</span><span id="EmptyStrAsNoneBaseModel.empty_str_to_none-55"><a href="#EmptyStrAsNoneBaseModel.empty_str_to_none-55"><span class="linenos">55</span></a>    <span class="nd">@classmethod</span>
-</span><span id="EmptyStrAsNoneBaseModel.empty_str_to_none-56"><a href="#EmptyStrAsNoneBaseModel.empty_str_to_none-56"><span class="linenos">56</span></a>    <span class="k">def</span> <span class="nf">empty_str_to_none</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">input_string</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
-</span><span id="EmptyStrAsNoneBaseModel.empty_str_to_none-57"><a href="#EmptyStrAsNoneBaseModel.empty_str_to_none-57"><span class="linenos">57</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-</span><span id="EmptyStrAsNoneBaseModel.empty_str_to_none-58"><a href="#EmptyStrAsNoneBaseModel.empty_str_to_none-58"><span class="linenos">58</span></a><span class="sd">        Validate empty strings to None, but non-empties to themselves.</span>
-</span><span id="EmptyStrAsNoneBaseModel.empty_str_to_none-59"><a href="#EmptyStrAsNoneBaseModel.empty_str_to_none-59"><span class="linenos">59</span></a>
-</span><span id="EmptyStrAsNoneBaseModel.empty_str_to_none-60"><a href="#EmptyStrAsNoneBaseModel.empty_str_to_none-60"><span class="linenos">60</span></a><span class="sd">        Parameters</span>
-</span><span id="EmptyStrAsNoneBaseModel.empty_str_to_none-61"><a href="#EmptyStrAsNoneBaseModel.empty_str_to_none-61"><span class="linenos">61</span></a><span class="sd">        ----------</span>
-</span><span id="EmptyStrAsNoneBaseModel.empty_str_to_none-62"><a href="#EmptyStrAsNoneBaseModel.empty_str_to_none-62"><span class="linenos">62</span></a><span class="sd">        input_string : str</span>
-</span><span id="EmptyStrAsNoneBaseModel.empty_str_to_none-63"><a href="#EmptyStrAsNoneBaseModel.empty_str_to_none-63"><span class="linenos">63</span></a><span class="sd">            String to be validated.</span>
-</span><span id="EmptyStrAsNoneBaseModel.empty_str_to_none-64"><a href="#EmptyStrAsNoneBaseModel.empty_str_to_none-64"><span class="linenos">64</span></a>
-</span><span id="EmptyStrAsNoneBaseModel.empty_str_to_none-65"><a href="#EmptyStrAsNoneBaseModel.empty_str_to_none-65"><span class="linenos">65</span></a><span class="sd">        Returns</span>
-</span><span id="EmptyStrAsNoneBaseModel.empty_str_to_none-66"><a href="#EmptyStrAsNoneBaseModel.empty_str_to_none-66"><span class="linenos">66</span></a><span class="sd">        -------</span>
-</span><span id="EmptyStrAsNoneBaseModel.empty_str_to_none-67"><a href="#EmptyStrAsNoneBaseModel.empty_str_to_none-67"><span class="linenos">67</span></a><span class="sd">        Optional[str]</span>
-</span><span id="EmptyStrAsNoneBaseModel.empty_str_to_none-68"><a href="#EmptyStrAsNoneBaseModel.empty_str_to_none-68"><span class="linenos">68</span></a><span class="sd">            None for empty string, otherwise the string itself.</span>
-</span><span id="EmptyStrAsNoneBaseModel.empty_str_to_none-69"><a href="#EmptyStrAsNoneBaseModel.empty_str_to_none-69"><span class="linenos">69</span></a><span class="sd">        &quot;&quot;&quot;</span>
-</span><span id="EmptyStrAsNoneBaseModel.empty_str_to_none-70"><a href="#EmptyStrAsNoneBaseModel.empty_str_to_none-70"><span class="linenos">70</span></a>        <span class="k">if</span> <span class="n">input_string</span> <span class="o">==</span> <span class="s1">&#39;&#39;</span><span class="p">:</span>
-</span><span id="EmptyStrAsNoneBaseModel.empty_str_to_none-71"><a href="#EmptyStrAsNoneBaseModel.empty_str_to_none-71"><span class="linenos">71</span></a>            <span class="n">input_string</span> <span class="o">=</span> <span class="kc">None</span>
-</span><span id="EmptyStrAsNoneBaseModel.empty_str_to_none-72"><a href="#EmptyStrAsNoneBaseModel.empty_str_to_none-72"><span class="linenos">72</span></a>        <span class="k">return</span> <span class="n">input_string</span>
+    <a class="headerlink" href="#SatkitBaseModel.empty_str_to_none"></a>
+            <div class="pdoc-code codehilite"><pre><span></span><span id="SatkitBaseModel.empty_str_to_none-54"><a href="#SatkitBaseModel.empty_str_to_none-54"><span class="linenos">54</span></a>    <span class="nd">@model_validator</span><span class="p">(</span><span class="n">mode</span><span class="o">=</span><span class="s2">&quot;before&quot;</span><span class="p">)</span>
+</span><span id="SatkitBaseModel.empty_str_to_none-55"><a href="#SatkitBaseModel.empty_str_to_none-55"><span class="linenos">55</span></a>    <span class="nd">@classmethod</span>
+</span><span id="SatkitBaseModel.empty_str_to_none-56"><a href="#SatkitBaseModel.empty_str_to_none-56"><span class="linenos">56</span></a>    <span class="k">def</span> <span class="nf">empty_str_to_none</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">input_string</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+</span><span id="SatkitBaseModel.empty_str_to_none-57"><a href="#SatkitBaseModel.empty_str_to_none-57"><span class="linenos">57</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+</span><span id="SatkitBaseModel.empty_str_to_none-58"><a href="#SatkitBaseModel.empty_str_to_none-58"><span class="linenos">58</span></a><span class="sd">        Validate empty strings to None, but non-empties to themselves.</span>
+</span><span id="SatkitBaseModel.empty_str_to_none-59"><a href="#SatkitBaseModel.empty_str_to_none-59"><span class="linenos">59</span></a>
+</span><span id="SatkitBaseModel.empty_str_to_none-60"><a href="#SatkitBaseModel.empty_str_to_none-60"><span class="linenos">60</span></a><span class="sd">        Parameters</span>
+</span><span id="SatkitBaseModel.empty_str_to_none-61"><a href="#SatkitBaseModel.empty_str_to_none-61"><span class="linenos">61</span></a><span class="sd">        ----------</span>
+</span><span id="SatkitBaseModel.empty_str_to_none-62"><a href="#SatkitBaseModel.empty_str_to_none-62"><span class="linenos">62</span></a><span class="sd">        input_string : str</span>
+</span><span id="SatkitBaseModel.empty_str_to_none-63"><a href="#SatkitBaseModel.empty_str_to_none-63"><span class="linenos">63</span></a><span class="sd">            String to be validated.</span>
+</span><span id="SatkitBaseModel.empty_str_to_none-64"><a href="#SatkitBaseModel.empty_str_to_none-64"><span class="linenos">64</span></a>
+</span><span id="SatkitBaseModel.empty_str_to_none-65"><a href="#SatkitBaseModel.empty_str_to_none-65"><span class="linenos">65</span></a><span class="sd">        Returns</span>
+</span><span id="SatkitBaseModel.empty_str_to_none-66"><a href="#SatkitBaseModel.empty_str_to_none-66"><span class="linenos">66</span></a><span class="sd">        -------</span>
+</span><span id="SatkitBaseModel.empty_str_to_none-67"><a href="#SatkitBaseModel.empty_str_to_none-67"><span class="linenos">67</span></a><span class="sd">        Optional[str]</span>
+</span><span id="SatkitBaseModel.empty_str_to_none-68"><a href="#SatkitBaseModel.empty_str_to_none-68"><span class="linenos">68</span></a><span class="sd">            None for empty string, otherwise the string itself.</span>
+</span><span id="SatkitBaseModel.empty_str_to_none-69"><a href="#SatkitBaseModel.empty_str_to_none-69"><span class="linenos">69</span></a><span class="sd">        &quot;&quot;&quot;</span>
+</span><span id="SatkitBaseModel.empty_str_to_none-70"><a href="#SatkitBaseModel.empty_str_to_none-70"><span class="linenos">70</span></a>        <span class="k">if</span> <span class="n">input_string</span> <span class="o">==</span> <span class="s1">&#39;&#39;</span><span class="p">:</span>
+</span><span id="SatkitBaseModel.empty_str_to_none-71"><a href="#SatkitBaseModel.empty_str_to_none-71"><span class="linenos">71</span></a>            <span class="n">input_string</span> <span class="o">=</span> <span class="kc">None</span>
+</span><span id="SatkitBaseModel.empty_str_to_none-72"><a href="#SatkitBaseModel.empty_str_to_none-72"><span class="linenos">72</span></a>        <span class="k">return</span> <span class="n">input_string</span>
 </span></pre></div>
 
 
@@ -294,38 +294,38 @@ String to be validated.</li>
 
 
                             </div>
-                            <div id="EmptyStrAsNoneBaseModel.model_config" class="classattr">
+                            <div id="SatkitBaseModel.model_config" class="classattr">
                                 <div class="attr variable">
             <span class="name">model_config</span>        =
 <span class="default_value">{}</span>
 
         
     </div>
-    <a class="headerlink" href="#EmptyStrAsNoneBaseModel.model_config"></a>
+    <a class="headerlink" href="#SatkitBaseModel.model_config"></a>
     
     
 
                             </div>
-                            <div id="EmptyStrAsNoneBaseModel.model_fields" class="classattr">
+                            <div id="SatkitBaseModel.model_fields" class="classattr">
                                 <div class="attr variable">
             <span class="name">model_fields</span>        =
 <span class="default_value">{}</span>
 
         
     </div>
-    <a class="headerlink" href="#EmptyStrAsNoneBaseModel.model_fields"></a>
+    <a class="headerlink" href="#SatkitBaseModel.model_fields"></a>
     
     
 
                             </div>
-                            <div id="EmptyStrAsNoneBaseModel.model_computed_fields" class="classattr">
+                            <div id="SatkitBaseModel.model_computed_fields" class="classattr">
                                 <div class="attr variable">
             <span class="name">model_computed_fields</span>        =
 <span class="default_value">{}</span>
 
         
     </div>
-    <a class="headerlink" href="#EmptyStrAsNoneBaseModel.model_computed_fields"></a>
+    <a class="headerlink" href="#SatkitBaseModel.model_computed_fields"></a>
     
     
 
@@ -334,32 +334,32 @@ String to be validated.</li>
                                 <h5>Inherited Members</h5>
                                 <dl>
                                     <div><dt>pydantic.main.BaseModel</dt>
-                                <dd id="EmptyStrAsNoneBaseModel.__init__" class="function">BaseModel</dd>
-                <dd id="EmptyStrAsNoneBaseModel.model_extra" class="variable">model_extra</dd>
-                <dd id="EmptyStrAsNoneBaseModel.model_fields_set" class="variable">model_fields_set</dd>
-                <dd id="EmptyStrAsNoneBaseModel.model_construct" class="function">model_construct</dd>
-                <dd id="EmptyStrAsNoneBaseModel.model_copy" class="function">model_copy</dd>
-                <dd id="EmptyStrAsNoneBaseModel.model_dump" class="function">model_dump</dd>
-                <dd id="EmptyStrAsNoneBaseModel.model_dump_json" class="function">model_dump_json</dd>
-                <dd id="EmptyStrAsNoneBaseModel.model_json_schema" class="function">model_json_schema</dd>
-                <dd id="EmptyStrAsNoneBaseModel.model_parametrized_name" class="function">model_parametrized_name</dd>
-                <dd id="EmptyStrAsNoneBaseModel.model_post_init" class="function">model_post_init</dd>
-                <dd id="EmptyStrAsNoneBaseModel.model_rebuild" class="function">model_rebuild</dd>
-                <dd id="EmptyStrAsNoneBaseModel.model_validate" class="function">model_validate</dd>
-                <dd id="EmptyStrAsNoneBaseModel.model_validate_json" class="function">model_validate_json</dd>
-                <dd id="EmptyStrAsNoneBaseModel.model_validate_strings" class="function">model_validate_strings</dd>
-                <dd id="EmptyStrAsNoneBaseModel.dict" class="function">dict</dd>
-                <dd id="EmptyStrAsNoneBaseModel.json" class="function">json</dd>
-                <dd id="EmptyStrAsNoneBaseModel.parse_obj" class="function">parse_obj</dd>
-                <dd id="EmptyStrAsNoneBaseModel.parse_raw" class="function">parse_raw</dd>
-                <dd id="EmptyStrAsNoneBaseModel.parse_file" class="function">parse_file</dd>
-                <dd id="EmptyStrAsNoneBaseModel.from_orm" class="function">from_orm</dd>
-                <dd id="EmptyStrAsNoneBaseModel.construct" class="function">construct</dd>
-                <dd id="EmptyStrAsNoneBaseModel.copy" class="function">copy</dd>
-                <dd id="EmptyStrAsNoneBaseModel.schema" class="function">schema</dd>
-                <dd id="EmptyStrAsNoneBaseModel.schema_json" class="function">schema_json</dd>
-                <dd id="EmptyStrAsNoneBaseModel.validate" class="function">validate</dd>
-                <dd id="EmptyStrAsNoneBaseModel.update_forward_refs" class="function">update_forward_refs</dd>
+                                <dd id="SatkitBaseModel.__init__" class="function">BaseModel</dd>
+                <dd id="SatkitBaseModel.model_extra" class="variable">model_extra</dd>
+                <dd id="SatkitBaseModel.model_fields_set" class="variable">model_fields_set</dd>
+                <dd id="SatkitBaseModel.model_construct" class="function">model_construct</dd>
+                <dd id="SatkitBaseModel.model_copy" class="function">model_copy</dd>
+                <dd id="SatkitBaseModel.model_dump" class="function">model_dump</dd>
+                <dd id="SatkitBaseModel.model_dump_json" class="function">model_dump_json</dd>
+                <dd id="SatkitBaseModel.model_json_schema" class="function">model_json_schema</dd>
+                <dd id="SatkitBaseModel.model_parametrized_name" class="function">model_parametrized_name</dd>
+                <dd id="SatkitBaseModel.model_post_init" class="function">model_post_init</dd>
+                <dd id="SatkitBaseModel.model_rebuild" class="function">model_rebuild</dd>
+                <dd id="SatkitBaseModel.model_validate" class="function">model_validate</dd>
+                <dd id="SatkitBaseModel.model_validate_json" class="function">model_validate_json</dd>
+                <dd id="SatkitBaseModel.model_validate_strings" class="function">model_validate_strings</dd>
+                <dd id="SatkitBaseModel.dict" class="function">dict</dd>
+                <dd id="SatkitBaseModel.json" class="function">json</dd>
+                <dd id="SatkitBaseModel.parse_obj" class="function">parse_obj</dd>
+                <dd id="SatkitBaseModel.parse_raw" class="function">parse_raw</dd>
+                <dd id="SatkitBaseModel.parse_file" class="function">parse_file</dd>
+                <dd id="SatkitBaseModel.from_orm" class="function">from_orm</dd>
+                <dd id="SatkitBaseModel.construct" class="function">construct</dd>
+                <dd id="SatkitBaseModel.copy" class="function">copy</dd>
+                <dd id="SatkitBaseModel.schema" class="function">schema</dd>
+                <dd id="SatkitBaseModel.schema_json" class="function">schema_json</dd>
+                <dd id="SatkitBaseModel.validate" class="function">validate</dd>
+                <dd id="SatkitBaseModel.update_forward_refs" class="function">update_forward_refs</dd>
 
             </div>
                                 </dl>
@@ -370,13 +370,13 @@ String to be validated.</li>
 <div class="attr class">
             
     <span class="def">class</span>
-    <span class="name">UpdatableBaseModel</span><wbr>(<span class="base"><a href="#EmptyStrAsNoneBaseModel">EmptyStrAsNoneBaseModel</a></span>):
+    <span class="name">UpdatableBaseModel</span><wbr>(<span class="base"><a href="#SatkitBaseModel">SatkitBaseModel</a></span>):
 
                 <label class="view-source-button" for="UpdatableBaseModel-view-source"><span>View Source</span></label>
 
     </div>
     <a class="headerlink" href="#UpdatableBaseModel"></a>
-            <div class="pdoc-code codehilite"><pre><span></span><span id="UpdatableBaseModel-75"><a href="#UpdatableBaseModel-75"><span class="linenos"> 75</span></a><span class="k">class</span> <span class="nc">UpdatableBaseModel</span><span class="p">(</span><span class="n">EmptyStrAsNoneBaseModel</span><span class="p">):</span>
+            <div class="pdoc-code codehilite"><pre><span></span><span id="UpdatableBaseModel-75"><a href="#UpdatableBaseModel-75"><span class="linenos"> 75</span></a><span class="k">class</span> <span class="nc">UpdatableBaseModel</span><span class="p">(</span><span class="n">SatkitBaseModel</span><span class="p">):</span>
 </span><span id="UpdatableBaseModel-76"><a href="#UpdatableBaseModel-76"><span class="linenos"> 76</span></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 </span><span id="UpdatableBaseModel-77"><a href="#UpdatableBaseModel-77"><span class="linenos"> 77</span></a><span class="sd">    A BaseModel which can be updated with new data.</span>
 </span><span id="UpdatableBaseModel-78"><a href="#UpdatableBaseModel-78"><span class="linenos"> 78</span></a>
@@ -549,8 +549,8 @@ Only valid key, value pairs are accepted.</li>
                 <dd id="UpdatableBaseModel.update_forward_refs" class="function">update_forward_refs</dd>
 
             </div>
-            <div><dt><a href="#EmptyStrAsNoneBaseModel">EmptyStrAsNoneBaseModel</a></dt>
-                                <dd id="UpdatableBaseModel.empty_str_to_none" class="function"><a href="#EmptyStrAsNoneBaseModel.empty_str_to_none">empty_str_to_none</a></dd>
+            <div><dt><a href="#SatkitBaseModel">SatkitBaseModel</a></dt>
+                                <dd id="UpdatableBaseModel.empty_str_to_none" class="function"><a href="#SatkitBaseModel.empty_str_to_none">empty_str_to_none</a></dd>
 
             </div>
                                 </dl>

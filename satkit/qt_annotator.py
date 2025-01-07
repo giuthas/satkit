@@ -43,7 +43,6 @@ from pathlib import Path
 import numpy as np
 import matplotlib
 import matplotlib.pyplot as plt
-from icecream import ic
 from matplotlib.backends.backend_qt5agg import \
     FigureCanvasQTAgg as FigureCanvas
 # Plotting functions and hooks for GUI
@@ -57,7 +56,7 @@ from PyQt5.uic import loadUiType
 
 from satkit.data_structures import Session
 from satkit.configuration import (
-    Configuration, TimeseriesNormalisation
+    Configuration
 )
 from satkit.export import (
     export_aggregate_image_and_meta,
@@ -415,7 +414,6 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
         else:
             colors = None
         for i, name in enumerate(plot_modality_names):
-            ic(self.current.modalities)
             modality = self.current.modalities[name]
             plot_timeseries(
                 self.data_axes[axes_number],

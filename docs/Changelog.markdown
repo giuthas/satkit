@@ -49,6 +49,8 @@ and this project uses [Semantic Versioning](https://semver.org/spec/v2.0.0.html)
   should be fixed in 0.14.
 - SatPoint in SatGrid references the old config_dict global variable. This will
   make any calls to `SatPoint.contains` crash. This will be fixed in 0.14.
+- Not specifying ylim in GUI configuration crashes. This has already been fixed
+  in the branch that will become 0.14.
 
 ## [0.12.0] 2024-12-29
 

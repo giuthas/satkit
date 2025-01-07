@@ -78,6 +78,7 @@ from satkit.save_and_load import (
     save_recording_session, load_recording_session
 )
 from satkit.ui_callbacks import UiCallbacks
+from satkit.utility_functions import format_modality_legend
 
 # Load the GUI layout generated with QtDesigner.
 Ui_MainWindow, QMainWindow = loadUiType('satkit/gui/qt_annotator.ui')
@@ -427,11 +428,11 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
                 linestyle=(0, (i + 1, i + 1)),
                 normalise=axes_params.normalisation,
                 y_offset=i * y_offset,
-                # TODO 0.13: remove the next two. problem is how to get the
-                # labels from config. probably needs some sort of escape
-                # sequence and a compilation step in interpreting the config.
-                # this could be quite neat if any param could be used
-                sampling_step=i + 1,
+                label=format_modality_legend(
+                    modality=modality,
+                    index=i,
+                    format_string=axes_params.modality_names[i]
+                )
             )
             if axes_params.mark_peaks:
                 mark_peaks(self.data_axes[axes_number],

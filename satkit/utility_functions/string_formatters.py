@@ -34,8 +34,6 @@ String formatter functions.
 """
 from typing import Generator
 
-from icecream import ic
-
 
 def split_by(
         string: str,
@@ -70,7 +68,6 @@ def split_by(
             else:
                 result = string
                 string = ""
-        ic(result, string, directive)
         yield result, directive
 
 

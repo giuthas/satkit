@@ -70,7 +70,7 @@ class SatAnnotation(ABC):
 
         Returns
         -------
-            bool
+        bool
             True if `time` is in this Interval or at this Point.
         """
 
@@ -396,7 +396,7 @@ class SatTier(list):
 
         Returns
         -------
-            np.ndarray
+        np.ndarray
             This array contains the labels as little endian Unicode strings.
         """
         max_label = max(
@@ -419,6 +419,7 @@ class SatTier(list):
 
         Returns
         -------
+        str
             The label string.
         """
         if time < self.begin or time > self.end:
@@ -513,15 +514,17 @@ class SatGrid(OrderedDict):
 
     def get_labels(self, time_vector: np.ndarray) -> dict[str, np.ndarray]:
         """
-        Get the
+        Get the labels at the times in the `time_vector`.
 
         Parameters
         ----------
-        time_vector :
+        time_vector : np.ndarray
+            Time values to get the labels for.
 
         Returns
         -------
-
+        dict[str, np.ndarray]
+            Dictionary of the labels indexed by tier name.
         """
         labels = {}
         for tier_name in self:

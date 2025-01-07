@@ -121,7 +121,7 @@ A release of SATKIT is created as follows:
 7. Run tests.
    - These don't exist yet at the time of SATKIT 0.10.0 except as
      'rudimentary_tests.sh'.
-8. Fix any bugs that occur, run tests see that they pass, update the docs.
+8. Fix any bugs that occur, run tests to see that they pass, update the docs.
    - Check if [Changelog](Changelog.markdown) needs any final updates.
      - Check also if any of the old 'known issues' or 'bugs' got fixed.
    - Rerun doc generation if there were any changes.

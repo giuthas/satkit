@@ -429,7 +429,7 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
                 y_offset=i * y_offset,
                 label=modality.format_legend(
                     index=i,
-                    format_string=axes_params.modality_names[i]
+                    format_strings=axes_params.modality_names
                 )
             )
             if axes_params.mark_peaks:
@@ -440,16 +440,14 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
                            time_offset=zero_offset)
             self.data_axes[axes_number].set_ylabel(axes_name)
 
-        if axes_params.modality_names:
-            self.data_axes[axes_number].legend(
-                loc='upper left',
-                labels=axes_params.modality_names
-            )
-        else:
-            self.data_axes[axes_number].legend(
-                loc='upper left',
-                labels=axes_params.modalities
-            )
+        # TODO 0.13: these are in conflict with the above way of generating
+        # labels. latter is ok, but there's also a problem above if
+        # axes_params.modality_names is None.
+        # if axes_params.modality_names is None:
+        self.data_axes[axes_number].legend(
+            loc='upper left',
+            # labels=axes_params.modalities
+        )
 
     def display_exclusion(self):
         """

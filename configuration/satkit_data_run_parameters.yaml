@@ -57,8 +57,8 @@ pd_arguments:
   timesteps:
     - 1
     - 2
-    - 3
-    - 4
+#    - 3
+#    - 4
   mask_images: False
   pd_on_interpolated_data: False
   release_data_memory: True
@@ -72,8 +72,8 @@ downsample:
   match_timestep: True
   downsampling_ratios:
     - 2
-    - 3
-    - 4
+#    - 3
+#    - 4
 
 #spline_metric_arguments:
 #  'metrics':

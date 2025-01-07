@@ -52,13 +52,13 @@ data_axes:
     modalities:
       - PD l2 on RawUltrasound
       - PD l2 ts2 on RawUltrasound downsampled by 2
-      - PD l2 ts3 on RawUltrasound downsampled by 3
-      - PD l2 ts4 on RawUltrasound downsampled by 4
+#      - PD l2 ts3 on RawUltrasound downsampled by 3
+#      - PD l2 ts4 on RawUltrasound downsampled by 4
     modality_names:
       - "{metric} {sampling_rate:.2f} Hz"
       - "{metric} {sampling_rate:.2f} Hz"
-      - "{metric} {sampling_rate:.2f} Hz"
-      - "{metric} {sampling_rate:.2f} Hz"
+#      - "{metric} {sampling_rate:.2f} Hz"
+#      - "{metric} {sampling_rate:.2f} Hz"
     sharex: True
     ylim:
       - 800

@@ -40,7 +40,6 @@ from pathlib import Path
 
 import numpy as np
 import textgrids
-from icecream import ic
 
 from satkit.configuration import PathStructure
 from satkit.constants import AnnotationType
@@ -818,13 +817,12 @@ class Modality(DataContainer, OrderedDict):
                 return format_specifier.format(
                     self.metadata.__dict__[field_name])
         else:
-            ic(self.metadata)
             return self.metadata.__dict__[directive]
 
     def format_legend(
             self,
             index: int,
-            format_string: str,
+            format_strings: list[str] | None,
             delimiters: str = "{}"
     ) -> str:
         """
@@ -834,7 +832,7 @@ class Modality(DataContainer, OrderedDict):
         ----------
         index : int
             Index within the legend being created. Currently discarded.
-        format_string : str
+        format_strings : list[str]
             The combined format string.
         delimiters :
             The delimiter character(s) for the fields.
@@ -844,7 +842,11 @@ class Modality(DataContainer, OrderedDict):
         str
             The filled and formatted legend string.
         """
+        if format_strings is None:
+            return self.name
+        
         result = ""
+        format_string = format_strings[index]
         for chunk, is_directive in split_by(format_string, delimiters):
             if not is_directive:
                 result += chunk

@@ -37,7 +37,7 @@ Downsampling of metrics and possibly other timeseries data.
 import re
 import dataclasses
 
-from satkit.configuration import DataRunConfig, SearchPattern, DownsampleParams
+from satkit.configuration import DataRunConfig, DownsampleParams
 from satkit.data_structures import (
     Modality, ModalityData, ModalityMetaData, Recording, Session
 )
@@ -71,7 +71,7 @@ def downsample_modality(
     """
     data = modality.data[::downsampling_ratio]
     timevector = modality.timevector[::downsampling_ratio]
-    sampling_rate = modality.sampling_rate/downsampling_ratio
+    sampling_rate = modality.sampling_rate / downsampling_ratio
 
     modality_data = ModalityData(
         data=data, timevector=timevector, sampling_rate=sampling_rate)
@@ -109,44 +109,10 @@ def downsample_metrics(
     NotImplementedError
         For now only match_timestep = True is allowed.
     """
-    # TODO 0.13 either expose the original interface in the next function or
-    # merge it into this one
-    _downsample_metrics(
-        recording=recording,
-        modality_pattern=downsampling_parameters.modality_pattern,
-        downsampling_ratios=downsampling_parameters.downsampling_ratios,
-        match_timestep=downsampling_parameters.match_timestep)
+    modality_pattern = downsampling_parameters.modality_pattern
+    downsampling_ratios = downsampling_parameters.downsampling_ratios
+    match_timestep = downsampling_parameters.match_timestep
 
-
-def _downsample_metrics(
-        recording: Recording,
-        modality_pattern: SearchPattern,
-        downsampling_ratios: list[int],
-        match_timestep: bool = True
-) -> None:
-    """
-    Apply downsampling to Modalities matching the pattern and add them back to
-    the Recording.
-
-    Parameters
-    ----------
-    recording : Recording
-        The Recording which contains the Modalities and to which the new
-        downsampled modalities will be added.
-    modality_pattern : str
-        Simple search string to used to find the modalities.
-    downsampling_ratios : tuple[int]
-        Which downsampling ratios should be attempted. Depending on the next
-        parameter all might not actually be used.
-    match_timestep : bool, optional
-        If the timestep of the Modality to be downsampled should match the
-        downsampling_ratio, by default True
-
-    Raises
-    ------
-    NotImplementedError
-        For now only match_timestep = True is allowed.
-    """
     if modality_pattern.is_regexp:
         pattern = re.compile(modality_pattern.pattern)
         modalities = [recording[key]
@@ -169,7 +135,7 @@ def _downsample_metrics(
             metadata.is_downsampled = True
             metadata.downsampling_ratio = downsampling_ratio
             metadata.timestep_matched_downsampling = (
-                downsampling_ratio == metadata.timestep)
+                    downsampling_ratio == metadata.timestep)
             name = modality.__class__.generate_name(metadata)
             if name not in recording:
                 downsampled = downsample_modality(

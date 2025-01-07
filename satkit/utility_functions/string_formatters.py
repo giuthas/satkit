@@ -34,46 +34,39 @@ String formatter functions.
 """
 from typing import Generator
 
-from ..data_structures import Modality
 
-def _split_by(
+def split_by(
         string: str,
         delimiters: str = "{}"
-) -> Generator[(str, bool), None, None]:
+) -> Generator[tuple[str, bool], None, None]:
+    """
+    Split a string by delimiters.
+
+    No nesting of delimiters is allowed.
+
+    Parameters
+    ----------
+    string : str
+        The string to split.
+    delimiters : str
+        The delimiter(s) to split the string by, by default "{}".
+
+    Yields
+    -------
+    tuple[str, bool]
+        The next chunk and a boolean indicating if the chunk is a directive
+        string (surrounded by delimiters).
+    """
     while len(string) > 0:
         directive = string[0] == delimiters[0]
         if directive:
             result, string = string[1:].split(sep=delimiters[-1], maxsplit=1)
         else:
-            result, string = string[1:].split(sep=delimiters[0], maxsplit=1)
+            if delimiters[0] in string[1:]:
+                result, string = string[1:].split(sep=delimiters[0], maxsplit=1)
+            else:
+                result = string
+                string = ""
         yield result, directive
 
 
-def process_directive(
-        directive: str,
-        modality: Modality,
-        index: int
-) -> str:
-    field_name, format_specifier = directive.split(sep=":", maxsplit=1)
-    format_specifier = "{" + format_specifier + "}"
-    if field_name == "sampling_rate":
-        return format_specifier.format(modality.sampling_rate)
-    else:
-        return format_specifier.format(
-            modality.modality_data.__dict__[field_name])
-
-
-def format_modality_legend(
-    modality: Modality,
-    index: int,
-    format_string: str,
-    delimiters: str = "{}"
-) -> str:
-    result = ""
-    for chunk, is_directive in _split_by(format_string, delimiters):
-        if not is_directive:
-            result += chunk
-        else:
-            result += process_directive(chunk, modality, index)
-
-    return result

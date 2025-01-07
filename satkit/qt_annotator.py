@@ -78,7 +78,6 @@ from satkit.save_and_load import (
     save_recording_session, load_recording_session
 )
 from satkit.ui_callbacks import UiCallbacks
-from satkit.utility_functions import format_modality_legend
 
 # Load the GUI layout generated with QtDesigner.
 Ui_MainWindow, QMainWindow = loadUiType('satkit/gui/qt_annotator.ui')
@@ -426,10 +425,9 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
                 ylim=ylim,
                 color=colors[i],
                 linestyle=(0, (i + 1, i + 1)),
-                normalise=axes_params.normalisation,
+                normalise=axes_params.normalise,
                 y_offset=i * y_offset,
-                label=format_modality_legend(
-                    modality=modality,
+                label=modality.format_legend(
                     index=i,
                     format_string=axes_params.modality_names[i]
                 )

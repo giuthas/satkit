@@ -39,5 +39,5 @@ from .computational import (
 )
 from .logging_helpers import log_elapsed_time, set_logging_level
 from .processing_helpers import camel_to_snake, product_dict
-from .string_formatters import format_modality_legend
+from .string_formatters import split_by
 from .types import is_sequence_form

@@ -40,6 +40,7 @@ from pathlib import Path
 
 import numpy as np
 import textgrids
+from icecream import ic
 
 from satkit.configuration import PathStructure
 from satkit.constants import AnnotationType
@@ -52,6 +53,7 @@ from .metadata_classes import (
     FileInformation, ModalityData, ModalityMetaData, PointAnnotations,
     RecordingMetaData, SessionConfig
 )
+from ..utility_functions import split_by
 
 _logger = logging.getLogger('satkit.data_structures')
 
@@ -782,3 +784,73 @@ class Modality(DataContainer, OrderedDict):
         if self._metadata and self._metadata.parent_name:
             return True
         return False
+
+    def process_format_directive(
+            self,
+            directive: str,
+            index: int
+    ) -> str:
+        """
+        Process a string formatting directive.
+
+        Fills the string with requested information form this Modality.
+
+        Parameters
+        ----------
+        directive : str
+            The directive in the format "[field_name]:[format]" where field_name
+            is an accepted field name either from this Modality or its
+            metadata.
+        index : int
+            Index within the legend being created. Currently discarded.
+
+        Returns
+        -------
+        str
+            The filled and formatted string.
+        """
+        if ":" in directive:
+            field_name, format_specifier = directive.split(sep=":", maxsplit=1)
+            format_specifier = "{" + format_specifier + "}"
+            if field_name == "sampling_rate":
+                return format_specifier.format(self.sampling_rate)
+            else:
+                return format_specifier.format(
+                    self.metadata.__dict__[field_name])
+        else:
+            ic(self.metadata)
+            return self.metadata.__dict__[directive]
+
+    def format_legend(
+            self,
+            index: int,
+            format_string: str,
+            delimiters: str = "{}"
+    ) -> str:
+        """
+        Fill and format a legend string from this Modality.
+
+        Parameters
+        ----------
+        index : int
+            Index within the legend being created. Currently discarded.
+        format_string : str
+            The combined format string.
+        delimiters :
+            The delimiter character(s) for the fields.
+
+        Returns
+        -------
+        str
+            The filled and formatted legend string.
+        """
+        result = ""
+        for chunk, is_directive in split_by(format_string, delimiters):
+            if not is_directive:
+                result += chunk
+            else:
+                result += self.process_format_directive(
+                    directive=chunk, index=index)
+
+        return result
+

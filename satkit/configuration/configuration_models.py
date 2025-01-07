@@ -391,6 +391,7 @@ class AxesParams(UpdatableBaseModel):
 
     colors_in_sequence: bool = True
     mark_peaks: bool | None = None
+    normalise: TimeseriesNormalisation | None = None
     sharex: bool | None = None
     ylim: tuple[float, float] | None = None
     y_offset: float | None = None

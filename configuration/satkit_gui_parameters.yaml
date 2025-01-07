@@ -51,7 +51,14 @@ data_axes:
   PD:
     modalities:
       - PD l2 on RawUltrasound
-      - PD l2 on RawUltrasound
+      - PD l2 on RawUltrasound downsampled by 2
+      - PD l2 on RawUltrasound downsampled by 3
+      - PD l2 on RawUltrasound downsampled by 4
+    modality_names:
+      - "{norm} {sampling_rate:.2f} Hz"
+      - "{norm} {sampling_rate:.2f} Hz"
+      - "{norm} {sampling_rate:.2f} Hz"
+      - "{norm} {sampling_rate:.2f} Hz"
     sharex: True
     ylim:
       - 800

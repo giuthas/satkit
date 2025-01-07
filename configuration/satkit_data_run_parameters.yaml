@@ -51,11 +51,14 @@ aggregate_image_arguments:
   release_data_memory: True
 
 pd_arguments:
-  'norms':
+  norms:
     - 'l1'
     - 'l2'
-  'timesteps':
+  timesteps:
     - 1
+    - 2
+    - 3
+    - 4
   mask_images: False
   pd_on_interpolated_data: False
   release_data_memory: True
@@ -65,9 +68,9 @@ downsample:
   modality_pattern:
     pattern: "l[0-9]"
     is_regexp: True
+  # if this is True, then only modalities with matching timesteps will be downsampled
   match_timestep: True
   downsampling_ratios:
-    - 1
     - 2
     - 3
     - 4

@@ -440,13 +440,8 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
                            time_offset=zero_offset)
             self.data_axes[axes_number].set_ylabel(axes_name)
 
-        # TODO 0.13: these are in conflict with the above way of generating
-        # labels. latter is ok, but there's also a problem above if
-        # axes_params.modality_names is None.
-        # if axes_params.modality_names is None:
         self.data_axes[axes_number].legend(
             loc='upper left',
-            # labels=axes_params.modalities
         )
 
     def display_exclusion(self):

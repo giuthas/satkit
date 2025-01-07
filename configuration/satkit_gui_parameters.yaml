@@ -61,8 +61,8 @@ data_axes:
 #      - "{metric} {sampling_rate:.2f} Hz"
     sharex: True
     ylim:
-      - 800
-      - 1600
+      - 400
+      - 2000
   spectrogram2:
     sharex: True
   wav:

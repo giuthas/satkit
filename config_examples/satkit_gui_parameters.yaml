@@ -1,0 +1,88 @@
+##
+## Copyright (c) 2019-2024
+## Pertti Palo, Scott Moisik, Matthew Faytak, and Motoki Saito.
+##
+## This file is part of Speech Articulation ToolKIT
+## (see https://github.com/giuthas/satkit/).
+##
+## This program is free software: you can redistribute it and/or modify
+## it under the terms of the GNU General Public License as published by
+## the Free Software Foundation, either version 3 of the License, or
+## (at your option) any later version.
+##
+## This program is distributed in the hope that it will be useful,
+## but WITHOUT ANY WARRANTY; without even the implied warranty of
+## MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+## GNU General Public License for more details.
+##
+## You should have received a copy of the GNU General Public License
+## along with this program. If not, see <http://www.gnu.org/licenses/>.
+##
+## The example data packaged with this program is licensed under the
+## Creative Commons Attribution-NonCommercial-ShareAlike 4.0
+## International (CC BY-NC-SA 4.0) License. You should have received a
+## copy of the Creative Commons Attribution-NonCommercial-ShareAlike 4.0
+## International (CC BY-NC-SA 4.0) License along with the data. If not,
+## see <https://creativecommons.org/licenses/by-nc-sa/4.0/> for details.
+##
+## When using the toolkit for scientific publications, please cite the
+## articles listed in README.markdown. They can also be found in
+## citations.bib in BibTeX format.
+##
+
+# Height ratio of data display area vs textgrid tier display area. This does
+# not control directly the height of individual data displays nor individual
+# tier displays, but instead controls the ratio between the sum of data
+# displays vs sum of tier displays.
+data_and_tier_height_ratios: 
+  data: 2
+  tier: 1
+
+# Which data axes to display. Currently used only to decide the number to
+# create. Number of lines gives the number of axis, modalities on the same line
+# will be drawn on the same axes.
+general_axes_params:
+  data_axes:
+    sharex: True
+  tier_axes:
+    sharex: True
+
+data_axes:
+  PD:
+    modalities:
+      - PD l2 on RawUltrasound
+      - PD l2 ts2 on RawUltrasound downsampled by 2
+#      - PD l2 ts3 on RawUltrasound downsampled by 3
+#      - PD l2 ts4 on RawUltrasound downsampled by 4
+    modality_names:
+      - "{metric} {sampling_rate:.2f} Hz"
+      - "{metric} {sampling_rate:.2f} Hz"
+#      - "{metric} {sampling_rate:.2f} Hz"
+#      - "{metric} {sampling_rate:.2f} Hz"
+    sharex: True
+    ylim:
+      - 800
+      - 1600
+  spectrogram2:
+    sharex: True
+  wav:
+    sharex: True
+  # density:
+  #   sharex: False
+
+# Tiers drawn on the data axes. Ignored if not found.  
+pervasive_tiers:
+  - Segment
+  - Segments
+  - segment
+  - segments
+  - phoneme
+
+# Initial limits for x-axis
+#xlim:
+#  - -.25
+#  - 1.5
+auto_xlim: True
+
+# Font parameters
+default_font_size: 10

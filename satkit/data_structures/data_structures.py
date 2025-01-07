@@ -826,18 +826,21 @@ class Modality(DataContainer, OrderedDict):
             return str(self.metadata.__dict__[field_name])
         else:
             _logger.error(
-                "Field name %s not found in metadata of %s.",
+                "Field name '%s' not found in metadata of %s.",
                 field_name, self.name)
             _logger.error(
-                "Valid names are %s and sampling_rate",
-                str(self.metadata.__dict__.keys()))
+                "Valid names are\n'%s', and 'sampling_rate'.",
+                str("', '".join(list(self.metadata.__dict__.keys()))))
             _logger.error(
-                "Did you mean %s?",
-                get_close_matches(field_name, self.metadata.__dict__.keys())
+                "Did you mean '%s'?",
+                "', '".join(get_close_matches(field_name,
+                                              self.metadata.__dict__.keys()))
             )
+            # DO NOT add the field_name to the below. It is a variable read from
+            # a file and using it in an f-string is a very serious security
+            # risk.
             raise ValueError(
-                "Missing field name %s in %s and its metadata.",
-                field_name, self.name
+                f"Missing field name in {self.name} and its metadata.",
             )
 
     def format_legend(
@@ -868,7 +871,7 @@ class Modality(DataContainer, OrderedDict):
         """
         if format_strings is None:
             return self.name
-        
+
         result = ""
         format_string = format_strings[index]
         for chunk, is_directive in split_by(format_string, delimiters):
@@ -879,4 +882,3 @@ class Modality(DataContainer, OrderedDict):
                     directive=chunk, index=index)
 
         return result
-

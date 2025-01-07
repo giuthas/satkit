@@ -36,6 +36,7 @@ from __future__ import annotations
 import abc
 import logging
 from collections import OrderedDict, UserDict, UserList
+from difflib import get_close_matches
 from pathlib import Path
 
 import numpy as np
@@ -810,14 +811,34 @@ class Modality(DataContainer, OrderedDict):
         """
         if ":" in directive:
             field_name, format_specifier = directive.split(sep=":", maxsplit=1)
-            # format_specifier = "{" + format_specifier + "}"
-            if field_name == "sampling_rate":
+        else:
+            field_name = directive
+            format_specifier = None
+
+        if field_name == "sampling_rate":
+            if format_specifier is not None:
                 return format(self.sampling_rate, format_specifier)
-            else:
+            return str(self.sampling_rate)
+        elif field_name in self.metadata.__dict__:
+            if format_specifier is not None:
                 return format(
                     self.metadata.__dict__[field_name], format_specifier)
+            return str(self.metadata.__dict__[field_name])
         else:
-            return self.metadata.__dict__[directive]
+            _logger.error(
+                "Field name %s not found in metadata of %s.",
+                field_name, self.name)
+            _logger.error(
+                "Valid names are %s and sampling_rate",
+                str(self.metadata.__dict__.keys()))
+            _logger.error(
+                "Did you mean %s?",
+                get_close_matches(field_name, self.metadata.__dict__.keys())
+            )
+            raise ValueError(
+                "Missing field name %s in %s and its metadata.",
+                field_name, self.name
+            )
 
     def format_legend(
             self,
@@ -828,12 +849,15 @@ class Modality(DataContainer, OrderedDict):
         """
         Fill and format a legend string from this Modality.
 
+        If the format_strings are None, then we return the name of this
+        Modality.
+
         Parameters
         ----------
         index : int
             Index within the legend being created. Currently discarded.
         format_strings : list[str]
-            The combined format string.
+            The combined format strings for the whole plot, possibly None.
         delimiters :
             The delimiter character(s) for the fields.
 

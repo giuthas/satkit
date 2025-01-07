@@ -420,6 +420,10 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
                 linestyle=(0, (i + 1, i + 1)),
                 normalise=TimeseriesNormalisation(peak=False, bottom=False),
                 y_offset=i * y_offset,
+                # TODO 0.13: remove the next two. problem is how to get the
+                # labels from config. probably needs some sort of escape
+                # sequence and a compilation step in interpreting the config.
+                # this could be quite neat if any param could be used
                 sampling_step=i + 1,
                 label=f"{modality.sampling_rate / (i + 1):.2f} Hz"
             )

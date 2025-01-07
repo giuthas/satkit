@@ -117,6 +117,7 @@ class SatPoint(SatAnnotation):
         self._time = time
 
     def contains(self, time: float) -> bool:
+        # TODO 0.14: Fix this.
         epsilon = config_dict['epsilon']
         if self._time - epsilon < time < self._time + epsilon:
             return True

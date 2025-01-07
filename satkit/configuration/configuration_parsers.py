@@ -327,11 +327,14 @@ def load_gui_params(filepath: Path | str | None = None) -> YAML:
 
     _logger.info("Loading GUI configuration from %s", str(filepath))
 
+    # TODO 0.14: make sure that normalise gets included here and in config
+    # models.
     axes_params_dict = {
         Optional(
             "colors_in_sequence", default=True): Bool(),
-        Optional("sharex"): Bool(),
+        Optional("legend"): Bool(),
         Optional("mark_peaks"): Bool(),
+        Optional("sharex"): Bool(),
         Optional("ylim"): FixedSeq([Float(), Float()]),
         Optional("y_offset"): Float(),
     }

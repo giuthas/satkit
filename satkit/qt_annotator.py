@@ -438,9 +438,10 @@ class PdQtAnnotator(QMainWindow, Ui_MainWindow):
                            time_offset=zero_offset)
             self.data_axes[axes_number].set_ylabel(axes_name)
 
-        self.data_axes[axes_number].legend(
-            loc='upper left',
-        )
+        if axes_params.legend:
+            self.data_axes[axes_number].legend(
+                loc='upper left',
+            )
 
     def display_exclusion(self):
         """

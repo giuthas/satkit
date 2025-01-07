@@ -390,6 +390,7 @@ class AxesParams(UpdatableBaseModel):
     # the corresponding yaml files
 
     colors_in_sequence: bool = True
+    legend: bool = True
     mark_peaks: bool | None = None
     normalise: TimeseriesNormalisation | None = None
     sharex: bool | None = None

@@ -110,10 +110,14 @@ A release of SATKIT is created as follows:
    - You can save a bit of work by keeping this branch only local unless the 
      release does not get done in one working session. 
 5. Merge `main` to the release branch (not the other way around).
-6. Check that conda environments are up-to-date. It is especially possible that
-   satkit-stable is neither up to date with satkit-devel, nor tested.
-   - While we are in the time before 1.0, satkit-stable most likely does not
-     work.
+6. Check that installation works:
+   - This used to mean checking that conda environments are up-to-date. 
+     - It is especially possible that satkit-stable is neither up to date with
+       satkit-devel, nor tested.
+     - While we are in the time before 1.0, satkit-stable most likely does not
+       work. 
+   - This will soon mean checking that running with uv works and what ever
+     can be done to check that installing with uv works.
 7. Run tests.
    - These don't exist yet at the time of SATKIT 0.10.0 except as
      'rudimentary_tests.sh'.

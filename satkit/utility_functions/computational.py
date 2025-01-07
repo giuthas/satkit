@@ -33,8 +33,6 @@
 Computation helper functions.
 """
 
-from typing import Optional
-
 import numpy as np
 
 from satkit.configuration import TimeseriesNormalisation
@@ -42,7 +40,7 @@ from satkit.configuration import TimeseriesNormalisation
 
 def normalise_timeseries(
         data: np.ndarray,
-        normalisation: Optional[TimeseriesNormalisation]) -> np.ndarray:
+        normalisation: TimeseriesNormalisation | None = None) -> np.ndarray:
     """
     Apply the specified normalisation to the data and return it. 
 
@@ -59,7 +57,7 @@ def normalise_timeseries(
         Normalised data. Defaults to original data if no normalisation is
         either specified or the normalisation argument is None.
     """
-    if normalisation:
+    if normalisation is not None:
         if normalisation.bottom:
             data = data - np.min(data)
         if normalisation.peak:

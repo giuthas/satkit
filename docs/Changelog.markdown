@@ -40,11 +40,12 @@ and this project uses [Semantic Versioning](https://semver.org/spec/v2.0.0.html)
 
 ### Added
 
--
+- Downsampling of derived modalities.
+- Modality legend names and formatting from config.
 
 ### Changed
 
--
+- 
 
 ## [0.12.0] 2024-12-29
 
